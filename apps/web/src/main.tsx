@@ -842,12 +842,30 @@ async function boot(): Promise<void> {
 			/** One enemy of every type in a row 5 u in front of the hero: the horde, VAT included, in a single frame. */
 			spawnLineup: () => {
 				const count = enemyIds.length;
+				const spacing = 2.2;
+				const free = (row: number): boolean => {
+					for (let type = 0; type < count; type++) {
+						const x = (Position.x[hero] ?? 0) + (type - (count - 1) / 2) * spacing;
+						// 3.2 u around each slot clears the prop and the tall props that would hide it from the camera.
+						if (session.propCollision.overlaps(origin, x, (Position.z[hero] ?? 0) + row, 3.2))
+							return false;
+					}
+					return true;
+				};
+				// The first row 4 to 20 u ahead with no prop near any slot; the nearest row if every one is crowded.
+				let row = 5;
+				for (let candidate = 4; candidate <= 20; candidate += 1) {
+					if (free(candidate)) {
+						row = candidate;
+						break;
+					}
+				}
 				for (let type = 0; type < count; type++) {
 					spawn.spawnEnemy(
 						world,
 						type,
-						(Position.x[hero] ?? 0) + (type - (count - 1) / 2) * 2.2,
-						(Position.z[hero] ?? 0) + 5,
+						(Position.x[hero] ?? 0) + (type - (count - 1) / 2) * spacing,
+						(Position.z[hero] ?? 0) + row,
 					);
 				}
 			},
