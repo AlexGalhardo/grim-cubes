@@ -5,5 +5,6 @@
 	"chunksPerStep": 2,
 	"poolSize": 81,
 	"originShiftThreshold": 1024,
-	"maxPropsPerChunk": 32
+	"maxPropsPerChunk": 32,
+	"hordeRenderSlack": 20
 }

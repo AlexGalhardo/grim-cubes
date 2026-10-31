@@ -1,5 +1,7 @@
 export type { RenderEngine } from "./engine";
 export { createEngine, createNullEngine, EngineUnavailableError } from "./engine";
+export type { HordeOptions, HordeRenderer, HordeType } from "./horde/hordeRenderer";
+export { createHordeRenderer } from "./horde/hordeRenderer";
 export { createRenderPort } from "./port";
 export { CAMERA } from "./scene/camera";
 export { LIGHTING, PALETTE } from "./scene/palette";

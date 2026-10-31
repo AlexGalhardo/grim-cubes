@@ -11,7 +11,8 @@
 		"chunksPerStep",
 		"poolSize",
 		"originShiftThreshold",
-		"maxPropsPerChunk"
+		"maxPropsPerChunk",
+		"hordeRenderSlack"
 	],
 	"properties": {
 		"chunkSize": { "type": "integer", "minimum": 1, "description": "Chunk edge in world units." },
@@ -40,6 +41,11 @@
 			"type": "integer",
 			"minimum": 1,
 			"description": "Fixed capacity of the prop list in each ChunkData (SDD 03 §2.1 allows up to 26)."
+		},
+		"hordeRenderSlack": {
+			"type": "integer",
+			"minimum": 0,
+			"description": "Extra instance capacity per enemy type on top of the simultaneous-enemy cap (rounds.json maxSimultaneous), also the death-ghost capacity."
 		}
 	}
 }
