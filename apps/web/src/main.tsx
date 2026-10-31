@@ -1759,6 +1759,13 @@ async function boot(): Promise<void> {
 					KnockbackResist.value[e] = 1;
 					return e;
 				};
+				if (kind.startsWith("slash")) {
+					// "slash:<reach>": a swing to the right with that reach and enemies at 2.3 u, 3.1 u and 4 u on the arc.
+					const reach = Number(kind.slice(6)) || 3.25;
+					for (const d of [2.3, 3.1, 4]) spawnNear(d, 0);
+					events.push(EventType.Swung, 1, 0, reach, hero);
+					return;
+				}
 				if (kind === "bleed" || kind === "thorns") {
 					const list = [spawnNear(2, 0), spawnNear(-2, 1), spawnNear(0, -2)];
 					if (kind === "bleed") {

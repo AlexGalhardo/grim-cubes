@@ -15,6 +15,7 @@ import {
 	queryBleeding,
 	renderData,
 	roundsData,
+	weaponsData,
 } from "@gc/game";
 import { CAMERA } from "../scene/camera";
 import { PALETTE } from "../scene/palette";
@@ -22,6 +23,7 @@ import type { GameScene } from "../scene/scene";
 import { createDecalPool, type DecalPool } from "./decals";
 import { createDamageNumbers, type DamageNumbers } from "./digits";
 import { createParticlePool, type ParticlePool } from "./particles";
+import { createSlash, type Slash } from "./slash";
 import { createTelegraph, type Telegraph } from "./telegraph";
 import { createZones, type Zones } from "./zones";
 
@@ -48,6 +50,8 @@ const EXECUTION_CUBES = 12;
 const BLEED_DRIPS_PER_SECOND = 6;
 const BLEED_DRIPS_PER_FRAME = 16;
 const THORN_SPIKES = 6;
+/** Cutting-arc width when the starting weapon has none in data (degrees). */
+const SLASH_FALLBACK_ARC = 120;
 const PROPS_PER_BIOME = 10;
 /** A blood drip that lands leaves a decal this big (u). */
 const MICRO_DECAL_SIZE = 0.25;
@@ -94,6 +98,7 @@ export interface Vfx {
 	readonly decals: DecalPool;
 	readonly numbers: DamageNumbers;
 	readonly telegraph: Telegraph;
+	readonly slash: Slash;
 	readonly zones: Zones;
 	/** `speedMult` of the elite modifiers the boss carries (the Swift one): the charge line grows with it. */
 	setBossSpeedMult(mult: number): void;
@@ -133,6 +138,10 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 	});
 
 	const telegraph = createTelegraph(game);
+	const slash = createSlash(
+		game,
+		weaponsData.find((w) => w.id === heroData.startingWeapon)?.arcDegrees ?? SLASH_FALLBACK_ARC,
+	);
 	const zones = createZones(game);
 	let bossSpeedMult = 1;
 	/** Pattern index of the last BossPattern event per entity. */
@@ -236,6 +245,7 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 		decals,
 		numbers,
 		telegraph,
+		slash,
 		zones,
 		setBossSpeedMult(mult): void {
 			bossSpeedMult = mult;
@@ -418,6 +428,9 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 						false,
 					);
 				}
+			} else if (type === EventType.Swung) {
+				// a, b = direction, c = the reach of the weapon now (tier included): the arc is as long as the damage.
+				slash.fire(game.hero.position.x, game.hero.position.z, a, b, c);
 			} else if (type === EventType.BossBomb) {
 				const bomb = bossesData
 					.flatMap((boss) => boss.patterns)
@@ -487,6 +500,7 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 				}
 			}
 			telegraph.update(dt);
+			slash.update(dt);
 			zones.update(dt);
 			pulse = Math.max(0, pulse - (config.vignetteHit / config.vignetteSeconds) * dt);
 			clock += dt;

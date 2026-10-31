@@ -134,3 +134,28 @@ describe("boss rigs", () => {
 		dispose();
 	});
 });
+
+it("grows the hero's weapon with the reach a swing reports, never below its own size", () => {
+	const { engine, dispose } = createNullEngine();
+	const game = createGameScene(engine);
+	const setWeaponScale = vi.fn();
+	const hero = {
+		setPose: vi.fn(),
+		setSpeed: vi.fn(),
+		setVisible: vi.fn(),
+		update: vi.fn(),
+		playOnce: vi.fn(),
+		setWeaponScale,
+	};
+	const characters = createCharacters(game, {
+		hero: hero as unknown as Character,
+		bosses: [],
+		executionZoom: 0.2,
+		executionSeconds: 1.5,
+	});
+	characters.onEvent(EventType.Swung, 0, 1, 3.4, 0);
+	expect(setWeaponScale).toHaveBeenLastCalledWith(2);
+	characters.onEvent(EventType.Swung, 0, 1, 1, 0);
+	expect(setWeaponScale).toHaveBeenLastCalledWith(1);
+	dispose();
+});

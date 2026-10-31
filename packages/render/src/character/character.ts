@@ -44,6 +44,8 @@ export interface Character {
 	socket(name: string): TransformNode | null;
 	/** Parents a weapon mesh to `weapon_socket`; null detaches the current one. */
 	attachWeapon(mesh: AbstractMesh | null): void;
+	/** Uniform scale of the attached weapon (a longer reach swings a longer blade). */
+	setWeaponScale(scale: number): void;
 	/** Multiplies the model colour by `hex` on a private copy of its material (cosmetic skins). */
 	setTint(hex: string): void;
 	setVisible(visible: boolean): void;
@@ -213,6 +215,9 @@ export async function loadCharacter(
 		},
 		socket(name): TransformNode | null {
 			return sockets.get(name) ?? null;
+		},
+		setWeaponScale(scale): void {
+			weapon?.scaling.setAll(scale);
 		},
 		attachWeapon(mesh): void {
 			if (weapon) weapon.parent = null;

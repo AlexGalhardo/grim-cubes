@@ -40,7 +40,7 @@ const LAYER = 0.03;
 const MIN_ALPHA = 0.15;
 const MAX_ALPHA = 0.6;
 
-function fanMesh(scene: GameScene["scene"], name: string, halfAngle: number): Mesh {
+export function fanMesh(scene: GameScene["scene"], name: string, halfAngle: number): Mesh {
 	const mesh = new Mesh(name, scene);
 	const positions = new Float32Array((ARC_SEGMENTS + 2) * 3);
 	const indices = new Uint32Array(ARC_SEGMENTS * 3);
