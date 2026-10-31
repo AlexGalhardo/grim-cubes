@@ -1,0 +1,12 @@
+{
+	"audio": { "sfx": 54, "music": 9, "voice": 15 },
+	"tests": {
+		"packages/core": 48,
+		"packages/game": 279,
+		"packages/platform": 16,
+		"packages/render": 124,
+		"packages/ui": 41,
+		"apps": 13,
+		"tools": 120
+	}
+}
