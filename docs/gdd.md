@@ -176,7 +176,7 @@ O anel 3 repete-se ao infinito (mais escuro, com variação de props). Biomas af
 
 ### 6.4 Spawn
 
-- Inimigos nascem fora da tela, num anel de 22–30 u do herói, em ângulo aleatório, com viés de 60% para a direção oposta ao movimento do herói (sensação de "cercado").
+- Inimigos nascem fora da tela, num anel de 22–30 u do herói, em ângulo aleatório, com viés: 60% dos spawns sorteados no hemisfério oposto ao movimento do herói e 40% uniformes (≈ 80% no hemisfério oposto no total) (sensação de "cercado").
 - Spawn em rajadas: a cada 1,5 s nos rounds iniciais, caindo para 0,6 s no round 20+ (ver §13).
 - Cap de inimigos simultâneos: 100 (baseline Brotato). Se o cap for atingido, o próximo spawn mata o inimigo comum mais distante sem drop.
 
