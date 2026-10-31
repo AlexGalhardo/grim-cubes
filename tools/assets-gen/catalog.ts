@@ -210,6 +210,37 @@ const matriarch = biped({
 	],
 });
 
+/** The Forgemaster (round 30): a hulking smith in black iron with a hammer and a furnace glow. */
+const forgemaster = biped({
+	name: "forgemaster",
+	category: "bosses",
+	texture: 64,
+	legH: 100,
+	legW: 44,
+	legD: 44,
+	hipX: 32,
+	torsoH: 130,
+	torsoW: 130,
+	torsoD: 80,
+	headW: 56,
+	headH: 56,
+	headD: 56,
+	armW: 40,
+	armLen: 120,
+	socket: "hit_socket",
+	colors: { legs: "ironDark", torso: "iron", arms: "ironDark", head: "iron" },
+	extraGroups: [{ name: "hammer", parent: "arm_r", origin: [90, 250 - 120, 0] }],
+	extraParts: [
+		box("head", "emberLight", 62, 10, 62, 0, 100 + 130 + 46, 0),
+		box("body", "rust", 134, 22, 84, 0, 100 + 100, 0),
+		box("body", "emberLight", 40, 30, 6, 0, 100 + 60, 42),
+		box("arm_l", "rust", 60, 26, 60, -95, 250 - 26, 0),
+		box("arm_r", "rust", 60, 26, 60, 95, 250 - 26, 0),
+		box("hammer", "ironDark", 10, 140, 10, 90, 250 - 120 - 40, 36),
+		box("hammer", "iron", 70, 56, 56, 90, 250 - 120 - 100, 36),
+	],
+});
+
 /** Enemies 3 to 8 (A-02-02b): the husk rig re-proportioned per sizeClass in data/enemies.json, four colours each. */
 const newEnemy = (
 	name: string,
@@ -508,6 +539,7 @@ export function buildCatalog(): CatalogEntry[] {
 		gravedigger,
 		merchant,
 		matriarch,
+		forgemaster,
 		...newEnemies,
 		...props,
 		...biomeProps,
