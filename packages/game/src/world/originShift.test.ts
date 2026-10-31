@@ -46,10 +46,14 @@ function walk(distance: number, steps = Math.ceil(distance / SPEED)): Run {
 		PrevPosition.x[hero] = Position.x[hero] ?? 0;
 		Position.x[hero] = (Position.x[hero] ?? 0) + SPEED;
 
-		const bodyBefore = bodyProps.map((p) => (Position.x[p] ?? 0) - (Position.x[hero] ?? 0));
-		const chunkBefore = chunkProps.map((p) => p.x - origin.x - (Position.x[hero] ?? 0));
+		// Snapshots are only taken on steps that will shift: 50k steps of map() calls made this test slow and flaky.
+		const willShift = Math.abs(Position.x[hero] ?? 0) > config.originShiftThreshold;
+		const bodyBefore = willShift
+			? bodyProps.map((p) => (Position.x[p] ?? 0) - (Position.x[hero] ?? 0))
+			: [];
+		const chunkBefore = willShift ? chunkProps.map((p) => p.x - origin.x - (Position.x[hero] ?? 0)) : [];
 		const heroAbsBefore = origin.x + (Position.x[hero] ?? 0);
-		const bodyAbsBefore = bodyProps.map((p) => origin.x + (Position.x[p] ?? 0));
+		const bodyAbsBefore = willShift ? bodyProps.map((p) => origin.x + (Position.x[p] ?? 0)) : [];
 
 		if (applyOriginShift(world, origin, hero, events, config)) {
 			shifts++;
