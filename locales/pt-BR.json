@@ -227,5 +227,6 @@
 	"menu.options": "Opções",
 	"menu.records": "Recordes",
 	"menu.recordRound": "Round {round}",
-	"menu.noRecord": "-"
+	"menu.noRecord": "-",
+	"options.telemetry": "Compartilhar dados de uso anônimos (desligado por padrão)"
 }

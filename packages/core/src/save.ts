@@ -1,4 +1,4 @@
-export const SAVE_SCHEMA_VERSION = 3;
+export const SAVE_SCHEMA_VERSION = 4;
 export const SAVE_APP = "grim-cubes";
 /** Upper bound on any counter read from a save; far above a real run, low enough to reject garbage. */
 const MAX_COUNTER = 1_000_000_000;
@@ -22,6 +22,8 @@ export interface Settings {
 	locale: SettingsLocale;
 	/** Simulation speed for testing: 1, 2 or 3 steps of game time per real step. */
 	gameSpeed: 1 | 2 | 3;
+	/** Opt-in telemetry (A-06-04); off unless the player turns it on. */
+	telemetry: boolean;
 }
 
 export function createSettings(): Settings {
@@ -31,6 +33,7 @@ export function createSettings(): Settings {
 		screenShake: true,
 		locale: "pt-BR",
 		gameSpeed: 1,
+		telemetry: false,
 	};
 }
 
@@ -135,6 +138,9 @@ function validateSettings(raw: unknown): Settings {
 	const speed = raw.gameSpeed === undefined ? 1 : raw.gameSpeed;
 	if (speed !== 1 && speed !== 2 && speed !== 3)
 		throw new SaveError("settings.gameSpeed must be 1, 2 or 3");
+	// Absent before schema 4: off.
+	const telemetry = raw.telemetry === undefined ? false : raw.telemetry;
+	if (typeof telemetry !== "boolean") throw new SaveError("settings.telemetry must be a boolean");
 	return {
 		preset: raw.preset,
 		volume: {
@@ -145,6 +151,7 @@ function validateSettings(raw: unknown): Settings {
 		screenShake: raw.screenShake,
 		locale: raw.locale as SettingsLocale,
 		gameSpeed: speed,
+		telemetry,
 	};
 }
 
@@ -198,19 +205,18 @@ export function validateMeta(raw: unknown): MetaState {
 	};
 }
 
-/**
- * Parses and verifies a save: JSON, envelope, schema version, checksum, then field validation.
- * Schema 1 saves load with default settings (the checksum rule above); later migrations would chain here.
- */
+/** The data as an older schema's checksum saw it: schema 1 had no `settings`, 2 no `gameSpeed`, 3 no `telemetry`. */
 function coveredBy(version: number, data: MetaState): unknown {
 	if (version < 2) return (({ settings: _settings, ...rest }) => rest)(data);
-	if (version < 3) {
-		const { gameSpeed: _speed, ...settings } = data.settings;
-		return { ...data, settings };
-	}
-	return data;
+	if (version >= 4) return data;
+	const { gameSpeed, telemetry: _telemetry, ...rest } = data.settings;
+	return { ...data, settings: version < 3 ? rest : { ...rest, gameSpeed } };
 }
 
+/**
+ * Parses and verifies a save: JSON, envelope, schema version, checksum, then field validation.
+ * Older schemas load with the defaults of the settings they lacked (see `coveredBy`); later migrations would chain here.
+ */
 export async function parseSave(text: string): Promise<MetaState> {
 	if (text.length > MAX_SAVE_BYTES) throw new SaveError("save is too large");
 	let envelope: unknown;
@@ -228,7 +234,7 @@ export async function parseSave(text: string): Promise<MetaState> {
 		throw new SaveError("save was written by a newer version", "newer");
 	if (envelope.schemaVersion < 1) throw new SaveError("unsupported schemaVersion");
 	const data = validateMeta(envelope.data);
-	// An older checksum covers the data as it was then: schema 1 without `settings`, schema 2 without `gameSpeed`.
+	// An older checksum covers the data as it was then: schema 1 without `settings`, schema 2 without `gameSpeed`, schema 3 without `telemetry`.
 	const covered = coveredBy(envelope.schemaVersion, data);
 	if (envelope.checksum !== (await sha256(JSON.stringify(covered))))
 		throw new SaveError("checksum mismatch");

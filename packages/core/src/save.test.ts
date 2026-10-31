@@ -21,11 +21,11 @@ const meta = () => {
 	return m;
 };
 
-test("a save round-trips and uses schemaVersion 3", async () => {
+test("a save round-trips and uses schemaVersion 4", async () => {
 	const text = await serializeSave(meta(), "0.1.0", new Date("2026-10-31T12:00:00Z"));
 	const envelope = JSON.parse(text) as { schemaVersion: number; app: string; savedAt: string };
-	expect(envelope.schemaVersion).toBe(3);
-	expect(SAVE_SCHEMA_VERSION).toBe(3);
+	expect(envelope.schemaVersion).toBe(4);
+	expect(SAVE_SCHEMA_VERSION).toBe(4);
 	expect(envelope.app).toBe("grim-cubes");
 	expect(envelope.savedAt).toBe("2026-10-31T12:00:00.000Z");
 	expect(await parseSave(text)).toEqual(meta());
@@ -72,7 +72,7 @@ test("untrusted fields are validated", async () => {
 test("a save from another app or a newer schema is refused", async () => {
 	const base = JSON.parse(await serializeSave(meta(), "0.1.0")) as Record<string, unknown>;
 	await expect(parseSave(JSON.stringify({ ...base, app: "other" }))).rejects.toBeInstanceOf(SaveError);
-	await expect(parseSave(JSON.stringify({ ...base, schemaVersion: 4 }))).rejects.toThrow("newer version");
+	await expect(parseSave(JSON.stringify({ ...base, schemaVersion: 5 }))).rejects.toThrow("newer version");
 });
 
 test("size, list and key limits protect the parser", async () => {
@@ -142,7 +142,7 @@ test("a schema 2 save loads at normal speed and a speed outside 1..3 is refused"
 		checksum: string;
 		data: { settings: Record<string, unknown> };
 	};
-	const { gameSpeed: _speed, ...oldSettings } = current.data.settings;
+	const { gameSpeed: _speed, telemetry: _telemetry, ...oldSettings } = current.data.settings;
 	const oldData = { ...current.data, settings: oldSettings };
 	const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(JSON.stringify(oldData)));
 	const checksum = `sha256-${[...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("")}`;
@@ -154,4 +154,24 @@ test("a schema 2 save loads at normal speed and a speed outside 1..3 is refused"
 	expect(
 		validateMeta({ ...current.data, settings: { ...createSettings(), gameSpeed: 3 } }).settings.gameSpeed,
 	).toBe(3);
+});
+
+test("a schema 3 save loads with telemetry off and telemetry must be a boolean", async () => {
+	const current = JSON.parse(await serializeSave(meta(), "0.1.0")) as {
+		checksum: string;
+		data: { settings: Record<string, unknown> };
+	};
+	const { telemetry: _telemetry, ...v3Settings } = current.data.settings;
+	const v3Data = { ...current.data, settings: v3Settings };
+	const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(JSON.stringify(v3Data)));
+	const checksum = `sha256-${[...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("")}`;
+	const v3 = JSON.stringify({ ...current, schemaVersion: 3, checksum, data: v3Data });
+	expect((await parseSave(v3)).settings.telemetry).toBe(false);
+	expect(() =>
+		validateMeta({ ...current.data, settings: { ...createSettings(), telemetry: "yes" } }),
+	).toThrow(SaveError);
+	expect(
+		validateMeta({ ...current.data, settings: { ...createSettings(), telemetry: true } }).settings
+			.telemetry,
+	).toBe(true);
 });

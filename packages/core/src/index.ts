@@ -37,3 +37,12 @@ export type { SpatialHash, SpatialHashOptions } from "./spatial";
 export { createSpatialHash } from "./spatial";
 export type { Store } from "./store";
 export { createStore } from "./store";
+export type {
+	Telemetry,
+	TelemetryEvent,
+	TelemetryEventName,
+	TelemetryOptions,
+	TelemetryProps,
+	TelemetrySink,
+} from "./telemetry";
+export { consoleSink, createTelemetry, noopSink, TELEMETRY_EVENTS } from "./telemetry";
