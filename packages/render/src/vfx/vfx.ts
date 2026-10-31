@@ -270,6 +270,21 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 					zones.pool(a, b, num("radius", 2.5), c);
 				} else if (pattern?.id === "scream") {
 					zones.ring(bossX, bossZ, num("radius", 6), c);
+				} else if (pattern?.id === "chain_shot") {
+					// The first volley fires `directions` shots evenly spread from the telegraph direction (bossPatterns.ts).
+					const directions = Math.max(1, Math.round(num("directions", 4)));
+					const base = Math.atan2(a, b);
+					for (let i = 0; i < directions; i++) {
+						const angle = base + (i / directions) * Math.PI * 2;
+						telegraph.line(
+							entity,
+							Math.sin(angle),
+							Math.cos(angle),
+							c,
+							num("range", 18),
+							num("projectileRadius", 0.35) * 2,
+						);
+					}
 				} else if (pattern?.id === "hammer_shockwave") {
 					zones.pool(bossX, bossZ, num("radius", 7), c);
 				}

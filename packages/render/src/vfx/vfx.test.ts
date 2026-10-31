@@ -552,3 +552,20 @@ describe("breakables and consumables", () => {
 		dispose();
 	});
 });
+
+describe("chain shot telegraph", () => {
+	it("draws one warning line per direction of the volley", () => {
+		const { game, vfx, world, dispose } = setup();
+		const forger = spawnBody(world, 0, 0);
+		Boss.id[forger] = 3;
+		vfx.onEvent(EventType.BossPattern, 1, 0, 0, forger);
+		vfx.onEvent(EventType.BossTelegraph, 0, 1, 0.8, forger);
+		vfx.update(0.1);
+		expect(vfx.telegraph.live).toBe(4);
+		expect((game.scene.getMeshByName("vfx_telegraph_line") as Mesh | null)?.thinInstanceCount).toBe(4);
+		vfx.update(1);
+		expect(vfx.telegraph.live).toBe(0);
+		Boss.id[forger] = 0;
+		dispose();
+	});
+});
