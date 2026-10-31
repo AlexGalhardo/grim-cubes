@@ -149,9 +149,8 @@ jobs:
       options: --ipc=host
     steps:
       - uses: actions/checkout@v7
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: ${{ env.BUN_VERSION }}
+      # The Playwright image has no unzip, which setup-bun needs; npm ships the same Bun binary.
+      - run: npm install -g bun@${{ env.BUN_VERSION }}
       - uses: actions/cache@v6
         with:
           path: ~/.bun/install/cache
