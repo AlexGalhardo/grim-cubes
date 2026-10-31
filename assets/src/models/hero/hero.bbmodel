@@ -2107,7 +2107,7 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "-2",
+									"x": "2",
 									"y": "0",
 									"z": "0"
 								}
@@ -2157,7 +2157,7 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "2",
+									"x": "-2",
 									"y": "0",
 									"z": "0"
 								}
@@ -2273,7 +2273,7 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "-50",
+									"x": "50",
 									"y": "0",
 									"z": "0"
 								}
@@ -2301,7 +2301,7 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "50",
+									"x": "-50",
 									"y": "0",
 									"z": "0"
 								}
@@ -2351,7 +2351,7 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "50",
+									"x": "-50",
 									"y": "0",
 									"z": "0"
 								}
@@ -2379,7 +2379,7 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "-50",
+									"x": "50",
 									"y": "0",
 									"z": "0"
 								}
@@ -2415,7 +2415,7 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "-10",
+									"x": "10",
 									"y": "0",
 									"z": "0"
 								}
@@ -2429,7 +2429,7 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "-10",
+									"x": "10",
 									"y": "0",
 									"z": "0"
 								}
@@ -2443,7 +2443,7 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "-10",
+									"x": "10",
 									"y": "0",
 									"z": "0"
 								}
@@ -2457,7 +2457,7 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "-10",
+									"x": "10",
 									"y": "0",
 									"z": "0"
 								}
@@ -2471,7 +2471,7 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "-10",
+									"x": "10",
 									"y": "0",
 									"z": "0"
 								}
@@ -2563,7 +2563,7 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "10",
+									"x": "-10",
 									"y": "0",
 									"z": "0"
 								}
@@ -2577,7 +2577,7 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "10",
+									"x": "-10",
 									"y": "0",
 									"z": "0"
 								}
@@ -2613,7 +2613,7 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "35",
+									"x": "-35",
 									"y": "0",
 									"z": "0"
 								}
@@ -2641,7 +2641,7 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "-35",
+									"x": "35",
 									"y": "0",
 									"z": "0"
 								}
@@ -2691,7 +2691,7 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "-35",
+									"x": "35",
 									"y": "0",
 									"z": "0"
 								}
@@ -2719,7 +2719,7 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "35",
+									"x": "-35",
 									"y": "0",
 									"z": "0"
 								}
@@ -2785,8 +2785,8 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "10",
-									"y": "10",
+									"x": "-10",
+									"y": "-10",
 									"z": "0"
 								}
 							],
@@ -2799,8 +2799,8 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "-10",
-									"y": "-10",
+									"x": "10",
+									"y": "10",
 									"z": "0"
 								}
 							],
@@ -2849,7 +2849,7 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "-30",
+									"x": "30",
 									"y": "0",
 									"z": "0"
 								}
@@ -2863,7 +2863,7 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "30",
+									"x": "-30",
 									"y": "0",
 									"z": "0"
 								}
@@ -2913,7 +2913,7 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "100",
+									"x": "-100",
 									"y": "0",
 									"z": "0"
 								}
@@ -2927,7 +2927,7 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "-35",
+									"x": "35",
 									"y": "0",
 									"z": "0"
 								}
@@ -2969,7 +2969,7 @@
 			"start_delay": "",
 			"loop_delay": "",
 			"animators": {
-				"9cca1d91-7632-cbe3-2937-a7a29c364de4": {
+				"g_arm_r": {
 					"name": "arm_r",
 					"type": "bone",
 					"rotation_global": false,
@@ -2993,7 +2993,7 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "90",
+									"x": "-90",
 									"y": "0",
 									"z": "0"
 								}
@@ -3007,7 +3007,7 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "90",
+									"x": "-90",
 									"y": "0",
 									"z": "0"
 								}
@@ -3035,7 +3035,7 @@
 			"start_delay": "",
 			"loop_delay": "",
 			"animators": {
-				"e90cf524-39db-d1e6-8460-06a80b9c8fbb": {
+				"g_body": {
 					"name": "body",
 					"type": "bone",
 					"rotation_global": false,
@@ -3059,7 +3059,7 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "15",
+									"x": "-15",
 									"y": "0",
 									"z": "0"
 								}
@@ -3111,7 +3111,7 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "-40",
+									"x": "40",
 									"y": "0",
 									"z": "0"
 								}
@@ -3139,7 +3139,7 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "40",
+									"x": "-40",
 									"y": "0",
 									"z": "0"
 								}
@@ -3189,7 +3189,7 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "40",
+									"x": "-40",
 									"y": "0",
 									"z": "0"
 								}
@@ -3217,7 +3217,7 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "-40",
+									"x": "40",
 									"y": "0",
 									"z": "0"
 								}
@@ -3267,7 +3267,7 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "-45",
+									"x": "45",
 									"y": "0",
 									"z": "0"
 								}
@@ -3281,7 +3281,7 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "-45",
+									"x": "45",
 									"y": "0",
 									"z": "0"
 								}
@@ -3317,7 +3317,7 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "40",
+									"x": "-40",
 									"y": "0",
 									"z": "0"
 								}
@@ -3331,7 +3331,7 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "40",
+									"x": "-40",
 									"y": "0",
 									"z": "0"
 								}
@@ -3367,7 +3367,7 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "60",
+									"x": "-60",
 									"y": "0",
 									"z": "0"
 								}
@@ -3381,7 +3381,7 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "60",
+									"x": "-60",
 									"y": "0",
 									"z": "0"
 								}
@@ -3417,7 +3417,7 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "60",
+									"x": "-60",
 									"y": "0",
 									"z": "0"
 								}
@@ -3431,7 +3431,7 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "60",
+									"x": "-60",
 									"y": "0",
 									"z": "0"
 								}
@@ -3519,7 +3519,7 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "-90",
+									"x": "90",
 									"y": "0",
 									"z": "0"
 								}
@@ -3555,7 +3555,7 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "-15",
+									"x": "15",
 									"y": "0",
 									"z": "0"
 								}
@@ -3591,7 +3591,7 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "-40",
+									"x": "40",
 									"y": "0",
 									"z": "15"
 								}
@@ -3605,7 +3605,7 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "-20",
+									"x": "20",
 									"y": "0",
 									"z": "30"
 								}
@@ -3641,7 +3641,7 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "-40",
+									"x": "40",
 									"y": "0",
 									"z": "-15"
 								}
@@ -3655,7 +3655,7 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "-20",
+									"x": "20",
 									"y": "0",
 									"z": "-30"
 								}
@@ -3675,7 +3675,7 @@
 			"override": false,
 			"length": 0.5,
 			"snapping": 24,
-			"selected": true,
+			"selected": false,
 			"group_name": "",
 			"scope": 0,
 			"anim_time_update": "",
@@ -3707,7 +3707,7 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "6",
+									"x": "-6",
 									"y": "0",
 									"z": "0"
 								}
@@ -3757,7 +3757,7 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "-12",
+									"x": "12",
 									"y": "0",
 									"z": "0"
 								}
@@ -3807,7 +3807,7 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "160",
+									"x": "-160",
 									"y": "0",
 									"z": "0"
 								}
@@ -3857,7 +3857,7 @@
 							"channel": "rotation",
 							"data_points": [
 								{
-									"x": "160",
+									"x": "-160",
 									"y": "0",
 									"z": "0"
 								}
