@@ -301,12 +301,12 @@ async function boot(): Promise<void> {
 	};
 	// The Merchant rig loads after the UI mounts; the factory resolves it on use and draws nothing until it exists.
 	let makePortrait: PortraitFactory | undefined;
-	const _shopPortrait: PortraitFactory = (canvas) =>
+	const shopPortrait: PortraitFactory = (canvas) =>
 		makePortrait?.(canvas) ?? { start: () => undefined, stop: () => undefined };
 	createRoot(uiRoot).render(
 		<App
 			// shortcut: the registerView portrait shrinks the game canvas while the Shop is open (S1 is moving it to a render target); off until then.
-			shopPortrait={undefined}
+			shopPortrait={shopPortrait}
 			store={hud}
 			version={__APP_VERSION__}
 			demo={__IS_DEMO__}
