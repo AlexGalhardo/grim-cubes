@@ -95,3 +95,18 @@ export function createTelemetry(options: TelemetryOptions): Telemetry {
 	};
 	return telemetry;
 }
+
+/**
+ * Reports crashes by kind and error name only (never the message, stack or a path, which could carry personal data),
+ * and stops after `max` a session so a loop of errors cannot flood the queue.
+ */
+export function createErrorReporter(
+	telemetry: Telemetry,
+	max = 5,
+): (kind: "error" | "rejection", reason: unknown) => void {
+	let reported = 0;
+	return (kind, reason) => {
+		if (reported++ >= max) return;
+		telemetry.track("error", { kind, name: reason instanceof Error ? reason.name : "Error" });
+	};
+}

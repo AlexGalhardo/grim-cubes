@@ -4,6 +4,7 @@ import {
 	checkKey,
 	checkPadButton,
 	consoleSink,
+	createErrorReporter,
 	createInputState,
 	createKeyMap,
 	createLogger,
@@ -775,6 +776,15 @@ async function boot(): Promise<void> {
 		now: () => performance.now(),
 	});
 	telemetry.track("session_start", { version: __APP_VERSION__, target: __BUILD_TARGET__ });
+	// Crashes are counted by kind and error name only, at most five a session.
+	const reportError = createErrorReporter(telemetry);
+	window.addEventListener("error", (event) => reportError("error", event.error));
+	window.addEventListener("unhandledrejection", (event) => reportError("rejection", event.reason));
+	// Whatever is queued goes out when the page is hidden or closed, not only at the end of a run.
+	document.addEventListener("visibilitychange", () => {
+		if (document.hidden) telemetry.flush();
+	});
+	window.addEventListener("pagehide", () => telemetry.flush());
 
 	// Sound (P-06-04): silent until the first input, then bus volumes from the Options screen.
 	const audio = createAudioEngine(createWebAudioDeps((message, id) => log.warn(message, id)));
@@ -815,6 +825,12 @@ async function boot(): Promise<void> {
 		consume: (visit) =>
 			events.consume((type, a, b, c, entity) => {
 				eventAudio(type, a, b, c, entity);
+				if (type === EventType.BossDied) {
+					telemetry.track("boss_killed", {
+						boss: bossesData[(Boss.id[entity] ?? 0) - 1]?.id ?? "",
+						round: run.round,
+					});
+				}
 				visit(type, a, b, c, entity);
 			}),
 		get size() {
@@ -1827,6 +1843,11 @@ async function boot(): Promise<void> {
 		if (bench === "round20" && heavy) weapon.setWeapon(heavy, weapon.maxTier);
 	} else {
 		run.newRun();
+		telemetry.track("run_start", {
+			difficulty: difficultyId,
+			weapon: session.startingWeapon.id,
+			demo: __IS_DEMO__,
+		});
 	}
 	if (__DEBUG_API__ && bench && window.gc.debug) {
 		const recorder = createBenchRecorder(game.scene, render.engine);

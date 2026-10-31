@@ -1,5 +1,11 @@
 import { expect, test } from "vitest";
-import { consoleSink, createTelemetry, noopSink, type TelemetryEvent } from "./telemetry";
+import {
+	consoleSink,
+	createErrorReporter,
+	createTelemetry,
+	noopSink,
+	type TelemetryEvent,
+} from "./telemetry";
 
 function setup(on = true, extra: { maxQueue?: number; flushAt?: number } = {}) {
 	const state = { on, now: 1000 };
@@ -69,4 +75,18 @@ test("the console sink writes one JSON line per event and the no-op sink swallow
 	consoleSink((line) => lines.push(line)).send([{ name: "run_start", t: 5, props: { round: 1 } }]);
 	expect(JSON.parse(lines[0] ?? "")).toEqual({ name: "run_start", t: 5, props: { round: 1 } });
 	expect(() => noopSink.send([])).not.toThrow();
+});
+
+test("errors are reported by kind and name only, never the message, and stop after five", () => {
+	const { telemetry, batches } = setup();
+	const report = createErrorReporter(telemetry);
+	report("error", new TypeError("C:Usersalexsecret.txt is missing"));
+	report("rejection", "a plain string");
+	for (let i = 0; i < 10; i++) report("error", new RangeError("x"));
+	telemetry.flush();
+	const events = batches[0] ?? [];
+	expect(events).toHaveLength(5);
+	expect(events[0]?.props).toEqual({ kind: "error", name: "TypeError" });
+	expect(events[1]?.props).toEqual({ kind: "rejection", name: "Error" });
+	expect(JSON.stringify(events)).not.toContain("secret");
 });

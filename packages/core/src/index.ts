@@ -69,4 +69,4 @@ export type {
 	TelemetryProps,
 	TelemetrySink,
 } from "./telemetry";
-export { consoleSink, createTelemetry, noopSink, TELEMETRY_EVENTS } from "./telemetry";
+export { consoleSink, createErrorReporter, createTelemetry, noopSink, TELEMETRY_EVENTS } from "./telemetry";
