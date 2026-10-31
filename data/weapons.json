@@ -30,7 +30,8 @@
 		"projectile": {
 			"count": 1,
 			"pierce": 0,
-			"speed": 28
+			"speed": 28,
+			"radius": 0.15
 		},
 		"special": {
 			"id": "crit_chance_bonus",

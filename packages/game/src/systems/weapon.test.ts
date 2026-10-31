@@ -6,6 +6,7 @@ import {
 	Boss,
 	EnemyFaction,
 	Health,
+	Knockback,
 	PlayerFaction,
 	Position,
 	Projectile,
@@ -13,6 +14,7 @@ import {
 	Velocity,
 } from "../ecs/components";
 import { createEventBuffer } from "../ecs/events";
+import { createProjectilePool } from "../ecs/projectile";
 import { createGameWorld, type GameWorld, spawnBody } from "../ecs/world";
 import { createDamageSystem } from "./damage";
 import { createTargetingSystem } from "./targeting";
@@ -49,6 +51,7 @@ function setup(id: string, tier = 0, stats: Partial<WeaponStats> = {}) {
 		hero: h,
 		stats: { armor: 0, dodge: 0, critMult: 2, lifeSteal: 0 },
 	});
+	const pool = createProjectilePool(world, events);
 	const targeting = createTargetingSystem(
 		{ priorityDistanceMult: hero.combat.targetPriorityDistanceMult, retargetEvery: 3 },
 		hash,
@@ -64,6 +67,7 @@ function setup(id: string, tier = 0, stats: Partial<WeaponStats> = {}) {
 		targeting,
 		enemies: hash,
 		rng: mulberry32(3),
+		projectiles: pool,
 	});
 	const add = (x: number, z: number): number => {
 		const e = spawnBody(world, x, z);
@@ -77,7 +81,7 @@ function setup(id: string, tier = 0, stats: Partial<WeaponStats> = {}) {
 		targeting.run(world, h, weapon.range);
 		weapon.run(world, h);
 	};
-	return { world, h, hash, damage, targeting, weapon, add, tick };
+	return { world, h, hash, damage, targeting, weapon, add, tick, pool, events };
 }
 
 test("sword hits the 3 enemies inside the 120 degree arc and skips the one behind", () => {
@@ -101,7 +105,7 @@ test("pistol projectile carries speed, pierce 0, range-based life and the crit b
 	const { world, add, tick } = setup("pistol", 0, { damage: 0.1 });
 	add(6, 0);
 	tick();
-	const found = query(world, [Projectile])[0] ?? -1;
+	const found = query(world, [Projectile]).find((e) => (Projectile.life[e] ?? 0) > 0) ?? -1;
 	expect(found).toBeGreaterThan(0);
 	expect(Velocity.x[found]).toBeCloseTo(28);
 	expect(Velocity.z[found]).toBeCloseTo(0);
@@ -131,4 +135,25 @@ test("targeting picks the nearest, prefers bosses by the distance multiplier, an
 	expect(targeting.target).toBe(common);
 	void hash;
 	void Position;
+});
+
+test("fractional cooldown keeps an 8 per second weapon at exactly 480 shots in 60 s", () => {
+	const base = def("pistol");
+	weapons.push({ ...base, id: "rapid", attacksPerSecond: 8 });
+	const { add, tick, weapon } = setup("rapid");
+	add(8, 0);
+	for (let i = 0; i < 3600; i++) tick();
+	expect(weapon.attacks).toBe(480);
+});
+
+test("melee knockback is radial per enemy, not along the target direction", () => {
+	const { world, add, tick, damage } = setup("sword");
+	const front = add(1.2, 0);
+	const side = add(1.0, 1.0);
+	tick();
+	damage.run(world);
+	expect(Knockback.x[front]).toBeGreaterThan(0);
+	expect(Math.abs(Knockback.z[front] ?? 0)).toBeLessThan(1e-6);
+	expect(Knockback.z[side]).toBeCloseTo(Knockback.x[side] ?? 0, 3);
+	expect(Knockback.z[side]).toBeGreaterThan(0.5);
 });

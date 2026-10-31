@@ -59,6 +59,10 @@
 						"type": "integer",
 						"minimum": 1
 					},
+					"radius": {
+						"type": "number",
+						"minimum": 0
+					},
 					"speed": {
 						"type": "number",
 						"minimum": 0

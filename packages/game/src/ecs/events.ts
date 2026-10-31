@@ -17,6 +17,8 @@ export const EventType = {
 	Swung: 8,
 	/** a, b = unit direction x, z. The hero fired a projectile. */
 	Fired: 9,
+	/** a, b = where the shot was fired. The projectile pool was full and the shot was dropped. */
+	PoolExhausted: 10,
 } as const;
 
 export const EVENT_CAPACITY = 1024;

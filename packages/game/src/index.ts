@@ -29,8 +29,8 @@ export { consumeEvents, createEventBuffer, EVENT_CAPACITY, EventType } from "./e
 export { dropFragment } from "./ecs/fragments";
 export type { HeroSpec } from "./ecs/hero";
 export { spawnHero } from "./ecs/hero";
-export type { ProjectileSpec } from "./ecs/projectile";
-export { spawnProjectile } from "./ecs/projectile";
+export type { ProjectilePool, ProjectileSpec } from "./ecs/projectile";
+export { createProjectilePool, HIT_HISTORY, PROJECTILE_POOL_SIZE, ProjectileHits } from "./ecs/projectile";
 export type { GameWorld } from "./ecs/world";
 export { createGameWorld, spawn, spawnBody } from "./ecs/world";
 export type { Loop, LoopHooks } from "./loop";
@@ -49,6 +49,8 @@ export type { DamageQueue, DamageSystem, DamageSystemDeps, HeroCombatStats } fro
 export { createDamageSystem, DAMAGE_QUEUE_CAPACITY } from "./systems/damage";
 export { inputSystem } from "./systems/input";
 export { movementSystem } from "./systems/movement";
+export type { ProjectileSystem, ProjectileSystemDeps } from "./systems/projectile";
+export { createProjectileSystem } from "./systems/projectile";
 export type { Bag, RunConfig, RunState, RunSystem, RunSystemDeps } from "./systems/round";
 export { createRunSystem, isBossRound, roundDurationSeconds } from "./systems/round";
 export type { SeparationConfig, SeparationSystem } from "./systems/separation";
