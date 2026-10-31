@@ -101,7 +101,8 @@ describe("assets-gen catalog", () => {
 		}
 	});
 
-	it("is byte-stable across runs", () => {
+	// Generates the whole catalog twice; the default 5 s is too tight when the full suite loads the CPU.
+	it("is byte-stable across runs", { timeout: 30_000 }, () => {
 		const other = mkdtempSync(join(tmpdir(), "assets-gen-"));
 		try {
 			writeCatalog(root);
