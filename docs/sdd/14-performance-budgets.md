@@ -42,7 +42,7 @@ Estado no PROTÓTIPO: os testes de alocação usam contador (espião em `Array.p
 - `scene.freezeActiveMeshes()` só para meshes estáticos (chão e props), com `scene.unfreezeActiveMeshes()` quando o anel de chunks muda ou em `OriginShifted`; meshes de thin instances animadas (inimigos) usam `alwaysSelectAsActiveMesh = true`; `material.freeze()` em todos os materiais estáticos; `mesh.freezeWorldMatrix()` em chão e props.
 - `scene.autoClear = false` onde o chão cobre a tela; `skipPointerMovePicking = true`; picking só para UI (nenhum `scene.pick` por frame).
 - Culling manual por distância na simulação (inimigos > 40 u são removidos sem drop) e no render (instâncias fora do frustum ampliado não entram no buffer).
-- `engine.setHardwareScalingLevel()` dinâmico via `SceneOptimizer` (Android): começa em `devicePixelRatio / 1.5`; degrada até 2,0 se p99 > 45 ms por 3 s; recupera lentamente.
+- `engine.setHardwareScalingLevel()` dinâmico via `SceneOptimizer` (Android): começa em `devicePixelRatio / 1.5`; degrada até 2,0 se p99 > 45 ms por 3 s; recupera lentamente. Implementado em `packages/render/src/scene/quality.ts` (`createDynamicScaler`, parâmetros em `data/presets.json` `dynamicScale`); a ligação no `main.tsx` e a tela `Options` ficam para depois da `createGameSession`.
 - Estado no PROTÓTIPO: chão, props e horda usam `alwaysSelectAsActiveMesh`, e `freezeWorldMatrix`/`material.freeze()` só no chão base e nos materiais placeholder estáticos (os props com fade não devem ser congelados, ver P-02-03). Ainda não estão no código, todos provisórios até A-01: `freezeActiveMeshes`, `autoClear = false`, `skipPointerMovePicking`, `SceneOptimizer`/scaling dinâmico. Culling (P-03-05): na simulação, `cullDistantEnemies` remove inimigos a mais de 40 u do herói (`world.json` `cullDistance`), sem drop nem evento de morte e nunca elites nem chefes; roda logo após o `movementSystem`. No render, a horda deixa de fora as instâncias fora do frustum ampliado da câmera; a primeira versão usava um disco de 30 u em volta do herói (`renderCullRadius`), curto para o mobile e para o afastamento da câmera na intro de chefe, e a troca por frustum de verdade está com o S1.
 - Texturas `NEAREST` e sem mipmaps em todos os atlas por ora (pixel art); mipmaps no atlas de chão ficam para uma medição futura.
 - Áudio: ≤ 24 vozes simultâneas; `maxInstances` por som.
@@ -65,5 +65,7 @@ Estado no PROTÓTIPO: os testes de alocação usam contador (espião em `Array.p
 | Médio | 100 | blob | vinheta | 100 | 300 | 1,0 |
 | Baixo / Android padrão | 60 | blob | vinheta | 60 | 200 | dinâmico |
 | Mínimo | 40 | nenhuma | nenhum | 30 | 100 | 0,5–0,75 |
+
+Os valores da tabela vivem em `data/presets.json` (schema `presets.schema.json`, `presetsData` em `@gc/game`); `applyPreset` aplica sombras e escala de render, e o cap de inimigos e os tamanhos dos pools ficam com quem os possui (spawner e VFX). Não há gerador de sombras ainda, então `shadows` só liga `scene.shadowsEnabled`.
 
 O `cap` de inimigos afeta jogabilidade: abaixo de 100, os spawns excedentes são removidos (sem drop) como no cap padrão, e o `total(N)` do round não muda, então a pressão por tempo é a mesma. Registrado no GDD §10.3 como consequência aceita.
