@@ -26,10 +26,14 @@ export default defineConfig({
 	fullyParallel: true,
 	// SwiftShader renders the full scene on the CPU; more than one worker times out at 1080p/1440p.
 	workers: 1,
+	// Default 30 s is too short for the full scene on SwiftShader at 1080p/1440p (levelup.spec raises it per test too).
+	timeout: 90_000,
 	forbidOnly: !!process.env.CI,
 	retries: process.env.CI ? 1 : 0,
 	reporter: [["list"], ["html", { open: "never", outputFolder: "playwright-report" }]],
 	expect: {
+		// SwiftShader needs several seconds per frame at 1440p; stabilization takes two identical captures.
+		timeout: 20_000,
 		toHaveScreenshot: {
 			// Same-OS baselines: allow a few stray pixels (SwiftShader rasterization noise) and small color shifts.
 			maxDiffPixels: 100,
