@@ -13,6 +13,9 @@ export const PALETTE = {
 	mist: "#3F3A52",
 	/** --color-bone: placeholder hero cube. */
 	bone: "#D9C9A3",
+	/** --color-bone-dark and --color-rust: broken prop dust. */
+	boneDark: "#8C7A5B",
+	rust: "#8A4A2B",
 	/** --color-blood and --color-blood-light: gore (Art Bible §9). */
 	blood: "#5E0E14",
 	bloodLight: "#8E1A1F",

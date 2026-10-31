@@ -5,7 +5,7 @@ import { Color3 } from "@babylonjs/core/Maths/math.color";
 import { CreateBox } from "@babylonjs/core/Meshes/Builders/boxBuilder";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData";
-import type { ChunkSystem } from "@gc/game";
+import { type ChunkSystem, PROP_KIND } from "@gc/game";
 import "@babylonjs/core/Meshes/thinInstanceMesh";
 import { toLoaderLocalX } from "../coords";
 import { PALETTE } from "../scene/palette";
@@ -54,6 +54,8 @@ export interface ChunkRenderer {
 	 * line from the camera to the hero and the line passes within its radius. Call once per frame, scene coordinates.
 	 */
 	updateFade(view: FadeView, dtSeconds: number): void;
+	/** A breakable prop broke (`chunk.broken` changed): the next `update` rewrites the prop buffers without it. */
+	invalidateProps(): void;
 	/** Lowest opacity among the fadeable props in view (1 when none fades); for tests and the debug API. */
 	minAlpha(): number;
 	readonly stats: Readonly<{ floorWrites: number; propRebuilds: number }>;
@@ -235,7 +237,10 @@ export function createChunkRenderer(
 		}
 	}
 
+	let propsDirty = false;
+
 	function rebuildProps(): void {
+		propsDirty = false;
 		propCounts.fill(0);
 		for (let i = 0; i < slotCount; i++) {
 			const chunk = chunks.slots[i];
@@ -246,6 +251,8 @@ export function createChunkRenderer(
 			const baseX = chunk.cx * size - originX;
 			const baseZ = chunk.cz * size - originZ;
 			for (let p = 0; p < chunk.propCount; p++) {
+				// A broken breakable stays gone while its chunk is loaded (A-02-04); `broken` resets on recycle.
+				if ((chunk.broken >> p) & 1 && chunk.propKind[p] === PROP_KIND.breakable) continue;
 				const t = chunk.propType[p] ?? 0;
 				const buffer = propBuffers[t];
 				if (!buffer) continue;
@@ -320,7 +327,10 @@ export function createChunkRenderer(
 					changed = true;
 				}
 			}
-			if (!changed) return;
+			if (!changed) {
+				if (propsDirty) rebuildProps();
+				return;
+			}
 			const positionBuffer = floor.getVertexBuffer(VertexBuffer.PositionKind);
 			const uvBuffer = floor.getVertexBuffer(VertexBuffer.UVKind);
 			for (let i = 0; i < slotCount; i++) {
@@ -336,6 +346,9 @@ export function createChunkRenderer(
 				stats.floorWrites++;
 			}
 			rebuildProps();
+		},
+		invalidateProps(): void {
+			propsDirty = true;
 		},
 		instances: (type) => ({
 			buffer: propBuffers[type] ?? new Float32Array(0),

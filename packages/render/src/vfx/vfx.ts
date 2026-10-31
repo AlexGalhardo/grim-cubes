@@ -33,6 +33,8 @@ const rgb = (hex: string): Rgb => {
 const SCREAM_SECONDS = 0.6;
 /** How long the Forgemaster shockwave ring takes to reach its radius. */
 const SHOCKWAVE_SECONDS = 0.4;
+/** Cubes thrown when the hero picks a consumable up (red for the vial, ember for the magnet). */
+const PICKUP_CUBES = 6;
 const SUMMON_CUBES = 14;
 /** GDD section 23: the boss execution lasts 1.5 s. */
 const EXECUTION_SECONDS = 1.5;
@@ -182,6 +184,7 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 		gore ? (rng.chance(config.bloodLightShare) ? bloodLightOnly : bloodOnly) : reducedOnly;
 	const reducedCubeOnly: readonly Rgb[] = [reducedCube];
 	const explosionColors: readonly Rgb[] = [ember, emberLight];
+	const propDust: readonly Rgb[] = [rgb(PALETTE.boneDark), rgb(PALETTE.rust)];
 
 	return {
 		particles,
@@ -276,6 +279,12 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 					.flatMap((boss) => boss.patterns)
 					.find((pattern) => pattern.id === "mud_pool")?.params?.durationSeconds;
 				zones.pool(a, b, c, typeof mud === "number" ? mud : 8);
+			} else if (type === EventType.PropBroken) {
+				// Crates, urns, eggs: a puff of bone and rust cubes; c is the prop index (the renderer hides the instance).
+				burst(a, b, count(config.explosionCubes), propDust, 3, 5, false);
+			} else if (type === EventType.ConsumablePicked) {
+				const hero = game.hero.position;
+				burst(hero.x, hero.z, PICKUP_CUBES, a === 1 ? bloodLightOnly : explosionColors, 2, 6, false);
 			} else if (type === EventType.BossShockwave) {
 				zones.ring(a, b, c, SHOCKWAVE_SECONDS);
 				shake(config.shakeBossDeath * 0.5);

@@ -1,6 +1,7 @@
 import type { Mesh } from "@babylonjs/core/Meshes/mesh";
 import {
 	Boss,
+	Consumable,
 	createEnemyShotPool,
 	createEventBuffer,
 	createGameWorld,
@@ -11,9 +12,11 @@ import {
 	renderData,
 	spawnBody,
 } from "@gc/game";
+import { addComponent } from "bitecs";
 import { describe, expect, it } from "vitest";
 import { createNullEngine } from "../engine";
 import { createGameScene } from "../scene/scene";
+import { createConsumableRenderer } from "./consumables";
 import { createEliteView } from "./elite";
 import { createFragmentRenderer } from "./fragments";
 import { createHitStop } from "./hitStop";
@@ -517,6 +520,35 @@ describe("shockwave", () => {
 		vfx.update(0.05);
 		expect(vfx.zones.ringsLive).toBe(1);
 		expect(vfx.shaking).toBe(true);
+		dispose();
+	});
+});
+
+describe("breakables and consumables", () => {
+	it("throws dust when a prop breaks and cubes when a consumable is picked up", () => {
+		const { vfx, dispose } = setup();
+		vfx.onEvent(EventType.PropBroken, 4, 5, 2, 0);
+		const dust = vfx.particles.stats.live;
+		expect(dust).toBeGreaterThanOrEqual(config.explosionCubes[0] ?? 0);
+		vfx.onEvent(EventType.ConsumablePicked, 1, 0, 0, 0);
+		expect(vfx.particles.stats.live).toBeGreaterThan(dust);
+		dispose();
+	});
+
+	it("draws vials and magnets as one mesh per kind", () => {
+		const { engine, dispose } = createNullEngine();
+		const game = createGameScene(engine);
+		const world = createGameWorld();
+		const view = createConsumableRenderer(game);
+		for (const kind of [1, 1, 2]) {
+			const e = spawnBody(world, kind, 0);
+			addComponent(world, e, Consumable);
+			Consumable.kind[e] = kind;
+		}
+		view.sync(world, 1, 0);
+		expect(view.live).toBe(3);
+		expect((game.scene.getMeshByName("vfx_vials") as Mesh | null)?.thinInstanceCount).toBe(2);
+		expect((game.scene.getMeshByName("vfx_magnets") as Mesh | null)?.thinInstanceCount).toBe(1);
 		dispose();
 	});
 });

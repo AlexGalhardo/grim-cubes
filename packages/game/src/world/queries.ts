@@ -1,4 +1,5 @@
 import {
+	Consumable,
 	EnemyFaction,
 	EnemyShot,
 	Fragment,
@@ -14,6 +15,7 @@ const bodyList = createQueryCache([Position, PrevPosition]);
 const projectileList = createQueryCache([Projectile, Position, PrevPosition]);
 const fragmentList = createQueryCache([Fragment, Position, PrevPosition]);
 const enemyShotList = createQueryCache([EnemyShot, Position, PrevPosition]);
+const consumableList = createQueryCache([Consumable, Position, PrevPosition]);
 const enemyList = createQueryCache([EnemyFaction, Position, PrevPosition]);
 
 /** First entity tagged PlayerFaction, or -1. */
@@ -44,4 +46,9 @@ export function queryFragments(world: GameWorld): readonly number[] {
 /** Every enemy-shot pool slot, live or not; renderers skip those with `EnemyShot.life === 0`. */
 export function queryEnemyShots(world: GameWorld): readonly number[] {
 	return enemyShotList(world);
+}
+
+/** Every consumable on the ground (blood vials and bone magnets); they leave the world when picked up. */
+export function queryConsumables(world: GameWorld): readonly number[] {
+	return consumableList(world);
 }

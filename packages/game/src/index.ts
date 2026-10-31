@@ -46,6 +46,7 @@ export {
 	Behavior,
 	Boss,
 	Chest,
+	Consumable,
 	ContactCooldown,
 	ContactDamage,
 	Elite,
@@ -215,6 +216,7 @@ export { createPropCollision } from "./world/propCollision";
 export {
 	findHero,
 	queryBodies,
+	queryConsumables,
 	queryEnemies,
 	queryEnemyShots,
 	queryFragments,

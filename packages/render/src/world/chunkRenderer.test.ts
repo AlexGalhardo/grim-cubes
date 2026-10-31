@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { SceneInstrumentation } from "@babylonjs/core/Instrumentation/sceneInstrumentation";
 import { hash32 } from "@gc/core";
-import { type ChunkData, createChunkSystem, type WorldConfig } from "@gc/game";
+import { type ChunkData, createChunkSystem, PROP_KIND, type WorldConfig } from "@gc/game";
 import { describe, expect, it } from "vitest";
 import { createNullEngine } from "../engine";
 import { createGameScene } from "../scene/scene";
@@ -196,6 +196,46 @@ describe("chunk renderer", () => {
 		expect(rendered).toBe(visible);
 		expect(rendered).toBeLessThanOrEqual(loadedProps);
 		expect(rendered).toBeLessThanOrEqual(1500);
+		dispose();
+	});
+});
+
+describe("broken props", () => {
+	it("hides a broken breakable on the next update and keeps it hidden while the chunk stays loaded", () => {
+		const { engine, dispose } = createNullEngine();
+		const game = createGameScene(engine);
+		const chunks = createChunkSystem(config, (cx, cz, out: ChunkData) => {
+			out.propCount = 0;
+			if (cx !== 0 || cz !== 0) return;
+			for (let p = 0; p < 3; p++) {
+				out.propType[p] = 0;
+				out.propKind[p] = p === 1 ? PROP_KIND.breakable : PROP_KIND.blocking;
+				out.propX[p] = 2 + p * 3;
+				out.propZ[p] = 4;
+			}
+			out.propCount = 3;
+		});
+		const renderer = createChunkRenderer(game, chunks, config, PLACEHOLDER_PROPS);
+		const frame = (): void => {
+			chunks.update(8, 8);
+			renderer.update(0, 0, 8, 8);
+		};
+		for (let i = 0; i < 40; i++) frame();
+		expect(renderer.instances(0).count).toBe(3);
+		const chunk = chunks.slots.find((c) => c && c.cx === 0 && c.cz === 0);
+		if (!chunk) throw new Error("chunk (0,0) not loaded");
+		// The breakable system sets the bit; the renderer is told and rewrites its buffers.
+		chunk.broken |= 1 << 1;
+		renderer.invalidateProps();
+		frame();
+		expect(renderer.instances(0).count).toBe(2);
+		for (let i = 0; i < 10; i++) frame();
+		expect(renderer.instances(0).count).toBe(2);
+		// A blocking prop never hides, even if its bit were set.
+		chunk.broken |= 1 << 0;
+		renderer.invalidateProps();
+		frame();
+		expect(renderer.instances(0).count).toBe(2);
 		dispose();
 	});
 });
