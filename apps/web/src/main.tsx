@@ -362,6 +362,7 @@ async function boot(): Promise<void> {
 		merchant: null,
 		demoEnd: false,
 		slots: null,
+		pause: null,
 		menu: null,
 	});
 	// The handlers are function declarations further down; the screen only calls them after boot.
@@ -434,7 +435,8 @@ async function boot(): Promise<void> {
 		setLocale: (id: string): void => setLocaleOption(id),
 		close: (): void => {
 			optionsOpen = false;
-			loop.resume();
+			// Back in the pause menu the game stays frozen.
+			if (!pauseOpen) loop.resume();
 			publishNow();
 		},
 	};
@@ -491,6 +493,15 @@ async function boot(): Promise<void> {
 			onRestart={() => {
 				difficultyOpen = true;
 				publishNow();
+			}}
+			onPause={platform.mobile ? openPause : undefined}
+			pauseActions={{
+				resume: closePause,
+				options: () => {
+					optionsOpen = true;
+					publishNow();
+				},
+				quit: () => reloadWith(() => undefined),
 			}}
 			slotsActions={{
 				choose: (target, wipe) => {
@@ -1070,6 +1081,22 @@ async function boot(): Promise<void> {
 	let difficultyOpen = false;
 	let slotsView: HudState["slots"] = null;
 	let optionsOpen = false;
+	let pauseOpen = false;
+
+	/** Esc, Start or the pause button: freezes the game under the pause menu. Not on the title or while a screen is up. */
+	function openPause(): void {
+		const idle = run.state === "Idle" || run.state === "Results" || run.state === "Dying";
+		if (pauseOpen || menuOpen || idle || document.querySelector('[role="dialog"]')) return;
+		pauseOpen = true;
+		loop.pause();
+		publishNow();
+	}
+
+	function closePause(): void {
+		pauseOpen = false;
+		loop.resume();
+		publishNow();
+	}
 	// The title screen shows on a plain load; links with a seed, difficulty, tutorial or a debug flag go straight in.
 	const menuOpen = !["seed", "difficulty", "tutorial", "debug", "bench", "tips", "preset", "resume"].some(
 		(key) => params.has(key),
@@ -1499,6 +1526,7 @@ async function boot(): Promise<void> {
 			ossuary: ossuaryOpen ? ossuaryView() : null,
 			difficulty: difficultyOpen ? difficultyView() : null,
 			slots: slotsView,
+			pause: pauseOpen ? { round: checkpointRound || run.round } : null,
 			options: optionsOpen ? optionsView() : null,
 			speed: loop.speed,
 			uiScale: meta.settings.uiScale,
@@ -2149,6 +2177,7 @@ async function boot(): Promise<void> {
 	for (const type of ["keydown", "pointerdown"])
 		window.addEventListener(type, () => (lastDevice = "keyboard"), true);
 	let wasDashing = false;
+	let wasPause = false;
 	let wasSpeedButton = false;
 	render.engine.runRenderLoop(() => {
 		// Once per frame: getGamepads() allocates, and several steps may run per frame.
@@ -2158,6 +2187,8 @@ async function boot(): Promise<void> {
 		if (input.dash && !wasDashing && run.state === "MerchantWait" && session.merchant.talk())
 			publishNow();
 		wasDashing = input.dash;
+		if (input.pause && !wasPause) openPause();
+		wasPause = input.pause;
 		// The gamepad speed button (Back by default) cycles the speed like the key does, outside dialogs.
 		const speedButton = sources.padButton(meta.settings.pad.speed);
 		if (speedButton && !wasSpeedButton && !document.querySelector('[role="dialog"]')) {

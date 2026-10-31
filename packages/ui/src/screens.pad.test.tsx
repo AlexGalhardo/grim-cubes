@@ -9,6 +9,7 @@ import { LevelUp } from "./components/LevelUp/LevelUp";
 import { Menu } from "./components/Menu/Menu";
 import { Options } from "./components/Options/Options";
 import { Ossuary } from "./components/Ossuary/Ossuary";
+import { PauseMenu } from "./components/PauseMenu/PauseMenu";
 import { Results } from "./components/Results/Results";
 import { Shop } from "./components/Shop/Shop";
 import { Slots } from "./components/Slots/Slots";
@@ -110,6 +111,13 @@ test("the slot screen is navigable with the D-pad, and A answers the question", 
 			actions={{ choose, erase: vi.fn(), cancel: vi.fn() }}
 		/>,
 		4,
+	);
+});
+
+test("the pause menu is navigable with the D-pad", () => {
+	assertPadNavigable(
+		<PauseMenu view={{ round: 2 }} actions={{ resume: vi.fn(), options: vi.fn(), quit: vi.fn() }} />,
+		3,
 	);
 });
 
