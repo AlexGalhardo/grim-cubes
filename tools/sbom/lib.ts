@@ -28,7 +28,8 @@ function stringRecord(value: unknown): Record<string, string> {
 export function parseBunLock(text: string): LockPackage[] {
 	const parsed: unknown = JSON.parse(text.replace(/,(\s*[}\]])/g, "$1"));
 	if (!isRecord(parsed) || !isRecord(parsed.packages)) throw new Error("bun.lock has no packages section");
-	const out: LockPackage[] = [];
+	// The same name@version can appear under several lock keys (nested copies); CycloneDX needs unique bom-refs.
+	const unique = new Map<string, LockPackage>();
 	for (const entry of Object.values(parsed.packages)) {
 		if (!Array.isArray(entry) || typeof entry[0] !== "string") continue;
 		const spec = entry[0];
@@ -40,9 +41,16 @@ export function parseBunLock(text: string): LockPackage[] {
 		const integrity = entry.find(
 			(item): item is string => typeof item === "string" && item.startsWith("sha512-"),
 		);
-		out.push({ name, version, integrity });
+		unique.set(`${name}@${version}`, { name, version, integrity });
 	}
-	return out.sort((a, b) => a.name.localeCompare(b.name) || a.version.localeCompare(b.version));
+	return [...unique.values()].sort(
+		(a, b) => compareBinary(a.name, b.name) || compareBinary(a.version, b.version),
+	);
+}
+
+/** Locale-independent order, so the output bytes do not depend on the machine running the release. */
+export function compareBinary(a: string, b: string): number {
+	return a < b ? -1 : a > b ? 1 : 0;
 }
 
 export function parseDirectDeps(packageJson: string): DirectDeps {
@@ -108,6 +116,6 @@ export function sha256(data: Uint8Array | string): string {
 export function checksumsText(files: Array<{ name: string; data: Uint8Array | string }>): string {
 	return `${files
 		.map((f) => `${sha256(f.data)}  ${f.name}`)
-		.sort((a, b) => a.slice(66).localeCompare(b.slice(66)))
+		.sort((a, b) => compareBinary(a.slice(66), b.slice(66)))
 		.join("\n")}\n`;
 }

@@ -35,7 +35,8 @@ function main(argv: string[]): number {
 			bump: command as Bump,
 			dryRun: argv.includes("--dry-run"),
 			publish: argv.includes("--publish"),
-			date: new Date().toISOString().slice(0, 10),
+			// Local date: toISOString() is UTC and rolls over to the next day after 21:00 at UTC-3.
+			date: new Date().toLocaleDateString("sv-SE"),
 			...(versionOverride !== undefined && { versionOverride }),
 		},
 		{

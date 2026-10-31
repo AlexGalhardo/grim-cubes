@@ -63,4 +63,24 @@ describe("sbom", () => {
 		]);
 		expect(text).toBe(`${sha256("a")}  a.txt\n${sha256("b")}  b.txt\n`);
 	});
+
+	it("emits unique bom-refs even when the lock repeats a name@version", () => {
+		const dup = LOCK.replace(
+			'"@scope/pkg": [',
+			'"x/react": ["react@19.3.1", "", {}, "sha512-AAAA"],\n    "@scope/pkg": [',
+		);
+		expect(parseBunLock(dup).filter((p) => p.name === "react")).toHaveLength(1);
+
+		const bom = buildSbom(
+			parseDirectDeps(readFileSync("package.json", "utf8")),
+			parseBunLock(readFileSync("bun.lock", "utf8")),
+		) as { components: Array<{ "bom-ref": string }> };
+		const refs = bom.components.map((c) => c["bom-ref"]);
+		expect(new Set(refs).size).toBe(refs.length);
+	});
+
+	it("sorts by code unit, not by locale", () => {
+		const lock = '{"packages":{"b":["b@1.0.0"],"B":["B@1.0.0"],"a":["a@1.0.0"]}}';
+		expect(parseBunLock(lock).map((p) => p.name)).toEqual(["B", "a", "b"]);
+	});
 });
