@@ -426,6 +426,8 @@ Sorteio: testa T4, depois T3, depois T2; o que sobrar é T1.
 
 ### 15.3 Pool da 1.0 (40 itens + 2 exclusivos do Ossuário)
 
+Regeneração (2026-10-31): com a cura de `hp_regen` aplicada de fato a cada passo (fórmula de §8), o p50 de morte do sim subiu de 21 para 31 (alvo 18–26). Rebalanceado só em dados: Atadura Negra, Coração do Abismo e Manto do Ossuário passaram a dar +1 regeneração (eram +2, +3 e +2) e a carta de stat passou a +0,5 regen (era +1). Resultado: 64 runs × 35 rounds com p50 24,5 e 500 × 30 com p50 24,5 (`reports/balance-regen-500x30.json`).
+
 Tabela resumida; a tabela completa com todos os valores vive em `data/items.json` (fonte única, consumida pelo jogo e pelo simulador de balanceamento). Cada item é passivo e acumulável salvo indicação.
 
 | ID | Nome | Tier | Efeito | Contra-efeito |
@@ -440,7 +442,7 @@ Tabela resumida; a tabela completa com todos os valores vive em `data/items.json
 | `lead_bullets` | Balas de Chumbo | 1 | +15% knockback | — |
 | `cracked_skull` | Crânio Rachado | 1 | +2 colheita | — |
 | `iron_tooth` | Dente de Ferro | 1 | +3% crítico | — |
-| `black_bandage` | Atadura Negra | 2 | +2 regen | — |
+| `black_bandage` | Atadura Negra | 2 | +1 regen | — |
 | `chain_mail` | Cota de Malha | 2 | +8 armadura | −5% velocidade |
 | `hunter_eye` | Olho do Caçador | 2 | +1 u alcance, +5% crítico | — |
 | `leech_tongue` | Língua de Sanguessuga | 2 | +3% roubo de vida | −5 HP máx |
@@ -461,7 +463,7 @@ Tabela resumida; a tabela completa com todos os valores vive em `data/items.json
 | `spiked_boots` | Botas com Cravos | 3 | contato com inimigo causa 10 dano | — |
 | `hellfire_round` | Munição Infernal | 3 | projéteis perfuram +1 inimigo | — |
 | `crown_of_nails` | Coroa de Pregos | 4 | +50% dano, +20% crítico | −30% HP máx |
-| `heart_of_the_pit` | Coração do Abismo | 4 | +100 HP máx, +3 regen | −15% velocidade |
+| `heart_of_the_pit` | Coração do Abismo | 4 | +100 HP máx, +1 regen | −15% velocidade |
 | `reaper_hourglass` | Ampulheta do Ceifador | 4 | inimigos −20% velocidade | — |
 | `doom_sigil` | Sigilo da Ruína | 4 | ao matar, 10% de explosão (raio 2 u, 30 + 3N) | — |
 | `phylactery` | Filactério | 4 | revive 1× por run com 30% HP (não acumula) | — |
@@ -476,7 +478,7 @@ Exclusivos do Ossuário (entram no pool Lendário só com o nó `ruin_6`, `exclu
 | ID | Nome | Tier | Efeito | Contra-efeito |
 | --- | --- | --- | --- | --- |
 | `ruin_chalice` | Cálice da Ruína | 4 | +30% dano | −20 HP máximo |
-| `ossuary_mantle` | Manto do Ossuário | 4 | +8 armadura, +2 regeneração | −10% velocidade |
+| `ossuary_mantle` | Manto do Ossuário | 4 | +8 armadura, +1 regeneração | −10% velocidade |
 
 ### 15.4 Consumíveis
 
@@ -497,7 +499,7 @@ Com ~32 fragmentos no round 1 e ~140 no round 10, espera-se nível ~4 no round 3
 
 ### 16.2 Cartas
 
-Pool de cartas de stat (peso igual): +5 HP máx, +4% dano, +5% velocidade de ataque, +3 armadura, +4% velocidade, +3% crítico, +3% esquiva, +1 regen, +2% roubo de vida, +4 sorte, +1 colheita, +0,3 u alcance. A partir do nível 10, cartas "duplas" com 10% de chance (dois bônus menores: 2 cartas diferentes do pool, cada uma a 50% do valor; decisão do Orq de 2026-10-31). Reroll de cartas: não existe na 1.0 (simplicidade); nó do Ossuário pode dar 1 reroll por run.
+Pool de cartas de stat (peso igual): +5 HP máx, +4% dano, +5% velocidade de ataque, +3 armadura, +4% velocidade, +3% crítico, +3% esquiva, +0,5 regen, +2% roubo de vida, +4 sorte, +1 colheita, +0,3 u alcance. A partir do nível 10, cartas "duplas" com 10% de chance (dois bônus menores: 2 cartas diferentes do pool, cada uma a 50% do valor; decisão do Orq de 2026-10-31). Reroll de cartas: não existe na 1.0 (simplicidade); nó do Ossuário pode dar 1 reroll por run.
 
 ## 17. Loja
 

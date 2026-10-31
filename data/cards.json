@@ -84,12 +84,12 @@
 		},
 		{
 			"id": "hp_regen",
-			"name": "+1 regen",
+			"name": "+0,5 regen",
 			"modifiers": [
 				{
 					"stat": "hp_regen",
 					"op": "add",
-					"value": 1
+					"value": 0.5
 				}
 			]
 		},

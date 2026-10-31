@@ -153,7 +153,7 @@
 			{
 				"stat": "hp_regen",
 				"op": "add",
-				"value": 2
+				"value": 1
 			}
 		],
 		"effects": []
@@ -509,7 +509,7 @@
 			{
 				"stat": "hp_regen",
 				"op": "add",
-				"value": 3
+				"value": 1
 			},
 			{
 				"stat": "speed",
@@ -695,7 +695,7 @@
 			{
 				"stat": "hp_regen",
 				"op": "add",
-				"value": 2
+				"value": 1
 			},
 			{
 				"stat": "speed",

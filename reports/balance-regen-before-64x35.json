@@ -1,0 +1,564 @@
+{
+	"options": {
+		"seed": 1,
+		"runs": 64,
+		"rounds": 35,
+		"difficulty": "normal"
+	},
+	"metrics": {
+		"runs": 64,
+		"deathRound": {
+			"p50": 31,
+			"p25": 16,
+			"p75": 35,
+			"iqr": 19,
+			"mean": 25,
+			"stdev": 11.18313462317252
+		},
+		"survivors": 30,
+		"bosses": {
+			"gravedigger": {
+				"fought": 53,
+				"killed": 53,
+				"medianKillSeconds": 64.46666666666667,
+				"medianEnrageStacks": 1
+			},
+			"swamp_matriarch": {
+				"fought": 43,
+				"killed": 42,
+				"medianKillSeconds": 83.1,
+				"medianEnrageStacks": 1
+			},
+			"forgemaster": {
+				"fought": 33,
+				"killed": 33,
+				"medianKillSeconds": 102.76666666666667,
+				"medianEnrageStacks": 1
+			}
+		},
+		"goldPerPrice": 1.4949091133530676,
+		"levelUpsPerRound": 1.362175525339926
+	},
+	"checks": [
+		{
+			"id": "death-round-p50",
+			"target": "18-26",
+			"value": 31,
+			"ok": false,
+			"skipped": false
+		},
+		{
+			"id": "death-round-iqr",
+			"target": "<= 25",
+			"value": 19,
+			"ok": true,
+			"skipped": false
+		},
+		{
+			"id": "boss-kill-seconds:gravedigger",
+			"target": "45-90",
+			"value": 64.46666666666667,
+			"ok": true,
+			"skipped": false
+		},
+		{
+			"id": "boss-enrage-stacks:gravedigger",
+			"target": "< 3",
+			"value": 1,
+			"ok": true,
+			"skipped": false
+		},
+		{
+			"id": "boss-kill-seconds:swamp_matriarch",
+			"target": "60-120",
+			"value": 83.1,
+			"ok": true,
+			"skipped": false
+		},
+		{
+			"id": "boss-enrage-stacks:swamp_matriarch",
+			"target": "< 3",
+			"value": 1,
+			"ok": true,
+			"skipped": false
+		},
+		{
+			"id": "boss-kill-seconds:forgemaster",
+			"target": "60-120",
+			"value": 102.76666666666667,
+			"ok": true,
+			"skipped": false
+		},
+		{
+			"id": "boss-enrage-stacks:forgemaster",
+			"target": "< 3",
+			"value": 1,
+			"ok": true,
+			"skipped": false
+		},
+		{
+			"id": "gold-per-item-price",
+			"target": "1.2-1.8",
+			"value": 1.4949091133530676,
+			"ok": true,
+			"skipped": false
+		},
+		{
+			"id": "level-ups-per-round-5-20",
+			"target": "1-2",
+			"value": 1.362175525339926,
+			"ok": true,
+			"skipped": false
+		}
+	],
+	"runs": [
+		{
+			"seed": 1,
+			"outcome": "died",
+			"roundReached": 19,
+			"kills": 2341,
+			"worldHash": 3756091660
+		},
+		{
+			"seed": 2,
+			"outcome": "died",
+			"roundReached": 14,
+			"kills": 1327,
+			"worldHash": 2398358756
+		},
+		{
+			"seed": 3,
+			"outcome": "completed",
+			"roundReached": 35,
+			"kills": 7219,
+			"worldHash": 3396113229
+		},
+		{
+			"seed": 4,
+			"outcome": "died",
+			"roundReached": 24,
+			"kills": 3673,
+			"worldHash": 1554969321
+		},
+		{
+			"seed": 5,
+			"outcome": "timeout",
+			"roundReached": 20,
+			"kills": 3363,
+			"worldHash": 2517722702
+		},
+		{
+			"seed": 6,
+			"outcome": "died",
+			"roundReached": 25,
+			"kills": 3922,
+			"worldHash": 136511802
+		},
+		{
+			"seed": 7,
+			"outcome": "died",
+			"roundReached": 15,
+			"kills": 1561,
+			"worldHash": 3944926587
+		},
+		{
+			"seed": 8,
+			"outcome": "died",
+			"roundReached": 6,
+			"kills": 201,
+			"worldHash": 2645949862
+		},
+		{
+			"seed": 9,
+			"outcome": "completed",
+			"roundReached": 35,
+			"kills": 7453,
+			"worldHash": 1535005190
+		},
+		{
+			"seed": 10,
+			"outcome": "died",
+			"roundReached": 31,
+			"kills": 5680,
+			"worldHash": 4101015140
+		},
+		{
+			"seed": 11,
+			"outcome": "died",
+			"roundReached": 8,
+			"kills": 450,
+			"worldHash": 2861344385
+		},
+		{
+			"seed": 12,
+			"outcome": "died",
+			"roundReached": 29,
+			"kills": 5326,
+			"worldHash": 2079475083
+		},
+		{
+			"seed": 13,
+			"outcome": "died",
+			"roundReached": 28,
+			"kills": 4849,
+			"worldHash": 3447223115
+		},
+		{
+			"seed": 14,
+			"outcome": "died",
+			"roundReached": 9,
+			"kills": 559,
+			"worldHash": 695862987
+		},
+		{
+			"seed": 15,
+			"outcome": "died",
+			"roundReached": 22,
+			"kills": 3075,
+			"worldHash": 3063066887
+		},
+		{
+			"seed": 16,
+			"outcome": "completed",
+			"roundReached": 35,
+			"kills": 6757,
+			"worldHash": 3312284399
+		},
+		{
+			"seed": 17,
+			"outcome": "completed",
+			"roundReached": 35,
+			"kills": 7264,
+			"worldHash": 1871316853
+		},
+		{
+			"seed": 18,
+			"outcome": "died",
+			"roundReached": 14,
+			"kills": 1249,
+			"worldHash": 2956558088
+		},
+		{
+			"seed": 19,
+			"outcome": "completed",
+			"roundReached": 35,
+			"kills": 7386,
+			"worldHash": 2790407024
+		},
+		{
+			"seed": 20,
+			"outcome": "died",
+			"roundReached": 16,
+			"kills": 1704,
+			"worldHash": 1003158738
+		},
+		{
+			"seed": 21,
+			"outcome": "died",
+			"roundReached": 31,
+			"kills": 5495,
+			"worldHash": 2357000827
+		},
+		{
+			"seed": 22,
+			"outcome": "died",
+			"roundReached": 6,
+			"kills": 252,
+			"worldHash": 449755965
+		},
+		{
+			"seed": 23,
+			"outcome": "completed",
+			"roundReached": 35,
+			"kills": 7368,
+			"worldHash": 4036208045
+		},
+		{
+			"seed": 24,
+			"outcome": "completed",
+			"roundReached": 35,
+			"kills": 7475,
+			"worldHash": 2141663573
+		},
+		{
+			"seed": 25,
+			"outcome": "completed",
+			"roundReached": 35,
+			"kills": 7383,
+			"worldHash": 3852628081
+		},
+		{
+			"seed": 26,
+			"outcome": "died",
+			"roundReached": 22,
+			"kills": 3067,
+			"worldHash": 4285692300
+		},
+		{
+			"seed": 27,
+			"outcome": "died",
+			"roundReached": 16,
+			"kills": 1751,
+			"worldHash": 3170026484
+		},
+		{
+			"seed": 28,
+			"outcome": "died",
+			"roundReached": 6,
+			"kills": 240,
+			"worldHash": 3895288401
+		},
+		{
+			"seed": 29,
+			"outcome": "completed",
+			"roundReached": 35,
+			"kills": 6932,
+			"worldHash": 2446526297
+		},
+		{
+			"seed": 30,
+			"outcome": "died",
+			"roundReached": 21,
+			"kills": 2846,
+			"worldHash": 2920407651
+		},
+		{
+			"seed": 31,
+			"outcome": "died",
+			"roundReached": 13,
+			"kills": 1138,
+			"worldHash": 1613526403
+		},
+		{
+			"seed": 32,
+			"outcome": "completed",
+			"roundReached": 35,
+			"kills": 7264,
+			"worldHash": 3616337889
+		},
+		{
+			"seed": 33,
+			"outcome": "completed",
+			"roundReached": 35,
+			"kills": 7525,
+			"worldHash": 3139090389
+		},
+		{
+			"seed": 34,
+			"outcome": "completed",
+			"roundReached": 35,
+			"kills": 6682,
+			"worldHash": 1823345949
+		},
+		{
+			"seed": 35,
+			"outcome": "died",
+			"roundReached": 21,
+			"kills": 2821,
+			"worldHash": 1097310645
+		},
+		{
+			"seed": 36,
+			"outcome": "completed",
+			"roundReached": 35,
+			"kills": 7012,
+			"worldHash": 448570195
+		},
+		{
+			"seed": 37,
+			"outcome": "died",
+			"roundReached": 4,
+			"kills": 119,
+			"worldHash": 3795676232
+		},
+		{
+			"seed": 38,
+			"outcome": "died",
+			"roundReached": 17,
+			"kills": 1952,
+			"worldHash": 2191892310
+		},
+		{
+			"seed": 39,
+			"outcome": "died",
+			"roundReached": 31,
+			"kills": 5780,
+			"worldHash": 1411757967
+		},
+		{
+			"seed": 40,
+			"outcome": "completed",
+			"roundReached": 35,
+			"kills": 7310,
+			"worldHash": 2402849604
+		},
+		{
+			"seed": 41,
+			"outcome": "completed",
+			"roundReached": 35,
+			"kills": 7488,
+			"worldHash": 887056121
+		},
+		{
+			"seed": 42,
+			"outcome": "completed",
+			"roundReached": 35,
+			"kills": 7406,
+			"worldHash": 4003535880
+		},
+		{
+			"seed": 43,
+			"outcome": "died",
+			"roundReached": 18,
+			"kills": 2217,
+			"worldHash": 2777597721
+		},
+		{
+			"seed": 44,
+			"outcome": "died",
+			"roundReached": 5,
+			"kills": 137,
+			"worldHash": 3742513133
+		},
+		{
+			"seed": 45,
+			"outcome": "completed",
+			"roundReached": 35,
+			"kills": 7196,
+			"worldHash": 2862511701
+		},
+		{
+			"seed": 46,
+			"outcome": "died",
+			"roundReached": 17,
+			"kills": 1913,
+			"worldHash": 3725190222
+		},
+		{
+			"seed": 47,
+			"outcome": "died",
+			"roundReached": 7,
+			"kills": 356,
+			"worldHash": 808390778
+		},
+		{
+			"seed": 48,
+			"outcome": "completed",
+			"roundReached": 35,
+			"kills": 7566,
+			"worldHash": 1809542978
+		},
+		{
+			"seed": 49,
+			"outcome": "completed",
+			"roundReached": 35,
+			"kills": 7253,
+			"worldHash": 3972323886
+		},
+		{
+			"seed": 50,
+			"outcome": "died",
+			"roundReached": 5,
+			"kills": 162,
+			"worldHash": 1863102270
+		},
+		{
+			"seed": 51,
+			"outcome": "died",
+			"roundReached": 21,
+			"kills": 2788,
+			"worldHash": 1270262504
+		},
+		{
+			"seed": 52,
+			"outcome": "died",
+			"roundReached": 33,
+			"kills": 6070,
+			"worldHash": 1444707743
+		},
+		{
+			"seed": 53,
+			"outcome": "died",
+			"roundReached": 6,
+			"kills": 262,
+			"worldHash": 3006839764
+		},
+		{
+			"seed": 54,
+			"outcome": "completed",
+			"roundReached": 35,
+			"kills": 7410,
+			"worldHash": 3690213103
+		},
+		{
+			"seed": 55,
+			"outcome": "completed",
+			"roundReached": 35,
+			"kills": 7142,
+			"worldHash": 1212928032
+		},
+		{
+			"seed": 56,
+			"outcome": "completed",
+			"roundReached": 35,
+			"kills": 7074,
+			"worldHash": 4244607425
+		},
+		{
+			"seed": 57,
+			"outcome": "completed",
+			"roundReached": 35,
+			"kills": 7054,
+			"worldHash": 2067162068
+		},
+		{
+			"seed": 58,
+			"outcome": "completed",
+			"roundReached": 35,
+			"kills": 7543,
+			"worldHash": 348273709
+		},
+		{
+			"seed": 59,
+			"outcome": "completed",
+			"roundReached": 35,
+			"kills": 7462,
+			"worldHash": 2467955481
+		},
+		{
+			"seed": 60,
+			"outcome": "completed",
+			"roundReached": 35,
+			"kills": 7406,
+			"worldHash": 2782521692
+		},
+		{
+			"seed": 61,
+			"outcome": "completed",
+			"roundReached": 35,
+			"kills": 7598,
+			"worldHash": 3863203969
+		},
+		{
+			"seed": 62,
+			"outcome": "died",
+			"roundReached": 5,
+			"kills": 172,
+			"worldHash": 516178319
+		},
+		{
+			"seed": 63,
+			"outcome": "completed",
+			"roundReached": 35,
+			"kills": 7285,
+			"worldHash": 3961420721
+		},
+		{
+			"seed": 64,
+			"outcome": "completed",
+			"roundReached": 35,
+			"kills": 7017,
+			"worldHash": 2727104368
+		}
+	]
+}
