@@ -1,0 +1,48 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "render.schema.json",
+	"title": "Render constants (GDD section 5, ADR-0017)",
+	"type": "object",
+	"additionalProperties": false,
+	"required": ["camera"],
+	"properties": {
+		"camera": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": ["alpha", "elevationDegrees", "fov", "radius", "radiusMobile", "followRate"],
+			"properties": {
+				"alpha": {
+					"type": "number",
+					"description": "Horizontal angle in radians (-pi/2 puts north at the top of the screen)."
+				},
+				"elevationDegrees": {
+					"type": "number",
+					"minimum": 50,
+					"maximum": 60,
+					"description": "Elevation above the ground; Babylon beta is pi/2 minus this."
+				},
+				"fov": {
+					"type": "number",
+					"minimum": 0.43,
+					"maximum": 0.61,
+					"description": "Vertical field of view in radians (25 to 35 degrees)."
+				},
+				"radius": {
+					"type": "number",
+					"minimum": 32,
+					"maximum": 44
+				},
+				"radiusMobile": {
+					"type": "number",
+					"minimum": 28,
+					"maximum": 44
+				},
+				"followRate": {
+					"type": "number",
+					"exclusiveMinimum": 0,
+					"description": "Exponential follow rate per second of the camera target (lerp 8/s)."
+				}
+			}
+		}
+	}
+}

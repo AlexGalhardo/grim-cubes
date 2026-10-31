@@ -275,6 +275,7 @@ const EXPECTED_FILES = [
 	"biomes",
 	"hero",
 	"props",
+	"render",
 ].map((n) => `${n}.json`);
 
 export function checkDir(dataDir: string): string[] {

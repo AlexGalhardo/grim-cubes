@@ -1,0 +1,10 @@
+{
+	"camera": {
+		"alpha": -1.5707963267948966,
+		"elevationDegrees": 55,
+		"fov": 0.52,
+		"radius": 38,
+		"radiusMobile": 34,
+		"followRate": 8
+	}
+}
