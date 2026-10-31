@@ -56,6 +56,18 @@ describe("applyPreset", () => {
 		expect(minimum.enemyCap).toBe(40);
 		dispose();
 	});
+
+	it("keeps the camera rim light on the upper presets and drops it on low and minimum", () => {
+		const { engine, dispose } = createNullEngine();
+		const game = createGameScene(engine);
+		const rim = () => game.scene.getLightByName("rim")?.isEnabled();
+		const states = ["ultra", "high", "medium", "low", "minimum"].map((id) => {
+			applyPreset(game, fakeEngine(), preset(id));
+			return rim();
+		});
+		expect(states).toEqual([true, true, true, false, false]);
+		dispose();
+	});
 });
 
 describe("dynamic scaler", () => {
