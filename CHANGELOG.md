@@ -56,6 +56,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **world:** Add deterministic chunk generator (two 4×4 grids, D3 prop counts, corridor rule, spawn exclusion, biome fallback) ([ba3ad64](https://github.com/AlexGalhardo/grim-cubes/commit/ba3ad647c12d01dd3ebbbc1ee574cfe60fd92422))
 - **input:** Add unified input (keyboard with remap, gamepad dead zone, floating virtual joystick), input/movement systems and web boot with hero, fixed loop and 12 Hz HUD ([797f3a5](https://github.com/AlexGalhardo/grim-cubes/commit/797f3a5ab9bf34a26bfbb5563fbc56da777adfed))
 - **game:** Add `Facing` and `Attacking` components for horde animation ([b9eb949](https://github.com/AlexGalhardo/grim-cubes/commit/b9eb94977992cfa252ad5059d8e2d5020c8e16aa))
+- **render:** Drive the horde from `EnemyType`, `Attacking` and `Facing` (attack clip, per-instance yaw) ([28771cc](https://github.com/AlexGalhardo/grim-cubes/commit/28771cc638332a7fadf9d4642b2c78ce78116bf4))
+- **game:** Add 512-slot projectile pool and projectileSystem (pierce, anti double-hit); fractional weapon cooldown and radial knockback ([b89ec09](https://github.com/AlexGalhardo/grim-cubes/commit/b89ec094e67e3129ed24ccab5cb2c08cbae772ac))
+- **e2e:** Add Playwright config (4 viewports, SwiftShader) and boot spec with visual baselines ([f2eee30](https://github.com/AlexGalhardo/grim-cubes/commit/f2eee30c40e49ca43e3985e63134eb7f67601476))
+- **ci:** Install Bun via npm in the Playwright e2e container ([526c00a](https://github.com/AlexGalhardo/grim-cubes/commit/526c00ae66808908fbcb6893964f970376130abd))
+- **release:** Dedupe SBOM components, binary sort, green-CI gate and local date in release tooling ([cc9f93d](https://github.com/AlexGalhardo/grim-cubes/commit/cc9f93de48916160d3b1095f6065bca5d323dffc))
+- **lint:** Ignore nested `node_modules` and `dist` in markdownlint (workspace packages install nested dependencies)
 - **ci:** Add CI (lint, typecheck, unit, integration, build-web, e2e gated) and CodeQL workflows (#1) ([da8923e](https://github.com/AlexGalhardo/grim-cubes/commit/da8923ee65069ec95a017f53a20937718c27413b))
 
 ### Changed

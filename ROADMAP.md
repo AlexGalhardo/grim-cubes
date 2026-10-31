@@ -70,7 +70,7 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
   - Asserts: `bun run dev` sobe em `http://localhost:5173` (verificado por `curl -s -o /dev/null -w "%{http_code}"` = 200); `vite build --mode web-demo` exit 0 e `dist/assets/*.js` contém chunks separados `babylon-*.js` e `react-*.js`.
 - [x] **E-02-05** Vitest config (Node por padrão, jsdom em `packages/ui`, cobertura istanbul com thresholds iniciais 0 e meta documentada), um teste de exemplo por pacote. Deps: E-02-01. Resp: Est. Prio: P0.
   - Asserts: `bun run test` exit 0 com ≥ 5 testes; `bunx vitest run --coverage` gera `coverage/coverage-summary.json`.
-- [ ] **E-02-06** Playwright config (4 projetos de viewport D31, flags SwiftShader, `webServer` com `vite preview`) + 1 teste e2e que abre a página e verifica que o `<canvas>` existe e que `window.gc.ready === true`. Deps: E-02-04, E-03-02. Resp: Est. Prio: P0.
+- [x] **E-02-06** Playwright config (4 projetos de viewport D31, flags SwiftShader, `webServer` com `vite preview`) + 1 teste e2e que abre a página e verifica que o `<canvas>` existe e que `window.gc.ready === true`. Deps: E-02-04, E-03-02. Resp: Est. Prio: P0.
   - Asserts: `bunx playwright test` exit 0 nos 4 projetos; capturas `tests/visual/__screenshots__/boot-<alvo>.png` nos 4 alvos commitadas (`maxDiffPixelRatio` documentado); `playwright-report/index.html` gerado; no teste, `gl.getParameter(gl.RENDERER)` logado contém `SwiftShader` ou `ANGLE` (prova de WebGL headless).
 - [x] **E-02-07** lefthook (`lefthook.yml` do SDD 11 §4) + `tools/commitlint` + `tools/secrets-scan` + `tools/lint-extra` (hex em TSX, `console.log`, `^` em versões). Deps: E-02-01. Resp: S2. Prio: P0.
   - Asserts: `bunx lefthook install` exit 0; commit com mensagem `bad message` é rejeitado (exit ≠ 0) e `feat(core): add logger` aceito; arquivo staged que atribui um valor de teste à variável `ELEVENLABS_API_KEY` bloqueia o commit; `bun tools/lint-extra/index.ts` exit 0 no repositório.
@@ -181,7 +181,7 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
   - Asserts: tabela de testes: armadura 10 → dano ×0,60 (±0,01); armadura −10 → ×1,40 (±0,01, fórmula simétrica do GDD §8.2); dodge 60% com rng fixo bate a taxa (10.000 amostras, ±1%); cap de roubo de vida 10 HP/s respeitado.
 - [x] **P-04-02** `targetingSystem` (mais próximo, prioridade elite/chefe ×0,8) e `weaponSystem` para `sword` (arco 120°) e `pistol` (projétil). Deps: P-04-01, P-03-01. Resp: S2. Prio: P0.
   - Asserts: testes: espada acerta 3 de 4 inimigos posicionados (1 fora do arco); pistola cria projétil com `pierce 0` (o acerto é testado na P-04-03); `attacksPerSecond` 2,0 → 120 ataques em 60 s simulados (±1).
-- [ ] **P-04-03** `projectileSystem` (vida, hit por spatial hash, bitmask anti-duplo-hit, pool 512). Deps: P-04-02. Resp: S2. Prio: P0.
+- [x] **P-04-03** `projectileSystem` (vida, hit por spatial hash, bitmask anti-duplo-hit, pool 512). Deps: P-04-02. Resp: S2. Prio: P0.
   - Asserts: teste: projétil com `pierce 0` acerta 1 e some; projétil com `pierce 2` atravessa 3 inimigos em linha e some; 600 projéteis simultâneos nunca excedem o pool (assert) e o 601º é descartado com evento `PoolExhausted`.
 - [ ] **P-04-04** Tiers de arma (multiplicadores) e upgrade; `smg`, `mg` (dispersão, penalidade de velocidade) e `bazooka` (área, autodano). Deps: P-04-03. Resp: S2. Prio: P1.
   - Asserts: testes de cada arma com valores de `weapons.json`; bazuca a 1 u do herói causa 50% do dano nele; T4 da espada = dano ×3,2.

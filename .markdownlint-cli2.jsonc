@@ -7,5 +7,5 @@
 		"MD041": false,
 		"MD010": { "code_blocks": false }
 	},
-	"ignores": ["node_modules/**", "dist/**", "graphify-out/**", "chatgpt-chat.md", "PROMPT.md"]
+	"ignores": ["**/node_modules/**", "**/dist/**", "graphify-out/**", "chatgpt-chat.md", "PROMPT.md"]
 }
