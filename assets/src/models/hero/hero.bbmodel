@@ -29,7 +29,7 @@
 				8
 			],
 			"autouv": 0,
-			"color": 2,
+			"color": 5,
 			"origin": [
 				-10,
 				31,
@@ -92,7 +92,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "10df3381-bb90-4630-4712-0fc9a3130ef8"
+			"uuid": "f5927f75-acf8-d24f-7275-4de23ef33fb3"
 		},
 		{
 			"name": "leg_r",
@@ -113,7 +113,7 @@
 				8
 			],
 			"autouv": 0,
-			"color": 7,
+			"color": 4,
 			"origin": [
 				10,
 				31,
@@ -176,7 +176,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "42ad0527-1447-289f-8a91-b427f23a3330"
+			"uuid": "8b52199a-8faa-b6c6-62f0-8792c0f71c4e"
 		},
 		{
 			"name": "boot_l",
@@ -197,7 +197,7 @@
 				12
 			],
 			"autouv": 0,
-			"color": 6,
+			"color": 1,
 			"origin": [
 				-10,
 				5,
@@ -260,7 +260,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "3103bc38-538b-fec9-5601-6aedda3a646d"
+			"uuid": "e90bc184-ad38-ca6f-5378-0f2d131adc13"
 		},
 		{
 			"name": "boot_r",
@@ -281,7 +281,7 @@
 				12
 			],
 			"autouv": 0,
-			"color": 0,
+			"color": 8,
 			"origin": [
 				10,
 				5,
@@ -344,7 +344,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "cfa2d767-8d62-e244-58ae-a319cd2ded26"
+			"uuid": "9d1c1a30-ce10-feb4-078a-346d92baae44"
 		},
 		{
 			"name": "torso",
@@ -365,7 +365,7 @@
 				10
 			],
 			"autouv": 0,
-			"color": 7,
+			"color": 4,
 			"origin": [
 				0,
 				74,
@@ -428,7 +428,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "b83a812c-1825-ada8-cc10-08137a26181a"
+			"uuid": "06a90325-76ec-4f2c-bc15-465efe2417a7"
 		},
 		{
 			"name": "belt",
@@ -449,7 +449,7 @@
 				11
 			],
 			"autouv": 0,
-			"color": 9,
+			"color": 4,
 			"origin": [
 				0,
 				73,
@@ -512,7 +512,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "912824ec-c2c5-d6db-fe65-6c8a479980c6"
+			"uuid": "3145af59-d6d6-5d07-0488-b19b45ea6c11"
 		},
 		{
 			"name": "chest_plate",
@@ -533,7 +533,7 @@
 				14
 			],
 			"autouv": 0,
-			"color": 2,
+			"color": 0,
 			"origin": [
 				0,
 				82,
@@ -596,7 +596,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "1488761c-9df0-8b38-e84d-6523035013ff"
+			"uuid": "1eab8f23-58c3-e79c-6c8b-eadde70c4008"
 		},
 		{
 			"name": "strap",
@@ -617,7 +617,7 @@
 				16
 			],
 			"autouv": 0,
-			"color": 4,
+			"color": 9,
 			"rotation": [
 				0,
 				0,
@@ -685,7 +685,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "d8de7eb3-3792-b61f-ba22-d060faad50fd"
+			"uuid": "a209460a-fe04-34dc-177b-fc393b97917a"
 		},
 		{
 			"name": "yoke",
@@ -706,7 +706,7 @@
 				11
 			],
 			"autouv": 0,
-			"color": 0,
+			"color": 3,
 			"origin": [
 				0,
 				87,
@@ -769,7 +769,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "fe4d4dde-6baf-6640-9602-c3170198c830"
+			"uuid": "03294bf3-dcae-3d42-9a6c-7e6cca15a668"
 		},
 		{
 			"name": "tasset",
@@ -790,7 +790,7 @@
 				13
 			],
 			"autouv": 0,
-			"color": 6,
+			"color": 2,
 			"origin": [
 				0,
 				63,
@@ -853,7 +853,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "53f07a55-d443-b07a-8ad5-e96a04eb4df8"
+			"uuid": "5cebf137-63f5-541e-4ff2-45ce0c116507"
 		},
 		{
 			"name": "head",
@@ -874,7 +874,7 @@
 				13
 			],
 			"autouv": 0,
-			"color": 5,
+			"color": 9,
 			"origin": [
 				0,
 				109,
@@ -937,7 +937,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "4769677a-8d85-0ab2-e600-b708c1e4f3b8"
+			"uuid": "99bf1e3f-2dd3-1df0-46d8-eaee3c7e37bf"
 		},
 		{
 			"name": "hood",
@@ -958,7 +958,7 @@
 				15
 			],
 			"autouv": 0,
-			"color": 6,
+			"color": 8,
 			"origin": [
 				0,
 				117,
@@ -1021,7 +1021,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "c36d7dc2-0059-57b5-4af3-03f15619fb77"
+			"uuid": "05b2a24e-626e-98c5-46b4-5b3ada9400c6"
 		},
 		{
 			"name": "hood_back",
@@ -1042,7 +1042,7 @@
 				-15
 			],
 			"autouv": 0,
-			"color": 3,
+			"color": 9,
 			"origin": [
 				0,
 				105,
@@ -1105,7 +1105,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "39f47ba0-7f0f-46d6-71d5-c293cfab2e8e"
+			"uuid": "5d4125d9-50d0-36d8-0ab2-868715c8ecc6"
 		},
 		{
 			"name": "hood_l",
@@ -1126,7 +1126,7 @@
 				13
 			],
 			"autouv": 0,
-			"color": 8,
+			"color": 0,
 			"origin": [
 				-15,
 				106,
@@ -1189,7 +1189,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "68d7cbe7-c83f-d628-fa12-97eab5f79515"
+			"uuid": "dce6429f-1eda-51fd-4637-2b4a5e8db802"
 		},
 		{
 			"name": "hood_r",
@@ -1210,7 +1210,7 @@
 				13
 			],
 			"autouv": 0,
-			"color": 8,
+			"color": 7,
 			"origin": [
 				15,
 				106,
@@ -1273,7 +1273,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "6df32333-9fde-6872-00dd-9e186b824e7e"
+			"uuid": "6d55d107-56ae-4014-5476-0d4cb2ff86eb"
 		},
 		{
 			"name": "hood_tip",
@@ -1294,7 +1294,7 @@
 				-19
 			],
 			"autouv": 0,
-			"color": 5,
+			"color": 1,
 			"rotation": [
 				22.5,
 				0,
@@ -1362,7 +1362,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "eb20ca82-a4d5-ddf0-45da-f57cf702db9f"
+			"uuid": "2ad1f69d-e16e-61f1-7b05-edb2cf862bf5"
 		},
 		{
 			"name": "mask",
@@ -1383,7 +1383,7 @@
 				15
 			],
 			"autouv": 0,
-			"color": 7,
+			"color": 6,
 			"origin": [
 				0,
 				102,
@@ -1446,7 +1446,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "972e319a-c226-6298-cbe9-619791b2a656"
+			"uuid": "d97afff7-4405-0b00-f660-08cb07835547"
 		},
 		{
 			"name": "arm_l",
@@ -1467,7 +1467,7 @@
 				7
 			],
 			"autouv": 0,
-			"color": 4,
+			"color": 1,
 			"origin": [
 				-22,
 				72,
@@ -1530,7 +1530,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "d59166ef-076b-a65c-3df5-b9c5df09e582"
+			"uuid": "0ce4c988-1354-430e-6564-67f45ebdb7d5"
 		},
 		{
 			"name": "bracer_l",
@@ -1551,7 +1551,7 @@
 				8
 			],
 			"autouv": 0,
-			"color": 3,
+			"color": 2,
 			"origin": [
 				-22,
 				64,
@@ -1614,7 +1614,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "83a315ad-41ad-5fd7-8c28-74b7cee66c73"
+			"uuid": "1918ece4-557f-9a69-e740-a3a6a8b33319"
 		},
 		{
 			"name": "pauldron_l",
@@ -1635,7 +1635,7 @@
 				13
 			],
 			"autouv": 0,
-			"color": 8,
+			"color": 4,
 			"origin": [
 				-22,
 				92,
@@ -1698,7 +1698,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "be653b85-64c6-1282-f157-4a1f89288d31"
+			"uuid": "0ada90e5-3ddd-8698-cc0d-133b719eaca2"
 		},
 		{
 			"name": "spike_l",
@@ -1719,7 +1719,7 @@
 				3
 			],
 			"autouv": 0,
-			"color": 0,
+			"color": 3,
 			"rotation": [
 				0,
 				0,
@@ -1787,7 +1787,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "34059e3d-2309-6420-a2ca-5e19d3bcb184"
+			"uuid": "1bbffede-6392-cdaa-76cf-6fd4afe7ccd7"
 		},
 		{
 			"name": "arm_r",
@@ -1808,7 +1808,7 @@
 				7
 			],
 			"autouv": 0,
-			"color": 1,
+			"color": 5,
 			"origin": [
 				22,
 				72,
@@ -1871,7 +1871,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "7c7d61ef-6b53-67e5-d04c-4bebc33e4769"
+			"uuid": "b9f4a09e-8829-7f55-81a0-05e0b79d0c64"
 		},
 		{
 			"name": "bracer_r",
@@ -1892,7 +1892,7 @@
 				8
 			],
 			"autouv": 0,
-			"color": 6,
+			"color": 1,
 			"origin": [
 				22,
 				64,
@@ -1955,7 +1955,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "e29bd340-56a1-fb2b-1603-38e596899182"
+			"uuid": "22a8d879-4c3c-f213-3e0d-9189445cf692"
 		},
 		{
 			"name": "pauldron_r",
@@ -1976,7 +1976,7 @@
 				11
 			],
 			"autouv": 0,
-			"color": 5,
+			"color": 8,
 			"origin": [
 				22,
 				91,
@@ -2039,7 +2039,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "6b7b0252-e103-0e36-27b6-aa022fe5ec7c"
+			"uuid": "85c6cda9-c6ac-0564-46dd-58dbc258af67"
 		}
 	],
 	"outliner": [
@@ -2073,8 +2073,8 @@
 					],
 					"color": 0,
 					"children": [
-						"10df3381-bb90-4630-4712-0fc9a3130ef8",
-						"3103bc38-538b-fec9-5601-6aedda3a646d"
+						"f5927f75-acf8-d24f-7275-4de23ef33fb3",
+						"e90bc184-ad38-ca6f-5378-0f2d131adc13"
 					]
 				},
 				{
@@ -2092,8 +2092,8 @@
 					],
 					"color": 0,
 					"children": [
-						"42ad0527-1447-289f-8a91-b427f23a3330",
-						"cfa2d767-8d62-e244-58ae-a319cd2ded26"
+						"8b52199a-8faa-b6c6-62f0-8792c0f71c4e",
+						"9d1c1a30-ce10-feb4-078a-346d92baae44"
 					]
 				},
 				{
@@ -2126,13 +2126,13 @@
 							],
 							"color": 0,
 							"children": [
-								"4769677a-8d85-0ab2-e600-b708c1e4f3b8",
-								"c36d7dc2-0059-57b5-4af3-03f15619fb77",
-								"39f47ba0-7f0f-46d6-71d5-c293cfab2e8e",
-								"68d7cbe7-c83f-d628-fa12-97eab5f79515",
-								"6df32333-9fde-6872-00dd-9e186b824e7e",
-								"eb20ca82-a4d5-ddf0-45da-f57cf702db9f",
-								"972e319a-c226-6298-cbe9-619791b2a656"
+								"99bf1e3f-2dd3-1df0-46d8-eaee3c7e37bf",
+								"05b2a24e-626e-98c5-46b4-5b3ada9400c6",
+								"5d4125d9-50d0-36d8-0ab2-868715c8ecc6",
+								"dce6429f-1eda-51fd-4637-2b4a5e8db802",
+								"6d55d107-56ae-4014-5476-0d4cb2ff86eb",
+								"2ad1f69d-e16e-61f1-7b05-edb2cf862bf5",
+								"d97afff7-4405-0b00-f660-08cb07835547"
 							]
 						},
 						{
@@ -2150,10 +2150,10 @@
 							],
 							"color": 0,
 							"children": [
-								"d59166ef-076b-a65c-3df5-b9c5df09e582",
-								"83a315ad-41ad-5fd7-8c28-74b7cee66c73",
-								"be653b85-64c6-1282-f157-4a1f89288d31",
-								"34059e3d-2309-6420-a2ca-5e19d3bcb184"
+								"0ce4c988-1354-430e-6564-67f45ebdb7d5",
+								"1918ece4-557f-9a69-e740-a3a6a8b33319",
+								"0ada90e5-3ddd-8698-cc0d-133b719eaca2",
+								"1bbffede-6392-cdaa-76cf-6fd4afe7ccd7"
 							]
 						},
 						{
@@ -2187,17 +2187,17 @@
 									"color": 0,
 									"children": []
 								},
-								"7c7d61ef-6b53-67e5-d04c-4bebc33e4769",
-								"e29bd340-56a1-fb2b-1603-38e596899182",
-								"6b7b0252-e103-0e36-27b6-aa022fe5ec7c"
+								"b9f4a09e-8829-7f55-81a0-05e0b79d0c64",
+								"22a8d879-4c3c-f213-3e0d-9189445cf692",
+								"85c6cda9-c6ac-0564-46dd-58dbc258af67"
 							]
 						},
-						"b83a812c-1825-ada8-cc10-08137a26181a",
-						"912824ec-c2c5-d6db-fe65-6c8a479980c6",
-						"1488761c-9df0-8b38-e84d-6523035013ff",
-						"d8de7eb3-3792-b61f-ba22-d060faad50fd",
-						"fe4d4dde-6baf-6640-9602-c3170198c830",
-						"53f07a55-d443-b07a-8ad5-e96a04eb4df8"
+						"06a90325-76ec-4f2c-bc15-465efe2417a7",
+						"3145af59-d6d6-5d07-0488-b19b45ea6c11",
+						"1eab8f23-58c3-e79c-6c8b-eadde70c4008",
+						"a209460a-fe04-34dc-177b-fc393b97917a",
+						"03294bf3-dcae-3d42-9a6c-7e6cca15a668",
+						"5cebf137-63f5-541e-4ff2-45ce0c116507"
 					]
 				}
 			]
@@ -2235,7 +2235,7 @@
 			"internal": true,
 			"saved": true,
 			"uuid": "d53e8092-7b2f-f9ac-1da0-9ac6b0618ec9",
-			"source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAJUlEQVR4AeyTsQ0AAAyCSP8/uvEGN4MHOBA4ynkAMpBBMhrw4AEAAP//uBwiawAAAAZJREFUAwBJIAAhJFoqZwAAAABJRU5ErkJggg=="
+			"source": "data:image/png;base64,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"
 		}
 	],
 	"animations": [
@@ -3249,7 +3249,7 @@
 			"override": false,
 			"length": 0.25,
 			"snapping": 24,
-			"selected": true,
+			"selected": false,
 			"group_name": "",
 			"scope": 0,
 			"anim_time_update": "",
