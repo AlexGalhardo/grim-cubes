@@ -144,19 +144,35 @@
 		"id": "alpha_hunter",
 		"name": "O Caçador Alfa",
 		"round": 40,
-		"hpBaseRound10": 7500,
+		"hpBaseRound10": 60000,
 		"archetype": "fast_hunter",
 		"delivery": "BETA",
 		"patterns": [
 			{
-				"id": "invisible_ambush",
+				"id": "stealth",
 				"params": {
 					"invisibleSeconds": 3,
-					"attack": "from_behind"
+					"alpha": 0.15,
+					"minDistance": 6,
+					"speedMult": 2.2,
+					"behindDistance": 2,
+					"strikeTelegraphSeconds": 0.5,
+					"strikeRange": 2.5,
+					"damageMult": 2,
+					"recoverSeconds": 1
 				}
 			},
 			{
-				"id": "leap_aoe"
+				"id": "leap",
+				"params": {
+					"telegraphSeconds": 0.8,
+					"airSeconds": 0.5,
+					"minDistance": 5,
+					"maxDistance": 16,
+					"radius": 3.5,
+					"damageMult": 3,
+					"recoverSeconds": 1
+				}
 			},
 			{
 				"id": "thermal_vision",
@@ -164,31 +180,64 @@
 					"ignoresObstacles": true
 				}
 			}
-		]
+		],
+		"radius": 0.9,
+		"speed": 4.2,
+		"patternCooldownSeconds": 1.5,
+		"contactDamageMult": 1.5
 	},
 	{
 		"id": "nest_queen",
 		"name": "A Rainha do Ninho",
 		"round": 50,
-		"hpBaseRound10": 11000,
+		"hpBaseRound10": 65000,
 		"archetype": "two_stage",
 		"delivery": "BETA",
 		"patterns": [
 			{
-				"id": "egg_spawn",
+				"id": "eggs",
 				"params": {
-					"enemy": "hunter"
+					"enemy": "hunter",
+					"count": 3,
+					"maxEggs": 8,
+					"layRadius": 5,
+					"hatchSeconds": 6,
+					"hpFractionOfBoss": 0.03,
+					"eggRadius": 0.6,
+					"telegraphSeconds": 0.8,
+					"recoverSeconds": 1
 				}
 			},
 			{
-				"id": "tail_sweep"
+				"id": "sweep",
+				"params": {
+					"telegraphSeconds": 0.9,
+					"range": 5,
+					"arcDegrees": 200,
+					"maxDistance": 5,
+					"damageMult": 2,
+					"recoverSeconds": 1
+				}
 			},
 			{
-				"id": "flying_bombard",
+				"id": "fly_bomb",
 				"params": {
-					"phase": 2
+					"phase": 2,
+					"atHpFraction": 0.5,
+					"count": 4,
+					"spread": 3.5,
+					"delaySeconds": 1.2,
+					"gapSeconds": 0.3,
+					"radius": 2.5,
+					"damageMult": 2,
+					"telegraphSeconds": 0.6,
+					"recoverSeconds": 1.5
 				}
 			}
-		]
+		],
+		"radius": 1.8,
+		"speed": 2.2,
+		"patternCooldownSeconds": 1.5,
+		"contactDamageMult": 2
 	}
 ]
