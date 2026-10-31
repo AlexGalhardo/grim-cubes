@@ -13,5 +13,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **docs:** Add ROADMAP with 5 phases and 125 micro-tasks with verifiable asserts, plus the 1.1 Android appendix.
 - **docs:** Add `prompt-workers.md` (agent protocol) and `prompt-concept-arts.md` (concept art prompts).
 - **repo:** Add `.editorconfig` (tab 4), `.markdownlint-cli2.jsonc`, `.gitignore`, `CLAUDE.md`, `AGENTS.md`, `docs/PROGRESS.md`, proprietary `LICENSE` and `references/concept-arts/` index.
+- **repo:** Initialize git repository on `main` and connect to `AlexGalhardo/grim-cubes` ([2775e6e](https://github.com/AlexGalhardo/grim-cubes/commit/2775e6ee07d913f912d80bf5367bf5b7d867a5bb)).
 
 [Unreleased]: https://github.com/AlexGalhardo/grim-cubes/compare/v0.0.0...HEAD

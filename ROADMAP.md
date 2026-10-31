@@ -45,7 +45,7 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
 
 ### E-01 Repositório e convenções
 
-- [ ] **E-01-01** Inicializar o repositório git local, conectar ao remoto `AlexGalhardo/grim-cubes`, branch `main`, commit inicial com a documentação existente. Deps: —. Resp: S2. Prio: P0.
+- [x] **E-01-01** Inicializar o repositório git local, conectar ao remoto `AlexGalhardo/grim-cubes`, branch `main`, commit inicial com a documentação existente. Deps: —. Resp: S2. Prio: P0.
   - Asserts: `git remote -v` mostra `origin` apontando para `github.com/AlexGalhardo/grim-cubes`; `git log --oneline | wc -l` ≥ 1; primeiro commit segue Conventional Commits (`chore: initial documentation`); `.env` não aparece em `git ls-files`.
 - [ ] **E-01-02** Arquivos de convenção: `.editorconfig` (tab 4), `.gitignore`, `.gitattributes` (`* text=auto eol=lf`, `*.glb binary`, `*.png binary`, `*.mp3 binary`), `LICENSE` (proprietária; já criada e aprovada em 2026-10-31, só validar), `README.md` (visão, como rodar, links para docs). Deps: E-01-01. Resp: S2. Prio: P0.
   - Asserts: todos os arquivos existem na raiz; `README.md` passa em `bunx markdownlint-cli2 README.md` (exit 0); `.gitattributes` contém `eol=lf`.
