@@ -22,6 +22,10 @@
 			"modifiers": {
 				"$ref": "common.schema.json#/$defs/modifiers"
 			},
+			"status": {
+				"enum": ["alpha"],
+				"description": "Present while a special effect is not implemented yet (TODO:ALPHA); modifiers still apply."
+			},
 			"effects": {
 				"$ref": "common.schema.json#/$defs/effects"
 			}
