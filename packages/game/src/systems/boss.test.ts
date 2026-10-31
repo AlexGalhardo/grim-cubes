@@ -20,6 +20,7 @@ import { createGameWorld, spawnBody } from "../ecs/world";
 import { computeStats, createPlayerStats } from "../rules/stats";
 import { createBehaviorSystem } from "./behavior";
 import { bossMaxHp, createBossSystem, enrageMult } from "./boss";
+import { registerPattern } from "./bossPatterns";
 import { createDamageSystem } from "./damage";
 import { createDeathSystem } from "./loot";
 import { movementSystem } from "./movement";
@@ -263,4 +264,67 @@ test("a greedy melee hero with a median build kills the Gravedigger in 45 to 90 
 	const seconds = steps / 60;
 	expect(seconds).toBeGreaterThanOrEqual(45);
 	expect(seconds).toBeLessThanOrEqual(90);
+});
+
+test("patterns are handlers looked up by id: unknown ids throw and registered ones run with the lifecycle", () => {
+	expect(() =>
+		createBossSystem({
+			def: { ...(def as NonNullable<typeof def>), patterns: [{ id: "no_such_pattern" }] },
+			rounds: roundsData.boss,
+			spawn: createSpawnSystem({
+				config: roundsData.spawn,
+				enemies: toEnemyDefs(enemiesData),
+				rng: mulberry32(1),
+			}),
+			events: createEventBuffer(8),
+			queue: setup().damage.queue,
+			hero: 1,
+			rng: mulberry32(1),
+			summonType: husk,
+			difficulty: () => 1,
+			onDefeated: () => undefined,
+		}),
+	).toThrow(RangeError);
+
+	const calls: string[] = [];
+	let left = 3;
+	registerPattern("test_pattern", () => ({
+		canStart: () => true,
+		start: () => calls.push("start"),
+		update: () => {
+			calls.push("update");
+			return --left > 0;
+		},
+		end: () => calls.push("end"),
+		tick: () => calls.push("tick"),
+	}));
+	const { world, hero, events, damage, spawn } = setup(1e9);
+	const boss = createBossSystem({
+		def: {
+			...(def as NonNullable<typeof def>),
+			patterns: [{ id: "test_pattern" }],
+			patternCooldownSeconds: 0.1,
+		},
+		rounds: roundsData.boss,
+		spawn,
+		events,
+		queue: damage.queue,
+		hero,
+		rng: mulberry32(4),
+		summonType: husk,
+		difficulty: () => 1,
+		onDefeated: () => undefined,
+	});
+	boss.start(world, 10);
+	for (let i = 0; i < 12; i++) boss.run(world);
+	// start -> 3 updates -> end, then the cooldown (6 steps) holds the next start back.
+	expect(calls.filter((c) => c !== "tick").slice(0, 5)).toEqual([
+		"start",
+		"update",
+		"update",
+		"update",
+		"end",
+	]);
+	expect(calls.filter((c) => c === "tick")).toHaveLength(12);
+	expect(() => registerPattern("test_pattern", () => ({}))).toThrow(RangeError);
 });

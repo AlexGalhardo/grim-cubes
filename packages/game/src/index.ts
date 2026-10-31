@@ -126,6 +126,8 @@ export type { BehaviorConfig, BehaviorSystem } from "./systems/behavior";
 export { BehaviorKind, createBehaviorSystem } from "./systems/behavior";
 export type { BossSystem, BossSystemDeps, BossView } from "./systems/boss";
 export { bossMaxHp, createBossSystem, enrageMult } from "./systems/boss";
+export type { PatternContext, PatternFactory, PatternHandler, PatternParams } from "./systems/bossPatterns";
+export { hasPattern, registerPattern } from "./systems/bossPatterns";
 export type { ChestOffer, ChestSystem, ChestSystemDeps } from "./systems/chest";
 export { createChestSystem } from "./systems/chest";
 export type { DamageQueue, DamageSystem, DamageSystemDeps, HeroCombatStats } from "./systems/damage";
