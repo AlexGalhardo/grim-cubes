@@ -1,4 +1,6 @@
 export type { GcGlobal } from "./gc";
+export type { Described, I18n, Messages, Params, ParamValue } from "./i18n";
+export { createI18n, i18n, t } from "./i18n";
 export type { InputState, VirtualStick } from "./input";
 export { clampUnit, createInputState, createVirtualStick } from "./input";
 export type { Logger, LoggerOptions, LogLevel, LogSink } from "./logger";
