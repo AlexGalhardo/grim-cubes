@@ -296,7 +296,7 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
 - [ ] **A-03-01** Matriarca do Pântano (round 20): modelo, padrões `summon`, `pool`, `scream`, fases, voz. Deps: A-03-00, P-05-07, A-02-01, P-06-06, E-05-04 (voz). Resp: S1 (modelo/padrões) + S2 (sistema). Prio: P0.
   - Asserts: teste: HP 2.800 no round 20; `pool` aplica lentidão 50% por 3 s; greedy mata em [60, 120] s; vídeo no PR.
 - [ ] **A-03-02** O Forjador (round 30): `shockwave`, `chains`, fase 2 com armadura 30. Deps: A-03-00, A-03-01. Resp: S1 + S2. Prio: P0.
-  - Asserts: teste: HP 5.000; fase 2 reduz dano recebido em ≈ 33% (armadura 30); greedy mata em [60, 120] s.
+  - Asserts: teste: HP 5.000; fase 2 com armadura 30 faz o chefe receber ≈ 33% do dano (redução ≈ 67%, fórmula do GDD §8.2; leitura do Orq em 2026-10-31); greedy mata em [60, 120] s.
 - [ ] **A-03-03** Roster por round: ordem fixa 10/20/30 e, a partir do 40, repetição escalada (GDD §12.1) até os chefes 4–5 existirem; modificadores de elite a partir do 60. Deps: A-03-02. Resp: S2. Prio: P1.
   - Asserts: teste: round 40 sorteia um dos 3 com HP × (1 + 0,35 × 3); round 60 adiciona 1 modificador; round 100 adiciona 2.
 
