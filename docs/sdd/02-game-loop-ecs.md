@@ -52,13 +52,24 @@ export function createLoop(hooks: LoopHooks): Loop {
 | `Invulnerable` | `ticks` | u8 (i-frames do herói) |
 | `EnemyType` | `id` | u8 (índice em `enemies.json`) |
 | `Elite` | `modifier` | u8 (0 = não elite) |
-| `Boss` | `id` | u8 (`phase`, `enrageStacks` e `enrageTimer` entram com a P-05-07) |
-| `Behavior` | `kind, state, timer` | u8, u8, u16 (`targetX/targetZ` só se `charge`/`latch_drain` precisarem, A-02-02a) |
+| `Boss` | `id, phase, enrageStacks, enrageTimer` | u8 (`id` 1-based em `bosses.json`), u8 (0 antes da invocação, 1 depois), u8, u16 |
+| `Behavior` | `kind, state, timer, aux` | u8, u8, u16, u16 (`aux` é o segundo contador de quem tem recarga ao lado de um estado, como intervalo de investida e de spawn) |
 | `Projectile` | `damage, critChance, knockback, pierce, life, explosionRadius, selfFraction` | f32, f32, f32, u8, u16, f32, f32 |
 | `ProjectileHits` | `ids` (anel de 8 por projétil), `cursor` | u16, u8 |
 | `Fragment` | `value, magnetTimer` | u16, u16 |
 | `HitFlash` | `ticks` | u8 |
 | `Knockback` | `x, z, ticks` | f32, f32, u8 |
+| `PrevHealth` | `hp` | f32 (vida no fim do passo anterior; a Sanguessuga solta quando é atingida) |
+| `KnockbackResist` | `value` | f32 (fração do knockback ignorada; 0,7 no Afogado) |
+| `Bleed` | `perStep, ticks, shown` | f32, u16, f32 (`bone_saw`: dano por passo ainda a aplicar) |
+| `ThornsCooldown` | `ticks` | u8 (`spiked_boots`: passos até o mesmo inimigo sofrer o contato de novo) |
+| `EnemyShot` | `damage, life` | f32, u16 (projétil do Vigia e do Forjador; vivo enquanto `life > 0`) |
+| `Breakable` | `cx, cz, index, type` | f32, f32, u8, u8 (urna destrutível; chunk, índice e tipo do prop) |
+| `Consumable` | `kind` | u8 (1 frasco de sangue, 2 ímã de ossos) |
+| `Chest` | `tier, choices, picks, heals` | u8 × 4 |
+| `Stealth` | `alpha` | f32 (Caçador Alfa invisível; as armas não o miram) |
+| `Egg` | `hatch` | u16 (ovo da Rainha, alvo destrutível que choca em `hatch` passos) |
+| `IgnoresProps` | — | tag (atravessa props: visão térmica do Caçador, Rainha no ar) |
 | `PlayerFaction`, `EnemyFaction` | — | tags |
 
 Não existem componentes `Anim`, `Render` nem `Lifetime`: o render deriva clipe, mesh e instância de `EnemyType`, `Facing`, `Attacking` e `HitFlash`, e a vida útil do projétil está em `Projectile.life`. `Prop` vira entidade só para props destrutíveis (provisório até P-01-05).
@@ -103,6 +114,8 @@ Cada sistema é uma fábrica `createXSystem(deps)` que devolve `run(world, hero?
 ## 4. Eventos
 
 Ring buffer contínuo de 1.024 eventos (struct de arrays: `type: u8, a: f32, b: f32, c: f32, entity: u16`). Há um único consumidor: o render port chama `consumeEvents` uma vez por frame após `simulate`, e o `consume` esvazia o buffer. A UI não lê eventos; lê o snapshot do store. O visitor não pode chamar `push` durante o `consume`. Se o produtor ultrapassar 1.024 eventos não lidos, os mais antigos são sobrescritos e o contador `dropped` é incrementado (exposto em `?debug=1`; deve ser 0 nos testes).
+
+Catálogo (`packages/game/src/ecs/events.ts`, ids 1–40; `a/b/c` e `entity` conforme o comentário de cada tipo no código, que é a fonte): 1 `Damaged`, 2 `Died`, 3 `OriginShifted`, 4 `Dodged`, 5 `PlayerHit`, 6 `RoundStarted`, 7 `RoundEnded`, 8 `Swung`, 9 `Fired`, 10 `PoolExhausted`, 11 `LevelUp`, 12 `Exploded`, 13 `EliteIncoming`, 14 `EliteSpawned`, 15 `ChestDropped`, 16 `ChestOpened`, 17 `BossTelegraph`, 18 `BossSummon`, 19 `BossDied`, 20 `BossEnraged`, 21 `EliteEscaped`, 22 `EnemyTelegraph`, 23 `EnemyShotFired`, 24 `BossPattern`, 25 `BossPool`, 26 `BossScream`, 27 `DashStarted`, 28 `BossShockwave`, 29 `BossPhase`, 30 `Revived`, 31 `PropBroken`, 32 `ConsumableDropped`, 33 `ConsumablePicked`, 34 `BossStealth`, 35 `BossLeap`, 36 `BossEggLaid`, 37 `BossEggBroken`, 38 `BossEggHatched`, 39 `BossSweep`, 40 `BossBomb`. Todo `BossTelegraph` vem depois de um `BossPattern` que nomeia o padrão (exceção: no `mud_pool`, `a/b` são o ponto de queda da poça).
 
 ## 5. Estado da run (máquina de estados)
 
