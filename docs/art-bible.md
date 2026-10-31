@@ -264,6 +264,7 @@ Cada arquivo gerado pela ElevenLabs tem um sidecar `<nome>.meta.json`: `{ prompt
 - HUD: barras com 2 px de borda, preenchimento com 2 tons (base + luz no topo), números sempre visíveis.
 - Cartas de level-up: 3 painéis 220×300 px (escala UI 100%), ícone grande, título, valor; hover eleva 4 px.
 - Ossuário: ramos radiais em torno de um crânio central; nós como ossos gravados; comprado = runa acesa em Brasa.
+- Ícones desenhados à mão (`assets/src/icons/{item,card,node}`, 84 PNG, `icons/*` em `assets/src/models/authored.json`): glifo em grade de 14×14 blocos de 2 px dentro da moldura de 2 px; só cores da paleta; a leitura depende da forma (modo daltônico, cinza a 64 px), não da cor. Itens: 1 objeto por id, moldura por raridade e, no topo da moldura, 1 a 5 marcas de osso para o tier (a raridade também lê sem cor). Cartas: 1 glifo por atributo. Nós do Ossuário (decisão do Orq): 1 glifo por ramo (5 no total) mais 1 a 6 pontos de osso embaixo para a posição na árvore. Mapeamento ramo → glifo: `flesh` (Carne) pedaço de carne com osso; `steel` (Aço) engrenagem; `shadow` (Sombra) lua crescente; `gold` (Ouro) pilha de moedas; `ruin` (Ruína) coluna quebrada com capitel e escombros. Glifos de luminância média baixa ganham contorno claro de 1 bloco (decisão automática: média < 85; Carne, Sombra e Ruína sempre).
 - Mobile: alvos de toque ≥ 48 px; joystick virtual flutuante; HUD afastado 24 px das bordas (notches).
 - Tailwind v4: paleta de §3 registrada em `@theme` (`--color-bone`, `--color-iron`, `--color-blood`…); nenhuma cor hardcoded em componentes.
 
