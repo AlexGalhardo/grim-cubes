@@ -87,6 +87,8 @@ export const EventType = {
 	BossSweep: 39,
 	/** a, b = x, z of the target; c = seconds until the bomb explodes (then an Exploded event); entity = the boss. */
 	BossBomb: 40,
+	/** a = piles collected this step; b, c = x, z of the hero; entity = the hero. */
+	FragmentPicked: 41,
 	/** a = new level. The run paused and a card offer is waiting. */
 	LevelUp: 11,
 } as const;

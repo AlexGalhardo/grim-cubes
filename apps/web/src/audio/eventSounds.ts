@@ -107,6 +107,8 @@ export function soundFor(
 			return { ids: "sfx_dash", options: HERO };
 		case EventType.PropBroken:
 			return { ids: "sfx_prop_break", options: HIT };
+		case EventType.FragmentPicked:
+			return { ids: "sfx_pickup_fragment_01", options: { priority: "hero", maxVoices: 3 } };
 		case EventType.ConsumablePicked:
 			return { ids: "sfx_pickup_consumable", options: HERO };
 		case EventType.Revived:

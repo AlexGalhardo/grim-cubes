@@ -10,6 +10,7 @@ import {
 	Position,
 	Radius,
 } from "../ecs/components";
+import { createEventBuffer, EventType } from "../ecs/events";
 import { dropFragment } from "../ecs/fragments";
 import { createGameWorld, spawnBody } from "../ecs/world";
 import {
@@ -123,6 +124,26 @@ test("pickup magnetises piles inside the radius and credits gold and XP on arriv
 	expect(progress.xp).toBe(3);
 	expect(query(world, [Fragment]).includes(near)).toBe(false);
 	expect(query(world, [Fragment]).includes(far)).toBe(true);
+});
+
+test("pickup announces the piles it collected once per step", () => {
+	const world = createGameWorld();
+	const hero = heroAt(world);
+	dropFragment(world, 0.1, 0, 1);
+	dropFragment(world, 0.2, 0, 1);
+	const events = createEventBuffer(16);
+	const seen: number[][] = [];
+	const system = createPickupSystem({
+		fragments,
+		xp,
+		progress: createProgress(),
+		stats: { pickupRadius: 2.5, xpGain: 0 },
+		events,
+	});
+	system.run(world, hero);
+	system.run(world, hero);
+	events.consume((type, a, _b, _c, entity) => seen.push([type, a, entity]));
+	expect(seen).toEqual([[EventType.FragmentPicked, 2, hero]]);
 });
 
 test("xp curve levels up with carry-over and the xp gain multiplier", () => {

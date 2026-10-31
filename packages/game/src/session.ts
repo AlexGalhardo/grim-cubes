@@ -291,6 +291,7 @@ function build(options: GameSessionOptions) {
 		progress,
 		stats: stats.stats,
 		effects: itemEffects.effects,
+		events,
 	});
 	const aura = createAuraSystem({
 		effects: itemEffects.effects,
