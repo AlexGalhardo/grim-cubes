@@ -231,7 +231,7 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
   - Asserts: duas execuções seguidas produzem `manifest.json` byte a byte idêntico (sem `generatedAt`); fixtures inválidas (1 por regra) falham com mensagem contendo o nome da regra; a entrada `atlas_characters` do manifest aponta para PNG com hash no nome, 2048×2048.
 - [x] **P-06-03** Bake de VAT de matrizes de osso (formato do `VertexAnimationBaker`) para Carcaça e Lamento, dentro do `assets:build`: RGBA32F em `vat/<nome>.<hash>.bin` + JSON com 5 clipes (idle/walk/attack/hit/death) a 12 fps, largura (ossos+1)×4 ≤ 4096; loader no render. Deps: P-06-02. Resp: S1. Prio: P0.
   - Asserts: oráculo: fixture analítica de 2 ossos com rotação de 90° no frame 5 bate com a matriz esperada (tolerância 1e-4); o JSON de `vat_husk` (arquivo `vat/husk.<hash>.bin`) lista 5 clipes a 12 fps e largura ≤ 4096; duas execuções do bake produzem `.bin` byte a byte idêntico.
-- [ ] **P-06-04** Áudio v2 no jogo (SDD 08 §1–§2): engine, buses, unlock na tela de título, sons de hit/morte/pickup/level-up/UI (placeholders jsfxr ou ElevenLabs se E-05-04 pronta), música do menu e do Cemitério. Deps: E-05-04 (opcional), P-04-05. Resp: S2. Prio: P1.
+- [~] **P-06-04** Áudio v2 no jogo (SDD 08 §1–§2): engine, buses, unlock na tela de título, sons de hit/morte/pickup/level-up/UI (placeholders jsfxr ou ElevenLabs se E-05-04 pronta), música do menu e do Cemitério. Deps: E-05-04 (opcional), P-04-05. Resp: S2. Prio: P1. **Parcial:** motor, buses, unlock, throttle, sons por evento e música por estado entraram (testes em `apps/web/src/audio/audio.test.ts`); o assert e2e fica pendente (e2e desligado por decisão do PO).
   - Asserts: e2e: antes do clique nenhum `AudioContext` está `running`; após o clique em "Começar", `audioEngine.state === "running"`; throttle: ≤ 12 sons novos por frame (assert em debug).
 - [x] **P-06-05** `tools/audio-generate` (SDD 08 §3) com `prompts.json` para os 20 SFX do PROTÓTIPO e 2 músicas; `meta.json`; recusa de plano free. Deps: E-05-04. Resp: Est. Prio: P1.
   - Asserts: `bun run audio:generate --dry-run` lista 22 itens; com mock de API, gera arquivos e `meta.json` com `plan`; com `ELEVENLABS_PLAN=free` sem `--allow-free` sai com exit 2 e mensagem.
@@ -242,7 +242,7 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
 
 ### P-07 Demo, Electron e qualidade
 
-- [ ] **P-07-01** Modo `web-demo`: `__IS_DEMO__`, limite ao vencer o Coveiro → tela `DemoEnd` (botões Steam/Play desabilitados até existirem URLs), selo "DEMO" no menu. Deps: P-05-08. Resp: S2. Prio: P0.
+- [~] **P-07-01** Modo `web-demo`: `__IS_DEMO__`, limite ao vencer o Coveiro → tela `DemoEnd` (botões Steam/Play desabilitados até existirem URLs), selo "DEMO" no menu. Deps: P-05-08. Resp: S2. Prio: P0. **Parcial:** tela `DemoEnd`, selo "DEMO" e parada após o Coveiro entraram; falta o e2e do build `web-demo` e conferir `grep -c "gc.debug"` no build de release.
   - Asserts: e2e no build `web-demo`: após `killBoss` via cheat, a tela `DemoEnd` aparece e `Round 11` nunca inicia; no build `electron` (não demo) o round 11 inicia; `grep -c "gc.debug" dist/assets/*.js` = 0 no build de release (sem `GC_DEBUG_API=1`); o build de e2e usa `GC_DEBUG_API=1`.
 - [ ] **P-07-02** Electron 45 + electron-builder: main/preload, `contextIsolation`, build NSIS e portable, execução local do jogo completo; `steamworks.js` inicializado em modo "sem Steam" (sem App ID real ainda). Deps: P-05-08. Resp: S2. Prio: P0.
   - Asserts: `bun run build:electron` exit 0 e gera `release/grim-cubes_0.3.0_windows_x64.exe` (< 250 MB); executável abre em fullscreen e uma run completa é jogável (checklist manual do PO); `electron.yml` verde em `workflow_dispatch`.
@@ -280,7 +280,7 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
 
 ### A-01 Performance e preset
 
-- [ ] **A-01-01** Presets de vídeo (SDD 14 §5) e `SceneOptimizer` com `hardwareScalingLevel` dinâmico; tela `Options` (vídeo/áudio/gameplay/controles) completa no design system; presets em `data/presets.json` com schema. Deps: P-03-06, E-03-03 (o assert de Android depende também de P-07-05). Resp: S1 (render) + S2 (UI). Prio: P0.
+- [~] **A-01-01** Presets de vídeo (SDD 14 §5) e `SceneOptimizer` com `hardwareScalingLevel` dinâmico; tela `Options` (vídeo/áudio/gameplay/controles) completa no design system; presets em `data/presets.json` com schema. Deps: P-03-06, E-03-03 (o assert de Android depende também de P-07-05). Resp: S1 (render) + S2 (UI). Prio: P0. **Parcial:** presets, scaler dinâmico e tela `Options` entraram; falta o assert de Android (P-07-05, device) e o e2e/capturas nos 4 alvos.
   - Asserts: preset Baixo em Android Chrome 896×414 → `fpsAvg ≥ 30`, `frameP99 ≤ 40 ms` em `reports/perf-android-chrome-<device>.json` (após P-07-05); e2e num build com `GC_DEBUG_API=1`: trocar preset altera `scene.shadowsEnabled` e cap de inimigos (lidos via `gc.debug`); capturas de `Options` nos 4 alvos.
 - [ ] **A-01-02** KTX2 ETC1S no pipeline (`toktx` no CI) e carregamento condicional (`engine.getCaps().textureETC2`). `toktx` (KTX-Software) é um binário instalado no runner de CI, não um pacote npm. Usá-lo é pergunta pendente ao PO (registrar em Bloqueios antes de implementar); sem o binário, o pipeline marca `ktx2: false` (SDD 09). Deps: P-06-02, resposta do PO sobre `toktx`. Resp: S1. Prio: P1.
   - Asserts: `atlas_*.<hash>.ktx2` gerados no CI e listados no manifest; em Android Chrome o jogo carrega KTX2 (log `textureFormat: ktx2`) e a memória GPU estimada (`engine.getGlInfo` + soma de texturas) ≤ 160 MB.
@@ -325,14 +325,14 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
   - Asserts: teste: deslocamento 4 u ± 0,05; sem dano durante 0,2 s; e2e mobile: botão de dash funciona.
 - [x] **A-04-03** Dificuldades Normal/Grim/Nightmare (multiplicadores, desbloqueio no round 20, almas ×1,5/×2) + tela `Difficulty` com seed opcional; `difficultyMult` no spawn e `soulsMult` no fechamento da run. Deps: P-05-08, P-07-03. Resp: S2. Prio: P0.
   - Asserts: teste: Grim ×1,25 em HP e dano; Nightmare bloqueado até recorde Grim ≥ 20; seed digitada reproduz o mesmo hash de world (determinismo).
-- [ ] **A-04-04** Marcos e desbloqueios (GDD §20): itens no pool por kills/chefes, skin do round 50 (cosmético simples: tint), recordes no menu. Deps: P-05-08 (os recordes no menu dependem também da tela de menu, A-07). Resp: S2. Prio: P2.
+- [x] **A-04-04** Marcos e desbloqueios (GDD §20): itens no pool por kills/chefes, skin do round 50 (cosmético simples: tint), recordes no menu. Deps: P-05-08 (os recordes no menu dependem também da tela de menu, A-07). Resp: S2. Prio: P2.
   - Asserts: teste: `cube_of_wrath` fora do pool até 1.000 kills e dentro depois; menu mostra recordes por dificuldade.
 
 ### A-05 Mercador físico, voz e áudio definitivo
 
 - [ ] **A-05-01** NPC Mercador surge a 4 u ao fim do round (`emerge`/`submerge`), interação abre a loja (tela igual, com retrato animado), falas de voz (20) via ElevenLabs. Deps: P-05-04, P-06-05, P-06-06 (skeleton e `AnimationGroup` para `emerge`/`submerge`), E-05-04 (plano pago). Resp: S1 (modelo/animação) + S2 (fluxo) + Est (prompts). Prio: P1.
   - Asserts: e2e: fim do round → Mercador visível em ≤ 1 s → tocar/clicar abre `Shop`; 20 arquivos `vo_merchant_*.mp3` com `meta.plan != free`; vídeo no PR.
-- [ ] **A-05-02** SFX definitivos (lista GDD §22.1 para o conteúdo existente), músicas dos 4 biomas + 3 chefes, falas dos 3 chefes; mixer com sidechain; etapa de áudio no `assets-build` (SDD 09, hoje inexistente). Deps: P-06-05, P-06-04, E-05-04, A-03-02. Resp: Est (geração) + S2 (integração) + S1 (etapa de áudio do `assets-build`). Prio: P1.
+- [~] **A-05-02** SFX definitivos (lista GDD §22.1 para o conteúdo existente), músicas dos 4 biomas + 3 chefes, falas dos 3 chefes; mixer com sidechain; etapa de áudio no `assets-build` (SDD 09, hoje inexistente). Deps: P-06-05, P-06-04, E-05-04, A-03-02. Resp: Est (geração) + S2 (integração) + S1 (etapa de áudio do `assets-build`). Prio: P1. **Parcial (2026-10-31):** os 78 áudios estão gerados (54 SFX, 9 músicas só instrumentais, 15 falas; `docs/audio.md`). Faltam: `assets:build` recusar `plan: free` (hoje só o `audio-generate` e `tools/guards`), piso de 60 SFX e 35 falas e a medição de loudness.
   - Asserts: `assets:build` falha se qualquer áudio referenciado tiver `plan: free` (teste negativo demonstrado); `prompts.json` com ≥ 60 SFX, 7 músicas, ≥ 35 falas; loudness medido (−16/−14 LUFS ± 1) registrado no `meta.json`.
 
 ### A-06 Steam, demo pública e marketing
@@ -388,7 +388,7 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
 - [ ] **B-01-02** Rainha do Ninho (round 50): `eggs`, `sweep`, fase 2 `fly_bomb`. Deps: A-03-00, B-01-01, P-06-06, A-02-02b (Caçador dos ovos). Resp: S1 + S2. Prio: P0.
   - Asserts: teste: HP 11.000; ovos eclodem Caçadores em 6 s respeitando o cap; fase 2 aos 50%; greedy mata em [60, 120] s.
   - Estado (Esp, 2026-10-31): simulação feita (5aeaf3d: `eggs`, `sweep`, `fly_bomb`, componente `Egg`, cap respeitado na eclosão). HP provisório 65.000 (decisão do Orq 2026-10-31, revisável pelo PO; o HP 11.000 dava kill em 10–14 s no sim), o assert de HP segue o GDD §12.1. Bloqueio aberto na auditoria: armas e projéteis não acertam os ovos (P1); o HP precisa ser recalibrado no sim depois da correção. Faltam: render (ovos, arco da cauda, voo e bombas), modelo refinado e voz.
-- [ ] **B-01-03** Roster completo 60+: sorteio, 1 modificador (≥ 60), 2 (≥ 100); `sim` até o round 60. Deps: B-01-02, P-07-04. Resp: S2 + Est. Prio: P0.
+- [x] **B-01-03** Roster completo 60+: sorteio, 1 modificador (≥ 60), 2 (≥ 100); `sim` até o round 60. Deps: B-01-02, P-07-04. Resp: S2 + Est. Prio: P0.
   - Asserts: `bun run sim --runs 300 --rounds 60` termina sem erro; nenhum chefe com tempo de kill > 180 s no p50 do build greedy; relatório commitado.
 
 ### B-02 Itens, cartas e efeitos finais
@@ -408,7 +408,7 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
   - Asserts: `bun run audio:generate --dry-run` lista 0 entradas a gerar (hash do prompt atual em todos os `.meta.json`); todo `.meta.json` com `plan` ≠ `free`; `docs/audio/credits.md` com total de créditos usados.
 - [ ] **B-03-04** Calibração de juice (hit-stop, shake, knockback, números) por playtest; valores finais no bloco `vfx` de `data/render.json`. Deps: B-03-02. Resp: S2 + PO. Prio: P2.
   - Asserts: o bloco `vfx` de `data/render.json` é a única fonte (lint extra: sem literais de hit-stop no código); playtest registra nota de "impacto" ≥ 4/5.
-- [ ] **B-03-05** Pipeline de ícones de UI: 40 ícones de item, 12 de carta e 30 de nó do Ossuário, gerados em `tools/assets-gen` ou desenhados pelo PO, empacotados no `atlas_vfx_ui` pelo `assets:build` com entradas no manifest; a UI troca os placeholders pelos ícones. Deps: A-07-01, P-06-02. Resp: S1 + PO. Prio: P1.
+- [~] **B-03-05** Pipeline de ícones de UI: 40 ícones de item, 12 de carta e 30 de nó do Ossuário, gerados em `tools/assets-gen` ou desenhados pelo PO, empacotados no `atlas_vfx_ui` pelo `assets:build` com entradas no manifest; a UI troca os placeholders pelos ícones. Deps: A-07-01, P-06-02. Resp: S1 + PO. Prio: P1. **Parcial:** 84 ícones (42 itens, 12 cartas, 30 nós; o assert diz 82) empacotados no `atlas_vfx_ui` e usados pela UI, com teste de cobertura de ids em `tools/guards`; faltam as capturas nos 4 alvos (e2e pendente).
   - Asserts: `assets:build` exit 0 com 82 sprites de ícone no `atlas_vfx_ui`; teste: todo id de `data/items.json`, `data/cards.json` e `data/ossuary.json` tem ícone no manifest; captura de Loja, Level-up e Ossuário nos 4 alvos.
 
 ### B-04 Plataforma e distribuição
