@@ -28,6 +28,7 @@ import {
 	chooseDifficulty,
 	createAuraSystem,
 	createBehaviorSystem,
+	createBiomeMap,
 	createBleedSystem,
 	createBossRoster,
 	createChestSystem,
@@ -106,6 +107,7 @@ import { createInputSources, createWebStorage, detectPlatform, type StorageKey }
 import {
 	CAMERA,
 	type Character,
+	createAtmosphere,
 	createBenchRecorder,
 	createCharacters,
 	createChunkRenderer,
@@ -155,6 +157,18 @@ function auraTint(aura: string): readonly [number, number, number] {
 	const channel = (offset: number): number =>
 		(Number.parseInt(hex.slice(offset, offset + 2), 16) / 255) * 2;
 	return [channel(0), channel(2), channel(4)];
+}
+
+/** Floor base colour of a biome: its fog colour pulled halfway towards the shadow tone, so floors read lighter than fog. */
+function floorTint(fogColor: string): string {
+	const mixChannel = (offset: number): string => {
+		const a = Number.parseInt(fogColor.slice(1 + offset, 3 + offset), 16);
+		const b = Number.parseInt(PALETTE.shadow.slice(1 + offset, 3 + offset), 16);
+		return Math.round(a + (b - a) * 0.5)
+			.toString(16)
+			.padStart(2, "0");
+	};
+	return `#${mixChannel(0)}${mixChannel(2)}${mixChannel(4)}`;
 }
 
 const NO_CARDS: readonly CardView[] = [];
@@ -476,6 +490,11 @@ async function boot(): Promise<void> {
 		maxPropsPerChunk: worldData.maxPropsPerChunk,
 	});
 	const chunks = createChunkSystem(worldData, chunkGen.generate);
+	// Rings by distance (A-02-01). `biomeMap.at(absX, absZ)` is what the spawner uses to pick the enemy pool.
+	const biomeMap = createBiomeMap(
+		biomesData,
+		biomesData.flatMap((biome, index) => (biome.props ? [index] : [])),
+	);
 	const propCollision = createPropCollision(chunks, {
 		chunkSize: worldData.chunkSize,
 		avoidLookahead: worldData.propAvoidLookahead,
@@ -726,8 +745,18 @@ async function boot(): Promise<void> {
 			maxPropsPerChunk: worldData.maxPropsPerChunk,
 			loadRadius: worldData.loadRadius,
 			fade: renderData.propFade,
+			floorTints: biomesData.map((biome, index) =>
+				index === 0 || !biome.fogColor ? undefined : floorTint(biome.fogColor),
+			),
 		},
 		propTypes,
+	);
+
+	const atmosphere = createAtmosphere(
+		game,
+		biomeMap,
+		biomesData.map((biome) => ({ fogColor: biome.fogColor, music: biome.music })),
+		(track) => log.info("biome music", track),
 	);
 
 	const fighting = (): boolean => run.state === "Round" || run.state === "BossRound";
@@ -1073,6 +1102,7 @@ async function boot(): Promise<void> {
 		render: (alpha) => {
 			port.sync(world, alpha);
 			port.consumeEvents(events);
+			atmosphere.update(origin.x + (Position.x[hero] ?? 0), origin.z + (Position.z[hero] ?? 0));
 			chunkRenderer.update(
 				origin.x,
 				origin.z,

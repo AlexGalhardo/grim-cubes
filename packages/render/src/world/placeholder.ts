@@ -34,20 +34,30 @@ export const PLACEHOLDER_PROPS: readonly PropTypeDef[] = [
 	{ name: "prop_urn", size: [0.5, 0.7, 0.5], color: "shadow" },
 ];
 
-/** Generated stand-in for `atlas_terrain`: one row of TERRAIN_VARIANTS tiles shading night2 towards shadow. */
-export function createPlaceholderTerrain(scene: Scene): RawTexture {
-	const width = TERRAIN_TILE * TERRAIN_VARIANTS;
+/**
+ * Generated stand-in for `atlas_terrain`: one block of TERRAIN_VARIANTS tiles per biome, each shading its base colour
+ * towards `shadow`. Biome 0 (the cemetery) keeps the original night2 base; `tints[i]` overrides the base of biome i.
+ */
+export function createPlaceholderTerrain(
+	scene: Scene,
+	tints: readonly (string | undefined)[] = [],
+): RawTexture {
+	const biomeCount = Math.max(1, tints.length);
+	const width = TERRAIN_TILE * TERRAIN_VARIANTS * biomeCount;
 	const data = new Uint8Array(width * TERRAIN_TILE * 4);
-	const from = Color3.FromHexString(PALETTE.night2);
 	const to = Color3.FromHexString(PALETTE.shadow);
-	for (let variant = 0; variant < TERRAIN_VARIANTS; variant++) {
-		const mix = (variant / (TERRAIN_VARIANTS - 1)) * 0.5;
-		const r = Math.round((from.r + (to.r - from.r) * mix) * 255);
-		const g = Math.round((from.g + (to.g - from.g) * mix) * 255);
-		const b = Math.round((from.b + (to.b - from.b) * mix) * 255);
-		for (let y = 0; y < TERRAIN_TILE; y++) {
-			for (let x = 0; x < TERRAIN_TILE; x++) {
-				data.set([r, g, b, 255], (y * width + variant * TERRAIN_TILE + x) * 4);
+	for (let biome = 0; biome < biomeCount; biome++) {
+		const from = Color3.FromHexString(tints[biome] ?? PALETTE.night2);
+		for (let v = 0; v < TERRAIN_VARIANTS; v++) {
+			const variant = biome * TERRAIN_VARIANTS + v;
+			const mix = (v / (TERRAIN_VARIANTS - 1)) * 0.5;
+			const r = Math.round((from.r + (to.r - from.r) * mix) * 255);
+			const g = Math.round((from.g + (to.g - from.g) * mix) * 255);
+			const b = Math.round((from.b + (to.b - from.b) * mix) * 255);
+			for (let y = 0; y < TERRAIN_TILE; y++) {
+				for (let x = 0; x < TERRAIN_TILE; x++) {
+					data.set([r, g, b, 255], (y * width + variant * TERRAIN_TILE + x) * 4);
+				}
 			}
 		}
 	}

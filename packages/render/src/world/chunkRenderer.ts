@@ -24,6 +24,8 @@ export interface ChunkRendererConfig {
 	loaderMirrored?: boolean;
 	/** Fade parameters (data/render.json); required for any prop type that carries `fade`. */
 	fade?: FadeConfig;
+	/** Base colour of each biome's floor tiles (hex, by biome index); undefined keeps the cemetery look. */
+	floorTints?: readonly (string | undefined)[];
 }
 
 export interface FadeView {
@@ -86,6 +88,7 @@ export function createChunkRenderer(
 ): ChunkRenderer {
 	const { scene } = game;
 	const slotCount = chunks.slots.length;
+	const biomeCount = Math.max(1, config.floorTints?.length ?? 1);
 	const size = config.chunkSize;
 	scene.getMeshByName("ground")?.setEnabled(false);
 
@@ -119,7 +122,7 @@ export function createChunkRenderer(
 	vertexData.applyToMesh(floor, true);
 	floor.alwaysSelectAsActiveMesh = true;
 	const floorMaterial = new StandardMaterial("chunk_floor", scene);
-	floorMaterial.diffuseTexture = createPlaceholderTerrain(scene);
+	floorMaterial.diffuseTexture = createPlaceholderTerrain(scene, config.floorTints);
 	floorMaterial.specularColor = Color3.Black();
 	floorMaterial.backFaceCulling = false;
 	floorMaterial.freeze();
@@ -179,9 +182,9 @@ export function createChunkRenderer(
 	const stats = { floorWrites: 0, propRebuilds: 0 };
 
 	const u0 = (variant: number): number =>
-		(variant * TERRAIN_TILE + 0.5) / (TERRAIN_TILE * TERRAIN_VARIANTS);
+		(variant * TERRAIN_TILE + 0.5) / (TERRAIN_TILE * TERRAIN_VARIANTS * biomeCount);
 	const u1 = (variant: number): number =>
-		((variant + 1) * TERRAIN_TILE - 0.5) / (TERRAIN_TILE * TERRAIN_VARIANTS);
+		((variant + 1) * TERRAIN_TILE - 0.5) / (TERRAIN_TILE * TERRAIN_VARIANTS * biomeCount);
 
 	function writeQuad(i: number): void {
 		const chunk = chunks.slots[i] ?? null;
@@ -215,7 +218,9 @@ export function createChunkRenderer(
 			return;
 		}
 		for (let cube = 0; cube < cubes; cube++) {
-			const variant = cubeVariant(chunk.cx, chunk.cz, cube, chunk.floorVariant);
+			const variant =
+				cubeVariant(chunk.cx, chunk.cz, cube, chunk.floorVariant) +
+				Math.min(chunk.biome, biomeCount - 1) * TERRAIN_VARIANTS;
 			const a = u0(variant);
 			const b = u1(variant);
 			const o = q + cube * UV_FLOATS;
