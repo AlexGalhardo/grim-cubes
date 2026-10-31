@@ -6,6 +6,7 @@ import { describe, expect, it } from "vitest";
 import { createNullEngine } from "../engine";
 import { createGameScene } from "../scene/scene";
 import { loadCharacter } from "./character";
+import { createPortrait } from "./portrait";
 
 async function characterGlb(): Promise<string> {
 	const doc = new Document();
@@ -138,6 +139,35 @@ describe("character rig", () => {
 		character.setLift(2);
 		character.setPose(1, 2, 0);
 		expect(character.holder.position.y).toBe(2);
+		dispose();
+	});
+
+	it("draws a portrait through an engine view and releases it on stop", async () => {
+		const { game, character, dispose } = await setup();
+		const canvas = {} as HTMLCanvasElement;
+		const engine = game.scene.getEngine();
+		const registered: unknown[] = [];
+		engine.registerView = ((c: HTMLCanvasElement) => {
+			registered.push(c);
+			return {} as never;
+		}) as typeof engine.registerView;
+		engine.unRegisterView = ((c: HTMLCanvasElement) => {
+			registered.splice(registered.indexOf(c), 1);
+			return engine;
+		}) as typeof engine.unRegisterView;
+		const portrait = createPortrait(game, canvas, character);
+		portrait.start();
+		portrait.start();
+		expect(registered).toEqual([canvas]);
+		expect(portrait.running).toBe(true);
+		const camera = game.scene.getCameraByName("portrait");
+		expect(camera?.layerMask).not.toBe(game.camera.layerMask);
+		expect(
+			character.holder.getChildMeshes().every((m) => (m.layerMask & game.camera.layerMask) !== 0),
+		).toBe(true);
+		portrait.stop();
+		expect(registered).toEqual([]);
+		expect(game.scene.getCameraByName("portrait")).toBeNull();
 		dispose();
 	});
 });
