@@ -1,5 +1,6 @@
 import {
 	Boss,
+	bossesData,
 	EventType,
 	Facing,
 	findHero,
@@ -48,6 +49,15 @@ const MERCHANT_OFFSET_Z = 0;
 const MERCHANT_SUBMERGE_SECONDS = 0.8;
 /** Seconds the camera takes to return to its radius after the boss execution. */
 const RETURN_SECONDS = 0.6;
+/** Ids in bosses.json of the rigs that get a special motion. */
+const NEST_QUEEN = "nest_queen";
+/** The airborne Nest Queen hovers this high (u), easing in at `FLY_RISE` u/s, bobbing a little. */
+const FLY_HEIGHT = 2.2;
+const FLY_RISE = 3;
+const FLY_BOB = 0.15;
+const FLY_BOB_HZ = 0.8;
+/** A leap peaks at this height (u) halfway through its airtime. */
+const LEAP_HEIGHT = 3;
 
 /** Drives the hero, the Merchant and the Gravedigger rigs from game state and events. */
 export function createCharacters(game: GameScene, options: CharactersOptions): Characters {
@@ -64,6 +74,12 @@ export function createCharacters(game: GameScene, options: CharactersOptions): C
 	let phaseTinted: Character | undefined;
 	let auraKey = "";
 	let auraTinted: Character | undefined;
+	/** Nest Queen phase 2: flying. */
+	let flying = false;
+	let flyLift = 0;
+	let flyClock = 0;
+	let leapTotal = 0;
+	let leapLeft = 0;
 
 	hero.setVisible(true);
 	merchant?.setVisible(false);
@@ -120,6 +136,23 @@ export function createCharacters(game: GameScene, options: CharactersOptions): C
 				}
 				activeBoss?.setVisible(true);
 				if (activeBoss) pose(activeBoss, bossEntity, alpha);
+				if (activeBoss) {
+					flyClock += dt;
+					const queen = bossesData[(Boss.id[bossEntity] ?? 1) - 1]?.id === NEST_QUEEN;
+					flying = queen && (Boss.phase[bossEntity] ?? 0) >= 1;
+					const target = flying
+						? FLY_HEIGHT + Math.sin(flyClock * FLY_BOB_HZ * Math.PI * 2) * FLY_BOB
+						: 0;
+					flyLift +=
+						Math.sign(target - flyLift) * Math.min(Math.abs(target - flyLift), FLY_RISE * dt);
+					let lift = flyLift;
+					if (leapLeft > 0) {
+						leapLeft = Math.max(0, leapLeft - dt);
+						const t = 1 - leapLeft / leapTotal;
+						lift += LEAP_HEIGHT * 4 * t * (1 - t);
+					}
+					activeBoss.setLift(lift);
+				}
 			} else if (executionLeft <= 0 && activeBoss) {
 				activeBoss.setVisible(false);
 				activeBoss = undefined;
@@ -186,7 +219,17 @@ export function createCharacters(game: GameScene, options: CharactersOptions): C
 				// Phase 2 of the Forgemaster: the armour shows as a metallic tint.
 				phaseTinted = activeBoss;
 				activeBoss.setTint(PALETTE.ironLight);
+			} else if (type === EventType.BossStealth && activeBoss) {
+				// a = 1 vanished (b = the opacity to draw with), 0 revealed.
+				activeBoss.setAlpha(a === 1 ? _b : 1);
+			} else if (type === EventType.BossLeap && activeBoss) {
+				leapTotal = Math.max(c, 0.1);
+				leapLeft = leapTotal;
 			} else if (type === EventType.BossDied && activeBoss) {
+				activeBoss.setAlpha(1);
+				activeBoss.setLift(0);
+				flying = false;
+				flyLift = 0;
 				activeBoss.playFinal("death_execution");
 				executionLeft = options.executionSeconds;
 			}

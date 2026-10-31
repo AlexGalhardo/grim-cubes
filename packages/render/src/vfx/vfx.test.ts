@@ -1,23 +1,29 @@
 import type { Mesh } from "@babylonjs/core/Meshes/mesh";
 import {
 	Boss,
+	bossesData,
 	Consumable,
 	createEnemyShotPool,
 	createEventBuffer,
 	createGameWorld,
 	createProjectilePool,
 	dropFragment,
+	Egg,
+	Elite,
 	EventType,
 	Position,
+	Radius,
 	renderData,
 	spawnBody,
 } from "@gc/game";
-import { addComponent } from "bitecs";
+import { addComponent, removeEntity } from "bitecs";
 import { describe, expect, it } from "vitest";
 import { createNullEngine } from "../engine";
 import { createGameScene } from "../scene/scene";
 import { createConsumableRenderer } from "./consumables";
+import { createEggRenderer } from "./eggs";
 import { createEliteView } from "./elite";
+import { createEliteAuras } from "./eliteAura";
 import { createFragmentRenderer } from "./fragments";
 import { createHitStop } from "./hitStop";
 import { createEnemyShotRenderer, createProjectileRenderer } from "./projectiles";
@@ -566,6 +572,72 @@ describe("chain shot telegraph", () => {
 		vfx.update(1);
 		expect(vfx.telegraph.live).toBe(0);
 		Boss.id[forger] = 0;
+		dispose();
+	});
+});
+
+describe("bosses 4 and 5", () => {
+	const idOf = (id: string): number => bossesData.findIndex((b) => b.id === id) + 1;
+
+	it("warns the leap landing and the bombs on the ground, and clears them", () => {
+		const { game, vfx, world, dispose } = setup();
+		const hunter = spawnBody(world, 0, 0);
+		Boss.id[hunter] = idOf("alpha_hunter");
+		vfx.onEvent(EventType.BossPattern, 1, 0, 0, hunter);
+		vfx.onEvent(EventType.BossTelegraph, 6, 2, 0.8, hunter);
+		vfx.onEvent(EventType.BossBomb, 1, 1, 1.2, hunter);
+		vfx.update(0.1);
+		expect(vfx.zones.warnsLive).toBe(2);
+		expect((game.scene.getMeshByName("vfx_warn") as Mesh | null)?.thinInstanceCount).toBe(2);
+		vfx.update(2);
+		expect(vfx.zones.warnsLive).toBe(0);
+		Boss.id[hunter] = 0;
+		dispose();
+	});
+
+	it("draws the tail sweep as the wide 200 degree fan", () => {
+		const { game, vfx, world, dispose } = setup();
+		const queen = spawnBody(world, 0, 0);
+		Boss.id[queen] = idOf("nest_queen");
+		vfx.onEvent(EventType.BossPattern, 1, 0, 0, queen);
+		vfx.onEvent(EventType.BossTelegraph, 0, 1, 0.9, queen);
+		vfx.update(0.1);
+		expect((game.scene.getMeshByName("vfx_telegraph_wide") as Mesh | null)?.thinInstanceCount).toBe(1);
+		expect((game.scene.getMeshByName("vfx_telegraph_arc") as Mesh | null)?.thinInstanceCount).toBe(0);
+		Boss.id[queen] = 0;
+		dispose();
+	});
+
+	it("draws eggs from the Egg component and drops them when they leave the world", () => {
+		const { engine, dispose } = createNullEngine();
+		const game = createGameScene(engine);
+		const view = createEggRenderer(game);
+		const world = createGameWorld();
+		const egg = spawnBody(world, 3, 4);
+		addComponent(world, egg, Egg);
+		Egg.hatch[egg] = 60;
+		Radius.r[egg] = 0.6;
+		view.sync(world, 1);
+		expect(view.live).toBe(1);
+		expect((game.scene.getMeshByName("vfx_eggs") as Mesh | null)?.thinInstanceCount).toBe(1);
+		removeEntity(world, egg);
+		view.sync(world, 1);
+		expect(view.live).toBe(0);
+		dispose();
+	});
+
+	it("draws a ring of pads and motes per elite, in the layer of its modifier", () => {
+		const { engine, dispose } = createNullEngine();
+		const game = createGameScene(engine);
+		const auras = createEliteAuras(game, ["steel_gray", "amber", "wine", "orange"], 1);
+		const world = createGameWorld();
+		for (const modifier of [1, 3]) {
+			const e = spawnBody(world, modifier, 0);
+			addComponent(world, e, Elite);
+			Elite.modifier[e] = modifier;
+		}
+		auras.sync(world, 1, 0.5);
+		expect([0, 1, 2, 3].map((i) => auras.drawn(i))).toEqual([16, 0, 16, 0]);
 		dispose();
 	});
 });

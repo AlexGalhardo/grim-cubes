@@ -18,8 +18,6 @@ export interface TutorialInput {
 export interface Tutorial {
 	/** The step to show right now, or null (not started, finished or timed out). */
 	update(input: TutorialInput): TutorialStep | null;
-	/** True once the tutorial ended (finished or timed out): the regular tips take over. */
-	readonly done: boolean;
 }
 
 export const TUTORIAL_MS = 20_000;
@@ -29,35 +27,24 @@ type Phase = TutorialStep | "done";
 
 export function createTutorial(): Tutorial {
 	let phase: Phase = "tutorialMove";
-	let elapsedMs = 0;
-	let lastNow = -1;
-	let started = false;
+	let startedAt = -1;
 	let anchorX = 0;
 	let anchorZ = 0;
 	let killsAtStart = 0;
 	let goldAtStart = 0;
 
 	return {
-		get done(): boolean {
-			return phase === "done";
-		},
 		update(input): TutorialStep | null {
 			if (!input.enabled || input.round !== 1 || phase === "done") return null;
-			if (input.state !== "Round") {
-				// Time spent paused does not count against the 20 s.
-				lastNow = -1;
-				return started ? phase : null;
-			}
-			if (lastNow >= 0) elapsedMs += input.nowMs - lastNow;
-			lastNow = input.nowMs;
-			if (!started) {
-				started = true;
+			if (input.state !== "Round") return startedAt < 0 ? null : phase;
+			if (startedAt < 0) {
+				startedAt = input.nowMs;
 				anchorX = input.heroX;
 				anchorZ = input.heroZ;
 				killsAtStart = input.kills;
 				goldAtStart = input.gold;
 			}
-			if (elapsedMs >= TUTORIAL_MS) {
+			if (input.nowMs - startedAt >= TUTORIAL_MS) {
 				phase = "done";
 				return null;
 			}

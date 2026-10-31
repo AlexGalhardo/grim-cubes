@@ -11,8 +11,18 @@ import { createInstanceSet, type InstanceSet } from "./instances";
 export interface Telegraph {
 	/** A warning line from `entity` along (dirX, dirZ), `length` u long and `width` u wide, for `seconds`. */
 	line(entity: number, dirX: number, dirZ: number, seconds: number, length: number, width: number): void;
-	/** A 120 degree sector of radius `range` centred on (dirX, dirZ), anchored on `entity`, for `seconds`. */
-	arc(entity: number, dirX: number, dirZ: number, seconds: number, range: number): void;
+	/**
+	 * A sector of radius `range` centred on (dirX, dirZ), anchored on `entity`, for `seconds`: 120 degrees, or the wide
+	 * 200 degree one when `arcDegrees` is over 150 (the Nest Queen's tail sweep).
+	 */
+	arc(
+		entity: number,
+		dirX: number,
+		dirZ: number,
+		seconds: number,
+		range: number,
+		arcDegrees?: number,
+	): void;
 	/** Drops the warnings of `entity` (it died; its id may be recycled by another entity). */
 	cancel(entity: number): void;
 	update(dtSeconds: number): void;
@@ -21,18 +31,21 @@ export interface Telegraph {
 
 const LINE_CAPACITY = 16;
 const ARC_CAPACITY = 4;
+const WIDE_CAPACITY = 2;
 const ARC_HALF_ANGLE = Math.PI / 3;
+const WIDE_HALF_ANGLE = (Math.PI * 100) / 180;
+const WIDE_FROM_DEGREES = 150;
 const ARC_SEGMENTS = 12;
 const LAYER = 0.03;
 const MIN_ALPHA = 0.15;
 const MAX_ALPHA = 0.6;
 
-function fanMesh(scene: GameScene["scene"]): Mesh {
-	const mesh = new Mesh("vfx_telegraph_arc", scene);
+function fanMesh(scene: GameScene["scene"], name: string, halfAngle: number): Mesh {
+	const mesh = new Mesh(name, scene);
 	const positions = new Float32Array((ARC_SEGMENTS + 2) * 3);
 	const indices = new Uint32Array(ARC_SEGMENTS * 3);
 	for (let i = 0; i <= ARC_SEGMENTS; i++) {
-		const angle = -ARC_HALF_ANGLE + (2 * ARC_HALF_ANGLE * i) / ARC_SEGMENTS;
+		const angle = -halfAngle + (2 * halfAngle * i) / ARC_SEGMENTS;
 		positions[(i + 1) * 3] = Math.sin(angle);
 		positions[(i + 1) * 3 + 2] = Math.cos(angle);
 	}
@@ -67,11 +80,15 @@ export function createTelegraph(game: GameScene): Telegraph {
 	const lineMesh = CreateGround("vfx_telegraph_line", { width: 1, height: 1 }, game.scene);
 	lineMesh.material = flatMaterial(game.scene, "vfx_telegraph_line", PALETTE.bloodLight);
 	const lines = createInstanceSet(lineMesh, LINE_CAPACITY, true);
-	const arcMesh = fanMesh(game.scene);
+	const arcMesh = fanMesh(game.scene, "vfx_telegraph_arc", ARC_HALF_ANGLE);
 	arcMesh.material = flatMaterial(game.scene, "vfx_telegraph_arc", PALETTE.bloodLight);
 	const arcs = createInstanceSet(arcMesh, ARC_CAPACITY, true);
+	const wideMesh = fanMesh(game.scene, "vfx_telegraph_wide", WIDE_HALF_ANGLE);
+	wideMesh.material = flatMaterial(game.scene, "vfx_telegraph_wide", PALETTE.bloodLight);
+	const wides = createInstanceSet(wideMesh, WIDE_CAPACITY, true);
 
-	const slots = LINE_CAPACITY + ARC_CAPACITY;
+	const arcEnd = LINE_CAPACITY + ARC_CAPACITY;
+	const slots = arcEnd + WIDE_CAPACITY;
 	const entity = new Int32Array(slots).fill(-1);
 	const dirX = new Float32Array(slots);
 	const dirZ = new Float32Array(slots);
@@ -134,8 +151,9 @@ export function createTelegraph(game: GameScene): Telegraph {
 			const i = claim(0, LINE_CAPACITY);
 			if (i >= 0) start(i, e, dx, dz, seconds, len, w);
 		},
-		arc(e, dx, dz, seconds, range): void {
-			const i = claim(LINE_CAPACITY, slots);
+		arc(e, dx, dz, seconds, range, arcDegrees = 120): void {
+			const wide = arcDegrees > WIDE_FROM_DEGREES;
+			const i = wide ? claim(arcEnd, slots) : claim(LINE_CAPACITY, arcEnd);
 			if (i >= 0) start(i, e, dx, dz, seconds, range, range);
 		},
 		cancel(e): void {
@@ -144,6 +162,7 @@ export function createTelegraph(game: GameScene): Telegraph {
 		update(dt): void {
 			let nLines = 0;
 			let nArcs = 0;
+			let nWides = 0;
 			live = 0;
 			for (let i = 0; i < slots; i++) {
 				if ((entity[i] ?? -1) < 0) continue;
@@ -155,10 +174,12 @@ export function createTelegraph(game: GameScene): Telegraph {
 				live++;
 				if (i < LINE_CAPACITY)
 					write(lines, nLines++, i, width[i] ?? 1, length[i] ?? 1, (length[i] ?? 0) / 2);
-				else write(arcs, nArcs++, i, length[i] ?? 1, length[i] ?? 1, 0);
+				else if (i < arcEnd) write(arcs, nArcs++, i, length[i] ?? 1, length[i] ?? 1, 0);
+				else write(wides, nWides++, i, length[i] ?? 1, length[i] ?? 1, 0);
 			}
 			lines.commit(nLines);
 			arcs.commit(nArcs);
+			wides.commit(nWides);
 		},
 	};
 }

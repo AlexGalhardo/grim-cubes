@@ -1,5 +1,7 @@
 import {
 	Consumable,
+	Egg,
+	Elite,
 	EnemyFaction,
 	EnemyShot,
 	Fragment,
@@ -16,6 +18,8 @@ const projectileList = createQueryCache([Projectile, Position, PrevPosition]);
 const fragmentList = createQueryCache([Fragment, Position, PrevPosition]);
 const enemyShotList = createQueryCache([EnemyShot, Position, PrevPosition]);
 const consumableList = createQueryCache([Consumable, Position, PrevPosition]);
+const eliteList = createQueryCache([Elite, Position, PrevPosition]);
+const eggList = createQueryCache([Egg, Position]);
 const enemyList = createQueryCache([EnemyFaction, Position, PrevPosition]);
 
 /** First entity tagged PlayerFaction, or -1. */
@@ -51,4 +55,14 @@ export function queryEnemyShots(world: GameWorld): readonly number[] {
 /** Every consumable on the ground (blood vials and bone magnets); they leave the world when picked up. */
 export function queryConsumables(world: GameWorld): readonly number[] {
 	return consumableList(world);
+}
+
+/** Every entity carrying an elite modifier (`Elite.modifier > 0` for the live ones). */
+export function queryElites(world: GameWorld): readonly number[] {
+	return eliteList(world);
+}
+
+/** Boss eggs that have not hatched or broken yet. */
+export function queryEggs(world: GameWorld): readonly number[] {
+	return eggList(world);
 }

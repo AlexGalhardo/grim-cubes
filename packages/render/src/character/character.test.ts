@@ -128,4 +128,16 @@ describe("character rig", () => {
 		expect(character.playOnce("attack_melee")).toBe(true);
 		dispose();
 	});
+
+	it("fades the model and lifts the holder", async () => {
+		const { character, dispose } = await setup();
+		character.setAlpha(0.15);
+		const meshes = character.holder.getChildMeshes().filter((m) => m.getTotalVertices() > 0);
+		expect(meshes.length).toBeGreaterThan(0);
+		for (const m of meshes) expect(m.visibility).toBeCloseTo(0.15, 5);
+		character.setLift(2);
+		character.setPose(1, 2, 0);
+		expect(character.holder.position.y).toBe(2);
+		dispose();
+	});
 });

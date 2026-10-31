@@ -11,14 +11,21 @@ export interface Zones {
 	pool(x: number, z: number, radius: number, seconds: number): void;
 	/** A shockwave ring (the Matriarch scream pattern): expands from the centre to `radius` in `seconds`. */
 	ring(x: number, z: number, radius: number, seconds: number): void;
+	/** A ground warning that grows from the centre to `radius` and turns opaque as `seconds` run out (leap, bomb). */
+	warn(x: number, z: number, radius: number, seconds: number): void;
 	update(dtSeconds: number): void;
 	shift(dx: number, dz: number): void;
 	readonly poolsLive: number;
 	readonly ringsLive: number;
+	readonly warnsLive: number;
 }
 
 const POOL_CAPACITY = 8;
 const RING_CAPACITY = 4;
+const WARN_CAPACITY = 12;
+const WARN_MIN_SCALE = 0.25;
+const WARN_MIN_ALPHA = 0.2;
+const WARN_MAX_ALPHA = 0.6;
 const RING_SECONDS_DEFAULT = 0.6;
 const FADE_SECONDS = 1;
 const POOL_ALPHA = 0.7;
@@ -67,6 +74,15 @@ export function createZones(game: GameScene): Zones {
 	);
 	ringMesh.material = emissive(game, "vfx_scream", PALETTE.emberLight, true);
 	const rings = createInstanceSet(ringMesh, RING_CAPACITY, true);
+	const warnMesh = CreateDisc("vfx_warn", { radius: 1, tessellation: 24 }, game.scene);
+	warnMesh.rotation.x = Math.PI / 2;
+	warnMesh.bakeCurrentTransformIntoVertices();
+	const warnMaterial = emissive(game, "vfx_warn", PALETTE.bloodLight, false);
+	warnMaterial.zOffset = -3;
+	warnMesh.material = warnMaterial;
+	const warns = createInstanceSet(warnMesh, WARN_CAPACITY, true);
+	const warn = slots(WARN_CAPACITY);
+	let warnCount = 0;
 	const pool = slots(POOL_CAPACITY);
 	const ring = slots(RING_CAPACITY);
 	let poolCount = 0;
@@ -135,6 +151,12 @@ export function createZones(game: GameScene): Zones {
 		get ringsLive(): number {
 			return ringCount;
 		},
+		get warnsLive(): number {
+			return warnCount;
+		},
+		warn(x, z, radius, seconds): void {
+			warnCount = add(warn, warnCount, WARN_CAPACITY, x, z, radius, seconds);
+		},
 		pool(x, z, radius, seconds): void {
 			poolCount = add(pool, poolCount, POOL_CAPACITY, x, z, radius, seconds);
 		},
@@ -152,6 +174,7 @@ export function createZones(game: GameScene): Zones {
 		update(dt): void {
 			poolCount = age(pool, poolCount, dt);
 			ringCount = age(ring, ringCount, dt);
+			warnCount = age(warn, warnCount, dt);
 			write(
 				pools,
 				pool,
@@ -168,8 +191,21 @@ export function createZones(game: GameScene): Zones {
 				(i) => (ring.radius[i] ?? 1) * (1 - (ring.left[i] ?? 0) / (ring.total[i] ?? 1)),
 				(i) => (ring.left[i] ?? 0) / (ring.total[i] ?? 1),
 			);
+			const progress = (i: number): number => 1 - (warn.left[i] ?? 0) / (warn.total[i] ?? 1);
+			write(
+				warns,
+				warn,
+				warnCount,
+				LAYER + 0.01,
+				(i) => (warn.radius[i] ?? 1) * (WARN_MIN_SCALE + (1 - WARN_MIN_SCALE) * progress(i)),
+				(i) => WARN_MIN_ALPHA + (WARN_MAX_ALPHA - WARN_MIN_ALPHA) * progress(i),
+			);
 		},
 		shift(dx, dz): void {
+			for (let i = 0; i < warnCount; i++) {
+				warn.x[i] = (warn.x[i] ?? 0) - dx;
+				warn.z[i] = (warn.z[i] ?? 0) - dz;
+			}
 			for (let i = 0; i < poolCount; i++) {
 				pool.x[i] = (pool.x[i] ?? 0) - dx;
 				pool.z[i] = (pool.z[i] ?? 0) - dz;

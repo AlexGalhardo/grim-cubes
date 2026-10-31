@@ -36,6 +36,7 @@ const SHOCKWAVE_SECONDS = 0.4;
 /** Cubes thrown when the hero picks a consumable up (red for the vial, ember for the magnet). */
 const PICKUP_CUBES = 6;
 const SUMMON_CUBES = 14;
+const EGG_CUBES = 4;
 /** GDD section 23: the boss execution lasts 1.5 s. */
 const EXECUTION_SECONDS = 1.5;
 const EXECUTION_BURSTS = 3;
@@ -287,6 +288,13 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 					}
 				} else if (pattern?.id === "hammer_shockwave") {
 					zones.pool(bossX, bossZ, num("radius", 7), c);
+				} else if (pattern?.id === "stealth") {
+					telegraph.arc(entity, a, b, c, num("strikeRange", 2.5));
+				} else if (pattern?.id === "leap") {
+					// a, b = where the Hunter will land (like mud_pool), not a direction.
+					zones.warn(a, b, num("radius", 3.5), c);
+				} else if (pattern?.id === "sweep") {
+					telegraph.arc(entity, a, b, c, num("range", 5), num("arcDegrees", 200));
 				}
 			} else if (type === EventType.BossPool) {
 				// The pool lasts `durationSeconds` of the mud_pool pattern in bosses.json.
@@ -306,6 +314,18 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 			} else if (type === EventType.BossScream) {
 				zones.ring(a, b, c, SCREAM_SECONDS);
 				shake(config.shakeExplosion);
+			} else if (type === EventType.BossBomb) {
+				const bomb = bossesData
+					.flatMap((boss) => boss.patterns)
+					.find((pattern) => pattern.id === "fly_bomb")?.params?.radius;
+				zones.warn(a, b, typeof bomb === "number" ? bomb : 2.5, c);
+			} else if (type === EventType.BossEggLaid) {
+				burst(a, b, EGG_CUBES, propDust, 2, 3, false);
+			} else if (type === EventType.BossEggBroken) {
+				burst(a, b, count(config.explosionCubes), propDust, 3, 5, false);
+			} else if (type === EventType.BossEggHatched) {
+				burst(a, b, count(config.explosionCubes), bloodLightOnly, 3, 5, false);
+				shake(config.shakeExplosion * 0.5);
 			} else if (type === EventType.BossPattern) {
 				patternOf[entity] = a;
 			} else if (type === EventType.EnemyTelegraph) {
