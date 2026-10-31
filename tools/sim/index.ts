@@ -3,6 +3,7 @@ import { cpus } from "node:os";
 import { dirname } from "node:path";
 import type { SimOptions, SimReport } from "./lib";
 import { runSim } from "./lib";
+import { parsePolicy } from "./policy";
 import { checkTargets, summarize } from "./report";
 
 function flag(argv: string[], name: string): string | undefined {
@@ -17,6 +18,7 @@ const KNOWN = new Set([
 	"--difficulty",
 	"--weapon",
 	"--ossuary",
+	"--policy",
 	"--out",
 	"--check",
 	"--jobs",
@@ -24,7 +26,7 @@ const KNOWN = new Set([
 
 /**
  * Usage: bun run sim -- [--runs 200] [--seed 1] [--rounds 10] [--difficulty normal] [--weapon sword]
- *   [--ossuary flesh_1,steel_1] [--jobs 4] [--out reports/x.json] [--check]
+ *   [--policy greedy|tank] [--ossuary flesh_1,steel_1] [--jobs 4] [--out reports/x.json] [--check]
  * Run i uses seed (seed + i). `--check` exits 3 when a GDD 25 target is missed (skipped targets do not count).
  */
 /** Runs the batches on worker threads (one per job); a single job runs in-process. */
@@ -64,6 +66,13 @@ async function main(argv: string[]): Promise<number> {
 		console.error("sim: --seed, --rounds and --runs must be integers (rounds, runs >= 1)");
 		return 1;
 	}
+	let policy: ReturnType<typeof parsePolicy>;
+	try {
+		policy = parsePolicy(flag(argv, "--policy"));
+	} catch (error) {
+		console.error(`sim: ${error instanceof Error ? error.message : "bad --policy"}`);
+		return 1;
+	}
 	const difficulty = flag(argv, "--difficulty") ?? "normal";
 	const weapon = flag(argv, "--weapon");
 	const ossuary = flag(argv, "--ossuary")?.split(",").filter(Boolean);
@@ -73,6 +82,7 @@ async function main(argv: string[]): Promise<number> {
 		seed: seed + i,
 		rounds,
 		difficulty,
+		policy,
 		...(weapon !== undefined && { weapon }),
 		...(ossuary !== undefined && { ossuary }),
 	}));
@@ -81,14 +91,15 @@ async function main(argv: string[]): Promise<number> {
 	const checks = checkTargets(metrics, rounds);
 
 	const date = new Date().toLocaleDateString("sv-SE");
-	const out = flag(argv, "--out") ?? `reports/sim-${date}-seed${seed}-runs${runs}.json`;
+	const suffix = policy === "greedy" ? "" : `-${policy}`;
+	const out = flag(argv, "--out") ?? `reports/sim-${date}-seed${seed}-runs${runs}${suffix}.json`;
 	// Bun on Windows throws EEXIST for recursive mkdir of an existing relative dir such as "..".
 	if (!existsSync(dirname(out))) mkdirSync(dirname(out), { recursive: true });
 	const payload =
 		runs === 1
 			? { report: reports[0], metrics, checks }
 			: {
-					options: { seed, runs, rounds, difficulty },
+					options: { seed, runs, rounds, difficulty, policy },
 					metrics,
 					checks,
 					runs: reports.map((r) => ({

@@ -7,13 +7,13 @@ import {
 	Health,
 	hashWorld,
 	heroData,
-	type Modifier,
 	Position,
 	queryEnemies,
 	roundsData,
 	STEP,
 	weaponsData,
 } from "../../packages/game/src/index";
+import { POLICY_LABEL, type PolicyId, policyFor, tankSteer } from "./policy";
 
 export interface SimOptions {
 	seed: number;
@@ -24,6 +24,8 @@ export interface SimOptions {
 	maxSteps?: number;
 	/** Ossuary node ids the simulated account already owns. */
 	ossuary?: readonly string[];
+	/** Who plays: the damage-first `greedy` bot (default) or the survival-first `tank` (B-02-02). */
+	policy?: PolicyId;
 }
 
 export interface RoundReport {
@@ -54,7 +56,7 @@ export interface SimReport {
 	roundsRequested: number;
 	difficulty: string;
 	weapon: string;
-	policy: "greedy-kite";
+	policy: "greedy-kite" | "tank-kite";
 	outcome: Outcome;
 	/** Round the run was in when it stopped (the last completed round when `outcome` is "completed"). */
 	roundReached: number;
@@ -78,39 +80,8 @@ export interface SimReport {
 }
 
 const MAX_SECONDS_PER_ROUND = 90;
-
-/**
- * Value of a modifier to the greedy player, per unit. This is the *policy* of the simulated player (GDD 25: "buys the
- * best item per cost, picks the card of the stat it lacks most"), not game data: it only decides what the bot picks.
- */
-const STAT_WEIGHT: Readonly<Record<string, number>> = {
-	damage: 100,
-	attack_speed: 100,
-	crit_chance: 60,
-	max_hp: 0.8,
-	hp_regen: 30,
-	armor: 6,
-	dodge: 80,
-	speed: 25,
-	life_steal: 300,
-	range: 6,
-	luck: 0.2,
-	harvest: 4,
-	pickup_range: 10,
-	xp_gain: 30,
-};
-/** Flat value of an item whose power is a special effect rather than a stat. */
-const EFFECT_VALUE = 18;
-
-function modifierValue(mods: readonly Modifier[]): number {
-	let total = 0;
-	for (const m of mods) {
-		const weight = STAT_WEIGHT[m.stat] ?? 0;
-		// `mul` modifiers are factors around 1 (0.7 = -30%): worth their distance from 1 on a 100-point scale.
-		total += m.op === "mul" ? (m.value - 1) * weight * 0.5 : m.value * weight;
-	}
-	return total;
-}
+/** The tank stands and fights, so its boss rounds run long: it gets a longer budget before a run counts as a timeout. */
+const TANK_SECONDS_PER_ROUND = 150;
 
 function difficultyId(id: string): "normal" | "grim" | "nightmare" {
 	if (id === "normal" || id === "grim" || id === "nightmare") return id;
@@ -125,6 +96,7 @@ export function runSim(options: SimOptions): SimReport {
 	const meta = createMetaState();
 	for (const node of options.ossuary ?? []) meta.ossuary[node] = true;
 	// The same wiring the game runs (P-07-05): shop, cards, elites, bosses, props, hero status, item effects.
+	const policy = policyFor(options.policy ?? "greedy");
 	const session = createGameSession({
 		seed: options.seed,
 		difficulty,
@@ -133,8 +105,21 @@ export function runSim(options: SimOptions): SimReport {
 		autoShop: true,
 		...(options.weapon !== undefined && { weapon: options.weapon }),
 	});
-	const { world, hero, events, progress, run, shop, levelUp, chest, weapon, boss, poolItems, origin } =
-		session;
+	const {
+		world,
+		hero,
+		events,
+		progress,
+		run,
+		shop,
+		levelUp,
+		chest,
+		weapon,
+		boss,
+		poolItems,
+		origin,
+		dash,
+	} = session;
 
 	const input = createInputState();
 	const bosses: BossFight[] = [];
@@ -143,7 +128,7 @@ export function runSim(options: SimOptions): SimReport {
 		roundsRequested: options.rounds,
 		difficulty: options.difficulty,
 		weapon: weaponId,
-		policy: "greedy-kite",
+		policy: POLICY_LABEL[options.policy ?? "greedy"],
 		outcome: "timeout",
 		roundReached: 1,
 		kills: 0,
@@ -203,7 +188,9 @@ export function runSim(options: SimOptions): SimReport {
 		}
 	};
 
-	/** Greedy-kite policy: hold the weapon's range from the nearest enemy, backing off when it is closer. */
+	let dashHeld = false;
+
+	/** The policy's move: hold the weapon's range from the nearest enemy, backing off when it is closer (the tank also runs and dashes). */
 	function steer(): void {
 		const hx = Position.x[hero] ?? 0;
 		const hz = Position.z[hero] ?? 0;
@@ -215,6 +202,23 @@ export function runSim(options: SimOptions): SimReport {
 		if (fromCentre > 20 + 8 * run.round) {
 			input.moveX = -fromCentreX / fromCentre;
 			input.moveZ = -fromCentreZ / fromCentre;
+			return;
+		}
+		if (policy.id === "tank") {
+			const spots: { x: number; z: number }[] = [];
+			for (const e of queryEnemies(world)) spots.push({ x: Position.x[e] ?? 0, z: Position.z[e] ?? 0 });
+			const move = tankSteer({
+				hero: { x: hx, z: hz },
+				hpFraction: (Health.hp[hero] ?? 0) / Math.max(1, Health.max[hero] ?? 1),
+				range: weapon.range,
+				enemies: spots,
+				canDash: dash.unlocked && dash.charges > 0,
+			});
+			input.moveX = move.moveX;
+			input.moveZ = move.moveZ;
+			// The dash fires on the press edge: hold it one step, then let go.
+			input.dash = move.dash && !dashHeld;
+			dashHeld = move.dash;
 			return;
 		}
 		let best = Number.POSITIVE_INFINITY;
@@ -254,14 +258,20 @@ export function runSim(options: SimOptions): SimReport {
 	function choose(): void {
 		while (levelUp.offer) {
 			const offer = levelUp.offer;
-			if (!levelUp.choose(pickBest(offer.length, (i) => modifierValue(offer[i]?.modifiers ?? []))))
+			if (
+				!levelUp.choose(
+					pickBest(offer.length, (i) => policy.modifierValue(offer[i]?.modifiers ?? [])),
+				)
+			)
 				break;
 		}
 		while (chest.offer) {
 			const offer = chest.offer;
 			const index = pickBest(
 				offer.length,
-				(i) => modifierValue(offer[i]?.modifiers ?? []) + EFFECT_VALUE,
+				(i) =>
+					policy.modifierValue(offer[i]?.modifiers ?? []) +
+					policy.chestBonus(poolItems.find((it) => it.id === offer[i]?.id)?.effects),
 			);
 			if (!chest.choose(index)) break;
 		}
@@ -280,10 +290,10 @@ export function runSim(options: SimOptions): SimReport {
 				if (slot.kind === "item") {
 					const item = poolItems.find((it) => it.id === slot.id);
 					benefit =
-						modifierValue(item?.modifiers ?? []) +
-						(item && item.effects.length > 0 ? EFFECT_VALUE : 0);
+						policy.modifierValue(item?.modifiers ?? []) +
+						(item ? policy.effectValue(item.effects) : 0);
 				} else if (slot.kind === "upgrade") {
-					benefit = 40;
+					benefit = policy.upgradeValue;
 				}
 				const ratio = benefit / Math.max(1, slot.price);
 				if (benefit > 0 && ratio > bestRatio) {
@@ -296,7 +306,11 @@ export function runSim(options: SimOptions): SimReport {
 		}
 	}
 
-	const maxSteps = options.maxSteps ?? Math.ceil((options.rounds * MAX_SECONDS_PER_ROUND) / STEP);
+	const maxSteps =
+		options.maxSteps ??
+		Math.ceil(
+			(options.rounds * (policy.id === "tank" ? TANK_SECONDS_PER_ROUND : MAX_SECONDS_PER_ROUND)) / STEP,
+		);
 	run.newRun();
 	while (steps < maxSteps) {
 		if (run.state === "Results") {
@@ -305,6 +319,7 @@ export function runSim(options: SimOptions): SimReport {
 		}
 		choose();
 		if (run.state === "Round" || run.state === "BossRound") steer();
+		else input.dash = false;
 		session.step(input);
 		// A level-up or chest pauses the round mid-fight, so the fight is told apart by its round, not by the state.
 		if (run.state === "BossRound" && bosses.at(-1)?.round !== run.round) {

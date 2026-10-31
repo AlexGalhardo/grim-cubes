@@ -34,3 +34,21 @@ it("gives the same reports with one job or several, and accepts an out path abov
 it("rejects unknown options with exit code 2", () => {
 	expect(run(tmpdir(), "--nope").status).toBe(2);
 });
+
+it("accepts --policy tank, records it in the report and rejects an unknown policy with exit code 1", () => {
+	const dir = mkdtempSync(join(tmpdir(), "sim-"));
+	const out = join(dir, "tank.json");
+	expect(run(dir, "--runs", "1", "--rounds", "2", "--policy", "tank", "--out", out).status).toBe(0);
+	const report = JSON.parse(readFileSync(out, "utf8")) as { report: { policy: string } };
+	expect(report.report.policy).toBe("tank-kite");
+	const many = join(dir, "many.json");
+	expect(
+		run(dir, "--runs", "2", "--rounds", "2", "--policy", "tank", "--jobs", "1", "--out", many).status,
+	).toBe(0);
+	expect((JSON.parse(readFileSync(many, "utf8")) as { options: { policy: string } }).options.policy).toBe(
+		"tank",
+	);
+	const bad = run(dir, "--runs", "1", "--rounds", "1", "--policy", "glass");
+	expect(bad.status).toBe(1);
+	expect(bad.stderr).toContain("unknown policy");
+}, 120_000);
