@@ -100,6 +100,7 @@ export type { StatLine } from "./rules/describe";
 export { describeEffect, describeModifier, describeStats } from "./rules/describe";
 export type { Records } from "./rules/difficulty";
 export { chooseDifficulty, difficultyData, isUnlocked, parseSeed } from "./rules/difficulty";
+export { EFFECT_HANDLERS, IMPLEMENTED_EFFECT_IDS } from "./rules/effectIds";
 export type { AuraEffect, EffectSource, EffectsExtra, ItemEffects } from "./rules/effects";
 export { computeEffects, createItemEffects } from "./rules/effects";
 export type { EliteRoller, EliteStats } from "./rules/elite";
