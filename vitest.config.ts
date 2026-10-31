@@ -2,6 +2,9 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
 	test: {
+		// Half the cores: shared dev machines and CI runners saturate otherwise, which stretches every test and the
+		// Playwright runs sharing the box.
+		maxWorkers: "50%",
 		coverage: {
 			provider: "istanbul",
 			reporter: ["text", "json-summary"],
