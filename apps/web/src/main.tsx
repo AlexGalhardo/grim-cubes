@@ -54,6 +54,7 @@ import {
 } from "@gc/render";
 import { App, type CardView, type HudState } from "@gc/ui";
 import { createRoot } from "react-dom/client";
+import { bootArtReview } from "./artReview";
 import "./main.css";
 
 const log = createLogger("boot");
@@ -72,6 +73,11 @@ async function boot(): Promise<void> {
 	if (!canvas || !uiRoot) throw new Error("Missing #game or #ui element");
 
 	window.gc = { ready: false };
+	const params = new URLSearchParams(location.search);
+	if (__DEBUG_API__ && params.has("art")) {
+		await bootArtReview(canvas, params);
+		return;
+	}
 	const platform = detectPlatform();
 	const stick = platform.touch ? createVirtualStick() : undefined;
 
@@ -229,7 +235,9 @@ async function boot(): Promise<void> {
 					{
 						capacity: roundsData.spawn.maxSimultaneous + worldData.hordeRenderSlack,
 						ghostCapacity: worldData.hordeRenderSlack,
-						deltaSeconds: () => render.engine.getDeltaTime() / 1000,
+						// Frozen while paused (level-up) so the frame is stable for screenshots and the horde does not keep animating.
+						deltaSeconds: () =>
+							run.state === "Paused" ? 0 : render.engine.getDeltaTime() / 1000,
 					},
 				)
 			: undefined;
