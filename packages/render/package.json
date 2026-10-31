@@ -4,5 +4,8 @@
 	"private": true,
 	"type": "module",
 	"exports": "./src/index.ts",
-	"dependencies": { "@gc/core": "workspace:*", "@gc/game": "workspace:*" }
+	"dependencies": {
+		"@gc/core": "workspace:*",
+		"@gc/game": "workspace:*"
+	}
 }

@@ -1,0 +1,3 @@
+`Math.random($args)` where {
+	register_diagnostic(span = $args, message = "Math.random is forbidden in packages/game; use the seeded RNG streams from @gc/core.", severity = "error")
+}

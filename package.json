@@ -9,7 +9,10 @@
 		"bun": ">=1.4.4",
 		"node": ">=22"
 	},
-	"workspaces": ["apps/*", "packages/*"],
+	"workspaces": [
+		"apps/*",
+		"packages/*"
+	],
 	"scripts": {
 		"dev": "vite --config apps/web/vite.config.ts",
 		"build": "bun run data:check && bun run assets:build && vite build --mode web-demo",

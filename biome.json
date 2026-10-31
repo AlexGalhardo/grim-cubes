@@ -1,0 +1,112 @@
+{
+	"$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+	"vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
+	"files": {
+		"includes": [
+			"**/*.{ts,tsx,js,mjs,json,jsonc,css}",
+			"!public/assets",
+			"!apps/android",
+			"!release",
+			"!bun.lock"
+		]
+	},
+	"formatter": { "indentStyle": "tab", "indentWidth": 4, "lineWidth": 110 },
+	"linter": {
+		"rules": {
+			"preset": "recommended",
+			"suspicious": { "noExplicitAny": "error", "noConsole": "error", "noImportCycles": "error" },
+			"correctness": { "noUnusedImports": "error", "noUnresolvedImports": "error" },
+			"nursery": { "noFloatingPromises": "error" },
+			"style": {
+				"noRestrictedImports": {
+					"level": "error",
+					"options": {
+						"patterns": [
+							{
+								"group": ["@babylonjs/core"],
+								"message": "Import Babylon by subpath (e.g. @babylonjs/core/Engines/engine), never the barrel."
+							}
+						]
+					}
+				}
+			}
+		}
+	},
+	"overrides": [
+		{
+			"includes": ["packages/core/src/logger.ts"],
+			"linter": { "rules": { "suspicious": { "noConsole": "off" } } }
+		},
+		{
+			"includes": ["tools/**", "**/*.test.ts"],
+			"linter": { "rules": { "suspicious": { "noConsole": "off" } } }
+		},
+		{
+			"includes": ["packages/game/**"],
+			"plugins": ["./tools/biome/no-math-random.grit"],
+			"linter": {
+				"rules": {
+					"style": {
+						"noRestrictedImports": {
+							"level": "error",
+							"options": {
+								"patterns": [
+									{
+										"group": ["@gc/render", "@gc/ui", "@gc/platform", "@babylonjs/*"],
+										"message": "game depends only on core (SDD 01 §2); Babylon belongs to render."
+									}
+								]
+							}
+						}
+					}
+				}
+			}
+		},
+		{
+			"includes": ["packages/core/**"],
+			"linter": {
+				"rules": {
+					"style": {
+						"noRestrictedImports": {
+							"level": "error",
+							"options": {
+								"patterns": [
+									{
+										"group": [
+											"@gc/game",
+											"@gc/render",
+											"@gc/ui",
+											"@gc/platform",
+											"@babylonjs/*"
+										],
+										"message": "core depends on nothing else (SDD 01 §2)."
+									}
+								]
+							}
+						}
+					}
+				}
+			}
+		},
+		{
+			"includes": ["packages/ui/**"],
+			"linter": {
+				"rules": {
+					"style": {
+						"noRestrictedImports": {
+							"level": "error",
+							"options": {
+								"patterns": [
+									{
+										"group": ["@gc/game", "@gc/render", "@gc/platform", "@babylonjs/*"],
+										"message": "ui reads only the store from core (SDD 01 §2)."
+									}
+								]
+							}
+						}
+					}
+				}
+			}
+		}
+	]
+}

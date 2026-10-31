@@ -1,6 +1,10 @@
 {
 	"extends": "../../tsconfig.base.json",
-	"compilerOptions": { "outDir": "../../node_modules/.tsc/render", "tsBuildInfoFile": "../../node_modules/.tsc/render/.tsbuildinfo", "rootDir": "src" },
+	"compilerOptions": {
+		"outDir": "../../node_modules/.tsc/render",
+		"tsBuildInfoFile": "../../node_modules/.tsc/render/.tsbuildinfo",
+		"rootDir": "src"
+	},
 	"include": ["src"],
 	"references": [{ "path": "../core" }, { "path": "../game" }]
 }
