@@ -194,7 +194,7 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
   - Asserts: teste: durações dos rounds 1–12 = [20,25,30,35,40,45,50,55,60,60(chefe: sem timer),60,60] s em passos; fragmentos no chão ao fim do round vão para a Bolsa e reaparecem no seguinte (contagem conservada).
 - [x] **P-05-02** Fragmentos (drop por tipo, chance decrescente, 50 pilhas, magnet por raio de pickup), XP + ouro, colheita no fim do round. Deps: P-05-01, P-04-01. Resp: S2. Prio: P0.
   - Asserts: teste: round 10 → chance de drop 85% (10.000 amostras ±1%); 60 pilhas viram 50 com valor conservado; colheita 4 no round 5 → `ceil(4 × 1,25) = 5`.
-- [ ] **P-05-03** Level-up (curva GDD §16.1, 3 cartas de `cards.json`, pausa) + tela `LevelUp` no design system. Deps: P-05-02, E-03-03. Resp: S2. Prio: P0.
+- [x] **P-05-03** Level-up (curva GDD §16.1, 3 cartas de `cards.json`, pausa) + tela `LevelUp` no design system. Deps: P-05-02, E-03-03. Resp: S2. Prio: P0.
   - Asserts: teste: XP para passar do nível 10 para o 11 = 82 (GDD §16.1); 3 cartas distintas; escolha aplica o stat e marca `dirty`; e2e: cartas aparecem e a escolha por tecla `1` fecha a tela; capturas nos 4 alvos.
 - [ ] **P-05-04** Loja (`rules/shop.ts`: preço, reroll, tier; `generateShop`, garantias, lock, venda de arma a 50%) + tela `Shop` (4 slots, upgrade de arma, stats com delta, reroll, lock, próximo round). Deps: P-05-01, P-04-04, E-03-03. Resp: S2. Prio: P0.
   - Asserts: testes com oráculo Brotato: item base 20 no round 1 custa 23 e no round 10 custa 50; reroll no round 10 = 11, 15, 19; T4 no round 20 ≈ 2,99% (±0,1 sem luck); rounds 1–2 garantem ≥ 1 arma; e2e compra/reroll/lock; capturas nos 4 alvos.
@@ -209,7 +209,7 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
 
 ### P-06 Arte e áudio placeholder
 
-- [ ] **P-06-01** Modelos (`.bbmodel` gerados por script em `tools/assets-gen` + texturas conforme Art Bible; convertidos para glTF pelo `assets-build`, D5; o PO refina no Blockbench): herói, Carcaça, Lamento, Coveiro, Mercador, 10 props do Cemitério, 4 tiles de chão, 5 armas (meshes na mão). Deps: P-06-02, P-06-07. Resp: S1 (refino visual com o PO no Blockbench). Prio: P0.
+- [x] **P-06-01** Modelos (`.bbmodel` gerados por script em `tools/assets-gen` + texturas conforme Art Bible; convertidos para glTF pelo `assets-build`, D5; o PO refina no Blockbench): herói, Carcaça, Lamento, Coveiro, Mercador, 10 props do Cemitério, 4 tiles de chão, 5 armas (meshes na mão). Deps: P-06-02, P-06-07. Resp: S1 (refino visual com o PO no Blockbench). Prio: P0.
   - Asserts: `bun run assets:build` exit 0 (validações de elementos, textura, cores, sockets); capturas de cada modelo em `docs/art/review/*.png`; teste de silhueta (preto sólido a 64 px) anexado e aprovado pelo PO em PROGRESS.
 - [x] **P-06-02** `tools/assets-build` (SDD 09): validação, atlas por categoria (MaxRects), reescrita de UV via `@gltf-transform/core` (aprovada; codec PNG `pngjs` aprovado pelo PO em 2026-10-31), manifest com grupos. Deps: E-02-01. Resp: S1. Prio: P0.
   - Asserts: duas execuções seguidas produzem `manifest.json` byte a byte idêntico (sem `generatedAt`); fixtures inválidas (1 por regra) falham com mensagem contendo o nome da regra; a entrada `atlas_characters` do manifest aponta para PNG com hash no nome, 2048×2048.

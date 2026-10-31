@@ -73,6 +73,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **input:** Poll input once per frame and drop the per-call gamepad closure ([08a586c](https://github.com/AlexGalhardo/grim-cubes/commit/08a586cc6f31ab9a65e37ba569a32e0b5f4f8833))
 - **game:** Add typed data loaders in `packages/game/src/data` ([7d9e747](https://github.com/AlexGalhardo/grim-cubes/commit/7d9e747a547f92aea1769cf1549dea68d95e91ea))
 - **assets:** Convert validated `.bbmodel` files to rigid-skin glTF in `assets-build` (D5) ([0c6a918](https://github.com/AlexGalhardo/grim-cubes/commit/0c6a918143c7ff2ceb362ec2cfb4aab731d73314))
+- **assets:** Reject unsupported `.bbmodel` features (Molang, interpolation, face rotation, box UV) and budget elements by size class; add `data/props.json` ([f4b4a64](https://github.com/AlexGalhardo/grim-cubes/commit/f4b4a6417e78b398a2ef1431c5f1d17b35857958))
+- **game:** Add stats composition, card draws and level-up flow ([2a9abc8](https://github.com/AlexGalhardo/grim-cubes/commit/2a9abc89d4cab2e78941f63e2361f3bf4b512ba0))
+- **ui:** Add LevelUp screen and XP, level and gold in the HUD ([611b1d5](https://github.com/AlexGalhardo/grim-cubes/commit/611b1d5ee89ed35f4511fd51ae0ec21fa2b00c39))
+- **web:** Wire the full run loop (combat, spawn, drops, XP, level-up, chunks, origin shift) into the web app ([2d5d8dd](https://github.com/AlexGalhardo/grim-cubes/commit/2d5d8dd7ea2c8708e9f63b41033dbc547143aced))
+- **e2e:** Add level-up e2e and deterministic boot seed ([2a9abc8](https://github.com/AlexGalhardo/grim-cubes/commit/2a9abc89d4cab2e78941f63e2361f3bf4b512ba0))
+- **assets:** Add `tools/assets-gen` generating the 24 PROTÓTIPO placeholder `.bbmodel` models and textures ([fc91a7c](https://github.com/AlexGalhardo/grim-cubes/commit/fc91a7c75bd29a5c3a705e70c91f6cf4678f6125))
+- **e2e:** Run Playwright with a single worker under SwiftShader ([8945c1d](https://github.com/AlexGalhardo/grim-cubes/commit/8945c1d5377f469ae10bb2c3fd8ba076e9f3c44c))
 - **ci:** Add CI (lint, typecheck, unit, integration, build-web, e2e gated) and CodeQL workflows (#1) ([da8923e](https://github.com/AlexGalhardo/grim-cubes/commit/da8923ee65069ec95a017f53a20937718c27413b))
 
 ### Changed
