@@ -16,6 +16,8 @@ export interface PropTypeDef {
 	 * instance x is conjugated for the root mirror (coords.ts).
 	 */
 	mesh?: Mesh;
+	/** Set for tall props (render.json propFade.minHeight): they fade while they hide the hero. */
+	fade?: { radius: number; height: number };
 	/** Box size in world units. */
 	size: readonly [number, number, number];
 	/** PALETTE token name. */

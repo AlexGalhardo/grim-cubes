@@ -19,6 +19,8 @@ export const HERO_SIZE = 1;
 export interface GameScene {
 	readonly scene: Scene;
 	readonly camera: ArcRotateCamera;
+	/** The hero cube; its position is what the camera and the prop fade look at. */
+	readonly hero: Mesh;
 	setHeroPosition(x: number, z: number): void;
 	/** The world origin moved by (dx, dz): static geometry shifts by the opposite amount. */
 	shiftWorld(dx: number, dz: number): void;
@@ -65,6 +67,7 @@ export function createGameScene(engine: Engine | NullEngine, mobile = false): Ga
 	return {
 		scene,
 		camera,
+		hero,
 		shiftWorld(dx, dz) {
 			ground.unfreezeWorldMatrix();
 			ground.position.x -= dx;

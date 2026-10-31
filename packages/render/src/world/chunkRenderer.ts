@@ -1,4 +1,5 @@
 import { VertexBuffer } from "@babylonjs/core/Buffers/buffer";
+import { Material } from "@babylonjs/core/Materials/material";
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { Color3 } from "@babylonjs/core/Maths/math.color";
 import { CreateBox } from "@babylonjs/core/Meshes/Builders/boxBuilder";
@@ -21,6 +22,24 @@ export interface ChunkRendererConfig {
 	 * instance x is conjugated with toLoaderLocalX. Placeholder boxes built in code leave it false.
 	 */
 	loaderMirrored?: boolean;
+	/** Fade parameters (data/render.json); required for any prop type that carries `fade`. */
+	fade?: FadeConfig;
+}
+
+export interface FadeView {
+	cameraX: number;
+	cameraZ: number;
+	cameraHeight: number;
+	heroX: number;
+	heroZ: number;
+	/** Height of the hero point the camera looks at. */
+	heroHeight: number;
+}
+
+export interface FadeConfig {
+	alpha: number;
+	ratePerSecond: number;
+	heroHalfWidth: number;
 }
 
 export interface ChunkRenderer {
@@ -28,6 +47,13 @@ export interface ChunkRenderer {
 	update(originX: number, originZ: number, heroX: number, heroZ: number): void;
 	/** Matrix buffer and live instance count of a prop type (debug and tests). */
 	instances(type: number): { buffer: Float32Array; count: number };
+	/**
+	 * Fades the tall props that hide the hero from the camera (P-02-03): a prop fades when its top is above the sight
+	 * line from the camera to the hero and the line passes within its radius. Call once per frame, scene coordinates.
+	 */
+	updateFade(view: FadeView, dtSeconds: number): void;
+	/** Lowest opacity among the fadeable props in view (1 when none fades); for tests and the debug API. */
+	minAlpha(): number;
 	readonly stats: Readonly<{ floorWrites: number; propRebuilds: number }>;
 	dispose(): void;
 }
@@ -104,6 +130,13 @@ export function createChunkRenderer(
 	const propBuffers: Float32Array[] = [];
 	const propCounts = new Int32Array(propTypes.length);
 	const mirrored = new Uint8Array(propTypes.length);
+	const colorDefined = new Uint8Array(propTypes.length);
+	// Fade state: opacity per (slot, prop) so it survives buffer rebuilds, plus the per-instance view of it.
+	const fadeAlpha = new Float32Array(slotCount * config.maxPropsPerChunk).fill(1);
+	const colorBuffers: (Float32Array | undefined)[] = [];
+	const instKey: (Int32Array | undefined)[] = [];
+	const instX: (Float32Array | undefined)[] = [];
+	const instZ: (Float32Array | undefined)[] = [];
 	propTypes.forEach((def, t) => {
 		// A loader-parented mesh sits at the model origin (feet on the ground); a placeholder box is centred.
 		const mesh =
@@ -119,6 +152,16 @@ export function createChunkRenderer(
 			buffer[o + 13] = def.mesh ? 0 : def.size[1] / 2;
 		}
 		mesh.thinInstanceSetBuffer("matrix", buffer, 16, false);
+		if (def.fade) {
+			const colors = new Float32Array(capacity * 4).fill(1);
+			mesh.thinInstanceSetBuffer("color", colors, 4, false);
+			// Per-instance alpha only blends when the mesh declares vertex alpha.
+			mesh.hasVertexAlpha = true;
+			colorBuffers[t] = colors;
+			instKey[t] = new Int32Array(capacity);
+			instX[t] = new Float32Array(capacity);
+			instZ[t] = new Float32Array(capacity);
+		}
 		mesh.thinInstanceCount = 0;
 		propMeshes[t] = mesh;
 		propBuffers[t] = buffer;
@@ -204,13 +247,36 @@ export function createChunkRenderer(
 				const n = propCounts[t] ?? 0;
 				propCounts[t] = n + 1;
 				const x = baseX + (chunk.propX[p] ?? 0);
+				const z = baseZ + (chunk.propZ[p] ?? 0);
 				buffer[n * 16 + 12] = mirrored[t] ? toLoaderLocalX(x) : x;
-				buffer[n * 16 + 14] = baseZ + (chunk.propZ[p] ?? 0);
+				buffer[n * 16 + 14] = z;
+				const colors = colorBuffers[t];
+				if (colors) {
+					const key = i * config.maxPropsPerChunk + p;
+					colors[n * 4 + 3] = fadeAlpha[key] ?? 1;
+					const keys = instKey[t];
+					const xs = instX[t];
+					const zs = instZ[t];
+					if (keys && xs && zs) {
+						keys[n] = key;
+						xs[n] = x;
+						zs[n] = z;
+					}
+				}
 			}
 		}
 		propMeshes.forEach((mesh, t) => {
 			mesh.thinInstanceCount = propCounts[t] ?? 0;
 			mesh.thinInstanceBufferUpdated("matrix");
+			if (colorBuffers[t]) {
+				mesh.thinInstanceBufferUpdated("color");
+				// The material compiled while this mesh had no instances, so it never saw `instanceColor` (Babylon
+				// only defines INSTANCESCOLOR for thin instances that exist). Recompile once instances appear.
+				if (!colorDefined[t] && (propCounts[t] ?? 0) > 0) {
+					colorDefined[t] = 1;
+					mesh.material?.markAsDirty(Material.AttributesDirtyFlag);
+				}
+			}
 		});
 		stats.propRebuilds++;
 	}
@@ -264,6 +330,61 @@ export function createChunkRenderer(
 			buffer: propBuffers[type] ?? new Float32Array(0),
 			count: propCounts[type] ?? 0,
 		}),
+		updateFade(view, dtSeconds): void {
+			const fade = config.fade;
+			if (!fade) return;
+			const dx = view.heroX - view.cameraX;
+			const dz = view.heroZ - view.cameraZ;
+			const length = Math.hypot(dx, dz);
+			if (length < 1e-3) return;
+			const ux = dx / length;
+			const uz = dz / length;
+			const k = 1 - Math.exp(-fade.ratePerSecond * dtSeconds);
+			for (let t = 0; t < propTypes.length; t++) {
+				const def = propTypes[t];
+				const colors = colorBuffers[t];
+				const keys = instKey[t];
+				const xs = instX[t];
+				const zs = instZ[t];
+				if (!def?.fade || !colors || !keys || !xs || !zs) continue;
+				let changed = false;
+				for (let n = 0; n < (propCounts[t] ?? 0); n++) {
+					const px = (xs[n] ?? 0) - view.cameraX;
+					const pz = (zs[n] ?? 0) - view.cameraZ;
+					const along = px * ux + pz * uz;
+					const lateral = Math.abs(px * uz - pz * ux);
+					let target = 1;
+					if (
+						along > 0 &&
+						along < length + def.fade.radius &&
+						lateral < def.fade.radius + fade.heroHalfWidth
+					) {
+						// The sight line drops towards the hero, so it is lowest at the prop's far edge (nearest the hero).
+						const reach = Math.min(1, (along + def.fade.radius) / length);
+						const sight = view.cameraHeight + (view.heroHeight - view.cameraHeight) * reach;
+						if (def.fade.height > sight) target = fade.alpha;
+					}
+					const key = keys[n] ?? 0;
+					const current = fadeAlpha[key] ?? 1;
+					if (current === target) continue;
+					const next =
+						Math.abs(target - current) < 0.002 ? target : current + (target - current) * k;
+					fadeAlpha[key] = next;
+					colors[n * 4 + 3] = next;
+					changed = true;
+				}
+				if (changed) propMeshes[t]?.thinInstanceBufferUpdated("color");
+			}
+		},
+		minAlpha(): number {
+			let min = 1;
+			for (let t = 0; t < propTypes.length; t++) {
+				const colors = colorBuffers[t];
+				if (!colors) continue;
+				for (let n = 0; n < (propCounts[t] ?? 0); n++) min = Math.min(min, colors[n * 4 + 3] ?? 1);
+			}
+			return min;
+		},
 		stats,
 		dispose(): void {
 			floor.dispose();

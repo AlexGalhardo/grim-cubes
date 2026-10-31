@@ -89,6 +89,13 @@ export interface RenderData {
 		radiusMobile: number;
 		followRate: number;
 	};
+	propFade: {
+		minHeight: number;
+		alpha: number;
+		ratePerSecond: number;
+		heroHalfWidth: number;
+		heroHeight: number;
+	};
 }
 
 /** One entry of `data/props.json`. */
@@ -98,6 +105,8 @@ export interface PropData {
 	kind: string;
 	/** Collision circle radius in units (blocking props). */
 	radius: number;
+	/** Model height in units. */
+	height: number;
 }
 
 export interface BiomeData {
