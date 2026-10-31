@@ -43,6 +43,8 @@ export interface TelemetryOptions {
 }
 
 export interface Telemetry {
+	/** Whether the player has telemetry on right now. */
+	readonly enabled: boolean;
 	track(name: TelemetryEventName, props?: TelemetryProps): void;
 	/** Sends what is queued; does nothing when empty or when telemetry is off. */
 	flush(): void;
@@ -74,6 +76,9 @@ export function createTelemetry(options: TelemetryOptions): Telemetry {
 	const queue: TelemetryEvent[] = [];
 
 	const telemetry: Telemetry = {
+		get enabled(): boolean {
+			return enabled();
+		},
 		track(name, props = {}): void {
 			// Off means nothing is even kept in memory.
 			if (!enabled()) return;
@@ -98,7 +103,7 @@ export function createTelemetry(options: TelemetryOptions): Telemetry {
 
 /**
  * Reports crashes by kind and error name only (never the message, stack or a path, which could carry personal data),
- * and stops after `max` a session so a loop of errors cannot flood the queue.
+ * and stops after `max` reported a session so a loop of errors cannot flood the queue.
  */
 export function createErrorReporter(
 	telemetry: Telemetry,
@@ -106,7 +111,9 @@ export function createErrorReporter(
 ): (kind: "error" | "rejection", reason: unknown) => void {
 	let reported = 0;
 	return (kind, reason) => {
-		if (reported++ >= max) return;
+		// Only what is really collected counts: errors met with telemetry off must not use up the budget.
+		if (!telemetry.enabled || reported >= max) return;
+		reported++;
 		telemetry.track("error", { kind, name: reason instanceof Error ? reason.name : "Error" });
 	};
 }

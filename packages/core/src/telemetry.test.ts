@@ -90,3 +90,15 @@ test("errors are reported by kind and name only, never the message, and stop aft
 	expect(events[1]?.props).toEqual({ kind: "rejection", name: "Error" });
 	expect(JSON.stringify(events)).not.toContain("secret");
 });
+
+test("errors met while telemetry is off do not use up the budget of five", () => {
+	const { telemetry, batches, state } = setup(false);
+	const report = createErrorReporter(telemetry);
+	for (let i = 0; i < 20; i++) report("error", new Error("off"));
+	state.on = true;
+	for (let i = 0; i < 8; i++) report("rejection", new TypeError("on"));
+	telemetry.flush();
+	expect(batches[0]).toHaveLength(5);
+	expect(batches[0]?.[0]?.props).toEqual({ kind: "rejection", name: "TypeError" });
+	expect(telemetry.enabled).toBe(true);
+});
