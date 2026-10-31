@@ -1,0 +1,43 @@
+[
+	{
+		"id": "sunken_cemetery",
+		"name": "Cemitério Afundado",
+		"ring": 0,
+		"minDistance": 0,
+		"maxDistance": 120,
+		"floorTiles": ["tile_cemetery_01", "tile_cemetery_02", "tile_cemetery_03", "tile_cemetery_04"],
+		"props": {
+			"blocking": ["prop_tombstone_01", "prop_dead_tree_01", "prop_crypt_01"],
+			"decor": ["prop_bone_01", "prop_grass_01"],
+			"breakable": ["prop_urn_01"]
+		},
+		"propDensity": 0.45,
+		"enemyPool": ["husk", "wail"],
+		"music": "mus_biome_cemetery",
+		"fogColor": "#14121C"
+	},
+	{
+		"id": "bone_swamp",
+		"name": "Pântano de Ossos",
+		"ring": 1,
+		"minDistance": 120,
+		"maxDistance": 260,
+		"enemyPool": ["drowned", "leech"]
+	},
+	{
+		"id": "infernal_forge",
+		"name": "Forja Infernal",
+		"ring": 2,
+		"minDistance": 260,
+		"maxDistance": 420,
+		"enemyPool": ["forged", "watcher"]
+	},
+	{
+		"id": "biomech_nest",
+		"name": "Ninho Biomecânico",
+		"ring": 3,
+		"minDistance": 420,
+		"repeats": true,
+		"enemyPool": ["hunter", "breeder"]
+	}
+]

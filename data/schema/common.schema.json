@@ -1,0 +1,83 @@
+{
+	"$id": "common.schema.json",
+	"$defs": {
+		"id": {
+			"type": "string",
+			"pattern": "^[a-z][a-z0-9_]*$"
+		},
+		"name": {
+			"type": "string",
+			"minLength": 1
+		},
+		"tier": {
+			"type": "integer",
+			"minimum": 1,
+			"maximum": 4
+		},
+		"stat": {
+			"enum": [
+				"max_hp",
+				"hp_regen",
+				"life_steal",
+				"damage",
+				"attack_speed",
+				"crit_chance",
+				"range",
+				"armor",
+				"dodge",
+				"speed",
+				"luck",
+				"harvest",
+				"pickup_range",
+				"xp_gain",
+				"shop_price",
+				"explosion_size",
+				"knockback",
+				"enemy_speed",
+				"boss_damage",
+				"free_rerolls"
+			]
+		},
+		"modifier": {
+			"type": "object",
+			"required": ["stat", "op", "value"],
+			"additionalProperties": false,
+			"properties": {
+				"stat": {
+					"$ref": "common.schema.json#/$defs/stat"
+				},
+				"op": {
+					"enum": ["add", "mul"]
+				},
+				"value": {
+					"type": "number"
+				}
+			}
+		},
+		"modifiers": {
+			"type": "array",
+			"items": {
+				"$ref": "common.schema.json#/$defs/modifier"
+			}
+		},
+		"effect": {
+			"type": "object",
+			"required": ["id"],
+			"additionalProperties": false,
+			"properties": {
+				"id": {
+					"$ref": "common.schema.json#/$defs/id"
+				},
+				"params": {
+					"type": "object"
+				}
+			}
+		},
+		"effects": {
+			"type": "array",
+			"items": {
+				"$ref": "common.schema.json#/$defs/effect"
+			}
+		}
+	}
+}

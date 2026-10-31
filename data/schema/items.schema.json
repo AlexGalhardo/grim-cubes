@@ -1,0 +1,30 @@
+{
+	"type": "array",
+	"minItems": 1,
+	"items": {
+		"type": "object",
+		"required": ["id", "name", "tier", "modifiers", "effects", "price"],
+		"additionalProperties": false,
+		"properties": {
+			"id": {
+				"$ref": "common.schema.json#/$defs/id"
+			},
+			"name": {
+				"$ref": "common.schema.json#/$defs/name"
+			},
+			"tier": {
+				"$ref": "common.schema.json#/$defs/tier"
+			},
+			"price": {
+				"type": "integer",
+				"minimum": 1
+			},
+			"modifiers": {
+				"$ref": "common.schema.json#/$defs/modifiers"
+			},
+			"effects": {
+				"$ref": "common.schema.json#/$defs/effects"
+			}
+		}
+	}
+}

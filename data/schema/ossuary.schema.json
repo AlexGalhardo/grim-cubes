@@ -1,0 +1,62 @@
+{
+	"type": "object",
+	"required": ["branches", "demoMaxNodeIndex"],
+	"additionalProperties": false,
+	"properties": {
+		"demoMaxNodeIndex": {
+			"type": "integer",
+			"minimum": 0
+		},
+		"branches": {
+			"type": "array",
+			"minItems": 1,
+			"items": {
+				"type": "object",
+				"required": ["id", "name", "theme", "nodes"],
+				"additionalProperties": false,
+				"properties": {
+					"id": {
+						"$ref": "common.schema.json#/$defs/id"
+					},
+					"name": {
+						"$ref": "common.schema.json#/$defs/name"
+					},
+					"theme": {
+						"$ref": "common.schema.json#/$defs/id"
+					},
+					"nodes": {
+						"type": "array",
+						"minItems": 1,
+						"items": {
+							"type": "object",
+							"required": ["id", "index", "requires", "cost", "modifiers", "effects"],
+							"additionalProperties": false,
+							"properties": {
+								"id": {
+									"$ref": "common.schema.json#/$defs/id"
+								},
+								"index": {
+									"type": "integer",
+									"minimum": 0
+								},
+								"requires": {
+									"type": ["string", "null"]
+								},
+								"cost": {
+									"type": "integer",
+									"minimum": 1
+								},
+								"modifiers": {
+									"$ref": "common.schema.json#/$defs/modifiers"
+								},
+								"effects": {
+									"$ref": "common.schema.json#/$defs/effects"
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}

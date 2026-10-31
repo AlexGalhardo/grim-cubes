@@ -1,0 +1,445 @@
+{
+	"type": "object",
+	"required": [
+		"duration",
+		"boss",
+		"spawn",
+		"biomeMix",
+		"difficulties",
+		"tierChance",
+		"fragments",
+		"xp",
+		"shop",
+		"souls"
+	],
+	"additionalProperties": false,
+	"properties": {
+		"duration": {
+			"type": "object",
+			"required": [
+				"firstRoundSeconds",
+				"stepSeconds",
+				"stepUntilRound",
+				"maxSeconds",
+				"bossEveryRounds",
+				"bossHasTimer"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"firstRoundSeconds": {
+					"type": "number",
+					"minimum": 0
+				},
+				"stepSeconds": {
+					"type": "number",
+					"minimum": 0
+				},
+				"stepUntilRound": {
+					"type": "number",
+					"minimum": 0
+				},
+				"maxSeconds": {
+					"type": "number",
+					"minimum": 0
+				},
+				"bossEveryRounds": {
+					"type": "number",
+					"minimum": 0
+				},
+				"bossHasTimer": {
+					"type": "boolean"
+				}
+			}
+		},
+		"boss": {
+			"type": "object",
+			"required": [
+				"enrageEverySeconds",
+				"enrageDamageSpeedBonus",
+				"remainingHordeFraction",
+				"contactDamageBase",
+				"contactDamagePerRound",
+				"projectileDamageBase",
+				"projectileDamagePerRound",
+				"soulsBase",
+				"soulsPerRound",
+				"hpScalePerTenRounds",
+				"rewardChest",
+				"freeWeaponUpgrades"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"enrageEverySeconds": {
+					"type": "number",
+					"minimum": 0
+				},
+				"enrageDamageSpeedBonus": {
+					"type": "number",
+					"minimum": 0
+				},
+				"remainingHordeFraction": {
+					"type": "number",
+					"minimum": 0
+				},
+				"contactDamageBase": {
+					"type": "number",
+					"minimum": 0
+				},
+				"contactDamagePerRound": {
+					"type": "number",
+					"minimum": 0
+				},
+				"projectileDamageBase": {
+					"type": "number",
+					"minimum": 0
+				},
+				"projectileDamagePerRound": {
+					"type": "number",
+					"minimum": 0
+				},
+				"soulsBase": {
+					"type": "number",
+					"minimum": 0
+				},
+				"soulsPerRound": {
+					"type": "number",
+					"minimum": 0
+				},
+				"hpScalePerTenRounds": {
+					"type": "number",
+					"minimum": 0
+				},
+				"rewardChest": {
+					"type": "object",
+					"required": ["minTier", "offered", "picks"],
+					"additionalProperties": false,
+					"properties": {
+						"minTier": {
+							"type": "number",
+							"minimum": 0
+						},
+						"offered": {
+							"type": "number",
+							"minimum": 0
+						},
+						"picks": {
+							"type": "number",
+							"minimum": 0
+						}
+					}
+				},
+				"freeWeaponUpgrades": {
+					"type": "number",
+					"minimum": 0
+				}
+			}
+		},
+		"spawn": {
+			"type": "object",
+			"required": [
+				"totalBase",
+				"totalPerRound",
+				"intervalStartSeconds",
+				"intervalPerRound",
+				"intervalMinSeconds",
+				"burstBase",
+				"burstRoundDivisor",
+				"maxSimultaneous",
+				"ringMin",
+				"ringMax",
+				"oppositeBias"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"totalBase": {
+					"type": "number",
+					"minimum": 0
+				},
+				"totalPerRound": {
+					"type": "number",
+					"minimum": 0
+				},
+				"intervalStartSeconds": {
+					"type": "number",
+					"minimum": 0
+				},
+				"intervalPerRound": {
+					"type": "number",
+					"minimum": 0
+				},
+				"intervalMinSeconds": {
+					"type": "number",
+					"minimum": 0
+				},
+				"burstBase": {
+					"type": "number",
+					"minimum": 0
+				},
+				"burstRoundDivisor": {
+					"type": "number",
+					"minimum": 0
+				},
+				"maxSimultaneous": {
+					"type": "number",
+					"minimum": 0
+				},
+				"ringMin": {
+					"type": "number",
+					"minimum": 0
+				},
+				"ringMax": {
+					"type": "number",
+					"minimum": 0
+				},
+				"oppositeBias": {
+					"type": "number",
+					"minimum": 0
+				}
+			}
+		},
+		"biomeMix": {
+			"type": "object",
+			"required": ["withPrevious", "withoutPrevious"],
+			"additionalProperties": false,
+			"properties": {
+				"withPrevious": {
+					"type": "object",
+					"required": ["current", "previous", "next"],
+					"additionalProperties": false,
+					"properties": {
+						"current": {
+							"type": "number",
+							"minimum": 0
+						},
+						"previous": {
+							"type": "number",
+							"minimum": 0
+						},
+						"next": {
+							"type": "number",
+							"minimum": 0
+						}
+					}
+				},
+				"withoutPrevious": {
+					"type": "object",
+					"required": ["current", "next"],
+					"additionalProperties": false,
+					"properties": {
+						"current": {
+							"type": "number",
+							"minimum": 0
+						},
+						"next": {
+							"type": "number",
+							"minimum": 0
+						}
+					}
+				}
+			}
+		},
+		"fragments": {
+			"type": "object",
+			"required": [
+				"guaranteedDropUntilRound",
+				"dropPercentBase",
+				"dropPercentPerRound",
+				"dropPercentMin",
+				"goldPerFragment",
+				"xpPerFragment",
+				"groundPileCap",
+				"harvestPerRound"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"guaranteedDropUntilRound": {
+					"type": "number",
+					"minimum": 0
+				},
+				"dropPercentBase": {
+					"type": "number",
+					"minimum": 0
+				},
+				"dropPercentPerRound": {
+					"type": "number",
+					"minimum": 0
+				},
+				"dropPercentMin": {
+					"type": "number",
+					"minimum": 0
+				},
+				"goldPerFragment": {
+					"type": "number",
+					"minimum": 0
+				},
+				"xpPerFragment": {
+					"type": "number",
+					"minimum": 0
+				},
+				"groundPileCap": {
+					"type": "number",
+					"minimum": 0
+				},
+				"harvestPerRound": {
+					"type": "number",
+					"minimum": 0
+				}
+			}
+		},
+		"xp": {
+			"type": "object",
+			"required": ["base", "perLevel"],
+			"additionalProperties": false,
+			"properties": {
+				"base": {
+					"type": "number",
+					"minimum": 0
+				},
+				"perLevel": {
+					"type": "number",
+					"minimum": 0
+				}
+			}
+		},
+		"shop": {
+			"type": "object",
+			"required": [
+				"slots",
+				"weaponChance",
+				"upgradeChance",
+				"guaranteedWeapons",
+				"guaranteedItems",
+				"guaranteeUntilRound",
+				"sellFraction",
+				"priceBaseRoundFactor",
+				"rerollIncFactor",
+				"rerollFirstFactor"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"slots": {
+					"type": "number",
+					"minimum": 0
+				},
+				"weaponChance": {
+					"type": "number",
+					"minimum": 0
+				},
+				"upgradeChance": {
+					"type": "number",
+					"minimum": 0
+				},
+				"guaranteedWeapons": {
+					"type": "number",
+					"minimum": 0
+				},
+				"guaranteedItems": {
+					"type": "number",
+					"minimum": 0
+				},
+				"guaranteeUntilRound": {
+					"type": "number",
+					"minimum": 0
+				},
+				"sellFraction": {
+					"type": "number",
+					"minimum": 0
+				},
+				"priceBaseRoundFactor": {
+					"type": "number",
+					"minimum": 0
+				},
+				"rerollIncFactor": {
+					"type": "number",
+					"minimum": 0
+				},
+				"rerollFirstFactor": {
+					"type": "number",
+					"minimum": 0
+				}
+			}
+		},
+		"souls": {
+			"type": "object",
+			"required": ["perRound", "perElite"],
+			"additionalProperties": false,
+			"properties": {
+				"perRound": {
+					"type": "number",
+					"minimum": 0
+				},
+				"perElite": {
+					"type": "number",
+					"minimum": 0
+				}
+			}
+		},
+		"difficulties": {
+			"type": "array",
+			"minItems": 1,
+			"items": {
+				"type": "object",
+				"required": ["id", "hpDamageMult", "soulsMult"],
+				"additionalProperties": false,
+				"properties": {
+					"id": {
+						"$ref": "common.schema.json#/$defs/id"
+					},
+					"hpDamageMult": {
+						"type": "number",
+						"minimum": 0
+					},
+					"soulsMult": {
+						"type": "number",
+						"minimum": 0
+					},
+					"unlockedBy": {
+						"type": "object",
+						"required": ["difficulty", "round"],
+						"additionalProperties": false,
+						"properties": {
+							"difficulty": {
+								"$ref": "common.schema.json#/$defs/id"
+							},
+							"round": {
+								"type": "integer",
+								"minimum": 1
+							}
+						}
+					}
+				}
+			}
+		},
+		"tierChance": {
+			"type": "array",
+			"minItems": 1,
+			"items": {
+				"type": "object",
+				"required": ["tier", "base", "perRound", "cap", "minRound"],
+				"additionalProperties": false,
+				"properties": {
+					"tier": {
+						"$ref": "common.schema.json#/$defs/tier"
+					},
+					"base": {
+						"type": "number",
+						"minimum": 0
+					},
+					"perRound": {
+						"type": "number",
+						"minimum": 0
+					},
+					"cap": {
+						"type": "number",
+						"minimum": 0,
+						"maximum": 1
+					},
+					"minRound": {
+						"type": "integer",
+						"minimum": 1
+					}
+				}
+			}
+		}
+	}
+}

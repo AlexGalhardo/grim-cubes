@@ -1,0 +1,123 @@
+[
+	{
+		"id": "sword",
+		"name": "Espada Enferrujada",
+		"kind": "melee",
+		"range": 2.5,
+		"attacksPerSecond": 1.4,
+		"damage": 12,
+		"knockback": 1.5,
+		"arcDegrees": 120,
+		"special": {
+			"id": "hit_all_in_arc"
+		},
+		"unlockRound": 1,
+		"startingWeapon": true,
+		"price": 15,
+		"upgradePrices": [25, 55, 120],
+		"damageMult": [1, 1.5, 2.2, 3.2],
+		"attackSpeedBonusPerTier": 0.1,
+		"rangeBonusPerTier": 0.5
+	},
+	{
+		"id": "pistol",
+		"name": "Pistola de Ferro",
+		"kind": "single_shot",
+		"range": 12,
+		"attacksPerSecond": 2,
+		"damage": 10,
+		"knockback": 0.5,
+		"projectile": {
+			"count": 1,
+			"pierce": 0
+		},
+		"special": {
+			"id": "crit_chance_bonus",
+			"params": {
+				"value": 0.15
+			}
+		},
+		"unlockRound": 1,
+		"price": 20,
+		"upgradePrices": [30, 65, 140],
+		"damageMult": [1, 1.5, 2.2, 3.2],
+		"attackSpeedBonusPerTier": 0.1,
+		"rangeBonusPerTier": 0.5
+	},
+	{
+		"id": "smg",
+		"name": "Submetralhadora",
+		"kind": "burst",
+		"range": 10,
+		"attacksPerSecond": 8,
+		"damage": 4,
+		"knockback": 0.2,
+		"projectile": {
+			"count": 1,
+			"spreadDegrees": 6
+		},
+		"special": {
+			"id": "close_range_damage_mult",
+			"params": {
+				"mult": 1.3,
+				"maxDistance": 4
+			}
+		},
+		"unlockRound": 1,
+		"price": 45,
+		"upgradePrices": [45, 95, 200],
+		"damageMult": [1, 1.5, 2.2, 3.2],
+		"attackSpeedBonusPerTier": 0.1,
+		"rangeBonusPerTier": 0.5
+	},
+	{
+		"id": "mg",
+		"name": "Metralhadora Pesada",
+		"kind": "continuous",
+		"range": 14,
+		"attacksPerSecond": 12,
+		"damage": 3,
+		"knockback": 0.3,
+		"projectile": {
+			"count": 1,
+			"spreadDegrees": 10
+		},
+		"special": {
+			"id": "hero_speed_penalty_while_firing",
+			"params": {
+				"value": 0.2
+			}
+		},
+		"unlockRound": 4,
+		"price": 90,
+		"upgradePrices": [70, 150, 320],
+		"damageMult": [1, 1.5, 2.2, 3.2],
+		"attackSpeedBonusPerTier": 0.1,
+		"rangeBonusPerTier": 0.5
+	},
+	{
+		"id": "bazooka",
+		"name": "Bazuca de Sucata",
+		"kind": "explosive",
+		"range": 16,
+		"attacksPerSecond": 0.6,
+		"damage": 45,
+		"knockback": 3,
+		"projectile": {
+			"count": 1,
+			"explosionRadius": 3
+		},
+		"special": {
+			"id": "self_damage_in_radius",
+			"params": {
+				"fraction": 0.5
+			}
+		},
+		"unlockRound": 7,
+		"price": 140,
+		"upgradePrices": [90, 190, 400],
+		"damageMult": [1, 1.5, 2.2, 3.2],
+		"attackSpeedBonusPerTier": 0.1,
+		"rangeBonusPerTier": 0.5
+	}
+]

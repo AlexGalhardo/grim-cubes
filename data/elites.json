@@ -1,0 +1,51 @@
+{
+	"chance": 0.2,
+	"pityRounds": 5,
+	"minRound": 2,
+	"excludeBossRounds": true,
+	"scale": 1.6,
+	"entryDelaySeconds": 10,
+	"reward": {
+		"chest": {
+			"tier": 4,
+			"offered": 2,
+			"picks": 1
+		},
+		"souls": 25,
+		"healHp": 25
+	},
+	"modifiers": [
+		{
+			"id": "armored",
+			"name": "Blindado",
+			"hpMult": 10,
+			"aura": "steel_gray",
+			"armorAdd": 20
+		},
+		{
+			"id": "swift",
+			"name": "Veloz",
+			"hpMult": 8,
+			"aura": "amber",
+			"speedMult": 1.6
+		},
+		{
+			"id": "vampiric",
+			"name": "Vampírico",
+			"hpMult": 10,
+			"aura": "wine",
+			"lifestealOfDamage": 0.1
+		},
+		{
+			"id": "explosive",
+			"name": "Explosivo",
+			"hpMult": 8,
+			"aura": "orange",
+			"onDeathExplosion": {
+				"radius": 3,
+				"damageBase": 15,
+				"damagePerRound": 2
+			}
+		}
+	]
+}

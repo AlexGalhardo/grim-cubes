@@ -1,0 +1,471 @@
+{
+	"branches": [
+		{
+			"id": "flesh",
+			"name": "Carne",
+			"theme": "survival",
+			"nodes": [
+				{
+					"id": "flesh_1",
+					"index": 0,
+					"requires": null,
+					"cost": 50,
+					"modifiers": [
+						{
+							"stat": "max_hp",
+							"op": "add",
+							"value": 10
+						}
+					],
+					"effects": []
+				},
+				{
+					"id": "flesh_2",
+					"index": 1,
+					"requires": "flesh_1",
+					"cost": 100,
+					"modifiers": [
+						{
+							"stat": "hp_regen",
+							"op": "add",
+							"value": 1
+						}
+					],
+					"effects": []
+				},
+				{
+					"id": "flesh_3",
+					"index": 2,
+					"requires": "flesh_2",
+					"cost": 200,
+					"modifiers": [
+						{
+							"stat": "armor",
+							"op": "add",
+							"value": 3
+						}
+					],
+					"effects": []
+				},
+				{
+					"id": "flesh_4",
+					"index": 3,
+					"requires": "flesh_3",
+					"cost": 350,
+					"modifiers": [
+						{
+							"stat": "dodge",
+							"op": "add",
+							"value": 0.05
+						}
+					],
+					"effects": []
+				},
+				{
+					"id": "flesh_5",
+					"index": 4,
+					"requires": "flesh_4",
+					"cost": 550,
+					"modifiers": [
+						{
+							"stat": "max_hp",
+							"op": "add",
+							"value": 20
+						}
+					],
+					"effects": []
+				},
+				{
+					"id": "flesh_6",
+					"index": 5,
+					"requires": "flesh_5",
+					"cost": 800,
+					"modifiers": [],
+					"effects": [
+						{
+							"id": "weak_phylactery",
+							"params": {
+								"hpFraction": 0.15,
+								"revivesPerRun": 1,
+								"onlyWithoutItem": "phylactery"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "steel",
+			"name": "Aço",
+			"theme": "damage",
+			"nodes": [
+				{
+					"id": "steel_1",
+					"index": 0,
+					"requires": null,
+					"cost": 50,
+					"modifiers": [
+						{
+							"stat": "damage",
+							"op": "add",
+							"value": 0.05
+						}
+					],
+					"effects": []
+				},
+				{
+					"id": "steel_2",
+					"index": 1,
+					"requires": "steel_1",
+					"cost": 100,
+					"modifiers": [
+						{
+							"stat": "attack_speed",
+							"op": "add",
+							"value": 0.05
+						}
+					],
+					"effects": []
+				},
+				{
+					"id": "steel_3",
+					"index": 2,
+					"requires": "steel_2",
+					"cost": 200,
+					"modifiers": [
+						{
+							"stat": "crit_chance",
+							"op": "add",
+							"value": 0.05
+						}
+					],
+					"effects": []
+				},
+				{
+					"id": "steel_4",
+					"index": 3,
+					"requires": "steel_3",
+					"cost": 350,
+					"modifiers": [
+						{
+							"stat": "range",
+							"op": "add",
+							"value": 0.5
+						}
+					],
+					"effects": []
+				},
+				{
+					"id": "steel_5",
+					"index": 4,
+					"requires": "steel_4",
+					"cost": 550,
+					"modifiers": [
+						{
+							"stat": "damage",
+							"op": "add",
+							"value": 0.1
+						}
+					],
+					"effects": []
+				},
+				{
+					"id": "steel_6",
+					"index": 5,
+					"requires": "steel_5",
+					"cost": 800,
+					"modifiers": [],
+					"effects": [
+						{
+							"id": "crit_mult_set",
+							"params": {
+								"value": 2.3
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "shadow",
+			"name": "Sombra",
+			"theme": "mobility",
+			"nodes": [
+				{
+					"id": "shadow_1",
+					"index": 0,
+					"requires": null,
+					"cost": 50,
+					"modifiers": [
+						{
+							"stat": "speed",
+							"op": "add",
+							"value": 0.05
+						}
+					],
+					"effects": []
+				},
+				{
+					"id": "shadow_2",
+					"index": 1,
+					"requires": "shadow_1",
+					"cost": 100,
+					"modifiers": [],
+					"effects": [
+						{
+							"id": "dash_unlock"
+						}
+					]
+				},
+				{
+					"id": "shadow_3",
+					"index": 2,
+					"requires": "shadow_2",
+					"cost": 200,
+					"modifiers": [
+						{
+							"stat": "pickup_range",
+							"op": "add",
+							"value": 0.25
+						}
+					],
+					"effects": []
+				},
+				{
+					"id": "shadow_4",
+					"index": 3,
+					"requires": "shadow_3",
+					"cost": 350,
+					"modifiers": [],
+					"effects": [
+						{
+							"id": "dash_cooldown_reduction",
+							"params": {
+								"seconds": 1
+							}
+						}
+					]
+				},
+				{
+					"id": "shadow_5",
+					"index": 4,
+					"requires": "shadow_4",
+					"cost": 550,
+					"modifiers": [
+						{
+							"stat": "speed",
+							"op": "add",
+							"value": 0.1
+						}
+					],
+					"effects": []
+				},
+				{
+					"id": "shadow_6",
+					"index": 5,
+					"requires": "shadow_5",
+					"cost": 800,
+					"modifiers": [],
+					"effects": [
+						{
+							"id": "dash_charges",
+							"params": {
+								"value": 2
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "gold",
+			"name": "Ouro",
+			"theme": "economy",
+			"nodes": [
+				{
+					"id": "gold_1",
+					"index": 0,
+					"requires": null,
+					"cost": 50,
+					"modifiers": [
+						{
+							"stat": "harvest",
+							"op": "add",
+							"value": 1
+						}
+					],
+					"effects": []
+				},
+				{
+					"id": "gold_2",
+					"index": 1,
+					"requires": "gold_1",
+					"cost": 100,
+					"modifiers": [
+						{
+							"stat": "shop_price",
+							"op": "add",
+							"value": -0.05
+						}
+					],
+					"effects": []
+				},
+				{
+					"id": "gold_3",
+					"index": 2,
+					"requires": "gold_2",
+					"cost": 200,
+					"modifiers": [
+						{
+							"stat": "free_rerolls",
+							"op": "add",
+							"value": 1
+						}
+					],
+					"effects": []
+				},
+				{
+					"id": "gold_4",
+					"index": 3,
+					"requires": "gold_3",
+					"cost": 350,
+					"modifiers": [],
+					"effects": [
+						{
+							"id": "fragment_gain",
+							"params": {
+								"fraction": 0.1
+							}
+						}
+					]
+				},
+				{
+					"id": "gold_5",
+					"index": 4,
+					"requires": "gold_4",
+					"cost": 550,
+					"modifiers": [
+						{
+							"stat": "harvest",
+							"op": "add",
+							"value": 2
+						}
+					],
+					"effects": []
+				},
+				{
+					"id": "gold_6",
+					"index": 5,
+					"requires": "gold_5",
+					"cost": 800,
+					"modifiers": [],
+					"effects": [
+						{
+							"id": "start_gold",
+							"params": {
+								"value": 30
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "ruin",
+			"name": "Ruína",
+			"theme": "meta",
+			"nodes": [
+				{
+					"id": "ruin_1",
+					"index": 0,
+					"requires": null,
+					"cost": 50,
+					"modifiers": [],
+					"effects": [
+						{
+							"id": "soul_gain",
+							"params": {
+								"fraction": 0.1
+							}
+						}
+					]
+				},
+				{
+					"id": "ruin_2",
+					"index": 1,
+					"requires": "ruin_1",
+					"cost": 100,
+					"modifiers": [
+						{
+							"stat": "xp_gain",
+							"op": "add",
+							"value": 0.1
+						}
+					],
+					"effects": []
+				},
+				{
+					"id": "ruin_3",
+					"index": 2,
+					"requires": "ruin_2",
+					"cost": 200,
+					"modifiers": [],
+					"effects": [
+						{
+							"id": "guaranteed_uncommon_shop_item",
+							"params": {
+								"count": 1
+							}
+						}
+					]
+				},
+				{
+					"id": "ruin_4",
+					"index": 3,
+					"requires": "ruin_3",
+					"cost": 350,
+					"modifiers": [],
+					"effects": [
+						{
+							"id": "card_rerolls",
+							"params": {
+								"count": 1
+							}
+						}
+					]
+				},
+				{
+					"id": "ruin_5",
+					"index": 4,
+					"requires": "ruin_4",
+					"cost": 550,
+					"modifiers": [],
+					"effects": [
+						{
+							"id": "soul_gain",
+							"params": {
+								"fraction": 0.25
+							}
+						}
+					]
+				},
+				{
+					"id": "ruin_6",
+					"index": 5,
+					"requires": "ruin_5",
+					"cost": 800,
+					"modifiers": [],
+					"effects": [
+						{
+							"id": "extra_legendary_pool",
+							"params": {
+								"count": 2
+							}
+						}
+					]
+				}
+			]
+		}
+	],
+	"demoMaxNodeIndex": 1
+}

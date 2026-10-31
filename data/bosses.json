@@ -1,0 +1,139 @@
+[
+	{
+		"id": "gravedigger",
+		"name": "O Coveiro",
+		"round": 10,
+		"hpBaseRound10": 1200,
+		"archetype": "slow_tank_charge",
+		"delivery": "PROTOTYPE",
+		"patterns": [
+			{
+				"id": "line_charge",
+				"params": {
+					"telegraphSeconds": 1
+				}
+			},
+			{
+				"id": "shovel_arc"
+			},
+			{
+				"id": "summon",
+				"params": {
+					"enemy": "husk",
+					"count": 6,
+					"atHpFraction": 0.5
+				}
+			}
+		]
+	},
+	{
+		"id": "swamp_matriarch",
+		"name": "A Matriarca do Pântano",
+		"round": 20,
+		"hpBaseRound10": 2800,
+		"archetype": "summoner",
+		"delivery": "ALPHA",
+		"patterns": [
+			{
+				"id": "summon",
+				"params": {
+					"enemy": "leech",
+					"count": 3,
+					"intervalSeconds": 8
+				}
+			},
+			{
+				"id": "mud_pool",
+				"params": {
+					"effect": "slow"
+				}
+			},
+			{
+				"id": "scream",
+				"params": {
+					"effect": "knockback"
+				}
+			}
+		]
+	},
+	{
+		"id": "forgemaster",
+		"name": "O Forjador",
+		"round": 30,
+		"hpBaseRound10": 5000,
+		"archetype": "area_projectiles",
+		"delivery": "ALPHA",
+		"patterns": [
+			{
+				"id": "hammer_shockwave",
+				"params": {
+					"shape": "radial"
+				}
+			},
+			{
+				"id": "chain_shot",
+				"params": {
+					"directions": 4
+				}
+			},
+			{
+				"id": "phase_armor",
+				"params": {
+					"phase": 2,
+					"armor": 30
+				}
+			}
+		]
+	},
+	{
+		"id": "alpha_hunter",
+		"name": "O Caçador Alfa",
+		"round": 40,
+		"hpBaseRound10": 7500,
+		"archetype": "fast_hunter",
+		"delivery": "BETA",
+		"patterns": [
+			{
+				"id": "invisible_ambush",
+				"params": {
+					"invisibleSeconds": 3,
+					"attack": "from_behind"
+				}
+			},
+			{
+				"id": "leap_aoe"
+			},
+			{
+				"id": "thermal_vision",
+				"params": {
+					"ignoresObstacles": true
+				}
+			}
+		]
+	},
+	{
+		"id": "nest_queen",
+		"name": "A Rainha do Ninho",
+		"round": 50,
+		"hpBaseRound10": 11000,
+		"archetype": "two_stage",
+		"delivery": "BETA",
+		"patterns": [
+			{
+				"id": "egg_spawn",
+				"params": {
+					"enemy": "hunter"
+				}
+			},
+			{
+				"id": "tail_sweep"
+			},
+			{
+				"id": "flying_bombard",
+				"params": {
+					"phase": 2
+				}
+			}
+		]
+	}
+]

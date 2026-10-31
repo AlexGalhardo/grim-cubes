@@ -1,0 +1,130 @@
+{
+	"duration": {
+		"firstRoundSeconds": 20,
+		"stepSeconds": 5,
+		"stepUntilRound": 8,
+		"maxSeconds": 60,
+		"bossEveryRounds": 10,
+		"bossHasTimer": false
+	},
+	"boss": {
+		"enrageEverySeconds": 60,
+		"enrageDamageSpeedBonus": 0.15,
+		"remainingHordeFraction": 0.3,
+		"contactDamageBase": 25,
+		"contactDamagePerRound": 1.5,
+		"projectileDamageBase": 18,
+		"projectileDamagePerRound": 1.2,
+		"soulsBase": 100,
+		"soulsPerRound": 10,
+		"hpScalePerTenRounds": 0.35,
+		"rewardChest": {
+			"minTier": 3,
+			"offered": 3,
+			"picks": 2
+		},
+		"freeWeaponUpgrades": 1
+	},
+	"spawn": {
+		"totalBase": 20,
+		"totalPerRound": 12,
+		"intervalStartSeconds": 1.5,
+		"intervalPerRound": 0.045,
+		"intervalMinSeconds": 0.6,
+		"burstBase": 2,
+		"burstRoundDivisor": 4,
+		"maxSimultaneous": 100,
+		"ringMin": 22,
+		"ringMax": 30,
+		"oppositeBias": 0.6
+	},
+	"biomeMix": {
+		"withPrevious": {
+			"current": 0.6,
+			"previous": 0.3,
+			"next": 0.1
+		},
+		"withoutPrevious": {
+			"current": 0.8,
+			"next": 0.2
+		}
+	},
+	"difficulties": [
+		{
+			"id": "normal",
+			"hpDamageMult": 1,
+			"soulsMult": 1
+		},
+		{
+			"id": "grim",
+			"hpDamageMult": 1.25,
+			"soulsMult": 1.5,
+			"unlockedBy": {
+				"difficulty": "normal",
+				"round": 20
+			}
+		},
+		{
+			"id": "nightmare",
+			"hpDamageMult": 1.5,
+			"soulsMult": 2,
+			"unlockedBy": {
+				"difficulty": "grim",
+				"round": 20
+			}
+		}
+	],
+	"tierChance": [
+		{
+			"tier": 2,
+			"base": 0,
+			"perRound": 0.06,
+			"cap": 0.6,
+			"minRound": 2
+		},
+		{
+			"tier": 3,
+			"base": 0,
+			"perRound": 0.02,
+			"cap": 0.25,
+			"minRound": 4
+		},
+		{
+			"tier": 4,
+			"base": 0,
+			"perRound": 0.0023,
+			"cap": 0.08,
+			"minRound": 8
+		}
+	],
+	"fragments": {
+		"guaranteedDropUntilRound": 4,
+		"dropPercentBase": 100,
+		"dropPercentPerRound": 1.5,
+		"dropPercentMin": 50,
+		"goldPerFragment": 1,
+		"xpPerFragment": 1,
+		"groundPileCap": 50,
+		"harvestPerRound": 0.05
+	},
+	"xp": {
+		"base": 10,
+		"perLevel": 8
+	},
+	"shop": {
+		"slots": 4,
+		"weaponChance": 0.35,
+		"upgradeChance": 0.5,
+		"guaranteedWeapons": 1,
+		"guaranteedItems": 3,
+		"guaranteeUntilRound": 2,
+		"sellFraction": 0.5,
+		"priceBaseRoundFactor": 0.1,
+		"rerollIncFactor": 0.4,
+		"rerollFirstFactor": 0.75
+	},
+	"souls": {
+		"perRound": 5,
+		"perElite": 25
+	}
+}

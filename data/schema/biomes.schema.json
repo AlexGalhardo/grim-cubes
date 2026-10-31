@@ -1,0 +1,82 @@
+{
+	"type": "array",
+	"minItems": 1,
+	"items": {
+		"type": "object",
+		"required": ["id", "name", "ring", "minDistance", "enemyPool"],
+		"additionalProperties": false,
+		"properties": {
+			"id": {
+				"$ref": "common.schema.json#/$defs/id"
+			},
+			"name": {
+				"$ref": "common.schema.json#/$defs/name"
+			},
+			"ring": {
+				"type": "integer",
+				"minimum": 0
+			},
+			"minDistance": {
+				"type": "number",
+				"minimum": 0
+			},
+			"maxDistance": {
+				"type": "number",
+				"minimum": 0
+			},
+			"repeats": {
+				"type": "boolean"
+			},
+			"floorTiles": {
+				"type": "array",
+				"items": {
+					"type": "string"
+				}
+			},
+			"props": {
+				"type": "object",
+				"required": ["blocking", "decor", "breakable"],
+				"additionalProperties": false,
+				"properties": {
+					"blocking": {
+						"type": "array",
+						"items": {
+							"type": "string"
+						}
+					},
+					"decor": {
+						"type": "array",
+						"items": {
+							"type": "string"
+						}
+					},
+					"breakable": {
+						"type": "array",
+						"items": {
+							"type": "string"
+						}
+					}
+				}
+			},
+			"propDensity": {
+				"type": "number",
+				"minimum": 0,
+				"maximum": 1
+			},
+			"enemyPool": {
+				"type": "array",
+				"minItems": 1,
+				"items": {
+					"$ref": "common.schema.json#/$defs/id"
+				}
+			},
+			"music": {
+				"type": "string"
+			},
+			"fogColor": {
+				"type": "string",
+				"pattern": "^#[0-9A-Fa-f]{6}$"
+			}
+		}
+	}
+}

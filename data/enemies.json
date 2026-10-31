@@ -1,0 +1,127 @@
+[
+	{
+		"id": "husk",
+		"name": "Carcaça",
+		"biomeRing": 0,
+		"radius": 0.45,
+		"hpBase": 8,
+		"hpPerRound": 4,
+		"damageBase": 3,
+		"damagePerRound": 0.6,
+		"speed": 3.5,
+		"behavior": "chase",
+		"behaviorParams": {},
+		"fragments": 1
+	},
+	{
+		"id": "wail",
+		"name": "Lamento",
+		"biomeRing": 0,
+		"radius": 0.3,
+		"hpBase": 4,
+		"hpPerRound": 2,
+		"damageBase": 2,
+		"damagePerRound": 0.4,
+		"speed": 5.5,
+		"behavior": "zigzag",
+		"behaviorParams": {},
+		"fragments": 1
+	},
+	{
+		"id": "drowned",
+		"name": "Afogado",
+		"biomeRing": 1,
+		"radius": 0.5,
+		"hpBase": 20,
+		"hpPerRound": 9,
+		"damageBase": 5,
+		"damagePerRound": 0.9,
+		"speed": 2.8,
+		"behavior": "push",
+		"behaviorParams": {},
+		"fragments": 2
+	},
+	{
+		"id": "leech",
+		"name": "Sanguessuga",
+		"biomeRing": 1,
+		"radius": 0.3,
+		"hpBase": 6,
+		"hpPerRound": 3,
+		"damageBase": 2,
+		"damagePerRound": 0.5,
+		"speed": 4.5,
+		"behavior": "latch_drain",
+		"behaviorParams": {
+			"drainHpPerSecond": 1
+		},
+		"fragments": 1
+	},
+	{
+		"id": "forged",
+		"name": "Forjado",
+		"biomeRing": 2,
+		"radius": 0.7,
+		"hpBase": 35,
+		"hpPerRound": 14,
+		"damageBase": 7,
+		"damagePerRound": 1.1,
+		"speed": 3,
+		"behavior": "armored",
+		"behaviorParams": {
+			"armor": 10
+		},
+		"fragments": 3
+	},
+	{
+		"id": "watcher",
+		"name": "Vigia",
+		"biomeRing": 2,
+		"radius": 0.45,
+		"hpBase": 12,
+		"hpPerRound": 5,
+		"damageBase": 4,
+		"damagePerRound": 0.8,
+		"speed": 0,
+		"behavior": "ranged_static",
+		"behaviorParams": {
+			"projectileRange": 10,
+			"projectile": "slow"
+		},
+		"fragments": 2
+	},
+	{
+		"id": "hunter",
+		"name": "Caçador",
+		"biomeRing": 3,
+		"radius": 0.45,
+		"hpBase": 18,
+		"hpPerRound": 8,
+		"damageBase": 6,
+		"damagePerRound": 1,
+		"speed": 6.5,
+		"behavior": "charge",
+		"behaviorParams": {
+			"chargeIntervalSeconds": 3
+		},
+		"fragments": 2
+	},
+	{
+		"id": "breeder",
+		"name": "Reprodutor",
+		"biomeRing": 3,
+		"radius": 0.7,
+		"hpBase": 40,
+		"hpPerRound": 16,
+		"damageBase": 0,
+		"damagePerRound": 0,
+		"speed": 2,
+		"behavior": "spawner",
+		"behaviorParams": {
+			"spawnEnemy": "wail",
+			"spawnIntervalSeconds": 4,
+			"spawnCount": 1
+		},
+		"fragments": 4
+	}
+]

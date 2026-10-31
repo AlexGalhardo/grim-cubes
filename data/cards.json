@@ -1,0 +1,141 @@
+{
+	"doubleCard": {
+		"minLevel": 10,
+		"chance": 0.1,
+		"bonuses": 2
+	},
+	"cards": [
+		{
+			"id": "max_hp",
+			"name": "+5 HP máx",
+			"modifiers": [
+				{
+					"stat": "max_hp",
+					"op": "add",
+					"value": 5
+				}
+			]
+		},
+		{
+			"id": "damage",
+			"name": "+4% dano",
+			"modifiers": [
+				{
+					"stat": "damage",
+					"op": "add",
+					"value": 0.04
+				}
+			]
+		},
+		{
+			"id": "attack_speed",
+			"name": "+5% velocidade de ataque",
+			"modifiers": [
+				{
+					"stat": "attack_speed",
+					"op": "add",
+					"value": 0.05
+				}
+			]
+		},
+		{
+			"id": "armor",
+			"name": "+3 armadura",
+			"modifiers": [
+				{
+					"stat": "armor",
+					"op": "add",
+					"value": 3
+				}
+			]
+		},
+		{
+			"id": "speed",
+			"name": "+4% velocidade",
+			"modifiers": [
+				{
+					"stat": "speed",
+					"op": "add",
+					"value": 0.04
+				}
+			]
+		},
+		{
+			"id": "crit_chance",
+			"name": "+3% crítico",
+			"modifiers": [
+				{
+					"stat": "crit_chance",
+					"op": "add",
+					"value": 0.03
+				}
+			]
+		},
+		{
+			"id": "dodge",
+			"name": "+3% esquiva",
+			"modifiers": [
+				{
+					"stat": "dodge",
+					"op": "add",
+					"value": 0.03
+				}
+			]
+		},
+		{
+			"id": "hp_regen",
+			"name": "+1 regen",
+			"modifiers": [
+				{
+					"stat": "hp_regen",
+					"op": "add",
+					"value": 1
+				}
+			]
+		},
+		{
+			"id": "life_steal",
+			"name": "+2% roubo de vida",
+			"modifiers": [
+				{
+					"stat": "life_steal",
+					"op": "add",
+					"value": 0.02
+				}
+			]
+		},
+		{
+			"id": "luck",
+			"name": "+4 sorte",
+			"modifiers": [
+				{
+					"stat": "luck",
+					"op": "add",
+					"value": 4
+				}
+			]
+		},
+		{
+			"id": "harvest",
+			"name": "+1 colheita",
+			"modifiers": [
+				{
+					"stat": "harvest",
+					"op": "add",
+					"value": 1
+				}
+			]
+		},
+		{
+			"id": "range",
+			"name": "+0,3 u alcance",
+			"modifiers": [
+				{
+					"stat": "range",
+					"op": "add",
+					"value": 0.3
+				}
+			]
+		}
+	]
+}

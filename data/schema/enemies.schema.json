@@ -1,0 +1,76 @@
+{
+	"type": "array",
+	"minItems": 1,
+	"items": {
+		"type": "object",
+		"required": [
+			"id",
+			"name",
+			"biomeRing",
+			"hpBase",
+			"hpPerRound",
+			"damageBase",
+			"damagePerRound",
+			"speed",
+			"behavior",
+			"fragments",
+			"radius"
+		],
+		"additionalProperties": false,
+		"properties": {
+			"id": {
+				"$ref": "common.schema.json#/$defs/id"
+			},
+			"name": {
+				"$ref": "common.schema.json#/$defs/name"
+			},
+			"biomeRing": {
+				"type": "integer",
+				"minimum": 0
+			},
+			"hpBase": {
+				"type": "number",
+				"minimum": 0
+			},
+			"hpPerRound": {
+				"type": "number",
+				"minimum": 0
+			},
+			"damageBase": {
+				"type": "number",
+				"minimum": 0
+			},
+			"damagePerRound": {
+				"type": "number",
+				"minimum": 0
+			},
+			"speed": {
+				"type": "number",
+				"minimum": 0
+			},
+			"behavior": {
+				"enum": [
+					"chase",
+					"zigzag",
+					"push",
+					"latch_drain",
+					"armored",
+					"ranged_static",
+					"charge",
+					"spawner"
+				]
+			},
+			"behaviorParams": {
+				"type": "object"
+			},
+			"fragments": {
+				"type": "integer",
+				"minimum": 0
+			},
+			"radius": {
+				"type": "number",
+				"exclusiveMinimum": 0
+			}
+		}
+	}
+}

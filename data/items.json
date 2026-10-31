@@ -1,0 +1,663 @@
+[
+	{
+		"id": "rusted_plate",
+		"name": "Placa Enferrujada",
+		"tier": 1,
+		"price": 20,
+		"modifiers": [
+			{
+				"stat": "armor",
+				"op": "add",
+				"value": 3
+			},
+			{
+				"stat": "speed",
+				"op": "add",
+				"value": -0.02
+			}
+		],
+		"effects": []
+	},
+	{
+		"id": "grave_dirt",
+		"name": "Terra de Cova",
+		"tier": 1,
+		"price": 20,
+		"modifiers": [
+			{
+				"stat": "max_hp",
+				"op": "add",
+				"value": 10
+			}
+		],
+		"effects": []
+	},
+	{
+		"id": "whetstone",
+		"name": "Pedra de Amolar",
+		"tier": 1,
+		"price": 20,
+		"modifiers": [
+			{
+				"stat": "damage",
+				"op": "add",
+				"value": 0.05
+			}
+		],
+		"effects": []
+	},
+	{
+		"id": "bone_charm",
+		"name": "Amuleto de Osso",
+		"tier": 1,
+		"price": 20,
+		"modifiers": [
+			{
+				"stat": "luck",
+				"op": "add",
+				"value": 5
+			}
+		],
+		"effects": []
+	},
+	{
+		"id": "tattered_boots",
+		"name": "Botas Rasgadas",
+		"tier": 1,
+		"price": 20,
+		"modifiers": [
+			{
+				"stat": "speed",
+				"op": "add",
+				"value": 0.06
+			}
+		],
+		"effects": []
+	},
+	{
+		"id": "scavenger_hook",
+		"name": "Gancho de Catador",
+		"tier": 1,
+		"price": 20,
+		"modifiers": [
+			{
+				"stat": "pickup_range",
+				"op": "add",
+				"value": 0.25
+			}
+		],
+		"effects": []
+	},
+	{
+		"id": "ember_vial",
+		"name": "Frasco de Brasa",
+		"tier": 1,
+		"price": 20,
+		"modifiers": [
+			{
+				"stat": "attack_speed",
+				"op": "add",
+				"value": 0.04
+			}
+		],
+		"effects": []
+	},
+	{
+		"id": "lead_bullets",
+		"name": "Balas de Chumbo",
+		"tier": 1,
+		"price": 20,
+		"modifiers": [
+			{
+				"stat": "knockback",
+				"op": "add",
+				"value": 0.15
+			}
+		],
+		"effects": []
+	},
+	{
+		"id": "cracked_skull",
+		"name": "Crânio Rachado",
+		"tier": 1,
+		"price": 20,
+		"modifiers": [
+			{
+				"stat": "harvest",
+				"op": "add",
+				"value": 2
+			}
+		],
+		"effects": []
+	},
+	{
+		"id": "iron_tooth",
+		"name": "Dente de Ferro",
+		"tier": 1,
+		"price": 20,
+		"modifiers": [
+			{
+				"stat": "crit_chance",
+				"op": "add",
+				"value": 0.03
+			}
+		],
+		"effects": []
+	},
+	{
+		"id": "black_bandage",
+		"name": "Atadura Negra",
+		"tier": 2,
+		"price": 40,
+		"modifiers": [
+			{
+				"stat": "hp_regen",
+				"op": "add",
+				"value": 2
+			}
+		],
+		"effects": []
+	},
+	{
+		"id": "chain_mail",
+		"name": "Cota de Malha",
+		"tier": 2,
+		"price": 40,
+		"modifiers": [
+			{
+				"stat": "armor",
+				"op": "add",
+				"value": 8
+			},
+			{
+				"stat": "speed",
+				"op": "add",
+				"value": -0.05
+			}
+		],
+		"effects": []
+	},
+	{
+		"id": "hunter_eye",
+		"name": "Olho do Caçador",
+		"tier": 2,
+		"price": 40,
+		"modifiers": [
+			{
+				"stat": "range",
+				"op": "add",
+				"value": 1
+			},
+			{
+				"stat": "crit_chance",
+				"op": "add",
+				"value": 0.05
+			}
+		],
+		"effects": []
+	},
+	{
+		"id": "leech_tongue",
+		"name": "Língua de Sanguessuga",
+		"tier": 2,
+		"price": 40,
+		"modifiers": [
+			{
+				"stat": "life_steal",
+				"op": "add",
+				"value": 0.03
+			},
+			{
+				"stat": "max_hp",
+				"op": "add",
+				"value": -5
+			}
+		],
+		"effects": []
+	},
+	{
+		"id": "swamp_lantern",
+		"name": "Lanterna do Pântano",
+		"tier": 2,
+		"price": 40,
+		"modifiers": [
+			{
+				"stat": "xp_gain",
+				"op": "add",
+				"value": 0.2
+			}
+		],
+		"effects": []
+	},
+	{
+		"id": "rat_king",
+		"name": "Rei dos Ratos",
+		"tier": 2,
+		"price": 40,
+		"modifiers": [],
+		"effects": [
+			{
+				"id": "double_fragment_chance",
+				"params": {
+					"chance": 0.15
+				}
+			}
+		]
+	},
+	{
+		"id": "gunpowder_keg",
+		"name": "Barril de Pólvora",
+		"tier": 2,
+		"price": 40,
+		"modifiers": [
+			{
+				"stat": "explosion_size",
+				"op": "add",
+				"value": 0.3
+			}
+		],
+		"effects": []
+	},
+	{
+		"id": "cursed_coin",
+		"name": "Moeda Maldita",
+		"tier": 2,
+		"price": 40,
+		"modifiers": [
+			{
+				"stat": "shop_price",
+				"op": "add",
+				"value": -0.1
+			},
+			{
+				"stat": "luck",
+				"op": "add",
+				"value": -5
+			}
+		],
+		"effects": []
+	},
+	{
+		"id": "war_drum",
+		"name": "Tambor de Guerra",
+		"tier": 2,
+		"price": 40,
+		"modifiers": [
+			{
+				"stat": "attack_speed",
+				"op": "add",
+				"value": 0.1
+			}
+		],
+		"effects": []
+	},
+	{
+		"id": "heavy_gauntlet",
+		"name": "Manopla Pesada",
+		"tier": 2,
+		"price": 40,
+		"modifiers": [
+			{
+				"stat": "damage",
+				"op": "add",
+				"value": 0.12
+			},
+			{
+				"stat": "attack_speed",
+				"op": "add",
+				"value": -0.04
+			}
+		],
+		"effects": []
+	},
+	{
+		"id": "grim_pact",
+		"name": "Pacto Sombrio",
+		"tier": 3,
+		"price": 80,
+		"modifiers": [
+			{
+				"stat": "damage",
+				"op": "add",
+				"value": 0.3
+			},
+			{
+				"stat": "max_hp",
+				"op": "add",
+				"value": -20
+			}
+		],
+		"effects": []
+	},
+	{
+		"id": "iron_lung",
+		"name": "Pulmão de Ferro",
+		"tier": 3,
+		"price": 80,
+		"modifiers": [
+			{
+				"stat": "max_hp",
+				"op": "add",
+				"value": 40
+			}
+		],
+		"effects": []
+	},
+	{
+		"id": "vampire_fang",
+		"name": "Presa Vampírica",
+		"tier": 3,
+		"price": 80,
+		"modifiers": [
+			{
+				"stat": "life_steal",
+				"op": "add",
+				"value": 0.06
+			}
+		],
+		"effects": []
+	},
+	{
+		"id": "shadow_cloak",
+		"name": "Manto de Sombra",
+		"tier": 3,
+		"price": 80,
+		"modifiers": [
+			{
+				"stat": "dodge",
+				"op": "add",
+				"value": 0.12
+			}
+		],
+		"effects": []
+	},
+	{
+		"id": "executioner_mark",
+		"name": "Marca do Carrasco",
+		"tier": 3,
+		"price": 80,
+		"modifiers": [
+			{
+				"stat": "boss_damage",
+				"op": "add",
+				"value": 0.25
+			}
+		],
+		"effects": [
+			{
+				"id": "bonus_damage_vs_elites",
+				"params": {
+					"value": 0.25
+				}
+			}
+		]
+	},
+	{
+		"id": "brimstone_heart",
+		"name": "Coração de Enxofre",
+		"tier": 3,
+		"price": 80,
+		"modifiers": [],
+		"effects": [
+			{
+				"id": "proximity_aura_damage",
+				"params": {
+					"radius": 2,
+					"damageBase": 5,
+					"damagePerRound": 1,
+					"perSecond": true
+				}
+			}
+		]
+	},
+	{
+		"id": "bone_saw",
+		"name": "Serra de Osso",
+		"tier": 3,
+		"price": 80,
+		"modifiers": [],
+		"effects": [
+			{
+				"id": "bleed_on_crit",
+				"params": {
+					"damageFraction": 0.2,
+					"durationSeconds": 2
+				}
+			}
+		]
+	},
+	{
+		"id": "tithe_box",
+		"name": "Caixa do Dízimo",
+		"tier": 3,
+		"price": 80,
+		"modifiers": [],
+		"effects": [
+			{
+				"id": "end_of_round_fragment_bonus",
+				"params": {
+					"fraction": 0.15
+				}
+			}
+		]
+	},
+	{
+		"id": "spiked_boots",
+		"name": "Botas com Cravos",
+		"tier": 3,
+		"price": 80,
+		"modifiers": [],
+		"effects": [
+			{
+				"id": "contact_damage",
+				"params": {
+					"damage": 10
+				}
+			}
+		]
+	},
+	{
+		"id": "hellfire_round",
+		"name": "Munição Infernal",
+		"tier": 3,
+		"price": 80,
+		"modifiers": [],
+		"effects": [
+			{
+				"id": "extra_pierce",
+				"params": {
+					"value": 1
+				}
+			}
+		]
+	},
+	{
+		"id": "crown_of_nails",
+		"name": "Coroa de Pregos",
+		"tier": 4,
+		"price": 160,
+		"modifiers": [
+			{
+				"stat": "damage",
+				"op": "add",
+				"value": 0.5
+			},
+			{
+				"stat": "crit_chance",
+				"op": "add",
+				"value": 0.2
+			},
+			{
+				"stat": "max_hp",
+				"op": "mul",
+				"value": 0.7
+			}
+		],
+		"effects": []
+	},
+	{
+		"id": "heart_of_the_pit",
+		"name": "Coração do Abismo",
+		"tier": 4,
+		"price": 160,
+		"modifiers": [
+			{
+				"stat": "max_hp",
+				"op": "add",
+				"value": 100
+			},
+			{
+				"stat": "hp_regen",
+				"op": "add",
+				"value": 3
+			},
+			{
+				"stat": "speed",
+				"op": "add",
+				"value": -0.15
+			}
+		],
+		"effects": []
+	},
+	{
+		"id": "reaper_hourglass",
+		"name": "Ampulheta do Ceifador",
+		"tier": 4,
+		"price": 160,
+		"modifiers": [
+			{
+				"stat": "enemy_speed",
+				"op": "add",
+				"value": -0.2
+			}
+		],
+		"effects": []
+	},
+	{
+		"id": "doom_sigil",
+		"name": "Sigilo da Ruína",
+		"tier": 4,
+		"price": 160,
+		"modifiers": [],
+		"effects": [
+			{
+				"id": "on_kill_explode",
+				"params": {
+					"chance": 0.1,
+					"radius": 2,
+					"damageBase": 30,
+					"damagePerRound": 3
+				}
+			}
+		]
+	},
+	{
+		"id": "phylactery",
+		"name": "Filactério",
+		"tier": 4,
+		"price": 160,
+		"modifiers": [],
+		"effects": [
+			{
+				"id": "revive_once",
+				"params": {
+					"hpFraction": 0.3,
+					"stackable": false
+				}
+			}
+		]
+	},
+	{
+		"id": "blood_altar",
+		"name": "Altar de Sangue",
+		"tier": 4,
+		"price": 160,
+		"modifiers": [],
+		"effects": [
+			{
+				"id": "damage_per_missing_hp",
+				"params": {
+					"damagePerPercent": 0.01
+				}
+			}
+		]
+	},
+	{
+		"id": "warlord_banner",
+		"name": "Estandarte do Senhor da Guerra",
+		"tier": 4,
+		"price": 160,
+		"modifiers": [
+			{
+				"stat": "attack_speed",
+				"op": "add",
+				"value": 0.25
+			},
+			{
+				"stat": "damage",
+				"op": "add",
+				"value": 0.25
+			},
+			{
+				"stat": "shop_price",
+				"op": "add",
+				"value": 0.2
+			}
+		],
+		"effects": []
+	},
+	{
+		"id": "cube_of_wrath",
+		"name": "Cubo da Ira",
+		"tier": 4,
+		"price": 160,
+		"modifiers": [],
+		"effects": [
+			{
+				"id": "shockwave_every_kills",
+				"params": {
+					"kills": 50,
+					"radius": 6,
+					"damageBase": 50,
+					"damagePerRound": 5
+				}
+			}
+		]
+	},
+	{
+		"id": "soul_jar",
+		"name": "Jarro de Almas",
+		"tier": 4,
+		"price": 160,
+		"modifiers": [],
+		"effects": [
+			{
+				"id": "soul_gain",
+				"params": {
+					"fraction": 0.5
+				}
+			}
+		]
+	},
+	{
+		"id": "gilded_skull",
+		"name": "Crânio Dourado",
+		"tier": 4,
+		"price": 160,
+		"modifiers": [
+			{
+				"stat": "luck",
+				"op": "add",
+				"value": 20
+			}
+		],
+		"effects": [
+			{
+				"id": "fragment_gain",
+				"params": {
+					"fraction": 0.2
+				}
+			}
+		]
+	}
+]

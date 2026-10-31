@@ -1,0 +1,205 @@
+{
+	"type": "object",
+	"required": ["startingWeapon", "base", "caps", "formulas", "dash", "combat"],
+	"additionalProperties": false,
+	"properties": {
+		"startingWeapon": {
+			"$ref": "common.schema.json#/$defs/id"
+		},
+		"base": {
+			"type": "object",
+			"required": [
+				"maxHp",
+				"hpRegen",
+				"speed",
+				"pickupRadius",
+				"armor",
+				"dodge",
+				"critChance",
+				"critMult",
+				"damage",
+				"attackSpeed",
+				"luck",
+				"harvest"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"maxHp": {
+					"type": "number",
+					"minimum": 0
+				},
+				"hpRegen": {
+					"type": "number",
+					"minimum": 0
+				},
+				"speed": {
+					"type": "number",
+					"minimum": 0
+				},
+				"pickupRadius": {
+					"type": "number",
+					"minimum": 0
+				},
+				"armor": {
+					"type": "number"
+				},
+				"dodge": {
+					"type": "number",
+					"minimum": 0
+				},
+				"critChance": {
+					"type": "number",
+					"minimum": 0
+				},
+				"critMult": {
+					"type": "number",
+					"minimum": 0
+				},
+				"damage": {
+					"type": "number",
+					"minimum": 0
+				},
+				"attackSpeed": {
+					"type": "number",
+					"minimum": 0
+				},
+				"luck": {
+					"type": "number",
+					"minimum": 0
+				},
+				"harvest": {
+					"type": "number",
+					"minimum": 0
+				}
+			}
+		},
+		"caps": {
+			"type": "object",
+			"required": [
+				"lifeStealHpPerSecond",
+				"attackSpeedPerSecond",
+				"critChance",
+				"dodge",
+				"speedMax",
+				"speedMin"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"lifeStealHpPerSecond": {
+					"type": "number",
+					"minimum": 0
+				},
+				"attackSpeedPerSecond": {
+					"type": "number",
+					"minimum": 0
+				},
+				"critChance": {
+					"type": "number",
+					"minimum": 0
+				},
+				"dodge": {
+					"type": "number",
+					"minimum": 0
+				},
+				"speedMax": {
+					"type": "number",
+					"minimum": 0
+				},
+				"speedMin": {
+					"type": "number",
+					"minimum": -1,
+					"maximum": 0
+				}
+			}
+		},
+		"formulas": {
+			"type": "object",
+			"required": [
+				"armorConstant",
+				"hpRegenFirstPoint",
+				"hpRegenExtraPoint",
+				"lifeStealTriggerSeconds"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"armorConstant": {
+					"type": "number",
+					"minimum": 0
+				},
+				"hpRegenFirstPoint": {
+					"type": "number",
+					"minimum": 0
+				},
+				"hpRegenExtraPoint": {
+					"type": "number",
+					"minimum": 0
+				},
+				"lifeStealTriggerSeconds": {
+					"type": "number",
+					"minimum": 0
+				}
+			}
+		},
+		"dash": {
+			"type": "object",
+			"required": ["distance", "durationSeconds", "iFramesSeconds", "cooldownSeconds"],
+			"additionalProperties": false,
+			"properties": {
+				"distance": {
+					"type": "number",
+					"minimum": 0
+				},
+				"durationSeconds": {
+					"type": "number",
+					"minimum": 0
+				},
+				"iFramesSeconds": {
+					"type": "number",
+					"minimum": 0
+				},
+				"cooldownSeconds": {
+					"type": "number",
+					"minimum": 0
+				}
+			}
+		},
+		"combat": {
+			"type": "object",
+			"required": [
+				"iFramesOnHitSeconds",
+				"contactCooldownSeconds",
+				"knockbackDurationSeconds",
+				"bossKnockbackMult",
+				"eliteKnockbackMult",
+				"targetPriorityDistanceMult"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"iFramesOnHitSeconds": {
+					"type": "number",
+					"minimum": 0
+				},
+				"contactCooldownSeconds": {
+					"type": "number",
+					"minimum": 0
+				},
+				"knockbackDurationSeconds": {
+					"type": "number",
+					"minimum": 0
+				},
+				"bossKnockbackMult": {
+					"type": "number",
+					"minimum": 0
+				},
+				"eliteKnockbackMult": {
+					"type": "number",
+					"minimum": 0
+				},
+				"targetPriorityDistanceMult": {
+					"type": "number",
+					"minimum": 0
+				}
+			}
+		}
+	}
+}
