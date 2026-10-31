@@ -1,4 +1,4 @@
-import { addComponent, query } from "bitecs";
+import { addComponent } from "bitecs";
 import {
 	Armor,
 	Behavior,
@@ -13,7 +13,7 @@ import {
 	Speed,
 	Velocity,
 } from "../ecs/components";
-import { type GameWorld, spawn } from "../ecs/world";
+import { createQueryCache, type GameWorld, spawn } from "../ecs/world";
 import { STEP } from "../loop";
 
 /** `data/rounds.json` `spawn` block. */
@@ -69,7 +69,7 @@ export interface SpawnSystem {
 	readonly spawned: number;
 }
 
-const ENEMY_TERMS = [EnemyFaction];
+const enemyList = createQueryCache([EnemyFaction]);
 const MAX_PLACEMENT_TRIES = 4;
 
 export const spawnTotal = (c: SpawnConfig, round: number): number => c.totalBase + c.totalPerRound * round;
@@ -177,7 +177,7 @@ export function createSpawnSystem(deps: SpawnSystemDeps): SpawnSystem {
 			if (remaining === 0) return;
 			if (timer > 0) timer--;
 			if (timer > 0) return;
-			const alive = query(world, ENEMY_TERMS).length;
+			const alive = enemyList(world).length;
 			const n = Math.min(burst, remaining, config.maxSimultaneous - alive);
 			if (n <= 0) return;
 			for (let i = 0; i < n; i++) create(world, pickType(), hero);

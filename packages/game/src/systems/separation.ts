@@ -1,7 +1,7 @@
 import { createSpatialHash, type SpatialHash } from "@gc/core";
-import { hasComponent, query } from "bitecs";
+import { hasComponent } from "bitecs";
 import { Boss, EnemyFaction, Position, Radius, Velocity } from "../ecs/components";
-import type { GameWorld } from "../ecs/world";
+import { createQueryCache, type GameWorld } from "../ecs/world";
 
 export interface SeparationConfig {
 	/** Weight of the push (SDD 04 section 5). */
@@ -16,7 +16,7 @@ export interface SeparationSystem {
 	run(world: GameWorld): void;
 }
 
-const ENEMY_TERMS = [EnemyFaction, Position, Radius, Velocity];
+const enemyList = createQueryCache([EnemyFaction, Position, Radius, Velocity]);
 const MAX_NEIGHBOURS = 64;
 
 /**
@@ -31,7 +31,7 @@ export function createSeparationSystem(config: SeparationConfig, capacity = 1024
 	return {
 		hash,
 		run(world: GameWorld): void {
-			const enemies = query(world, ENEMY_TERMS);
+			const enemies = enemyList(world);
 			hash.clear();
 			for (let i = 0; i < enemies.length; i++) {
 				const e = enemies[i] ?? 0;

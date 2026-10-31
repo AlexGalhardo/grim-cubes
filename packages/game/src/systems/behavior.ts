@@ -1,4 +1,3 @@
-import { query } from "bitecs";
 import {
 	Behavior,
 	ContactCooldown,
@@ -9,7 +8,7 @@ import {
 	Speed,
 	Velocity,
 } from "../ecs/components";
-import type { GameWorld } from "../ecs/world";
+import { createQueryCache, type GameWorld } from "../ecs/world";
 import { STEP } from "../loop";
 import type { DamageQueue } from "./damage";
 
@@ -26,7 +25,7 @@ export interface BehaviorSystem {
 	run(world: GameWorld, hero: number): void;
 }
 
-const ENEMY_TERMS = [EnemyFaction, Position, Velocity, Speed, Behavior];
+const enemyList = createQueryCache([EnemyFaction, Position, Velocity, Speed, Behavior]);
 
 export function createBehaviorSystem(config: BehaviorConfig, queue: DamageQueue): BehaviorSystem {
 	const periodSteps = Math.max(1, Math.round(config.zigzag.periodSeconds / STEP));
@@ -38,7 +37,7 @@ export function createBehaviorSystem(config: BehaviorConfig, queue: DamageQueue)
 			const hx = Position.x[hero] ?? 0;
 			const hz = Position.z[hero] ?? 0;
 			const heroRadius = Radius.r[hero] ?? 0;
-			const enemies = query(world, ENEMY_TERMS);
+			const enemies = enemyList(world);
 
 			for (let i = 0; i < enemies.length; i++) {
 				const e = enemies[i] ?? 0;
