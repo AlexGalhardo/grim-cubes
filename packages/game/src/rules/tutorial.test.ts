@@ -47,4 +47,13 @@ describe("tutorial", () => {
 		t.update(at({}));
 		expect(t.update(at({ state: "Paused", nowMs: 3000 }))).toBe("tutorialMove");
 	});
+
+	it("does not count the time spent paused", () => {
+		const t = createTutorial();
+		t.update(at({}));
+		t.update(at({ state: "Paused", nowMs: 2000 }));
+		expect(t.update(at({ nowMs: 1000 + TUTORIAL_MS }))).toBe("tutorialMove");
+		expect(t.update(at({ nowMs: 1000 + 2 * TUTORIAL_MS }))).toBeNull();
+		expect(t.done).toBe(true);
+	});
 });
