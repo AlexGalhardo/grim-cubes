@@ -20,6 +20,12 @@ const types: PropTypeDef[] = PLACEHOLDER_PROPS.map((p, t) =>
 	t === TREE ? { ...p, fade: { radius: 0.35, height: 2.8 } } : p,
 );
 
+function definesOf(game: ReturnType<typeof createGameScene>): string {
+	const mesh = game.scene.getMeshByName(PLACEHOLDER_PROPS[TREE]?.name ?? "");
+	const effect = mesh?.subMeshes[0]?.effect;
+	return effect ? String(effect.defines) : "";
+}
+
 function setup(props: readonly { x: number; z: number; type: number }[]) {
 	const { engine, dispose } = createNullEngine();
 	const game = createGameScene(engine);
@@ -42,7 +48,7 @@ function setup(props: readonly { x: number; z: number; type: number }[]) {
 			renderer.update(0, 0, heroX, heroZ);
 		}
 	};
-	return { renderer, place, dispose };
+	return { game, renderer, place, dispose };
 }
 
 /** Camera 20 u south of the hero's column, 31 u up (55 degrees, radius 38). */
@@ -125,6 +131,49 @@ describe("prop fade", () => {
 			for (const [name, original] of originals) proto[name] = original;
 		}
 		expect(calls).toBe(0);
+		dispose();
+	});
+
+	it("compiles the tree material with INSTANCESCOLOR when its first instances appear after the first render", async () => {
+		const { game, renderer, place, dispose } = setup([{ x: 8, z: 4, type: TREE }]);
+		// First frame: the ring is empty, the material compiles without instances.
+		renderer.update(0, 0, 8000, 8000);
+		const mesh = game.scene.getMeshByName(PLACEHOLDER_PROPS[TREE]?.name ?? "");
+		const subMesh = mesh?.subMeshes[0];
+		if (mesh && subMesh) {
+			for (let i = 0; i < 5; i++) {
+				mesh.material?.isReadyForSubMesh(mesh, subMesh, false);
+				await new Promise((resolve) => setTimeout(resolve, 20));
+			}
+		}
+		expect(definesOf(game)).not.toContain("INSTANCESCOLOR");
+		place(8, 5);
+		for (let i = 0; i < 5; i++) {
+			game.scene.render();
+			await new Promise((resolve) => setTimeout(resolve, 20));
+		}
+		const defines = definesOf(game);
+		expect(defines).toContain("INSTANCESCOLOR");
+		dispose();
+	});
+
+	it("compiles with INSTANCESCOLOR when instances exist at the first render", () => {
+		const { game, place, dispose } = setup([{ x: 8, z: 4, type: TREE }]);
+		place(8, 5);
+		game.scene.render();
+		game.scene.render();
+		expect(definesOf(game)).toContain("INSTANCESCOLOR");
+		dispose();
+	});
+
+	it("resets the opacity of a recycled slot so the new chunk's props are not born faded", () => {
+		const { renderer, place, dispose } = setup([{ x: 8, z: 4, type: TREE }]);
+		place(8, 5);
+		run(renderer, view(8, 5), 1);
+		expect(renderer.minAlpha()).toBeLessThan(1);
+		// The hero walks far away: the tree's chunk is released and its slot reused by other chunks.
+		place(8 + 16 * 12, 5);
+		expect(renderer.minAlpha()).toBe(1);
 		dispose();
 	});
 });

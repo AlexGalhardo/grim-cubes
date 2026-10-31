@@ -274,7 +274,10 @@ export function createChunkRenderer(
 				// only defines INSTANCESCOLOR for thin instances that exist). Recompile once instances appear.
 				if (!colorDefined[t] && (propCounts[t] ?? 0) > 0) {
 					colorDefined[t] = 1;
-					mesh.material?.markAsDirty(Material.AttributesDirtyFlag);
+					const material = mesh.material;
+					// A frozen material skips define recomputation, so it would never see INSTANCESCOLOR.
+					if (material?.isFrozen) material.unfreeze();
+					material?.markAsDirty(Material.AttributesDirtyFlag);
 				}
 			}
 		});
@@ -302,6 +305,8 @@ export function createChunkRenderer(
 					shownCz[i] = cz;
 					writeUvs(i);
 					uvDirty[i] = 1;
+					// A recycled slot must not hand its faded opacity to the new chunk's props.
+					fadeAlpha.fill(1, i * config.maxPropsPerChunk, (i + 1) * config.maxPropsPerChunk);
 				}
 				if (swapped || moved) {
 					writeQuad(i);
