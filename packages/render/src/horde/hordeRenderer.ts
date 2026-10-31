@@ -84,6 +84,8 @@ export interface HordeRenderer {
 	onDied(eid: number): void;
 	/** The world origin moved by (dx, dz): ghosts are not ECS bodies, so they shift here. */
 	shift(dx: number, dz: number): void;
+	/** Share (0..100) of a type drawn with its variants, changeable live (the bench measures them on and off). */
+	setVariantPercent(percent: number): void;
 	readonly stats: Readonly<{ matrixUpdates: number; settingsUpdates: number; ghosts: number }>;
 	dispose(): void;
 }
@@ -144,7 +146,7 @@ export function createHordeRenderer(types: readonly HordeType[], options: HordeO
 	types.forEach((type, t) => {
 		if (type.base !== undefined) variantsOf[type.base]?.push(t);
 	});
-	const percent = options.variantPercent ?? VARIANT_PERCENT;
+	let percent = options.variantPercent ?? VARIANT_PERCENT;
 	function visual(eid: number, kind: number): number {
 		const list = variantsOf[kind];
 		if (!list || list.length === 0) return kind;
@@ -387,6 +389,10 @@ export function createHordeRenderer(types: readonly HordeType[], options: HordeO
 				ghostX[slot] = (ghostX[slot] ?? 0) - dx;
 				ghostZ[slot] = (ghostZ[slot] ?? 0) - dz;
 			}
+		},
+
+		setVariantPercent(next): void {
+			percent = next;
 		},
 
 		stats,
