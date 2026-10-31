@@ -1,0 +1,14 @@
+{
+	"prompt": "The earth is hungry, and so am I!",
+	"model": "eleven_multilingual_v2",
+	"durationSeconds": 4,
+	"generatedAt": "2026-10-31T21:13:50.659Z",
+	"plan": "creator",
+	"hash": "e845348009b21a301b42890309906523692a9d1918efc34e4cde91c76a4a5d49",
+	"voiceId": "nPczCjzI2devNBz1zQrb",
+	"loudness": {
+		"target": -16,
+		"before": -22.1,
+		"after": -19.6
+	}
+}

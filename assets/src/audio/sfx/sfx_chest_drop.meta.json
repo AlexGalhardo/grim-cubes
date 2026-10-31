@@ -5,5 +5,10 @@
 	"generatedAt": "2026-10-31T16:05:16.177Z",
 	"plan": "creator",
 	"hash": "b675feb4b81af421a5fe023fc0baf109fe92198bc589647f9aae82be414aa26f",
-	"promptInfluence": 0.5
+	"promptInfluence": 0.5,
+	"loudness": {
+		"target": -16,
+		"before": -19.4,
+		"after": -17.9
+	}
 }

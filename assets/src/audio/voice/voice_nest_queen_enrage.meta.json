@@ -1,0 +1,14 @@
+{
+	"prompt": "Enough! Tear them apart!",
+	"model": "eleven_multilingual_v2",
+	"durationSeconds": 4,
+	"generatedAt": "2026-10-31T21:13:51.434Z",
+	"plan": "creator",
+	"hash": "35780579545a8fe9f2d7f69fd8067823ffaa9713b2da54da2bd20fbad387a8e1",
+	"voiceId": "nPczCjzI2devNBz1zQrb",
+	"loudness": {
+		"target": -16,
+		"before": -20.8,
+		"after": -18.3
+	}
+}

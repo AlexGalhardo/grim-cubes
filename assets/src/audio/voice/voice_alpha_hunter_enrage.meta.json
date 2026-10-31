@@ -1,0 +1,14 @@
+{
+	"prompt": "Now the hunt turns savage.",
+	"model": "eleven_multilingual_v2",
+	"durationSeconds": 4,
+	"generatedAt": "2026-10-31T21:13:51.245Z",
+	"plan": "creator",
+	"hash": "fb79a59581502baf446f2483b8f2e621aafdd2e78c393e151b4d01a76caa3a57",
+	"voiceId": "N2lVS1w4EtoT3dr4eOWO",
+	"loudness": {
+		"target": -16,
+		"before": -22.1,
+		"after": -18.8
+	}
+}
