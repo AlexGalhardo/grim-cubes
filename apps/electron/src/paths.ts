@@ -17,3 +17,11 @@ export function resolveAppPath(urlPath: string, root: string): string | null {
 export function isTrustedSender(url: string | undefined): boolean {
 	return typeof url === "string" && url.startsWith("app://game/");
 }
+
+/** Folder under the roaming app data (`%APPDATA%`) that holds the save, whatever the package or product is called. */
+export const USER_DATA_FOLDER = "grim-cubes";
+
+/** `%APPDATA%\grim-cubes`: pinned so renaming the package or `productName` never moves (and loses) the save. */
+export function userDataDir(appData: string): string {
+	return join(appData, USER_DATA_FOLDER);
+}

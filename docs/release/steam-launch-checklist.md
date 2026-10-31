@@ -76,8 +76,8 @@ Roda num workflow manual (`environment: steam`, aprovado pelo PO) ou localmente 
 
 ## 7. Saves na nuvem
 
-- [ ] S2 — O save do Electron precisa de um arquivo em disco para o Auto-Cloud: hoje fica no IndexedDB do Chromium (pasta do perfil, arquivos LevelDB), que não é seguro sincronizar. Gravar o envelope do save (com checksum) em `saves/` na pasta de dados do app (ADR-0009). Data: ____
-- [ ] Orq — Auto-Cloud configurado: raiz `WinAppDataRoaming` (ou a pasta escolhida), subpasta `Grim Cubes/saves`, padrão `*.json`, cota de bytes e de arquivos. Data: ____
+- [x] S2 — O save do Electron precisa de um arquivo em disco para o Auto-Cloud: hoje fica no IndexedDB do Chromium (pasta do perfil, arquivos LevelDB), que não é seguro sincronizar. Gravar o envelope do save (com checksum) em `saves/` na pasta de dados do app (ADR-0009). Feito: arquivos em `%APPDATA%\grim-cubes\saves`, caminho fixado no código (não muda com o nome do pacote). Data: 2026-10-31
+- [ ] Orq — Auto-Cloud configurado: raiz `WinAppDataRoaming` (ou a pasta escolhida), subpasta `grim-cubes/saves` (`%APPDATA%\grim-cubes\saves`, em minúsculas e fixa), padrão `*.json`, cota de bytes e de arquivos. Data: ____
 - [ ] PO — Teste em duas máquinas: o save sincroniza e um conflito mostra a escolha da Steam. Data: ____
 
 ## 8. Steam Deck
