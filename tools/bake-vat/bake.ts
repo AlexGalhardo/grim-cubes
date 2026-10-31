@@ -28,9 +28,9 @@ export interface VatResult {
 	meta: VatMeta;
 }
 
-type Mat4 = number[];
+export type Mat4 = number[];
 
-function multiply(a: Mat4, b: Mat4): Mat4 {
+export function multiply(a: Mat4, b: Mat4): Mat4 {
 	const out = new Array<number>(16).fill(0);
 	for (let c = 0; c < 4; c++) {
 		for (let r = 0; r < 4; r++) {
@@ -43,7 +43,7 @@ function multiply(a: Mat4, b: Mat4): Mat4 {
 }
 
 /** Inverse of an affine column-major mat4 (last row 0,0,0,1); glTF node transforms are always affine. */
-function invertAffine(m: Mat4): Mat4 {
+export function invertAffine(m: Mat4): Mat4 {
 	// Row-major view of the 3x3 block: row r = (m[r], m[4 + r], m[8 + r]).
 	const [a, b, c, d, e, f, g, h, i] = [m[0], m[4], m[8], m[1], m[5], m[9], m[2], m[6], m[10]].map(
 		(v) => v ?? 0,
@@ -157,6 +157,19 @@ function clipDuration(animation: Animation): number {
 	return duration;
 }
 
+/** Sets the TRS of every node the animation targets to its value at `time`; untouched nodes keep their pose. */
+export function applyAnimationAt(animation: Animation, time: number, name: string): void {
+	for (const channel of animation.listChannels()) {
+		const node = channel.getTargetNode();
+		const path = channel.getTargetPath();
+		if (!node) continue;
+		const value = sample(channel, time, name);
+		if (path === "translation") node.setTranslation(value as [number, number, number]);
+		else if (path === "rotation") node.setRotation(value as [number, number, number, number]);
+		else if (path === "scale") node.setScale(value as [number, number, number]);
+	}
+}
+
 export function assertVatLimits(name: string, width: number, height: number): void {
 	if (width > VAT_MAX_TEXTURE_SIZE) {
 		throw new RuleError("vat-width", name, `texture width ${width} exceeds ${VAT_MAX_TEXTURE_SIZE}`);
@@ -213,15 +226,7 @@ export function bakeVat(
 		const from = rows.length;
 		for (let f = 0; f < frames; f++) {
 			restore();
-			for (const channel of animation.listChannels()) {
-				const node = channel.getTargetNode();
-				const path = channel.getTargetPath();
-				if (!node) continue;
-				const value = sample(channel, f / fps, name);
-				if (path === "translation") node.setTranslation(value as [number, number, number]);
-				else if (path === "rotation") node.setRotation(value as [number, number, number, number]);
-				else if (path === "scale") node.setScale(value as [number, number, number]);
-			}
+			applyAnimationAt(animation, f / fps, name);
 			const row = new Array<number>(width * 4).fill(0);
 			joints.forEach((joint, b) => {
 				const inverseBind = ibm
@@ -252,6 +257,6 @@ export function bakeVat(
 	};
 }
 
-function identity(): Mat4 {
+export function identity(): Mat4 {
 	return [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
 }
