@@ -24,6 +24,12 @@ export interface PatternContext {
 	queue: DamageQueue;
 	/** `EnemyType` index of the minion every boss borrows its stats from. */
 	summonType: number;
+	/** `EnemyType` index of an enemy id from enemies.json. Throws on an unknown id. */
+	enemyIndex(id: string): number;
+	/** Slows the hero (mud pool). */
+	slowHero(seconds: number, multiplier: number): void;
+	/** Shoves the hero along (dirX, dirZ) by `distance` over `seconds` (scream). */
+	pushHero(dirX: number, dirZ: number, distance: number, seconds: number): void;
 	/** Turns the pattern's `dir` toward the hero and returns the distance. */
 	aim(): number;
 	stop(): void;
@@ -145,26 +151,162 @@ const shovelArc: PatternFactory = (p) => {
 	};
 };
 
-/** Once, when HP falls to `atHpFraction`: the boss's minions appear around it (`Boss.phase` is the bar's 50% mark). */
+/** Spawns `count` minions in a ring around the boss and announces it. */
+function summonRing(ctx: PatternContext, type: number, count: number): void {
+	const x = Position.x[ctx.entity] ?? 0;
+	const z = Position.z[ctx.entity] ?? 0;
+	for (let i = 0; i < count; i++) {
+		const angle = (i / count) * Math.PI * 2;
+		ctx.spawn.spawnEnemy(ctx.world, type, x + Math.cos(angle) * 2.5, z + Math.sin(angle) * 2.5);
+	}
+	ctx.events.push(EventType.BossSummon, x, z, count, ctx.entity);
+}
+
+/**
+ * Minions around the boss, in one of two shapes: once when HP falls to `atHpFraction` (the Gravedigger; `Boss.phase`
+ * is the bar's 50% mark), or every `intervalSeconds` (the Matriarch). `enemy` names the minion, defaulting to the
+ * boss's own base enemy.
+ */
 const summon: PatternFactory = (p) => {
+	const periodic = typeof p.intervalSeconds === "number";
+	const minion = (ctx: PatternContext): number =>
+		typeof p.enemy === "string" ? ctx.enemyIndex(p.enemy) : ctx.summonType;
+	let wait = 0;
 	return {
 		tick(ctx): void {
+			if (periodic) {
+				if (++wait < ctx.steps(num(p, "intervalSeconds"))) return;
+				wait = 0;
+				summonRing(ctx, minion(ctx), num(p, "count", 3));
+				return;
+			}
 			if ((Boss.phase[ctx.entity] ?? 0) !== 0) return;
 			if ((Health.hp[ctx.entity] ?? 0) > ctx.maxHp * num(p, "atHpFraction", 0.5)) return;
 			Boss.phase[ctx.entity] = 1;
-			const count = num(p, "count", 6);
-			const x = Position.x[ctx.entity] ?? 0;
-			const z = Position.z[ctx.entity] ?? 0;
-			for (let i = 0; i < count; i++) {
-				const angle = (i / count) * Math.PI * 2;
-				ctx.spawn.spawnEnemy(
-					ctx.world,
-					ctx.summonType,
-					x + Math.cos(angle) * 2.5,
-					z + Math.sin(angle) * 2.5,
-				);
+			summonRing(ctx, minion(ctx), num(p, "count", 6));
+		},
+	};
+};
+
+const MAX_POOLS = 8;
+
+/**
+ * Mud pool (Matriarch): after a telegraph the boss leaves a pool where the hero stood; standing in it slows the
+ * hero for `slowSeconds` after the last tick inside, so leaving does not free the hero at once.
+ */
+const mudPool: PatternFactory = (p) => {
+	const poolX = new Float32Array(MAX_POOLS);
+	const poolZ = new Float32Array(MAX_POOLS);
+	const poolLeft = new Uint16Array(MAX_POOLS);
+	let next = 0;
+	let phase = 0;
+	let timer = 0;
+	let targetX = 0;
+	let targetZ = 0;
+
+	return {
+		canStart: (_ctx, distance) => distance >= num(p, "minDistance", 3),
+		start(ctx): void {
+			phase = 0;
+			timer = ctx.steps(num(p, "telegraphSeconds", 1));
+			targetX = Position.x[ctx.hero] ?? 0;
+			targetZ = Position.z[ctx.hero] ?? 0;
+			ctx.stop();
+			ctx.events.push(
+				EventType.BossTelegraph,
+				ctx.dirX,
+				ctx.dirZ,
+				num(p, "telegraphSeconds", 1),
+				ctx.entity,
+			);
+		},
+		update(ctx): boolean {
+			ctx.stop();
+			if (phase === 0) {
+				if (--timer <= 0) {
+					poolX[next] = targetX;
+					poolZ[next] = targetZ;
+					poolLeft[next] = ctx.steps(num(p, "durationSeconds", 6));
+					next = (next + 1) % MAX_POOLS;
+					ctx.events.push(EventType.BossPool, targetX, targetZ, num(p, "radius", 2.5), ctx.entity);
+					phase = 1;
+					timer = ctx.steps(num(p, "recoverSeconds", 0.8));
+				}
+			} else if (--timer <= 0) {
+				return false;
 			}
-			ctx.events.push(EventType.BossSummon, x, z, count, ctx.entity);
+			return true;
+		},
+		tick(ctx): void {
+			const reach = num(p, "radius", 2.5) + (Radius.r[ctx.hero] ?? 0);
+			for (let i = 0; i < MAX_POOLS; i++) {
+				const left = poolLeft[i] ?? 0;
+				if (left === 0) continue;
+				poolLeft[i] = left - 1;
+				const dx = (Position.x[ctx.hero] ?? 0) - (poolX[i] ?? 0);
+				const dz = (Position.z[ctx.hero] ?? 0) - (poolZ[i] ?? 0);
+				if (dx * dx + dz * dz <= reach * reach) {
+					ctx.slowHero(num(p, "slowSeconds", 3), num(p, "slowMult", 0.5));
+				}
+			}
+		},
+	};
+};
+
+/** Scream (Matriarch): a close-range telegraphed shout that shoves the hero away from the boss and bruises it. */
+const scream: PatternFactory = (p) => {
+	let phase = 0;
+	let timer = 0;
+
+	function shout(ctx: PatternContext): void {
+		const x = Position.x[ctx.entity] ?? 0;
+		const z = Position.z[ctx.entity] ?? 0;
+		const radius = num(p, "radius", 6);
+		ctx.events.push(EventType.BossScream, x, z, radius, ctx.entity);
+		const dx = (Position.x[ctx.hero] ?? 0) - x;
+		const dz = (Position.z[ctx.hero] ?? 0) - z;
+		const dist = Math.hypot(dx, dz);
+		if (dist > radius + (Radius.r[ctx.hero] ?? 0)) return;
+		// Dead centre has no direction: fall back to where the boss was facing.
+		const nx = dist > 1e-6 ? dx / dist : ctx.dirX;
+		const nz = dist > 1e-6 ? dz / dist : ctx.dirZ;
+		ctx.pushHero(nx, nz, num(p, "knockbackDistance", 5), num(p, "knockbackSeconds", 0.25));
+		ctx.queue.push(
+			ctx.hero,
+			(ContactDamage.value[ctx.entity] ?? 0) * num(p, "damageMult", 0.5),
+			ctx.entity,
+			0,
+			0,
+			0,
+		);
+	}
+
+	return {
+		canStart: (_ctx, distance) => distance <= num(p, "maxDistance", 5),
+		start(ctx): void {
+			phase = 0;
+			timer = ctx.steps(num(p, "telegraphSeconds", 0.8));
+			ctx.stop();
+			ctx.events.push(
+				EventType.BossTelegraph,
+				ctx.dirX,
+				ctx.dirZ,
+				num(p, "telegraphSeconds", 0.8),
+				ctx.entity,
+			);
+		},
+		update(ctx): boolean {
+			ctx.stop();
+			if (phase === 0) {
+				if (--timer <= 0) {
+					shout(ctx);
+					phase = 1;
+					timer = ctx.steps(num(p, "recoverSeconds", 1));
+				}
+			} else if (--timer <= 0) {
+				return false;
+			}
+			return true;
 		},
 	};
 };
@@ -173,6 +315,8 @@ const REGISTRY = new Map<string, PatternFactory>([
 	["line_charge", lineCharge],
 	["shovel_arc", shovelArc],
 	["summon", summon],
+	["mud_pool", mudPool],
+	["scream", scream],
 ]);
 
 /** Adds a pattern for the next bosses (A-03-01 onward). Throws when the id is taken. */

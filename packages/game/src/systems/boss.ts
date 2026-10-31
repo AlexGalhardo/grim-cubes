@@ -5,8 +5,9 @@ import { Boss, ContactDamage, Health, Position, Radius, Speed, Velocity } from "
 import { type EventBuffer, EventType } from "../ecs/events";
 import type { GameWorld } from "../ecs/world";
 import { STEP } from "../loop";
-import { buildPatterns, type PatternContext, type PatternHandler } from "./bossPatterns";
+import { buildPatterns, hasPattern, type PatternContext, type PatternHandler } from "./bossPatterns";
 import type { DamageQueue } from "./damage";
+import type { HeroStatus } from "./heroStatus";
 import type { SpawnSystem } from "./spawn";
 
 export interface BossSystemDeps {
@@ -23,6 +24,10 @@ export interface BossSystemDeps {
 	summonType: number;
 	/** Difficulty multiplier on HP and damage. */
 	difficulty: () => number;
+	/** `EnemyType` index of an enemy id from enemies.json (summon patterns). */
+	enemyIndex?: ((id: string) => number) | undefined;
+	/** Hero slow and push effects (mud pool, scream); patterns that need them are no-ops without it. */
+	heroStatus?: Pick<HeroStatus, "slow" | "push"> | undefined;
 	/** The kill was recorded: end the round, grant the free weapon upgrade, etc. */
 	onDefeated: () => void;
 }
@@ -66,7 +71,8 @@ export const enrageMult = (rounds: RoundsData["boss"], stacks: number): number =
  * behaviorSystem; this system overrides velocity while a pattern runs.
  */
 export function createBossSystem(deps: BossSystemDeps): BossSystem {
-	const { def, rounds, spawn, events, queue, hero, rng, summonType, difficulty, onDefeated } = deps;
+	const { def, rounds, spawn, events, queue, hero, rng, summonType, difficulty, onDefeated, heroStatus } =
+		deps;
 	const patterns = buildPatterns(def.patterns);
 	const steps = (seconds: number): number => Math.max(1, Math.round(seconds / STEP));
 	const enrageSteps = steps(rounds.enrageEverySeconds);
@@ -92,6 +98,15 @@ export function createBossSystem(deps: BossSystemDeps): BossSystem {
 		events,
 		queue,
 		summonType,
+		enemyIndex(id: string): number {
+			// Without a lookup (unit tests) every minion is the boss's own base enemy.
+			if (!deps.enemyIndex) return summonType;
+			const index = deps.enemyIndex(id);
+			if (index < 0) throw new RangeError(`boss pattern names unknown enemy "${id}"`);
+			return index;
+		},
+		slowHero: (seconds, multiplier) => heroStatus?.slow(seconds, multiplier),
+		pushHero: (dirX, dirZ, distance, seconds) => heroStatus?.push(dirX, dirZ, distance, seconds),
 		aim(): number {
 			const dx = (Position.x[hero] ?? 0) - (Position.x[entity] ?? 0);
 			const dz = (Position.z[hero] ?? 0) - (Position.z[entity] ?? 0);
@@ -212,5 +227,41 @@ export function createBossSystem(deps: BossSystemDeps): BossSystem {
 				phase: Boss.phase[entity] ?? 0,
 			};
 		},
+	};
+}
+
+export interface BossRoster extends BossSystem {
+	/** The boss definition that fights in `round`: the latest implemented one at or before it. */
+	defFor(round: number): BossData;
+}
+
+/**
+ * Picks the boss of a round from the definitions whose patterns are all implemented (A-03-01 onward: a boss in
+ * bosses.json without its handlers yet is skipped, not a crash). Rounds past the last boss repeat it; the scaled
+ * repeats and the shuffle come with A-03-03.
+ */
+export function createBossRoster(base: Omit<BossSystemDeps, "def">, defs: readonly BossData[]): BossRoster {
+	const playable = defs
+		.filter((def) => def.patterns.every((p) => hasPattern(p.id)))
+		.sort((a, b) => a.round - b.round);
+	const first = playable[0];
+	if (!first) throw new RangeError("no boss with implemented patterns");
+	const systems = new Map(playable.map((def) => [def.id, createBossSystem({ ...base, def })]));
+	let current: BossSystem | null = null;
+
+	const defFor = (round: number): BossData => playable.filter((def) => def.round <= round).at(-1) ?? first;
+
+	return {
+		defFor,
+		start(world, round): number {
+			current = systems.get(defFor(round).id) ?? null;
+			return current?.start(world, round) ?? -1;
+		},
+		run: (world) => current?.run(world),
+		handleDeath: (world, enemy, x, z) => current?.handleDeath(world, enemy, x, z),
+		get entity(): number {
+			return current?.entity ?? -1;
+		},
+		view: () => current?.view() ?? null,
 	};
 }

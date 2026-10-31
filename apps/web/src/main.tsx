@@ -29,7 +29,7 @@ import {
 	createAuraSystem,
 	createBehaviorSystem,
 	createBleedSystem,
-	createBossSystem,
+	createBossRoster,
 	createChestSystem,
 	createChunkGenerator,
 	createChunkSystem,
@@ -42,6 +42,7 @@ import {
 	createEnemyShotSystem,
 	createEventBuffer,
 	createGameWorld,
+	createHeroStatus,
 	createKillEffectsSystem,
 	createLevelUpSystem,
 	createLoop,
@@ -334,24 +335,26 @@ async function boot(): Promise<void> {
 		hero,
 	});
 	hooks.heroHit = elite.handleHeroHit;
-	const bossDef = bossesData.find((b) => b.round === 10);
-	if (!bossDef) throw new Error("No boss defined for round 10");
-	const bossName = bossDef.name;
-	const boss = createBossSystem({
-		def: bossDef,
-		rounds: roundsData.boss,
-		spawn,
-		events,
-		queue: damage.queue,
-		hero,
-		rng: rng.combat,
-		summonType: enemyIds.indexOf("husk"),
-		difficulty: () => difficulty.hpDamageMult,
-		onDefeated: () => {
-			run.bossDied();
-			for (let i = 0; i < roundsData.boss.freeWeaponUpgrades; i++) weapon.upgrade();
+	const heroStatus = createHeroStatus();
+	const boss = createBossRoster(
+		{
+			rounds: roundsData.boss,
+			spawn,
+			events,
+			queue: damage.queue,
+			hero,
+			rng: rng.combat,
+			summonType: enemyIds.indexOf("husk"),
+			enemyIndex: (id) => enemyIds.indexOf(id),
+			heroStatus,
+			difficulty: () => difficulty.hpDamageMult,
+			onDefeated: () => {
+				run.bossDied();
+				for (let i = 0; i < roundsData.boss.freeWeaponUpgrades; i++) weapon.upgrade();
+			},
 		},
-	});
+		bossesData,
+	);
 	const run = createRunSystem({
 		config: { flow: roundsData.flow, duration: roundsData.duration, boss: roundsData.boss },
 		spawn,
@@ -854,7 +857,7 @@ async function boot(): Promise<void> {
 			boss: bossView,
 			ossuary: ossuaryOpen ? ossuaryView() : null,
 			difficulty: difficultyOpen ? difficultyView() : null,
-			bossIntro: run.state === "BossIntro" ? bossName : null,
+			bossIntro: run.state === "BossIntro" ? boss.defFor(run.round).name : null,
 			dash: dash.unlocked
 				? {
 						charges: dash.charges,
@@ -955,8 +958,9 @@ async function boot(): Promise<void> {
 			}
 			run.run(world, hero);
 			if (fighting()) {
-				inputSystem(world, hero, input, weapon.speedMultiplier);
+				inputSystem(world, hero, input, weapon.speedMultiplier * heroStatus.speedMultiplier);
 				dash.run(hero, input);
+				heroStatus.run(hero);
 				behavior.run(world, hero);
 				boss.run(world);
 				propCollision.steer(world, origin);

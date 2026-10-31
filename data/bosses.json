@@ -60,16 +60,33 @@
 			{
 				"id": "mud_pool",
 				"params": {
-					"effect": "slow"
+					"effect": "slow",
+					"telegraphSeconds": 1,
+					"radius": 2.5,
+					"durationSeconds": 8,
+					"slowMult": 0.5,
+					"slowSeconds": 3,
+					"minDistance": 3,
+					"recoverSeconds": 0.8
 				}
 			},
 			{
 				"id": "scream",
 				"params": {
-					"effect": "knockback"
+					"effect": "knockback",
+					"telegraphSeconds": 0.8,
+					"radius": 6,
+					"maxDistance": 5,
+					"knockbackDistance": 5,
+					"knockbackSeconds": 0.25,
+					"damageMult": 0.5,
+					"recoverSeconds": 1
 				}
 			}
-		]
+		],
+		"radius": 1.5,
+		"speed": 2,
+		"patternCooldownSeconds": 2
 	},
 	{
 		"id": "forgemaster",

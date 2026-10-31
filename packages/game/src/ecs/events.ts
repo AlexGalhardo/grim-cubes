@@ -48,6 +48,10 @@ export const EventType = {
 	EnemyShotFired: 23,
 	/** a = index of the pattern in the boss's `patterns` list (bosses.json); entity = the boss. A pattern started. */
 	BossPattern: 24,
+	/** a, b = x, z; c = radius. The boss left a lingering pool there (lifetime: the pattern's durationSeconds). */
+	BossPool: 25,
+	/** a, b = x, z; c = radius. The boss screamed: the hero in range was shoved away. */
+	BossScream: 26,
 	/** a = new level. The run paused and a card offer is waiting. */
 	LevelUp: 11,
 } as const;
