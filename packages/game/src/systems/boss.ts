@@ -1,4 +1,5 @@
 import { addComponent } from "bitecs";
+import { bossesData } from "../data";
 import type { BossData, RoundsData } from "../data/types";
 import { dropChest } from "../ecs/chest";
 import { Boss, ContactDamage, Health, Position, Radius, Speed, Velocity } from "../ecs/components";
@@ -183,7 +184,8 @@ export function createBossSystem(deps: BossSystemDeps): BossSystem {
 			const z = (Position.z[hero] ?? 0) + Math.sin(angle) * 12;
 			entity = spawn.spawnEnemy(world, summonType, x, z);
 			addComponent(world, entity, Boss);
-			Boss.id[entity] = 1;
+			// 1-based index in bosses.json: the render picks the model and telegraphs from it (0 means no boss).
+			Boss.id[entity] = Math.max(1, bossesData.findIndex((b) => b.id === def.id) + 1);
 			Health.hp[entity] = Health.max[entity] = maxHp;
 			Radius.r[entity] = def.radius ?? 1.2;
 			ctx.entity = entity;

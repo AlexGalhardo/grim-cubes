@@ -80,7 +80,9 @@ test("the Matriarch has 2,800 HP in round 20 and 3,780 in round 30", () => {
 	const { world, boss } = setup();
 	const e = boss.start(world, 20);
 	expect(Health.max[e]).toBe(2800);
-	expect(Boss.id[e]).toBe(1);
+	// Boss.id is the 1-based index in bosses.json, so the render does not give her the Gravedigger's model.
+	expect(Boss.id[e]).toBe(bossesData.findIndex((b) => b.id === "swamp_matriarch") + 1);
+	expect(Boss.id[e]).toBe(2);
 });
 
 test("every 8 s she calls 3 Leeches around her, regardless of what else she is doing", () => {
