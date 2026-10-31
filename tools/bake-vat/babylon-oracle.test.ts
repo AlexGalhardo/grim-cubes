@@ -5,10 +5,13 @@ import { LoadAssetContainerAsync } from "@babylonjs/core/Loading/sceneLoader";
 import { Matrix, Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { Scene } from "@babylonjs/core/scene";
 import { NodeIO } from "@gltf-transform/core";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { packGlb } from "../assets-build/glb";
 import { bakeVat } from "./bake";
 import { makeRootedRig } from "./rigFixture";
+
+// Loading Babylon's glTF plugin and baking two rigs takes more than the default 5 s when the whole suite runs in parallel.
+vi.setConfig({ testTimeout: 20_000 });
 
 /**
  * Independent oracle: Babylon's own glTF loader and skeleton evaluate the same animation, and its

@@ -66,6 +66,7 @@ import {
 	difficultyData,
 	dropFragment,
 	Elite,
+	ENEMY_SHOT_POOL_SIZE,
 	EventType,
 	elitesData,
 	enemiesData,
@@ -134,7 +135,7 @@ const BENCH_ENEMY_HP = 1e9;
 /** Fragment piles drawn at once; piles beyond this are simply not shown (the drop cap keeps it far below). */
 const MAX_ENTITIES_FRAGMENTS = 256;
 const AURA_COLORS: Readonly<Record<string, string>> = {
-	steel_gray: PALETTE.steelGray,
+	steel_gray: PALETTE.ironLight,
 	amber: PALETTE.emberLight,
 	wine: PALETTE.bloodLight,
 	orange: PALETTE.ember,
@@ -142,7 +143,7 @@ const AURA_COLORS: Readonly<Record<string, string>> = {
 
 /** Instance colour of an elite aura: the token colour pushed past 1 so the texture glows towards it. */
 function auraTint(aura: string): readonly [number, number, number] {
-	const hex = (AURA_COLORS[aura] ?? PALETTE.steelGray).slice(1);
+	const hex = (AURA_COLORS[aura] ?? PALETTE.ironLight).slice(1);
 	const channel = (offset: number): number =>
 		(Number.parseInt(hex.slice(offset, offset + 2), 16) / 255) * 2;
 	return [channel(0), channel(2), channel(4)];
@@ -585,7 +586,7 @@ async function boot(): Promise<void> {
 	const vfx = createVfx(game, {
 		onHitStop: (ms) => hitStop.request(ms),
 		// Elites get the long hit-stop of a boss kill too (GDD section 23).
-		isHero: (entity) => entity === hero,
+		reducedMotion: () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
 		heroHealth: () => (Health.hp[hero] ?? 0) / Math.max(1, Health.max[hero] ?? 1),
 		isBoss: (entity) => (Boss.id[entity] ?? 0) > 0 || (Elite.modifier[entity] ?? 0) > 0,
 	});
@@ -596,7 +597,7 @@ async function boot(): Promise<void> {
 	);
 	let frozenAt: number | null = null;
 	const eliteView = createEliteView(game);
-	const enemyShotView = createEnemyShotRenderer(game, 128, renderData.vfx.enemyShotSize);
+	const enemyShotView = createEnemyShotRenderer(game, ENEMY_SHOT_POOL_SIZE, renderData.vfx.enemyShotSize);
 	const fragmentView = createFragmentRenderer(game, MAX_ENTITIES_FRAGMENTS);
 	const port = createRenderPort(game, horde, {
 		origin,

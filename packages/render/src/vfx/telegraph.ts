@@ -13,6 +13,8 @@ export interface Telegraph {
 	line(entity: number, dirX: number, dirZ: number, seconds: number, length: number, width: number): void;
 	/** A 120 degree sector of radius `range` centred on (dirX, dirZ), anchored on `entity`, for `seconds`. */
 	arc(entity: number, dirX: number, dirZ: number, seconds: number, range: number): void;
+	/** Drops the warnings of `entity` (it died; its id may be recycled by another entity). */
+	cancel(entity: number): void;
 	update(dtSeconds: number): void;
 	readonly live: number;
 }
@@ -135,6 +137,9 @@ export function createTelegraph(game: GameScene): Telegraph {
 		arc(e, dx, dz, seconds, range): void {
 			const i = claim(LINE_CAPACITY, slots);
 			if (i >= 0) start(i, e, dx, dz, seconds, range, range);
+		},
+		cancel(e): void {
+			for (let i = 0; i < slots; i++) if (entity[i] === e) entity[i] = -1;
 		},
 		update(dt): void {
 			let nLines = 0;

@@ -63,7 +63,7 @@ export {
 } from "./ecs/components";
 export type { RenderPort } from "./ecs/contract";
 export type { EnemyShotPool } from "./ecs/enemyShot";
-export { createEnemyShotPool } from "./ecs/enemyShot";
+export { createEnemyShotPool, ENEMY_SHOT_POOL_SIZE } from "./ecs/enemyShot";
 export type { EventBuffer, EventVisitor } from "./ecs/events";
 export { consumeEvents, createEventBuffer, EVENT_CAPACITY, EventType } from "./ecs/events";
 export { dropFragment } from "./ecs/fragments";

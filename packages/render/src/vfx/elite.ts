@@ -28,8 +28,8 @@ const EDGE_DISTANCE = 9;
 const MARKER_SIZE = 0.8;
 const MARKER_HEIGHT = 1.2;
 const BLINK_HZ = 3;
-/** Radius around the hero inside which an opened chest is removed. */
-const OPEN_RADIUS = 3;
+/** An opened chest is the one within this many u of the position the event carries. */
+const OPEN_RADIUS = 1;
 
 /** Placeholder chest on the ground and the edge marker of an elite that is about to arrive (GDD section 11). */
 export function createEliteView(game: GameScene): EliteView {
@@ -56,8 +56,6 @@ export function createEliteView(game: GameScene): EliteView {
 	let markerZ = 0;
 	let clock = 0;
 	let drawnX = 0;
-	let lastHeroX = 0;
-	let lastHeroZ = 0;
 
 	return {
 		get chests(): number {
@@ -80,17 +78,19 @@ export function createEliteView(game: GameScene): EliteView {
 			} else if (type === EventType.EliteSpawned || type === EventType.EliteEscaped) {
 				markerOn = false;
 			} else if (type === EventType.ChestOpened) {
-				// The offer carries no position: the chest the hero walked into is the nearest one.
+				// a, b = the chest that was opened.
 				let best = -1;
 				let bestDistance = OPEN_RADIUS * OPEN_RADIUS;
 				for (let i = 0; i < chests; i++) {
-					const dx = (chestX[i] ?? 0) - lastHeroX;
-					const dz = (chestZ[i] ?? 0) - lastHeroZ;
+					const dx = (chestX[i] ?? 0) - a;
+					const dz = (chestZ[i] ?? 0) - b;
 					if (dx * dx + dz * dz < bestDistance) {
 						bestDistance = dx * dx + dz * dz;
 						best = i;
 					}
 				}
+				// Until the event carries a position (0, 0) the oldest chest goes.
+				if (a === 0 && b === 0 && chests > 0) best = 0;
 				if (best >= 0) {
 					chests--;
 					chestX[best] = chestX[chests] ?? 0;
@@ -112,8 +112,6 @@ export function createEliteView(game: GameScene): EliteView {
 		},
 		update(seconds, heroX, heroZ): void {
 			clock += seconds;
-			lastHeroX = heroX;
-			lastHeroZ = heroZ;
 			for (let i = 0; i < chests; i++) {
 				writeTransform(
 					chestSet.matrices,
