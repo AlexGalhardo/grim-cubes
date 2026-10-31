@@ -4,7 +4,7 @@ import { Document } from "@gltf-transform/core";
  * Skinned mesh under a transformed, non-joint `root` node. IBMs are relative to the skeleton space (the
  * root's own transform excluded), as the glTF spec and the Babylon loader expect.
  */
-export function makeRootedRig(): Document {
+export function makeRootedRig(variant: "single" | "siblings" = "single"): Document {
 	const doc = new Document();
 	const buffer = doc.createBuffer();
 	const scene = doc.createScene();
@@ -14,8 +14,18 @@ export function makeRootedRig(): Document {
 		.setRotation([0, Math.sin(0.3), 0, Math.cos(0.3)]);
 	const bone0 = doc.createNode("bone0");
 	const bone1 = doc.createNode("bone1").setTranslation([0, 1, 0.5]);
-	root.addChild(bone0);
 	bone0.addChild(bone1);
+	let bone2: ReturnType<Document["createNode"]> | null = null;
+	if (variant === "siblings") {
+		// Two top joints under a transformed non-joint node: the skeleton root is that node, its parent is `root`.
+		const mid = doc.createNode("mid").setTranslation([0.2, 0.1, 0]);
+		bone2 = doc.createNode("bone2").setTranslation([1, 0, 0]);
+		root.addChild(mid);
+		mid.addChild(bone0);
+		mid.addChild(bone2);
+	} else {
+		root.addChild(bone0);
+	}
 
 	const ibm = doc
 		.createAccessor()
@@ -27,12 +37,23 @@ export function makeRootedRig(): Document {
 				-0.5, 1,
 			]),
 		);
-	const skin = doc
-		.createSkin("skin")
-		.addJoint(bone0)
-		.addJoint(bone1)
-		.setInverseBindMatrices(ibm)
-		.setSkeleton(bone0);
+	const skin = doc.createSkin("skin").addJoint(bone0).addJoint(bone1).setInverseBindMatrices(ibm);
+	if (bone2) {
+		skin.addJoint(bone2).setInverseBindMatrices(
+			doc
+				.createAccessor()
+				.setType("MAT4")
+				.setBuffer(buffer)
+				.setArray(
+					new Float32Array([
+						1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0,
+						-1, -0.5, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 1,
+					]),
+				),
+		);
+	} else {
+		skin.setSkeleton(bone0);
+	}
 	const position = doc
 		.createAccessor()
 		.setType("VEC3")

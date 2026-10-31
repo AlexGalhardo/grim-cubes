@@ -79,9 +79,13 @@ function ancestors(node: Node): Node[] {
 }
 
 /**
- * World matrix of the space the skeleton lives in: the parent of the single top joint or, with several top
- * joints, their lowest common ancestor. Ancestors that are not joints would otherwise be applied twice, once
- * in the bake and once more by the mesh world matrix.
+ * World matrix of the space the skeleton lives in: the parent of the skeleton root, which is the single top
+ * joint or, with several top joints, their lowest common ancestor (this is what Babylon's loader uses).
+ * Ancestors that are not joints would otherwise be applied twice, once in the bake and once more by the mesh
+ * world matrix.
+ *
+ * shortcut: the base is evaluated at the rest pose, so a non-joint ancestor that is animated (root motion)
+ * would not be tracked; rigid-skin models (D5) never animate non-joint nodes.
  */
 function skeletonBase(joints: readonly Node[]): Mat4 {
 	const jointSet = new Set<Node>(joints);
@@ -93,9 +97,9 @@ function skeletonBase(joints: readonly Node[]): Mat4 {
 	);
 	const first = tops[0];
 	if (!first) return identity();
-	if (tops.length === 1) return (first.getParentNode()?.getWorldMatrix() as Mat4 | undefined) ?? identity();
-	const common = ancestors(first).find((candidate) => tops.every((t) => ancestors(t).includes(candidate)));
-	return (common?.getWorldMatrix() as Mat4 | undefined) ?? identity();
+	const skeletonRoot =
+		tops.length === 1 ? first : ancestors(first).find((c) => tops.every((t) => ancestors(t).includes(c)));
+	return (skeletonRoot?.getParentNode()?.getWorldMatrix() as Mat4 | undefined) ?? identity();
 }
 
 function slerp(a: readonly number[], b: readonly number[], t: number): number[] {
