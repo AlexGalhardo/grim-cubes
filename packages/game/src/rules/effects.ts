@@ -48,6 +48,8 @@ export interface ItemEffects {
 	/** Revives left this run and the HP fraction restored (`phylactery`). */
 	revives: number;
 	reviveHpFraction: number;
+	/** Seconds between two pulls of every fragment on the floor to the hero (`bone_lodestone`); 0 = none. */
+	pullFragmentsEverySeconds: number;
 	auras: AuraEffect[];
 	/** Fraction of a critical hit's damage that bleeds on over `bleedSeconds` (`bone_saw`). */
 	bleedFraction: number;
@@ -71,6 +73,7 @@ export function createItemEffects(): ItemEffects {
 		endOfRoundFragmentBonus: 0,
 		revives: 0,
 		reviveHpFraction: 0,
+		pullFragmentsEverySeconds: 0,
 		auras: [],
 		bleedFraction: 0,
 		bleedSeconds: 0,
@@ -113,6 +116,7 @@ export function computeEffects(
 	out.soulGain = 0;
 	out.endOfRoundFragmentBonus = 0;
 	out.reviveHpFraction = 0;
+	out.pullFragmentsEverySeconds = 0;
 	out.auras.length = 0;
 	out.bleedFraction = 0;
 	out.bleedSeconds = 0;
@@ -151,6 +155,15 @@ export function computeEffects(
 				case "end_of_round_fragment_bonus":
 					out.endOfRoundFragmentBonus += num(p, "fraction") * count;
 					break;
+				case "pull_fragments": {
+					// Each copy pulls on its own clock, so n copies pull n times as often.
+					const every = num(p, "intervalSeconds") / count;
+					out.pullFragmentsEverySeconds =
+						out.pullFragmentsEverySeconds === 0
+							? every
+							: Math.min(out.pullFragmentsEverySeconds, every);
+					break;
+				}
 				case "revive_once":
 					// Not stackable: owning it twice still revives once.
 					revives = 1;

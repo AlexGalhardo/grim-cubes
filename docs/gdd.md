@@ -409,10 +409,13 @@ Stats secundários (só por itens): `pickup_range` (%), `xp_gain` (%), `shop_pri
 
 | Tier | Nome | Cor (ver Art Bible §3) | Cor daltônico | Preço base típico |
 | --- | --- | --- | --- | --- |
-| 1 | Comum | cinza-osso | — | 15–25 |
-| 2 | Incomum | verde-lodo | azul | 30–50 |
-| 3 | Raro | azul-frio | laranja | 60–100 |
+| 1 | Normal | cinza-osso | — | 15–25 |
+| 2 | Raro | verde-lodo | azul | 30–50 |
+| 3 | Épico | azul-frio | laranja | 60–100 |
 | 4 | Lendário | vermelho-sangue | magenta | 120–200 |
+| 5 | Mítico | cor própria a definir (S2 e Art Bible §3) | a definir | 240–320 |
+
+Decisão do PO (2026-10-31): cinco raridades com os nomes Normal, Raro, Épico, Lendário e Mítico. Os nomes antigos (Comum, Incomum, Raro) mudam de tier: o contrato dos dados é `tier: 1..5` (`data/schema/common.schema.json`), e os nomes vêm de `rarity.1..5` nos locales. O baú de elite continua Lendário (tier 4) e o baú de chefe começa no tier 3; **itens Míticos só saem na loja** (e em um baú de tier 5, que ainda não existe), para que os baús Lendários não os distribuam mais que o teto da loja.
 
 ### 15.2 Chance por tier (baseline Brotato)
 
@@ -421,12 +424,13 @@ chance(T, N) = clamp(base_T + inc_T × max(0, N - min_T + 1), 0, cap_T) × (1 + 
 T2: base 0, inc 6%/round,    cap 60%, min_round 2
 T3: base 0, inc 2%/round,    cap 25%, min_round 4
 T4: base 0, inc 0,23%/round, cap 8%,  min_round 8
+T5: base 0, inc 0,06%/round, cap 1,5%, min_round 25
 T1: o restante
 ```
 
-Sorteio: testa T4, depois T3, depois T2; o que sobrar é T1.
+Sorteio: testa T5, depois T4, depois T3, depois T2; o que sobrar é T1 (sem item do tier sorteado, a loja desce de tier). A sorte multiplica todas as chances como antes.
 
-### 15.3 Pool da 1.0 (40 itens + 2 exclusivos do Ossuário)
+### 15.3 Pool da 1.0 (41 itens + 4 Míticos + 2 exclusivos do Ossuário)
 
 Regeneração e auditoria de stats (2026-10-31): com `hp_regen`, `knockback` e `enemy_speed` aplicados de fato, o p50 do sim passou de 21 para 31 (alvo 18–26), e o 500×30 ficou na beira do penhasco (cerca de 50% das runs vivas no round 30). Rebalanceado só em dados: Atadura Negra, Coração do Abismo e Manto do Ossuário dão +0,5 regeneração (eram +2, +3 e +2), a carta de stat dá +0,25 regen (era +1) e a Ampulheta do Ceifador reduz a velocidade dos inimigos em 5% (era 20%). Resultado: 64 runs × 35 rounds com p50 23,5 e 500 × 30 com p50 24 (`reports/balance-audit-500x30.json`).
 
@@ -474,6 +478,18 @@ Tabela resumida; a tabela completa com todos os valores vive em `data/items.json
 | `cube_of_wrath` | Cubo da Ira | 4 | a cada 50 kills, onda de choque (raio 6 u, 50 + 5N) | — |
 | `soul_jar` | Jarro de Almas | 4 | +50% almas ao morrer | — |
 | `gilded_skull` | Crânio Dourado | 4 | +20 sorte, +20% fragmentos | — |
+
+Acréscimos de 2026-10-31 (pedido do PO):
+
+| ID | Nome | Tier | Preço | Efeito | Contra-efeito |
+| --- | --- | --- | --- | --- | --- |
+| `bone_lodestone` | Ímã de Ossos | 2 | 40 | efeito `pull_fragments`: a cada 8 s puxa todos os fragmentos do chão até o herói (cada cópia tem o seu relógio) | — |
+| `titan_core` | Núcleo do Titã | 5 | 280 | +200 HP máx, +12 armadura | −20% velocidade, −15% velocidade de ataque |
+| `blood_crown` | Coroa de Sangue | 5 | 300 | +60% dano, +8% roubo de vida | HP máx ×0,6 |
+| `storm_gauntlet` | Manopla da Tempestade | 5 | 320 | +50% velocidade de ataque, +25% crítico | −6 armadura |
+| `void_cloak` | Manto do Vazio | 5 | 240 | +25% esquiva, +20% velocidade | HP máx ×0,75, −15% dano |
+
+O Ímã de Ossos é o item comprável do consumível `bone_magnet` (§15.4, que só dropa); a lógica de puxar a cada 8 s é do S2 (`ItemEffects.pullFragmentsEverySeconds`). Os quatro Míticos seguem o padrão do pool (um ganho grande com um custo claro) e valem de 240 a 320 de preço base.
 
 Exclusivos do Ossuário (entram no pool Lendário só com o nó `ruin_6`, `exclusiveTo` em `data/items.json`; não contam nos 40):
 
@@ -576,7 +592,7 @@ Decisão D09: árvore permanente fora da run, comprada com almas. Nome diegétic
 | Aço | dano | +5% dano; +5% velocidade de ataque; +5% crítico; +0,5 u alcance; +10% dano; mult. crítico ×2,3 |
 | Sombra | mobilidade | +5% velocidade; Dash (desbloqueia); +25% raio de pickup; dash recarga −1 s; +10% velocidade; 2 cargas de dash |
 | Ouro | economia | +1 colheita; −5% preços; +1 reroll grátis por loja; +10% fragmentos; +2 colheita; começa a run com 30 ouro |
-| Ruína | meta | +10% almas; +10% XP; loja começa com 1 item Incomum garantido; 1 reroll de cartas por run; +25% almas; pool Lendário +2 itens exclusivos |
+| Ruína | meta | +10% almas; +10% XP; loja começa com 1 item Raro (tier 2) garantido; 1 reroll de cartas por run; +25% almas; pool Lendário +2 itens exclusivos |
 
 ### 19.2 Regras
 
@@ -785,7 +801,7 @@ Eventos gravados localmente em JSONL e, se o jogador aceitar, enviados em lote p
 | Bolsa | Fragmentos não coletados, devolvidos no round seguinte |
 | Almas | Moeda persistente ganha ao morrer, gasta no Ossuário |
 | Ossuário | Meta-árvore permanente (5 ramos, 30 nós) |
-| Tier | Raridade de item/arma (1 Comum a 4 Lendário) |
+| Tier | Raridade de item/arma (1 Normal a 5 Mítico) |
 | Mercador de Ossos | NPC da loja |
 | Carrasco | Herói da 1.0 |
 | Enrage | A cada 60 s de round de chefe: +15% dano e velocidade do chefe, acumulativo |
@@ -796,7 +812,7 @@ Eventos gravados localmente em JSONL e, se o jogador aceitar, enviados em lote p
 Decisões do Diretor não cobertas pelo brainstorming, registradas para revisão do PO:
 
 - Nomes diegéticos: herói "Carrasco", NPC "Mercador de Ossos", meta-árvore "Ossuário", chefes e biomas (§6.2, §12.1). Todos substituíveis sem impacto técnico (IDs em inglês não mudam).
-- Roster da 1.0: 8 inimigos comuns, 4 modificadores de elite, 5 chefes, 5 armas × 4 tiers, 40 itens + 2 exclusivos do Ossuário (`ruin_chalice`, `ossuary_mantle`), 12 cartas, 30 nós no Ossuário, 4 biomas.
+- Roster da 1.0: 8 inimigos comuns, 4 modificadores de elite, 5 chefes, 5 armas × 4 tiers, 41 itens + 4 Míticos + 2 exclusivos do Ossuário (`ruin_chalice`, `ossuary_mantle`), 12 cartas, 30 nós no Ossuário, 4 biomas.
 - Dash existe, mas só via Ossuário (ramo Sombra); o herói começa sem dash.
 - Almas: fórmula de §18.2 e custos de §19.1 calibrados para completar o Ossuário em 15–25 runs.
 - Contagem de inimigos por round (§10.3) e HP de chefes (§12.1) são propostas sem referência pública; o simulador (§25) valida.

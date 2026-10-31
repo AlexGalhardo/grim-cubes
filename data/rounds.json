@@ -117,6 +117,13 @@
 			"perRound": 0.0023,
 			"cap": 0.08,
 			"minRound": 8
+		},
+		{
+			"tier": 5,
+			"base": 0,
+			"perRound": 0.0006,
+			"cap": 0.015,
+			"minRound": 25
 		}
 	],
 	"fragments": {

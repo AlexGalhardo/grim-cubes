@@ -42,6 +42,8 @@ const chests = createQueryCache([Chest, Position]);
  * Elite chests (GDD 11): walking within pickup range opens one, heals the hero and offers `offered` items of
  * at least the chest's tier; the hero keeps `picks` of them. The run pauses while the offer is open.
  */
+const MYTHIC = 5;
+
 export function createChestSystem(deps: ChestSystemDeps): ChestSystem {
 	const { reward, items, rng, run, stats, owned, onItemTaken, events, blocked, pickupRadius } = deps;
 	let offer: ChestOffer[] | null = null;
@@ -50,7 +52,9 @@ export function createChestSystem(deps: ChestSystemDeps): ChestSystem {
 	function draw(tier: number, count: number): ChestOffer[] {
 		// Items whose effect is not implemented yet (status alpha) are not offered.
 		const sellable = items.filter((i) => i.status !== "alpha");
-		let pool = sellable.filter((i) => i.tier >= tier);
+		// Mythic (tier 5) items come from the shop only, unless the chest itself is Mythic: otherwise every Legendary
+		// chest would hand them out far more often than the shop's 3% cap.
+		let pool = sellable.filter((i) => i.tier >= tier && (tier >= MYTHIC || i.tier < MYTHIC));
 		if (pool.length === 0) pool = [...sellable];
 		const out: ChestOffer[] = [];
 		while (out.length < count && pool.length > 0) {

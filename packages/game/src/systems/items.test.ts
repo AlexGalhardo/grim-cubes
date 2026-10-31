@@ -497,3 +497,24 @@ test("spiked_boots cooldowns run down for enemies that left the hero's reach", (
 	for (let i = 0; i < 30; i++) thorns.run(world, hero);
 	expect(ThornsCooldown.ticks[e]).toBe(0);
 });
+
+test("the Bone Lodestone pulls every 8 s and each extra copy shortens the interval", () => {
+	const effects = createItemEffects();
+	computeEffects(itemsData, new Map([["bone_lodestone", 1]]), effects);
+	expect(effects.pullFragmentsEverySeconds).toBe(8);
+	computeEffects(itemsData, new Map([["bone_lodestone", 2]]), effects);
+	expect(effects.pullFragmentsEverySeconds).toBe(4);
+	computeEffects(itemsData, new Map(), effects);
+	expect(effects.pullFragmentsEverySeconds).toBe(0);
+});
+
+test("the Mythic items are tier 5, cost 240 to 320 and trade a strength for a weakness", () => {
+	const mythic = itemsData.filter((i) => i.tier === 5);
+	expect(mythic.length).toBeGreaterThanOrEqual(3);
+	for (const item of mythic) {
+		expect(item.price, item.id).toBeGreaterThanOrEqual(220);
+		expect(item.price, item.id).toBeLessThanOrEqual(320);
+		const worse = item.modifiers.some((m) => (m.op === "mul" ? m.value < 1 : m.value < 0));
+		expect(worse, `${item.id} has a trade-off`).toBe(true);
+	}
+});
