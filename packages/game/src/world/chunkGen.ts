@@ -1,3 +1,4 @@
+import { hash32x3 } from "@gc/core";
 import { createNoise2D } from "simplex-noise";
 import type { ChunkData, ChunkGenerator } from "./chunkSystem";
 
@@ -10,6 +11,7 @@ export interface BiomeDef {
 	minDistance: number;
 	props?: { blocking: readonly string[]; decor: readonly string[]; breakable: readonly string[] };
 	propCounts?: { blocking: Range; decor: Range; breakable: Range };
+	floorTiles?: readonly string[];
 }
 
 export interface ChunkGenConfig {
@@ -33,27 +35,8 @@ const CORRIDOR_LIMIT = 2;
 const NOISE_SCALE = 1 / 48;
 /** Keeps jittered props inside their cell. */
 const CELL_MARGIN = 0.5;
-
-function mixWord(h: number, word: number): number {
-	let k = Math.imul(word | 0, 0xcc9e2d51);
-	k = (k << 15) | (k >>> 17);
-	k = Math.imul(k, 0x1b873593);
-	h ^= k;
-	h = (h << 13) | (h >>> 19);
-	return (Math.imul(h, 5) + 0xe6546b64) | 0;
-}
-
-/** u32 mix (MurmurHash3 blocks + finaliser) of three ints; hash32 is variadic and would allocate per chunk. */
-function hashChunk(seed: number, cx: number, cz: number): number {
-	let h = mixWord(mixWord(mixWord(0, seed), cx), cz);
-	h ^= 12;
-	h ^= h >>> 16;
-	h = Math.imul(h, 0x85ebca6b);
-	h ^= h >>> 13;
-	h = Math.imul(h, 0xc2b2ae35);
-	h ^= h >>> 16;
-	return h >>> 0;
-}
+/** Art Bible §7: four floor variants per biome when a biome does not list its tiles. */
+const DEFAULT_FLOOR_VARIANTS = 4;
 
 /**
  * Builds a deterministic chunk generator. Everything the hot path touches is preallocated here, so generating a
@@ -102,7 +85,7 @@ export function createChunkGenerator(
 	});
 
 	// Noise only orders candidate cells; a mulberry32 stream seeded from the run seed feeds the permutation table.
-	let noiseState = hashChunk(seedRun, 0x4e4f4953, 0) | 0;
+	let noiseState = hash32x3(seedRun, 0x4e4f4953, 0) | 0;
 	const noise = createNoise2D(() => {
 		noiseState = (noiseState + 0x6d2b79f5) | 0;
 		let t = Math.imul(noiseState ^ (noiseState >>> 15), 1 | noiseState);
@@ -175,6 +158,26 @@ export function createChunkGenerator(
 		return n;
 	}
 
+	/**
+	 * Corridor rule: a cell may take a blocking prop only if it has fewer than CORRIDOR_LIMIT blocked neighbours and so
+	 * does each blocked neighbour, otherwise that neighbour would end up above the limit once this prop lands.
+	 */
+	function canBlock(cell: number): boolean {
+		if (neighbours(cell) >= CORRIDOR_LIMIT) return false;
+		const cx = cell % GRID;
+		const cz = Math.floor(cell / GRID);
+		for (let dz = -1; dz <= 1; dz++) {
+			for (let dx = -1; dx <= 1; dx++) {
+				const nx = cx + dx;
+				const nz = cz + dz;
+				if ((dx === 0 && dz === 0) || nx < 0 || nx >= GRID || nz < 0 || nz >= GRID) continue;
+				const other = nz * GRID + nx;
+				if (blocked[other] && neighbours(other) >= CORRIDOR_LIMIT) return false;
+			}
+		}
+		return true;
+	}
+
 	function place(
 		out: ChunkData,
 		cell: number,
@@ -198,7 +201,7 @@ export function createChunkGenerator(
 	}
 
 	const generate: ChunkGenerator = (cx, cz, out) => {
-		rngState = hashChunk(seedRun, cx, cz) | 0;
+		rngState = hash32x3(seedRun, cx, cz) | 0;
 		const index = biomeIndex(cx, cz);
 		const entry = defined[index];
 		const list = lists[index];
@@ -207,7 +210,7 @@ export function createChunkGenerator(
 		const wx = cx * chunkSize;
 		const wz = cz * chunkSize;
 		out.biome = entry.index;
-		out.floorVariant = Math.floor(next() * 4);
+		out.floorVariant = Math.floor(next() * (entry.biome.floorTiles?.length ?? DEFAULT_FLOOR_VARIANTS));
 		out.propCount = 0;
 
 		// Grid A: blocking props, then breakables, at most one per cell.
@@ -219,7 +222,7 @@ export function createChunkGenerator(
 		let placed = 0;
 		for (let i = 0; i < CELLS && placed < wantBlocking; i++) {
 			const cell = order[i] ?? 0;
-			if (neighbours(cell) >= CORRIDOR_LIMIT) continue;
+			if (!canBlock(cell)) continue;
 			if (!place(out, cell, wx, wz, PROP_KIND.blocking, list.blocking)) continue;
 			blocked[cell] = 1;
 			taken[cell] = 1;

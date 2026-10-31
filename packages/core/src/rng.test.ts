@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { createStreams, hash32, mulberry32, murmur3x86_32, RNG_STREAMS } from "./rng";
+import { createStreams, hash32, hash32x3, mulberry32, murmur3x86_32, RNG_STREAMS } from "./rng";
 
 // Golden values: bryc's public mulberry32 reference
 // (https://github.com/bryc/code/blob/master/jshash/PRNGs.md), seed 42.
@@ -60,6 +60,16 @@ describe("hash32", () => {
 		const words = new Uint32Array([1, 2, 3]);
 		expect(hash32(1, 2, 3)).toBe(murmur3x86_32(new Uint8Array(words.buffer)));
 		expect(hash32(1, 2, 3)).toBe(3923217110);
+	});
+
+	test("hash32x3 equals the variadic hash32", () => {
+		for (const [a, b, c] of [
+			[1, 2, 3],
+			[7, -1, -1],
+			[42, 100000, -99999],
+		] as const) {
+			expect(hash32x3(a, b, c)).toBe(hash32(a, b, c));
+		}
 	});
 
 	test("treats negative i32 as their u32 form", () => {

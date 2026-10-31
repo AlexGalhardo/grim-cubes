@@ -97,19 +97,21 @@ describe("generateChunk", () => {
 				grid.add(cell);
 				if (Math.hypot(cx * config.chunkSize + lx, cz * config.chunkSize + lz) < 3)
 					violations.spawn++;
-				if (kind === PROP_KIND.blocking) {
-					// Corridor rule, replayed in placement order: fewer than 2 blocking neighbours when it was placed.
-					let near = 0;
-					for (const other of blocked) {
-						if (
-							Math.abs((other % 4) - (cell % 4)) <= 1 &&
-							Math.abs(Math.floor(other / 4) - Math.floor(cell / 4)) <= 1
-						)
-							near++;
-					}
-					if (near >= 2) violations.corridor++;
-					blocked.push(cell);
+				if (kind === PROP_KIND.blocking) blocked.push(cell);
+			}
+			// Corridor rule on the final state, counted straight from the grid: no blocking prop ends up with more
+			// than 2 blocking neighbours (8-neighbourhood).
+			for (const cell of blocked) {
+				let near = 0;
+				for (const other of blocked) {
+					if (other === cell) continue;
+					if (
+						Math.abs((other % 4) - (cell % 4)) <= 1 &&
+						Math.abs(Math.floor(other / 4) - Math.floor(cell / 4)) <= 1
+					)
+						near++;
 				}
+				if (near > 2) violations.corridor++;
 			}
 			if (
 				!within(counts[PROP_KIND.blocking], ranges.blocking) ||

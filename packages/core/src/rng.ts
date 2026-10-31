@@ -96,6 +96,11 @@ export function hash32(...parts: number[]): number {
 	return finalize(h, parts.length * 4);
 }
 
+/** Same value as `hash32(a, b, c)` without the rest-parameter array, for per-chunk hot paths. */
+export function hash32x3(a: number, b: number, c: number): number {
+	return finalize(mixBlock(mixBlock(mixBlock(0, a | 0), b | 0), c | 0), 12);
+}
+
 export function createStreams(seedRun: number): RngStreams {
 	const streams = {} as Record<StreamName, Rng>;
 	RNG_STREAMS.forEach((name, id) => {
