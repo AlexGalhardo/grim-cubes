@@ -1,0 +1,7 @@
+{
+	"chunkSize": 16,
+	"loadRadius": 3,
+	"unloadRadius": 5,
+	"chunksPerStep": 2,
+	"poolSize": 81
+}

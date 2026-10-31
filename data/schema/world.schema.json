@@ -1,0 +1,27 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "world.schema.json",
+	"title": "World streaming constants (SDD 03 §2)",
+	"type": "object",
+	"additionalProperties": false,
+	"required": ["chunkSize", "loadRadius", "unloadRadius", "chunksPerStep", "poolSize"],
+	"properties": {
+		"chunkSize": { "type": "integer", "minimum": 1, "description": "Chunk edge in world units." },
+		"loadRadius": { "type": "integer", "minimum": 1, "description": "Chebyshev radius kept loaded." },
+		"unloadRadius": {
+			"type": "integer",
+			"minimum": 2,
+			"description": "Chebyshev distance from which a chunk is released; must be greater than loadRadius."
+		},
+		"chunksPerStep": {
+			"type": "integer",
+			"minimum": 1,
+			"description": "Maximum chunks generated per simulation step."
+		},
+		"poolSize": {
+			"type": "integer",
+			"minimum": 1,
+			"description": "ChunkData pool capacity; at least (2 * (unloadRadius - 1) + 1)^2."
+		}
+	}
+}
