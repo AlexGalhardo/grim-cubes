@@ -1,0 +1,14 @@
+{
+	"prompt": "cold wind over a graveyard, faint creaking iron fences and distant tolling, low eerie ambience, seamless loop, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 10,
+	"generatedAt": "2026-10-31T21:13:58.722Z",
+	"plan": "creator",
+	"hash": "0448f9e9b7944d45aaa74cf831a8c8e902a458b4bc337c22ea9c1da7b116746f",
+	"promptInfluence": 0.5,
+	"loudness": {
+		"target": -24,
+		"before": -30.1,
+		"after": -24.5
+	}
+}

@@ -1,0 +1,14 @@
+{
+	"prompt": "roaring furnace drone, distant anvil clangs and hissing steam, hot industrial ambience, seamless loop, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 10,
+	"generatedAt": "2026-10-31T21:14:01.903Z",
+	"plan": "creator",
+	"hash": "c1e4e895b704402c51f275eda187602258197ac432088f00b71d27dc9f6c195d",
+	"promptInfluence": 0.5,
+	"loudness": {
+		"target": -24,
+		"before": -20,
+		"after": -25.1
+	}
+}

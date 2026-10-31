@@ -1,0 +1,14 @@
+{
+	"prompt": "single heavy armored boot step on cold stone, a dull metal clank and a dry scuff, close, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 0.5,
+	"generatedAt": "2026-10-31T21:13:53.090Z",
+	"plan": "creator",
+	"hash": "3405cd43b86d837df46407614d991aa6d95b5b30abeca39346bdd75c70e9eb9e",
+	"promptInfluence": 0.5,
+	"loudness": {
+		"target": -16,
+		"before": -14,
+		"after": -16.5
+	}
+}

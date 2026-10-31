@@ -2,8 +2,13 @@
 	"prompt": "single shot from a heavy old iron pistol, dry loud crack with short low thump, heavy dry tone, close, no music, game sound effect",
 	"model": "eleven_text_to_sound_v2",
 	"durationSeconds": 0.6,
-	"generatedAt": "2026-10-31T15:37:17.005Z",
+	"generatedAt": "2026-10-31T21:18:32.285Z",
 	"plan": "creator",
 	"hash": "5e481e51bf8a21b5680dd5c16277b3f8146c7fcac7cd37a7050ccde3ecd3d2f9",
-	"promptInfluence": 0.5
+	"promptInfluence": 0.5,
+	"loudness": {
+		"target": -16,
+		"before": -26.7,
+		"after": -26.6
+	}
 }

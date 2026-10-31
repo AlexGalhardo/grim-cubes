@@ -1,0 +1,14 @@
+{
+	"prompt": "heavy machine gun firing continuously, deep rapid thudding shots with a metal rattle, seamless loop, close, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 2,
+	"generatedAt": "2026-10-31T21:13:55.443Z",
+	"plan": "creator",
+	"hash": "3bec289ac947b036970121601ea0074e32763f0cd5c3fa398e81f2b42f7f500f",
+	"promptInfluence": 0.5,
+	"loudness": {
+		"target": -16,
+		"before": -5.2,
+		"after": -16.4
+	}
+}

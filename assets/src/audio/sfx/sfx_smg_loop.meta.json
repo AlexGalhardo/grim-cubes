@@ -1,0 +1,14 @@
+{
+	"prompt": "submachine gun firing a steady burst, rapid dry gunshots with brass casings, seamless loop, close, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 2,
+	"generatedAt": "2026-10-31T21:13:55.169Z",
+	"plan": "creator",
+	"hash": "295c9b66588060ad08fab9da73847d936d3c4a9a9764c23b4620b3ef8fbd32d5",
+	"promptInfluence": 0.5,
+	"loudness": {
+		"target": -16,
+		"before": -6.8,
+		"after": -16.5
+	}
+}

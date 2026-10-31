@@ -648,7 +648,9 @@ Decisões D24, D25: SFX e música via ElevenLabs, voz via ElevenLabs TTS, tudo g
 | UI | hover, confirmar, cancelar, compra, sem ouro, reroll, lock, carta escolhida, almas contando, cadeado | 10 |
 | Ambiente | loop por bioma (4), vento, fim de round (sino), início de round (tambor) | 7 |
 
-Polifonia: `maxInstances` por som (hits 8, mortes 6, pickups 4). Mixer: buses `master`, `sfx`, `music`, `voice`, `ui`.
+Polifonia: `maxInstances` por som (hits 8, mortes 6, pickups 4) e teto por grupo (falas 2, UI 4, demais efeitos 24). Mixer: buses `master`, `sfx`, `music`, `voice`, `ui`; hoje o código usa `master`, `music` e `sfx`, e a música cai −6 dB sob uma fala.
+
+**Metas de áudio (decisão do Orq, 2026-10-31, B-03-03):** 70 efeitos sonoros (eram 82; os 30 sons de chefe da lista acima viram sons genéricos de evento), 12 músicas (menu, ondas, chefe, 4 biomas e 5 chefes) e 40 falas (20 do Mercador e 4 de cada chefe: entrada, fase, fúria e morte).
 
 ### 22.2 Música
 

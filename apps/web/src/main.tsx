@@ -142,6 +142,7 @@ import { createRoot } from "react-dom/client";
 import { bootArtReview } from "./artReview";
 import { createAudioEngine } from "./audio/audioEngine";
 import { createEventAudio } from "./audio/eventSounds";
+import { createFootsteps } from "./audio/footsteps";
 import { createMerchantVoice } from "./audio/merchantVoice";
 import { createWebAudioDeps, musicFor } from "./audio/webAudio";
 import { applyLocale, initLocale } from "./locale";
@@ -833,6 +834,13 @@ async function boot(): Promise<void> {
 		showCaption,
 	);
 	const merchantVoice = createMerchantVoice(audio, showCaption);
+	const footsteps = createFootsteps(audio);
+	// Hero steps are sampled ten times a second, only while a round is running (the origin shift moves the hero in
+	// world units, hence the walked distance is computed from the absolute position).
+	window.setInterval(() => {
+		if (run.state !== "Round" && run.state !== "BossRound") return footsteps.reset();
+		footsteps.update(origin.x + (Position.x[hero] ?? 0), origin.z + (Position.z[hero] ?? 0), biomeTrack);
+	}, 100);
 	// While he waits the Merchant speaks up now and then: a remark, then a call to come over (every 12 s).
 	let waited = 0;
 	window.setInterval(() => {

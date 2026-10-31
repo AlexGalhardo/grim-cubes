@@ -1,0 +1,14 @@
+{
+	"prompt": "single heavy armored boot step in thick wet mud, a slow squelch and a muffled metal clank, close, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 0.5,
+	"generatedAt": "2026-10-31T21:13:53.275Z",
+	"plan": "creator",
+	"hash": "fefea54e6072e85a12805b5834f421d68b292935743508284cc6e0f5023cfd85",
+	"promptInfluence": 0.5,
+	"loudness": {
+		"target": -16,
+		"before": -19.4,
+		"after": -19.4
+	}
+}

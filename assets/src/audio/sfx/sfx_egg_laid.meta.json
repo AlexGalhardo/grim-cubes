@@ -1,9 +1,14 @@
 {
-	"prompt": "organic egg being laid on the floor, wet squelch and a soft leathery thump, heavy dry tone, medium distance, no music, game sound effect",
+	"prompt": "loud wet squelch and a heavy leathery thump, a huge organic egg dropped on the floor, punchy, heavy dry tone, close, no music, game sound effect",
 	"model": "eleven_text_to_sound_v2",
 	"durationSeconds": 0.8,
-	"generatedAt": "2026-10-31T16:05:26.474Z",
+	"generatedAt": "2026-10-31T21:19:49.404Z",
 	"plan": "creator",
-	"hash": "2f280a30dfbedfb0fb287a7ba4d92b39494ea49016d32ed6daf8ce115f45d1e9",
-	"promptInfluence": 0.5
+	"hash": "71bcf7970b61e1c2cae43b2a6cb960d2d34b85873c93851e56bb1eb9de3f13d9",
+	"promptInfluence": 0.5,
+	"loudness": {
+		"target": -16,
+		"before": -30.9,
+		"after": -24.3
+	}
 }

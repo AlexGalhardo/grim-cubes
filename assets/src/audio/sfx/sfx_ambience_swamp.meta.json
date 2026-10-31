@@ -1,0 +1,14 @@
+{
+	"prompt": "bubbling black swamp, slow dripping water, distant insects and low gurgling, damp ambience, seamless loop, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 10,
+	"generatedAt": "2026-10-31T21:13:58.722Z",
+	"plan": "creator",
+	"hash": "78315c10f1729034d5fbb7dc01ffed5dd14ca0f604670c2617874e3c000931de",
+	"promptInfluence": 0.5,
+	"loudness": {
+		"target": -24,
+		"before": -25.7,
+		"after": -24.4
+	}
+}

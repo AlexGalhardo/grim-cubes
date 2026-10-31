@@ -5,5 +5,10 @@
 	"generatedAt": "2026-10-31T18:45:07.950Z",
 	"plan": "creator",
 	"hash": "fd9dca60afef35abcb48a25383ea92c39490cf5ccd3b45bd0ad6b57bc948c9b2",
-	"voiceId": "pqHfZKP75CvOlQylNhV4"
+	"voiceId": "pqHfZKP75CvOlQylNhV4",
+	"loudness": {
+		"target": -16,
+		"before": -23.2,
+		"after": -17.2
+	}
 }

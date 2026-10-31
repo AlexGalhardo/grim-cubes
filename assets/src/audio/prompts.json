@@ -475,7 +475,7 @@
 	{
 		"file": "sfx_egg_laid",
 		"kind": "sfx",
-		"prompt": "organic egg being laid on the floor, wet squelch and a soft leathery thump, heavy dry tone, medium distance, no music, game sound effect",
+		"prompt": "loud wet squelch and a heavy leathery thump, a huge organic egg dropped on the floor, punchy, heavy dry tone, close, no music, game sound effect",
 		"durationSeconds": 0.8,
 		"promptInfluence": 0.5,
 		"model": "eleven_text_to_sound_v2"
@@ -855,5 +855,115 @@
 		"durationSeconds": 3.0,
 		"promptInfluence": 0.5,
 		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "voice_gravedigger_enrage",
+		"kind": "voice",
+		"prompt": "The earth is hungry, and so am I!",
+		"durationSeconds": 4,
+		"voiceId": "nPczCjzI2devNBz1zQrb",
+		"model": "eleven_multilingual_v2"
+	},
+	{
+		"file": "voice_swamp_matriarch_enrage",
+		"kind": "voice",
+		"prompt": "You dare make me rage, little one?",
+		"durationSeconds": 4,
+		"voiceId": "N2lVS1w4EtoT3dr4eOWO",
+		"model": "eleven_multilingual_v2"
+	},
+	{
+		"file": "voice_forgemaster_enrage",
+		"kind": "voice",
+		"prompt": "Burn! Burn in my forge!",
+		"durationSeconds": 4,
+		"voiceId": "nPczCjzI2devNBz1zQrb",
+		"model": "eleven_multilingual_v2"
+	},
+	{
+		"file": "voice_alpha_hunter_enrage",
+		"kind": "voice",
+		"prompt": "Now the hunt turns savage.",
+		"durationSeconds": 4,
+		"voiceId": "N2lVS1w4EtoT3dr4eOWO",
+		"model": "eleven_multilingual_v2"
+	},
+	{
+		"file": "voice_nest_queen_enrage",
+		"kind": "voice",
+		"prompt": "Enough! Tear them apart!",
+		"durationSeconds": 4,
+		"voiceId": "nPczCjzI2devNBz1zQrb",
+		"model": "eleven_multilingual_v2"
+	},
+	{
+		"file": "sfx_step_stone",
+		"kind": "sfx",
+		"prompt": "single heavy armored boot step on cold stone, a dull metal clank and a dry scuff, close, no music, game sound effect",
+		"durationSeconds": 0.5,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_step_mud",
+		"kind": "sfx",
+		"prompt": "single heavy armored boot step in thick wet mud, a slow squelch and a muffled metal clank, close, no music, game sound effect",
+		"durationSeconds": 0.5,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_smg_loop",
+		"kind": "sfx",
+		"prompt": "submachine gun firing a steady burst, rapid dry gunshots with brass casings, seamless loop, close, no music, game sound effect",
+		"durationSeconds": 2.0,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2",
+		"loop": true
+	},
+	{
+		"file": "sfx_mg_loop",
+		"kind": "sfx",
+		"prompt": "heavy machine gun firing continuously, deep rapid thudding shots with a metal rattle, seamless loop, close, no music, game sound effect",
+		"durationSeconds": 2.0,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2",
+		"loop": true
+	},
+	{
+		"file": "sfx_ambience_cemetery",
+		"kind": "sfx",
+		"prompt": "cold wind over a graveyard, faint creaking iron fences and distant tolling, low eerie ambience, seamless loop, no music, game sound effect",
+		"durationSeconds": 10.0,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2",
+		"loop": true
+	},
+	{
+		"file": "sfx_ambience_swamp",
+		"kind": "sfx",
+		"prompt": "bubbling black swamp, slow dripping water, distant insects and low gurgling, damp ambience, seamless loop, no music, game sound effect",
+		"durationSeconds": 10.0,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2",
+		"loop": true
+	},
+	{
+		"file": "sfx_ambience_forge",
+		"kind": "sfx",
+		"prompt": "roaring furnace drone, distant anvil clangs and hissing steam, hot industrial ambience, seamless loop, no music, game sound effect",
+		"durationSeconds": 10.0,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2",
+		"loop": true
+	},
+	{
+		"file": "sfx_ambience_nest",
+		"kind": "sfx",
+		"prompt": "wet organic hive ambience, slow pulsing hum, faint clicking and dripping slime, seamless loop, no music, game sound effect",
+		"durationSeconds": 10.0,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2",
+		"loop": true
 	}
 ]
