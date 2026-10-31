@@ -13,7 +13,7 @@ const cards = [
 test("shows the three cards with their key hints", () => {
 	render(<LevelUp cards={cards} onChoose={() => {}} />);
 	expect(screen.getByRole("dialog")).toBeTruthy();
-	expect(screen.getByRole("heading", { name: "Level up" })).toBeTruthy();
+	expect(screen.getByRole("heading", { name: "Novo nível" })).toBeTruthy();
 	expect(screen.getByTestId("levelup-card-0").textContent).toContain("+3 armor");
 	expect(screen.getByTestId("levelup-card-2").textContent).toContain("3");
 });

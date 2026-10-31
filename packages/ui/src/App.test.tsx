@@ -125,7 +125,7 @@ test("the demo end screen blocks the results, its store buttons are disabled and
 	expect(screen.getByRole("dialog")).toBeTruthy();
 	expect(screen.getByTestId("demo-seal").textContent).toBe("DEMO");
 	expect(
-		(screen.getByRole("button", { name: "Lista de desejos na Steam" }) as HTMLButtonElement).disabled,
+		(screen.getByRole("button", { name: "Adicionar à lista de desejos" }) as HTMLButtonElement).disabled,
 	).toBe(true);
 	expect(
 		(screen.getByRole("button", { name: "Jogar o jogo completo" }) as HTMLButtonElement).disabled,

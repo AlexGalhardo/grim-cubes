@@ -74,7 +74,7 @@ test("buy, lock, reroll and next call their actions", () => {
 	render(<Shop view={view} stats={stats} actions={a} />);
 	fireEvent.click(screen.getByTestId("shop-buy-0"));
 	fireEvent.click(screen.getByTestId("shop-lock-2"));
-	fireEvent.click(screen.getByRole("button", { name: /Rolar de novo/ }));
+	fireEvent.click(screen.getByRole("button", { name: /Trocar itens/ }));
 	fireEvent.click(screen.getByRole("button", { name: "Próximo round" }));
 	expect(a.buy).toHaveBeenCalledWith(0);
 	expect(a.toggleLock).toHaveBeenCalledWith(2);
@@ -96,7 +96,7 @@ test("keys 1-4 buy, R rerolls and Enter continues", () => {
 
 test("the reroll button is disabled when the hero cannot pay", () => {
 	render(<Shop view={{ ...view, gold: 5 }} stats={stats} actions={actions()} />);
-	expect((screen.getByRole("button", { name: /Rolar de novo/ }) as HTMLButtonElement).disabled).toBe(true);
+	expect((screen.getByRole("button", { name: /Trocar itens/ }) as HTMLButtonElement).disabled).toBe(true);
 });
 
 test("starts the portrait on mount and stops it on unmount", () => {
