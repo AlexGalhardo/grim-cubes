@@ -66,7 +66,7 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
   - Asserts: `bun run typecheck` (`bun check -b`) exit 0 com os stubs; `tsc --showConfig` mostra `"strict": true` e `"noUncheckedIndexedAccess": true`.
 - [x] **E-02-03** `biome.json` (tab 4, lineWidth 110, regras do SDD 11 §3 incluindo `noRestrictedImports` entre camadas e `Math.random` proibido em `packages/game`). Deps: E-02-01. Resp: S2. Prio: P0.
   - Asserts: `bun run lint` (`biome ci .`) exit 0; teste negativo: um arquivo temporário em `packages/game` com `Math.random()` faz `biome lint` falhar (documentado no PR com a saída).
-- [ ] **E-02-04** Vite 8 config (`apps/web/vite.config.ts`: React, Tailwind, `assetsInclude` glb/ktx2, `manualChunks`, `define` de `__APP_VERSION__`, `__BUILD_TARGET__`, `__IS_DEMO__` por modo). Deps: E-02-01. Resp: S2. Prio: P0.
+- [x] **E-02-04** Vite 8 config (`apps/web/vite.config.ts`: React, Tailwind, `assetsInclude` glb/ktx2, `manualChunks`, `define` de `__APP_VERSION__`, `__BUILD_TARGET__`, `__IS_DEMO__` por modo). Deps: E-02-01. Resp: S2. Prio: P0.
   - Asserts: `bun run dev` sobe em `http://localhost:5173` (verificado por `curl -s -o /dev/null -w "%{http_code}"` = 200); `vite build --mode web-demo` exit 0 e `dist/assets/*.js` contém chunks separados `babylon-*.js` e `react-*.js`.
 - [x] **E-02-05** Vitest config (Node por padrão, jsdom em `packages/ui`, cobertura istanbul com thresholds iniciais 0 e meta documentada), um teste de exemplo por pacote. Deps: E-02-01. Resp: Est. Prio: P0.
   - Asserts: `bun run test` exit 0 com ≥ 5 testes; `bunx vitest run --coverage` gera `coverage/coverage-summary.json`.
@@ -107,7 +107,7 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
 
 ### E-05 Pesquisa, contas e tarefas manuais do PO
 
-- [ ] **E-05-01** Consulta manual de marca "Grim Cubes" no INPI (classes 9 e 41), USPTO (TESS) e EUIPO; resultado registrado em `docs/legal/trademark-screening.md` (triagem, não parecer). Deps: —. Resp: PO. Prio: P0.
+- [x] **E-05-01** Consulta manual de marca "Grim Cubes" no INPI (classes 9 e 41), USPTO (TESS) e EUIPO; resultado registrado em `docs/legal/trademark-screening.md` (triagem, não parecer). Deps: —. Resp: PO. Prio: P0.
   - Asserts: arquivo existe com data, bases consultadas, capturas ou números de processo encontrados, e decisão "manter nome" ou "trocar para X"; se trocar, ADR novo e atualização de `package.json.name`.
 - [ ] **E-05-02** Registro dos domínios `grimcubes.com` e `grimcubes.com.br` (se o nome for mantido). Deps: E-05-01. Resp: PO. Prio: P1.
   - Asserts: `rdap.verisign.com/com/v1/domain/grimcubes.com` retorna 200 com o registrante; registrado em `docs/legal/domains.md`.
