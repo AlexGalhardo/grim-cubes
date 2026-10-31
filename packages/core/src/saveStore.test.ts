@@ -9,6 +9,7 @@ import {
 	SAVE_CORRUPT_PREVIOUS_KEY,
 	SAVE_KEY,
 	type SaveIO,
+	updateMeta,
 } from "./saveStore";
 
 function memory(
@@ -164,4 +165,29 @@ test("the two latest corrupt texts are kept", async () => {
 	await loadMeta(io);
 	expect(io.data.get(SAVE_CORRUPT_KEY)).toBe("third bad");
 	expect(io.data.get(SAVE_CORRUPT_PREVIOUS_KEY)).toBe("second bad");
+});
+
+test("updateMeta applies a change to the stored save and a refusing mutate writes nothing", async () => {
+	const io = memory({ [SAVE_KEY]: await saved(100) });
+	const merged = await updateMeta(
+		io,
+		(m) => {
+			m.souls -= 50;
+			m.ossuary.flesh_1 = true;
+		},
+		"0.2.0",
+	);
+	expect(merged.souls).toBe(50);
+	expect((await loadMeta(io)).meta.ossuary.flesh_1).toBe(true);
+	const writes = io.writes.length;
+	await expect(
+		updateMeta(
+			io,
+			() => {
+				throw new Error("not enough souls");
+			},
+			"0.2.0",
+		),
+	).rejects.toThrow("not enough souls");
+	expect(io.writes.length).toBe(writes);
 });

@@ -111,22 +111,40 @@ export async function loadMeta(io: SaveIO): Promise<LoadedMeta> {
 }
 
 /**
- * Adds a finished run to the stored save and returns the merged account. The stored save is read again right
- * before writing, so a second tab's progress is kept (last writer no longer wins). The last readable version is
- * copied to `save.bak` first. Throws, writing nothing, if the stored save is unreadable or from a newer version.
+ * Applies `mutate` to the stored save and returns the merged account. The stored save is read again right before
+ * writing (under `io.withLock` when there is one), so progress from a second tab is kept and the last writer
+ * no longer wins. `mutate` may throw to refuse the change; nothing is written then. The last readable version is
+ * copied to `save.bak` first. Throws, writing nothing, if the stored save is unreadable and no backup is usable,
+ * or if it comes from a newer version.
  */
-export function persistRun(io: SaveIO, run: RunResult, appVersion: string): Promise<MetaState> {
-	return io.withLock ? io.withLock(() => mergeRun(io, run, appVersion)) : mergeRun(io, run, appVersion);
+export function updateMeta(
+	io: SaveIO,
+	mutate: (meta: MetaState) => void,
+	appVersion: string,
+): Promise<MetaState> {
+	return io.withLock
+		? io.withLock(() => mergeInto(io, mutate, appVersion))
+		: mergeInto(io, mutate, appVersion);
 }
 
-async function mergeRun(io: SaveIO, run: RunResult, appVersion: string): Promise<MetaState> {
+/** Adds a finished run to the stored save (see `updateMeta`). */
+export function persistRun(io: SaveIO, run: RunResult, appVersion: string): Promise<MetaState> {
+	return updateMeta(io, (meta) => applyRun(meta, run), appVersion);
+}
+
+async function mergeInto(
+	io: SaveIO,
+	mutate: (meta: MetaState) => void,
+	appVersion: string,
+): Promise<MetaState> {
 	const current = await io.read(SAVE_KEY);
 	let merged = createMetaState();
+	let readable: string | null = null;
 	if (current !== null) {
 		const parsed = await tryParse(current);
 		if ("meta" in parsed) {
 			merged = parsed.meta;
-			await io.write(SAVE_BACKUP_KEY, current);
+			readable = current;
 		} else if (parsed.error.code === "newer") {
 			throw parsed.error;
 		} else {
@@ -139,7 +157,8 @@ async function mergeRun(io: SaveIO, run: RunResult, appVersion: string): Promise
 			if (fromBackup && "meta" in fromBackup) merged = fromBackup.meta;
 		}
 	}
-	applyRun(merged, run);
+	mutate(merged);
+	if (readable !== null) await io.write(SAVE_BACKUP_KEY, readable);
 	await io.write(SAVE_KEY, await serializeSave(merged, appVersion));
 	return merged;
 }

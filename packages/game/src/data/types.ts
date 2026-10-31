@@ -226,3 +226,26 @@ export interface BossData {
 	delivery: string;
 	patterns: BossPatternData[];
 }
+
+export interface OssuaryNodeData {
+	id: string;
+	index: number;
+	requires: string | null;
+	cost: number;
+	modifiers: Modifier[];
+	effects: { id: string; params?: Record<string, number | string | boolean> }[];
+}
+
+export interface OssuaryBranchData {
+	id: string;
+	name: string;
+	theme: string;
+	nodes: OssuaryNodeData[];
+}
+
+/** `data/ossuary.json`. */
+export interface OssuaryData {
+	branches: OssuaryBranchData[];
+	/** The demo sells only nodes with `index <= demoMaxNodeIndex` (GDD 19.2). */
+	demoMaxNodeIndex: number;
+}

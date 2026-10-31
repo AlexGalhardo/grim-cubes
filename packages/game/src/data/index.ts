@@ -5,6 +5,7 @@ import elitesJson from "../../../../data/elites.json";
 import enemiesJson from "../../../../data/enemies.json";
 import heroJson from "../../../../data/hero.json";
 import itemsJson from "../../../../data/items.json";
+import ossuaryJson from "../../../../data/ossuary.json";
 import propsJson from "../../../../data/props.json";
 import renderJson from "../../../../data/render.json";
 import roundsJson from "../../../../data/rounds.json";
@@ -22,6 +23,7 @@ import type {
 	EnemyData,
 	HeroData,
 	ItemData,
+	OssuaryData,
 	PropData,
 	RenderData,
 	RoundsData,
@@ -40,6 +42,7 @@ export const roundsData: RoundsData = roundsJson;
 export const worldData: WorldData = worldJson;
 export const biomesData: readonly BiomeData[] = biomesJson;
 export const cardsData: CardsData = cardsJson;
+export const ossuaryData: OssuaryData = ossuaryJson;
 export const bossesData: readonly BossData[] = bossesJson;
 export const elitesData: ElitesData = elitesJson;
 export const itemsData: readonly ItemData[] = itemsJson;
@@ -165,6 +168,9 @@ export type {
 	HeroData,
 	ItemData,
 	ItemEffect,
+	OssuaryBranchData,
+	OssuaryData,
+	OssuaryNodeData,
 	PropData,
 	RenderData,
 	RoundsData,
