@@ -1,6 +1,6 @@
 # PROGRESS
 
-Atualizado: 2026-10-31 08:10 (fuso do PO) | Versão: 0.0.0 | Fase: 1 — ESTRUTURA (fase 2 adiantada em paralelo) | Sessão: #1
+Atualizado: 2026-10-31 12:00 (fuso do PO) | Versão: 0.0.0 | Fase: 1 — ESTRUTURA (fase 2 adiantada em paralelo) | Sessão: #1
 
 Meta do PO (2026-10-31): implementar o ROADMAP até o fim sem interrupções; tarefas `Resp: PO` ficam em Bloqueios e os agentes seguem com o resto. Hooks lefthook instalados em `.git` (valem para todos os worktrees).
 
@@ -8,13 +8,19 @@ Meta do PO (2026-10-31): implementar o ROADMAP até o fim sem interrupções; ta
 
 | Agente | Tarefa atual | Branch | Estado | Desde | Lock |
 | --- | --- | --- | --- | --- | --- |
-| Orq | merges; CI de main; PROGRESS | main | em andamento | 09:30 | — |
-| S1 | P-01-01 geração de chunks → P-06-07 `.bbmodel`→skin → P-06-01 modelos por script | feat/P-01-01-chunk-gen | implementando | 09:30 | `data/biomes.json`, `data/world.json` |
-| S2 | P-02-02 input/HUD + componentes EnemyType/Attacking/Facing → P-04-03 → P-05-02 | feat/P-02-02-input | implementando | 09:30 | `data/**` |
-| Est | E-02-06 Playwright + capturas nos 4 alvos | feat/E-02-06-playwright | implementando | 09:30 | `playwright.config.ts`, `tests/**`, `.github/**` |
-| Esp | auditoria pós-merge fe43442, E-04-03, P-06-05, P-04-02 | main | revisando | 09:30 | — |
+| Orq | merges; CI de main; PROGRESS | main | em andamento | 12:00 | — |
+| S1 | P-06-01 etapa 3–4: horda e props glb no `apps/web`, capturas | feat/P-06-01-assets-gen | implementando | 12:00 | `apps/web/**` |
+| S2 | P-04-04 tiers/SMG/MG → P-05-04 loja → P-05-05 itens → P-05-08 resultados | feat/P-04-04-* | implementando | 12:00 | `data/**` |
+| Est | E-05-05, sync de docs (E-04-04/SDD 12), snapshots por plataforma, gate do release, harness `tools/sim` | chore/E-05-05-validate | implementando | 12:00 | docs/sdd/11–12, ADR-0019, `playwright.config.ts`, `.github/**`, `tools/sim/**` |
+| Esp | standby → auditoria a cada merge | — | revisando | 12:00 | — |
 
-Merges desta rodada (Orq verificou gates; Esp audita): E-03-03 (cb14fb7), P-04-02, E-04-03 (tools; release v0.1.0 ainda não publicada), P-06-05 (falta só o secret do PO), P-01-03 (chão por cubo), P-03-04 render da horda (bench real pendente de P-03-06), correções do Esp em VAT e origin shifting. PR #1 mesclado pelo PO (da8923e): CI e CodeQL em `main`; E-04-01 fica [ ] até o e2e rodar (E-02-06). 187 testes.
+Estado de `main` (6b44270): 276 testes unitários + 8 e2e (4 alvos × boot e level-up); CI verde em `main` com e2e real. A run já roda no browser (spawn, combate, drops, XP, level-up, chunks, origin shift); inimigos ainda invisíveis até a S1 ligar a horda com os modelos gerados (P-06-01). Concluídas desde as 09:30: P-01-01, P-02-02, P-03-04 (espelho X corrigido), P-04-03, P-05-02, P-05-03, P-06-01, P-06-07, E-02-06, E-04-01, E-04-04, E-03-01. Release v0.1.0 bloqueada até o gate do `release.yml` esperar o CI (Est).
+
+Dívida operacional: com 4 agentes rodando testes ao mesmo tempo, o `pre-push` às vezes falha por timeout de CPU/worker (refazer o push resolve; a suíte isolada roda em ~5 s). Não contornar o hook.
+
+Risco: conversor `.bbmodel` validado só contra o próprio pipeline e o Babylon; falta golden contra um export real do Blockbench (quando o PO refinar o 1º modelo).
+
+Pendência do PO: secret `VERCEL_AUTOMATION_BYPASS_SECRET` (Vercel → Deployment Protection → Protection Bypass for Automation; e `gh secret set VERCEL_AUTOMATION_BYPASS_SECRET`) para o smoke pós-deploy (E-04-04).
 
 Vercel: build corrigido (3721471: `--config apps/web/vite.config.ts` + `vercel.json`); deploy de produção `grim-cubes-fc7qzglh5` **Ready**; URL de produção responde 302 (proteção SSO mantida, decisão B).
 
