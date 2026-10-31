@@ -89,6 +89,11 @@ export const EventType = {
 	BossBomb: 40,
 	/** a = piles collected this step; b, c = x, z of the hero; entity = the hero. */
 	FragmentPicked: 41,
+	/**
+	 * a, b = x, z of the enemy the spiked boots hurt; c = distance from the hero to it (the hero's own position is the
+	 * render's: direction = enemy - hero); entity = the enemy. At most once per enemy per contact cooldown.
+	 */
+	ThornsHit: 42,
 	/** a = new level. The run paused and a card offer is waiting. */
 	LevelUp: 11,
 } as const;

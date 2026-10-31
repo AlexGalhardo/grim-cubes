@@ -374,7 +374,7 @@ test("a bleed that kills reports Died once", () => {
 });
 
 test("spiked_boots hurts an enemy that touches the hero once per contact cooldown", () => {
-	const { world, hero, hash, enemy, fx, damage } = fighters(owning("spiked_boots"));
+	const { world, hero, hash, enemy, fx, damage, events } = fighters(owning("spiked_boots"));
 	const touching = enemy(0.2, 0);
 	const away = enemy(4, 0);
 	const thorns = createThornsSystem({
@@ -382,11 +382,21 @@ test("spiked_boots hurts an enemy that touches the hero once per contact cooldow
 		queue: damage.queue,
 		enemies: hash,
 		cooldownSeconds: 0.5,
+		events,
 	});
 	for (let i = 0; i < 60; i++) {
 		thorns.run(world, hero);
 		damage.run(world);
 	}
+	// One event per hurt enemy per cooldown: x, z of the enemy and its distance from the hero.
+	const hits: number[][] = [];
+	events.consume((type, a, b, c, entity) => {
+		if (type === EventType.ThornsHit) hits.push([a, b, c, entity]);
+	});
+	expect(hits).toHaveLength(2);
+	expect(hits[0]?.[3]).toBe(touching);
+	expect(hits[0]?.[0]).toBeCloseTo(0.2);
+	expect(hits[0]?.[2]).toBeCloseTo(0.2);
 	// 10 damage at steps 0 and 30 (cooldown 0.5 s) within one second: 2 hits.
 	expect(100 - (Health.hp[touching] ?? 0)).toBeCloseTo(20);
 	expect(Health.hp[away]).toBe(100);

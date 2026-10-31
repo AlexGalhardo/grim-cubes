@@ -306,6 +306,7 @@ function build(options: GameSessionOptions) {
 		queue: damage.queue,
 		enemies: separation.hash,
 		cooldownSeconds: heroData.combat.contactCooldownSeconds,
+		events,
 	});
 	// Declared after `death` only for readability: the death hook calls it once the loop runs.
 	const killEffects = createKillEffectsSystem({
