@@ -182,6 +182,25 @@ describe("buildAssets", () => {
 		expect(calls[0]).toContain("etc1s");
 	});
 
+	test("icons are packed into atlas_vfx_ui with one icon_<kind>_<id> entry each", async () => {
+		await writeModel("prop_a", {}, 1);
+		const dir = join(src, "icons", "item");
+		mkdirSync(dir, { recursive: true });
+		writeFileSync(join(dir, "rusted_plate.png"), PNG.sync.write(solidPng(32, 32, () => [90, 90, 120])));
+		writeFileSync(join(dir, "cursed_ring.png"), PNG.sync.write(solidPng(32, 32, () => [120, 40, 40])));
+		const manifest = await build();
+		const atlas = manifest.entries.atlas_vfx_ui;
+		expect(atlas?.url).toMatch(/^atlas_vfx_ui\.[0-9a-f]{8}\.png$/);
+		const a = manifest.entries.icon_item_rusted_plate;
+		const b = manifest.entries.icon_item_cursed_ring;
+		expect([a?.kind, a?.url]).toEqual(["icon", atlas?.url]);
+		expect(a?.rect).toMatchObject({ w: 32, h: 32 });
+		expect(a?.rect).not.toEqual(b?.rect);
+		const png = PNG.sync.read(readFileSync(join(out, atlas?.url ?? "")));
+		const at = ((a?.rect?.y ?? 0) * png.width + (a?.rect?.x ?? 0)) * 4;
+		expect([png.data[at], png.data[at + 1], png.data[at + 2]]).toEqual([90, 90, 120]);
+	});
+
 	test("enemies get a baked VAT (.bin RGBA32F plus clip JSON)", async () => {
 		await writeModel("husk", { category: "enemies" }, 1);
 		const manifest = await build();

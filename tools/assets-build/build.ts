@@ -27,7 +27,7 @@ export interface ManifestEntry {
 	url: string;
 	hash: string;
 	bytes: number;
-	kind: "atlas" | "model" | "vat";
+	kind: "atlas" | "model" | "vat" | "icon";
 	/** VAT only: URL of the JSON with clip ranges (see VatMeta). */
 	meta?: string;
 	group: string;
@@ -38,6 +38,8 @@ export interface ManifestEntry {
 	height?: number;
 	/** Atlas only: the KTX2 ETC1S sibling for GPUs that sample it, or false when `toktx` was not run (SDD 09). */
 	ktx2?: false | { url: string; hash: string; bytes: number };
+	/** Icon only: pixel rectangle inside `atlas_vfx_ui` (this entry's `url` is that atlas). */
+	rect?: { x: number; y: number; w: number; h: number };
 }
 
 export interface Manifest {
@@ -199,6 +201,50 @@ function buildKtx2(
 	return { url, hash, bytes: bytes.length };
 }
 
+/** `assets/src/icons/<kind>/<id>.png` -> one `atlas_vfx_ui` and an `icon_<kind>_<id>` manifest entry per icon (B-03-05). */
+function buildIconAtlas(options: BuildOptions, entries: Record<string, ManifestEntry>): void {
+	const root = join(options.srcDir, "icons");
+	for (const file of existsSync(options.outDir) ? readdirSync(options.outDir) : []) {
+		if (/^atlas_vfx_ui\..*\.png$/.test(file)) rmSync(join(options.outDir, file));
+	}
+	if (!existsSync(root)) return;
+	const sprites: Sprite[] = [];
+	for (const kind of readdirSync(root).sort()) {
+		for (const file of readdirSync(join(root, kind)).sort()) {
+			if (!file.endsWith(".png")) continue;
+			const png = PNG.sync.read(readFileSync(join(root, kind, file)));
+			sprites.push({ name: `icon_${kind}_${file.slice(0, -4)}`, png });
+		}
+	}
+	if (sprites.length === 0) return;
+	const placements = packSprites("atlas_vfx_ui", sprites);
+	const atlas = new Uint8Array(PNG.sync.write(renderAtlas(sprites, placements), { filterType: 0 }));
+	const hash = digest(atlas);
+	const url = `atlas_vfx_ui.${hash}.png`;
+	writeFileSync(join(options.outDir, url), atlas);
+	entries.atlas_vfx_ui = {
+		url,
+		hash,
+		bytes: atlas.length,
+		kind: "atlas",
+		group: "core",
+		sampling: "nearest",
+		mipmaps: false,
+		width: ATLAS_SIZE,
+		height: ATLAS_SIZE,
+	};
+	for (const p of placements) {
+		entries[p.name] = {
+			url,
+			hash,
+			bytes: 0,
+			kind: "icon",
+			group: "core",
+			rect: { x: p.x, y: p.y, w: p.width, h: p.height },
+		};
+	}
+}
+
 export async function buildAssets(options: BuildOptions): Promise<Manifest> {
 	const items = listModels(options.srcDir);
 	const loaded: Loaded[] = [];
@@ -283,6 +329,8 @@ export async function buildAssets(options: BuildOptions): Promise<Manifest> {
 			height: meta.height,
 		};
 	}
+
+	buildIconAtlas(options, entries);
 
 	const sorted = Object.fromEntries(Object.entries(entries).sort(([a], [b]) => (a < b ? -1 : 1)));
 	const manifest: Manifest = { version: options.version, entries: sorted };

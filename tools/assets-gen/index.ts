@@ -2,6 +2,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { PNG } from "pngjs";
 import { buildCatalog } from "./catalog";
+import { writeIcons } from "./icons";
 
 /**
  * Models edited by hand in Blockbench (docs/blockbench.md), as `category/name`. The generator never overwrites them,
@@ -40,4 +41,6 @@ export function writeCatalog(srcDir: string, only?: readonly string[]): string[]
 if (import.meta.main) {
 	const written = writeCatalog("assets/src");
 	console.log(`assets-gen: ${written.length} models written to assets/src/models`);
+	const icons = writeIcons("assets/src", "data");
+	console.log(`assets-gen: ${icons.length} icons written to assets/src/icons`);
 }

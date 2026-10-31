@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { PIXELS_PER_UNIT } from "../assets-build/bbmodel";
 import { buildAssets } from "../assets-build/build";
 import { buildCatalog } from "./catalog";
+import { buildIcon, ICON_SIZE, iconSpecs } from "./icons";
 import { writeCatalog } from "./index";
 
 const DATA_DIR = fileURLToPath(new URL("../../data", import.meta.url));
@@ -130,5 +131,38 @@ describe("assets-gen catalog", () => {
 			expect(names).toContain(expected);
 		}
 		expect(Object.values(manifest.entries).filter((e) => e.kind === "model")).toHaveLength(subset.length);
+	});
+});
+
+describe("icons", () => {
+	const specs = iconSpecs("data");
+
+	it("covers every id of items, cards and the Ossuary", () => {
+		const load = <T>(file: string): T => JSON.parse(readFileSync(file, "utf8")) as T;
+		const items = load<{ id: string }[]>("data/items.json").map((i) => i.id);
+		const cards = load<{ cards: { id: string }[] }>("data/cards.json").cards.map((c) => c.id);
+		const nodes = load<{ branches: { nodes: { id: string }[] }[] }>("data/ossuary.json").branches.flatMap(
+			(b) => b.nodes.map((n) => n.id),
+		);
+		const made = (kind: string): string[] => specs.filter((s) => s.kind === kind).map((s) => s.id);
+		expect(made("item")).toEqual(items);
+		expect(made("card")).toEqual(cards);
+		expect(made("node")).toEqual(nodes);
+		expect(specs.length).toBe(items.length + cards.length + nodes.length);
+		expect(new Set(specs.map((s) => `${s.kind}:${s.id}`)).size).toBe(specs.length);
+	});
+
+	it("draws 32x32 icons, deterministic per id and different between ids", () => {
+		const first = specs[0];
+		const second = specs[1];
+		if (!first || !second) throw new Error("no icons");
+		const a = buildIcon(first);
+		expect([a.width, a.height]).toEqual([ICON_SIZE, ICON_SIZE]);
+		expect(Buffer.compare(buildIcon(first).data, a.data)).toBe(0);
+		expect(Buffer.compare(buildIcon(second).data, a.data)).not.toBe(0);
+		const colours = new Set<number>();
+		for (let i = 0; i < a.data.length; i += 4)
+			colours.add(((a.data[i] ?? 0) << 16) | ((a.data[i + 1] ?? 0) << 8) | (a.data[i + 2] ?? 0));
+		expect(colours.size).toBeLessThanOrEqual(4);
 	});
 });
