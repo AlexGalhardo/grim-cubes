@@ -14,7 +14,7 @@ Instruções para qualquer agente de código (Claude Code, Codex, Cursor, etc.) 
 | --- | --- |
 | `bun run dev` | Vite dev server (web) |
 | `bun run build` | `data:check` + `assets:build` + build web-demo |
-| `bun run typecheck` | `tsc -b` |
+| `bun run typecheck` | `bun check -b` (type checker nativo do Bun 1.4.4, mesmos erros do `tsc -b`) |
 | `bun run lint` | `biome ci .` |
 | `bun run lint:md` | markdownlint-cli2 |
 | `bun run test` | Vitest (unit + integration) |

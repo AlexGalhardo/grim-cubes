@@ -1,6 +1,6 @@
 # PROGRESS
 
-Atualizado: 2026-10-31 03:30 (fuso do PO) | Versão: 0.0.0 (sem código) | Fase: 1 — ESTRUTURA | Sessão: #1
+Atualizado: 2026-10-31 04:30 (fuso do PO) | Versão: 0.0.0 | Fase: 1 — ESTRUTURA | Sessão: #1
 
 Meta do PO (2026-10-31): implementar o ROADMAP até o fim sem interrupções; tarefas `Resp: PO` ficam em Bloqueios e os agentes seguem com o resto.
 
@@ -8,16 +8,22 @@ Meta do PO (2026-10-31): implementar o ROADMAP até o fim sem interrupções; ta
 
 | Agente | Tarefa atual | Branch | Estado | Desde | Lock |
 | --- | --- | --- | --- | --- | --- |
-| Orq | merges; Vercel; PROGRESS | main | em andamento | 03:30 | — |
-| S1 | E-03-01 (core, render) + E-03-02 (render) — validar com deps | feat/E-03-01-core-render | implementando | 03:30 | `packages/core/**` até fechar E-03-01 |
-| S2 | E-02-02 + E-02-03 | feat/E-02-02-tsconfig-biome | implementando | 03:30 | tsconfig*.json, biome.json, `packages/*/package.json` |
-| Est | E-02-05 | feat/E-02-05-vitest | implementando | 03:30 | vitest.config.ts |
-| Esp | revisão E-03-04 + auditoria pós-merge E-02-01 | feat/E-03-04-data | revisando | 03:30 | — |
+| Orq | merges; docs; PROGRESS | main | em andamento | 04:30 | — |
+| S1 | rebase P-06-02 (aguardando Esp) → P-01-02 chunkSystem (adiantada da fase 2, gerador injetado) | feat/P-06-02-assets-build, feat/P-01-02-chunk-system | implementando | 04:30 | `data/world.json` (novo) |
+| S2 | E-02-04 Vite + boot `apps/web` (parte apps/ui da E-03-02) → E-02-07 | feat/E-02-04-vite | implementando | 04:30 | — |
+| Est | correções do Esp em E-03-04 + `data/hero.json` | feat/E-03-04-data | implementando | 04:30 | `data/**` |
+| Esp | auditoria pós-merge E-02-02/03/05, E-03-01 (core+render), E-03-02 (render) | main | revisando | 04:30 | — |
+
+Fila do Esp: P-06-02 (S1), E-03-04 (Est, após correções).
 
 ## Concluídas (últimas 20)
 
 | ID | Data | Agente | Commit | Observação |
 | --- | --- | --- | --- | --- |
+| E-02-05 | 2026-10-31 | Est (Orq verificou; Esp audita pós-merge) | 36f1f7d | Vitest 5 `projects` unit/unit-ui/integration; istanbul json-summary |
+| E-02-03 | 2026-10-31 | S2 (Orq verificou; Esp audita pós-merge) | 9b5b11a | Biome `preset: recommended`, camadas por override, barrel do Babylon proibido, plugin GritQL contra `Math.random` |
+| E-02-02 | 2026-10-31 | S2 (Orq verificou; Esp audita pós-merge) | d76a6d1 | `skipLibCheck` (Babylon + `exactOptionalPropertyTypes`); `typecheck` = `bun check -b` (89ae8e4, pedido do PO) |
+| E-03-01 (parcial: core, render) | 2026-10-31 | S1 | d8b8d08 | falta `game/loop`, `ui/App`, `platform/detect` (S2); 25 testes verdes |
 | E-02-01 | 2026-10-31 | S2 (Orq verificou asserts; Esp audita pós-merge) | e154a99 | 394 pacotes; TS 7.0.2 com `tsc` ok; jsdom 30.1.3, @testing-library/react 16.3.3, @gltf-transform/core 4.5.1, fake-indexeddb 6.2.7, axe-core 4.14.0 |
 | E-01-05 | 2026-10-31 | Orq | a59cf07 | tabela de comandos adicionada ao `AGENTS.md` |
 | E-01-04 | 2026-10-31 | Orq | a59cf07 | seções obrigatórias presentes; markdownlint ok |

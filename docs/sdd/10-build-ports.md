@@ -39,7 +39,7 @@ Decisões: D19 (Electron + electron-builder), D28 (web = demo), D29 (Android 1.1
 | `build` | `bun run data:check && bun run assets:build && vite build --mode web-demo` |
 | `build:electron` | ver §2 |
 | `build:android` | `vite build --mode android && cap sync android && cd apps/android && ./gradlew bundleRelease` |
-| `typecheck` | `tsc -b` |
+| `typecheck` | `bun check -b` |
 | `lint` | `biome ci .` |
 | `lint:md` | `markdownlint-cli2 "**/*.md"` |
 | `test` | `vitest run` |
