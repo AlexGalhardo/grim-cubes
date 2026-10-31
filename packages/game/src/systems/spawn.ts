@@ -52,6 +52,10 @@ export interface SpawnWeight {
 export interface SpawnRoundOptions {
 	pool: readonly SpawnWeight[];
 	difficultyMult: number;
+	/** Boss rounds spawn a fraction of the normal total (default 1). */
+	totalScale?: number;
+	/** Boss rounds space bursts further apart (default 1). */
+	intervalScale?: number;
 }
 
 export interface SpawnSystemDeps {
@@ -60,6 +64,8 @@ export interface SpawnSystemDeps {
 	rng: { float(a: number, b: number): number; chance(p: number): boolean };
 	/** Rejects a candidate position (relative coordinates), e.g. inside a blocking prop. */
 	isBlocked?: (x: number, z: number) => boolean;
+	/** Called for every created enemy with its position (relative coordinates). */
+	onSpawn?: (world: GameWorld, x: number, z: number) => void;
 }
 
 export interface SpawnSystem {
@@ -79,7 +85,7 @@ export const spawnBurst = (c: SpawnConfig, round: number): number =>
 	c.burstBase + Math.floor(round / c.burstRoundDivisor);
 
 export function createSpawnSystem(deps: SpawnSystemDeps): SpawnSystem {
-	const { config, enemies, rng, isBlocked } = deps;
+	const { config, enemies, rng, isBlocked, onSpawn } = deps;
 	let round = 1;
 	let remaining = 0;
 	let spawned = 0;
@@ -159,15 +165,19 @@ export function createSpawnSystem(deps: SpawnSystemDeps): SpawnSystem {
 		Behavior.timer[e] = 0;
 		ContactCooldown.ticks[e] = 0;
 		spawned++;
+		onSpawn?.(world, spot.x, spot.z);
 	}
 
 	return {
 		startRound(n: number, options: SpawnRoundOptions): void {
 			round = n;
-			remaining = spawnTotal(config, n);
+			remaining = Math.round(spawnTotal(config, n) * (options.totalScale ?? 1));
 			spawned = 0;
 			difficulty = options.difficultyMult;
-			intervalSteps = Math.max(1, Math.round(spawnIntervalSeconds(config, n) / STEP));
+			intervalSteps = Math.max(
+				1,
+				Math.round((spawnIntervalSeconds(config, n) * (options.intervalScale ?? 1)) / STEP),
+			);
 			burst = spawnBurst(config, n);
 			timer = intervalSteps;
 			pool = options.pool;

@@ -7,6 +7,7 @@ export {
 	Elite,
 	EnemyFaction,
 	EnemyType,
+	Fragment,
 	Health,
 	HitFlash,
 	Invulnerable,
@@ -22,6 +23,7 @@ export {
 export type { RenderPort } from "./ecs/contract";
 export type { EventBuffer, EventVisitor } from "./ecs/events";
 export { consumeEvents, createEventBuffer, EVENT_CAPACITY, EventType } from "./ecs/events";
+export { dropFragment } from "./ecs/fragments";
 export type { GameWorld } from "./ecs/world";
 export { createGameWorld, spawn, spawnBody } from "./ecs/world";
 export type { Loop, LoopHooks } from "./loop";
@@ -38,6 +40,8 @@ export type { BehaviorConfig, BehaviorSystem } from "./systems/behavior";
 export { BehaviorKind, createBehaviorSystem } from "./systems/behavior";
 export type { DamageQueue, DamageSystem, DamageSystemDeps, HeroCombatStats } from "./systems/damage";
 export { createDamageSystem, DAMAGE_QUEUE_CAPACITY } from "./systems/damage";
+export type { Bag, RunConfig, RunState, RunSystem, RunSystemDeps } from "./systems/round";
+export { createRunSystem, isBossRound, roundDurationSeconds } from "./systems/round";
 export type { SeparationConfig, SeparationSystem } from "./systems/separation";
 export { createSeparationSystem } from "./systems/separation";
 export type {

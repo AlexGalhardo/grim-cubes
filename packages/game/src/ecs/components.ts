@@ -47,3 +47,6 @@ export const Behavior = {
 
 /** Steps until this enemy can deal contact damage again. */
 export const ContactCooldown = { ticks: u8() };
+
+/** A pile of gold/XP on the floor; `value` is the amount (SDD 02 section 2.1). */
+export const Fragment = { value: u16(), magnetTimer: u16() };

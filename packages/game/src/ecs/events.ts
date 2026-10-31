@@ -1,6 +1,7 @@
 export const EventType = {
 	/** a = amount, b = 1 when critical, entity = target. */
 	Damaged: 1,
+	/** b = 1 when the entity was purged at round end: no drops, no souls. */
 	Died: 2,
 	/** a = dx, b = dz: the world origin moved; Position and PrevPosition were already shifted by (-dx, -dz). */
 	OriginShifted: 3,
@@ -8,6 +9,10 @@ export const EventType = {
 	Dodged: 4,
 	/** a = amount taken by the hero. */
 	PlayerHit: 5,
+	/** a = round number. */
+	RoundStarted: 6,
+	/** a = round number. */
+	RoundEnded: 7,
 } as const;
 
 export const EVENT_CAPACITY = 1024;

@@ -1,6 +1,7 @@
 {
 	"type": "object",
 	"required": [
+		"flow",
 		"duration",
 		"boss",
 		"spawn",
@@ -15,6 +16,17 @@
 	],
 	"additionalProperties": false,
 	"properties": {
+		"flow": {
+			"type": "object",
+			"required": ["introSeconds", "outroSeconds", "bossIntroSeconds", "dyingSeconds"],
+			"additionalProperties": false,
+			"properties": {
+				"introSeconds": { "type": "number", "minimum": 0 },
+				"outroSeconds": { "type": "number", "minimum": 0 },
+				"bossIntroSeconds": { "type": "number", "minimum": 0 },
+				"dyingSeconds": { "type": "number", "minimum": 0 }
+			}
+		},
 		"duration": {
 			"type": "object",
 			"required": [
@@ -58,6 +70,7 @@
 				"enrageEverySeconds",
 				"enrageDamageSpeedBonus",
 				"remainingHordeFraction",
+				"hordeIntervalMult",
 				"contactDamageBase",
 				"contactDamagePerRound",
 				"projectileDamageBase",
@@ -81,6 +94,10 @@
 				"remainingHordeFraction": {
 					"type": "number",
 					"minimum": 0
+				},
+				"hordeIntervalMult": {
+					"type": "number",
+					"minimum": 1
 				},
 				"contactDamageBase": {
 					"type": "number",
