@@ -148,11 +148,13 @@ export interface ThornsSystemDeps {
 	enemies: SpatialHash;
 	/** `hero.json` `combat.contactCooldownSeconds`: the same enemy is hurt again no sooner than this. */
 	cooldownSeconds: number;
+	/** Receives one `ThornsHit` per enemy hurt; optional. */
+	events?: EventBuffer | undefined;
 }
 
 /** `spiked_boots`: an enemy that touches the hero takes damage, at most once per contact cooldown. */
 export function createThornsSystem(deps: ThornsSystemDeps): AuraSystem {
-	const { effects, queue, enemies, cooldownSeconds } = deps;
+	const { effects, queue, enemies, cooldownSeconds, events } = deps;
 	const near = new Uint16Array(MAX_NEAR);
 	const cooldownSteps = Math.max(1, Math.round(cooldownSeconds / STEP));
 
@@ -177,6 +179,7 @@ export function createThornsSystem(deps: ThornsSystemDeps): AuraSystem {
 				if (dist > reach + (Radius.r[e] ?? 0)) continue;
 				queue.push(e, effects.contactDamage, hero, 0, 0, 0);
 				ThornsCooldown.ticks[e] = cooldownSteps;
+				events?.push(EventType.ThornsHit, Position.x[e] ?? 0, Position.z[e] ?? 0, dist, e);
 			}
 		},
 	};
