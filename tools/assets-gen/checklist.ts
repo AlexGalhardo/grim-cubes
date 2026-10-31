@@ -10,6 +10,7 @@ import {
 	type SizeClass,
 } from "../assets-build/bbmodel";
 import { CATEGORIES, type Category, REQUIRED_CLIPS } from "../assets-build/rules";
+import { baseModelName } from "./emissive";
 
 /** Art Bible §14 checklist for every `.bbmodel` in `assets/src/models` (B-03-01); item 11 needs the in-game capture, so it is always open. */
 
@@ -30,6 +31,8 @@ export const CHECKLIST_ITEMS = [
 
 export interface ChecklistRow {
 	category: Category;
+	/** Directory under `models/`: the category, or `variants` for `<base>_NN` models (judged as their base's category). */
+	folder: string;
 	name: string;
 	elements: number;
 	budget: number;
@@ -83,6 +86,32 @@ function textureColors(path: string): { width: number; height: number; hex: Set<
 	return { width: png.width, height: png.height, hex };
 }
 
+interface ModelFile {
+	folder: string;
+	category: Category;
+	file: string;
+}
+
+/** Every `.bbmodel` under `models/`; a variant `models/variants/<base>_NN` takes the category of its base model. */
+function listModels(srcDir: string): ModelFile[] {
+	const list = (folder: string): string[] =>
+		existsSync(join(srcDir, "models", folder))
+			? readdirSync(join(srcDir, "models", folder))
+					.filter((f) => f.endsWith(".bbmodel"))
+					.sort()
+			: [];
+	const out: ModelFile[] = [];
+	for (const category of CATEGORIES) {
+		for (const file of list(category)) out.push({ folder: category, category, file });
+	}
+	for (const file of list("variants")) {
+		const base = baseModelName(file.slice(0, -".bbmodel".length));
+		const category = CATEGORIES.find((c) => existsSync(join(srcDir, "models", c, `${base}.bbmodel`)));
+		if (category) out.push({ folder: "variants", category, file });
+	}
+	return out;
+}
+
 /** `buildOk` is the result of `bun run assets:build`, run by the caller. */
 export function buildChecklist(
 	srcDir: string,
@@ -92,54 +121,49 @@ export function buildChecklist(
 ): ChecklistRow[] {
 	const classes = sizeClasses(dataDir);
 	const rows: ChecklistRow[] = [];
-	for (const category of CATEGORIES) {
-		const dir = join(srcDir, "models", category);
-		if (!existsSync(dir)) continue;
-		for (const file of readdirSync(dir)
-			.filter((f) => f.endsWith(".bbmodel"))
-			.sort()) {
-			const name = file.slice(0, -".bbmodel".length);
-			const model = parseBbmodel(name, readFileSync(join(dir, file), "utf8"));
-			const tex = join(dir, `${name}_d.png`);
-			const hasTex = existsSync(tex);
-			const { width, height, hex } = hasTex
-				? textureColors(tex)
-				: { width: 0, height: 0, hex: new Set<string>() };
-			const cls = classes.get(name);
-			const classBudget = cls ? CLASS_BUDGET[category]?.[cls] : undefined;
-			const budget = classBudget ?? ELEMENT_BUDGET[category];
-			const groups = groupNames(model);
-			const character =
-				category === "hero" || category === "enemies" || category === "bosses" || category === "npc";
-			const socket = category === "hero" || category === "npc" ? "weapon_socket" : "hit_socket";
-			const required = ["root", "body", "head", "arm_l", "arm_r", "leg_l", "leg_r", socket];
-			const clips = new Set((model.animations ?? []).map((a) => a.name));
-			const rotations = model.elements.flatMap((e) => e.rotation ?? []);
-			const emissive = [...hex].some((h) => EMISSIVE.has(h)) || EMISSIVE_BY_NAME.has(name);
-			const prefix = PREFIX[category];
-			const staticModel = category === "props" || category === "tiles" || category === "weapons";
-			const items = [
-				/^[a-z0-9_]+$/.test(name) && hasTex && (!prefix || name.startsWith(prefix)),
-				model.elements.every((e) => e.type === "cube" || e.type === "quad") &&
-					rotations.every((r) => r % 22.5 === 0),
-				model.elements.length <= budget,
-				width % 32 === 0 &&
-					height % 32 === 0 &&
-					hex.size >= 4 &&
-					hex.size <= 12 &&
-					!hex.has("FFFFFF") &&
-					!hex.has("000000"),
-				[...hex].some((h) => SHADOW_HUES.has(h)),
-				category === "tiles" || existsSync(join(reviewDir, "silhouettes", `${category}-side.png`)),
-				staticModel ? null : character ? required.every((g) => groups.has(g)) : groups.has("root"),
-				staticModel ? null : REQUIRED_CLIPS[category].every((c) => clips.has(c)),
-				!emissive || existsSync(join(dir, `${name}_e.png`)),
-				buildOk,
-				false,
-				null,
-			];
-			rows.push({ category, name, elements: model.elements.length, budget, items });
-		}
+	for (const { folder, category, file } of listModels(srcDir)) {
+		const dir = join(srcDir, "models", folder);
+		const name = file.slice(0, -".bbmodel".length);
+		const model = parseBbmodel(name, readFileSync(join(dir, file), "utf8"));
+		const tex = join(dir, `${name}_d.png`);
+		const hasTex = existsSync(tex);
+		const { width, height, hex } = hasTex
+			? textureColors(tex)
+			: { width: 0, height: 0, hex: new Set<string>() };
+		const cls = classes.get(baseModelName(name));
+		const classBudget = cls ? CLASS_BUDGET[category]?.[cls] : undefined;
+		const budget = classBudget ?? ELEMENT_BUDGET[category];
+		const groups = groupNames(model);
+		const character =
+			category === "hero" || category === "enemies" || category === "bosses" || category === "npc";
+		const socket = category === "hero" || category === "npc" ? "weapon_socket" : "hit_socket";
+		const required = ["root", "body", "head", "arm_l", "arm_r", "leg_l", "leg_r", socket];
+		const clips = new Set((model.animations ?? []).map((a) => a.name));
+		const rotations = model.elements.flatMap((e) => e.rotation ?? []);
+		const emissive = [...hex].some((h) => EMISSIVE.has(h)) || EMISSIVE_BY_NAME.has(baseModelName(name));
+		const prefix = PREFIX[category];
+		const staticModel = category === "props" || category === "tiles" || category === "weapons";
+		const items = [
+			/^[a-z0-9_]+$/.test(name) && hasTex && (!prefix || name.startsWith(prefix)),
+			model.elements.every((e) => e.type === "cube" || e.type === "quad") &&
+				rotations.every((r) => r % 22.5 === 0),
+			model.elements.length <= budget,
+			width % 32 === 0 &&
+				height % 32 === 0 &&
+				hex.size >= 4 &&
+				hex.size <= 12 &&
+				!hex.has("FFFFFF") &&
+				!hex.has("000000"),
+			[...hex].some((h) => SHADOW_HUES.has(h)),
+			category === "tiles" || existsSync(join(reviewDir, "silhouettes", `${category}-side.png`)),
+			staticModel ? null : character ? required.every((g) => groups.has(g)) : groups.has("root"),
+			staticModel ? null : REQUIRED_CLIPS[category].every((c) => clips.has(c)),
+			!emissive || existsSync(join(dir, `${name}_e.png`)),
+			buildOk,
+			false,
+			null,
+		];
+		rows.push({ category, folder, name, elements: model.elements.length, budget, items });
 	}
 	return rows;
 }
@@ -161,8 +185,7 @@ export function renderChecklist(rows: readonly ChecklistRow[], date: string): st
 		`| --- | --- | ${CHECKLIST_ITEMS.map(() => "---").join(" | ")} |`,
 	];
 	const body = rows.map(
-		(r) =>
-			`| \`${r.category}/${r.name}\` | ${r.elements}/${r.budget} | ${r.items.map(tick).join(" | ")} |`,
+		(r) => `| \`${r.folder}/${r.name}\` | ${r.elements}/${r.budget} | ${r.items.map(tick).join(" | ")} |`,
 	);
 	const totals = CHECKLIST_ITEMS.map((_, i) => rows.filter((r) => r.items[i] === false).length);
 	return `${[...head, ...body, "", "## Total de ✘ por item", "", totals.map((t, i) => `item ${i + 1}: ${t}`).join(", ")].join("\n")}\n`;

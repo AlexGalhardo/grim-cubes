@@ -22,6 +22,12 @@ describe("art bible §14 checklist", () => {
 		expect(rows.every((r) => r.items[11] === null)).toBe(true);
 	});
 
+	it("judges a variant like its base model", () => {
+		const variant = rows.find((r) => r.folder === "variants" && r.name === "wail_02");
+		expect(variant?.category).toBe("enemies");
+		expect(variant?.items.slice(0, 10).every((v) => v === true)).toBe(true);
+	});
+
 	it("passes the hero on the statically checkable items and renders a markdown row for it", () => {
 		const hero = rows.find((r) => r.name === "hero");
 		expect(hero?.items.slice(0, 10).every((v) => v === true)).toBe(true);

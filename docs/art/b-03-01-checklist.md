@@ -1,6 +1,6 @@
 # B-03-01: checklist do Art Bible §14
 
-Gerado em 2026-10-31 por `tools/assets-gen/checklist.ts` sobre os 76 modelos de `assets/src/models/`. Uma linha por modelo; ✔ cumpre, ✘ não cumpre, n/a não se aplica (grupos e clipes de modelos estáticos; áudio).
+Gerado em 2026-10-31 por `tools/assets-gen/checklist.ts` sobre os 78 modelos de `assets/src/models/`. Uma linha por modelo; ✔ cumpre, ✘ não cumpre, n/a não se aplica (grupos e clipes de modelos estáticos; áudio).
 
 ## Itens
 
@@ -36,46 +36,46 @@ Gerado em 2026-10-31 por `tools/assets-gen/checklist.ts` sobre os 76 modelos de 
 | `bosses/nest_queen` | 44/48 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✘ | n/a |
 | `bosses/swamp_matriarch` | 29/48 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✘ | n/a |
 | `npc/bone_merchant` | 22/28 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✘ | n/a |
-| `props/prop_antenna_01` | 6/8 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
-| `props/prop_anvil_01` | 6/8 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
-| `props/prop_barrel_01` | 4/4 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
-| `props/prop_bone_01` | 4/4 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
-| `props/prop_bonepile_01` | 6/8 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
-| `props/prop_cable_01` | 3/4 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
-| `props/prop_canister_01` | 4/4 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
-| `props/prop_chain_01` | 4/4 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
+| `props/prop_antenna_01` | 6/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
+| `props/prop_anvil_01` | 6/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
+| `props/prop_barrel_01` | 4/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
+| `props/prop_bone_01` | 4/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
+| `props/prop_bonepile_01` | 6/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
+| `props/prop_cable_01` | 3/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
+| `props/prop_canister_01` | 4/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
+| `props/prop_chain_01` | 4/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
 | `props/prop_chimney_01` | 10/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
-| `props/prop_circuit_01` | 4/4 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
-| `props/prop_crate_01` | 4/4 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
-| `props/prop_cross_01` | 6/8 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
+| `props/prop_circuit_01` | 4/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
+| `props/prop_crate_01` | 4/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
+| `props/prop_cross_01` | 6/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
 | `props/prop_crypt_01` | 12/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
 | `props/prop_dead_tree_01` | 10/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
-| `props/prop_egg_01` | 4/4 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
+| `props/prop_egg_01` | 4/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
 | `props/prop_eggcluster_01` | 10/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
-| `props/prop_emberrock_01` | 4/4 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
-| `props/prop_fence_01` | 7/8 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
+| `props/prop_emberrock_01` | 4/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
+| `props/prop_fence_01` | 7/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
 | `props/prop_furnace_01` | 10/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
-| `props/prop_gearpile_01` | 6/8 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
-| `props/prop_grass_01` | 4/4 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
-| `props/prop_mesh_01` | 7/8 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
-| `props/prop_mushroom_01` | 4/4 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
-| `props/prop_pipe_01` | 6/8 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
-| `props/prop_pod_01` | 6/8 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
-| `props/prop_reeds_01` | 4/4 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
-| `props/prop_slag_01` | 3/4 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
+| `props/prop_gearpile_01` | 6/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
+| `props/prop_grass_01` | 4/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
+| `props/prop_mesh_01` | 7/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
+| `props/prop_mushroom_01` | 4/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
+| `props/prop_pipe_01` | 6/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
+| `props/prop_pod_01` | 6/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
+| `props/prop_reeds_01` | 4/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
+| `props/prop_slag_01` | 3/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
 | `props/prop_spire_01` | 11/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
 | `props/prop_swamp_bonearch_01` | 8/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
 | `props/prop_swamp_hut_01` | 12/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
-| `props/prop_swamp_jar_01` | 4/4 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
-| `props/prop_swamp_log_01` | 6/8 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
-| `props/prop_swamp_nest_01` | 4/4 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
-| `props/prop_swamp_skull_01` | 4/4 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
-| `props/prop_swamp_stump_01` | 7/8 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
+| `props/prop_swamp_jar_01` | 4/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
+| `props/prop_swamp_log_01` | 6/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
+| `props/prop_swamp_nest_01` | 4/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
+| `props/prop_swamp_skull_01` | 4/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
+| `props/prop_swamp_stump_01` | 7/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
 | `props/prop_swamp_tree_01` | 10/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
 | `props/prop_tank_01` | 9/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
-| `props/prop_tombstone_01` | 5/8 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
-| `props/prop_tombstone_02` | 6/8 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
-| `props/prop_urn_01` | 4/4 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
+| `props/prop_tombstone_01` | 5/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
+| `props/prop_tombstone_02` | 6/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
+| `props/prop_urn_01` | 4/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
 | `tiles/tile_cemetery_01` | 1/8 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
 | `tiles/tile_cemetery_02` | 1/8 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
 | `tiles/tile_cemetery_03` | 1/8 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
@@ -97,7 +97,9 @@ Gerado em 2026-10-31 por `tools/assets-gen/checklist.ts` sobre os 76 modelos de 
 | `weapons/weapon_pistol` | 5/8 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
 | `weapons/weapon_smg` | 6/8 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
 | `weapons/weapon_sword` | 5/8 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |
+| `variants/husk_02` | 15/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✘ | n/a |
+| `variants/wail_02` | 10/10 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✘ | n/a |
 
 ## Total de ✘ por item
 
-item 1: 0, item 2: 0, item 3: 0, item 4: 0, item 5: 0, item 6: 0, item 7: 0, item 8: 0, item 9: 0, item 10: 0, item 11: 76, item 12: 0
+item 1: 0, item 2: 0, item 3: 0, item 4: 0, item 5: 0, item 6: 0, item 7: 0, item 8: 0, item 9: 0, item 10: 0, item 11: 78, item 12: 0
