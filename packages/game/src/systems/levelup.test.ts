@@ -150,3 +150,10 @@ test("computeStats applies add, then mul, then caps", () => {
 	expect(out.dodge).toBe(heroData.caps.dodge);
 	expect(out.maxHp).toBeCloseTo(70);
 });
+
+test("pickup range modifiers are percentages of the base radius", () => {
+	const out = createPlayerStats();
+	computeStats(heroData, [{ stat: "pickup_range", op: "add", value: 0.25 }], out);
+	expect(out.pickupRadius).toBeCloseTo(heroData.base.pickupRadius * 1.25);
+	expect(out.pickupRadius).toBeCloseTo(3.125);
+});

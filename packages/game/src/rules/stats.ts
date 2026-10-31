@@ -147,7 +147,7 @@ export function computeStats(
 	out.speed = b.speed * (1 + add.speed) * mul.speed;
 	out.luck = (b.luck + add.luck) * mul.luck;
 	out.harvest = (b.harvest + add.harvest) * mul.harvest;
-	out.pickupRadius = (b.pickupRadius + add.pickupRadius) * mul.pickupRadius;
+	out.pickupRadius = b.pickupRadius * (1 + add.pickupRadius) * mul.pickupRadius;
 	out.xpGain = add.xpGain * mul.xpGain;
 	out.shopPrice = add.shopPrice * mul.shopPrice;
 	out.knockback = add.knockback * mul.knockback;
