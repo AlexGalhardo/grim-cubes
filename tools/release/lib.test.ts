@@ -66,6 +66,9 @@ describe("nextVersion", () => {
 		expect(nextVersion("1.0.0-rc.1", "rc")).toBe("1.0.0-rc.2");
 		expect(nextVersion("1.0.0-rc.2", "major")).toBe("1.0.0");
 		expect(nextVersion("0.9.0", "rc")).toBe("0.9.1-rc.1");
+		expect(nextVersion("0.9.0", "rc-major")).toBe("1.0.0-rc.1");
+		expect(nextVersion("1.0.0-rc.1", "rc-major")).toBe("1.0.0-rc.2");
+		expect(nextVersion("1.0.0-rc.3", "major")).toBe("1.0.0");
 	});
 
 	it("rejects invalid versions", () => {
