@@ -53,6 +53,7 @@ import {
 } from "@gc/game";
 import { createInputSources, detectPlatform } from "@gc/platform";
 import {
+	CAMERA,
 	createBenchRecorder,
 	createChunkRenderer,
 	createEngine,
@@ -322,7 +323,7 @@ async function boot(): Promise<void> {
 					},
 				)
 			: undefined;
-	const port = createRenderPort(game, horde);
+	const port = createRenderPort(game, horde, { origin, followRate: CAMERA.followRate });
 	const propTypes: PropTypeDef[] = [];
 	for (const name of chunkGen.propTypes) {
 		const placeholder = PLACEHOLDER_PROPS.find((p) => name.startsWith(p.name)) ?? PLACEHOLDER_PROPS[0];
