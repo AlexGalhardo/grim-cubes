@@ -261,24 +261,26 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
 
 **Critério de entrada.** Saída do PROTÓTIPO; `v0.3.0`; Steamworks aprovado com App IDs (E-05-03); `reports/perf-*` dentro das metas ou tarefa A-01 planejada.
 
-**Critério de saída.** Demo pública no Steam (App ID demo) e na Vercel; wishlists ≥ 3.000 em 2027-02-21 (métrica, não bloqueante); runs até o round 30 jogáveis com 3 chefes; Ossuário com 30 nós; `bench=round20` em metas nos 2 alvos desktop; Android Chrome ≥ 30 fps; cobertura `game` ≥ 80%; 6 sessões de playtest; `v0.6.0`.
+**Critério de saída.** Demo pública no Steam (App ID demo) e na Vercel; wishlists ≥ 3.000 em 2027-02-21 (métrica, não bloqueante); runs até o round 30 jogáveis com 3 chefes; Ossuário com 30 nós; `bench=round20` em metas nos 2 alvos desktop, com o cenário sustentando a carga de referência do SDD 14 §1 (100 inimigos, 1 elite, 200 projéteis, 150 decals); Android Chrome ≥ 30 fps; cobertura `game` ≥ 80%; 6 sessões de playtest; `v0.6.0`.
 
 ### A-01 Performance e preset
 
-- [ ] **A-01-01** Presets de vídeo (SDD 14 §5) e `SceneOptimizer` com `hardwareScalingLevel` dinâmico; tela `Options` (vídeo/áudio/gameplay/controles) completa no design system. Deps: P-07-05. Resp: S1 (render) + S2 (UI). Prio: P0.
-  - Asserts: preset Baixo em Android Chrome 896×414 → `fpsAvg ≥ 30`, `frameP99 ≤ 40 ms` em `reports/perf-android-chrome-<device>.json`; e2e: trocar preset altera `scene.shadowsEnabled` e cap de inimigos (lidos via `gc.debug`); capturas de `Options` nos 4 alvos.
-- [ ] **A-01-02** KTX2 ETC1S no pipeline (`toktx` no CI) e carregamento condicional (`engine.getCaps().textureETC2`). Deps: P-06-02. Resp: S1. Prio: P1.
-  - Asserts: `public/assets/*.ktx2` gerados no CI; em Android Chrome o jogo carrega KTX2 (log `textureFormat: ktx2`) e a memória GPU estimada (`engine.getGlInfo` + soma de texturas) ≤ 160 MB.
-- [ ] **A-01-03** Bench de regressão no CI (comparação com `main`, bloqueio > 10% em `frameP99`). Deps: P-07-05. Resp: Est. Prio: P1.
+- [ ] **A-01-01** Presets de vídeo (SDD 14 §5) e `SceneOptimizer` com `hardwareScalingLevel` dinâmico; tela `Options` (vídeo/áudio/gameplay/controles) completa no design system; presets em `data/presets.json` com schema. Deps: P-03-06, E-03-03 (o assert de Android depende também de P-07-05). Resp: S1 (render) + S2 (UI). Prio: P0.
+  - Asserts: preset Baixo em Android Chrome 896×414 → `fpsAvg ≥ 30`, `frameP99 ≤ 40 ms` em `reports/perf-android-chrome-<device>.json` (após P-07-05); e2e num build com `GC_DEBUG_API=1`: trocar preset altera `scene.shadowsEnabled` e cap de inimigos (lidos via `gc.debug`); capturas de `Options` nos 4 alvos.
+- [ ] **A-01-02** KTX2 ETC1S no pipeline (`toktx` no CI) e carregamento condicional (`engine.getCaps().textureETC2`). `toktx` (KTX-Software) é um binário instalado no runner de CI, não um pacote npm. Usá-lo é pergunta pendente ao PO (registrar em Bloqueios antes de implementar); sem o binário, o pipeline marca `ktx2: false` (SDD 09). Deps: P-06-02, resposta do PO sobre `toktx`. Resp: S1. Prio: P1.
+  - Asserts: `atlas_*.<hash>.ktx2` gerados no CI e listados no manifest; em Android Chrome o jogo carrega KTX2 (log `textureFormat: ktx2`) e a memória GPU estimada (`engine.getGlInfo` + soma de texturas) ≤ 160 MB.
+- [ ] **A-01-03** Bench de regressão no CI (comparação com `main`): job `perf` num build com `GC_DEBUG_API=1`. No SwiftShader, bloqueia por `drawCalls`/`activeMeshes` (determinísticos) e por `frameP99` > 10% sobre a mediana de 3 execuções (evita falso positivo de CPU de CI). Deps: P-03-06. Resp: Est. Prio: P1.
   - Asserts: PR com regressão artificial (sleep de 5 ms no loop) é bloqueado pelo job `perf` (demonstrado e revertido).
 
 ### A-02 Biomas e inimigos
 
-- [ ] **A-02-01** Biomas Pântano, Forja e Ninho: `biomes.json`, tiles (4 cada), 10 props cada, mistura de borda 16 u, fog/música por bioma, pool 60/30/10. Deps: P-01-03, P-06-01. Resp: S1. Prio: P0.
+- [ ] **A-02-01** Biomas Pântano, Forja e Ninho: `biomes.json` (com `propCounts`), tiles (4 cada) e 10 props cada gerados em `tools/assets-gen` (D5), props com entradas em `data/props.json` (`sizeClass`, `kind`, `radius`, `height`), mistura de borda 16 u, fog/música por bioma, pool 60/30/10 no spawner (hoje é fixo em `apps/web`). Deps: P-01-03, P-06-01. Resp: S1 (+ S2 no pool do spawner). Prio: P0.
   - Asserts: teste: `biomeFn` devolve anel correto nas distâncias 0/120/260/420/900; captura de cada bioma nos 4 alvos; `assets:build` exit 0 com os 30 props novos.
-- [ ] **A-02-02** Inimigos Afogado (`tank`), Sanguessuga (`latch`), Forjado (armadura), Vigia (`shooter`), Caçador (`charger`), Reprodutor (`breeder`): modelos, VAT, behaviors, testes. Deps: A-02-01, P-03-03. Resp: S1 (modelos/VAT) + S2 (behaviors). Prio: P0.
-  - Asserts: teste por behavior (SDD 04 §5): Sanguessuga gruda e drena 1 HP/s; Vigia atira a cada 2 s a < 10 u; Caçador investe a cada 3 s; Reprodutor cria 1 Lamento a cada 4 s respeitando o cap; `jq length data/enemies.json` = 8 todos com `status: "done"`.
-- [ ] **A-02-03** Balanceamento de rounds 1–30 com os 8 inimigos: `tools/sim` com asserts completos de GDD §25 (3 chefes). Deps: A-02-02, A-03-02. Resp: Est. Prio: P0.
+- [ ] **A-02-02a** Behaviors dos inimigos 3–8 (nomes do data, SDD 04 §5): Afogado (`push`), Sanguessuga (`latch_drain`), Forjado (`armored`), Vigia (`ranged_static`), Caçador (`charge`), Reprodutor (`spawner`), com testes. Deps: P-03-03. Resp: S2. Prio: P0.
+  - Asserts: teste por behavior (SDD 04 §5): Sanguessuga gruda e drena 1 HP/s; Vigia atira a cada 2 s a < 10 u; Caçador investe a cada 3 s; Reprodutor cria 1 Lamento a cada 4 s respeitando o cap; teste de que `toEnemyDefs` mapeia os 8 behaviors de `data/enemies.json` sem cair no `chase` por omissão.
+- [ ] **A-02-02b** Modelos e VAT dos inimigos 3–8: `.bbmodel` gerados em `tools/assets-gen` (D5) nas classes de `sizeClass`, VAT `.bin` RGBA32F com os 5 clipes, horda renderizando os 8 tipos. Deps: A-02-01, A-02-02a. Resp: S1. Prio: P0.
+  - Asserts: `assets:build` exit 0 com os 6 modelos novos e `vat_<id>` no manifest para os 8 inimigos; oráculo VAT × skeleton do Babylon < 1e-5 em cada um; captura dos 8 tipos nos 4 alvos.
+- [ ] **A-02-03** Balanceamento de rounds 1–30 com os 8 inimigos: `tools/sim` com asserts completos de GDD §25 (3 chefes). Deps: A-02-02a, A-02-02b, A-03-02, P-07-04. Resp: Est. Prio: P0.
   - Asserts: `bun run sim --runs 500 --rounds 30` com p50 de morte ∈ [18, 26], desvio ≤ 4, ouro/preço ∈ [1,2, 1,8], level-ups/round ∈ [1, 2] nos rounds 5–20; relatório commitado em `reports/`.
 
 ### A-03 Chefes 2 e 3
@@ -292,41 +294,41 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
 
 ### A-04 Ossuário, dificuldades e progressão
 
-- [ ] **A-04-01** `ossuary.json` completo (30 nós, custos 50→800), `applyOssuary`, reset com devolução total, tela `Ossuary` (radial no desktop, tabs no mobile). Deps: P-05-08. Resp: S2. Prio: P0.
-  - Asserts: teste: custo total = 10.250; `requires` respeitado; reset devolve 100%; demo bloqueia `index > 1`; e2e: comprar `flesh_1` com 50 almas via cheat e verificar +10 HP na run seguinte; capturas nos 4 alvos.
+- [ ] **A-04-01** Ossuário: loader tipado `ossuaryData` em `packages/game/src/data` (o `ossuary.json` com 30 nós e custos 50→800 já existe desde a E-03-04), `applyOssuary` (modificadores e flags), compra e reset com devolução total no `MetaState`, tela `Ossuary` (radial no desktop, tabs no mobile). Deps: P-05-08. Resp: S2. Prio: P0.
+  - Asserts: teste: custo total = 10.250; `requires` respeitado; reset devolve 100%; demo bloqueia `index > demoMaxNodeIndex`; e2e num build com `GC_DEBUG_API=1`: comprar `flesh_1` com 50 almas via cheat e verificar +10 HP na run seguinte; capturas nos 4 alvos.
 - [ ] **A-04-02** Dash (ramo Sombra): 4 u em 0,15 s, i-frames 0,2 s, recarga 3 s, 2 cargas no nó 6; botão mobile. Deps: A-04-01, P-02-02. Resp: S2. Prio: P1.
   - Asserts: teste: deslocamento 4 u ± 0,05; sem dano durante 0,2 s; e2e mobile: botão de dash funciona.
-- [ ] **A-04-03** Dificuldades Normal/Grim/Nightmare (multiplicadores, desbloqueio no round 20, almas ×1,5/×2) + tela `Difficulty` com seed opcional. Deps: A-04-01. Resp: S2. Prio: P0.
+- [ ] **A-04-03** Dificuldades Normal/Grim/Nightmare (multiplicadores, desbloqueio no round 20, almas ×1,5/×2) + tela `Difficulty` com seed opcional; `difficultyMult` no spawn e `soulsMult` no fechamento da run. Deps: P-05-08, P-07-03. Resp: S2. Prio: P0.
   - Asserts: teste: Grim ×1,25 em HP e dano; Nightmare bloqueado até recorde Grim ≥ 20; seed digitada reproduz o mesmo hash de world (determinismo).
-- [ ] **A-04-04** Marcos e desbloqueios (GDD §20): itens no pool por kills/chefes, skin do round 50 (cosmético simples: tint), recordes no menu. Deps: A-04-01. Resp: S2. Prio: P2.
+- [ ] **A-04-04** Marcos e desbloqueios (GDD §20): itens no pool por kills/chefes, skin do round 50 (cosmético simples: tint), recordes no menu. Deps: P-05-08 (os recordes no menu dependem também da tela de menu, A-07). Resp: S2. Prio: P2.
   - Asserts: teste: `cube_of_wrath` fora do pool até 1.000 kills e dentro depois; menu mostra recordes por dificuldade.
 
 ### A-05 Mercador físico, voz e áudio definitivo
 
-- [ ] **A-05-01** NPC Mercador surge a 4 u ao fim do round (`emerge`/`submerge`), interação abre a loja (tela igual, com retrato animado), falas de voz (20) via ElevenLabs. Deps: P-05-04, P-06-05. Resp: S1 (modelo/animação) + S2 (fluxo) + Est (prompts). Prio: P1.
+- [ ] **A-05-01** NPC Mercador surge a 4 u ao fim do round (`emerge`/`submerge`), interação abre a loja (tela igual, com retrato animado), falas de voz (20) via ElevenLabs. Deps: P-05-04, P-06-05, P-06-06 (skeleton e `AnimationGroup` para `emerge`/`submerge`), E-05-04 (plano pago). Resp: S1 (modelo/animação) + S2 (fluxo) + Est (prompts). Prio: P1.
   - Asserts: e2e: fim do round → Mercador visível em ≤ 1 s → tocar/clicar abre `Shop`; 20 arquivos `vo_merchant_*.mp3` com `meta.plan != free`; vídeo no PR.
-- [ ] **A-05-02** SFX definitivos (lista GDD §22.1 para o conteúdo existente), músicas dos 4 biomas + 3 chefes, falas dos 3 chefes; mixer com sidechain. Deps: P-06-05, A-03-02. Resp: Est (geração) + S2 (integração). Prio: P1.
+- [ ] **A-05-02** SFX definitivos (lista GDD §22.1 para o conteúdo existente), músicas dos 4 biomas + 3 chefes, falas dos 3 chefes; mixer com sidechain; etapa de áudio no `assets-build` (SDD 09, hoje inexistente). Deps: P-06-05, P-06-04, E-05-04, A-03-02. Resp: Est (geração) + S2 (integração) + S1 (etapa de áudio do `assets-build`). Prio: P1.
   - Asserts: `assets:build` falha se qualquer áudio referenciado tiver `plan: free` (teste negativo demonstrado); `prompts.json` com ≥ 60 SFX, 7 músicas, ≥ 35 falas; loudness medido (−16/−14 LUFS ± 1) registrado no `meta.json`.
 
 ### A-06 Steam, demo pública e marketing
 
 - [ ] **A-06-01** Integração Steamworks real: App IDs, `electronEnableSteamOverlay` (teste das flags; ADR-0008 emendado com o resultado), 10 achievements, Auto-Cloud configurado, build `electron` (jogo) e `electron-demo`. Deps: P-07-02, E-05-03. Resp: S2 + PO (Steamworks). Prio: P0.
   - Asserts: achievement "primeira morte" desbloqueia na conta de teste do PO (captura); save sincroniza entre duas máquinas via Cloud (checklist); overlay funciona ou está desligado com justificativa no ADR; `steam-upload` manual sobe build para o branch `beta`.
-- [ ] **A-06-02** Página Steam do jogo e da demo: capsules, 5 capturas (1080p), trailer de 60 s (gravado com `?debug=1&cinematic`), descrição, tags, content survey (violência/gore), preço US$ 9,99 e regionais via "Propose Pricing". Deps: A-06-01, A-02-01. Resp: PO + Est (textos) + S1 (capturas). Prio: P0.
+- [ ] **A-06-02** Página Steam do jogo e da demo: capsules, 5 capturas (1080p), trailer de 60 s (gravado num build de captura não publicado, com `GC_DEBUG_API=1` ou flag própria `GC_CINEMATIC`; o `?debug` não existe no build de release, SDD 11), descrição, tags, content survey (violência/gore), preço US$ 9,99 e regionais via "Propose Pricing". Deps: A-06-01, A-02-01. Resp: PO + Est (textos) + S1 (capturas). Prio: P0.
   - Asserts: página "coming soon" aprovada pela Valve ≥ 2 semanas antes de 2027-01-24; `docs/marketing/steam-page.md` com textos finais; capsules nos tamanhos exigidos (verificados no Steamworks).
 - [ ] **A-06-03** **M-ALPHA-DEMO** — demo pública (Steam demo App + Vercel) em 2027-01-24 e inscrição no Next Fest fev/2027. Deps: A-06-02, A-04-01, A-03-01, A-01-01, A-07-01. Resp: Orq + PO. Prio: P0.
   - Asserts: demo baixável na Steam e jogável na URL pública; smoke pós-deploy verde; crash-free ≥ 99% nas primeiras 100 sessões web (telemetria opt-in); Next Fest confirmado no Steamworks (captura em `docs/marketing/`).
-- [ ] **A-06-04** Telemetria opt-in (GDD §26.2): eventos JSONL locais + envio em lote para endpoint mínimo (Vercel Function `api/telemetry` com rate limit, sem dados pessoais) — plano Pro se exigido. Deps: P-07-01. Resp: S2. Prio: P1.
+- [ ] **A-06-04** Telemetria opt-in (GDD §26.2): eventos JSONL locais + envio em lote para endpoint mínimo (Vercel Function `api/telemetry` com rate limit, sem dados pessoais) — plano Pro se exigido. Deps: decisão do PO (endpoint/armazenamento), A-01-01 (tela `Options` para o opt-in). Resp: S2. Prio: P1.
   - Asserts: com opt-in desligado nenhuma requisição sai (teste e2e com interceptação de rede); com opt-in, lote ≤ 50 KB a cada 60 s; endpoint responde 204 e grava em Vercel Blob/KV `[decisão de armazenamento em ADR]`.
 
 ### A-07 Qualidade, UX e conteúdo da demo
 
-- [ ] **A-07-01** Onboarding: 3 dicas contextuais no round 1 (mover, pegar fragmentos, loja), tutorial de 20 s opcional, textos em inglês com i18n (`en` + `pt-BR`) via arquivo JSON e `t()` próprio. Deps: P-07-01. Resp: Est (textos/i18n) + S2. Prio: P0.
-  - Asserts: `locales/en.json` e `locales/pt-BR.json` com as mesmas chaves (teste de paridade); opção de idioma troca todos os textos (e2e); nenhum texto hardcoded em TSX (lint extra).
+- [ ] **A-07-01** Onboarding: 3 dicas contextuais no round 1 (mover, pegar fragmentos, loja), tutorial de 20 s opcional, textos em inglês com i18n (`en` + `pt-BR`) via arquivo JSON e `t()` próprio. Deps: E-03-03 (a tradução da tela `DemoEnd` depende também da P-07-01). Resp: Est (textos/i18n) + S2. Prio: P0.
+  - Asserts: `locales/en.json` e `locales/pt-BR.json` com as mesmas chaves (teste de paridade); opção de idioma troca todos os textos (e2e); nenhum texto hardcoded em TSX (regra nova no `tools/lint-extra`, que hoje só pega hex e `console.log`).
 - [ ] **A-07-02** Acessibilidade: remap de teclas/botões, modo daltônico, escala de UI, toggles de shake/flash/gore, foco por gamepad em todas as telas. Deps: A-01-01. Resp: S2. Prio: P1.
-  - Asserts: e2e: navegar Menu → Jogar → Loja → Ossuário só com teclado (Tab/Enter/Esc); `data-theme="cb"` troca as cores de raridade (captura); axe-core (dev dep, aprovação) sem violações `serious` nas telas.
+  - Asserts: e2e: navegar Menu → Jogar → Loja → Ossuário só com teclado (Tab/Enter/Esc); `data-theme="cb"` troca as cores de raridade (captura); axe-core (dev dep já aprovada e instalada na E-02-01) sem violações `serious` nas telas.
 - [ ] **A-07-03** Cobertura `game` ≥ 80%, `core` ≥ 85%, `ui` ≥ 60%; visual tests para todas as telas nos 4 alvos; e2e completo (SDD 07 §7). Deps: A-04-01. Resp: Est. Prio: P0.
-  - Asserts: thresholds no `vitest.config.ts` e CI verde; `tests/visual/__screenshots__/` com ≥ 10 telas × 4 alvos.
+  - Asserts: thresholds no `vitest.config.ts` e CI verde; `tests/visual/__screenshots__/` com ≥ 10 telas × 4 alvos (baselines por plataforma, conforme o `playwright.config.ts`). Os thresholds podem subir aos poucos antes da A-04-01.
 - [ ] **A-07-04** Playtests: 6 sessões (2 rodadas) com síntese e ajustes de balanceamento via `data/*.json` + `sim`. Deps: A-02-03. Resp: PO + Est. Prio: P1.
   - Asserts: `docs/playtests/2027-01-alpha.md` e `2027-02-alpha.md`; mudanças em `data/` acompanhadas de relatório do `sim` dentro das faixas.
 - [ ] **A-07-05** Releases `v0.4.0` (biomas+inimigos), `v0.5.0` (Ossuário+chefes), `v0.6.0` (demo pública). Deps: fase. Resp: Orq. Prio: P0.

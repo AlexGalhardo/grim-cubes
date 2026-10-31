@@ -53,7 +53,7 @@ export function createLoop(hooks: LoopHooks): Loop {
 | `EnemyType` | `id` | u8 (índice em `enemies.json`) |
 | `Elite` | `modifier` | u8 (0 = não elite) |
 | `Boss` | `id` | u8 (`phase`, `enrageStacks` e `enrageTimer` entram com a P-05-07) |
-| `Behavior` | `kind, state, timer` | u8, u8, u16 (`targetX/targetZ` só se `charge`/`latch_drain` precisarem, A-02-02) |
+| `Behavior` | `kind, state, timer` | u8, u8, u16 (`targetX/targetZ` só se `charge`/`latch_drain` precisarem, A-02-02a) |
 | `Projectile` | `damage, critChance, knockback, pierce, life, explosionRadius, selfFraction` | f32, f32, f32, u8, u16, f32, f32 |
 | `ProjectileHits` | `ids` (anel de 8 por projétil), `cursor` | u16, u8 |
 | `Fragment` | `value, magnetTimer` | u16, u16 |
