@@ -10,11 +10,11 @@ Isométrico estilo Diablo 4 (briefing). Ortográfica pura dá leitura 'limpa' de
 
 - Ortográfica (54,7°): sem distorção, menos profundidade.
 - Perspectiva com rotação livre: legibilidade e mobile piores.
-- Perspectiva FOV ~30°, elevação ~55°, fixa, seguindo o herói.
+- Perspectiva FOV ~30°, elevação 55° (beta 0,611 rad), fixa, seguindo o herói.
 
 ## Decisão
 
-`ArcRotateCamera` com controles desligados: alpha −π/2, beta ≈ 0,96 rad, FOV ≈ 0,52 rad, raio 38 u (34 u em mobile), alvo = herói suavizado; sem rotação; zoom leve opcional. Área visível fixa em altura (16 u); largura varia pelo aspecto dos 4 alvos de tela (D31).
+`ArcRotateCamera` com controles desligados: alpha −π/2, beta 0,611 rad (π/2 − 55°; o beta do Babylon é medido do zênite, emenda D1 de 2026-10-31), FOV ≈ 0,52 rad, raio 38 u (34 u em mobile), alvo = herói suavizado; sem rotação; zoom leve opcional. Área visível fixa em altura (16 u); largura varia pelo aspecto dos 4 alvos de tela (D31).
 
 ## Consequências
 

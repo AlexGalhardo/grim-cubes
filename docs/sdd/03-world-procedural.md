@@ -28,12 +28,12 @@ function generateChunk(seedRun: u32, cx: i32, cz: i32, biomeFn): ChunkData {
 	const rng = mulberry32(hash32(seedRun, cx, cz));
 	const biome = biomeFn(cx, cz);                 // por distância do spawn (centro do chunk)
 	const floorVariant = rng.int(4);               // 4 variantes de textura de chão por bioma
-	const props = placeProps(rng, biome);          // 4–10 bloqueantes + 6–14 decorativos + 1–2 destrutíveis
+	const props = placeProps(rng, biome);          // 4–8 bloqueantes + 6–14 decorativos + 1–2 destrutíveis (D3)
 	return { cx, cz, biome, floorVariant, props };
 }
 ```
 
-- `placeProps`: grade de 4×4 células de 4 u; cada célula com chance `biome.propDensity` de receber 1 prop em posição jitter; regra de corredor: rejeita prop bloqueante se já houver 2 bloqueantes nas 8 células vizinhas; nunca prop alto (> 2 u) a < 3 u do ponto de spawn do herói (chunk 0,0).
+- `placeProps`: duas grades 4×4 independentes de células de 4 u (bloqueantes + destrutíveis ≤ 1 por célula; decorativos ≤ 1 por célula); as contagens são sorteadas por `rng.world` dentro das faixas de `biomes.json`; `noise2D(wx/48, wz/48)` (`simplex-noise`, seed derivada de `seedRun`) só ordena a escolha das células; posição com jitter dentro da célula; regra de corredor: rejeita bloqueante se a célula já tem 2 vizinhos (8-vizinhança) bloqueantes, aplicada só dentro do chunk (limite conhecido na 1.0); exclusão de props a < 3 u do spawn.
 - Web Worker: não na 1.0 (geração custa < 1 ms por chunk, medido no PROTÓTIPO; se exceder 2 ms, mover para worker com `postMessage` de `ChunkData` serializado — ADR-0007).
 
 ### 2.2 Renderização de chunks
@@ -77,6 +77,6 @@ function generateChunk(seedRun: u32, cx: i32, cz: i32, biomeFn): ChunkData {
 
 ## 6. Testes
 
-- Unit: `generateChunk` determinístico (mesma seed → mesmo hash), densidade de props dentro de [4, 10] bloqueantes, regra de corredor nunca violada em 10.000 chunks, nenhum prop alto perto do spawn.
+- Unit: `generateChunk` determinístico (mesma seed → mesmo hash), densidade de props dentro de [4, 8] bloqueantes, regra de corredor nunca violada em 10.000 chunks, nenhum prop alto perto do spawn.
 - Integration: andar 5.000 u em linha reta com origin shifting e verificar que posições relativas herói/props são contínuas (sem saltos > 0,01 u).
 - Performance: gerar 49 chunks < 50 ms em Node (assert no ROADMAP).

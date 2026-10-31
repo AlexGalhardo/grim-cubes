@@ -140,8 +140,8 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
 
 ### P-01 Mundo procedural
 
-- [ ] **P-01-01** `game/world/chunks`: `generateChunk` determinístico (SDD 03 §2.1) com props do `biomes.json` (só Cemitério), regra de corredor, exclusão perto do spawn. Deps: E-03-04. Resp: S1. Prio: P0.
-  - Asserts: testes: mesma seed → mesmo hash em 1.000 chunks; bloqueantes ∈ [4, 10]; regra de corredor 0 violações em 10.000 chunks; nenhum prop > 2 u a < 3 u do spawn; `generate 49 chunks` < 50 ms em Node (teste com `performance.now()`).
+- [ ] **P-01-01** `game/world/chunks`: `generateChunk` determinístico (SDD 03 §2.1) com props do `biomes.json` (só Cemitério), regra de corredor, exclusão perto do spawn; duas grades 4×4 independentes (bloqueantes+destrutíveis ≤ 1 por célula; decorativos ≤ 1 por célula), contagens sorteadas nas faixas de `biomes.json`, `simplex-noise` (seed derivada de `seedRun`) só ordena a escolha de células; preenche o `ChunkData` (lista fixa de props) consumido por P-01-03. Deps: E-03-04, P-01-02. Resp: S1. Prio: P0.
+  - Asserts: testes: mesma seed → mesmo hash em 1.000 chunks; bloqueantes ∈ [4, 8] (D3), decorativos ∈ [6, 14], destrutíveis ∈ [1, 2]; regra de corredor 0 violações em 10.000 chunks; nenhum prop > 2 u a < 3 u do spawn; `generate 49 chunks` < 50 ms em Node (teste com `performance.now()`).
 - [x] **P-01-02** `chunkSystem`: anel raio 3, fila por distância, ≤ 2 chunks gerados por passo, descarga (Chebyshev ≥ 5) antes da carga no mesmo passo, pool fixo de 81 `ChunkData` (9×9). Deps: P-01-01. Resp: S1. Prio: P0.
   - Asserts: teste de integração: mover o herói 2.000 u em linha reta mantém sempre todos os chunks com Chebyshev ≤ 3 carregados (após estabilizar), nenhum com ≥ 5, total ∈ [49, 81] após estabilizar e nunca aloca além do pool (contador de alocações = 0 após o warm-up).
 - [ ] **P-01-03** Render de chunks: chão em 1 mesh único (1 quad por chunk, slots fixos para 81 chunks, UV para o tile 32² da variante em `atlas_terrain`), props por thin instances por tipo, reconstrução de buffers só quando o anel muda ou quando ocorre `OriginShifted`. Deps: P-01-02, P-06-02. Resp: S1. Prio: P0.
@@ -153,8 +153,8 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
 
 ### P-02 Herói, câmera e input
 
-- [ ] **P-02-01** Herói com stats base (GDD §7.1), movimento sem inércia, `PrevPosition` e interpolação no render; câmera ADR-0017 seguindo com lerp 8/s. Deps: E-03-02, E-03-06. Resp: S1. Prio: P0.
-  - Asserts: teste: velocidade medida = 6 u/s ± 1%; captura em 1080p mostra o herói no centro ±5% da tela; área visível ≈ 28 × 16 u (medida por picking dos cantos em `?debug=1`, logada).
+- [ ] **P-02-01** Herói com stats base (GDD §7.1), movimento sem inércia, `PrevPosition` e interpolação no render; câmera ADR-0017 (elevação 55°, beta 0,611 rad, D1) seguindo com lerp 8/s (`setTarget(v, false, false, true)` para preservar alpha/beta/raio); valores de câmera em `data/render.json`. Deps: E-03-02, E-03-06. Resp: S1. Prio: P0.
+  - Asserts: teste: velocidade medida = 6 u/s ± 1%; captura em 1080p mostra o herói no centro ±5% da tela; trapézio visível no chão (picking dos 4 cantos em `?debug=1`, logado) bate com GDD §5 (profundidade 25,6 u, larguras 30,3/35,9/44,2 u) com ±3%.
 - [ ] **P-02-02** Input unificado (`InputState`): teclado, gamepad (polling, dead zone), joystick virtual (mobile) e remap básico. Deps: E-03-02. Resp: S2. Prio: P0.
   - Asserts: testes unitários do mapeamento; e2e mobile-l: `touchscreen` arrasta o joystick e o herói se move ≥ 3 u em 1 s; gamepad testado manualmente pelo PO (registro em PROGRESS).
 - [ ] **P-02-03** Fade/transparência de props altos entre câmera e herói. Deps: P-01-03. Resp: S1. Prio: P2.
@@ -209,7 +209,7 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
 
 ### P-06 Arte e áudio placeholder
 
-- [ ] **P-06-01** Modelos Blockbench (`.bbmodel` + `.glb` + texturas conforme Art Bible): herói, Carcaça, Lamento, Coveiro, Mercador, 10 props do Cemitério, 4 tiles de chão, 5 armas (meshes na mão). Deps: —. Resp: S1 (com o PO no Blockbench quando necessário). Prio: P0.
+- [ ] **P-06-01** Modelos (`.bbmodel` gerados por script em `tools/assets-gen` + texturas conforme Art Bible; convertidos para glTF pelo `assets-build`, D5; o PO refina no Blockbench): herói, Carcaça, Lamento, Coveiro, Mercador, 10 props do Cemitério, 4 tiles de chão, 5 armas (meshes na mão). Deps: P-06-02, P-06-07. Resp: S1 (refino visual com o PO no Blockbench). Prio: P0.
   - Asserts: `bun run assets:build` exit 0 (validações de elementos, textura, cores, sockets); capturas de cada modelo em `docs/art/review/*.png`; teste de silhueta (preto sólido a 64 px) anexado e aprovado pelo PO em PROGRESS.
 - [x] **P-06-02** `tools/assets-build` (SDD 09): validação, atlas por categoria (MaxRects), reescrita de UV via `@gltf-transform/core` (aprovada; codec PNG `pngjs` aprovado pelo PO em 2026-10-31), manifest com grupos. Deps: E-02-01. Resp: S1. Prio: P0.
   - Asserts: duas execuções seguidas produzem `manifest.json` byte a byte idêntico (sem `generatedAt`); fixtures inválidas (1 por regra) falham com mensagem contendo o nome da regra; a entrada `atlas_characters` do manifest aponta para PNG com hash no nome, 2048×2048.
@@ -221,7 +221,7 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
   - Asserts: `bun run audio:generate --dry-run` lista 22 itens; com mock de API, gera arquivos e `meta.json` com `plan`; com `ELEVENLABS_PLAN=free` sem `--allow-free` sai com exit 2 e mensagem.
 - [ ] **P-06-06** Render de personagens com skeleton (herói, Mercador, Coveiro): `AnimationGroup` com blend de 0,1 s, arma no `weapon_socket`, `hit_socket` exposto, `speedRatio` ∝ velocidade. Deps: P-06-01, P-06-02, P-02-01. Resp: S1. Prio: P0.
   - Asserts: NullEngine com pai da arma = `weapon_socket`; peso intermediário em t = 0,05 s; `speedRatio` = |v|/v_ref ±5%; capturas nos 4 alvos.
-- [ ] **P-06-07** Conversão nó→skin rígido no `assets-build` (Blockbench exporta animação por nó): cada nó animado vira osso com peso 1; primitivas unidas em 1 mesh. Validação do `.bbmodel` (SDD 09 §2.1: só cube/quad, rotação múltipla de 22,5°, orçamento de elementos do Art Bible §5.1, grupos `root/body/head`, `weapon_socket`/`hit_socket`). Deps: P-06-03 e decisão D5 do PO (Bloqueios). Resp: S1. Prio: P0.
+- [ ] **P-06-07** Conversão nó→skin rígido no `assets-build` (Blockbench exporta animação por nó): cada nó animado vira osso com peso 1; primitivas unidas em 1 mesh. Validação do `.bbmodel` (SDD 09 §2.1: só cube/quad, rotação múltipla de 22,5°, orçamento de elementos do Art Bible §5.1, grupos `root/body/head`, `weapon_socket`/`hit_socket`). Deps: P-06-03 (D5 decidida: opção A). Resp: S1. Prio: P0.
   - Asserts: fixture com 2 nós animados (glTF por nó) vira 1 mesh com skin de 2 ossos e `WEIGHTS_0` = 1 por vértice; posição de vértice no frame 5 igual à do glTF por nó (tolerância 1e-4); fixtures `.bbmodel` inválidas (1 por regra) falham com o nome da regra.
 
 ### P-07 Demo, Electron e qualidade

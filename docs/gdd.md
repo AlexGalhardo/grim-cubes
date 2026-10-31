@@ -125,11 +125,11 @@ Decisão D17: perspectiva com FOV baixo, ângulo fixo, segue o herói.
 | --- | --- | --- |
 | Tipo | `ArcRotateCamera` com controles desligados | — |
 | Alpha (rotação horizontal) | −π/2 (norte para cima na tela) | fixo |
-| Beta (elevação) | 0,96 rad (≈55°) | 50°–60° |
+| Beta | 0,611 rad (elevação 55°; o `beta` do `ArcRotateCamera` é medido a partir do zênite: beta = π/2 − elevação) | 0,524–0,698 rad (elevação 50°–60°) |
 | FOV vertical | 0,52 rad (≈30°) | 25°–35° |
 | Raio (distância ao alvo) | 38 u | 32–44 u (zoom leve com scroll, opcional) |
 | Alvo | posição do herói suavizada (lerp 8/s) | — |
-| Área visível no chão (16:9, raio 38) | ≈ 28 u × 16 u | — |
+| Área visível no chão (16:9, raio 38) | trapézio: profundidade 25,6 u (−10,4 a +15,2 u do herói); largura 30,3 / 35,9 / 44,2 u (borda de baixo / altura do herói / borda de cima); raio 34 → profundidade 22,9 u | — |
 | Mobile (9:16 ou 16:9 landscape forçado) | landscape obrigatório; raio 34 u | — |
 
 Regras:
@@ -171,7 +171,7 @@ O anel 3 repete-se ao infinito (mais escuro, com variação de props). Biomas af
 
 - Props bloqueantes (lápides, bigornas, ossadas): colisão circular no plano XZ, raio 0,5–1,5 u. Inimigos desviam por steering simples (sem pathfinding global).
 - Props decorativos (grama, ossos pequenos): sem colisão.
-- Densidade: 4 a 10 props bloqueantes por chunk; nunca formam corredor fechado (regra: no máximo 2 props bloqueantes adjacentes).
+- Densidade: 4 a 8 props bloqueantes por chunk (D3: com a regra de corredor numa grade 4×4 cabem no máximo 8); nunca formam corredor fechado (regra: no máximo 2 props bloqueantes adjacentes).
 - Destrutíveis: 1 a 2 por chunk (caixote, urna); dropam 1–3 fragmentos ou 1 consumível.
 
 ### 6.4 Spawn
@@ -769,7 +769,7 @@ Decisão D31. O jogo é projetado, testado e otimizado para estes 4 alvos; outro
 
 Regras:
 
-- Câmera: a área visível no chão é fixa em **altura** (16 u em 16:9); largura cresce com o aspecto (mobile 2 tem aspecto 2,22:1 → ~35 u de largura). O spawn ring (22–30 u) continua fora da tela em todos os alvos.
+- Câmera: a área visível no chão é um trapézio (elevação 55°, §5); a largura cresce com o aspecto. O topo da tela fica a ≈ 15 u do herói e os cantos de cima a ≈ 27 u, então o anel de spawn (22–30 u) fica fora da tela exceto nos cantos de cima; se o playtest mostrar spawn visível, subir o mínimo do anel para 27 u em `rounds.json`.
 - HUD: ancorado por cantos com safe area (`env(safe-area-inset-*)` no mobile, mínimo 24 px); escala de UI 100% em 1080p, 125% em 1440p (auto), 100% em mobile com alvos de toque ≥ 48 px.
 - Texto mínimo: 14 px em 1080p, 16 px em 1440p, 13 px em mobile (fonte pixel em múltiplos inteiros: 8/16/24 px).
 - Telas (loja, level-up, Ossuário) usam layout em colunas no desktop e lista horizontal rolável no mobile (ver Art Bible §17).
