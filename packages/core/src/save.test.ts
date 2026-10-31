@@ -22,11 +22,11 @@ const meta = () => {
 	return m;
 };
 
-test("a save round-trips and uses schemaVersion 6", async () => {
+test("a save round-trips and uses schemaVersion 7", async () => {
 	const text = await serializeSave(meta(), "0.1.0", new Date("2026-10-31T12:00:00Z"));
 	const envelope = JSON.parse(text) as { schemaVersion: number; app: string; savedAt: string };
-	expect(envelope.schemaVersion).toBe(6);
-	expect(SAVE_SCHEMA_VERSION).toBe(6);
+	expect(envelope.schemaVersion).toBe(7);
+	expect(SAVE_SCHEMA_VERSION).toBe(7);
 	expect(envelope.app).toBe("grim-cubes");
 	expect(envelope.savedAt).toBe("2026-10-31T12:00:00.000Z");
 	expect(await parseSave(text)).toEqual(meta());
@@ -73,7 +73,7 @@ test("untrusted fields are validated", async () => {
 test("a save from another app or a newer schema is refused", async () => {
 	const base = JSON.parse(await serializeSave(meta(), "0.1.0")) as Record<string, unknown>;
 	await expect(parseSave(JSON.stringify({ ...base, app: "other" }))).rejects.toBeInstanceOf(SaveError);
-	await expect(parseSave(JSON.stringify({ ...base, schemaVersion: 7 }))).rejects.toThrow("newer version");
+	await expect(parseSave(JSON.stringify({ ...base, schemaVersion: 8 }))).rejects.toThrow("newer version");
 });
 
 test("size, list and key limits protect the parser", async () => {
@@ -129,6 +129,21 @@ const SETTINGS_BY_VERSION: Record<number, string[] | null> = {
 		"uiScale",
 		"gore",
 	],
+	6: [
+		"preset",
+		"volume",
+		"screenShake",
+		"locale",
+		"gameSpeed",
+		"telemetry",
+		"brightness",
+		"contrast",
+		"colorblind",
+		"flashReduction",
+		"uiScale",
+		"gore",
+		"keys",
+	],
 };
 
 /** A save as the given older schema wrote it: only the settings keys it knew, with its own checksum. */
@@ -146,8 +161,8 @@ async function legacySave(version: number): Promise<string> {
 	return JSON.stringify({ ...current, schemaVersion: version, checksum, data });
 }
 
-test("saves from schemas 1 to 5 load with the defaults of every setting they lacked", async () => {
-	for (const version of [1, 2, 3, 4, 5]) {
+test("saves from schemas 1 to 6 load with the defaults of every setting they lacked", async () => {
+	for (const version of [1, 2, 3, 4, 5, 6]) {
 		const loaded = await parseSave(await legacySave(version));
 		expect(loaded.settings.gameSpeed, `v${version}`).toBe(1);
 		expect(loaded.settings.telemetry, `v${version}`).toBe(false);
@@ -158,6 +173,7 @@ test("saves from schemas 1 to 5 load with the defaults of every setting they lac
 		expect(loaded.settings.uiScale, `v${version}`).toBe(100);
 		expect(loaded.settings.gore, `v${version}`).toBe(true);
 		expect(loaded.settings.keys, `v${version}`).toEqual(createKeyMap());
+		expect(loaded.settings.pad, `v${version}`).toEqual({ dash: 0, pause: 9 });
 	}
 	expect((await parseSave(await legacySave(1))).settings).toEqual(createSettings());
 });
@@ -188,6 +204,10 @@ test("visual and other settings are validated: ranges, modes, scales and types",
 	expect(bad({ keys: { ...ok.keys, reroll: "Enter" } })).toThrow(SaveError);
 	expect(bad({ keys: { ...ok.keys, up: 5 } })).toThrow(SaveError);
 	expect(bad({ keys: "wasd" })).toThrow(SaveError);
+	expect(bad({ pad: { dash: 9, pause: 9 } })).toThrow(SaveError);
+	expect(bad({ pad: { dash: 13, pause: 9 } })).toThrow(SaveError);
+	expect(bad({ pad: { dash: "A", pause: 9 } })).toThrow(SaveError);
+	expect(bad({ pad: [0, 9] })).toThrow(SaveError);
 	const edge = validateMeta({
 		...createMetaState(),
 		settings: {
@@ -205,6 +225,9 @@ test("visual and other settings are validated: ranges, modes, scales and types",
 			settings: { ...ok, keys: { ...ok.keys, dash: "KeyE", speed: "KeyZ" } },
 		}).settings.keys,
 	).toMatchObject({ dash: "KeyE", speed: "KeyZ" });
+	expect(
+		validateMeta({ ...createMetaState(), settings: { ...ok, pad: { dash: 2, pause: 8 } } }).settings.pad,
+	).toEqual({ dash: 2, pause: 8 });
 	expect(edge.settings).toMatchObject({
 		brightness: -50,
 		contrast: 150,

@@ -1,5 +1,5 @@
 import { clampUnit, createInputState, type InputState, type VirtualStick } from "@gc/core";
-import { type GamepadLike, readGamepad } from "./gamepad";
+import { type GamepadLike, type PadBindings, readGamepad } from "./gamepad";
 import { createKeyboardSource, type KeyBindings, type KeyboardSource } from "./keyboard";
 
 export interface InputSourcesOptions {
@@ -8,12 +8,15 @@ export interface InputSourcesOptions {
 	getGamepads?: () => ArrayLike<GamepadLike | null>;
 	stick?: VirtualStick;
 	bindings?: KeyBindings;
+	padBindings?: PadBindings;
 }
 
 export interface InputSources {
 	/** Polls every source once and merges them into `state`; the strongest movement wins. */
 	poll(state: InputState): void;
 	readonly keyboard: KeyboardSource;
+	/** Applies a new gamepad button remap at once. */
+	setPadBindings(bindings: PadBindings): void;
 	dispose(): void;
 }
 
@@ -21,9 +24,13 @@ export function createInputSources(options: InputSourcesOptions): InputSources {
 	const keyboard = createKeyboardSource(options.target, options.bindings);
 	const key = createInputState();
 	const pad = createInputState();
+	let padBindings = options.padBindings;
 
 	return {
 		keyboard,
+		setPadBindings(next): void {
+			padBindings = next;
+		},
 		poll(state: InputState): void {
 			keyboard.poll(key);
 			let moveX = key.moveX;
@@ -35,7 +42,7 @@ export function createInputSources(options: InputSourcesOptions): InputSources {
 			for (let i = 0; pads && i < pads.length; i++) {
 				const connected = pads[i];
 				if (!connected) continue;
-				readGamepad(connected, pad);
+				readGamepad(connected, pad, undefined, padBindings);
 				if (Math.hypot(pad.moveX, pad.moveZ) > Math.hypot(moveX, moveZ)) {
 					moveX = pad.moveX;
 					moveZ = pad.moveZ;
@@ -60,7 +67,7 @@ export function createInputSources(options: InputSourcesOptions): InputSources {
 	};
 }
 
-export type { GamepadLike } from "./gamepad";
-export { applyDeadZone, DEAD_ZONE, readGamepad } from "./gamepad";
+export type { GamepadLike, PadBindings } from "./gamepad";
+export { applyDeadZone, DEAD_ZONE, DEFAULT_PAD_BINDINGS, readGamepad } from "./gamepad";
 export type { KeyBindings, KeyboardSource } from "./keyboard";
 export { createKeyboardSource, DEFAULT_BINDINGS } from "./keyboard";

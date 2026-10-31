@@ -253,5 +253,8 @@
 	"options.keyConflict": "That key is already used by {action}",
 	"options.keyReserved": "That key is reserved",
 	"options.keyInvalid": "That key cannot be used",
-	"options.keysReset": "Restore default keys"
+	"options.keysReset": "Restore default keys",
+	"options.pad.dash": "Dash (gamepad button)",
+	"options.pad.pause": "Pause (gamepad button)",
+	"options.padPress": "Press a button..."
 }

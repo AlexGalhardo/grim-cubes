@@ -7,6 +7,16 @@ export type { KeyAction, KeyCheck, KeyMap } from "./keys";
 export { checkKey, createKeyMap, FIXED_KEYS, KEY_ACTIONS, keyBindingsFor, validKeyMap } from "./keys";
 export type { Logger, LoggerOptions, LogLevel, LogSink } from "./logger";
 export { createLogger } from "./logger";
+export type { PadAction, PadCheck, PadMap } from "./pad";
+export {
+	checkPadButton,
+	createPadMap,
+	FIXED_PAD_BUTTONS,
+	PAD_ACTIONS,
+	padBindingsFor,
+	padButtonName,
+	validPadMap,
+} from "./pad";
 export type { Rng, RngStreams, StreamName } from "./rng";
 export { createStreams, hash32, hash32x3, mulberry32, murmur3x86_32, RNG_STREAMS } from "./rng";
 export type {
