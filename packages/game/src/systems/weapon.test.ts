@@ -157,3 +157,78 @@ test("melee knockback is radial per enemy, not along the target direction", () =
 	expect(Knockback.z[side]).toBeCloseTo(Knockback.x[side] ?? 0, 3);
 	expect(Knockback.z[side]).toBeGreaterThan(0.5);
 });
+
+test("T4 sword deals 3.2x damage with the data tiers", () => {
+	const { world, add, tick, damage, weapon } = setup("sword", 3, { critChance: 0 });
+	expect(weapon.tier).toBe(3);
+	const e = add(1.2, 0);
+	tick();
+	damage.run(world);
+	expect(Health.hp[e]).toBeCloseTo(100 - 12 * 3.2, 3);
+});
+
+test("upgrade climbs the tiers up to the maximum and swapping weapons resets the tier", () => {
+	const { weapon } = setup("sword");
+	expect(weapon.maxTier).toBe(3);
+	expect([weapon.upgrade(), weapon.upgrade(), weapon.upgrade(), weapon.upgrade()]).toEqual([
+		true,
+		true,
+		true,
+		false,
+	]);
+	expect(weapon.tier).toBe(3);
+	weapon.setWeapon(def("pistol"));
+	expect(weapon.tier).toBe(0);
+	expect(weapon.weapon.kind).toBe("single_shot");
+});
+
+test("smg fires exactly 8 per second inside its spread and gets the close-range bonus", () => {
+	const { world, add, tick, weapon } = setup("smg");
+	add(3, 0);
+	let maxAngle = 0;
+	let close = 0;
+	for (let i = 0; i < 3600; i++) {
+		tick();
+		for (const p of query(world, [Projectile])) {
+			if ((Projectile.life[p] ?? 0) <= 0 || Position.x[p] !== 0) continue;
+			maxAngle = Math.max(maxAngle, Math.abs(Math.atan2(Velocity.z[p] ?? 0, Velocity.x[p] ?? 1)));
+			close = Projectile.damage[p] ?? 0;
+			Projectile.life[p] = 0;
+		}
+	}
+	expect(weapon.attacks).toBe(480);
+	expect(maxAngle).toBeLessThanOrEqual((3 * Math.PI) / 180 + 1e-6);
+	expect(maxAngle).toBeGreaterThan(0.02);
+	expect(close).toBeCloseTo(4 * 1.3);
+});
+
+test("smg beyond the close-range distance deals base damage", () => {
+	const { world, add, tick } = setup("smg");
+	add(8, 0);
+	tick();
+	const fired = query(world, [Projectile]).find((e) => (Projectile.life[e] ?? 0) > 0) ?? -1;
+	expect(Projectile.damage[fired]).toBeCloseTo(4);
+});
+
+test("mg slows the hero while firing and recovers shortly after", () => {
+	const { add, tick, weapon, hash, h } = setup("mg");
+	void hash;
+	void h;
+	expect(weapon.speedMultiplier).toBe(1);
+	const e = add(8, 0);
+	tick();
+	expect(weapon.speedMultiplier).toBeCloseTo(0.8);
+	Health.hp[e] = 0;
+	for (let i = 0; i < 8; i++) tick();
+	expect(weapon.speedMultiplier).toBe(1);
+});
+
+test("bazooka shells carry the explosion radius from the data", () => {
+	const { world, add, tick } = setup("bazooka", 0, { explosionSize: 0.5 });
+	add(8, 0);
+	tick();
+	const p = query(world, [Projectile]).find((e) => (Projectile.life[e] ?? 0) > 0) ?? -1;
+	expect(Projectile.explosionRadius[p]).toBeCloseTo(3 * 1.5);
+	expect(Projectile.selfFraction[p]).toBe(0.5);
+	expect(Projectile.damage[p]).toBeCloseTo(45);
+});

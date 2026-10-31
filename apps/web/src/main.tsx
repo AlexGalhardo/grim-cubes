@@ -127,6 +127,8 @@ async function boot(): Promise<void> {
 		queue: damage.queue,
 		enemies: separation.hash,
 		maxEnemyRadius: Math.max(...enemiesData.map((e) => e.radius)),
+		hero,
+		events,
 	});
 	const behavior = createBehaviorSystem(
 		{
@@ -227,7 +229,7 @@ async function boot(): Promise<void> {
 		simulate: () => {
 			run.run(world, hero);
 			if (fighting()) {
-				inputSystem(world, hero, input);
+				inputSystem(world, hero, input, weapon.speedMultiplier);
 				behavior.run(world, hero);
 				separation.run(world);
 				movementSystem(world);

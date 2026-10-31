@@ -56,7 +56,9 @@
 		"knockback": 0.2,
 		"projectile": {
 			"count": 1,
-			"spreadDegrees": 6
+			"spreadDegrees": 6,
+			"speed": 30,
+			"radius": 0.15
 		},
 		"special": {
 			"id": "close_range_damage_mult",
@@ -82,7 +84,9 @@
 		"knockback": 0.3,
 		"projectile": {
 			"count": 1,
-			"spreadDegrees": 10
+			"spreadDegrees": 10,
+			"speed": 32,
+			"radius": 0.15
 		},
 		"special": {
 			"id": "hero_speed_penalty_while_firing",
@@ -107,7 +111,9 @@
 		"knockback": 3,
 		"projectile": {
 			"count": 1,
-			"explosionRadius": 3
+			"explosionRadius": 3,
+			"speed": 16,
+			"radius": 0.3
 		},
 		"special": {
 			"id": "self_damage_in_radius",

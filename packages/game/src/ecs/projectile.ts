@@ -22,6 +22,8 @@ export interface ProjectileSpec {
 	pierce: number;
 	lifeSteps: number;
 	radius: number;
+	explosionRadius: number;
+	selfFraction: number;
 }
 
 /**
@@ -76,6 +78,8 @@ export function createProjectilePool(
 			Projectile.critChance[e] = spec.critChance;
 			Projectile.knockback[e] = spec.knockback;
 			Projectile.pierce[e] = spec.pierce;
+			Projectile.explosionRadius[e] = spec.explosionRadius;
+			Projectile.selfFraction[e] = spec.selfFraction;
 			Projectile.life[e] = Math.max(1, spec.lifeSteps);
 			ProjectileHits.ids.fill(0, e * HIT_HISTORY, (e + 1) * HIT_HISTORY);
 			ProjectileHits.cursor[e] = 0;

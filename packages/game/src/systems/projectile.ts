@@ -1,6 +1,7 @@
 import type { SpatialHash } from "@gc/core";
 import { hasComponent } from "bitecs";
 import { EnemyFaction, Health, Position, Projectile, Radius, Velocity } from "../ecs/components";
+import { type EventBuffer, EventType } from "../ecs/events";
 import { HIT_HISTORY, ProjectileHits, type ProjectilePool } from "../ecs/projectile";
 import { createQueryCache, type GameWorld } from "../ecs/world";
 import type { DamageQueue } from "./damage";
@@ -12,6 +13,9 @@ export interface ProjectileSystemDeps {
 	enemies: SpatialHash;
 	/** Largest enemy radius, to bound the hash query. */
 	maxEnemyRadius: number;
+	/** The hero entity, hurt by its own explosions. */
+	hero: number;
+	events: EventBuffer;
 }
 
 export interface ProjectileSystem {
@@ -19,11 +23,36 @@ export interface ProjectileSystem {
 }
 
 const live = createQueryCache([Projectile, Position, Velocity, Radius]);
-const MAX_NEAR = 64;
+const MAX_NEAR = 128;
 
 export function createProjectileSystem(deps: ProjectileSystemDeps): ProjectileSystem {
-	const { pool, queue, enemies, maxEnemyRadius } = deps;
+	const { pool, queue, enemies, maxEnemyRadius, hero, events } = deps;
 	const near = new Uint16Array(MAX_NEAR);
+
+	/** Area damage with linear falloff from 100% at the centre to 50% at the edge; the hero takes `selfFraction`. */
+	function explode(world: GameWorld, p: number, x: number, z: number): void {
+		const radius = Projectile.explosionRadius[p] ?? 0;
+		const damage = Projectile.damage[p] ?? 0;
+		const knockback = Projectile.knockback[p] ?? 0;
+		events.push(EventType.Exploded, x, z, radius, p);
+		const n = enemies.queryCircle(x, z, radius + maxEnemyRadius, near);
+		for (let k = 0; k < n; k++) {
+			const e = near[k] ?? 0;
+			if ((Health.hp[e] ?? 0) <= 0 || !hasComponent(world, e, EnemyFaction)) continue;
+			const ex = (Position.x[e] ?? 0) - x;
+			const ez = (Position.z[e] ?? 0) - z;
+			const dist = Math.hypot(ex, ez);
+			if (dist > radius + (Radius.r[e] ?? 0)) continue;
+			const falloff = 1 - 0.5 * Math.min(dist / radius, 1);
+			const rx = dist > 1e-6 ? ex / dist : 0;
+			const rz = dist > 1e-6 ? ez / dist : 0;
+			queue.push(e, damage * falloff, 0, Projectile.critChance[p] ?? 0, rx * knockback, rz * knockback);
+		}
+		const self = Projectile.selfFraction[p] ?? 0;
+		if (self > 0 && Math.hypot((Position.x[hero] ?? 0) - x, (Position.z[hero] ?? 0) - z) <= radius) {
+			queue.push(hero, damage * self, 0, 0, 0, 0);
+		}
+	}
 
 	const seen = (p: number, target: number): boolean => {
 		const base = p * HIT_HISTORY;
@@ -44,6 +73,8 @@ export function createProjectileSystem(deps: ProjectileSystemDeps): ProjectileSy
 				const life = Projectile.life[p] ?? 0;
 				if (life === 0) continue;
 				if (life === 1) {
+					if ((Projectile.explosionRadius[p] ?? 0) > 0)
+						explode(world, p, Position.x[p] ?? 0, Position.z[p] ?? 0);
 					pool.release(p);
 					continue;
 				}
@@ -69,6 +100,12 @@ export function createProjectileSystem(deps: ProjectileSystemDeps): ProjectileSy
 						continue;
 					if (seen(p, e)) continue;
 					remember(p, e);
+					if ((Projectile.explosionRadius[p] ?? 0) > 0) {
+						explode(world, p, px, pz);
+						pool.release(p);
+						spent = true;
+						continue;
+					}
 					queue.push(
 						e,
 						Projectile.damage[p] ?? 0,

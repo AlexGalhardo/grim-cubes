@@ -39,7 +39,14 @@ function setup() {
 		hero,
 		stats: { armor: 0, dodge: 0, critMult: 2, lifeSteal: 0 },
 	});
-	const system = createProjectileSystem({ pool, queue: damage.queue, enemies: hash, maxEnemyRadius: 1 });
+	const system = createProjectileSystem({
+		pool,
+		queue: damage.queue,
+		enemies: hash,
+		maxEnemyRadius: 1,
+		hero,
+		events,
+	});
 	const enemy = (x: number, z: number): number => {
 		const e = spawnBody(world, x, z);
 		for (const c of [EnemyFaction, Radius, Health]) addComponent(world, e, c);
@@ -62,6 +69,8 @@ function setup() {
 		pierce: 0,
 		lifeSteps: 120,
 		radius: 0.15,
+		explosionRadius: 0,
+		selfFraction: 0,
 		...over,
 	});
 	/** Stands in for movementSystem + the per-step order: move, rebuild hash, projectiles, damage. */
@@ -143,4 +152,32 @@ test("acquiring never creates entities after the pool exists", () => {
 	const before = query(world, [Projectile]).length;
 	for (let i = 0; i < 300; i++) pool.release(pool.acquire(shot()));
 	expect(query(world, [Projectile]).length).toBe(before);
+});
+
+test("an explosion at 1 u from the hero hurts it for 50% of the damage and falls off on enemies", () => {
+	const { world, pool, enemy, shot, step } = setup();
+	const hero = [...query(world, [PlayerFaction])][0] as number;
+	Health.hp[hero] = 100;
+	const centre = enemy(1, 0);
+	const edge = enemy(3.8, 0);
+	pool.acquire(shot({ x: 0.9, vx: 28, damage: 45, explosionRadius: 3, selfFraction: 0.5, lifeSteps: 60 }));
+	step();
+	expect(Health.hp[hero]).toBeCloseTo(100 - 45 * 0.5, 3);
+	expect(1000 - (Health.hp[centre] ?? 0)).toBeGreaterThan(40);
+	expect(1000 - (Health.hp[edge] ?? 0)).toBeGreaterThan(22.4);
+	expect(1000 - (Health.hp[edge] ?? 0)).toBeLessThan(35);
+	expect(pool.active).toBe(0);
+});
+
+test("a shell that reaches the end of its life explodes there", () => {
+	const { events, pool, shot, step } = setup();
+	events.consume(() => {});
+	pool.acquire(shot({ x: 20, lifeSteps: 3, explosionRadius: 3, vx: 0 }));
+	for (let i = 0; i < 4; i++) step();
+	let exploded = 0;
+	events.consume((type) => {
+		if (type === EventType.Exploded) exploded++;
+	});
+	expect(exploded).toBe(1);
+	expect(pool.active).toBe(0);
 });

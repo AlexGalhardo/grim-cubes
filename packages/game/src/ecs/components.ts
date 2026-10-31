@@ -58,6 +58,10 @@ export const Projectile = {
 	knockback: f32(),
 	pierce: u8(),
 	life: u16(),
+	/** Explosion radius in u when the shot detonates on a hit or at the end of its life; 0 for plain bullets. */
+	explosionRadius: f32(),
+	/** Fraction of the damage the hero takes when inside the explosion. */
+	selfFraction: f32(),
 };
 
 /** Yaw in radians, `atan2(vx, vz)`: 0 faces +z. Written by movementSystem, read by render. */
