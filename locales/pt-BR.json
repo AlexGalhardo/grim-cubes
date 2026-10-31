@@ -219,5 +219,13 @@
 	"demoEnd.steam": "Lista de desejos na Steam",
 	"demoEnd.play": "Jogar o jogo completo",
 	"demoEnd.again": "Jogar de novo",
-	"demo.badge": "DEMO"
+	"demo.badge": "DEMO",
+	"menu.panel": "Menu principal",
+	"menu.title": "Grim Cubes",
+	"menu.play": "Jogar",
+	"menu.ossuary": "Ossuário",
+	"menu.options": "Opções",
+	"menu.records": "Recordes",
+	"menu.recordRound": "Round {round}",
+	"menu.noRecord": "-"
 }
