@@ -1,9 +1,10 @@
 import { PNG } from "pngjs";
 import type { Vec3 } from "../assets-build/bbmodel";
 import type { Category } from "../assets-build/rules";
+import { BIOME_PROPS, BIOME_TILES } from "./biomes";
 import { biped } from "./biped";
 import { type GeneratedModel, type GroupDef, generate, type ModelDef, type PartDef } from "./model";
-import { hexToRgb, TOKENS } from "./palette";
+import { hexToRgb, TOKENS, type TokenName } from "./palette";
 
 /** Tiny deterministic PRNG (mulberry32); tools cannot import packages/core, and tile noise must be byte-stable. */
 function prng(seed: number): () => number {
@@ -179,6 +180,183 @@ const merchant = biped({
 	],
 });
 
+/** The Swamp Matriarch (round 20): a hunched boss in rotten wood and moss, same rig as the Gravedigger. */
+const matriarch = biped({
+	name: "swamp_matriarch",
+	category: "bosses",
+	texture: 64,
+	legH: 90,
+	legW: 36,
+	legD: 36,
+	hipX: 30,
+	torsoH: 120,
+	torsoW: 120,
+	torsoD: 70,
+	headW: 56,
+	headH: 56,
+	headD: 56,
+	armW: 30,
+	armLen: 130,
+	socket: "hit_socket",
+	colors: { legs: "boneDark", torso: "graveGreen", arms: "boneDark", head: "bone" },
+	extraParts: [
+		box("head", "graveGreenLight", 62, 12, 62, 0, 90 + 120 + 44, 0),
+		box("head", "graveGreen", 14, 30, 14, -22, 90 + 120 + 56, 0),
+		box("head", "graveGreen", 14, 38, 14, 22, 90 + 120 + 56, 0),
+		box("body", "boneDark", 128, 22, 76, 0, 90 + 90, 0),
+		box("arm_l", "graveGreenLight", 40, 16, 40, -88, 210 - 16, 0),
+		box("arm_r", "graveGreenLight", 40, 16, 40, 88, 210 - 16, 0),
+		box("body", "graveGreenLight", 10, 10, 6, 0, 90 + 70, 38),
+	],
+});
+
+/** Enemies 3 to 8 (A-02-02b): the husk rig re-proportioned per sizeClass in data/enemies.json, four colours each. */
+const newEnemy = (
+	name: string,
+	dims: Partial<Parameters<typeof biped>[0]>,
+	colors: { legs: TokenName; torso: TokenName; head: TokenName; arms: TokenName },
+	extras: PartDef[] = [],
+): ModelDef =>
+	biped({
+		name,
+		category: "enemies",
+		texture: 64,
+		legH: 44,
+		legW: 14,
+		legD: 14,
+		hipX: 9,
+		torsoH: 38,
+		torsoW: 30,
+		torsoD: 18,
+		headW: 22,
+		headH: 22,
+		headD: 22,
+		armW: 12,
+		armLen: 46,
+		socket: "hit_socket",
+		colors,
+		extraParts: extras,
+		...dims,
+	});
+
+const newEnemies: ModelDef[] = [
+	newEnemy(
+		"drowned",
+		{ hunch: 22.5, legH: 40, armLen: 50 },
+		{ legs: "graveGreen", torso: "boneDark", head: "bone", arms: "graveGreen" },
+		[box("head", "graveGreenLight", 24, 6, 24, 0, 40 + 38 + 22, 0)],
+	),
+	newEnemy(
+		"leech",
+		{
+			legH: 12,
+			legW: 10,
+			legD: 10,
+			hipX: 7,
+			torsoH: 24,
+			torsoW: 28,
+			torsoD: 40,
+			headW: 18,
+			headH: 16,
+			headD: 18,
+			armW: 8,
+			armLen: 14,
+		},
+		{ legs: "flesh", torso: "bloodLight", head: "flesh", arms: "flesh" },
+		[box("body", "blood", 30, 6, 42, 0, 12 + 22, 0)],
+	),
+	newEnemy(
+		"forged",
+		{
+			legH: 54,
+			legW: 20,
+			legD: 20,
+			hipX: 13,
+			torsoH: 56,
+			torsoW: 46,
+			torsoD: 28,
+			headW: 28,
+			headH: 28,
+			headD: 28,
+			armW: 18,
+			armLen: 58,
+		},
+		{ legs: "ironDark", torso: "iron", head: "ironLight", arms: "iron" },
+		[
+			box("body", "ironLight", 50, 8, 32, 0, 54 + 46, 0),
+			box("head", "iron", 32, 8, 32, 0, 54 + 56 + 24, 0),
+			box("arm_r", "ironLight", 22, 14, 22, 26, 54 + 56 - 14, 0),
+		],
+	),
+	newEnemy(
+		"watcher",
+		{
+			legH: 30,
+			legW: 12,
+			legD: 12,
+			hipX: 8,
+			torsoH: 46,
+			torsoW: 22,
+			torsoD: 22,
+			headW: 30,
+			headH: 30,
+			headD: 30,
+			armW: 8,
+			armLen: 30,
+		},
+		{ legs: "ironDark", torso: "mist", head: "bone", arms: "ironDark" },
+		[box("head", "emberLight", 12, 12, 4, 0, 30 + 46 + 10, 15)],
+	),
+	newEnemy(
+		"hunter",
+		{
+			legH: 50,
+			legW: 10,
+			legD: 10,
+			hipX: 8,
+			torsoH: 34,
+			torsoW: 22,
+			torsoD: 14,
+			headW: 20,
+			headH: 20,
+			headD: 26,
+			armW: 8,
+			armLen: 44,
+			hunch: 22.5,
+		},
+		{ legs: "ironDark", torso: "flesh", head: "iron", arms: "iron" },
+		[
+			box("head", "flesh", 14, 4, 4, 0, 50 + 34 + 10, 14),
+			box("arm_r", "iron", 6, 22, 6, 12, 50 + 34 - 36, 4),
+		],
+	),
+	newEnemy(
+		"breeder",
+		{
+			legH: 40,
+			legW: 24,
+			legD: 24,
+			hipX: 16,
+			torsoH: 70,
+			torsoW: 64,
+			torsoD: 52,
+			headW: 26,
+			headH: 24,
+			headD: 26,
+			armW: 14,
+			armLen: 40,
+		},
+		{ legs: "ironDark", torso: "flesh", head: "iron", arms: "iron" },
+		[
+			box("body", "flesh", 44, 30, 36, 0, 40 + 20, 0),
+			box("body", "iron", 20, 20, 8, 0, 40 + 30, 28),
+			box("head", "iron", 30, 8, 30, 0, 40 + 70 + 20, 0),
+		],
+	),
+];
+
+const biomeProps: ModelDef[] = BIOME_PROPS.map((def) => prop(def.name, "props", def.parts));
+
 const props: ModelDef[] = [
 	prop("prop_tombstone_01", "props", [
 		box("root", "stoneDark", 26, 6, 14, 0, 0, 0),
@@ -277,17 +455,15 @@ const weapons: ModelDef[] = [
 ];
 
 /** Floor tiles: one flat quad per tile and a 32x32 stone texture (32 px per unit, Art Bible §5). */
-function tile(index: number): { def: ModelDef; generated: GeneratedModel } {
-	const name = `tile_cemetery_0${index}`;
-	const palette = [
-		TOKENS.stone,
-		TOKENS.stone,
-		TOKENS.stone,
-		TOKENS.stoneDark,
-		TOKENS.graveGreen,
-		TOKENS.boneDark,
-	].map(hexToRgb);
-	const next = prng(0x7e57 + index);
+function tile(
+	index: number,
+	prefix = "tile_cemetery",
+	tokens: TokenName[] = ["stone", "stone", "stone", "stoneDark", "graveGreen", "boneDark"],
+	seed = 0x7e57,
+): { def: ModelDef; generated: GeneratedModel } {
+	const name = `${prefix}_0${index}`;
+	const palette = tokens.map((token) => hexToRgb(TOKENS[token]));
+	const next = prng(seed + index);
 	const png = new PNG({ width: 32, height: 32 });
 	for (let i = 0; i < 32 * 32; i++) {
 		const [r, g, b] = palette[Math.floor(next() * palette.length)] ?? palette[0] ?? [0, 0, 0];
@@ -325,7 +501,18 @@ export interface CatalogEntry {
 }
 
 export function buildCatalog(): CatalogEntry[] {
-	const modeled = [hero, husk, wail, gravedigger, merchant, ...props, ...weapons].map((def) => ({
+	const modeled = [
+		hero,
+		husk,
+		wail,
+		gravedigger,
+		merchant,
+		matriarch,
+		...newEnemies,
+		...props,
+		...biomeProps,
+		...weapons,
+	].map((def) => ({
 		name: def.name,
 		category: def.category,
 		generated: generate(def),
@@ -334,5 +521,11 @@ export function buildCatalog(): CatalogEntry[] {
 		const { def, generated } = tile(i);
 		return { name: def.name, category: def.category, generated };
 	});
-	return [...modeled, ...tiles];
+	const biomeTiles = BIOME_TILES.flatMap((set) =>
+		[1, 2, 3, 4].map((i) => {
+			const { def, generated } = tile(i, set.prefix, set.palette, set.seed);
+			return { name: def.name, category: def.category, generated };
+		}),
+	);
+	return [...modeled, ...tiles, ...biomeTiles];
 }

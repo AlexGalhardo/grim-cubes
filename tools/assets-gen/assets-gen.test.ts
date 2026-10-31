@@ -47,18 +47,18 @@ describe("assets-gen catalog", () => {
 		rmSync(root, { recursive: true, force: true });
 	});
 
-	it("contains the P-06-01 roster: hero, 2 enemies, boss, merchant, 10 props, 4 tiles, 5 weapons", () => {
+	it("contains the roster: hero, 8 enemies, 2 bosses, merchant, 40 props (10 per biome), 16 tiles, 5 weapons", () => {
 		const byCategory = new Map<string, number>();
 		for (const { category } of buildCatalog())
 			byCategory.set(category, (byCategory.get(category) ?? 0) + 1);
 		expect(Object.fromEntries(byCategory)).toEqual({
 			hero: 1,
-			enemies: 2,
-			bosses: 1,
+			enemies: 8,
+			bosses: 2,
 			npc: 1,
-			props: 10,
+			props: 40,
 			weapons: 5,
-			tiles: 4,
+			tiles: 16,
 		});
 	});
 
