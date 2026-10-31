@@ -6,6 +6,7 @@ export type { ButtonProps, ButtonSize } from "./components/Button/Button";
 export { Button } from "./components/Button/Button";
 export type { CardView, LevelUpProps } from "./components/LevelUp/LevelUp";
 export { LevelUp } from "./components/LevelUp/LevelUp";
+export { Notice, noticeText } from "./components/Notice/Notice";
 export type { PanelProps } from "./components/Panel/Panel";
 export { Panel } from "./components/Panel/Panel";
 export type { ResultsProps, ResultsViewModel } from "./components/Results/Results";

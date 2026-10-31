@@ -1,13 +1,13 @@
 import {
 	createInputState,
 	createLogger,
-	createMetaState,
 	createStore,
 	createStreams,
 	createVirtualStick,
+	loadMeta,
 	type MetaState,
-	parseSave,
-	serializeSave,
+	persistMeta,
+	type SaveIO,
 } from "@gc/core";
 import {
 	addFragmentValue,
@@ -70,7 +70,7 @@ import {
 	worldData,
 	xpForLevel,
 } from "@gc/game";
-import { createInputSources, createWebStorage, detectPlatform } from "@gc/platform";
+import { createInputSources, createWebStorage, detectPlatform, type StorageKey } from "@gc/platform";
 import {
 	CAMERA,
 	createBenchRecorder,
@@ -126,13 +126,15 @@ async function boot(): Promise<void> {
 
 	// Account progress lives in IndexedDB (SDD 06). A corrupt or unreadable save starts a fresh one.
 	const storage = createWebStorage();
-	let meta: MetaState = createMetaState();
-	try {
-		const saved = await storage.read("save");
-		if (saved !== null) meta = await parseSave(saved);
-	} catch (error) {
-		log.warn("save unreadable, starting fresh", error);
-	}
+	// The save keys ("save", "save.bak", "save.corrupt") are all valid storage keys; core only knows strings.
+	const saveIO: SaveIO = {
+		read: (key) => storage.read(key as StorageKey),
+		write: (key, value) => storage.write(key as StorageKey, value),
+	};
+	// A save that is unreadable or newer is never overwritten: `readOnly` blocks writes for the whole session.
+	const loaded = await loadMeta(saveIO);
+	const meta: MetaState = loaded.meta;
+	if (loaded.notice) log.warn("save problem", loaded.notice);
 	const { fragments, xp } = roundsData;
 
 	const hero = spawnHero(world, {
@@ -326,6 +328,7 @@ async function boot(): Promise<void> {
 		shop: null,
 		stats: [],
 		results: null,
+		notice: loaded.notice,
 	});
 	createRoot(uiRoot).render(
 		<App
@@ -450,9 +453,11 @@ async function boot(): Promise<void> {
 		meta.stats.kills += runStats.kills;
 		meta.stats.bossKills += runStats.bossRounds.length;
 		meta.stats.elitesKilled += runStats.elitesKilled;
-		serializeSave(meta, __APP_VERSION__)
-			.then((text) => storage.write("save", text))
-			.catch((error: unknown) => log.error("save failed", error));
+		if (!loaded.readOnly) {
+			persistMeta(saveIO, meta, __APP_VERSION__).catch((error: unknown) =>
+				log.error("save failed", error),
+			);
+		}
 
 		const weaponName = weaponsData.find((w) => w.id === weapon.weapon.id)?.name ?? weapon.weapon.id ?? "";
 		const killer = runStats.killer;
@@ -524,6 +529,7 @@ async function boot(): Promise<void> {
 			shop: shopView,
 			stats: shopView ? describeStats(stats.stats) : NO_STATS,
 			results,
+			notice: loaded.notice,
 		};
 		const cur = hud.get();
 		if (
@@ -668,6 +674,7 @@ async function boot(): Promise<void> {
 			minPropAlpha: () => chunkRenderer.minAlpha(),
 			/** Stops the simulation and the horde clock so the frame can be captured. */
 			freeze: () => run.pause(),
+			saveNotice: () => loaded.notice,
 		};
 	}
 

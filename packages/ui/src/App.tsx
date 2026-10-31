@@ -1,7 +1,8 @@
-import type { Store, VirtualStick } from "@gc/core";
+import type { SaveNotice, Store, VirtualStick } from "@gc/core";
 import { type JSX, useSyncExternalStore } from "react";
 import { Bar } from "./components/Bar/Bar";
 import { type CardView, LevelUp } from "./components/LevelUp/LevelUp";
+import { Notice } from "./components/Notice/Notice";
 import { Results, type ResultsViewModel } from "./components/Results/Results";
 import { Shop, type ShopActions, type ShopViewModel, type StatLineView } from "./components/Shop/Shop";
 import { VirtualJoystick } from "./components/VirtualJoystick/VirtualJoystick";
@@ -25,6 +26,8 @@ export interface HudState {
 	stats: readonly StatLineView[];
 	/** The end-of-run screen; null while playing. */
 	results: ResultsViewModel | null;
+	/** A save problem to tell the player about; null when the save loaded cleanly. */
+	notice: SaveNotice | null;
 }
 
 export interface AppProps {
@@ -65,6 +68,7 @@ export function App({
 				<Shop view={hud.shop} stats={hud.stats} actions={shopActions} />
 			) : null}
 			{hud.results && onRestart ? <Results view={hud.results} onRestart={onRestart} /> : null}
+			{hud.notice ? <Notice notice={hud.notice} /> : null}
 			{stick ? <VirtualJoystick stick={stick} /> : null}
 		</div>
 	);
