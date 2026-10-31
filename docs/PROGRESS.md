@@ -1,6 +1,6 @@
 # PROGRESS
 
-Atualizado: 2026-10-31 (fuso do PO) | Versão: 0.3.0 (publicada, tag `v0.3.0` em 453554a; `main` 59d5a42) | Fase: 2 — PROTÓTIPO (ALPHA e BETA adiantadas em paralelo) | Sessão: #2
+Atualizado: 2026-10-31 (fuso do PO) | Versão: 0.4.0 (publicada, tag `v0.4.0` em 2c87269; `main` 49039f2) | Fase: 2 — PROTÓTIPO (ALPHA e BETA adiantadas em paralelo) | Sessão: #2
 
 Meta do PO (2026-10-31): implementar o ROADMAP até o fim sem interrupções; tarefas `Resp: PO` ficam em Bloqueios e os agentes seguem com o resto. Hooks lefthook instalados em `.git` (valem para todos os worktrees).
 
@@ -8,16 +8,16 @@ Meta do PO (2026-10-31): implementar o ROADMAP até o fim sem interrupções; ta
 
 | Agente | Tarefa atual | Branch | Estado | Desde | Lock |
 | --- | --- | --- | --- | --- | --- |
-| Orq | integra as branches na `main`; distribui as correções da auditoria | main | em andamento | — | — |
-| S1 | HUD `inert` sob diálogos, teto da escala a 150% em 800×360, layout do level-up e da loja, modo de captura em jogo para o item 11 da B-03-01; render do `emerge`/`submerge` do Mercador (A-05-01) | — | implementando | — | — |
-| S2 | layout de telas baixas (level-up, loja, HUD `inert`, teto de escala, rótulo de versão) | — | em andamento | — | — |
-| Est | próximo `[ ]` de Resp Est sem dependência do PO | — | implementando | — | — |
-| Art | lista do §14 da Art Bible por prioridade (Caçador Alfa distinto do Caçador, contraste com o chão do bioma, tiles que marcam a grade, props e armas) e o registro do padrão 5 glifos + nível do Ossuário | — (checkout da `main`) | implementando | — | `assets/src/models/**` |
-| Esp | reconciliação do ROADMAP e este PROGRESS → standby | main (sem git) | em standby | — | `ROADMAP.md`, `docs/PROGRESS.md` |
+| Orq | integra as branches na `main`; distribui as pendências da reconciliação de 2026-10-31 | main | em andamento | — | — |
+| S1 | fila do Orq (pendências da reconciliação: loudness e etapa de áudio no `assets:build`, bench) | — | aguardando | — | — |
+| S2 | fila do Orq (`gc.debug.gamepad`, telas novas, ADR do checkpoint com o Orq) | — | aguardando | — | — |
+| Est | fila do Orq (SFX e música que faltam, nota da Fácil no GDD §25) | — | aguardando | — | — |
+| Art | fila do Orq; silhuetas aguardando o PO | — (checkout da `main`) | aguardando | — | — |
+| Esp | reconciliação completa do ROADMAP e este PROGRESS → standby | main (sem git) | em standby | — | `ROADMAP.md`, `docs/PROGRESS.md` |
 
 As linhas refletem as últimas mensagens do Orq; o Orq confirma ao integrar.
 
-Estado (2026-10-31): a **v0.3.0** está publicada (GitHub Release `v0.3.0`, 453554a), com SBOM, checksums (agora com os .exe) e o build Windows (instalador e portable, sem assinatura). Desde a v0.2.0 entraram: correção e rebalanceamento do regen (fórmula contínua), fuses e endurecimento do Electron, ícone do app e favicon, acessibilidade completa nas `Options` (brilho, contraste, daltônico com `data-theme="cb"` e formas por raridade, flashes, escala, gore, remap de teclas e do gamepad, legendas das falas de chefe; save schema 8), navegação de diálogos sem disparo acidental do botão A, `ThornsHit` com espinhos no render, polimento de VFX, atlas emissivo, atlas dimensionados (80 MB → 5 MB de GPU), LRU de áudio, variantes de inimigos, ícones desenhados à mão, Mercador que espera o herói e abre a loja no contato, e os modelos refinados com captura de revisão. **O e2e (Playwright) segue fora do CI por decisão do PO.**
+Estado (2026-10-31): a **v0.4.0** está publicada (GitHub Release `v0.4.0`, 2c87269), com SBOM, checksums e o build Windows. Desde a v0.3.0 entraram: Mercador num ponto fixo com anel, chegada sonora e 20 falas legendadas; loja ARPG, `Options` em três colunas e Ossuário em colunas a partir dos mockups do PO; retratos pintados; menu com key art; 3 slots de save e checkpoint no início de cada round (Continuar); menu de pausa; Fácil, Normal e Difícil abertas desde o início e barras de vida ligáveis; save em arquivo no Electron com pasta fixa e alvo `dir`; glifos por controle, foco por D-pad e remap completo do gamepad; telas baixas compactas com o HUD escondido sob os diálogos; herói novo igual à key art, revisão do §14 com capturas em jogo e tiles irregulares; luz nova e `atlas_terrain`; áudio final em duas rodadas com loudness; `--check` com duas seeds e faixas por dificuldade e política (`tank`); 5 raridades com Mítico e o Ímã de Ossos; espada de 3,25 u e 130°. **O e2e (Playwright) segue fora do CI por decisão do PO.**
 
 Dívida operacional: com vários agentes rodando testes ao mesmo tempo, a CPU satura e o `pre-push` pode estourar timeout (a suíte isolada passa). Janela de push (um agente por vez) e timeouts maiores nos testes pesados; não contornar o hook. Cherry-pick de base antiga já apagou correções duas vezes (59eb086, restaurado em fdddb95 e 78ae69b): o Esp roda a cada auditoria um script que procura linhas adicionadas que sumiram do HEAD.
 
@@ -25,30 +25,30 @@ Vercel: deploy de produção Ready; a URL responde 302 (proteção SSO mantida, 
 
 ## Concluídas (últimas 20)
 
-Fonte: IDs dos rodapés `Refs: ROADMAP#` de eb12bc2 a 59d5a42, do commit mais recente para o mais antigo; até 3 commits por ID. O estado de cada tarefa é o checkbox do ROADMAP (`[~]` = parcial, ver a linha de Estado do item).
+Fonte: IDs dos rodapés `Refs: ROADMAP#` de eb12bc2 a 49039f2, do commit mais recente para o mais antigo; até 3 commits por ID. O estado de cada tarefa é o checkbox do ROADMAP (`[~]` = parcial, ver a linha de Estado do item).
 
 | ID | Data | Resp | Commit | Observação |
 | --- | --- | --- | --- | --- |
-| B-03-01 | 2026-10-31 | Art | 59d5a42, 7eabdf8, aba0763 | folha numerada de silhuetas e cores para o PO; capturas de revisão; ícones à mão (`[~]`) |
-| A-05-01 | 2026-10-31 | S2 + S1 | bffce18, e32c04f, 6048e8b | Mercador espera o herói e abre a loja no contato; render pendente (`[~]`) |
-| A-07-02 | 2026-10-31 | S2 | baaf846, 020ba69, a6a8b9c | remap de teclas e gamepad, formas por raridade, axe-core, captura de UX a 150% |
-| A-01-02 | 2026-10-31 | S1 | cef29b3, f6a1a56 | orçamento de memória fechado sem KTX2: atlas dimensionados e LRU de áudio (`[~]`) |
-| A-02-02b | 2026-10-31 | S1 | 878ff7b, 22f8418 | variantes de inimigos e medição no SDD 14 |
-| B-02-01 | 2026-10-31 | S2 | d173f1d, 7be0265, ad9736c | `data-check` amarrado aos handlers de efeito |
-| B-05-01 | 2026-10-31 | Est + S2 | 4a34efc, b324d83, 9bca4f3 | legendas das falas de chefe (save schema 8) e revisão do pt-BR e do `en` |
-| P-04-05 | 2026-10-31 | S1 | 6033d1d, a393cff, 8d68a74 | pools do preset ao vivo, emissivo fora dos presets baixos, bench VFX ligado × desligado |
+| B-02-02 | 2026-10-31 | Est + Orq | 49039f2, d4e589c, c643158 | espada 3,25 u e 130°, Fácil, faixas por dificuldade e política |
+| B-02-01 | 2026-10-31 | S2 | edb5f0c, d173f1d, 7be0265 | raridade Mítica, 4 itens Míticos e o Ímã de Ossos |
+| P-05-05 | 2026-10-31 | S2 | 1cda484, e692a01 | 5 raridades com tokens e formas para daltônicos; efeito `pull_fragments` |
+| A-01-01 | 2026-10-31 | S1 + S2 | fd98405, 7795aff, 65eb4aa | barras de vida ligáveis no save |
+| P-07-03 | 2026-10-31 | S2 | 81e9ff0, 463c14f, dbc7607 | pausa, checkpoint por round e 3 slots (o `Refs` aponta para a P-07-03, que é determinismo; sem item próprio no ROADMAP) |
+| B-03-01 | 2026-10-31 | Art | e15ae2d, 18262c0, 810e34a | herói igual à key art, contraste e tiles irregulares |
+| B-03-03 | 2026-10-31 | Est + S2 | 8290871, b224e4d | áudio final, ducking, polifonia e loudness (`[~]`) |
+| P-07-02 | 2026-10-31 | S2 | 9cedf38, 0755169, e58bc43 | pasta de dados fixa igual à das builds anteriores, save em arquivo |
+| A-05-01 | 2026-10-31 | S2 + S1 | 20d788c, 0fda8c8, 1deed5b | Mercador fixo, chegada sonora e 20 falas |
+| B-04-02 | 2026-10-31 | S2 | 8328c1c | glifos por controle e foco por D-pad (`[~]`) |
+| B-05-03 | 2026-10-31 | Esp | 57451ab | checklist de lançamento Steam (`[~]`) |
+| A-07-02 | 2026-10-31 | S2 | 6143b4c, 47bc29d, baaf846 | reroll e velocidade no gamepad, telas baixas |
+| A-01-02 | 2026-10-31 | S1 | cef29b3, f6a1a56 | orçamento de memória sem KTX2 (`[~]`) |
+| A-02-02b | 2026-10-31 | S1 | 878ff7b, 22f8418 | variantes de inimigos |
+| B-05-01 | 2026-10-31 | Est + S2 | 4a34efc, b324d83, 9bca4f3 | legendas e revisão do pt-BR e do `en` |
+| P-04-05 | 2026-10-31 | S1 | 6033d1d, a393cff, 8d68a74 | pools do preset ao vivo e bench com e sem VFX |
 | A-02-03 | 2026-10-31 | Est + Orq | c8aff28, f763a6b, f745697 | rebalanceamento depois da auditoria de stats |
-| A-02-01 | 2026-10-31 | S1 | ce636e1, fffaa8d, e06898d | atlas emissivo a partir dos `_e.png` |
-| B-03-02 | 2026-10-31 | S1 | 1162c51, a0af935, f635613 | polimento de VFX da auditoria |
-| P-07-02 | 2026-10-31 | S2 | 5bc7bef, dd087bf, 21a8fff | fuses, ícone do exe, favicon e endurecimento do shell |
+| A-02-01 | 2026-10-31 | S1 | ce636e1, fffaa8d, e06898d | atlas emissivo |
+| B-03-02 | 2026-10-31 | S1 | 1162c51, a0af935, f635613 | polimento de VFX |
 | B-05-02 | 2026-10-31 | Esp + Orq | f0b2a61, 2eb98fe, 4507229 | ADRs 0021–0024 e README (`[~]`) |
-| P-05-02 | 2026-10-31 | S2 | 26dafd0, 126c910 | regen contínuo |
-| A-07-03 | 2026-10-31 | Est | 0860494, b31bace, 52570e4 | testes de render e guards |
-| R-01-03 | 2026-10-31 | S1 | f4c63ef, 5c47c81, cbfeff4 | benches 1080/1440 |
-| A-06-04 | 2026-10-31 | S2 | 14e32b8, 9a6507e | telemetria opt-in local (`[~]`) |
-| B-01-03 | 2026-10-31 | S2 + Est | 96de426, 2d8b076 | roster completo 60+ |
-| A-04-04 | 2026-10-31 | S2 | e5f2a6d | tela de título com recordes |
-| P-06-04 | 2026-10-31 | S2 | 6c6e5a9, 217f11b, 5c3d3cc | motor de áudio e sons por evento (`[~]`) |
 
 ## Bloqueios (precisam do PO)
 
@@ -100,11 +100,10 @@ Fonte: IDs dos rodapés `Refs: ROADMAP#` de eb12bc2 a 59d5a42, do commit mais re
 
 ## Próximos
 
-1. S1: HUD `inert` e teto de escala a 150% (800×360), layout do level-up e da loja, modo de captura em jogo para fechar o item 11 da B-03-01 com câmera padrão e chão de bioma; render do `emerge`/`submerge` do Mercador.
-2. Art: lista do §14 por prioridade (Caçador Alfa, contraste com o chão, tiles com grade visível, props e armas); registrar na Art Bible o padrão 5 glifos + nível do Ossuário.
-3. Est: as 20 falas `vo_merchant_*` (A-05-01) e o próximo `[ ]` de Resp Est.
-4. Orq: v0.4.0 quando a B-03-01 e a A-05-01 fecharem.
-5. PO: as decisões numeradas em Bloqueios.
+1. Orq: distribuir as pendências sem dependência do PO da reconciliação de 2026-10-31 (tabela no relatório do Esp).
+2. Orq + S2: ADR de emenda do ADR-0009 para os 3 slots e o checkpoint por round, e um item do ROADMAP para slots, checkpoint e pausa (hoje com `Refs` na P-07-03).
+3. Orq: `v0.5.0` (A-07-05).
+4. PO: as decisões numeradas em Bloqueios e a aprovação das silhuetas (B-03-01).
 
 ## Dívidas e observações
 
