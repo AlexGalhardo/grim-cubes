@@ -38,3 +38,14 @@ test("the user data folder is pinned under the roaming app data, whatever the pa
 	const checklist = readFileSync("docs/release/steam-launch-checklist.md", "utf8");
 	expect(checklist).toContain("%APPDATA%\\grim-cubes\\saves");
 });
+
+test("the pinned folder is the one earlier builds already used: the package name, with no productName in package.json", () => {
+	// Electron names the default data folder after `productName`, else `name`, of the packaged package.json. The
+	// builds up to 0.3.0 had `name: "grim-cubes"` and no `productName` (it lives in electron-builder.yml), so their
+	// profile, with the IndexedDB save, is `%APPDATA%\grim-cubes`: pinning the same folder loses nothing.
+	const pkg = JSON.parse(readFileSync("package.json", "utf8")) as { name: string; productName?: string };
+	expect(pkg.name).toBe(USER_DATA_FOLDER);
+	expect(pkg.productName).toBeUndefined();
+	expect(readFileSync("electron-builder.yml", "utf8")).toContain("productName: Grim Cubes");
+	expect(USER_DATA_FOLDER).not.toBe("Grim Cubes");
+});
