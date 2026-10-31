@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **ui:** Key remapping in Options (save schema 6), rarity shapes in the colour-blind theme and an axe-core check of the main screens
 - **ui:** Accessibility options: brightness, contrast, colour-blind modes, flash and shake reduction, UI scale and gore (save schema 5)
 - **desktop:** App icon for the Windows executables and the web favicon; Electron fuses and stricter shell permissions; executable checksums in the release
 - **render:** Emissive glow from `_e.png` masks, near-white enemy damage numbers, per-boss executions, bleed and thorns VFX, stealth shimmer, egg cracks, decal fade, biome prop dust, merged damage numbers, consumable rings
