@@ -16,6 +16,8 @@
 		"enemies/forged",
 		"enemies/watcher",
 		"enemies/breeder",
-		"bosses/swamp_matriarch"
+		"bosses/swamp_matriarch",
+		"bosses/forgemaster",
+		"bosses/alpha_hunter"
 	]
 }
