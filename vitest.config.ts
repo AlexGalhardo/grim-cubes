@@ -24,7 +24,11 @@ export default defineConfig({
 				test: {
 					name: "unit",
 					environment: "node",
-					include: ["packages/{core,game,render,platform}/**/*.test.ts", "tools/**/*.test.ts"],
+					include: [
+						"packages/{core,game,render,platform}/**/*.test.ts",
+						"tools/**/*.test.ts",
+						"apps/**/*.test.ts",
+					],
 				},
 			},
 			{
