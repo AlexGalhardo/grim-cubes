@@ -80,6 +80,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **e2e:** Add level-up e2e and deterministic boot seed ([2a9abc8](https://github.com/AlexGalhardo/grim-cubes/commit/2a9abc89d4cab2e78941f63e2361f3bf4b512ba0))
 - **assets:** Add `tools/assets-gen` generating the 24 PROTÓTIPO placeholder `.bbmodel` models and textures ([fc91a7c](https://github.com/AlexGalhardo/grim-cubes/commit/fc91a7c75bd29a5c3a705e70c91f6cf4678f6125))
 - **e2e:** Run Playwright with a single worker under SwiftShader ([8945c1d](https://github.com/AlexGalhardo/grim-cubes/commit/8945c1d5377f469ae10bb2c3fd8ba076e9f3c44c))
+- **game:** Add weapon tiers and upgrades, SMG burst, MG continuous fire with speed penalty and bazooka explosions with self-damage (projectile speeds for SMG/MG/bazooka are provisional Orq values) ([e2d8065](https://github.com/AlexGalhardo/grim-cubes/commit/e2d80659243158218972b95286d88e832994bd70))
 - **ci:** Add CI (lint, typecheck, unit, integration, build-web, e2e gated) and CodeQL workflows (#1) ([da8923e](https://github.com/AlexGalhardo/grim-cubes/commit/da8923ee65069ec95a017f53a20937718c27413b))
 
 ### Changed

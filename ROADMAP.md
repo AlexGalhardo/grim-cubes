@@ -183,7 +183,7 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
   - Asserts: testes: espada acerta 3 de 4 inimigos posicionados (1 fora do arco); pistola cria projétil com `pierce 0` (o acerto é testado na P-04-03); `attacksPerSecond` 2,0 → 120 ataques em 60 s simulados (±1).
 - [x] **P-04-03** `projectileSystem` (vida, hit por spatial hash, bitmask anti-duplo-hit, pool 512). Deps: P-04-02. Resp: S2. Prio: P0.
   - Asserts: teste: projétil com `pierce 0` acerta 1 e some; projétil com `pierce 2` atravessa 3 inimigos em linha e some; 600 projéteis simultâneos nunca excedem o pool (assert) e o 601º é descartado com evento `PoolExhausted`.
-- [ ] **P-04-04** Tiers de arma (multiplicadores) e upgrade; `smg`, `mg` (dispersão, penalidade de velocidade) e `bazooka` (área, autodano). Deps: P-04-03. Resp: S2. Prio: P1.
+- [x] **P-04-04** Tiers de arma (multiplicadores) e upgrade; `smg`, `mg` (dispersão, penalidade de velocidade) e `bazooka` (área, autodano). Deps: P-04-03. Resp: S2. Prio: P1.
   - Asserts: testes de cada arma com valores de `weapons.json`; bazuca a 1 u do herói causa 50% do dano nele; T4 da espada = dano ×3,2.
 - [ ] **P-04-05** Juice do combate (Art Bible §9, GDD §23): números de dano por engine (sprites), flash branco, partículas cúbicas de sangue (pool 600), decals (pool 200 FIFO), desmembramento em cubos, knockback visual, hit-stop (30/80 ms), vignette de dano, shake (toggle). Decals como thin instances de 1 quad (1 draw call). Deps: P-03-04, P-04-01. Resp: S1. Prio: P1.
   - Asserts: vídeo de 15 s no PR; pools nunca excedidos (asserts em debug); toggle de gore reduz decals a 0 e troca cor (captura comparativa); `frameP99` do bench não piora > 10% com VFX ligado.
