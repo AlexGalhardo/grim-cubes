@@ -84,6 +84,7 @@ import {
 	createGameScene,
 	createHitStop,
 	createHordeRenderer,
+	createPortrait,
 	createProjectileRenderer,
 	createRenderPort,
 	createVfx,
@@ -96,7 +97,7 @@ import {
 	type PropTypeDef,
 	pickAutoPreset,
 } from "@gc/render";
-import { App, type CardView, type HudState, type IconRef } from "@gc/ui";
+import { App, type CardView, type HudState, type IconRef, type PortraitFactory } from "@gc/ui";
 import { query } from "bitecs";
 import { createRoot } from "react-dom/client";
 import { bootArtReview } from "./artReview";
@@ -260,8 +261,13 @@ async function boot(): Promise<void> {
 		dash: null,
 		cardRerolls: 0,
 	});
+	// The Merchant rig loads after the UI mounts; the factory resolves it on use and draws nothing until it exists.
+	let makePortrait: PortraitFactory | undefined;
+	const shopPortrait: PortraitFactory = (canvas) =>
+		makePortrait?.(canvas) ?? { start: () => undefined, stop: () => undefined };
 	createRoot(uiRoot).render(
 		<App
+			shopPortrait={shopPortrait}
 			store={hud}
 			version={__APP_VERSION__}
 			stick={stick}
@@ -382,6 +388,7 @@ async function boot(): Promise<void> {
 			}
 		}
 	}
+	if (merchantRig) makePortrait = (canvas) => createPortrait(game, canvas, merchantRig);
 	const characters = heroRig
 		? createCharacters(game, {
 				hero: heroRig,

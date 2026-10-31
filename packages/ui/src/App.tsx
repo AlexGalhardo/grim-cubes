@@ -12,7 +12,13 @@ import { type CardView, LevelUp } from "./components/LevelUp/LevelUp";
 import { Notice } from "./components/Notice/Notice";
 import { Ossuary, type OssuaryActions, type OssuaryViewModel } from "./components/Ossuary/Ossuary";
 import { Results, type ResultsViewModel } from "./components/Results/Results";
-import { Shop, type ShopActions, type ShopViewModel, type StatLineView } from "./components/Shop/Shop";
+import {
+	type PortraitFactory,
+	Shop,
+	type ShopActions,
+	type ShopViewModel,
+	type StatLineView,
+} from "./components/Shop/Shop";
 import { Tip, type TipId } from "./components/Tip/Tip";
 import { VirtualJoystick } from "./components/VirtualJoystick/VirtualJoystick";
 
@@ -63,6 +69,8 @@ export interface AppProps {
 	onRerollCards?: (() => void) | undefined;
 	onChooseChest?: ((index: number) => void) | undefined;
 	shopActions?: ShopActions | undefined;
+	/** Draws the animated Merchant into the Shop's portrait canvas. */
+	shopPortrait?: PortraitFactory | undefined;
 	onRestart?: (() => void) | undefined;
 	difficultyActions?: DifficultyActions | undefined;
 	/** Touch dash button held state. */
@@ -79,6 +87,7 @@ export function App({
 	onRerollCards,
 	onChooseChest,
 	shopActions,
+	shopPortrait,
 	onRestart,
 	ossuaryActions,
 	onDashHold,
@@ -108,7 +117,7 @@ export function App({
 				<LevelUp cards={hud.chest} onChoose={onChooseChest} title={t("chest.title")} />
 			) : null}
 			{hud.shop && shopActions ? (
-				<Shop view={hud.shop} stats={hud.stats} actions={shopActions} />
+				<Shop view={hud.shop} stats={hud.stats} actions={shopActions} portrait={shopPortrait} />
 			) : null}
 			{hud.results && onRestart && !hud.difficulty && !hud.ossuary ? (
 				<Results view={hud.results} onRestart={onRestart} onOssuary={ossuaryActions?.open} />
