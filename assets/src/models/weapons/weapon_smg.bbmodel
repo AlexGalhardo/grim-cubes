@@ -40,7 +40,7 @@
 				4
 			],
 			"autouv": 0,
-			"color": 6,
+			"color": 3,
 			"origin": [
 				0,
 				-3,
@@ -103,7 +103,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "c601e429-dda0-14bf-d908-1881a52b127d"
+			"uuid": "fd2bce86-d6fb-8d6b-a19b-2d2ea7735641"
 		},
 		{
 			"name": "body",
@@ -187,7 +187,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "f705e639-3bce-d87c-289e-ad9ffdf8bc90"
+			"uuid": "3757b8f3-da2f-0033-4e93-7696cfa9116f"
 		},
 		{
 			"name": "mag1",
@@ -208,7 +208,7 @@
 				15
 			],
 			"autouv": 0,
-			"color": 1,
+			"color": 8,
 			"origin": [
 				0,
 				-5,
@@ -271,7 +271,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "cd7acf5d-6eba-a199-6d98-2348ac25b7ca"
+			"uuid": "3d9f44e0-0a8e-e188-013e-1453f8d64ee8"
 		},
 		{
 			"name": "mag2",
@@ -292,7 +292,7 @@
 				18
 			],
 			"autouv": 0,
-			"color": 0,
+			"color": 5,
 			"origin": [
 				0,
 				-17,
@@ -355,7 +355,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "2e8b2f67-5206-396d-96fe-1b75aae9b178"
+			"uuid": "d7f96cb9-5245-38eb-4dde-7cb01eb41c86"
 		},
 		{
 			"name": "stock",
@@ -376,7 +376,7 @@
 				-7
 			],
 			"autouv": 0,
-			"color": 3,
+			"color": 2,
 			"origin": [
 				0,
 				10,
@@ -439,7 +439,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "67084cc7-2475-3404-4d1f-ce6ed6cff8c9"
+			"uuid": "393c12d0-9c80-9d86-4da9-284f2c84600e"
 		},
 		{
 			"name": "barrel",
@@ -460,7 +460,7 @@
 				37
 			],
 			"autouv": 0,
-			"color": 8,
+			"color": 0,
 			"origin": [
 				0,
 				10,
@@ -523,7 +523,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "2ed5a5b5-270d-cc6f-af27-dd21623a033f"
+			"uuid": "2ad9861f-2d78-93c6-5df6-4d78e9b57213"
 		}
 	],
 	"groups": [
@@ -564,12 +564,12 @@
 			"uuid": "g_root",
 			"isOpen": false,
 			"children": [
-				"c601e429-dda0-14bf-d908-1881a52b127d",
-				"f705e639-3bce-d87c-289e-ad9ffdf8bc90",
-				"cd7acf5d-6eba-a199-6d98-2348ac25b7ca",
-				"2e8b2f67-5206-396d-96fe-1b75aae9b178",
-				"67084cc7-2475-3404-4d1f-ce6ed6cff8c9",
-				"2ed5a5b5-270d-cc6f-af27-dd21623a033f"
+				"fd2bce86-d6fb-8d6b-a19b-2d2ea7735641",
+				"3757b8f3-da2f-0033-4e93-7696cfa9116f",
+				"3d9f44e0-0a8e-e188-013e-1453f8d64ee8",
+				"d7f96cb9-5245-38eb-4dde-7cb01eb41c86",
+				"393c12d0-9c80-9d86-4da9-284f2c84600e",
+				"2ad9861f-2d78-93c6-5df6-4d78e9b57213"
 			]
 		}
 	],

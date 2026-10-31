@@ -4,7 +4,7 @@
 		"model_format": "free",
 		"box_uv": false
 	},
-	"name": "weapon_pistol",
+	"name": "prop_gearpile_01",
 	"model_identifier": "",
 	"visible_box": [
 		1,
@@ -40,7 +40,7 @@
 				4
 			],
 			"autouv": 0,
-			"color": 7,
+			"color": 3,
 			"origin": [
 				0,
 				-3,
@@ -53,8 +53,7 @@
 						0,
 						19,
 						7
-					],
-					"texture": 0
+					]
 				},
 				"east": {
 					"uv": [
@@ -62,8 +61,7 @@
 						0,
 						12,
 						7
-					],
-					"texture": 0
+					]
 				},
 				"south": {
 					"uv": [
@@ -71,8 +69,7 @@
 						0,
 						22,
 						7
-					],
-					"texture": 0
+					]
 				},
 				"west": {
 					"uv": [
@@ -80,8 +77,7 @@
 						0,
 						16,
 						7
-					],
-					"texture": 0
+					]
 				},
 				"up": {
 					"uv": [
@@ -89,8 +85,7 @@
 						31,
 						32,
 						32
-					],
-					"texture": 0
+					]
 				},
 				"down": {
 					"uv": [
@@ -98,12 +93,11 @@
 						16,
 						3,
 						20
-					],
-					"texture": 0
+					]
 				}
 			},
 			"type": "cube",
-			"uuid": "1b3926b7-16bc-1f05-746e-747dc3627263"
+			"uuid": "15e2f928-8fe0-254b-2572-42adcc545c3e"
 		},
 		{
 			"name": "body",
@@ -124,7 +118,7 @@
 				20
 			],
 			"autouv": 0,
-			"color": 1,
+			"color": 7,
 			"origin": [
 				0,
 				8,
@@ -137,8 +131,7 @@
 						12,
 						28,
 						16
-					],
-					"texture": 0
+					]
 				},
 				"east": {
 					"uv": [
@@ -146,8 +139,7 @@
 						12,
 						12,
 						16
-					],
-					"texture": 0
+					]
 				},
 				"south": {
 					"uv": [
@@ -155,8 +147,7 @@
 						12,
 						32,
 						16
-					],
-					"texture": 0
+					]
 				},
 				"west": {
 					"uv": [
@@ -164,8 +155,7 @@
 						12,
 						24,
 						16
-					],
-					"texture": 0
+					]
 				},
 				"up": {
 					"uv": [
@@ -173,8 +163,7 @@
 						0,
 						4,
 						12
-					],
-					"texture": 0
+					]
 				},
 				"down": {
 					"uv": [
@@ -182,12 +171,11 @@
 						0,
 						8,
 						12
-					],
-					"texture": 0
+					]
 				}
 			},
 			"type": "cube",
-			"uuid": "8fd092fb-bb44-2bc2-ec6a-1efbc0a01471"
+			"uuid": "7699ce47-d5fc-68fd-82e5-6b5d3f144284"
 		},
 		{
 			"name": "hammer",
@@ -208,7 +196,7 @@
 				0
 			],
 			"autouv": 0,
-			"color": 3,
+			"color": 9,
 			"origin": [
 				0,
 				14,
@@ -221,8 +209,7 @@
 						16,
 						20,
 						18
-					],
-					"texture": 0
+					]
 				},
 				"east": {
 					"uv": [
@@ -230,8 +217,7 @@
 						16,
 						22,
 						18
-					],
-					"texture": 0
+					]
 				},
 				"south": {
 					"uv": [
@@ -239,8 +225,7 @@
 						16,
 						24,
 						18
-					],
-					"texture": 0
+					]
 				},
 				"west": {
 					"uv": [
@@ -248,8 +233,7 @@
 						16,
 						26,
 						18
-					],
-					"texture": 0
+					]
 				},
 				"up": {
 					"uv": [
@@ -257,8 +241,7 @@
 						16,
 						28,
 						18
-					],
-					"texture": 0
+					]
 				},
 				"down": {
 					"uv": [
@@ -266,12 +249,11 @@
 						31,
 						32,
 						32
-					],
-					"texture": 0
+					]
 				}
 			},
 			"type": "cube",
-			"uuid": "a07c273c-b506-cf48-c7fb-c4dc6e650ca9"
+			"uuid": "02612753-3703-9080-c506-03f4534d3f5a"
 		},
 		{
 			"name": "guard",
@@ -292,7 +274,7 @@
 				12
 			],
 			"autouv": 0,
-			"color": 8,
+			"color": 3,
 			"origin": [
 				0,
 				3,
@@ -305,8 +287,7 @@
 						31,
 						32,
 						32
-					],
-					"texture": 0
+					]
 				},
 				"east": {
 					"uv": [
@@ -314,8 +295,7 @@
 						20,
 						4,
 						21
-					],
-					"texture": 0
+					]
 				},
 				"south": {
 					"uv": [
@@ -323,8 +303,7 @@
 						20,
 						11,
 						21
-					],
-					"texture": 0
+					]
 				},
 				"west": {
 					"uv": [
@@ -332,8 +311,7 @@
 						20,
 						8,
 						21
-					],
-					"texture": 0
+					]
 				},
 				"up": {
 					"uv": [
@@ -341,8 +319,7 @@
 						31,
 						32,
 						32
-					],
-					"texture": 0
+					]
 				},
 				"down": {
 					"uv": [
@@ -350,12 +327,11 @@
 						16,
 						6,
 						20
-					],
-					"texture": 0
+					]
 				}
 			},
 			"type": "cube",
-			"uuid": "e1fc0e07-2606-6871-596d-04c2702bb964"
+			"uuid": "bbaa1c4b-7ac4-fd23-9c66-f2699455d28b"
 		},
 		{
 			"name": "muzzle",
@@ -389,8 +365,7 @@
 						31,
 						32,
 						32
-					],
-					"texture": 0
+					]
 				},
 				"east": {
 					"uv": [
@@ -398,8 +373,7 @@
 						16,
 						14,
 						18
-					],
-					"texture": 0
+					]
 				},
 				"south": {
 					"uv": [
@@ -407,8 +381,7 @@
 						16,
 						30,
 						18
-					],
-					"texture": 0
+					]
 				},
 				"west": {
 					"uv": [
@@ -416,8 +389,7 @@
 						16,
 						18,
 						18
-					],
-					"texture": 0
+					]
 				},
 				"up": {
 					"uv": [
@@ -425,8 +397,7 @@
 						16,
 						8,
 						20
-					],
-					"texture": 0
+					]
 				},
 				"down": {
 					"uv": [
@@ -434,12 +405,11 @@
 						16,
 						10,
 						20
-					],
-					"texture": 0
+					]
 				}
 			},
 			"type": "cube",
-			"uuid": "0765aabc-45db-86fa-37a5-76892df0fd9a"
+			"uuid": "ce7941b6-1db6-c812-9c3f-8e9254aae7b6"
 		}
 	],
 	"groups": [
@@ -480,18 +450,18 @@
 			"uuid": "g_root",
 			"isOpen": false,
 			"children": [
-				"1b3926b7-16bc-1f05-746e-747dc3627263",
-				"8fd092fb-bb44-2bc2-ec6a-1efbc0a01471",
-				"a07c273c-b506-cf48-c7fb-c4dc6e650ca9",
-				"e1fc0e07-2606-6871-596d-04c2702bb964",
-				"0765aabc-45db-86fa-37a5-76892df0fd9a"
+				"15e2f928-8fe0-254b-2572-42adcc545c3e",
+				"7699ce47-d5fc-68fd-82e5-6b5d3f144284",
+				"02612753-3703-9080-c506-03f4534d3f5a",
+				"bbaa1c4b-7ac4-fd23-9c66-f2699455d28b",
+				"ce7941b6-1db6-c812-9c3f-8e9254aae7b6"
 			]
 		}
 	],
 	"textures": [
 		{
-			"name": "weapon_pistol_d.png",
-			"relative_path": "weapon_pistol_d.png",
+			"name": "prop_gearpile_01_d.png",
+			"relative_path": "prop_gearpile_01_d.png",
 			"folder": "",
 			"namespace": "",
 			"id": "0",
@@ -519,8 +489,8 @@
 			"visible": true,
 			"internal": true,
 			"saved": true,
-			"uuid": "f9b4865c-1d4a-4c90-7bb2-067bd1983660",
-			"source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACNElEQVR4AeyVP2sUQRjG3xs7BQUxhUGwsLCIhA2CCDZWFn4EDVwhaCdWV1hqd1iInYLIQRD8AhZWNjaCZAmmsLAQNBYRC0E7Xec3m2eYG/bulrDJNbfw7PP+m/edfefPuhv921WK1bVLVYpH929Wwsq5q1GWTZz7rOXjit13VqxdrOHlfNy/sjShf343yrKJc1+eZ5LuyqUr0ZfKMrqiMGH0aSnKsolzn8bPYpcG0I1UPwx5bAJNBdViOG8zNiH3NeVqsoU9IMdclqCpqCYEv3j1zYRclx3Ofeht4DgB0wK3P7/t7QfTcqY+V25+iPrcN+Gs5Ygz7VAY24Qd5m2dKhxDlgG0HtVhoLNrd+M1zIZc79+y9dO/TTx8/LQaXl+pxhgbwC6gzwD/mJBHcX6sszdPjK9n/QP7TRllf00H2x5vfD9WxxIDsAvoGUKjlN/7+KiQz8uB/diwBCGwxYvOzDopdDGmorgvgo59Y/QccQxhAh+3SktBcKpLZiRdkN7EFJGdeHIB7NLlhx1/sb+/jhrY+bJjYPjgoV1YLQLQAV9PcRidZAAdBqmMTjyFgfIh49vafN8DoQMYWsNv2jSWIugUl4yeQ0tHXOqbOAEGAAUPXm+HGQ/u3en9+Pk1yHyBIL/0nPG/HD3rwfiUd+IEFHDQ7I4c/2P8y2GKDS6fsOWzy4jGHYEMOMO1sdu3ox1qC62VDNNu/EK3petsrqb5vRcTWHRg0YFFBw68A9OuuFMnz1T/AQAA//9DgnKuAAAABklEQVQDALifIqDpjxceAAAAAElFTkSuQmCC"
+			"uuid": "b578e69b-5ad6-7c5c-1855-06ad006fb7cb",
+			"source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAADa0lEQVR4AbTXP4tVRxgG8LknXQIJCZEQCaRJlyArgRBIbyHkCwTBIpB0IdXtkiLpthI7BYsF8QsIFlYWCiKIq2ihYCGIFoqgoJ2s93fY5zA795y9V8Vln33/zswzM+/Mme02j36/c+jwT6NILPLLL77ZoZOr8NvxP3b2Q9n96c4+/qT8cGhjFNsHfun95G5+2bz6POqSPPLr0T2+jcM/likksYuyrpz//FnJQHTtYl88f4G5Ets3rg85b03ACowNFBJDz2sqkwQ2nlxZs4tS5Lak+NbpYCDQNqj3PR21s7QaYpH0YKx9YrUcCNROekuIr55l9p8/ektQbBW6Y1+/7HNaxq0tyQBAr2cdvSWt2MZQ5/XH8Pat7VJDAsRnQLAC/PQxIJLVOLd1ejaF+YU7s7Rf2oJjx38v7gZIUuTBbw/2sQwSf21rx3ZhgUuOHHDi1M7mAvzaLxE4u3WGfwn1ZWWQOqGeebY08dhpky159OBRn9KZca+9w5/Ug6ZIkGMweIi4GeXM//2HKF0747chpCb6XhZ/QsZgC3PPbwbnNJ7aItkrt8DSS1yFkKkHq9uE2K0b12aB+BIBzhrYtqjjrb5190AZw+sXH/f+Nn+SQLYibFv59NnD2Rju3L802w+jBDJYHcwe1b4PoQ+nAInAEQG2Mztg8Xip9f0eHGIeLSRMke/KxZMlZzNSRUNsjXt98UDp5eJ77qpObShANySbBLqLi2TrYwxdfX6dUclknWxQdhuzSiCmHzrJpgfx8bfoXJtYgtVwXDb/+7//NpgZiBlcTG2wYawI+dz1ZI124NidpXTWgY615WeTQBcja7jf7W+QPW/9iZNiqSMkOjMJzLbeN35J5BgsLb/VIZPb+sUCqygv6MwYcoPRQSckUiSYPRnohJ7c2JHxy6khbrvJzoyhHPmrqAdL3kKcz0xJkAv0xNk6zYem13df0XU9zP/+czbffRPsuQkx1mgK6iAxOsQm2Qg5NWR85BQGAlhhOfaKcQ2P+eObitf9TRKw9/ZWhbZQsV4ugSqnt5IP4qevi/4YjrFTfJY0MUWUPearbTpf4rFNjn/KFusUlpvPMSF7e/FPyVeff1duXr5XLC9YToUTvbX56/g6tpyhBrBxy5Hw0aeviA+ODmsFiA309uKI0H3X35fBfu3VzBsAAAD//8+ktq4AAAAGSURBVAMA0+3Ar64qV90AAAAASUVORK5CYII="
 		}
 	]
 }

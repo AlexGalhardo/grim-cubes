@@ -40,6 +40,16 @@
 		"props/prop_mushroom_01",
 		"props/prop_swamp_log_01",
 		"props/prop_swamp_jar_01",
-		"props/prop_swamp_nest_01"
+		"props/prop_swamp_nest_01",
+		"props/prop_anvil_01",
+		"props/prop_chimney_01",
+		"props/prop_furnace_01",
+		"props/prop_gearpile_01",
+		"props/prop_chain_01",
+		"props/prop_slag_01",
+		"props/prop_emberrock_01",
+		"props/prop_pipe_01",
+		"props/prop_barrel_01",
+		"props/prop_crate_01"
 	]
 }
