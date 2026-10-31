@@ -806,6 +806,8 @@ async function boot(): Promise<void> {
 		const heavy = weaponsData.find((w) => w.id === "mg");
 		// Maximum-cadence MG at its top tier fires for real; the emitter below holds the projectile count.
 		if (bench === "round20" && heavy) weapon.setWeapon(heavy, weapon.maxTier);
+	} else {
+		run.newRun();
 	}
 	if (__DEBUG_API__ && bench && window.gc.debug) {
 		const recorder = createBenchRecorder(game.scene, render.engine);
