@@ -530,6 +530,7 @@ async function boot(): Promise<void> {
 	createRoot(uiRoot).render(
 		<App
 			store={hud}
+			version={__APP_VERSION__}
 			stick={stick}
 			onChooseCard={(index) => levelUp.choose(index)}
 			onRerollCards={() => levelUp.reroll()}

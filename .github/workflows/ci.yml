@@ -57,7 +57,6 @@ jobs:
 
   typecheck:
     name: typecheck
-    needs: lint
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -75,7 +74,6 @@ jobs:
 
   unit:
     name: unit
-    needs: typecheck
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -98,7 +96,6 @@ jobs:
 
   integration:
     name: integration
-    needs: unit
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -115,7 +112,7 @@ jobs:
 
   build-web:
     name: build-web
-    needs: [gate, integration]
+    needs: [gate]
     if: needs.gate.outputs.web == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -142,11 +139,19 @@ jobs:
           if-no-files-found: error
 
   e2e:
-    name: e2e
+    name: e2e (${{ matrix.shard }}/4)
+    # The check jobs run in parallel with this one; any red job still blocks the release (release.yml waits for the
+    # whole run).
     needs: [gate, build-web]
     if: needs.gate.outputs.e2e == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    # SwiftShader saturates a runner with one browser, so parallelism comes from shards on separate runners,
+    # not from Playwright workers.
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
     container:
       image: mcr.microsoft.com/playwright:v1.64.1-noble
       options: --ipc=host
@@ -163,10 +168,10 @@ jobs:
         with:
           name: dist
           path: dist/
-      - run: bunx playwright test
+      - run: bunx playwright test --shard=${{ matrix.shard }}/4
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
-          name: playwright-report
+          name: playwright-report-${{ matrix.shard }}
           path: playwright-report/
           if-no-files-found: warn

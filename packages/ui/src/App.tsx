@@ -65,6 +65,8 @@ export interface AppProps {
 	/** Touch dash button held state. */
 	onDashHold?: ((down: boolean) => void) | undefined;
 	ossuaryActions?: (OssuaryActions & { open(): void }) | undefined;
+	/** Build release shown bottom-left on the menu and in play, so a tester knows which build they run. */
+	version?: string | undefined;
 }
 
 export function App({
@@ -78,6 +80,7 @@ export function App({
 	ossuaryActions,
 	onDashHold,
 	difficultyActions,
+	version,
 }: AppProps): JSX.Element {
 	const hud = useSyncExternalStore(store.subscribe, store.get);
 	return (
@@ -122,6 +125,11 @@ export function App({
 			) : null}
 			{stick ? <VirtualJoystick stick={stick} /> : null}
 			{stick && hud.dash && onDashHold ? <DashButton view={hud.dash} onHold={onDashHold} /> : null}
+			{version ? (
+				<div className="absolute bottom-1 left-2 z-50 text-xs opacity-70" data-testid="build-version">
+					v{version}
+				</div>
+			) : null}
 		</div>
 	);
 }

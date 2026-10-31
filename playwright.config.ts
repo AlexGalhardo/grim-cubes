@@ -38,6 +38,8 @@ export default defineConfig({
 			// Same-OS baselines: allow a few stray pixels (SwiftShader rasterization noise) and small color shifts.
 			maxDiffPixels: 100,
 			threshold: 0.2,
+			// Hides the build version label so a release bump does not invalidate every baseline.
+			stylePath: "tests/e2e/screenshot.css",
 		},
 	},
 	use: {

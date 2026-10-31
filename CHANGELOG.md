@@ -143,6 +143,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **e2e:** Add the boss spec (intro, HP bar, death, chest, shop) and the input spec (keyboard and virtual joystick) (P-05-07, P-02-02) ([ce55e26](https://github.com/AlexGalhardo/grim-cubes/commit/ce55e26d06c76ff884e53ce7e0e5264a268a591b), [f12d257](https://github.com/AlexGalhardo/grim-cubes/commit/f12d257193d504c36b672fc589bca95f7abc1c13))
 - **test:** Add the determinism test hashing the world for seed 42 (P-07-03) ([947f5b7](https://github.com/AlexGalhardo/grim-cubes/commit/947f5b78a0cae0fbf19960e3720aba6a799e1771))
 
+- **ui:** Build version label (`vX.Y.Z`) at the bottom-left of the menu and the HUD; hidden in visual captures through `tests/e2e/screenshot.css`
+
 ### Changed
 
 - **roadmap:** Apply phase 1 review fixes: add E-03-06 (ECS base), break the E-03-02/E-02-06 cycle, pin `@babylonjs/inspector` and approved dev deps in E-02-01, async WebGL2 `createEngine` with golden-value asserts in E-03-01
@@ -167,6 +169,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **sim:** Guard the horde simulation with a CPU-time budget and allow 20 s for full-length simulation tests (P-03-06) ([45399e2](https://github.com/AlexGalhardo/grim-cubes/commit/45399e2d2170ce32b7f4fa39013ef857b5227f6d), [a2cdbad](https://github.com/AlexGalhardo/grim-cubes/commit/a2cdbad908a783ad2ce3ce223086f7cadeead3f2))
 - **docs:** Mark the six enemy behaviors in SDD 04 §5, add the dash system to SDD 02 §2.3 and update the SDD 14 prototype state (VFX, projectile render, culling) ([4a7e405](https://github.com/AlexGalhardo/grim-cubes/commit/4a7e405be66dbe0583cff70fbc694845834038ba), [84bb276](https://github.com/AlexGalhardo/grim-cubes/commit/84bb27612874bdc3b856dbb693a6d747ac3b2028), [3be4925](https://github.com/AlexGalhardo/grim-cubes/commit/3be49258f1ee9e4780e17a6fb89bbe84d0680c35))
 - **roadmap:** Split the elite render into P-05-06b, keep P-04-05 open until vignette, shake and gore capture land, and align the P-03-05 assert with the frustum render cull ([2eccb9d](https://github.com/AlexGalhardo/grim-cubes/commit/2eccb9da41916a35ef04d1fe717d9af404511587), [4748bef](https://github.com/AlexGalhardo/grim-cubes/commit/4748bef63b0fafb70faab54da5ef68f789e53f08), [2a2102a](https://github.com/AlexGalhardo/grim-cubes/commit/2a2102ac615fe925e18ad3969ff7d51a353d0e02))
+
+- **ci:** CI jobs run in parallel after `gate`, and the e2e job is split into 4 Playwright shards on separate runners
 
 ### Fixed
 
