@@ -78,6 +78,15 @@ export interface RoundsData {
 	tierChance: TierChance[];
 }
 
+/** One entry of `data/props.json`. */
+export interface PropData {
+	id: string;
+	sizeClass: string;
+	kind: string;
+	/** Collision circle radius in units (blocking props). */
+	radius: number;
+}
+
 export interface BiomeData {
 	id: string;
 	name: string;

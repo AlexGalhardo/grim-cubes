@@ -8,6 +8,8 @@ export interface WorldConfig {
 	originShiftThreshold: number;
 	/** Extra render capacity per enemy type on top of the spawn cap; also the death-ghost capacity. */
 	hordeRenderSlack: number;
+	/** Distance ahead at which enemies start steering around a blocking prop. */
+	propAvoidLookahead: number;
 	/** Capacity of each ChunkData prop list; the generator must never exceed it. */
 	maxPropsPerChunk: number;
 }

@@ -1,10 +1,20 @@
-export type { BiomeData, CardsData, EnemyData, HeroData, RoundsData, WeaponData, WorldData } from "./data";
+export type {
+	BiomeData,
+	CardsData,
+	EnemyData,
+	HeroData,
+	PropData,
+	RoundsData,
+	WeaponData,
+	WorldData,
+} from "./data";
 export {
 	biomesData,
 	cardsData,
 	enemiesData,
 	heroData,
 	itemsData,
+	propsData,
 	roundsData,
 	toBiomeDefs,
 	toEnemyDefs,
@@ -131,4 +141,6 @@ export type { ChunkData, ChunkGenerator, ChunkStats, ChunkSystem, WorldConfig } 
 export { createChunkSystem } from "./world/chunkSystem";
 export type { Origin, OriginShiftConfig } from "./world/originShift";
 export { applyOriginShift, createOrigin } from "./world/originShift";
+export type { PropCollision, PropCollisionConfig } from "./world/propCollision";
+export { createPropCollision } from "./world/propCollision";
 export { findHero, queryBodies, queryEnemies } from "./world/queries";
