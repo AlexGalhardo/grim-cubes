@@ -10,6 +10,7 @@ try {
 		outDir: "public/assets",
 		dataDir: "data",
 		version: pkg.version,
+		ktx2: { enabled: process.env.GC_KTX2 === "1" },
 	});
 	console.log(`assets-build: ${Object.keys(manifest.entries).length} entries`);
 } catch (error) {

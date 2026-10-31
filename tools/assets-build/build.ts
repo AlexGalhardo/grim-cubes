@@ -7,6 +7,7 @@ import { bakeVat } from "../bake-vat/bake";
 import { ATLAS_SIZE, type Placement, packSprites, renderAtlas, type Sprite } from "./atlas";
 import { bbmodelToDocument, parseBbmodel, type SizeClass, validateBbmodel } from "./bbmodel";
 import { packGlb } from "./glb";
+import { encodeKtx2, type Ktx2Deps, systemKtx2Deps } from "./ktx2";
 import { rigidSkin } from "./rigidSkin";
 import { CATEGORIES, type Category, type ModelInput, RuleError, validateModel } from "./rules";
 
@@ -35,6 +36,8 @@ export interface ManifestEntry {
 	mipmaps?: false;
 	width?: number;
 	height?: number;
+	/** Atlas only: the KTX2 ETC1S sibling for GPUs that sample it, or false when `toktx` was not run (SDD 09). */
+	ktx2?: false | { url: string; hash: string; bytes: number };
 }
 
 export interface Manifest {
@@ -48,6 +51,8 @@ export interface BuildOptions {
 	srcDir: string;
 	outDir: string;
 	version: string;
+	/** `GC_KTX2=1` turns it on; without `toktx` installed the atlases stay PNG-only (`ktx2: false`). */
+	ktx2?: { enabled: boolean; deps?: Ktx2Deps };
 }
 
 interface Loaded {
@@ -174,6 +179,26 @@ function groupOf(category: Category, name: string): string {
 	return category === "bosses" ? `boss:${name}` : "core";
 }
 
+/** Encodes `<atlas>.<hash>.png` to a hashed `.ktx2` next to it; false (with a warning) when `toktx` is missing. */
+function buildKtx2(
+	outDir: string,
+	atlasName: AtlasName,
+	pngUrl: string,
+	deps: Ktx2Deps,
+): NonNullable<ManifestEntry["ktx2"]> | false {
+	const temp = join(outDir, `${atlasName}.tmp.ktx2`);
+	if (!encodeKtx2(join(outDir, pngUrl), temp, deps)) {
+		console.warn(`assets-build: toktx unavailable or failed, ${atlasName} stays PNG-only (ktx2: false)`);
+		return false;
+	}
+	const bytes = new Uint8Array(readFileSync(temp));
+	rmSync(temp);
+	const hash = digest(bytes);
+	const url = `${atlasName}.${hash}.ktx2`;
+	writeFileSync(join(outDir, url), bytes);
+	return { url, hash, bytes: bytes.length };
+}
+
 export async function buildAssets(options: BuildOptions): Promise<Manifest> {
 	const items = listModels(options.srcDir);
 	const loaded: Loaded[] = [];
@@ -183,7 +208,7 @@ export async function buildAssets(options: BuildOptions): Promise<Manifest> {
 	rmSync(join(options.outDir, "models"), { recursive: true, force: true });
 	rmSync(join(options.outDir, "vat"), { recursive: true, force: true });
 	for (const file of existsSync(options.outDir) ? readdirSync(options.outDir) : []) {
-		if (/^atlas_(characters|props)\..*\.png$/.test(file)) rmSync(join(options.outDir, file));
+		if (/^atlas_(characters|props)\..*\.(png|ktx2)$/.test(file)) rmSync(join(options.outDir, file));
 	}
 	mkdirSync(join(options.outDir, "models"), { recursive: true });
 	mkdirSync(join(options.outDir, "vat"), { recursive: true });
@@ -199,6 +224,9 @@ export async function buildAssets(options: BuildOptions): Promise<Manifest> {
 		const hash = digest(png);
 		const url = `${atlasName}.${hash}.png`;
 		writeFileSync(join(options.outDir, url), png);
+		const ktx2 = options.ktx2?.enabled
+			? buildKtx2(options.outDir, atlasName, url, options.ktx2.deps ?? systemKtx2Deps)
+			: false;
 		entries[atlasName] = {
 			url,
 			hash,
@@ -209,6 +237,7 @@ export async function buildAssets(options: BuildOptions): Promise<Manifest> {
 			mipmaps: false,
 			width: ATLAS_SIZE,
 			height: ATLAS_SIZE,
+			ktx2,
 		};
 		for (const member of members) {
 			const placement = placements.find((p) => p.name === member.input.name);

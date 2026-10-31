@@ -143,6 +143,45 @@ describe("buildAssets", () => {
 		expect([png.width, png.height]).toEqual([2048, 2048]);
 	});
 
+	test("atlases are marked ktx2: false by default and without toktx", async () => {
+		await writeModel("husk", { category: "enemies" }, 1);
+		expect((await build()).entries.atlas_characters?.ktx2).toBe(false);
+		const missing = await buildAssets({
+			srcDir: src,
+			outDir: out,
+			version: "1.2.3",
+			ktx2: { enabled: true, deps: { locate: () => null, run: () => false } },
+		});
+		expect(missing.entries.atlas_characters?.ktx2).toBe(false);
+	});
+
+	test("with toktx the KTX2 sibling is hashed and listed in the manifest", async () => {
+		await writeModel("husk", { category: "enemies" }, 1);
+		const calls: string[][] = [];
+		const manifest = await buildAssets({
+			srcDir: src,
+			outDir: out,
+			version: "1.2.3",
+			ktx2: {
+				enabled: true,
+				deps: {
+					locate: () => "toktx",
+					run: (_binary, args) => {
+						calls.push(args);
+						writeFileSync(args[args.length - 2] ?? "", new Uint8Array([0xab, 0x4b, 0x54, 0x58]));
+						return true;
+					},
+				},
+			},
+		});
+		const entry = manifest.entries.atlas_characters;
+		expect(entry?.ktx2).toMatchObject({ bytes: 4 });
+		const ktx2 = entry?.ktx2 || null;
+		expect(ktx2?.url).toMatch(/^atlas_characters\.[0-9a-f]{8}\.ktx2$/);
+		expect([...readFileSync(join(out, ktx2?.url ?? ""))]).toEqual([0xab, 0x4b, 0x54, 0x58]);
+		expect(calls[0]).toContain("etc1s");
+	});
+
 	test("enemies get a baked VAT (.bin RGBA32F plus clip JSON)", async () => {
 		await writeModel("husk", { category: "enemies" }, 1);
 		const manifest = await build();
