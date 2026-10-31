@@ -23,6 +23,8 @@ export type { LoadedVat, VatMeta } from "./vat/loader";
 export { createVat, loadVat, parseVat, setVatClip } from "./vat/loader";
 export type { DecalPool } from "./vfx/decals";
 export type { DamageNumbers } from "./vfx/digits";
+export type { FragmentRenderer } from "./vfx/fragments";
+export { createFragmentRenderer } from "./vfx/fragments";
 export type { HitStop, HitStopDeps } from "./vfx/hitStop";
 export { createHitStop } from "./vfx/hitStop";
 export type { ParticlePool, ParticlePoolStats } from "./vfx/particles";

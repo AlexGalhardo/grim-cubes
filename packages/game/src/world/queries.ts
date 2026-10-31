@@ -1,9 +1,10 @@
-import { EnemyFaction, PlayerFaction, Position, PrevPosition, Projectile } from "../ecs/components";
+import { EnemyFaction, Fragment, PlayerFaction, Position, PrevPosition, Projectile } from "../ecs/components";
 import { createQueryCache, type GameWorld } from "../ecs/world";
 
 const heroList = createQueryCache([PlayerFaction, Position]);
 const bodyList = createQueryCache([Position, PrevPosition]);
 const projectileList = createQueryCache([Projectile, Position, PrevPosition]);
+const fragmentList = createQueryCache([Fragment, Position, PrevPosition]);
 const enemyList = createQueryCache([EnemyFaction, Position, PrevPosition]);
 
 /** First entity tagged PlayerFaction, or -1. */
@@ -24,4 +25,9 @@ export function queryEnemies(world: GameWorld): readonly number[] {
 /** Every projectile slot of the pool, live or not; renderers skip those with `Projectile.life === 0`. */
 export function queryProjectiles(world: GameWorld): readonly number[] {
 	return projectileList(world);
+}
+
+/** Every fragment pile on the ground (a pile leaves the world when picked up). */
+export function queryFragments(world: GameWorld): readonly number[] {
+	return fragmentList(world);
 }

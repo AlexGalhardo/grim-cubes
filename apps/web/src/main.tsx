@@ -48,6 +48,7 @@ import {
 	damageConfigFromHero,
 	describeModifier,
 	describeStats,
+	dropFragment,
 	Elite,
 	elitesData,
 	enemiesData,
@@ -77,6 +78,7 @@ import {
 	createBenchRecorder,
 	createChunkRenderer,
 	createEngine,
+	createFragmentRenderer,
 	createGameScene,
 	createHitStop,
 	createHordeRenderer,
@@ -101,6 +103,8 @@ const BENCH_PROJECTILES = 200;
 const BENCH_PROJECTILE_STEPS = 300;
 /** Bench enemy hit points: nothing dies, so the horde stays at the cap. */
 const BENCH_ENEMY_HP = 1e9;
+/** Fragment piles drawn at once; piles beyond this are simply not shown (the drop cap keeps it far below). */
+const MAX_ENTITIES_FRAGMENTS = 256;
 const NO_CARDS: readonly CardView[] = [];
 const NO_STATS: HudState["stats"] = [];
 
@@ -424,6 +428,7 @@ async function boot(): Promise<void> {
 		projectiles.capacity,
 		renderData.vfx.projectileSize,
 	);
+	const fragmentView = createFragmentRenderer(game, MAX_ENTITIES_FRAGMENTS);
 	const port = createRenderPort(game, horde, { origin, followRate: CAMERA.followRate, vfx });
 	const propTypes: PropTypeDef[] = [];
 	for (const name of chunkGen.propTypes) {
@@ -675,6 +680,7 @@ async function boot(): Promise<void> {
 			// VFX stop with the world while paused (level-up) so a captured frame is stable.
 			vfx.update(run.state === "Paused" ? 0 : Math.min(0.1, render.engine.getDeltaTime() / 1000));
 			projectileView.sync(world, alpha);
+			fragmentView.sync(world, alpha, performance.now() / 1000);
 			hitStop.update();
 			const camera = game.camera;
 			chunkRenderer.updateFade(
@@ -743,6 +749,19 @@ async function boot(): Promise<void> {
 			},
 			minPropAlpha: () => chunkRenderer.minAlpha(),
 			setGore: (full: boolean) => vfx.setGore(full),
+			/** Drops `count` fragment piles in a ring around the hero (P-04-06 capture). */
+			dropFragments: (count: number) => {
+				for (let i = 0; i < count; i++) {
+					const angle = (i / count) * Math.PI * 2;
+					const radius = 2 + (i % 3);
+					dropFragment(
+						world,
+						(Position.x[hero] ?? 0) + Math.cos(angle) * radius,
+						(Position.z[hero] ?? 0) + Math.sin(angle) * radius,
+						5 + i,
+					);
+				}
+			},
 			vfx: () => ({
 				particles: { ...vfx.particles.stats, capacity: vfx.particles.capacity },
 				decals: {
@@ -752,6 +771,7 @@ async function boot(): Promise<void> {
 				},
 				numbers: { live: vfx.numbers.live, dropped: vfx.numbers.dropped },
 				projectiles: { live: projectileView.live, capacity: projectileView.capacity },
+				fragments: { live: fragmentView.live, capacity: fragmentView.capacity },
 				hitStopActive: hitStop.active,
 			}),
 			/** Stops the simulation and the horde clock so the frame can be captured. */

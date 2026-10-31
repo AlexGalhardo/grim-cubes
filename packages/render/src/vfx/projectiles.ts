@@ -25,7 +25,7 @@ export function createProjectileRenderer(
 	const mesh = CreateBox("vfx_projectiles", { size: 1 }, game.scene);
 	const material = new StandardMaterial("vfx_projectiles", game.scene);
 	material.disableLighting = true;
-	material.emissiveColor = Color3.FromHexString(PALETTE.emberLight);
+	material.emissiveColor = Color3.FromHexString(PALETTE.ember);
 	material.diffuseColor = Color3.Black();
 	mesh.material = material;
 	const set = createInstanceSet(mesh, capacity, false);

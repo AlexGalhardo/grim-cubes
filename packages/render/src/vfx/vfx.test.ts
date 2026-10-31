@@ -4,6 +4,7 @@ import {
 	createEventBuffer,
 	createGameWorld,
 	createProjectilePool,
+	dropFragment,
 	EventType,
 	Position,
 	renderData,
@@ -12,6 +13,7 @@ import {
 import { describe, expect, it } from "vitest";
 import { createNullEngine } from "../engine";
 import { createGameScene } from "../scene/scene";
+import { createFragmentRenderer } from "./fragments";
 import { createHitStop } from "./hitStop";
 import { createProjectileRenderer } from "./projectiles";
 import { createVfx } from "./vfx";
@@ -231,6 +233,72 @@ describe("allocation", () => {
 			for (const [name, original] of originals) proto[name] = original;
 		}
 		expect(calls).toBe(0);
+		dispose();
+	});
+});
+
+describe("fragment renderer", () => {
+	it("draws every pile in one instanced mesh and allocates nothing per sync", () => {
+		const { engine, dispose } = createNullEngine();
+		const game = createGameScene(engine);
+		const world = createGameWorld();
+		const view = createFragmentRenderer(game, 64);
+		for (let i = 0; i < 50; i++) dropFragment(world, i, 2, 5 + i);
+		view.sync(world, 1, 0);
+		expect(view.live).toBe(50);
+		const mesh = game.scene.getMeshByName("vfx_fragments") as Mesh | null;
+		expect(mesh?.thinInstanceCount).toBe(50);
+		let calls = 0;
+		const proto = Array.prototype as unknown as Record<string, (...args: unknown[]) => unknown>;
+		const originals = new Map<string, (...args: unknown[]) => unknown>();
+		for (const name of ["filter", "map", "slice", "concat", "join"]) {
+			const original = proto[name];
+			if (!original) continue;
+			originals.set(name, original);
+			proto[name] = function (this: unknown, ...args: unknown[]): unknown {
+				calls++;
+				return original.apply(this, args);
+			};
+		}
+		try {
+			for (let i = 0; i < 300; i++) view.sync(world, 0.5, i / 60);
+		} finally {
+			for (const [name, original] of originals) proto[name] = original;
+		}
+		expect(calls).toBe(0);
+		expect(mesh?.thinInstanceCount).toBe(50);
+		dispose();
+	});
+
+	it("renders 200 projectiles and 50 piles as one draw-call mesh each", () => {
+		const { engine, dispose } = createNullEngine();
+		const game = createGameScene(engine);
+		const world = createGameWorld();
+		const pool = createProjectilePool(world, createEventBuffer(), 256);
+		const shots = createProjectileRenderer(game, 256, config.projectileSize);
+		const piles = createFragmentRenderer(game, 64);
+		const spec = {
+			x: 0,
+			z: 0,
+			vx: 1,
+			vz: 0,
+			damage: 1,
+			critChance: 0,
+			knockback: 0,
+			pierce: 0,
+			lifeSteps: 60,
+			radius: 0.1,
+			explosionRadius: 0,
+			selfFraction: 0,
+		};
+		for (let i = 0; i < 200; i++) pool.acquire(spec);
+		for (let i = 0; i < 50; i++) dropFragment(world, i, 0, 3);
+		shots.sync(world, 1);
+		piles.sync(world, 1, 0);
+		expect(shots.live).toBe(200);
+		expect(piles.live).toBe(50);
+		expect(game.scene.getMeshByName("vfx_projectiles")?.subMeshes.length).toBe(1);
+		expect(game.scene.getMeshByName("vfx_fragments")?.subMeshes.length).toBe(1);
 		dispose();
 	});
 });
