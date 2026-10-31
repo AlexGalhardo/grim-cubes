@@ -1,8 +1,9 @@
 {
-	"prompt": "tense percussive grimdark combat music for survival waves, 120 BPM, driving war drums and industrial metal hits, low palm-muted guitar pulse, ominous brass drones, rising tension, no melody hooks, no cheerful synthesizers, seamless loop",
+	"prompt": "instrumental only, no vocals, no choir, no singing, no humming, no voices, tense percussive grimdark combat music for survival waves, 120 BPM, driving war drums and industrial metal hits, low palm-muted guitar pulse, ominous brass drones, rising tension, no melody hooks, no cheerful synthesizers, seamless loop",
 	"model": "music_v1",
 	"durationSeconds": 60,
-	"generatedAt": "2026-10-31T15:38:33.843Z",
+	"generatedAt": "2026-10-31T16:12:14.563Z",
 	"plan": "creator",
-	"hash": "e51b346de82808c179e33b2f6cc90f61878eb54fb18325fa9df97e43ef411684"
+	"hash": "cae95d2db2098c8e70666687bc9fb8605d12fba39f996135f9dc141788e2c1b0",
+	"instrumental": true
 }

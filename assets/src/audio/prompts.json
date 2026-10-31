@@ -162,58 +162,65 @@
 	{
 		"file": "mus_menu",
 		"kind": "music",
-		"prompt": "slow dark ritual music, 75 BPM, deep low choir chanting with distorted gregorian feel, heavy detuned guitar drones and slow war drums, grimdark, no cheerful synthesizers, seamless loop",
+		"prompt": "instrumental only, no vocals, no choir, no singing, no humming, no voices, slow dark atmospheric ambient music, 75 BPM, deep detuned guitar drones, slow war drums, cold metallic reverb pads and distant wind, grimdark ritual mood, no cheerful synthesizers, seamless loop",
 		"durationSeconds": 60,
 		"loop": true,
-		"model": "music_v1"
+		"model": "music_v1",
+		"instrumental": true
 	},
 	{
 		"file": "mus_biome_cemetery",
 		"kind": "music",
-		"prompt": "aggressive heavy metal combat music, 130 BPM, chugging low guitars, pounding war drums, ominous low choir, grimdark graveyard mood, no cheerful synthesizers, seamless loop",
+		"prompt": "instrumental only, no vocals, no choir, no singing, no humming, no voices, aggressive heavy metal combat music, 130 BPM, chugging low guitars, pounding war drums, grimdark sunken graveyard mood, tolling bells and cold wind ambience, no cheerful synthesizers, seamless loop",
 		"durationSeconds": 150,
 		"loop": true,
-		"model": "music_v1"
+		"model": "music_v1",
+		"instrumental": true
 	},
 	{
 		"file": "mus_biome_swamp",
 		"kind": "music",
-		"prompt": "aggressive heavy metal combat music, 130 BPM, chugging low guitars, pounding war drums, ominous low choir, grimdark rotting bone swamp mood, wet low drones, croaking dissonant choir, no cheerful synthesizers, seamless loop",
+		"prompt": "instrumental only, no vocals, no choir, no singing, no humming, no voices, aggressive heavy metal combat music, 130 BPM, chugging low guitars, pounding war drums, grimdark bone swamp mood, bubbling mud and croaking insect ambience, slow sludgy riffs, no cheerful synthesizers, seamless loop",
 		"durationSeconds": 150,
 		"loop": true,
-		"model": "music_v1"
+		"model": "music_v1",
+		"instrumental": true
 	},
 	{
 		"file": "mus_biome_forge",
 		"kind": "music",
-		"prompt": "aggressive heavy metal combat music, 130 BPM, chugging low guitars, pounding war drums, ominous low choir, grimdark infernal forge mood, anvil hammering percussion, roaring furnace drones, no cheerful synthesizers, seamless loop",
+		"prompt": "instrumental only, no vocals, no choir, no singing, no humming, no voices, aggressive heavy metal combat music, 130 BPM, chugging low guitars, pounding war drums, grimdark infernal forge mood, anvil hammering percussion, roaring furnace drones, no cheerful synthesizers, seamless loop",
 		"durationSeconds": 150,
 		"loop": true,
-		"model": "music_v1"
+		"model": "music_v1",
+		"instrumental": true
 	},
 	{
 		"file": "mus_biome_nest",
 		"kind": "music",
-		"prompt": "aggressive heavy metal combat music, 130 BPM, chugging low guitars, pounding war drums, ominous low choir, grimdark biomechanical nest mood, cold mechanical pulses, wet organic textures, no cheerful synthesizers, seamless loop",
+		"prompt": "instrumental only, no vocals, no choir, no singing, no humming, no voices, aggressive heavy metal combat music, 135 BPM, detuned low guitars, industrial grinding percussion, grimdark biomechanical hive mood, pulsing organic drones and clicking insect ambience, no cheerful synthesizers, seamless loop",
 		"durationSeconds": 150,
 		"loop": true,
-		"model": "music_v1"
+		"model": "music_v1",
+		"instrumental": true
 	},
 	{
 		"file": "mus_round",
 		"kind": "music",
-		"prompt": "tense percussive grimdark combat music for survival waves, 120 BPM, driving war drums and industrial metal hits, low palm-muted guitar pulse, ominous brass drones, rising tension, no melody hooks, no cheerful synthesizers, seamless loop",
+		"prompt": "instrumental only, no vocals, no choir, no singing, no humming, no voices, tense percussive grimdark combat music for survival waves, 120 BPM, driving war drums and industrial metal hits, low palm-muted guitar pulse, ominous brass drones, rising tension, no melody hooks, no cheerful synthesizers, seamless loop",
 		"durationSeconds": 60,
 		"loop": true,
-		"model": "music_v1"
+		"model": "music_v1",
+		"instrumental": true
 	},
 	{
 		"file": "mus_boss",
 		"kind": "music",
-		"prompt": "epic heavy boss battle music, 140 BPM, massive wordless choir, crushing industrial metal guitars, pounding orchestral percussion and anvil strikes, apocalyptic grimdark mood, no cheerful synthesizers, seamless loop",
+		"prompt": "instrumental only, no vocals, no choir, no singing, no humming, no voices, epic heavy boss battle music, 140 BPM, crushing industrial metal guitars, pounding orchestral percussion, anvil strikes and massive brass, apocalyptic grimdark mood, no cheerful synthesizers, seamless loop",
 		"durationSeconds": 60,
 		"loop": true,
-		"model": "music_v1"
+		"model": "music_v1",
+		"instrumental": true
 	},
 	{
 		"file": "sfx_boss_alpha_hunter_entry",
@@ -250,18 +257,20 @@
 	{
 		"file": "mus_boss_alpha_hunter",
 		"kind": "music",
-		"prompt": "relentless heavy metal boss music, 140 BPM, stalking low guitar riffs, tribal war drums, tense high string stabs, predator hunt mood, grimdark, no cheerful synthesizers, seamless loop",
+		"prompt": "instrumental only, no vocals, no choir, no singing, no humming, no voices, relentless heavy metal boss music, 140 BPM, stalking low guitar riffs, tribal war drums, tense high string stabs, predator hunt mood, grimdark, no cheerful synthesizers, seamless loop",
 		"durationSeconds": 150,
 		"loop": true,
-		"model": "music_v1"
+		"model": "music_v1",
+		"instrumental": true
 	},
 	{
 		"file": "mus_boss_nest_queen",
 		"kind": "music",
-		"prompt": "crushing heavy metal boss music, 135 BPM, detuned low guitars, industrial grinding percussion, shrieking choir swells, biomechanical hive horror mood, grimdark, no cheerful synthesizers, seamless loop",
+		"prompt": "instrumental only, no vocals, no choir, no singing, no humming, no voices, crushing heavy metal boss music, 135 BPM, detuned low guitars, industrial grinding percussion, shrieking string swells, biomechanical hive horror mood, grimdark, no cheerful synthesizers, seamless loop",
 		"durationSeconds": 150,
 		"loop": true,
-		"model": "music_v1"
+		"model": "music_v1",
+		"instrumental": true
 	},
 	{
 		"file": "voice_alpha_hunter_entry",

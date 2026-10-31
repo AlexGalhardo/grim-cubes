@@ -4,9 +4,9 @@ Este documento descreve o áudio gerado para o jogo: direção sonora, desenho d
 
 ## 1. Estilo sonoro e direção
 
-- Tom: metal pesado e coral grave, percussão de tambor de guerra, sem sintetizadores alegres. Mood de DOOM moderno e cantos gregorianos distorcidos, sem copiar melodias (Art Bible §12 e §13).
+- Tom: metal pesado, drones graves, percussão de tambor de guerra, sem sintetizadores alegres. Mood de DOOM moderno e cantos gregorianos distorcidos, sem copiar melodias (Art Bible §12 e §13).
 - SFX: impactos secos e graves, "crunch" de osso nas mortes, metal nas armaduras, nada de sons "cartoon" (pops, molas). Os prompts seguem o template `<objeto/ação>, <material>, <tom>, <distância>, no music, game sound effect`, com `prompt_influence` 0,5 e duração de 0,5 a 1,5 s nos hits e de 1,5 a 3 s em mortes e entradas de chefe.
-- Música: BPM de 70 a 80 no menu e de 120 a 140 no combate (140 nos chefes). Sem melodias "pegajosas" nas ondas, para o combate não cansar. Transição por crossfade de 2 s (GDD §22.2).
+- Música: **somente instrumental e ambiência**, sem voz humana, coral, canto ou murmúrio (decisão do PO). Os prompts trazem "instrumental only, no vocals, no choir, no singing, no humming, no voices" e o `prompts.json` marca `instrumental: true`, que o `audio-generate` envia à API como `force_instrumental`. BPM de 70 a 80 no menu e de 120 a 140 no combate (140 nos chefes). Sem melodias "pegajosas" nas ondas, para o combate não cansar. Transição por crossfade de 2 s (GDD §22.2).
 - Voz: chefes em inglês (D24), vozes graves e roucas; efeito de caverna e pitch de −2 a −4 semitons são aplicados no build, não na API (SDD 08 §3, ainda não implementado).
 - Mix: buses `master`, `sfx`, `music`, `voice`, `ui`; o hit do herói fica sempre acima da música (sidechain: música −3 dB por 200 ms).
 
@@ -20,7 +20,7 @@ Este documento descreve o áudio gerado para o jogo: direção sonora, desenho d
 | Chefes | `sfx_boss_*` | entrada de 3 s com presença grave, ataques de 1,2 a 1,5 s com impacto | 1,2 a 3 s |
 | UI | `sfx_ui_*` | placas de ferro, trinco, moedas e madeira oca | 0,5 a 0,8 s |
 | Rounds | `sfx_round_*` | tambor de guerra no início, sino rachado no fim | 1,5 a 3 s |
-| Música | `mus_*` | menu lento e ritual; ondas tensas e percussivas; chefe épico com coral e metal industrial; uma faixa por bioma e uma para cada um dos chefes 4 e 5 | 60 s (temas) e 150 s (biomas e chefes) |
+| Música | `mus_*` | menu lento e atmosférico; ondas tensas e percussivas; chefe épico com metal industrial e metais; uma faixa por bioma e uma para cada um dos chefes 4 e 5; tudo instrumental | 60 s (temas) e 150 s (biomas e chefes) |
 | Voz | `voice_<chefe>_*` | falas curtas de entrada, mudança de fase e morte dos 5 chefes | 1,6 a 2,6 s |
 
 ## 3. Assets
@@ -49,19 +49,19 @@ A duração é a medida com `ffprobe` nos arquivos gerados. Os prompts estão ex
 | `sfx_ui_no_gold` | `assets/src/audio/sfx/sfx_ui_no_gold.mp3` | sfx | 0.5 s | dull empty thud of a hollow wooden chest closing, short dry low tone, close, no music, game sound effect | — | compra sem ouro suficiente |
 | `sfx_round_start_drum` | `assets/src/audio/sfx/sfx_round_start_drum.mp3` | sfx | 1.5 s | war drum single deep hit with a low rumble tail, heavy dry tone, medium distance, no music melody, game sound effect | — | evento `RoundStarted` |
 | `sfx_round_end_bell` | `assets/src/audio/sfx/sfx_round_end_bell.mp3` | sfx | 3.0 s | single cracked iron church bell toll, long cold metallic decay, heavy tone, far distance, no music melody, game sound effect | — | evento `RoundEnded` |
-| `mus_menu` | `assets/src/audio/music/mus_menu.mp3` | music | 60.1 s | slow dark ritual music, 75 BPM, deep low choir chanting with distorted gregorian feel, heavy detuned guitar drones and slow war drums, grimdark, no cheerful synthesizers, seamless loop | — | título e Ossuário (menu) |
-| `mus_biome_cemetery` | `assets/src/audio/music/mus_biome_cemetery.mp3` | music | 150.0 s | aggressive heavy metal combat music, 130 BPM, chugging low guitars, pounding war drums, ominous low choir, grimdark graveyard mood, no cheerful synthesizers, seamless loop | — | combate no Cemitério Submerso (`music` em `biomes.json`) |
-| `mus_biome_swamp` | `assets/src/audio/music/mus_biome_swamp.mp3` | music | 150.0 s | aggressive heavy metal combat music, 130 BPM, chugging low guitars, pounding war drums, ominous low choir, grimdark rotting bone swamp mood, wet low drones, croaking dissonant choir, no cheerful synthesizers, seamless loop | — | combate no Pântano de Ossos |
-| `mus_biome_forge` | `assets/src/audio/music/mus_biome_forge.mp3` | music | 150.0 s | aggressive heavy metal combat music, 130 BPM, chugging low guitars, pounding war drums, ominous low choir, grimdark infernal forge mood, anvil hammering percussion, roaring furnace drones, no cheerful synthesizers, seamless loop | — | combate na Forja Infernal |
-| `mus_biome_nest` | `assets/src/audio/music/mus_biome_nest.mp3` | music | 150.0 s | aggressive heavy metal combat music, 130 BPM, chugging low guitars, pounding war drums, ominous low choir, grimdark biomechanical nest mood, cold mechanical pulses, wet organic textures, no cheerful synthesizers, seamless loop | — | combate no Ninho Biomecânico |
-| `mus_round` | `assets/src/audio/music/mus_round.mp3` | music | 60.1 s | tense percussive grimdark combat music for survival waves, 120 BPM, driving war drums and industrial metal hits, low palm-muted guitar pulse, ominous brass drones, rising tension, no melody hooks, no cheerful synthesizers, seamless loop | — | tema genérico das ondas (reserva quando o bioma não tem faixa própria) |
-| `mus_boss` | `assets/src/audio/music/mus_boss.mp3` | music | 60.0 s | epic heavy boss battle music, 140 BPM, massive wordless choir, crushing industrial metal guitars, pounding orchestral percussion and anvil strikes, apocalyptic grimdark mood, no cheerful synthesizers, seamless loop | — | tema genérico de chefe (reserva quando o chefe não tem faixa própria) |
+| `mus_menu` | `assets/src/audio/music/mus_menu.mp3` | music | 60.1 s | instrumental only, no vocals, no choir, no singing, no humming, no voices, slow dark atmospheric ambient music, 75 BPM, deep detuned guitar drones, slow war drums, cold metallic reverb pads and distant wind, grimdark ritual mood, no cheerful synthesizers, seamless loop | — | título e Ossuário (menu) |
+| `mus_biome_cemetery` | `assets/src/audio/music/mus_biome_cemetery.mp3` | music | 150.0 s | instrumental only, no vocals, no choir, no singing, no humming, no voices, aggressive heavy metal combat music, 130 BPM, chugging low guitars, pounding war drums, grimdark sunken graveyard mood, tolling bells and cold wind ambience, no cheerful synthesizers, seamless loop | — | combate no Cemitério Submerso (`music` em `biomes.json`) |
+| `mus_biome_swamp` | `assets/src/audio/music/mus_biome_swamp.mp3` | music | 150.0 s | instrumental only, no vocals, no choir, no singing, no humming, no voices, aggressive heavy metal combat music, 130 BPM, chugging low guitars, pounding war drums, grimdark bone swamp mood, bubbling mud and croaking insect ambience, slow sludgy riffs, no cheerful synthesizers, seamless loop | — | combate no Pântano de Ossos |
+| `mus_biome_forge` | `assets/src/audio/music/mus_biome_forge.mp3` | music | 150.0 s | instrumental only, no vocals, no choir, no singing, no humming, no voices, aggressive heavy metal combat music, 130 BPM, chugging low guitars, pounding war drums, grimdark infernal forge mood, anvil hammering percussion, roaring furnace drones, no cheerful synthesizers, seamless loop | — | combate na Forja Infernal |
+| `mus_biome_nest` | `assets/src/audio/music/mus_biome_nest.mp3` | music | 150.0 s | instrumental only, no vocals, no choir, no singing, no humming, no voices, aggressive heavy metal combat music, 135 BPM, detuned low guitars, industrial grinding percussion, grimdark biomechanical hive mood, pulsing organic drones and clicking insect ambience, no cheerful synthesizers, seamless loop | — | combate no Ninho Biomecânico |
+| `mus_round` | `assets/src/audio/music/mus_round.mp3` | music | 60.1 s | instrumental only, no vocals, no choir, no singing, no humming, no voices, tense percussive grimdark combat music for survival waves, 120 BPM, driving war drums and industrial metal hits, low palm-muted guitar pulse, ominous brass drones, rising tension, no melody hooks, no cheerful synthesizers, seamless loop | — | tema genérico das ondas (reserva quando o bioma não tem faixa própria) |
+| `mus_boss` | `assets/src/audio/music/mus_boss.mp3` | music | 60.1 s | instrumental only, no vocals, no choir, no singing, no humming, no voices, epic heavy boss battle music, 140 BPM, crushing industrial metal guitars, pounding orchestral percussion, anvil strikes and massive brass, apocalyptic grimdark mood, no cheerful synthesizers, seamless loop | — | tema genérico de chefe (reserva quando o chefe não tem faixa própria) |
 | `sfx_boss_alpha_hunter_entry` | `assets/src/audio/sfx/sfx_boss_alpha_hunter_entry.mp3` | sfx | 3.0 s | towering alien hunter decloaking with a crackle of static, wet clicking mandibles and a low predatory snarl, heavy dry tone, medium distance, no music, game sound effect | — | `BossIntro` do Caçador Alfa (round 40) |
 | `sfx_boss_leap` | `assets/src/audio/sfx/sfx_boss_leap.mp3` | sfx | 1.5 s | huge predator leaping through the air then slamming into the ground, heavy impact with cracking stone and a guttural roar, heavy dry tone, medium distance, no music, game sound effect | — | evento `BossLeap` (salto do Caçador Alfa) |
 | `sfx_boss_nest_queen_entry` | `assets/src/audio/sfx/sfx_boss_nest_queen_entry.mp3` | sfx | 3.0 s | colossal biomechanical queen rising with a shriek, wet chitin scraping, deep resonant hiss and dripping ichor, heavy dry tone, medium distance, no music, game sound effect | — | `BossIntro` da Rainha do Ninho (round 50) |
 | `sfx_boss_sweep` | `assets/src/audio/sfx/sfx_boss_sweep.mp3` | sfx | 1.2 s | massive barbed tail whipping across the ground, fast whoosh and a crunching impact on bone and metal, heavy dry tone, medium distance, no music, game sound effect | — | evento `BossSweep` (varrida de cauda da Rainha) |
-| `mus_boss_alpha_hunter` | `assets/src/audio/music/mus_boss_alpha_hunter.mp3` | music | 150.0 s | relentless heavy metal boss music, 140 BPM, stalking low guitar riffs, tribal war drums, tense high string stabs, predator hunt mood, grimdark, no cheerful synthesizers, seamless loop | — | round de chefe 40 (Caçador Alfa) |
-| `mus_boss_nest_queen` | `assets/src/audio/music/mus_boss_nest_queen.mp3` | music | 150.0 s | crushing heavy metal boss music, 135 BPM, detuned low guitars, industrial grinding percussion, shrieking choir swells, biomechanical hive horror mood, grimdark, no cheerful synthesizers, seamless loop | — | round de chefe 50 (Rainha do Ninho) |
+| `mus_boss_alpha_hunter` | `assets/src/audio/music/mus_boss_alpha_hunter.mp3` | music | 150.0 s | instrumental only, no vocals, no choir, no singing, no humming, no voices, relentless heavy metal boss music, 140 BPM, stalking low guitar riffs, tribal war drums, tense high string stabs, predator hunt mood, grimdark, no cheerful synthesizers, seamless loop | — | round de chefe 40 (Caçador Alfa) |
+| `mus_boss_nest_queen` | `assets/src/audio/music/mus_boss_nest_queen.mp3` | music | 150.0 s | instrumental only, no vocals, no choir, no singing, no humming, no voices, crushing heavy metal boss music, 135 BPM, detuned low guitars, industrial grinding percussion, shrieking string swells, biomechanical hive horror mood, grimdark, no cheerful synthesizers, seamless loop | — | round de chefe 50 (Rainha do Ninho) |
 | `voice_alpha_hunter_entry` | `assets/src/audio/voice/voice_alpha_hunter_entry.mp3` | voice | 2.6 s | You cannot see me. You can only die. | Callum (rouca) | `BossIntro` do Caçador Alfa |
 | `voice_alpha_hunter_phase` | `assets/src/audio/voice/voice_alpha_hunter_phase.mp3` | voice | 1.9 s | The hunt begins in earnest. | Callum (rouca) | início da fase de caça (padrão `thermal_vision`) |
 | `voice_alpha_hunter_death` | `assets/src/audio/voice/voice_alpha_hunter_death.mp3` | voice | 2.3 s | A worthy prey... after all. | Callum (rouca) | `BossDied` do Caçador Alfa |
@@ -110,16 +110,31 @@ A duração é a medida com `ffprobe` nos arquivos gerados. Os prompts estão ex
 
 Vozes (conta ElevenLabs, plano Creator): **Callum** (`N2lVS1w4EtoT3dr4eOWO`, rouca e inquietante) fala pela Matriarca do Pântano e pelo Caçador Alfa; **Brian** (`nPczCjzI2devNBz1zQrb`, grave e ressonante) fala pelo Coveiro, pelo Forjador e pela Rainha do Ninho. A escolha saiu da lista de vozes da conta, entre as que soavam graves e sombrias. Trocar a voz exige alterar o `voiceId` no `prompts.json` e regenerar com `--force`.
 
-Os temas `mus_menu`, `mus_round` e `mus_boss` têm 60 s. A API de música (`POST /v1/music`, `music_length_ms` de 3.000 a 600.000, modelo `music_v1`) não tem parâmetro de loop; o "seamless loop" é só pedido no prompt, então o ponto de emenda precisa ser conferido de ouvido antes de o motor de áudio usar a faixa em `loop`.
+Os temas `mus_menu`, `mus_round` e `mus_boss` têm 60 s; biomas e chefes têm 150 s. A API de música (`POST /v1/music`, `music_length_ms` de 3.000 a 600.000, modelo `music_v1`) não tem parâmetro de loop; o "seamless loop" é só pedido no prompt, então o ponto de emenda precisa ser conferido de ouvido antes de o motor de áudio usar a faixa em `loop`.
 
-## 4. Créditos
+## 4. Arquivo (versões anteriores)
+
+As nove músicas da primeira leva tinham coral (os prompts pediam "choir"), e o PO pediu só instrumental e ambiência. Elas foram arquivadas, sem apagar, em `assets/audio-archive/music/<id>_v1_vocal.mp3` com o `<id>_v1_vocal.meta.json` ao lado. A pasta fica fora de `assets/src/audio/`, que é a única que o `assets:build` copia para o jogo.
+
+| Arquivado | Motivo |
+| --- | --- |
+| `mus_menu_v1_vocal` | prompt pedia "deep low choir chanting" |
+| `mus_round_v1_vocal` | prompt pedia coral e vozes nas ondas |
+| `mus_boss_v1_vocal` | prompt pedia "massive wordless choir" |
+| `mus_biome_cemetery_v1_vocal`, `mus_biome_swamp_v1_vocal`, `mus_biome_forge_v1_vocal`, `mus_biome_nest_v1_vocal` | prompts pediam "ominous low choir" |
+| `mus_boss_alpha_hunter_v1_vocal`, `mus_boss_nest_queen_v1_vocal` | a Rainha pedia "shrieking choir swells"; o Caçador foi arquivado na dúvida |
+
+Para voltar a uma versão antiga, copie o par de arquivos de volta para `assets/src/audio/music/` com o id original e ajuste o `prompts.json` (o hash do `meta.json` decide se o `audio-generate` a considera atual).
+
+## 5. Créditos
 
 - Primeira leva (39 arquivos: 24 SFX, 9 músicas, 6 falas): o script estimou 21.167 créditos; o saldo da conta foi de 31.917 para 45.105 de 124.333, ou seja, **13.188 créditos** reais (inclui a repetição de uma faixa que falhou com HTTP 429).
+- Regeneração instrumental (9 faixas de música, versões novas de `mus_*`): saldo de 47.712 para 62.559, ou seja, **14.847 créditos** reais (a estimativa do script para as 9 faixas é 16.200).
 - Segunda leva (39 arquivos: 30 SFX e 9 falas, com os ids que o motor de áudio pede): o script estimou 6.251 créditos; o saldo foi de 47.167 para 47.502, ou seja, **335 créditos** reais.
-- Total medido: cerca de **13.500 créditos** para os 78 arquivos. A estimativa do script é conservadora, sobretudo na música. O saldo é de uma conta compartilhada, então o delta pode incluir outro uso entre as leituras.
+- Total medido: cerca de **28.350 créditos** para os 78 arquivos mais a regeneração das músicas (as 9 faixas vocais arquivadas contam nos 13.188 da primeira leva). A estimativa do script é conservadora, sobretudo na música. O saldo é de uma conta compartilhada, então o delta pode incluir outro uso entre as leituras.
 - Plano: Creator (`plan: creator` em todos os `.meta.json`), com licença comercial.
 
-## 5. Como regenerar
+## 6. Como regenerar
 
 1. Coloque `ELEVENLABS_API_KEY` e `ELEVENLABS_PLAN=creator` no `.env` local (nunca commitado) ou no ambiente. O Bun carrega o `.env` do diretório atual.
 2. Confira o que mudou: `bun run audio:generate --dry-run`. O script pula arquivos cujo `meta.json` tem o mesmo hash (prompt, modelo, duração, loop, influência e voz).
@@ -128,7 +143,7 @@ Os temas `mus_menu`, `mus_round` e `mus_boss` têm 60 s. A API de música (`POST
 5. Depois de gerar, escute as faixas de música em loop e confira o `plan` dos `.meta.json`; arquivos com `plan: free` não entram no manifest de produção.
 6. Atualize a tabela da seção 3 deste documento quando mudar prompt, voz ou duração.
 
-## 6. Pendências
+## 7. Pendências
 
 - O `assets:build` copia os mp3 para `public/assets/audio/<id>.mp3` e o motor de áudio (`apps/web/src/audio`) pede os ids pelo nome: `voice_<id do chefe>_<entry|phase|death>`, `sfx_boss_<id>_entry` e os `sfx_*` por evento (`eventSounds.ts`).
 - O `enemyDeath` de `apps/web/src/main.tsx` só distingue `wail` e `husk`. Os ids `sfx_enemy_<id>_death` dos 8 tipos já existem, e o S2 precisa trocar o mapa por `sfx_enemy_${id}_death`.

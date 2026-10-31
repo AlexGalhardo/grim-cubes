@@ -12,6 +12,8 @@ export interface PromptEntry {
 	loop?: boolean;
 	promptInfluence?: number;
 	voiceId?: string;
+	/** Music only: asks the API for `force_instrumental` (no vocals, choir or humming). */
+	instrumental?: boolean;
 	model: string;
 }
 
@@ -23,6 +25,7 @@ export interface MetaFile {
 	plan: string;
 	promptInfluence?: number;
 	voiceId?: string;
+	instrumental?: boolean;
 	hash: string;
 }
 
@@ -53,7 +56,8 @@ export function parsePrompts(raw: unknown): PromptEntry[] {
 	const seen = new Set<string>();
 	return raw.map((item, i) => {
 		if (!isRecord(item)) throw new Error(`prompts[${i}] must be an object`);
-		const { file, kind, prompt, durationSeconds, model, loop, promptInfluence, voiceId } = item;
+		const { file, kind, prompt, durationSeconds, model, loop, promptInfluence, voiceId, instrumental } =
+			item;
 		if (typeof file !== "string" || !/^[a-z][a-z0-9_]*$/.test(file))
 			throw new Error(`prompts[${i}].file invalid`);
 		if (seen.has(file)) throw new Error(`prompts: duplicate file "${file}"`);
@@ -74,6 +78,7 @@ export function parsePrompts(raw: unknown): PromptEntry[] {
 		if (typeof loop === "boolean") entry.loop = loop;
 		if (typeof promptInfluence === "number") entry.promptInfluence = promptInfluence;
 		if (typeof voiceId === "string") entry.voiceId = voiceId;
+		if (typeof instrumental === "boolean") entry.instrumental = instrumental;
 		return entry;
 	});
 }
@@ -86,7 +91,7 @@ export function estimateCredits(entry: PromptEntry): number {
 }
 
 export function hashEntry(entry: PromptEntry): string {
-	const { prompt, model, durationSeconds, loop, promptInfluence, voiceId } = entry;
+	const { prompt, model, durationSeconds, loop, promptInfluence, voiceId, instrumental } = entry;
 	return createHash("sha256")
 		.update(
 			JSON.stringify([
@@ -96,6 +101,7 @@ export function hashEntry(entry: PromptEntry): string {
 				loop ?? null,
 				promptInfluence ?? null,
 				voiceId ?? null,
+				...(instrumental === undefined ? [] : [instrumental]),
 			]),
 		)
 		.digest("hex");
@@ -148,6 +154,7 @@ export function buildRequest(entry: PromptEntry): { url: string; body: Record<st
 				prompt: entry.prompt,
 				music_length_ms: Math.round(entry.durationSeconds * 1000),
 				model_id: entry.model,
+				...(entry.instrumental === undefined ? {} : { force_instrumental: entry.instrumental }),
 			},
 		};
 	}
@@ -225,6 +232,7 @@ export async function generateOne(entry: PromptEntry, deps: GenerateDeps): Promi
 				hash: hashEntry(entry),
 				...(entry.promptInfluence !== undefined && { promptInfluence: entry.promptInfluence }),
 				...(entry.voiceId !== undefined && { voiceId: entry.voiceId }),
+				...(entry.instrumental !== undefined && { instrumental: entry.instrumental }),
 			};
 			await writeFile(paths.audio, audio);
 			await writeFile(paths.meta, `${JSON.stringify(meta, null, "\t")}\n`);

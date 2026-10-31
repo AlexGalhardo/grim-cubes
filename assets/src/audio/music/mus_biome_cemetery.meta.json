@@ -1,8 +1,9 @@
 {
-	"prompt": "aggressive heavy metal combat music, 130 BPM, chugging low guitars, pounding war drums, ominous low choir, grimdark graveyard mood, no cheerful synthesizers, seamless loop",
+	"prompt": "instrumental only, no vocals, no choir, no singing, no humming, no voices, aggressive heavy metal combat music, 130 BPM, chugging low guitars, pounding war drums, grimdark sunken graveyard mood, tolling bells and cold wind ambience, no cheerful synthesizers, seamless loop",
 	"model": "music_v1",
 	"durationSeconds": 150,
-	"generatedAt": "2026-10-31T15:37:46.269Z",
+	"generatedAt": "2026-10-31T16:11:52.299Z",
 	"plan": "creator",
-	"hash": "864be87bc353639499c9462bd9a535665056f781617a70140b516dfb9f6f1bf0"
+	"hash": "5adcb55f5ed5d38d5e1313431be876e8d687a8a70face211acd385c54738d7d0",
+	"instrumental": true
 }

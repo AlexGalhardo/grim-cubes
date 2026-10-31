@@ -1,8 +1,9 @@
 {
-	"prompt": "crushing heavy metal boss music, 135 BPM, detuned low guitars, industrial grinding percussion, shrieking choir swells, biomechanical hive horror mood, grimdark, no cheerful synthesizers, seamless loop",
+	"prompt": "instrumental only, no vocals, no choir, no singing, no humming, no voices, crushing heavy metal boss music, 135 BPM, detuned low guitars, industrial grinding percussion, shrieking string swells, biomechanical hive horror mood, grimdark, no cheerful synthesizers, seamless loop",
 	"model": "music_v1",
 	"durationSeconds": 150,
-	"generatedAt": "2026-10-31T15:39:06.476Z",
+	"generatedAt": "2026-10-31T16:12:38.565Z",
 	"plan": "creator",
-	"hash": "ce65e9cd54845c1e2f164d91a265db448ee47ba941b8685c5d3233560f1757af"
+	"hash": "3dbac67c9b8283334c0613e55ece7ba14beb4a78db7c868789e2cffa00dec3d0",
+	"instrumental": true
 }

@@ -1,8 +1,9 @@
 {
-	"prompt": "aggressive heavy metal combat music, 130 BPM, chugging low guitars, pounding war drums, ominous low choir, grimdark biomechanical nest mood, cold mechanical pulses, wet organic textures, no cheerful synthesizers, seamless loop",
+	"prompt": "instrumental only, no vocals, no choir, no singing, no humming, no voices, aggressive heavy metal combat music, 135 BPM, detuned low guitars, industrial grinding percussion, grimdark biomechanical hive mood, pulsing organic drones and clicking insect ambience, no cheerful synthesizers, seamless loop",
 	"model": "music_v1",
 	"durationSeconds": 150,
-	"generatedAt": "2026-10-31T15:38:25.280Z",
+	"generatedAt": "2026-10-31T16:12:20.844Z",
 	"plan": "creator",
-	"hash": "b25302dc20ed2fb7b3bfd1b51a76bc25333cd59959e7f2a075e5bb8502040b2a"
+	"hash": "3c389dac23ef8e7d8da3b708e2de4dcdedb62ece25dc816d462f0702a9b802b4",
+	"instrumental": true
 }
