@@ -1,6 +1,6 @@
 # B-03-01: checklist do Art Bible §14
 
-Gerado em 2026-10-31 pelo Art sobre os 76 modelos de `assets/src/models/`. Uma linha por modelo; ✔ cumpre, ✘ não cumpre.
+Gerado em 2026-10-31 por `tools/assets-gen/checklist.ts` sobre os 76 modelos de `assets/src/models/`. Uma linha por modelo; ✔ cumpre, ✘ não cumpre.
 
 ## Itens
 
@@ -9,7 +9,7 @@ Gerado em 2026-10-31 pelo Art sobre os 76 modelos de `assets/src/models/`. Uma l
 3. Elementos dentro do orçamento (§5.1; classe de tamanho de `data/` para inimigos e props)
 4. Textura múltipla de 32 px, 4 a 12 cores, sem `#FFFFFF`/`#000000`, com desgaste e AO pintados
 5. Sombra com matiz (`shadow`, `mist` ou `night` presentes) e luz do topo
-6. Silhueta em preto sólido a 64 px, ajustada a 64x64 (`docs/art/review/silhouettes/<categoria>-{front,side}.png`)
+6. Silhueta em preto sólido a 64 px (`docs/art/review/silhouettes/<categoria>-side.png`)
 7. Grupos e sockets conforme §6
 8. Clipes obrigatórios de §8 presentes
 9. Emissivos em `_e.png` separado
@@ -21,11 +21,7 @@ Gerado em 2026-10-31 pelo Art sobre os 76 modelos de `assets/src/models/`. Uma l
 
 | Modelo | Elem. | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `bosses/alpha_hunter` | 23/48 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✘ | ✔ |
-| `bosses/forgemaster` | 23/48 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✘ | ✔ |
-| `bosses/gravedigger` | 28/48 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✘ | ✔ |
-| `bosses/nest_queen` | 35/48 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✘ | ✔ |
-| `bosses/swamp_matriarch` | 29/48 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✘ | ✔ |
+| `hero/hero` | 24/24 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✘ | ✔ |
 | `enemies/breeder` | 16/20 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✘ | ✔ |
 | `enemies/drowned` | 15/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✘ | ✔ |
 | `enemies/forged` | 18/20 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✘ | ✔ |
@@ -34,7 +30,11 @@ Gerado em 2026-10-31 pelo Art sobre os 76 modelos de `assets/src/models/`. Uma l
 | `enemies/leech` | 10/10 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✘ | ✔ |
 | `enemies/wail` | 10/10 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✘ | ✔ |
 | `enemies/watcher` | 12/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✘ | ✔ |
-| `hero/hero` | 24/24 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✘ | ✔ |
+| `bosses/alpha_hunter` | 23/48 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✘ | ✔ |
+| `bosses/forgemaster` | 23/48 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✘ | ✔ |
+| `bosses/gravedigger` | 28/48 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✘ | ✔ |
+| `bosses/nest_queen` | 35/48 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✘ | ✔ |
+| `bosses/swamp_matriarch` | 29/48 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✘ | ✔ |
 | `npc/bone_merchant` | 22/28 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✘ | ✔ |
 | `props/prop_antenna_01` | 6/8 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✘ | ✔ |
 | `props/prop_anvil_01` | 6/8 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✘ | ✔ |
