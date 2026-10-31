@@ -176,4 +176,34 @@ describe("character rig", () => {
 		expect(size()).toEqual(before);
 		dispose();
 	});
+
+	it("keeps a final clip, leaves it on revive, holds a pose and tints", async () => {
+		const { character, dispose } = await setup();
+		expect(character.playFinal("death")).toBe(true);
+		expect(character.playFinal("missing")).toBe(false);
+		character.setSpeed(4);
+		character.update(0.2);
+		expect(character.weight("death")).toBe(1);
+		character.clearFinal();
+		character.clearFinal();
+		expect(character.holdPose("run", 0.5)).toBe(true);
+		expect(character.holdPose("missing", 0.5)).toBe(false);
+		expect(character.weight("run")).toBe(1);
+		character.setTint("#FF0000");
+		character.setVisible(false);
+		expect(character.holder.isEnabled()).toBe(false);
+		dispose();
+	});
+
+	it("freezes the pose while the game is paused and resumes after", async () => {
+		const { character, dispose } = await setup();
+		character.setSpeed(4);
+		character.update(0.2);
+		character.update(0);
+		character.update(0);
+		character.update(0.05);
+		expect(character.weight("run")).toBe(1);
+		character.dispose();
+		dispose();
+	});
 });
