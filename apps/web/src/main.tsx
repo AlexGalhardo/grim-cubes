@@ -85,7 +85,14 @@ import {
 	worldData,
 	xpForLevel,
 } from "@gc/game";
-import { createInputSources, createWebStorage, detectPlatform, type StorageKey } from "@gc/platform";
+import {
+	createElectronStorage,
+	createInputSources,
+	createWebStorage,
+	detectPlatform,
+	migrateStorage,
+	type StorageKey,
+} from "@gc/platform";
 import {
 	applyPreset,
 	auraHex,
@@ -206,8 +213,18 @@ async function boot(): Promise<void> {
 	const bench = __DEBUG_API__ ? params.get("bench") : null;
 	const seed = bench ? 42 : runSeed();
 
-	// Account progress lives in IndexedDB (SDD 06). A corrupt or unreadable save starts a fresh one.
-	const storage = createWebStorage();
+	// Account progress lives in IndexedDB on the web and in files under the app data folder in Electron (SDD 06,
+	// ADR-0009). A corrupt or unreadable save starts a fresh one.
+	const desktop = window.gcDesktop;
+	const storage = desktop ? createElectronStorage(desktop.storage) : createWebStorage();
+	if (desktop) {
+		// First run with files: the save the same origin kept in IndexedDB before moves over once.
+		const moved = await migrateStorage(createWebStorage(), storage).catch((error: unknown) => {
+			log.warn("save migration from IndexedDB failed", error);
+			return [];
+		});
+		if (moved.length > 0) log.info("save moved from IndexedDB to files", moved);
+	}
 	// The save keys ("save", "save.bak", "save.corrupt") are all valid storage keys; core only knows strings.
 	const saveIO: SaveIO = {
 		read: (key) => storage.read(key as StorageKey),

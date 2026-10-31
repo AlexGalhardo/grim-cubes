@@ -353,6 +353,23 @@ const SETTINGS_KEYS: Readonly<Record<number, readonly (keyof Settings)[]>> = {
 		"keys",
 		"pad",
 	],
+	8: [
+		"preset",
+		"volume",
+		"screenShake",
+		"locale",
+		"gameSpeed",
+		"telemetry",
+		"brightness",
+		"contrast",
+		"colorblind",
+		"flashReduction",
+		"uiScale",
+		"gore",
+		"keys",
+		"pad",
+		"subtitles",
+	],
 };
 
 /** The data as an older schema's checksum saw it: only the settings keys that schema knew. */
@@ -361,8 +378,8 @@ function coveredBy(version: number, data: MetaState): unknown {
 	if (version >= 9) return data;
 	const keys = SETTINGS_KEYS[version];
 	const settings: Record<string, unknown> = {};
-	for (const key of keys ?? (Object.keys(data.settings) as (keyof Settings)[]))
-		settings[key] = data.settings[key];
+	if (!keys) throw new RangeError(`no settings key list for schema ${version}`);
+	for (const key of keys) settings[key] = data.settings[key];
 	// Schemas 7 and 8 stored only the dash and pause buttons (9 added reroll and speed).
 	if ("pad" in settings) settings.pad = { dash: data.settings.pad.dash, pause: data.settings.pad.pause };
 	return { ...data, settings };

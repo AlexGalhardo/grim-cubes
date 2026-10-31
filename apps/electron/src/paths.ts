@@ -12,3 +12,8 @@ export function resolveAppPath(urlPath: string, root: string): string | null {
 	const file = normalize(join(root, relative));
 	return file === root || file.startsWith(root + sep) ? file : null;
 }
+
+/** Only the game's own page may use the storage channels: `app://game/...`, never another frame or origin. */
+export function isTrustedSender(url: string | undefined): boolean {
+	return typeof url === "string" && url.startsWith("app://game/");
+}

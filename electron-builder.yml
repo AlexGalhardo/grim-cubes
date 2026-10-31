@@ -15,6 +15,9 @@ win:
       arch: x64
     - target: portable
       arch: x64
+    # The unpacked folder (release/win-unpacked) is what the Steam upload ships; the release workflow does not attach it.
+    - target: dir
+      arch: x64
 nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true

@@ -16,7 +16,10 @@ export {
 	DEFAULT_BINDINGS,
 	readGamepad,
 } from "./input";
-export { createCapacitorStorage, createElectronStorage } from "./storage/stubs";
+export type { ElectronStorage, ElectronStorageBridge } from "./storage/electron";
+export { createElectronStorage } from "./storage/electron";
+export { migrateStorage } from "./storage/migrate";
+export { createCapacitorStorage } from "./storage/stubs";
 export type { PlatformStorage, StorageKey } from "./storage/types";
 export { MAX_VALUE_BYTES, NotImplementedError, STORAGE_KEYS } from "./storage/types";
 export { createWebStorage } from "./storage/web";

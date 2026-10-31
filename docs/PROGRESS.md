@@ -115,3 +115,4 @@ Fonte: IDs dos rodapés `Refs: ROADMAP#` de eb12bc2 a 59d5a42, do commit mais re
 - Pós-processo ffmpeg do `audio-generate` (SDD 08 §3: LUFS, trim, pitch de chefes).
 - `bun audit` (2026-10-31): 3 vulnerabilidades só em ferramentas de desenvolvimento, fora do bundle do jogo: `re2js` 2.8.6 (alta, DoS) e `katex` 0.16.47 (baixa) via `markdownlint-cli2`; `minimatch` (moderada, DoS) via `electron-builder`. Subir `markdownlint-cli2` e `electron-builder` para a primeira versão estável com a correção, com versão exata (sem dependência nova). Conferir a cada release com `bun audit`.
 - Risco: conversor `.bbmodel` validado contra o próprio pipeline e o Babylon; os modelos refinados no Blockbench 5 passam pelo leitor de `groups` separado (4a4f19b).
+- Dívida (P3, Esp): HSTS (`Strict-Transport-Security`) no `vercel.json` só quando houver domínio próprio; no domínio `*.vercel.app` a Vercel já o aplica. Não fazer antes disso.
