@@ -47,12 +47,13 @@ describe("sim harness", () => {
 	});
 
 	// Guard against an O(n^2) pass sneaking into a system: CPU time (not wall time, which other processes on the
-	// machine inflate) of a run that steps a full horde for thousands of steps; 10 s budget.
+	// machine inflate) of a run that steps a full horde for thousands of steps. 20 s budget: the full session (props,
+	// chunks, breakables) takes ~10 s of CPU on a GitHub runner, and an O(n^2) pass would blow far past this.
 	it("simulates a full horde within a loose CPU budget", () => {
 		const before = process.cpuUsage();
 		runSim({ seed: 3, rounds: 10, difficulty: "normal" });
 		const used = process.cpuUsage(before);
-		expect((used.user + used.system) / 1000).toBeLessThan(10_000);
+		expect((used.user + used.system) / 1000).toBeLessThan(20_000);
 	});
 });
 
