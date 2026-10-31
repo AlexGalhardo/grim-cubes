@@ -1213,6 +1213,11 @@ async function boot(): Promise<void> {
 				Position.x[hero] = PrevPosition.x[hero] = x;
 				Position.z[hero] = PrevPosition.z[hero] = z;
 			},
+			/** Biome under the hero and whether its chunk is loaded (biome captures, A-02-01). */
+			biome: () => ({
+				id: biomesData[atmosphere.biome]?.id ?? "",
+				loaded: chunks.slots.some((c) => c?.biome === atmosphere.biome),
+			}),
 			minPropAlpha: () => chunkRenderer.minAlpha(),
 			setGore: (full: boolean) => vfx.setGore(full),
 			/** Fires `count` enemy deaths on a ring around the hero (gore comparison capture, P-04-05). */
