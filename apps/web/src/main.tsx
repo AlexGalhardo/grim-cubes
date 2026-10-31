@@ -1251,6 +1251,17 @@ async function boot(): Promise<void> {
 			/** One enemy of the given type index at (x, z) relative to the hero (A-02-02b capture). */
 			spawnEnemy: (typeIndex: number, x: number, z: number) =>
 				spawn.spawnEnemy(world, typeIndex, (Position.x[hero] ?? 0) + x, (Position.z[hero] ?? 0) + z),
+			/** Weapon scale capture: swaps the weapon in the hero's hand for `weapon_<id>` and closes the camera in. */
+			showWeapon: async (id: string) => {
+				const entry = assets?.manifest.entries[`weapon_${id}`];
+				if (!heroRig || !assets || !entry) return false;
+				const mesh = await importModelMesh(game.scene, `/assets/${entry.url}`).catch(() => null);
+				if (!mesh) return false;
+				if (assets.characterMaterial) mesh.material = assets.characterMaterial;
+				heroRig.attachWeapon(mesh);
+				game.camera.radius = 5;
+				return true;
+			},
 			/**
 			 * Hero-facing capture: one motionless, tough enemy 1.2 u to the right (inside the sword range) of the hero and a closer camera. Walk left
 			 * (key A) and the rig must keep looking at it.
