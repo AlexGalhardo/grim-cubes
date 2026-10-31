@@ -36,6 +36,7 @@ export function createEffectsSystem(
 	items: readonly EffectSource[],
 	owned: ReadonlyMap<string, number>,
 	extra?: EffectsExtra,
+	events?: EventBuffer,
 ): EffectsSystem {
 	const effects = createItemEffects();
 	let spent = 0;
@@ -50,6 +51,7 @@ export function createEffectsSystem(
 			spent++;
 			Health.hp[hero] = (Health.max[hero] ?? 0) * effects.reviveHpFraction;
 			Invulnerable.ticks[hero] = REVIVE_IFRAMES;
+			events?.push(EventType.Revived, 0, 0, 0, hero);
 			refresh();
 			return true;
 		},
@@ -100,6 +102,7 @@ export interface BleedSystemDeps {
 }
 
 const bleeding = createQueryCache([Bleed]);
+const enemyFaction = createQueryCache([EnemyFaction]);
 /** The bleed reports its damage to the render in lumps this often (steps), not every step. */
 const BLEED_REPORT_STEPS = 30;
 
@@ -157,15 +160,18 @@ export function createThornsSystem(deps: ThornsSystemDeps): AuraSystem {
 			const hx = Position.x[hero] ?? 0;
 			const hz = Position.z[hero] ?? 0;
 			const reach = Radius.r[hero] ?? 0;
+			// Every enemy cools down, near the hero or not: one that walked away must not come back still on cooldown.
+			const all = enemyFaction(world);
+			for (let i = 0; i < all.length; i++) {
+				const e = all[i] ?? 0;
+				const wait = ThornsCooldown.ticks[e] ?? 0;
+				if (wait > 0) ThornsCooldown.ticks[e] = wait - 1;
+			}
 			const n = effects.contactDamage > 0 ? enemies.queryCircle(hx, hz, reach + 3, near) : 0;
 			for (let i = 0; i < n; i++) {
 				const e = near[i] ?? 0;
 				if (!hasComponent(world, e, EnemyFaction) || (Health.hp[e] ?? 0) <= 0) continue;
-				const wait = ThornsCooldown.ticks[e] ?? 0;
-				if (wait > 0) {
-					ThornsCooldown.ticks[e] = wait - 1;
-					continue;
-				}
+				if ((ThornsCooldown.ticks[e] ?? 0) > 0) continue;
 				const dist = Math.hypot((Position.x[e] ?? 0) - hx, (Position.z[e] ?? 0) - hz);
 				if (dist > reach + (Radius.r[e] ?? 0)) continue;
 				queue.push(e, effects.contactDamage, hero, 0, 0, 0);

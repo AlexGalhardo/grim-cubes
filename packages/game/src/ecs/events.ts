@@ -31,7 +31,8 @@ export const EventType = {
 	ChestOpened: 16,
 	/**
 	 * a, b = unit direction x, z; c = seconds until the hit lands; entity = the boss. Always preceded by a
-	 * BossPattern event that names the pattern.
+	 * BossPattern event that names the pattern. Exception: for mud_pool a, b are the x, z of the spot the pool
+	 * will land on.
 	 */
 	BossTelegraph: 17,
 	/** a, b = x, z of the summoner; c = number summoned. */
@@ -58,6 +59,8 @@ export const EventType = {
 	BossShockwave: 28,
 	/** a = phase number entered (2 = the armoured phase); entity = the boss. */
 	BossPhase: 29,
+	/** The hero was revived (Phylactery): leave the death pose; entity = the hero. */
+	Revived: 30,
 	/** a = new level. The run paused and a card offer is waiting. */
 	LevelUp: 11,
 } as const;

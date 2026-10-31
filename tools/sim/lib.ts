@@ -185,11 +185,16 @@ export function runSim(options: SimOptions): SimReport {
 	stats.add(bonus.modifiers);
 	stats.run(hero);
 	const owned = new Map<string, number>();
-	const itemEffects = createEffectsSystem(itemsData, owned, {
-		fragmentGain: bonus.fragmentGain,
-		soulGain: bonus.soulGain,
-		weakReviveHpFraction: bonus.weakReviveHpFraction,
-	});
+	const itemEffects = createEffectsSystem(
+		itemsData,
+		owned,
+		{
+			fragmentGain: bonus.fragmentGain,
+			soulGain: bonus.soulGain,
+			weakReviveHpFraction: bonus.weakReviveHpFraction,
+		},
+		events,
+	);
 
 	const enemyIds = enemiesData.map((e) => e.id);
 	const maxRadius = Math.max(...enemiesData.map((e) => e.radius));

@@ -28,6 +28,8 @@ export function applyOriginShift(
 	hero: number,
 	events: EventBuffer,
 	config: OriginShiftConfig,
+	/** Called with the shift so systems holding positions of their own (boss pools) can follow it. */
+	onShift?: (dx: number, dz: number) => void,
 ): boolean {
 	const hx = Position.x[hero] ?? 0;
 	const hz = Position.z[hero] ?? 0;
@@ -47,5 +49,6 @@ export function applyOriginShift(
 		PrevPosition.z[eid] = (PrevPosition.z[eid] ?? 0) - dz;
 	}
 	events.push(EventType.OriginShifted, dx, dz, 0, hero);
+	onShift?.(dx, dz);
 	return true;
 }

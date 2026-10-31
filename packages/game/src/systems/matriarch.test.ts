@@ -134,6 +134,29 @@ test("the mud pool slows the hero by 50% while inside and for 3 s after leaving"
 	expect(slowedAfter).toBeLessThanOrEqual(185);
 });
 
+test("the pool telegraph names the spot it will land on, and the pool follows an origin shift", () => {
+	const { world, hero, boss, heroStatus, step, events } = setup(8);
+	const e = boss.start(world, 20);
+	Position.x[e] = 0;
+	Position.z[e] = 0;
+	let spot: number[] | null = null;
+	let pool: number[] | null = null;
+	for (let i = 0; i < 60 * 6 && !pool; i++) {
+		step();
+		events.consume((type, a, b, c) => {
+			if (type === EventType.BossTelegraph && c === 1 && !spot) spot = [a, b];
+			if (type === EventType.BossPool) pool = [a, b];
+		});
+	}
+	expect(spot).toEqual(pool);
+	// The world origin moves 16 u: bodies shift by -16, and so must the pool.
+	boss.shiftOrigin(16, 0);
+	Position.x[hero] = 8 - 16;
+	Position.x[e] = -400;
+	step();
+	expect(heroStatus.speedMultiplier).toBe(0.5);
+});
+
 test("the scream shoves a hero standing next to her away and hurts it, after a telegraph", () => {
 	const { world, hero, boss, step, events } = setup(2);
 	const e = boss.start(world, 20);

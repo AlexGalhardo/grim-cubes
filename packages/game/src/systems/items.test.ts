@@ -14,6 +14,7 @@ import {
 	Knockback,
 	Position,
 	Radius,
+	ThornsCooldown,
 } from "../ecs/components";
 import { createEventBuffer, EventType } from "../ecs/events";
 import { dropFragment } from "../ecs/fragments";
@@ -451,4 +452,38 @@ test("cube_of_wrath sends a wave around the hero every 50 kills", () => {
 
 test("no item is left marked alpha", () => {
 	expect(itemsData.filter((i) => i.status === "alpha")).toEqual([]);
+});
+
+test("the Phylactery announces the revive so the render can leave the death pose", () => {
+	const events = createEventBuffer(8);
+	const world = createGameWorld();
+	const hero = spawnBody(world, 0, 0);
+	Health.max[hero] = 100;
+	Health.hp[hero] = 0;
+	const fx = createEffectsSystem(itemsData, owning("phylactery"), undefined, events);
+	expect(fx.tryRevive(hero)).toBe(true);
+	const seen: number[] = [];
+	events.consume((type, _a, _b, _c, e) => {
+		if (type === EventType.Revived) seen.push(e);
+	});
+	expect(seen).toEqual([hero]);
+});
+
+test("spiked_boots cooldowns run down for enemies that left the hero's reach", () => {
+	const { world, hero, hash, enemy, fx, damage } = fighters(owning("spiked_boots"));
+	const e = enemy(0.2, 0);
+	const thorns = createThornsSystem({
+		effects: fx.effects,
+		queue: damage.queue,
+		enemies: hash,
+		cooldownSeconds: 0.5,
+	});
+	thorns.run(world, hero);
+	expect(ThornsCooldown.ticks[e]).toBe(30);
+	// It walks off and the spatial hash no longer finds it near the hero.
+	Position.x[e] = 50;
+	hash.clear();
+	hash.insert(e, 50, 0);
+	for (let i = 0; i < 30; i++) thorns.run(world, hero);
+	expect(ThornsCooldown.ticks[e]).toBe(0);
 });

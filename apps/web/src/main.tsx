@@ -244,11 +244,16 @@ async function boot(): Promise<void> {
 		events,
 	});
 	let touchDash = false;
-	const itemEffects = createEffectsSystem(itemsData, owned, {
-		fragmentGain: ossuaryBonus.fragmentGain,
-		soulGain: ossuaryBonus.soulGain,
-		weakReviveHpFraction: ossuaryBonus.weakReviveHpFraction,
-	});
+	const itemEffects = createEffectsSystem(
+		itemsData,
+		owned,
+		{
+			fragmentGain: ossuaryBonus.fragmentGain,
+			soulGain: ossuaryBonus.soulGain,
+			weakReviveHpFraction: ossuaryBonus.weakReviveHpFraction,
+		},
+		events,
+	);
 
 	const startingWeapon = weaponsData.find((w) => w.id === heroData.startingWeapon);
 	if (!startingWeapon) throw new Error(`Unknown starting weapon ${heroData.startingWeapon}`);
@@ -995,7 +1000,7 @@ async function boot(): Promise<void> {
 					Position.z[hero] ?? 0,
 					worldData.cullDistance,
 				);
-				applyOriginShift(world, origin, hero, events, worldData);
+				applyOriginShift(world, origin, hero, events, worldData, boss.shiftOrigin);
 				chunks.update(origin.x + (Position.x[hero] ?? 0), origin.z + (Position.z[hero] ?? 0));
 				spawn.run(world, hero);
 				// Keep the horde at the cap: enemies are made effectively immortal (the bench measures the load, not the
@@ -1037,7 +1042,7 @@ async function boot(): Promise<void> {
 				);
 				propCollision.resolve(world, origin, hero);
 				propCollision.resolveEnemies(world, origin);
-				applyOriginShift(world, origin, hero, events, worldData);
+				applyOriginShift(world, origin, hero, events, worldData, boss.shiftOrigin);
 				chunks.update(origin.x + (Position.x[hero] ?? 0), origin.z + (Position.z[hero] ?? 0));
 				targeting.run(world, hero, weapon.range);
 				weapon.run(world, hero);

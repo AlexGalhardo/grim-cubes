@@ -53,6 +53,8 @@ export interface BossSystem {
 	handleDeath(world: GameWorld, enemy: number, x: number, z: number): void;
 	readonly entity: number;
 	view(): BossView | null;
+	/** Call when the world origin shifts so remembered positions (mud pools) follow it. */
+	shiftOrigin(dx: number, dz: number): void;
 }
 
 /** HP of the boss at `round`: base at its own round, +35% per ten rounds after (GDD 12.1), times difficulty. */
@@ -226,6 +228,9 @@ export function createBossSystem(deps: BossSystemDeps): BossSystem {
 			events.push(EventType.ChestDropped, x, z, 0, 0);
 			onDefeated();
 		},
+		shiftOrigin(dx: number, dz: number): void {
+			for (const p of patterns) p.handler.shift?.(dx, dz);
+		},
 		view(): BossView | null {
 			if (entity < 0) return null;
 			return {
@@ -271,5 +276,8 @@ export function createBossRoster(base: Omit<BossSystemDeps, "def">, defs: readon
 			return current?.entity ?? -1;
 		},
 		view: () => current?.view() ?? null,
+		shiftOrigin(dx, dz): void {
+			for (const system of systems.values()) system.shiftOrigin(dx, dz);
+		},
 	};
 }

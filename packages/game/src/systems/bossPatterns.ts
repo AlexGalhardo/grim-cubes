@@ -59,6 +59,8 @@ export interface PatternHandler {
 	update?(ctx: PatternContext): boolean;
 	end?(ctx: PatternContext): void;
 	tick?(ctx: PatternContext): void;
+	/** The world origin moved by (dx, dz): positions the handler remembers (pools) shift by the opposite amount. */
+	shift?(dx: number, dz: number): void;
 }
 
 export type PatternParams = Readonly<Record<string, number | string | boolean>>;
@@ -217,16 +219,25 @@ const mudPool: PatternFactory = (p) => {
 
 	return {
 		canStart: (_ctx, distance) => distance >= num(p, "minDistance", 3),
+		shift(dx, dz): void {
+			targetX -= dx;
+			targetZ -= dz;
+			for (let i = 0; i < MAX_POOLS; i++) {
+				poolX[i] = (poolX[i] ?? 0) - dx;
+				poolZ[i] = (poolZ[i] ?? 0) - dz;
+			}
+		},
 		start(ctx): void {
 			phase = 0;
 			timer = ctx.steps(num(p, "telegraphSeconds", 1));
 			targetX = Position.x[ctx.hero] ?? 0;
 			targetZ = Position.z[ctx.hero] ?? 0;
 			ctx.stop();
+			// The pool lands where the hero stands now, so the telegraph names that spot instead of a direction.
 			ctx.events.push(
 				EventType.BossTelegraph,
-				ctx.dirX,
-				ctx.dirZ,
+				targetX,
+				targetZ,
 				num(p, "telegraphSeconds", 1),
 				ctx.entity,
 			);
