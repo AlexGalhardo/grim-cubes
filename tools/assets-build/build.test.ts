@@ -81,6 +81,11 @@ async function writeModel(name: string, o: FixtureOptions = {}, seed = 0): Promi
 		.setArray(new Float32Array([0, 0, 0, 1, 0, 0, 0, 1, 0]))
 		.setBuffer(buffer);
 	const scene = doc.createScene();
+	if (category === "enemies") {
+		const bone = doc.createNode("bone");
+		scene.addChild(bone);
+		doc.createSkin("skin").addJoint(bone);
+	}
 	for (let i = 0; i < (o.meshes ?? 1); i++) {
 		const primitive = doc.createPrimitive().setAttribute("POSITION", position).setMaterial(material);
 		if (!o.noUv) primitive.setAttribute("TEXCOORD_0", uv);
@@ -131,6 +136,20 @@ describe("buildAssets", () => {
 		expect(entry?.mipmaps).toBe(false);
 		const png = PNG.sync.read(readFileSync(join(out, entry?.url ?? "")));
 		expect([png.width, png.height]).toEqual([2048, 2048]);
+	});
+
+	test("enemies get a baked VAT (.bin RGBA32F plus clip JSON)", async () => {
+		await writeModel("husk", { category: "enemies" }, 1);
+		const manifest = await build();
+		const entry = manifest.entries.vat_husk;
+		expect(entry?.url).toMatch(/^vat\/husk\.[0-9a-f]{8}\.bin$/);
+		const meta = JSON.parse(readFileSync(join(out, entry?.meta ?? ""), "utf8")) as {
+			width: number;
+			height: number;
+			clips: Record<string, unknown>;
+		};
+		expect(Object.keys(meta.clips)).toEqual(["idle", "walk", "attack", "hit", "death"]);
+		expect(readFileSync(join(out, entry?.url ?? "")).length).toBe(meta.width * meta.height * 16);
 	});
 
 	test("model UVs are remapped into the atlas", async () => {

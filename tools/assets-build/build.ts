@@ -3,6 +3,7 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync
 import { join } from "node:path";
 import { type Document, Logger, NodeIO } from "@gltf-transform/core";
 import { PNG } from "pngjs";
+import { bakeVat } from "../bake-vat/bake";
 import { ATLAS_SIZE, type Placement, packSprites, renderAtlas, type Sprite } from "./atlas";
 import { packGlb } from "./glb";
 import { CATEGORIES, type Category, type ModelInput, RuleError, validateModel } from "./rules";
@@ -23,7 +24,9 @@ export interface ManifestEntry {
 	url: string;
 	hash: string;
 	bytes: number;
-	kind: "atlas" | "model";
+	kind: "atlas" | "model" | "vat";
+	/** VAT only: URL of the JSON with clip ranges (see VatMeta). */
+	meta?: string;
 	group: string;
 	/** Atlas only: texture sampling contract for the runtime loader (SDD 09 §3). */
 	sampling?: "nearest";
@@ -120,10 +123,12 @@ export async function buildAssets(options: BuildOptions): Promise<Manifest> {
 	for (const item of items) loaded.push(await load(item));
 
 	rmSync(join(options.outDir, "models"), { recursive: true, force: true });
+	rmSync(join(options.outDir, "vat"), { recursive: true, force: true });
 	for (const file of existsSync(options.outDir) ? readdirSync(options.outDir) : []) {
 		if (/^atlas_(characters|props)\..*\.png$/.test(file)) rmSync(join(options.outDir, file));
 	}
 	mkdirSync(join(options.outDir, "models"), { recursive: true });
+	mkdirSync(join(options.outDir, "vat"), { recursive: true });
 
 	const entries: Record<string, ManifestEntry> = {};
 	for (const atlasName of ["atlas_characters", "atlas_props"] as const) {
@@ -166,6 +171,28 @@ export async function buildAssets(options: BuildOptions): Promise<Manifest> {
 			bytes: glb.length,
 			kind: "model",
 			group: groupOf(item.input.category, item.input.name),
+		};
+	}
+
+	for (const item of loaded) {
+		if (item.input.category !== "enemies") continue;
+		const { data, meta } = bakeVat(item.input.name, item.input.document);
+		const bin = new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
+		const hash = digest(bin);
+		const stem = `vat/${item.input.name}.${hash}`;
+		const metaBytes = `${JSON.stringify(meta, null, "	")}
+`;
+		writeFileSync(join(options.outDir, `${stem}.bin`), bin);
+		writeFileSync(join(options.outDir, `${stem}.json`), metaBytes);
+		entries[`vat_${item.input.name}`] = {
+			url: `${stem}.bin`,
+			meta: `${stem}.json`,
+			hash,
+			bytes: bin.length,
+			kind: "vat",
+			group: "core",
+			width: meta.width,
+			height: meta.height,
 		};
 	}
 
