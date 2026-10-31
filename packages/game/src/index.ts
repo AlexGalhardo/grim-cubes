@@ -44,6 +44,7 @@ export {
 	Armor,
 	Attacking,
 	Behavior,
+	Bleed,
 	Boss,
 	Chest,
 	Consumable,
@@ -68,6 +69,7 @@ export {
 	Projectile,
 	Radius,
 	Speed,
+	ThornsCooldown,
 	Velocity,
 } from "./ecs/components";
 export type { RenderPort } from "./ecs/contract";
@@ -219,6 +221,7 @@ export type { PropCollision, PropCollisionConfig } from "./world/propCollision";
 export { createPropCollision } from "./world/propCollision";
 export {
 	findHero,
+	queryBleeding,
 	queryBodies,
 	queryConsumables,
 	queryEggs,
@@ -227,4 +230,5 @@ export {
 	queryEnemyShots,
 	queryFragments,
 	queryProjectiles,
+	queryThorned,
 } from "./world/queries";

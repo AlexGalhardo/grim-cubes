@@ -1,5 +1,6 @@
 import type { Mesh } from "@babylonjs/core/Meshes/mesh";
 import {
+	Bleed,
 	Boss,
 	bossesData,
 	Consumable,
@@ -11,10 +12,13 @@ import {
 	Egg,
 	Elite,
 	EventType,
+	heroData,
 	Position,
 	Radius,
 	renderData,
+	STEP,
 	spawnBody,
+	ThornsCooldown,
 } from "@gc/game";
 import { addComponent, removeEntity } from "bitecs";
 import { describe, expect, it } from "vitest";
@@ -674,6 +678,36 @@ describe("flash reduction", () => {
 		reduced = false;
 		vfx.onEvent(EventType.Damaged, 125, 1, 0, e);
 		expect(stops.length).toBe(1);
+		dispose();
+	});
+});
+
+describe("bleed and thorns looks", () => {
+	it("drips blood from a bleeding enemy and stops when the bleed ends", () => {
+		const { vfx, world, dispose } = setup();
+		const e = spawnBody(world, 2, 2);
+		addComponent(world, e, Bleed);
+		Bleed.ticks[e] = 100;
+		for (let i = 0; i < 60; i++) vfx.syncStatus(world, 1 / 30);
+		expect(vfx.particles.stats.peak).toBeGreaterThan(3);
+		const before = vfx.particles.stats.peak;
+		Bleed.ticks[e] = 0;
+		vfx.update(5);
+		for (let i = 0; i < 30; i++) vfx.syncStatus(world, 1 / 30);
+		expect(vfx.particles.stats.peak).toBe(before);
+		dispose();
+	});
+
+	it("throws spikes on the step a spiked boot hurt an enemy, not while it cools down", () => {
+		const { vfx, world, dispose } = setup();
+		const e = spawnBody(world, 1, 0);
+		addComponent(world, e, ThornsCooldown);
+		ThornsCooldown.ticks[e] = 10;
+		vfx.syncStatus(world, 1 / 60);
+		expect(vfx.particles.stats.peak).toBe(0);
+		ThornsCooldown.ticks[e] = Math.round(heroData.combat.contactCooldownSeconds / STEP);
+		vfx.syncStatus(world, 1 / 60);
+		expect(vfx.particles.stats.peak).toBe(5);
 		dispose();
 	});
 });
