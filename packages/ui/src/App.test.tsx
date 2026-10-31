@@ -3,6 +3,7 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
 import { App, type HudState } from "./App";
 import { announcedSeconds } from "./components/MerchantPrompt/MerchantPrompt";
+import { effectiveUiScale } from "./hooks/useViewport";
 
 afterEach(cleanup);
 
@@ -136,7 +137,8 @@ test("the demo end screen blocks the results, its store buttons are disabled and
 		/>,
 	);
 	expect(screen.getByRole("dialog")).toBeTruthy();
-	expect(screen.getByTestId("demo-seal").textContent).toBe("DEMO");
+	// The seal and the version sit under the dialog, not on it.
+	expect(screen.queryByTestId("demo-seal")).toBeNull();
 	expect(
 		(screen.getByRole("button", { name: "Adicionar à lista de desejos" }) as HTMLButtonElement).disabled,
 	).toBe(true);
@@ -232,25 +234,68 @@ test("colour-blind mode puts data-theme cb on the HUD root and the shop shows a 
 	expect(screen.getByTestId("hud-root").getAttribute("data-theme")).toBeNull();
 });
 
-test("at 150% on 800x360 the HUD corner and the dialogs stay inside the scaled root", () => {
+test("at 150% on 800x360 the scale is capped to 125% and the dialog scales with the root", () => {
 	window.innerWidth = 800;
 	window.innerHeight = 360;
 	const shop = { gold: 10, rerollPrice: 5, slots: [] };
 	render(
 		<App
 			store={createStore({ ...hud(1), uiScale: 150, shop })}
-			onOpenOptions={vi.fn()}
-			onCycleSpeed={vi.fn()}
 			shopActions={{ buy: vi.fn(), toggleLock: vi.fn(), reroll: vi.fn(), next: vi.fn() }}
 		/>,
 	);
 	const root = screen.getByTestId("hud-root");
-	expect(root.style.getPropertyValue("--ui-scale")).toBe("1.5");
-	// The corner buttons and the dialog are descendants of the root, so one zoom scales all of them.
-	expect(root.contains(screen.getByTestId("hud-corner"))).toBe(true);
+	expect(root.style.getPropertyValue("--ui-scale")).toBe("1.25");
+	// The dialog is a descendant of the root, so one zoom scales it too; it scrolls instead of being clipped.
 	expect(root.contains(screen.getByRole("dialog"))).toBe(true);
-	// A dialog scrolls instead of being clipped when the zoomed content outgrows the screen.
 	expect(screen.getByRole("dialog").className).toContain("overflow-y-auto");
+});
+
+test("the 150% scale is kept on tall screens and capped on screens 414 px tall or less", () => {
+	expect(effectiveUiScale(150, 1080)).toBe(150);
+	expect(effectiveUiScale(150, 415)).toBe(150);
+	expect(effectiveUiScale(150, 414)).toBe(125);
+	expect(effectiveUiScale(100, 360)).toBe(100);
+	window.innerHeight = 1080;
+	render(<App store={createStore({ ...hud(1), uiScale: 150 })} />);
+	expect(screen.getByTestId("hud-root").style.getPropertyValue("--ui-scale")).toBe("1.5");
+	cleanup();
+	window.innerHeight = 414;
+	render(<App store={createStore({ ...hud(1), uiScale: 150 })} />);
+	expect(screen.getByTestId("hud-root").style.getPropertyValue("--ui-scale")).toBe("1.25");
+});
+
+test("the corner buttons, the version and the DEMO seal are not drawn while a dialog is open", () => {
+	const shop = { gold: 10, rerollPrice: 5, slots: [] };
+	const actions = { buy: vi.fn(), toggleLock: vi.fn(), reroll: vi.fn(), next: vi.fn() };
+	render(
+		<App
+			store={createStore({ ...hud(1), shop })}
+			shopActions={actions}
+			onOpenOptions={vi.fn()}
+			onCycleSpeed={vi.fn()}
+			version="0.3.0"
+			demo
+		/>,
+	);
+	expect(screen.getByRole("dialog")).toBeTruthy();
+	for (const id of ["hud-corner", "speed-toggle", "options-open", "build-version", "demo-seal"]) {
+		expect(screen.queryByTestId(id), id).toBeNull();
+	}
+	cleanup();
+	render(
+		<App
+			store={createStore(hud(1))}
+			onOpenOptions={vi.fn()}
+			onCycleSpeed={vi.fn()}
+			version="0.3.0"
+			demo
+		/>,
+	);
+	for (const id of ["hud-corner", "speed-toggle", "options-open", "build-version", "demo-seal"]) {
+		expect(screen.getByTestId(id), id).toBeTruthy();
+	}
+	expect(screen.getByTestId("build-version").textContent).toBe("v0.3.0");
 });
 
 test("a boss subtitle shows as a polite status and disappears with the caption", () => {

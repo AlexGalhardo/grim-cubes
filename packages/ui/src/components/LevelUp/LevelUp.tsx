@@ -1,5 +1,6 @@
 import { t } from "@gc/core";
 import { type JSX, useEffect } from "react";
+import { useShortScreen } from "../../hooks/useViewport";
 import { useDialogNav } from "../../nav/useDialogNav";
 import { Icon, type IconRef } from "../Icon/Icon";
 
@@ -42,31 +43,38 @@ export function LevelUp({
 	}, [cards, onChoose, onReroll, rerollKey]);
 
 	const nav = useDialogNav<HTMLDivElement>();
+	const short = useShortScreen();
 	return (
 		<div
 			ref={nav}
 			role="dialog"
 			aria-modal="true"
 			aria-labelledby="levelup-title"
-			className="pointer-events-auto absolute inset-0 z-20 flex flex-col items-center justify-center gap-6 bg-night/70 p-4"
+			className={`pointer-events-auto absolute inset-0 z-20 flex flex-col items-center overflow-y-auto bg-night/70 ${short ? "justify-start gap-2 p-2" : "justify-center gap-6 p-4"}`}
 		>
-			<h1 id="levelup-title" className="font-display text-2xl text-ember-light">
+			<h1
+				id="levelup-title"
+				className={`font-display text-ember-light ${short ? "text-lg" : "text-2xl"}`}
+			>
 				{title}
 			</h1>
-			<div className="flex w-full max-w-4xl flex-col gap-3 mobile-l:flex-row">
+			<div
+				data-testid="levelup-cards"
+				className={`flex w-full max-w-4xl ${short ? "flex-row gap-2" : "flex-col gap-3 mobile-l:flex-row"}`}
+			>
 				{cards.map((card, i) => (
 					<button
 						key={card.id}
 						type="button"
 						data-testid={`levelup-card-${i}`}
 						onClick={() => onChoose(i)}
-						className="relative flex min-h-16 flex-1 items-center justify-center border-2 border-iron-dark bg-night-2 p-4 text-center font-display text-base text-bone shadow-plate transition-colors duration-fast hover:border-ember hover:text-ember-light focus-visible:outline-2 focus-visible:outline-ember focus-visible:outline-offset-2 active:translate-x-px active:translate-y-px mobile-l:min-h-40"
+						className={`relative flex flex-1 items-center justify-center border-2 border-iron-dark bg-night-2 text-center font-display text-bone shadow-plate transition-colors duration-fast hover:border-ember hover:text-ember-light focus-visible:outline-2 focus-visible:outline-ember focus-visible:outline-offset-2 active:translate-x-px active:translate-y-px ${short ? "min-h-20 p-2 text-sm" : "min-h-16 p-4 text-base mobile-l:min-h-40"}`}
 					>
 						<span className="absolute top-1 left-2 border-2 border-iron-dark px-1 text-xs text-bone-dark">
 							{i + 1}
 						</span>
 						<span className="flex flex-col items-center gap-2">
-							{card.icon ? <Icon icon={card.icon} size={64} /> : null}
+							{card.icon ? <Icon icon={card.icon} size={short ? 32 : 64} /> : null}
 							{card.name}
 						</span>
 					</button>

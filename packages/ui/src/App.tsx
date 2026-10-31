@@ -26,6 +26,7 @@ import {
 } from "./components/Shop/Shop";
 import { Tip, type TipId } from "./components/Tip/Tip";
 import { VirtualJoystick } from "./components/VirtualJoystick/VirtualJoystick";
+import { effectiveUiScale, useViewportHeight } from "./hooks/useViewport";
 
 /** Snapshot the game publishes to the store at 12 Hz (SDD 07). */
 export interface HudState {
@@ -133,10 +134,24 @@ export function App({
 	version,
 }: AppProps): JSX.Element {
 	const hud = useSyncExternalStore(store.subscribe, store.get);
+	const height = useViewportHeight();
+	const scale = effectiveUiScale(hud.uiScale, height) / 100;
+	// The HUD chrome (buttons, version, seal) is not drawn while a dialog is open: it would sit on top of the dialog
+	// and still take clicks.
+	const dialogOpen =
+		hud.cards.length > 0 ||
+		hud.chest.length > 0 ||
+		hud.shop !== null ||
+		hud.results !== null ||
+		hud.difficulty !== null ||
+		hud.ossuary !== null ||
+		hud.options !== null ||
+		hud.menu !== null ||
+		hud.demoEnd;
 	return (
 		<div
 			className="pointer-events-none absolute inset-0 p-4 font-display text-bone [text-shadow:1px_1px_0_var(--color-night)]"
-			style={{ "--ui-scale": hud.uiScale / 100, zoom: "var(--ui-scale)" } as CSSProperties}
+			style={{ "--ui-scale": scale, zoom: "var(--ui-scale)" } as CSSProperties}
 			data-testid="hud-root"
 			data-theme={hud.colorblind ? "cb" : undefined}
 		>
@@ -170,7 +185,7 @@ export function App({
 				/>
 			) : null}
 			{hud.menu && menuActions && !hud.difficulty && !hud.ossuary && !hud.options ? (
-				<Menu view={hud.menu} actions={menuActions} demo={demo} />
+				<Menu view={hud.menu} actions={menuActions} version={version} demo={demo} />
 			) : null}
 			{hud.demoEnd && onRestart && !hud.difficulty && !hud.ossuary ? (
 				<DemoEnd onRestart={onRestart} onOssuary={ossuaryActions?.open} />
@@ -182,7 +197,7 @@ export function App({
 				<Difficulty view={hud.difficulty} actions={difficultyActions} />
 			) : null}
 			{hud.ossuary && ossuaryActions ? <Ossuary view={hud.ossuary} actions={ossuaryActions} /> : null}
-			{!hud.options && (onOpenOptions || onCycleSpeed) ? (
+			{!dialogOpen && (onOpenOptions || onCycleSpeed) ? (
 				<div
 					className="pointer-events-none absolute top-2 right-2 z-20 flex gap-2"
 					data-testid="hud-corner"
@@ -228,7 +243,7 @@ export function App({
 			{hud.tip ? <Tip id={hud.tip} /> : null}
 			{stick ? <VirtualJoystick stick={stick} /> : null}
 			{stick && hud.dash && onDashHold ? <DashButton view={hud.dash} onHold={onDashHold} /> : null}
-			{demo ? (
+			{demo && !dialogOpen ? (
 				<div
 					className="absolute bottom-1 left-16 z-50 border-2 border-ember px-1 text-xs text-ember-light"
 					data-testid="demo-seal"
@@ -236,7 +251,7 @@ export function App({
 					{t("demo.badge")}
 				</div>
 			) : null}
-			{version ? (
+			{version && !dialogOpen ? (
 				<div className="absolute bottom-1 left-2 z-50 text-xs opacity-70" data-testid="build-version">
 					v{version}
 				</div>

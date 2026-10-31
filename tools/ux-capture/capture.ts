@@ -36,6 +36,7 @@ interface DebugGc {
 			grantXp(n: number): void;
 			grantGold(n: number): void;
 			endRound(): void;
+			openShop(): void;
 		};
 	};
 }
@@ -126,6 +127,10 @@ async function captureTarget(browser: Browser, target: (typeof TARGETS)[number])
 		debug?.grantGold(500);
 		debug?.endRound();
 	});
+	// The round ends with a walk to the Merchant (A-05-01): capture his prompt, then skip the walk.
+	await page.getByTestId("merchant-prompt").waitFor({ timeout: 15_000 });
+	await shot("merchant");
+	await page.evaluate(() => (window as unknown as DebugGc).gc?.debug?.openShop());
 	await page.getByRole("dialog").waitFor({ timeout: 15_000 });
 	await page.locator('[data-testid^="shop-slot-"]').first().waitFor();
 	await shot("shop");

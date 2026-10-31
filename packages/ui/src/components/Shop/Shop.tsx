@@ -1,5 +1,6 @@
 import { t } from "@gc/core";
 import { type JSX, useEffect, useRef } from "react";
+import { useShortScreen } from "../../hooks/useViewport";
 import { useDialogNav } from "../../nav/useDialogNav";
 import { Button } from "../Button/Button";
 import { Icon, type IconRef } from "../Icon/Icon";
@@ -87,29 +88,47 @@ export function Shop({ view, stats, actions, portrait, rerollKey = "KeyR" }: Sho
 	}, [view.slots.length, actions, rerollKey]);
 
 	const nav = useDialogNav<HTMLDivElement>();
+	const short = useShortScreen();
+	// The reroll and next buttons: below the offers, or beside the gold on a short screen where a row is precious.
+	const footer = (
+		<>
+			<Button onClick={actions.reroll} disabled={view.gold < view.rerollPrice}>
+				{t("shop.reroll", { price: view.rerollPrice })}
+			</Button>
+			<Button size={short ? "md" : "lg"} onClick={actions.next}>
+				{t("shop.next")}
+			</Button>
+		</>
+	);
 	return (
 		<div
 			ref={nav}
 			role="dialog"
 			aria-modal="true"
 			aria-labelledby="shop-title"
-			className="pointer-events-auto absolute inset-0 z-20 flex overflow-y-auto bg-night/80 p-2 mobile-l:p-4"
+			className={`pointer-events-auto absolute inset-0 z-20 flex overflow-y-auto bg-night/80 ${short ? "p-1" : "p-2 mobile-l:p-4"}`}
 		>
 			<div className="m-auto w-full max-w-5xl">
 				<Panel title={t("shop.panel")} riveted>
 					<h1 id="shop-title" className="sr-only">
 						{t("shop.title")}
 					</h1>
-					<div className="mb-3 text-currency" data-testid="shop-gold">
-						{t("shop.gold", { gold: view.gold })}
+					<div className={`flex items-center justify-between gap-2 ${short ? "mb-1" : "mb-3"}`}>
+						<div className={`text-currency ${short ? "text-sm" : ""}`} data-testid="shop-gold">
+							{t("shop.gold", { gold: view.gold })}
+						</div>
+						{short ? <div className="flex gap-2">{footer}</div> : null}
 					</div>
 					<div className="flex flex-col gap-3 desktop:flex-row">
-						<div className="grid flex-1 grid-cols-2 gap-2 mobile-l:gap-3 desktop:grid-cols-4">
+						<div
+							data-testid="shop-grid"
+							className={`grid flex-1 ${short ? "grid-cols-4 gap-1" : "grid-cols-2 gap-2 mobile-l:gap-3 desktop:grid-cols-4"}`}
+						>
 							{view.slots.map((slot, i) => (
 								<div
 									key={`${slot.kind}-${slot.id}-${i}`}
 									data-testid={`shop-slot-${i}`}
-									className={`flex flex-col gap-2 border-2 bg-night-2 p-3 ${TIER_BORDER[slot.tier] ?? "border-iron-dark"} ${slot.sold ? "opacity-40" : ""}`}
+									className={`flex flex-col border-2 bg-night-2 ${short ? "gap-1 p-1.5" : "gap-2 p-3"} ${TIER_BORDER[slot.tier] ?? "border-iron-dark"} ${slot.sold ? "opacity-40" : ""}`}
 								>
 									<span className="font-display text-xs text-bone-dark">
 										<span
@@ -154,7 +173,10 @@ export function Shop({ view, stats, actions, portrait, rerollKey = "KeyR" }: Sho
 								</div>
 							))}
 						</div>
-						<div className="hidden w-full flex-col gap-3 mobile-l:flex desktop:w-56">
+						<div
+							data-testid="shop-side"
+							className={`hidden w-full flex-col gap-3 desktop:w-56 ${short ? "" : "mobile-l:flex"}`}
+						>
 							{portrait ? (
 								<div
 									aria-hidden="true"
@@ -182,14 +204,7 @@ export function Shop({ view, stats, actions, portrait, rerollKey = "KeyR" }: Sho
 							</dl>
 						</div>
 					</div>
-					<div className="mt-4 flex flex-wrap justify-end gap-3">
-						<Button onClick={actions.reroll} disabled={view.gold < view.rerollPrice}>
-							{t("shop.reroll", { price: view.rerollPrice })}
-						</Button>
-						<Button size="lg" onClick={actions.next}>
-							{t("shop.next")}
-						</Button>
-					</div>
+					{short ? null : <div className="mt-4 flex flex-wrap justify-end gap-3">{footer}</div>}
 				</Panel>
 			</div>
 		</div>

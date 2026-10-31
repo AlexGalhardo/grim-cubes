@@ -51,3 +51,35 @@ test("the reroll button and the R key appear only with rerolls left", () => {
 	rerender(<LevelUp cards={cards} onChoose={() => {}} rerollsLeft={0} onReroll={onReroll} />);
 	expect(screen.queryByTestId("levelup-reroll")).toBeNull();
 });
+
+function stubShortScreen(short: boolean): void {
+	vi.stubGlobal("matchMedia", (query: string) => ({
+		matches: short && query.includes("max-height"),
+		addEventListener: () => undefined,
+		removeEventListener: () => undefined,
+	}));
+}
+
+const iconRef = { url: "a.png", x: 0, y: 0, w: 32, h: 32, atlasWidth: 64, atlasHeight: 64 };
+
+test("on a short landscape screen the three cards sit in one row, start at the top and use small icons", () => {
+	stubShortScreen(true);
+	const withIcons = cards.map((c) => ({ ...c, icon: iconRef }));
+	render(<LevelUp cards={withIcons} onChoose={() => {}} />);
+	const dialog = screen.getByRole("dialog");
+	expect(dialog.className).toContain("justify-start");
+	expect(dialog.className).toContain("overflow-y-auto");
+	expect(screen.getByTestId("levelup-cards").className).toContain("flex-row");
+	expect(screen.getAllByTestId("icon")[0]?.style.width).toBe("32px");
+	vi.unstubAllGlobals();
+});
+
+test("on a tall screen the cards keep their roomy layout and 64 px icons", () => {
+	stubShortScreen(false);
+	const withIcons = cards.map((c) => ({ ...c, icon: iconRef }));
+	render(<LevelUp cards={withIcons} onChoose={() => {}} />);
+	expect(screen.getByRole("dialog").className).toContain("justify-center");
+	expect(screen.getByTestId("levelup-cards").className).toContain("flex-col");
+	expect(screen.getAllByTestId("icon")[0]?.style.width).toBe("64px");
+	vi.unstubAllGlobals();
+});
