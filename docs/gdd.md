@@ -284,7 +284,7 @@ velocidade: constante por tipo (não escala)
 
 Multiplicador de dificuldade (D13) aplicado ao final: Normal ×1,0; Grim ×1,25; Nightmare ×1,5.
 
-Balanceamento A-02-03 (2026-10-31): os valores da tabela abaixo saíram do simulador (`bun run sim`, bot greedy, relatório em `reports/`): o dano base caiu para ~20% e o crescimento de dano por round para ~172% do proposto antes (1,6 × 1,15 × 0,94) e o HP por round para ~162% (1,5 × 1,15 × 0,94; as passadas seguintes compensaram o Frasco de Sangue e os breakables da A-02-04 e o preço dos itens), porque com os números antigos o herói simulado morria no round 8–10 (Coveiro em 15 s, p50 de morte 8). Os números continuam só em `data/enemies.json`.
+Balanceamento A-02-03 (2026-10-31): os valores da tabela abaixo saíram do simulador (`bun run sim`, bot greedy, relatório em `reports/balance-a0203-final.json`): o dano base caiu para ~20% e o crescimento de dano por round para ~172% do proposto antes (1,6 × 1,15 × 0,94) e o HP por round para ~162% (1,5 × 1,15 × 0,94; as passadas seguintes compensaram o Frasco de Sangue e os breakables da A-02-04 e o preço dos itens), porque com os números antigos o herói simulado morria no round 8–10 (Coveiro em 15 s, p50 de morte 8). Os números continuam só em `data/enemies.json`.
 
 ### 10.2 Roster da 1.0 (8 tipos)
 

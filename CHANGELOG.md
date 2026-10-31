@@ -14,6 +14,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **art:** Hero refined in Blockbench with armour plates, mask and painted wear (B-03-01)
 - **test:** UI test of the Notice and boss names in English (A-07-01)
 - **ci:** `tools/changelog-check` job that fails a PR with feat/fix commits and no new `[Unreleased]` entry, skippable with the `skip-changelog` label (E-04-06)
+- **ui:** Optional 20 s tutorial (move, kill, collect), picked on the difficulty screen (A-07-01) ([c3e908f](https://github.com/AlexGalhardo/grim-cubes/commit/c3e908f1f8702c0cc87c49101c1e6a8fea5f80c7))
+- **i18n:** Review the English names that came from ids (B-05-01) ([1167186](https://github.com/AlexGalhardo/grim-cubes/commit/116718666d753ec89fbcefbf3ea6c76569fe1f16))
+- **render:** Hide broken props, throw dust and draw the blood vial and bone magnet consumables (A-02-04) ([1805558](https://github.com/AlexGalhardo/grim-cubes/commit/1805558a905526e3d4b8adf1f1d4a65338054e1e))
+- **web:** Apply the video preset, the dynamic resolution scaler and the render hooks for broken props (A-01-01, A-02-04) ([233fcb7](https://github.com/AlexGalhardo/grim-cubes/commit/233fcb741a03f2b5271a0dc9f85efadb5d589ed4))
+- **web:** `debug.toBossFrame` steps to the first boss frame and freezes it, used by the Gravedigger capture (P-06-01) ([06f1e25](https://github.com/AlexGalhardo/grim-cubes/commit/06f1e254afaa121a1384ebbfab6dc5b65aa6cfc3))
+- **render:** Warn along every direction of the Forgemaster chain shot (A-03-02) ([c6de4dd](https://github.com/AlexGalhardo/grim-cubes/commit/c6de4dd2625f50bca1d1aacf88aafa64b44b7b75))
+- **render:** The Merchant stands 4 u from the hero while the shop is open (A-05-01) ([ab57279](https://github.com/AlexGalhardo/grim-cubes/commit/ab57279795a31ef32513c82052fbd3239b8d15a9))
+- **ui:** Atlas icons on shop items, level-up cards, chest offers and ossuary nodes (B-03-05) ([e67c3c9](https://github.com/AlexGalhardo/grim-cubes/commit/e67c3c9fa1e4bca545ce15bf827cdea889295308))
+- **game:** Elites drop consumables with the chance in `data/consumables.json` (A-02-04) ([c1252b2](https://github.com/AlexGalhardo/grim-cubes/commit/c1252b29b66feb627bf9d990315e3e1bdd59108d))
+
+### Changed
+
+- **data:** Rebalance after breakables and consumables: enemy HP and damage per round, Matriarch 12,500 HP, Forgemaster 15,000 HP, item price `base × 0.15 × N`; 64-run deterministic sim check in CI (A-02-03) ([159e9f3](https://github.com/AlexGalhardo/grim-cubes/commit/159e9f34c1b11064585626029a10062f7d52276a))
+
+### Fixed
+
+- **web:** Stop the camera follow and the prop fade while the run is paused (P-06-01) ([89c9f04](https://github.com/AlexGalhardo/grim-cubes/commit/89c9f041445d49ae3487e4ef15c6c019ad0d30e7))
 
 ## [0.1.0] - 2026-10-31
 
