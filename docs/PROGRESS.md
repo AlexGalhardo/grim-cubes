@@ -1,6 +1,6 @@
 # PROGRESS
 
-Atualizado: 2026-10-31 (fuso do PO) | Versão: 0.1.0 (publicada, tag `v0.1.0` em eb12bc2; `main` 4a4f19b) | Fase: 2 — PROTÓTIPO (itens da ALPHA adiantados em paralelo) | Sessão: #2
+Atualizado: 2026-10-31 (fuso do PO) | Versão: 0.2.0 (publicada, tag `v0.2.0` em f504443; `main` 0127843; a v0.2.1 sai com o rebalanceamento f763a6b) | Fase: 2 — PROTÓTIPO (ALPHA e BETA adiantadas em paralelo) | Sessão: #2
 
 Meta do PO (2026-10-31): implementar o ROADMAP até o fim sem interrupções; tarefas `Resp: PO` ficam em Bloqueios e os agentes seguem com o resto. Hooks lefthook instalados em `.git` (valem para todos os worktrees).
 
@@ -8,55 +8,47 @@ Meta do PO (2026-10-31): implementar o ROADMAP até o fim sem interrupções; ta
 
 | Agente | Tarefa atual | Branch | Estado | Desde | Lock |
 | --- | --- | --- | --- | --- | --- |
-| Orq | integra as branches dos agentes na `main`; CHANGELOG | main | em andamento | — | — |
-| S1 | R-01-03 (ligar `pickAutoPreset` no `main.tsx`) → render dos chefes 4 e 5 | — | implementando | — | — |
-| S2 | B-01-01 Caçador Alfa e B-01-02 Rainha do Ninho (parte de simulação) | `feat/B-01-01-hunter-alpha-queen` | implementando | — | — |
-| Est | testes de UI com `en` (Notice, nomes de chefe) → próximo `[ ]` de Resp Est sem dependência do PO | — | implementando | — | — |
-| Art | herói no Blockbench via MCP (`docs/art/briefs/hero.md`) | — | implementando | — | — |
-| Esp | reconciliação do ROADMAP (§15.1) → auditoria de eb12bc2..HEAD | main (sem git) | em andamento | — | `ROADMAP.md`, `docs/PROGRESS.md` |
+| Orq | integra as branches na `main`; v0.2.1 com o rebalanceamento do regen | main | em andamento | — | — |
+| S1 | fila de polimento de VFX da auditoria (espinhos por evento, furtividade, ovos, fade de decals, poeira por bioma, números de dano, consumíveis) e o cast do `vision.ts` | — | implementando | — | — |
+| S2 | P1 do `padNav` (botão segurado ao abrir diálogo), `vision` na tela `Options` com save, fuses do Electron, evento `ThornsHit`, P3 do Electron e do `release.yml` | — | implementando | — | — |
+| Est | guards (`tools/guards`, na `main`) → próximo `[ ]` de Resp Est sem dependência do PO | — | implementando | — | — |
+| Art | refino do Mercador de Ossos (retrato) e checklist B-03-01 | — (checkout da `main`) | implementando | — | `assets/src/models/npc/**` |
+| Esp | auditoria de ad9736c..0127843 e este PROGRESS → standby | main (sem git) | em standby | — | `docs/PROGRESS.md` |
 
-As linhas de S1, S2, Esp e Orq refletem as últimas mensagens do Orq e podem estar defasadas; o Orq confirma ao integrar.
+As linhas refletem as últimas mensagens do Orq; o Orq confirma ao integrar.
 
-Estado (2026-10-31): `origin/main` está em eb12bc2 e é a **v0.1.0 publicada** (release no GitHub, tag `v0.1.0`). Entraram nela i18n (`t()`, `locales/en.json` e `pt-BR.json`, regra de lint contra texto fixo na UI), as dicas do round 1, `rc-major` no `tools/release`, thresholds de cobertura por pacote e o timeout do data-check. **Por decisão do PO, o e2e (Playwright) está desligado no CI** (CI rápido): os specs e as baselines continuam no repositório e rodam localmente; não gere baselines nem rode e2e sem o Orq pedir. A `feat/A-01-03-perf-ci` (job de bench no CI, +10 a 15 min) não entra por enquanto, pela mesma razão. Já existem o Coveiro e a Matriarca (padrões por id, A-03-00), os 8 behaviors de inimigo, elites com render, Ossuário com dash e bônus da Ruína, dificuldades, marcos, VFX (P-04-05), culling por frustum e os headers de segurança da Vercel.
+Estado (2026-10-31): a **v0.2.0** está publicada (GitHub Release `v0.2.0`, f504443), com o build Windows (instalador NSIS e portable, sem assinatura) anexado pelo job `desktop` do `release.yml`. Desde a v0.1.0 entraram: chefes 4 e 5 (simulação e render), roster até o round 60+, motor de áudio com 78 arquivos ElevenLabs (plano Creator), tela de título, `Options`, `DemoEnd` e selo DEMO, velocidade 1x/2x/3x (vale em todos os builds, recordes contam), tutorial e dicas, ícones na UI, preset de vídeo automático, telemetria opt-in (só log local; save schema 4), navegação por teclado e gamepad nos diálogos, regen de vida pela fórmula do GDD, Electron 45 com sandbox e protocolo `app://`, e os modelos refinados no Blockbench via MCP. A v0.2.0 saiu com o `balance.yml` vermelho (p50 31 depois da correção do regen); o f763a6b rebalanceou o `hp_regen` só em dados e o check voltou a passar (p50 24,5 local); entra na v0.2.1. **O e2e (Playwright) segue fora do CI por decisão do PO**: specs e baselines ficam no repositório e só rodam quando o Orq pedir.
 
-Dívida operacional: com 4 agentes rodando testes ao mesmo tempo, a CPU satura e o `pre-push` falha por timeout de worker (a suíte isolada passa). Solução adotada: janela de push (um agente por vez) e timeout de 20 s nos testes de simulação e determinismo (a2cdbad); o oráculo do VAT ainda pode estourar 5 s sob carga. Não contornar o hook.
+Dívida operacional: com vários agentes rodando testes ao mesmo tempo, a CPU satura e o `pre-push` pode estourar timeout (a suíte isolada passa). Janela de push (um agente por vez) e timeout de 20 s nos testes de simulação e determinismo; não contornar o hook. Cherry-pick de base antiga já apagou correções duas vezes (59eb086, restaurado em fdddb95 e 78ae69b): o Esp roda a cada auditoria um script que procura linhas adicionadas que sumiram do HEAD.
 
-Risco: conversor `.bbmodel` validado só contra o próprio pipeline e o Babylon; falta golden contra um export real do Blockbench (quando o PO refinar o 1º modelo).
-
-Blockbench MCP: o servidor está instalado (skill `blockbench-art` e agente `blockbench-artist` existem), mas **o plugin do Blockbench não responde**; em investigação. Até lá, os modelos seguem gerados por `bun run assets:gen`.
-
-Pendência do PO: secret `VERCEL_AUTOMATION_BYPASS_SECRET` (Vercel → Deployment Protection → Protection Bypass for Automation; e `gh secret set VERCEL_AUTOMATION_BYPASS_SECRET`) para o smoke pós-deploy (E-04-04). Continua pendente em 2026-10-31 08:51: sem ele, o smoke de produção (que agora também falha com a API de debug viva, ff185d9) não roda.
-
-Vercel: build corrigido (3721471: `--config apps/web/vite.config.ts` + `vercel.json`); deploy de produção `grim-cubes-fc7qzglh5` **Ready**; URL de produção responde 302 (proteção SSO mantida, decisão B). Desde 6370507, o `vercel.json` traz CSP, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy` e COOP, e revalida o `manifest.json` (os demais assets seguem `immutable`). O projeto `grim-cubes` na Vercel não tem variáveis de ambiente (conferido pela API em 2026-10-31), então `GC_DEBUG_API` fica desligado em produção.
-
-Dívida: pós-processo ffmpeg do `audio-generate` (SDD 08 §3: LUFS, trim, pitch de chefes).
+Vercel: deploy de produção Ready; a URL responde 302 (proteção SSO mantida, decisão B). O `vercel.json` traz CSP, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy` e COOP, revalida o `manifest.json` e serve `/assets/audio/`. Sem variáveis de ambiente no projeto, então `GC_DEBUG_API` fica desligado em produção.
 
 ## Concluídas (últimas 20)
 
-Fonte: IDs dos rodapés `Refs: ROADMAP#` em `origin/main` (3754bd2), ordenados pelo commit mais recente de cada ID; a coluna Commit lista até 3 commits (o mais novo primeiro) e a Observação é o assunto do mais novo. O estado de cada tarefa é o checkbox do ROADMAP.
+Fonte: IDs dos rodapés `Refs: ROADMAP#` de eb12bc2 a 0127843, do commit mais recente para o mais antigo; até 3 commits por ID. O estado de cada tarefa é o checkbox do ROADMAP (`[~]` = parcial, ver a linha de Estado do item).
 
 | ID | Data | Resp | Commit | Observação |
 | --- | --- | --- | --- | --- |
-| R-01-01 | 2026-10-31 | Orq | 3754bd2, 59a2781 | docs(progress): record v0.1.0, e2e out of the CI, the Blockbench MCP status and the current queues |
-| B-05-01 | 2026-10-31 | Est | 1167186 | feat(i18n): review the English names that came from ids |
-| A-07-01 | 2026-10-31 | Est | c3e908f, 08fbb61, 9cd842d | feat(ui): add the optional 20 s tutorial (move, kill, collect) |
-| A-02-04 | 2026-10-31 | S2 | 733347c, 1a61e35 | test(integration): re-anchor the seed-42 hash for breakable props and the A-02-03 data |
-| E-03-04 | 2026-10-31 | Est | 5884211, be2740b, c19101c | test(data-check): allow 20 s for the self-test of every negative case |
-| A-07-03 | 2026-10-31 | Est | 73f3c12 | test(coverage): set per-package thresholds just under the measured values |
-| B-03-01 | 2026-10-31 | S1 + PO | fc4eb99, d6bbc59, 994ae5c | feat(art): reshape the Drowned and Hunter placeholders and paint 1 px AO on every texture |
-| B-03-05 | 2026-10-31 | S1 + PO | f98b61c, ddaab57 | feat(assets): add the 84 generated UI icon stand-ins |
-| P-06-01 | 2026-10-31 | S1 | 5da1ca9, 0f46944, 1ddea1d | docs(art): regenerate the review captures and silhouettes for all 74 models |
-| A-02-03 | 2026-10-31 | Est | 6143170, f1c00e2, d0247de | test(game): read boss HP and contact damage from data after the A-02-03 tuning |
-| E-02-06 | 2026-10-31 | Est | c268896, d97a5ea, f0f05a2 | ci(e2e): stop running the e2e job on push, PRs and releases |
-| A-01-01 | 2026-10-31 | S1 | a59d43a, 0788bf0 | docs(sdd): record the presets file, the dynamic scaler and the KTX2 path in SDD 14 and 09 |
-| A-01-02 | 2026-10-31 | S1 | 6fba0d7, b7cf36f | feat(render): load KTX2 atlases when listed and supported, with local decoder and PNG fallback |
-| A-02-02b | 2026-10-31 | S1 | 4f43cb9, be00080, 4075cd4 | test(vat): require the walk clip to move in the enemy oracle |
-| B-03-02 | 2026-10-31 | S1 | 71eadf2, fcb476c, 56a9fc6 | chore(perf): record the bench with empty meshes disabled |
-| A-03-03 | 2026-10-31 | S2 | c44350b, 7015d13 | feat(render): tint the boss rig with its modifier auras and lengthen its charge line |
-| A-02-01 | 2026-10-31 | S1 | 6f39c68, 6653667, 4270829 | test(e2e): add win32 baselines for the biome border and the eight-type horde |
-| P-07-05 | 2026-10-31 | Est | 892c66c, f1cb685, af3dbde | chore(sim): drop the tuning script that slipped into the pool commit |
-| E-04-04 | 2026-10-31 | Est | 81efecc, ff185d9, 93ffc9b | feat(ui): show the build version bottom-left and shard the CI e2e job |
-| P-06-06 | 2026-10-31 | S1 | 09eea97, a8455af, 7cee91b | fix(render): bring the hero rig out of the death pose on Revived |
+| B-03-01 | 2026-10-31 | Art | 0127843, ec02764, cd275ce | ícone do app, Sanguessuga mais fina, máscaras `_e.png` e checklist B-03-01 |
+| B-03-02 | 2026-10-31 | S1 | e1e1795, 9516bef, c59c7d9 | ganchos de debug `fx` e `setSpeed` para capturas e margem a 3x |
+| A-02-03 | 2026-10-31 | Orq + Est | f763a6b, f745697, 53e14e4 | rebalanceamento do `hp_regen` depois da correção do regen |
+| B-02-01 | 2026-10-31 | S1 | ad9736c | gotas de sangramento e espinhos no acerto de Espinhos |
+| P-07-02 | 2026-10-31 | S2 | 21a8fff | shell Electron 45, instalador e portable Windows |
+| A-07-03 | 2026-10-31 | Est | 0860494, b31bace, 52570e4 | testes de render e guards de arquivos, áudio e contagem de testes |
+| R-01-03 | 2026-10-31 | S1 | f4c63ef, 5c47c81, cbfeff4 | benches 1080/1440 depois das correções de instâncias e retrato |
+| P-05-02 | 2026-10-31 | S2 | 126c910 | `hp_regen` aplicado ao herói a cada passo |
+| A-06-04 | 2026-10-31 | S2 | 14e32b8, 9a6507e | telemetria opt-in com lista fechada de eventos e save schema 4 |
+| A-07-02 | 2026-10-31 | S2 | ac6b394 | navegação por teclado e gamepad nos diálogos, foco visível |
+| A-02-01 | 2026-10-31 | S1 | fffaa8d, e06898d, 1ffed8f | herói virado para o alvo sem alocar por frame |
+| B-01-03 | 2026-10-31 | S2 + Est | 96de426, 2d8b076 | roster completo 60+ |
+| B-05-02 | 2026-10-31 | Est + Orq | 2eb98fe, 4507229, 18b8c2f | divergências de GDD e Art Bible corrigidas |
+| A-05-01 | 2026-10-31 | S1 + S2 | e32c04f, 6048e8b, d117eb2 | retrato do Mercador por render target |
+| A-04-04 | 2026-10-31 | S2 | e5f2a6d | tela de título com recordes e `mus_menu` |
+| P-06-04 | 2026-10-31 | S2 | 6c6e5a9, 217f11b, 5c3d3cc | motor de áudio, sons por evento e música |
+| A-05-02 | 2026-10-31 | Est + S2 | 36aac16, a496f6f, cff9fe1 | áudio definitivo regenerado, versões antigas em `assets/audio-archive` |
+| B-01-02 | 2026-10-31 | S1 + S2 | 78ae69b, fdddb95, 59eb086 | Rainha do Ninho; correções restauradas depois do cherry-pick |
+| P-07-01 | 2026-10-31 | S2 | b4c7a6c | `DemoEnd`, selo DEMO e fim da demo após o Coveiro |
+| A-01-01 | 2026-10-31 | S1 + S2 | 7795aff, 65eb4aa, 233fcb7 | `Options`, preset aplicado e velocidade 1x/2x/3x |
 
 ## Bloqueios (precisam do PO)
 
@@ -79,27 +71,32 @@ Fonte: IDs dos rodapés `Refs: ROADMAP#` em `origin/main` (3754bd2), ordenados p
 - [x] 2026-10-31 — Dependência nova: **A aprovada (recomendação aceita); E-02-04 mesclada (f4ac22b).** `@types/react` 19.3.0 e `@types/react-dom` 19.3.0 (devDeps exatas). React 19 não traz tipos; sem elas nenhum `.tsx` passa no typecheck (HUD, `ui/App`, design system). Opções: A) aprovar (recomendado; só tipos, mesmo mantenedor DefinitelyTypes do ecossistema React); B) escrever declarações mínimas próprias (frágil). — bloqueia: E-02-04 (branch pronta), E-02-06, E-03-02, E-03-03, toda UI.
 - [x] 2026-10-31 — Aprovação retroativa: **A aprovada.** `@types/pngjs` 6.0.5 (dev, só tipos do `pngjs` já aprovado) entrou em `main` com a P-06-02 sem aprovação explícita (achado do Esp). Opções: A) aprovar (recomendado); B) remover e declarar tipos mínimos em `tools/assets-build`. — não bloqueia nada.
 - [x] 2026-10-31 — Concept arts novas (`references/concept-arts/*.png`, 17 MB): **fora do git** (repositório público; sem Git LFS para não adicionar ferramenta). Ficam locais; `.gitignore` ignora os PNG da pasta, o `README.md` dela continua versionado.
+- [ ] 2026-10-31 — Secret `VERCEL_AUTOMATION_BYPASS_SECRET` (Vercel → Deployment Protection → Protection Bypass for Automation; `gh secret set VERCEL_AUTOMATION_BYPASS_SECRET`) para o smoke pós-deploy medir o 200 da produção. — bloqueia: assert de produção da E-04-02 e o smoke da E-04-04.
+- [ ] 2026-10-31 — Job de perf no CI (`feat/A-01-03-perf-ci`, a3bf307): +10 a 15 min por run. Opções: A) aprovar só em `workflow_dispatch` e em PR com rótulo `perf`; B) recusar e manter o bench manual. — bloqueia: A-01-03.
+- [ ] 2026-10-31 — Bench com GPU real na máquina do PO (`BENCH_GPU=1 bun run test:perf`) e relatório Android pelo Chrome mobile. — bloqueia: asserts de fps da E-03-02, P-03-04, P-07-05 e A-01-01.
+- [ ] 2026-10-31 — Endpoint e armazenamento da telemetria (Vercel Function + Blob/KV; plano Pro se exigido). Hoje a telemetria opt-in só escreve no log local. — bloqueia: A-06-04 (envio em lote).
+- [ ] 2026-10-31 — Proteção da `main` no GitHub (E-01-06): exige mudar o fluxo de integração sem PR (`prompt-workers.md` §6). Opções: A) manter sem proteção enquanto os agentes integram direto; B) proteger e passar a integrar por PR.
+- [ ] 2026-10-31 — Assinatura de código do build Windows (certificado pago). Os .exe da v0.2.0 saem sem assinatura e o SmartScreen avisa. Opções: A) assinar antes da demo pública; B) depender só do Steam (sem aviso pelo cliente Steam). — bloqueia: distribuição fora da Steam.
+- [ ] 2026-10-31 — Nome do item "Grim Pact" (convive com a dificuldade "Grim"; alternativa "Grim Bargain").
+- [ ] 2026-10-31 — Ações manuais pendentes: aprovação das silhuetas (P-06-01), vídeos dos itens (P-01-04, P-04-05, A-03-01), teste manual do gamepad (P-02-02) e checklist de uma run completa no Electron (P-07-02).
 
 ## Próximos
 
-1. Fase 1 fechada: `v0.1.0` publicada. Em aberto: E-03-02 (input + HUD), E-04-02 (o assert de produção depende do bypass do PO) e E-01-06.
-2. Fechar a fase 2: P-07-01 (modo demo e `DemoEnd`), P-07-02 (Electron) e P-07-04 (sim com loja e `availableItems`, S2).
-3. ALPHA em paralelo:
-   - S1: captura determinística do Coveiro, A-02-01 (biomas).
-   - S2: A-03-02 (O Forjador) e A-03-03 (roster por round).
-   - Est: integrar o tutorial (A-07-01) e a revisão do copy `en` (B-05-01); A-07-03 pendente só dos testes visuais por tela, que dependem do e2e no CI.
-4. PO: secret `VERCEL_AUTOMATION_BYPASS_SECRET`, E-05-03 (Steamworks), `toktx` e Capacitor (ver Bloqueios).
+1. v0.2.1: rebalanceamento do regen (f763a6b) com o `balance.yml` verde.
+2. S2: P1 do `padNav` (A do controle segurado ao abrir um diálogo clica sozinho), `vision` (brilho, contraste, daltonismo, flashes) na `Options` com save schema 5, fuses do Electron, evento `ThornsHit`, P3 do Electron (`decodeURIComponent`, `setPermissionCheckHandler`, `will-redirect`) e checksums dos .exe no release; ícone do app no `electron-builder.yml` e favicon na web.
+3. S1: máscaras `_e.png` no `assets-build` (`emissiveTexture`, Art Bible §7), fila de VFX da auditoria, cast do `vision.ts`.
+4. Art: commitar `tools/assets-gen/checklist.ts` e o teste (hoje fora do git) e marcar o item 12 do checklist como "não se aplica"; seguir o refino do Mercador.
+5. Est: próximo `[ ]` de Resp Est; recalibrar no sim se a carta de `+0,5 regen` mudar.
+6. PO: ver Bloqueios.
 
 ## Dívidas e observações
 
 - `.env` existe localmente com `ELEVENLABS_API_KEY`; está no `.gitignore`. Nunca commitar.
 - Fontes dos percentuais de tela (D31) são secundárias e não verificadas; revisar antes de citar publicamente.
-- `grill-me` aponta para a skill `grilling` inexistente; `interview-me` foi usada no brainstorming.
-- [idle] Revisão S1 (2026-10-31) das fases 1–2: 25 achados. Aplicados no ROADMAP pelo Orq os da fase 1 (ciclo E-03-02 ↔ E-02-06, tarefa nova E-03-06 de ECS, versões e `@babylonjs/inspector` em E-02-01, `createEngine` assíncrono só WebGL2 + `NullEngine`, valores de ouro de rng/loop, protocolo de fps). Os da fase 2 (câmera `beta`, histerese de chunks, contagem de props, chão por bioma, atlas de chão, VAT em PNG 8 bits, oráculo do VAT, bench antes de P-03-04, números em `data/world.json`/`data/render.json`, donos de `core/spatial` e origin shifting) serão aplicados pelo Orq ao abrir a fase 2.
-- Contratos a combinar antes de E-03-01: assinaturas de `core/rng` (`mulberry32`, `hash32` variádico com i32 negativo), `core/store`, `core/logger`, `window.gc` tipado (`ready`, `debug` fora de produção), `render.createEngine(): Promise<Engine>`.
-- `reports/` não está no `.gitignore` de propósito: `reports/perf-*.json` e `sim-*.json` são evidência de asserts.
-- Dívida operacional (CPU saturada no `pre-push`): ver o parágrafo no topo. Janela de push entre agentes e timeout de 20 s nos testes de simulação e determinismo (a2cdbad); falta dar o mesmo timeout ao oráculo do VAT (`tools/bake-vat/babylon-oracle.test.ts`).
-- `tools/sim` ainda roda sem loja e sem `availableItems` (marcos e exclusivos do Ossuário); o balanceamento simulado ignora o pool real até a P-07-04. O cull de 40 u já entrou no sim (7d89669).
-- Bloqueios do PO ainda abertos que travam o ROADMAP: `toktx` (A-01-02, M-01-04) e Capacitor (B-04-04, M-01-*); ver Bloqueios.
-- Copy `en`: os nomes de dados vêm do id em Title Case, revisados em `feat/A-07-01-tutorial` (armas, chefes, itens com posse); o resto ainda é provisório e passa pela B-05-01.
-- A `wip/orq-merge` deixou de ser o ponto de integração: tudo o que importava está na `main`.
+- `reports/` guarda evidência de asserts (`perf-*.json`, `balance-*.json`); os `sim-*.json` regenerados por run ficam no `.gitignore`.
+- Oráculo do VAT (`tools/bake-vat/babylon-oracle.test.ts`) ainda sem o timeout de 20 s dos testes pesados.
+- `assets/audio-archive/` fica no git (17 MB); se passar de 50 MB, o Orq pergunta ao PO.
+- Regen fracionário: a carta dá `+0,5` ponto, e a fórmula do GDD §8 (0,2 + 0,09 × (pontos − 1)) foi pensada para pontos inteiros (0,5 ponto cura 0,155 HP/s, 78% de um ponto inteiro). Decidir entre carta inteira com constantes menores ou fórmula contínua.
+- As 28 máscaras `_e.png` existem, mas o `assets-build` ainda não as lê; o item 9 do checklist B-03-01 passa sem que o emissivo chegue ao jogo.
+- Pós-processo ffmpeg do `audio-generate` (SDD 08 §3: LUFS, trim, pitch de chefes).
+- Risco: conversor `.bbmodel` validado contra o próprio pipeline e o Babylon; os modelos refinados no Blockbench 5 passam pelo leitor de `groups` separado (4a4f19b).
