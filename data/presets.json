@@ -92,10 +92,6 @@
 			{
 				"preset": "medium",
 				"maxMemoryGb": 4
-			},
-			{
-				"preset": "high",
-				"maxCores": 16
 			}
 		]
 	}

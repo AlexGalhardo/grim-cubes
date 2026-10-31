@@ -133,6 +133,19 @@ export function hardwareInfo(
 	return { mobile, cores: nav.hardwareConcurrency, memoryGb: nav.deviceMemory, renderer };
 }
 
+/**
+ * Preset precedence: `?preset=` wins; bench and debug runs pin the data default so SwiftShader measurements stay
+ * comparable (its renderer would otherwise trip the `minimum` rule); otherwise the hardware pick.
+ */
+export function choosePresetId(
+	forced: string | null,
+	pinned: boolean,
+	autoId: string,
+	defaultId: string,
+): string {
+	return forced ?? (pinned ? defaultId : autoId);
+}
+
 /** Picks the first auto-preset rule that holds for `hardware`, else the fallback. A bound on a fact the browser hides never matches. */
 export function pickAutoPreset(auto: AutoPresetData, hardware: HardwareInfo): string {
 	for (const rule of auto.rules) {
