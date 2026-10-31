@@ -3,6 +3,25 @@
  * Windows x64 installer (NSIS) and portable executable in `release/`. Not code-signed: the certificate is the PO's
  * (B-04-01), so Windows SmartScreen warns on first run.
  */
+import { existsSync } from "node:fs";
+import { mkdir } from "node:fs/promises";
+import { buildIco } from "./ico";
+
+/** The app icon the Art draws (`assets/src/icons/app/app_<size>.png`) becomes `build/icon.ico`, which electron-builder picks up. */
+async function makeIcon(): Promise<void> {
+	const files = [16, 32, 48, 256].map((size) => `assets/src/icons/app/app_${size}.png`);
+	if (!files.every((file) => existsSync(file))) {
+		console.warn("build-electron: no app icon PNGs yet, the executable keeps the default Electron icon");
+		return;
+	}
+	const pngs = await Promise.all(
+		files.map(async (file) => new Uint8Array(await Bun.file(file).arrayBuffer())),
+	);
+	await mkdir("build", { recursive: true });
+	await Bun.write("build/icon.ico", buildIco(pngs));
+	console.log("build-electron: wrote build/icon.ico");
+}
+
 const steps: { label: string; cmd: string[]; env?: Record<string, string> }[] = [
 	{ label: "data check", cmd: ["bun", "run", "data:check"] },
 	{ label: "assets", cmd: ["bun", "run", "assets:build"] },
@@ -41,6 +60,8 @@ const steps: { label: string; cmd: string[]; env?: Record<string, string> }[] = 
 	},
 ];
 
+await makeIcon();
+
 for (const step of steps) {
 	console.log(`build-electron: ${step.label}`);
 	const proc = Bun.spawn(step.cmd, {
@@ -55,5 +76,3 @@ for (const step of steps) {
 	}
 }
 console.log("build-electron: done, see release/");
-
-export {};
