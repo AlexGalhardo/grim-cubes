@@ -4,6 +4,8 @@ export type { BarProps, BarVariant } from "./components/Bar/Bar";
 export { Bar } from "./components/Bar/Bar";
 export type { ButtonProps, ButtonSize } from "./components/Button/Button";
 export { Button } from "./components/Button/Button";
+export type { CardView, LevelUpProps } from "./components/LevelUp/LevelUp";
+export { LevelUp } from "./components/LevelUp/LevelUp";
 export type { PanelProps } from "./components/Panel/Panel";
 export { Panel } from "./components/Panel/Panel";
 export { VirtualJoystick } from "./components/VirtualJoystick/VirtualJoystick";
