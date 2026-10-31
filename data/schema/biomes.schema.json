@@ -1,4 +1,12 @@
 {
+	"$defs": {
+		"range": {
+			"type": "array",
+			"minItems": 2,
+			"maxItems": 2,
+			"items": { "type": "integer", "minimum": 0 }
+		}
+	},
 	"type": "array",
 	"minItems": 1,
 	"items": {
@@ -56,6 +64,16 @@
 							"type": "string"
 						}
 					}
+				}
+			},
+			"propCounts": {
+				"type": "object",
+				"required": ["blocking", "decor", "breakable"],
+				"additionalProperties": false,
+				"properties": {
+					"blocking": { "$ref": "#/$defs/range" },
+					"decor": { "$ref": "#/$defs/range" },
+					"breakable": { "$ref": "#/$defs/range" }
 				}
 			},
 			"propDensity": {

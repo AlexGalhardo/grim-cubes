@@ -18,8 +18,12 @@ export interface ChunkData {
 	cx: number;
 	cz: number;
 	floorVariant: number;
+	/** Index into the biome list given to the generator. */
+	biome: number;
 	propCount: number;
 	propType: Uint8Array;
+	/** PROP_KIND of each prop: blocking, decor or breakable. */
+	propKind: Uint8Array;
 	propX: Float32Array;
 	propZ: Float32Array;
 }
@@ -71,8 +75,10 @@ export function createChunkSystem(config: WorldConfig, generate: ChunkGenerator)
 			cx: 0,
 			cz: 0,
 			floorVariant: 0,
+			biome: 0,
 			propCount: 0,
 			propType: new Uint8Array(maxPropsPerChunk),
+			propKind: new Uint8Array(maxPropsPerChunk),
 			propX: new Float32Array(maxPropsPerChunk),
 			propZ: new Float32Array(maxPropsPerChunk),
 		};

@@ -11,6 +11,11 @@
 			"decor": ["prop_bone_01", "prop_grass_01"],
 			"breakable": ["prop_urn_01"]
 		},
+		"propCounts": {
+			"blocking": [4, 8],
+			"decor": [6, 14],
+			"breakable": [1, 2]
+		},
 		"propDensity": 0.45,
 		"enemyPool": ["husk", "wail"],
 		"music": "mus_biome_cemetery",
