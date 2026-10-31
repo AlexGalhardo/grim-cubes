@@ -12,7 +12,7 @@ test("every skin tint in milestones.json names a PALETTE colour and a theme.css 
 		expect(PALETTE, tint).toHaveProperty(key);
 		expect(theme, tint).toContain(`--color-${tint}:`);
 		expect(PALETTE[key as keyof typeof PALETTE].toLowerCase()).toBe(
-			new RegExp(`--color-${tint}:s*(#[0-9a-f]{6})`, "i").exec(theme)?.[1]?.toLowerCase(),
+			new RegExp(`--color-${tint}: *(#[0-9a-f]{6})`, "i").exec(theme)?.[1]?.toLowerCase(),
 		);
 	}
 });
