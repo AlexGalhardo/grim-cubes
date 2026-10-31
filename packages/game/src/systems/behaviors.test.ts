@@ -224,8 +224,10 @@ test("a hero killed by the leech drain gets the PlayerHit/Died events and the le
 	let died = 0;
 	for (let i = 0; i < 60 * 3 && died === 0; i++) {
 		step();
-		events.consume((type) => {
-			if (type === EventType.PlayerHit) hit++;
+		events.consume((type, _a, _b, c) => {
+			if (type === EventType.PlayerHit) {
+				if (c === 1) hit++;
+			}
 			if (type === EventType.Died) died++;
 		});
 	}

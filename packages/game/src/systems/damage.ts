@@ -177,7 +177,8 @@ export function createDamageSystem(deps: DamageSystemDeps): DamageSystem {
 			drained += amountHp;
 			const dead = (Health.hp[hero] ?? 0) <= 0;
 			if (drained >= 1 || dead) {
-				events.push(EventType.PlayerHit, drained, 0, 0, hero);
+				// c = 1: a leak, not a blow, so the render skips the hit pulse and the shake.
+				events.push(EventType.PlayerHit, drained, 0, 1, hero);
 				drained = 0;
 			}
 			if (dead) {

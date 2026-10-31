@@ -7,7 +7,7 @@ export const EventType = {
 	OriginShifted: 3,
 	/** The hero evaded a hit. */
 	Dodged: 4,
-	/** a = amount taken by the hero. */
+	/** a = amount taken by the hero; c = 1 for a leech drain (a leak: no hit pulse or shake). */
 	PlayerHit: 5,
 	/** a = round number. */
 	RoundStarted: 6,
