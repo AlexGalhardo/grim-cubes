@@ -34,6 +34,8 @@ import {
 	dropFragment,
 	Elite,
 	ENEMY_SHOT_POOL_SIZE,
+	EnemyType,
+	type EventBuffer,
 	EventType,
 	elitesData,
 	enemiesData,
@@ -100,6 +102,9 @@ import { App, type CardView, type HudState, type IconRef, type VolumeBus } from 
 import { query } from "bitecs";
 import { createRoot } from "react-dom/client";
 import { bootArtReview } from "./artReview";
+import { createAudioEngine } from "./audio/audioEngine";
+import { createEventAudio } from "./audio/eventSounds";
+import { createWebAudioDeps, musicFor } from "./audio/webAudio";
 import { applyLocale, initLocale } from "./locale";
 import "./main.css";
 
@@ -266,8 +271,10 @@ async function boot(): Promise<void> {
 	// The handlers are function declarations further down; the screen only calls them after boot.
 	const optionsActions = {
 		setPreset: (id: string): void => setPresetOption(id),
-		setVolume: (bus: VolumeBus, percent: number): void =>
-			void changeSettings((st) => (st.volume[bus] = percent)),
+		setVolume: (bus: VolumeBus, percent: number): void => {
+			audio.setVolume(bus, percent);
+			void changeSettings((st) => (st.volume[bus] = percent));
+		},
 		setScreenShake: (on: boolean): void => void changeSettings((st) => (st.screenShake = on)),
 		setLocale: (id: string): void => setLocaleOption(id),
 		close: (): void => {
@@ -556,11 +563,70 @@ async function boot(): Promise<void> {
 		propTypes,
 	);
 
+	// Sound (P-06-04): silent until the first input, then bus volumes from the Options screen.
+	const audio = createAudioEngine(createWebAudioDeps((message, id) => log.warn(message, id)));
+	for (const bus of ["master", "music", "sfx"] as const) {
+		audio.setVolume(bus, meta.settings.volume[bus]);
+	}
+	const unlockAudio = (): void => {
+		void audio.unlock();
+		for (const type of ["pointerdown", "keydown", "touchstart"])
+			window.removeEventListener(type, unlockAudio);
+	};
+	for (const type of ["pointerdown", "keydown", "touchstart"]) window.addEventListener(type, unlockAudio);
+	const eventAudio = createEventAudio(audio, {
+		hero,
+		enemyDeath: (entity) =>
+			enemyIds[EnemyType.id[entity] ?? 0] === "wail" ? "sfx_enemy_wail_death" : "sfx_enemy_husk_death",
+		bossId: (entity) => bossesData[(Boss.id[entity] ?? 0) - 1]?.id ?? "",
+	});
+	// The render port drains the buffer, so the audio listens on the way through.
+	const tappedEvents: EventBuffer = {
+		push: (type, a, b, c, entity) => events.push(type, a, b, c, entity),
+		consume: (visit) =>
+			events.consume((type, a, b, c, entity) => {
+				eventAudio(type, a, b, c, entity);
+				visit(type, a, b, c, entity);
+			}),
+		get size() {
+			return events.size;
+		},
+		get dropped() {
+			return events.dropped;
+		},
+	};
+	let biomeTrack: string | null = null;
+	let musicKey = "";
+	let lastAudioState = "";
+	const updateAudioState = (): void => {
+		const key = `${run.state}|${difficultyOpen}|${biomeTrack}`;
+		if (key === musicKey) return;
+		musicKey = key;
+		audio.setMusic(musicFor({ state: run.state, menu: difficultyOpen, biomeTrack }));
+		if (run.state === "BossIntro" && lastAudioState !== "BossIntro") {
+			const id = boss.defFor(run.round).id;
+			audio.play(`sfx_boss_${id}_entry`, { priority: "boss", maxVoices: 1 });
+			audio.play(`voice_${id}_entry`, { priority: "boss", maxVoices: 1, pitchSpread: 0 });
+		}
+		lastAudioState = run.state;
+	};
+	document.addEventListener("click", (event) => {
+		if ((event.target as Element | null)?.closest("button"))
+			audio.play("sfx_ui_confirm", { priority: "ui", maxVoices: 2 });
+	});
+	document.addEventListener("pointerover", (event) => {
+		if ((event.target as Element | null)?.closest("button"))
+			audio.play("sfx_ui_hover", { priority: "ui", maxVoices: 2 });
+	});
+
 	const atmosphere = createAtmosphere(
 		game,
 		biomeMap,
 		biomesData.map((biome) => ({ fogColor: biome.fogColor, music: biome.music })),
-		(track) => log.info("biome music", track),
+		(track) => {
+			log.info("biome music", track);
+			biomeTrack = track;
+		},
 	);
 
 	const _fighting = (): boolean => run.state === "Round" || run.state === "BossRound";
@@ -1008,8 +1074,10 @@ async function boot(): Promise<void> {
 		},
 		render: (alpha) => {
 			port.sync(world, alpha);
-			port.consumeEvents(events);
+			audio.beginFrame();
+			port.consumeEvents(tappedEvents);
 			atmosphere.update(origin.x + (Position.x[hero] ?? 0), origin.z + (Position.z[hero] ?? 0));
+			updateAudioState();
 			chunkRenderer.update(
 				origin.x,
 				origin.z,

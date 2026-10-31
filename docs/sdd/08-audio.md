@@ -4,21 +4,25 @@ Decisões: D24 (voz), D25 (ElevenLabs para SFX e música), Babylon Audio Engine 
 
 ## 1. Engine
 
-As seções 1 e 2 são provisórias até P-06-04: ainda não existe motor de áudio no jogo (nenhum `AudioEngine`, bus ou `eventSounds.ts`), e o jogo roda mudo. Hoje só a geração offline (§3) está implementada.
+Implementado em P-06-04 (`apps/web/src/audio/`), em Web Audio puro, sem dependência nova (substitui o plano de usar o Audio Engine v2 do Babylon: o motor fica testável com um `AudioContext` falso, e a música usa `HTMLAudioElement` em streaming).
 
-- `CreateAudioEngineAsync({ resumeOnInteraction: true, disableDefaultUI: true })` de `@babylonjs/core/AudioV2/webAudio/webAudioEngine` no bootstrap; `await audioEngine.unlockAsync()` no primeiro gesto (botão "Começar" da tela de título). Até o unlock, nenhum som é tocado (fila descartada).
-- Buses: `master` (main bus), `sfx`, `music`, `voice`, `ui` via `CreateAudioBusAsync`; volumes vêm de `Options.audio` (0–1) e são aplicados em `bus.volume`.
-- Sons de combate: `CreateSoundBufferAsync` por arquivo no load do bioma/chefe; instâncias via `CreateSoundAsync(name, buffer, { maxInstances })` (hits 8, mortes 6, pickups 4, UI 2).
-- Música: `CreateStreamingSoundAsync` (HTMLMediaElement), loop; crossfade de 2 s implementado com dois streams e rampas de volume.
-- Spatial: desligado na 1.0 (câmera fixa; pan estéreo simples calculado pela posição x relativa à câmera: `sound.stereo.pan = clamp(dx / 14, −0,7, 0,7)` se a API permitir; senão mono). ADR-0010 registra.
-- Formatos: `.mp3` (44,1 kHz, 128 kbps SFX / 160 kbps música) como principal; `.wav` não é distribuído (tamanho). Array de URLs não é necessário com mp3 universal.
-- Android WebView: unlock no primeiro toque funciona igual; testar `setMediaPlaybackRequiresUserGesture` (default true, aceitável porque há gesto).
+- `createAudioEngine(deps)` cria `master`, `music` e `sfx` (mais um ganho de ducking entre `music` e `master`). Os volumes são os percentuais de `meta.settings.volume` (tela Options), aplicados em `bus.gain.value`; mudar na tela aplica na hora.
+- Unlock: o contexto nasce suspenso; o primeiro `pointerdown`, `keydown` ou `touchstart` chama `unlock()`. Antes disso nenhum som toca (descartado) e a música pedida começa quando o contexto roda.
+- Arquivos: `/assets/audio/<id>.mp3`, um por id de `assets/src/audio/prompts.json` (o Est copia `assets/src/audio/<kind>/<id>.mp3` para `public/assets/audio/`). Sem manifest: o motor tenta o arquivo; se ele não existir (ou a resposta não for áudio) toca silêncio e registra `log.warn` uma única vez por id.
+- SFX: `decodeAudioData` por id, em cache, carregado no primeiro uso. Limite de vozes simultâneas por id (padrão 6; golpes 8, mortes 6, vozes de chefe 1), pitch aleatório ±5% (`playbackRate`), no máximo uma partida do mesmo id a cada 40 ms.
+- Orçamento por frame: 12 sons novos; inimigos e UI param em 8, para sobrar espaço ao herói, chefes e elites (`beginFrame()` zera o contador).
+- Música: ids `mus_menu` (menu, tela de dificuldade e resultados), `mus_boss` (apresentação e luta de chefe) e, nos rounds normais, a faixa do bioma sob o herói (`onMusic`, `mus_biome_*`) com `mus_round` de reserva. A troca faz crossfade de 1,5 s (rampas de ganho em duas faixas). Se o arquivo do primeiro candidato faltar, tenta o seguinte.
+- Sidechain: ao tocar `PlayerHit` (sem ser dreno), a música cai 3 dB por 200 ms.
+- Spatial desligado na 1.0 (câmera fixa); pan estéreo continua como possibilidade futura.
+- Formatos: `.mp3` (44,1 kHz, 128 kbps SFX / 160 kbps música).
 
 ## 2. Eventos → sons
 
-`render/audio/eventSounds.ts` mapeia eventos do ring buffer para sons com regras de throttle (mesmo som no máximo a cada 40 ms; máximo 12 sons novos por frame; prioridade: herói > chefe > elite > UI > inimigos). Variações: `sfx_sword_hit_01..03` sorteadas; pitch ±5% aleatório por instância (`playbackRate`).
+`apps/web/src/audio/eventSounds.ts` (`soundFor`) mapeia o tipo do evento a ids de som: golpe e tiro, acerto (variações `sfx_sword_hit_01/02`, crítico `sfx_enemy_hit_01`), morte por tipo de inimigo, esquiva, dano no herói, início e fim de round, level-up, explosão, elite, baú, telegrafia, invocação, fúria, grito, onda de choque, ações dos chefes 4 e 5, dash, prop quebrado e consumível. O render drena o buffer; o áudio escuta no caminho (um `EventBuffer` que repassa cada evento ao mapa e depois ao render).
 
-Sidechain simples: ao tocar `sfx_player_hit`, `music.volume` cai 3 dB por 200 ms (rampa).
+Vozes dos chefes: `voice_<id do chefe>_entry | phase | death` (ex.: `voice_gravedigger_death`); a entrada também toca `sfx_boss_<id>_entry`. UI: `sfx_ui_hover` ao passar o mouse e `sfx_ui_confirm` ao clicar em botões.
+
+Ids ainda sem arquivo (silêncio com aviso, ver prompts.json): `sfx_player_dodge`, `sfx_explosion_01`, `sfx_boss_telegraph`, `sfx_boss_*`, `sfx_egg_*`, `sfx_dash`, `sfx_prop_break`, `sfx_pickup_consumable`, `mus_round`, `mus_boss` e as vozes.
 
 ## 3. Geração com ElevenLabs (`tools/audio-generate`)
 
@@ -37,6 +41,6 @@ GDD §22.1–§22.3. Total estimado da 1.0: 82 SFX, 10 faixas de música (menu +
 
 ## 5. Testes
 
-- Unit: mapeamento evento → som; throttle; prioridade; sidechain rampa (provisório até P-06-04).
+- Unit (`apps/web/src/audio/audio.test.ts`, `AudioContext` falso): unlock, throttle de 40 ms, limite de vozes, orçamento por frame, arquivo ausente com um só aviso, volumes dos buses, crossfade de 1,5 s e candidato de reserva, mapa evento → som e música por estado.
 - Integration (Playwright, headed opcional): unlock após clique; música troca ao mudar bioma; volumes das opções aplicam (provisório até P-06-04).
 - Tooling (existe): `audio:generate` com `fetch` simulado cobre dry-run sem chamadas e sem chave no log, recusa de plano free (exit 2), chave ausente, limite de créditos, skip por hash, `--only`, retry e sem retry em 4xx, e `meta.json` com `plan`.
