@@ -193,3 +193,20 @@ test("with the Ossuary guarantee every shop visit holds an Uncommon item", () =>
 		}
 	}
 });
+
+test("the Ossuary guarantee covers the opening offer only, not the rerolls", () => {
+	let rerollsWithoutUncommon = 0;
+	for (let seed = 1; seed <= 40; seed++) {
+		const { shop, progress } = setup(3, seed, 1);
+		progress.gold = 1e6;
+		shop.open();
+		const hasUncommon = (): boolean =>
+			shop.slots.some(
+				(slot) => slot.kind === "item" && itemsData.find((i) => i.id === slot.id)?.tier === 2,
+			);
+		expect(hasUncommon()).toBe(true);
+		shop.reroll();
+		if (!hasUncommon()) rerollsWithoutUncommon++;
+	}
+	expect(rerollsWithoutUncommon).toBeGreaterThan(0);
+});

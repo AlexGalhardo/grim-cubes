@@ -78,7 +78,8 @@ export function createShopSystem(deps: ShopSystemDeps): ShopSystem {
 	// The starting weapon was free, so selling it returns nothing.
 	let paid = 0;
 
-	const context = (): GenerateContext => ({
+	/** `opening`: the Ossuary guarantee only shapes the first offer of a visit (GDD 19.1), never a reroll. */
+	const context = (opening = false): GenerateContext => ({
 		config,
 		tiers,
 		catalog,
@@ -87,7 +88,7 @@ export function createShopSystem(deps: ShopSystemDeps): ShopSystem {
 		luck: stats.stats.luck,
 		shopPrice: stats.stats.shopPrice,
 		currentWeapon: { id: weapon.weapon.id ?? "", tier: weapon.tier, maxTier: weapon.maxTier },
-		...(guaranteedUncommon ? { guaranteedUncommon } : {}),
+		...(opening && guaranteedUncommon ? { guaranteedUncommon } : {}),
 	});
 	const nextRerollPrice = (): number => {
 		const free = stats.stats.freeRerolls;
@@ -124,7 +125,7 @@ export function createShopSystem(deps: ShopSystemDeps): ShopSystem {
 		},
 		open(): void {
 			rerolls = 0;
-			slots = generateShop(context(), slots);
+			slots = generateShop(context(true), slots);
 		},
 		buy(index: number): boolean {
 			const slot = slots[index];
