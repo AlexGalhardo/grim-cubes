@@ -12,6 +12,7 @@
 			"damageBase",
 			"damagePerRound",
 			"speed",
+			"walkRefSpeed",
 			"behavior",
 			"fragments",
 			"radius"
@@ -47,6 +48,11 @@
 			"speed": {
 				"type": "number",
 				"minimum": 0
+			},
+			"walkRefSpeed": {
+				"type": "number",
+				"minimum": 0,
+				"description": "Speed (u/s) at which the walk clip was authored; the horde scales playback by |velocity| / walkRefSpeed (0 for enemies that never walk)."
 			},
 			"behavior": {
 				"enum": [

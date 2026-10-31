@@ -8,8 +8,10 @@ import {
 	Position,
 	PrevPosition,
 	queryEnemies,
+	Velocity,
 } from "@gc/game";
 import "@babylonjs/core/Meshes/thinInstanceMesh";
+import { toLoaderLocalX, toLoaderLocalYaw } from "../coords";
 import type { LoadedVat } from "../vat/loader";
 
 export interface HordeType {
@@ -19,6 +21,8 @@ export interface HordeType {
 	 */
 	mesh: Mesh;
 	vat: LoadedVat;
+	/** Speed (u/s) at which the walk clip was authored; playback speed scales with |velocity| / walkRefSpeed. */
+	walkRefSpeed: number;
 }
 
 export interface HordeOptions {
@@ -41,20 +45,17 @@ export interface HordeRenderer {
 }
 
 const SETTINGS_KIND = "bakedVertexAnimationSettingsInstanced";
-const STATE_NONE = 0;
-const STATE_WALK = 1;
-const STATE_HIT = 2;
-const STATE_ATTACK = 3;
+const STATE_WALK = 0;
+const STATE_HIT = 1;
+const STATE_ATTACK = 2;
+const CLIP_NAMES = ["walk", "hit", "attack", "death"] as const;
+const CLIP_WALK = 0;
+const CLIP_HIT = 1;
+const CLIP_ATTACK = 2;
+const CLIP_DEATH = 3;
 const MAX_ENTITIES = 4096;
-
-/** Shader frame phase: choose `offset` so the clip is at its first frame at clock `time` (see Babylon bakedVertexAnimation). */
-export function startOffset(time: number, speed: number, totalFrames: number): number {
-	const t = (time * speed) / totalFrames;
-	const numFrames = totalFrames - (t < 1 ? 0 : 1);
-	const phase = (t - Math.floor(t)) * numFrames;
-	// +0.01 keeps floor() on the intended frame despite float error.
-	return ((numFrames - phase) % numFrames) + 0.01;
-}
+/** Keeps floor() on the intended frame despite float error when a frame index is passed as the offset. */
+const FRAME_EPSILON = 0.01;
 
 export function createHordeRenderer(types: readonly HordeType[], options: HordeOptions): HordeRenderer {
 	const { capacity, ghostCapacity } = options;
@@ -62,6 +63,9 @@ export function createHordeRenderer(types: readonly HordeType[], options: HordeO
 	const matrices: Float32Array[] = [];
 	const settings: Float32Array[] = [];
 	const counts = new Int32Array(types.length);
+	// Clip table per type: [from, to] for walk, hit, attack, death; resolved once so sync never looks up strings.
+	const clipRange = new Float32Array(types.length * CLIP_NAMES.length * 2);
+	const fps = new Float32Array(types.length);
 	types.forEach((type, t) => {
 		const m = new Float32Array(total * 16);
 		for (let i = 0; i < total; i++) m[i * 16] = m[i * 16 + 5] = m[i * 16 + 10] = m[i * 16 + 15] = 1;
@@ -73,10 +77,20 @@ export function createHordeRenderer(types: readonly HordeType[], options: HordeO
 		type.mesh.thinInstanceCount = 0;
 		matrices[t] = m;
 		settings[t] = s;
+		fps[t] = type.vat.meta.fps;
+		CLIP_NAMES.forEach((name, k) => {
+			const range = type.vat.meta.clips[name];
+			if (!range) throw new Error(`Horde type ${t} lacks VAT clip "${name}"`);
+			clipRange[(t * CLIP_NAMES.length + k) * 2] = range.from;
+			clipRange[(t * CLIP_NAMES.length + k) * 2 + 1] = range.to;
+		});
 	});
 
 	const state = new Uint8Array(MAX_ENTITIES);
-	const offset = new Float32Array(MAX_ENTITIES);
+	const stateStart = new Float64Array(MAX_ENTITIES);
+	const walkOffset = new Float32Array(MAX_ENTITIES);
+	const hitEnd = new Float64Array(MAX_ENTITIES);
+	const hitPrev = new Uint8Array(MAX_ENTITIES);
 	/** Entities seen as enemies in the last sync; a Died event for anything else (the hero) is ignored. */
 	const seen = new Uint8Array(MAX_ENTITIES);
 	let clock = 0;
@@ -87,54 +101,52 @@ export function createHordeRenderer(types: readonly HordeType[], options: HordeO
 	const ghostX = new Float32Array(ghostSlots);
 	const ghostZ = new Float32Array(ghostSlots);
 	const ghostYaw = new Float32Array(ghostSlots);
-	const ghostStart = new Float32Array(ghostSlots);
-	const ghostOffset = new Float32Array(ghostSlots);
+	const ghostStart = new Float64Array(ghostSlots);
 	let ghostCount = 0;
 	const stats = { matrixUpdates: 0, settingsUpdates: 0, ghosts: 0 };
 
-	function clipOf(t: number, name: string): { from: number; to: number; fps: number } {
-		const vat = types[t]?.vat;
-		const range = vat?.meta.clips[name];
-		if (!vat || !range) throw new Error(`Horde type ${t} lacks VAT clip "${name}"`);
-		return { from: range.from, to: range.to, fps: vat.meta.fps };
-	}
+	const from = (t: number, clip: number): number => clipRange[(t * CLIP_NAMES.length + clip) * 2] ?? 0;
+	const to = (t: number, clip: number): number => clipRange[(t * CLIP_NAMES.length + clip) * 2 + 1] ?? 0;
+	const frames = (t: number, clip: number): number => to(t, clip) - from(t, clip) + 1;
+	const clipSeconds = (t: number, clip: number): number => frames(t, clip) / (fps[t] ?? 12);
 
-	function write(t: number, n: number, x: number, z: number, yaw: number, clip: string, off: number): void {
+	/**
+	 * `x`/`z`/`yaw` are scene coordinates, conjugated here for the loader's mirrored `__root__` (see coords.ts).
+	 * `speed` 0 pins the instance to the frame given by `offset`, which is how one-shot clips are played.
+	 */
+	function write(
+		t: number,
+		n: number,
+		x: number,
+		z: number,
+		yaw: number,
+		clip: number,
+		offset: number,
+		speed: number,
+	): void {
 		const m = matrices[t];
 		const s = settings[t];
-		const type = types[t];
-		if (!m || !s || !type) return;
-		const range = type.vat.meta.clips[clip];
-		if (!range) return;
+		if (!m || !s) return;
 		// Rotation about Y: Facing.yaw 0 looks along +z, positive yaw turns towards +x.
-		const c = Math.cos(yaw);
-		const s2 = Math.sin(yaw);
+		const local = toLoaderLocalYaw(yaw);
+		const c = Math.cos(local);
+		const s2 = Math.sin(local);
 		m[n * 16] = c;
 		m[n * 16 + 2] = -s2;
 		m[n * 16 + 8] = s2;
 		m[n * 16 + 10] = c;
-		m[n * 16 + 12] = x;
+		m[n * 16 + 12] = toLoaderLocalX(x);
 		m[n * 16 + 14] = z;
-		s[n * 4] = range.from;
-		s[n * 4 + 1] = range.to;
-		s[n * 4 + 2] = off;
-		s[n * 4 + 3] = type.vat.meta.fps;
+		s[n * 4] = from(t, clip);
+		s[n * 4 + 1] = to(t, clip);
+		s[n * 4 + 2] = offset;
+		s[n * 4 + 3] = speed;
 	}
 
-	const clipName = (st: number): string =>
-		st === STATE_HIT ? "hit" : st === STATE_ATTACK ? "attack" : "walk";
-
-	function enter(eid: number, t: number, next: number): void {
-		const type = types[t];
-		if (!type) return;
-		const clip = clipOf(t, clipName(next));
-		const frames = clip.to - clip.from + 1;
-		state[eid] = next;
-		offset[eid] =
-			next !== STATE_WALK
-				? startOffset(type.vat.manager.time, clip.fps, frames)
-				: // Walkers desynchronise by entity so a horde does not march in lockstep.
-					(eid * 7) % frames;
+	/** One-shot clips ignore the shared clock: the frame is chosen here from the time since the clip started. */
+	function oneShotFrame(t: number, clip: number, started: number): number {
+		const frame = Math.min(frames(t, clip) - 1, Math.floor((clock - started) * (fps[t] ?? 12)));
+		return frame + FRAME_EPSILON;
 	}
 
 	return {
@@ -151,33 +163,46 @@ export function createHordeRenderer(types: readonly HordeType[], options: HordeO
 				if (n >= capacity) continue;
 				counts[t] = n + 1;
 				seen[eid] = 1;
-				// Priority: hit > attack > walk.
+
+				// HitFlash lasts two steps, shorter than one VAT frame, so the hit clip runs on its own timer
+				// started on the rising edge. Priority: hit > attack > walk.
+				const flash = (HitFlash.ticks[eid] ?? 0) > 0 ? 1 : 0;
+				if (flash && !hitPrev[eid]) hitEnd[eid] = clock + clipSeconds(t, CLIP_HIT);
+				hitPrev[eid] = flash;
 				const next =
-					(HitFlash.ticks[eid] ?? 0) > 0
+					clock < (hitEnd[eid] ?? 0)
 						? STATE_HIT
 						: (Attacking.ticks[eid] ?? 0) > 0
 							? STATE_ATTACK
 							: STATE_WALK;
-				if (state[eid] !== next) enter(eid, t, next);
+				if (state[eid] !== next) {
+					state[eid] = next;
+					stateStart[eid] = clock;
+					// Walkers desynchronise by entity so a horde does not march in lockstep.
+					if (next === STATE_WALK) walkOffset[eid] = (eid * 7) % frames(t, CLIP_WALK);
+				}
+
 				const px = PrevPosition.x[eid] ?? 0;
 				const pz = PrevPosition.z[eid] ?? 0;
-				write(
-					t,
-					n,
-					px + ((Position.x[eid] ?? 0) - px) * alpha,
-					pz + ((Position.z[eid] ?? 0) - pz) * alpha,
-					Facing.yaw[eid] ?? 0,
-					clipName(next),
-					offset[eid] ?? 0,
-				);
+				const x = px + ((Position.x[eid] ?? 0) - px) * alpha;
+				const z = pz + ((Position.z[eid] ?? 0) - pz) * alpha;
+				const yaw = Facing.yaw[eid] ?? 0;
+				if (next === STATE_WALK) {
+					const speed =
+						Math.hypot(Velocity.x[eid] ?? 0, Velocity.z[eid] ?? 0) /
+						(types[t]?.walkRefSpeed || 1);
+					write(t, n, x, z, yaw, CLIP_WALK, walkOffset[eid] ?? 0, (fps[t] ?? 12) * speed);
+				} else {
+					const clip = next === STATE_HIT ? CLIP_HIT : CLIP_ATTACK;
+					write(t, n, x, z, yaw, clip, oneShotFrame(t, clip, stateStart[eid] ?? 0), 0);
+				}
 			}
 
 			for (let t = 0; t < types.length; t++) {
 				for (let g = 0; g < ghostCapacity; g++) {
 					const slot = t * ghostCapacity + g;
 					if (!ghostActive[slot]) continue;
-					const clip = clipOf(t, "death");
-					if (clock - (ghostStart[slot] ?? 0) >= (clip.to - clip.from + 1) / clip.fps) {
+					if (clock - (ghostStart[slot] ?? 0) >= clipSeconds(t, CLIP_DEATH)) {
 						ghostActive[slot] = 0;
 						ghostCount--;
 						continue;
@@ -190,8 +215,9 @@ export function createHordeRenderer(types: readonly HordeType[], options: HordeO
 						ghostX[slot] ?? 0,
 						ghostZ[slot] ?? 0,
 						ghostYaw[slot] ?? 0,
-						"death",
-						ghostOffset[slot] ?? 0,
+						CLIP_DEATH,
+						oneShotFrame(t, CLIP_DEATH, ghostStart[slot] ?? 0),
+						0,
 					);
 				}
 			}
@@ -211,21 +237,20 @@ export function createHordeRenderer(types: readonly HordeType[], options: HordeO
 		onDied(eid): void {
 			if (!seen[eid]) return;
 			seen[eid] = 0;
+			state[eid] = STATE_WALK;
+			hitEnd[eid] = 0;
+			hitPrev[eid] = 0;
 			const t = EnemyType.id[eid] ?? 0;
-			state[eid] = STATE_NONE;
-			const type = types[t];
-			if (!type) return;
+			if (!types[t]) return;
 			for (let g = 0; g < ghostCapacity; g++) {
 				const slot = t * ghostCapacity + g;
 				if (ghostActive[slot]) continue;
-				const clip = clipOf(t, "death");
 				ghostActive[slot] = 1;
 				ghostCount++;
 				ghostX[slot] = Position.x[eid] ?? 0;
 				ghostZ[slot] = Position.z[eid] ?? 0;
 				ghostYaw[slot] = Facing.yaw[eid] ?? 0;
 				ghostStart[slot] = clock;
-				ghostOffset[slot] = startOffset(type.vat.manager.time, clip.fps, clip.to - clip.from + 1);
 				return;
 			}
 		},
