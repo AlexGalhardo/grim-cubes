@@ -16,6 +16,7 @@ import {
 	createSpawnSystem,
 	createTargetingSystem,
 	createWeaponSystem,
+	cullDistantEnemies,
 	damageConfigFromHero,
 	type EnemyDef,
 	EventType,
@@ -58,6 +59,8 @@ export interface SimData {
 	}>;
 	weapons: Array<WeaponDef & { id: string }>;
 	biomes: Array<{ id: string; enemyPool: string[] }>;
+	/** Enemies farther than this from the hero are removed (`cullDistance`, world.json). */
+	world: { cullDistance: number };
 	hero: HeroCombatData & {
 		startingWeapon: string;
 		base: {
@@ -132,6 +135,7 @@ export function loadSimData(): SimData {
 		weapons: read("weapons.json"),
 		biomes: read("biomes.json"),
 		hero: read("hero.json"),
+		world: read("world.json"),
 	} as SimData;
 }
 
@@ -345,6 +349,8 @@ export function runSim(data: SimData, options: SimOptions): SimReport {
 		behavior.run(world, hero);
 		separation.run(world);
 		movementSystem(world);
+		// The game culls stragglers at the same point of the step; without it the sim and the game diverge (P-03-05).
+		cullDistantEnemies(world, Position.x[hero] ?? 0, Position.z[hero] ?? 0, data.world.cullDistance);
 		targeting.run(world, hero, weapon.range);
 		weapon.run(world, hero);
 		projectileSystem.run(world);
