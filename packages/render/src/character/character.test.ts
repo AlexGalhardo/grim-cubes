@@ -151,32 +151,27 @@ describe("character rig", () => {
 		dispose();
 	});
 
-	it("draws a portrait through an engine view and releases it on stop", async () => {
+	it("renders the portrait into a texture without ever resizing the game canvas", async () => {
 		const { game, character, dispose } = await setup();
-		const canvas = {} as HTMLCanvasElement;
 		const engine = game.scene.getEngine();
-		const registered: unknown[] = [];
-		engine.registerView = ((c: HTMLCanvasElement) => {
-			registered.push(c);
-			return {} as never;
-		}) as typeof engine.registerView;
-		engine.unRegisterView = ((c: HTMLCanvasElement) => {
-			registered.splice(registered.indexOf(c), 1);
-			return engine;
-		}) as typeof engine.unRegisterView;
+		const size = () => [engine.getRenderWidth(), engine.getRenderHeight()];
+		const before = size();
+		const canvas = { width: 64, height: 64, getContext: () => null } as unknown as HTMLCanvasElement;
 		const portrait = createPortrait(game, canvas, character);
 		portrait.start();
 		portrait.start();
-		expect(registered).toEqual([canvas]);
 		expect(portrait.running).toBe(true);
-		const camera = game.scene.getCameraByName("portrait");
-		expect(camera?.layerMask).not.toBe(game.camera.layerMask);
-		expect(
-			character.holder.getChildMeshes().every((m) => (m.layerMask & game.camera.layerMask) !== 0),
-		).toBe(true);
+		const texture = game.scene.customRenderTargets.find((t) => t.name === "portrait");
+		expect(texture?.getSize().width).toBe(64);
+		expect(texture?.renderList?.length).toBeGreaterThan(0);
+		expect(game.scene.activeCamera).toBe(game.camera);
+		game.scene.render();
+		expect(size()).toEqual(before);
 		portrait.stop();
-		expect(registered).toEqual([]);
+		expect(portrait.running).toBe(false);
+		expect(game.scene.customRenderTargets.some((t) => t.name === "portrait")).toBe(false);
 		expect(game.scene.getCameraByName("portrait")).toBeNull();
+		expect(size()).toEqual(before);
 		dispose();
 	});
 });
