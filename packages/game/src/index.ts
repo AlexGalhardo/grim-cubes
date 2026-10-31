@@ -4,6 +4,7 @@ export {
 	cardsData,
 	enemiesData,
 	heroData,
+	itemsData,
 	roundsData,
 	toBiomeDefs,
 	toEnemyDefs,
@@ -57,8 +58,20 @@ export {
 	effectiveDodge,
 	knockbackScale,
 } from "./rules/damage";
+export type { StatLine } from "./rules/describe";
+export { describeModifier, describeStats } from "./rules/describe";
 export type { FragmentsConfig, XpConfig } from "./rules/fragments";
 export { dropChance, harvestCount, xpForLevel } from "./rules/fragments";
+export type {
+	GenerateContext,
+	ShopCatalog,
+	ShopConfig,
+	ShopItem,
+	ShopSlot,
+	ShopWeapon,
+	TierChance,
+} from "./rules/shop";
+export { generateShop, rerollPrice, rollTier, sellValue, shopPrice, tierChance } from "./rules/shop";
 export type { HeroStatsData, Modifier, PlayerStats, StatCaps } from "./rules/stats";
 export { computeStats, createPlayerStats, STAT_FIELDS } from "./rules/stats";
 export type { BehaviorConfig, BehaviorSystem } from "./systems/behavior";
@@ -89,6 +102,8 @@ export type { Bag, RunConfig, RunState, RunSystem, RunSystemDeps } from "./syste
 export { createRunSystem, isBossRound, roundDurationSeconds } from "./systems/round";
 export type { SeparationConfig, SeparationSystem } from "./systems/separation";
 export { createSeparationSystem } from "./systems/separation";
+export type { ShopSlotView, ShopSystem, ShopSystemDeps, ShopView } from "./systems/shop";
+export { createShopSystem } from "./systems/shop";
 export type {
 	EnemyDef,
 	SpawnConfig,

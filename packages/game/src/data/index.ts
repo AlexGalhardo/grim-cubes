@@ -2,13 +2,23 @@ import biomesJson from "../../../../data/biomes.json";
 import cardsJson from "../../../../data/cards.json";
 import enemiesJson from "../../../../data/enemies.json";
 import heroJson from "../../../../data/hero.json";
+import itemsJson from "../../../../data/items.json";
 import roundsJson from "../../../../data/rounds.json";
 import weaponsJson from "../../../../data/weapons.json";
 import worldJson from "../../../../data/world.json";
 import { BehaviorKind } from "../systems/behavior";
 import type { EnemyDef } from "../systems/spawn";
 import type { BiomeDef } from "../world/chunkGen";
-import type { BiomeData, CardsData, EnemyData, HeroData, RoundsData, WeaponData, WorldData } from "./types";
+import type {
+	BiomeData,
+	CardsData,
+	EnemyData,
+	HeroData,
+	ItemData,
+	RoundsData,
+	WeaponData,
+	WorldData,
+} from "./types";
 
 /**
  * Typed views of `data/*.json` (SDD 05 section 1). The assignments below are the type check: if a file
@@ -21,6 +31,7 @@ export const roundsData: RoundsData = roundsJson;
 export const worldData: WorldData = worldJson;
 export const biomesData: readonly BiomeData[] = biomesJson;
 export const cardsData: CardsData = cardsJson;
+export const itemsData: readonly ItemData[] = itemsJson;
 
 const BEHAVIORS: Readonly<Record<string, number>> = {
 	chase: BehaviorKind.Chase,
@@ -44,7 +55,17 @@ export function toEnemyDefs(enemies: readonly EnemyData[]): EnemyDef[] {
 	}));
 }
 
-export type { BiomeData, CardsData, EnemyData, HeroData, RoundsData, WeaponData, WorldData } from "./types";
+export type {
+	BiomeData,
+	CardsData,
+	EnemyData,
+	HeroData,
+	ItemData,
+	ItemEffect,
+	RoundsData,
+	WeaponData,
+	WorldData,
+} from "./types";
 
 /** Maps `biomes.json` to the chunk generator's defs (count ranges become tuples). */
 export function toBiomeDefs(biomes: readonly BiomeData[]): BiomeDef[] {

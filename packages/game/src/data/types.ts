@@ -1,4 +1,5 @@
 import type { FragmentsConfig, XpConfig } from "../rules/fragments";
+import type { ShopConfig, TierChance } from "../rules/shop";
 import type { Modifier } from "../rules/stats";
 import type { RunConfig } from "../systems/round";
 import type { SpawnConfig } from "../systems/spawn";
@@ -66,6 +67,8 @@ export interface RoundsData {
 	biomeMix: Record<string, Record<string, number>>;
 	fragments: FragmentsConfig;
 	xp: XpConfig;
+	shop: ShopConfig;
+	tierChance: TierChance[];
 }
 
 export interface BiomeData {
@@ -93,3 +96,18 @@ export interface CardsData {
 }
 
 export type WorldData = WorldConfig;
+
+export interface ItemEffect {
+	id: string;
+	params: Record<string, number | boolean>;
+}
+
+/** One entry of `data/items.json`. */
+export interface ItemData {
+	id: string;
+	name: string;
+	tier: number;
+	price: number;
+	modifiers: Modifier[];
+	effects: ItemEffect[];
+}
