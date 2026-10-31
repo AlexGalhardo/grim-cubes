@@ -7,6 +7,7 @@ interface DebugWindow {
 		debug?: {
 			state(): { run: string; round: number };
 			toRound(round: number): void;
+			toBossFrame(): void;
 			freeze(): void;
 			holdIdle(): void;
 		};
@@ -33,27 +34,16 @@ test("the Gravedigger is drawn as a skeleton character, not as a Husk", async ({
 	await page.goto("/?debug=1&seed=42");
 	await page.waitForFunction(() => (window as unknown as DebugWindow).gc?.ready === true);
 	const hasDebug = await page.evaluate(
-		() => (window as unknown as DebugWindow).gc?.debug?.toRound !== undefined,
+		() => (window as unknown as DebugWindow).gc?.debug?.toBossFrame !== undefined,
 	);
 	test.skip(!hasDebug, "build without GC_DEBUG_API");
-	await expect
-		.poll(() => page.evaluate(() => (window as unknown as DebugWindow).gc?.debug?.state().run), {
-			timeout: 15_000,
-		})
-		.toBe("Round");
-	await page.evaluate(() => (window as unknown as DebugWindow).gc?.debug?.toRound(10));
-	// Like boss.spec: the shop opens first, then the boss intro and the fight.
-	await expect(page.getByTestId("shop-slot-0")).toBeVisible({ timeout: 15_000 });
-	await page.keyboard.press("Enter");
-	await expect(page.getByTestId("boss-bar")).toBeVisible({ timeout: 15_000 });
+	// toBossFrame steps the simulation to the first frame of the boss round and freezes it: the same frame on every run.
 	await page.evaluate(() => {
 		const debug = (window as unknown as DebugWindow).gc?.debug;
-		debug?.freeze();
+		debug?.toBossFrame();
 		debug?.holdIdle();
 	});
-	await page.waitForTimeout(300);
 	await expect(page.locator("canvas#game")).toHaveScreenshot(`gravedigger-${testInfo.project.name}.png`, {
 		animations: "disabled",
-		maxDiffPixelRatio: 0.15,
 	});
 });
