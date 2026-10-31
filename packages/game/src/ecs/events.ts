@@ -17,7 +17,10 @@ export type EventVisitor = (type: number, a: number, b: number, c: number, entit
 export interface EventBuffer {
 	/** Overwrites the oldest event when full. */
 	push(type: number, a: number, b: number, c: number, entity: number): void;
-	/** Visits events oldest to newest, then empties the buffer. Allocates nothing. */
+	/**
+	 * Visits events oldest to newest, then empties the buffer. Allocates nothing.
+	 * The visitor must not call `push` during the consume.
+	 */
 	consume(visit: EventVisitor): void;
 	readonly size: number;
 	/** Events overwritten before being consumed, since creation (SDD 02 section 4). */
