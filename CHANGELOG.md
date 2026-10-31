@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **game:** An Easy difficulty (enemy HP and damage x0.75, souls x0.75) with its own best round (save schema 11); Easy, Normal and Hard (`grim`) are open from the start and Nightmare unlocks at round 20 on Hard
 - **ui:** A pause menu (Esc, Start on the pad, or a pause button next to the speed one on touch screens) with Continue, Options and Quit to menu (confirmed; the run stays saved at the start of its round)
 - **save:** Three save slots, each a complete profile (souls, Ossuary, records, stats, milestones, skins); settings and keys stay global. Save schema 10 moves the old single save into slot 1 with its checksum verified; per-slot storage keys and backups on web and Electron
 - **ui:** The slot screen opens from New game (overwrite and erase need a confirmation; keyboard, D-pad and axe covered), and the title menu shows Continue when a slot was used before

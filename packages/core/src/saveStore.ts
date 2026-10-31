@@ -302,7 +302,12 @@ export async function readSlots(io: SaveIO): Promise<SlotSummary[]> {
 					state: "used",
 					savedAt: await savedAtOf(io, slot),
 					souls: p.souls,
-					bestRound: Math.max(p.records.normal, p.records.grim, p.records.nightmare),
+					bestRound: Math.max(
+						p.records.easy,
+						p.records.normal,
+						p.records.grim,
+						p.records.nightmare,
+					),
 					runRound: p.run?.round ?? null,
 				});
 			}

@@ -1,4 +1,4 @@
-export const SAVE_SCHEMA_VERSION = 10;
+export const SAVE_SCHEMA_VERSION = 11;
 /** Complete profiles a player can keep side by side (GDD 21.4); slot numbers are 1 to `SLOT_COUNT`. */
 export const SLOT_COUNT = 3;
 export const SAVE_APP = "grim-cubes";
@@ -9,8 +9,8 @@ export const MAX_SAVE_BYTES = 64 * 1024;
 const MAX_LIST = 256;
 const FORBIDDEN_KEYS = new Set(["__proto__", "constructor", "prototype"]);
 
-export type Difficulty = "normal" | "grim" | "nightmare";
-export const DIFFICULTIES: readonly Difficulty[] = ["normal", "grim", "nightmare"];
+export type Difficulty = "easy" | "normal" | "grim" | "nightmare";
+export const DIFFICULTIES: readonly Difficulty[] = ["easy", "normal", "grim", "nightmare"];
 
 import { createKeyMap, KEY_ACTIONS, type KeyMap, validKeyMap } from "./keys";
 import { createPadMap, PAD_ACTIONS, type PadMap, validPadMap } from "./pad";
@@ -141,7 +141,7 @@ export interface SaveEnvelope {
 export function createMetaState(): MetaState {
 	return {
 		souls: 0,
-		records: { normal: 0, grim: 0, nightmare: 0 },
+		records: { easy: 0, normal: 0, grim: 0, nightmare: 0 },
 		stats: { kills: 0, runs: 0, bossKills: 0, elitesKilled: 0 },
 		unlocks: [],
 		ossuary: {},
@@ -445,6 +445,8 @@ export function validateProfile(raw: unknown): Profile {
 	return {
 		souls: counter(raw.souls, "souls"),
 		records: {
+			// Absent before schema 11: no best round on Easy yet.
+			easy: records.easy === undefined ? 0 : counter(records.easy, "records.easy"),
 			normal: counter(records.normal, "records.normal"),
 			grim: counter(records.grim, "records.grim"),
 			nightmare: counter(records.nightmare, "records.nightmare"),
@@ -548,12 +550,19 @@ const SETTINGS_KEYS: Readonly<Record<number, readonly (keyof Settings)[]>> = {
 	],
 };
 
+/** Schemas before 11 had no Easy record: their checksum covers `records` without it. */
+function withoutEasy<T extends { records: Record<string, number> }>(profile: T): T {
+	const { easy: _easy, ...records } = profile.records;
+	return { ...profile, records };
+}
+
 /**
  * The data as an older schema's checksum saw it (schemas 1 to 9 stored the whole account in one file): no
  * checkpoint, only the settings keys that schema knew, and no `lastSlot`.
  */
 function coveredBy(version: number, data: MetaState): unknown {
-	const { run: _run, settings: full, ...profile } = data;
+	const { run: _run, settings: full, ...rest } = data;
+	const profile = withoutEasy(rest);
 	if (version < 2) return profile;
 	const keys = SETTINGS_KEYS[version];
 	if (!keys) throw new RangeError(`no settings key list for schema ${version}`);
@@ -605,7 +614,7 @@ export async function parseSave(text: string): Promise<MetaState> {
 	const envelope = openEnvelope(text);
 	if (envelope.schemaVersion >= 10) {
 		const profile = validateProfile(envelope.data);
-		await verified(envelope, profile);
+		await verified(envelope, envelope.schemaVersion < 11 ? withoutEasy(profile) : profile);
 		return { ...profile, settings: createSettings() };
 	}
 	const data = validateMeta(envelope.data);

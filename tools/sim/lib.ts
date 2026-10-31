@@ -83,8 +83,8 @@ const MAX_SECONDS_PER_ROUND = 90;
 /** The tank stands and fights, so its boss rounds run long: it gets a longer budget before a run counts as a timeout. */
 const TANK_SECONDS_PER_ROUND = 150;
 
-function difficultyId(id: string): "normal" | "grim" | "nightmare" {
-	if (id === "normal" || id === "grim" || id === "nightmare") return id;
+function difficultyId(id: string): "easy" | "normal" | "grim" | "nightmare" {
+	if (id === "easy" || id === "normal" || id === "grim" || id === "nightmare") return id;
 	throw new Error(`unknown difficulty "${id}"`);
 }
 
