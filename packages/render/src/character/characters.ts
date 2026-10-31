@@ -162,6 +162,7 @@ export function createCharacters(game: GameScene, options: CharactersOptions): C
 			else if (type === EventType.PlayerHit && c !== 1) hero.playOnce("hit");
 			else if (type === EventType.DashStarted) hero.playOnce("dash");
 			else if (type === EventType.Died && _entity === heroEntity) hero.playFinal("death");
+			else if (type === EventType.Revived) hero.clearFinal();
 			else if (type === EventType.BossEnraged) activeBoss?.playOnce("enrage");
 			else if (type === EventType.BossPhase && a >= 2 && activeBoss && phaseTinted !== activeBoss) {
 				// Phase 2 of the Forgemaster: the armour shows as a metallic tint.
