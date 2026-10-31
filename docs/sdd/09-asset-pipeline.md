@@ -51,6 +51,7 @@ Tempo alvo: < 60 s com todos os assets da 1.0 em CI.
 - Modelos via `ImportMeshAsync` com `import("@babylonjs/loaders/glTF")` dinâmico. As animações do glTF são descartadas (o movimento vem do VAT), e o skeleton fica no mesh porque o shader só declara `matricesIndices`/`matricesWeights` quando há ossos. O material é trocado por um `StandardMaterial` com o atlas em `NEAREST`, sem mipmaps e sem especular.
 - O mesh fica parentado ao `__root__` do loader, que carrega o espelho X da conversão RH → LH. Por isso as thin instances de modelos glTF (horda e props) conjugam `x` e o yaw (ver `coords.ts`).
 - Inimigos comuns: 1 mesh base por tipo com `BakedVertexAnimationManager` + thin instances (2º buffer por instância `bakedVertexAnimationSettingsInstanced`); chefes/herói/NPC: skeleton normal (provisório até P-06-06).
+- Retrato do Mercador na Shop (A-05-01): `createPortrait(game, canvas, rig)` (`render/character/portrait.ts`) registra o canvas como *view* do mesmo engine (`engine.registerView`, de `AbstractEngine/abstractEngine.views`; o import de `Extensions/engine.views` é só o módulo "pure" e não registra o método) com uma câmera própria cuja `layerMask` enxerga só os meshes do rig, que continua animando na cena principal. Não há segundo contexto WebGL, segundo atlas nem segundo rig; a UI só exibe e inicia o retrato a partir de 1024 px (`desktop`).
 - Cache HTTP: assets com hash no nome (`atlas_characters.a1b2c3.png`) e `Cache-Control: immutable` (SDD 10).
 
 ## 4. Fontes
