@@ -32,30 +32,30 @@ Dívida: pós-processo ffmpeg do `audio-generate` (SDD 08 §3: LUFS, trim, pitch
 
 ## Concluídas (últimas 20)
 
-Fonte: itens `[x]` do ROADMAP em `origin/wip/orq-merge` (6180a55), ordenados pelo commit mais recente de cada ID.
+Fonte: IDs dos rodapés `Refs: ROADMAP#` em `origin/main` (3754bd2), ordenados pelo commit mais recente de cada ID; a coluna Commit lista até 3 commits (o mais novo primeiro) e a Observação é o assunto do mais novo. O estado de cada tarefa é o checkbox do ROADMAP.
 
-| ID | Data | Agente | Commit | Observação |
+| ID | Data | Resp | Commit | Observação |
 | --- | --- | --- | --- | --- |
-| P-04-01 | 2026-10-31 | S2 | 6180a55 | knockback escrito pelo dano aplicado ao movimento dos inimigos |
-| E-04-04 | 2026-10-31 | Est (+ Esp) | ff185d9 | smoke falha com a API de debug viva (`?debug=1`); actions pinadas por SHA; Dependabot (bun e GitHub Actions) |
-| A-04-01 | 2026-10-31 | S2 | bf90035, 5cce96f, 460a352 | bônus da Ruína: reroll de cartas por run, Incomum garantido só na oferta inicial, 2 lendários `exclusiveTo` conferidos no `data-check` |
-| P-03-05 | 2026-10-31 | S1 (+ S2 no sim) | ac44b46, a514770, 7d89669 | cull de 40 u sem drop (nunca elite/chefe); render por frustum real da câmera; sim com o mesmo cull |
-| E-02-07 | 2026-10-31 | S2 | 92f6135 | `secrets-scan` falha com flag desconhecida e caminho inexistente (achado da revisão de segurança) |
-| A-02-02a | 2026-10-31 | S2 | 3224aa4, 8f123f7, f53bc0b | 6 behaviors do data; contador do Reprodutor por passo; dreno da Sanguessuga por eventos com killer, `PlayerHit` marcado como leak |
-| P-05-06 | 2026-10-31 | S2 | 5640a2d, 44f9cd7 | baús sem itens alpha; elites que escapam reportadas; `ChestOpened` com a posição do baú |
-| A-04-02 | 2026-10-31 | S2 | 2ceb682 | dash do Ossuário (cargas, i-frames, botão touch); `dashSystem` na ordem real do SDD 02 §2.3 |
-| P-03-06 | 2026-10-31 | S1 | 45399e2, a2cdbad | orçamento de CPU na simulação da horda; timeout de 20 s nos testes longos de sim |
-| A-04-03 | 2026-10-31 | S2 | 3b7ac70 | dificuldades Normal/Grim/Nightmare, tela de dificuldade e seed, recordes por dificuldade |
-| P-03-02 | 2026-10-31 | S2 | d5c9fcc | spawns fora dos props bloqueantes |
-| P-04-06 | 2026-10-31 | S1 | e10d4c6, affd535 | render de pilhas de fragmentos e projéteis; pilhas de combate fora do ímã nas capturas |
-| E-03-04 | 2026-10-31 | Est | be2740b | regras cruzadas, enum de effect id, limites do herói e checagem data → assets |
-| E-02-06 | 2026-10-31 | Est | fea93ae, db5fded | baselines por plataforma (win32 e linux), captura só da UI, relógio congelado |
-| P-07-03 | 2026-10-31 | Est | 947f5b7 | teste de determinismo com `hashWorld` (seed 42, 3.600 passos) |
-| P-05-08 | 2026-10-31 | S2 | 98cef15, fabaee5 | runs mescladas no save sob lock; duas cópias corrompidas guardadas |
-| E-03-01 | 2026-10-31 | S1 + S2 | d57699e | store publica sem copiar o set de listeners (fecha a parte que faltava) |
-| P-02-03 | 2026-10-31 | S1 | ab76b1d | materiais de props com fade descongelados; opacidade de slot reciclado zerada; alturas dos modelos |
-| P-01-05 | 2026-10-31 | S1 | 227d00b | constantes de steering em `world.json`; scratch de candidatos maior; overlaps |
-| P-05-05 | 2026-10-31 | S2 | c7401d0 | effect ids sem código falham alto |
+| R-01-01 | 2026-10-31 | Orq | 3754bd2, 59a2781 | docs(progress): record v0.1.0, e2e out of the CI, the Blockbench MCP status and the current queues |
+| B-05-01 | 2026-10-31 | Est | 1167186 | feat(i18n): review the English names that came from ids |
+| A-07-01 | 2026-10-31 | Est | c3e908f, 08fbb61, 9cd842d | feat(ui): add the optional 20 s tutorial (move, kill, collect) |
+| A-02-04 | 2026-10-31 | S2 | 733347c, 1a61e35 | test(integration): re-anchor the seed-42 hash for breakable props and the A-02-03 data |
+| E-03-04 | 2026-10-31 | Est | 5884211, be2740b, c19101c | test(data-check): allow 20 s for the self-test of every negative case |
+| A-07-03 | 2026-10-31 | Est | 73f3c12 | test(coverage): set per-package thresholds just under the measured values |
+| B-03-01 | 2026-10-31 | S1 + PO | fc4eb99, d6bbc59, 994ae5c | feat(art): reshape the Drowned and Hunter placeholders and paint 1 px AO on every texture |
+| B-03-05 | 2026-10-31 | S1 + PO | f98b61c, ddaab57 | feat(assets): add the 84 generated UI icon stand-ins |
+| P-06-01 | 2026-10-31 | S1 | 5da1ca9, 0f46944, 1ddea1d | docs(art): regenerate the review captures and silhouettes for all 74 models |
+| A-02-03 | 2026-10-31 | Est | 6143170, f1c00e2, d0247de | test(game): read boss HP and contact damage from data after the A-02-03 tuning |
+| E-02-06 | 2026-10-31 | Est | c268896, d97a5ea, f0f05a2 | ci(e2e): stop running the e2e job on push, PRs and releases |
+| A-01-01 | 2026-10-31 | S1 | a59d43a, 0788bf0 | docs(sdd): record the presets file, the dynamic scaler and the KTX2 path in SDD 14 and 09 |
+| A-01-02 | 2026-10-31 | S1 | 6fba0d7, b7cf36f | feat(render): load KTX2 atlases when listed and supported, with local decoder and PNG fallback |
+| A-02-02b | 2026-10-31 | S1 | 4f43cb9, be00080, 4075cd4 | test(vat): require the walk clip to move in the enemy oracle |
+| B-03-02 | 2026-10-31 | S1 | 71eadf2, fcb476c, 56a9fc6 | chore(perf): record the bench with empty meshes disabled |
+| A-03-03 | 2026-10-31 | S2 | c44350b, 7015d13 | feat(render): tint the boss rig with its modifier auras and lengthen its charge line |
+| A-02-01 | 2026-10-31 | S1 | 6f39c68, 6653667, 4270829 | test(e2e): add win32 baselines for the biome border and the eight-type horde |
+| P-07-05 | 2026-10-31 | Est | 892c66c, f1cb685, af3dbde | chore(sim): drop the tuning script that slipped into the pool commit |
+| E-04-04 | 2026-10-31 | Est | 81efecc, ff185d9, 93ffc9b | feat(ui): show the build version bottom-left and shard the CI e2e job |
+| P-06-06 | 2026-10-31 | S1 | 09eea97, a8455af, 7cee91b | fix(render): bring the hero rig out of the death pose on Revived |
 
 ## Bloqueios (precisam do PO)
 
