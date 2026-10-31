@@ -83,6 +83,15 @@ describe("character rig", () => {
 		dispose();
 	});
 
+	it("plays the move clip backwards when told to reverse", async () => {
+		const { character, dispose } = await setup();
+		character.setSpeed(4, true);
+		expect(character.speedRatio("run")).toBeCloseTo(-1, 5);
+		character.setSpeed(4, false);
+		expect(character.speedRatio("run")).toBeCloseTo(1, 5);
+		dispose();
+	});
+
 	it("scales the move clip with speed: speedRatio = |v| / refSpeed within 5%", async () => {
 		const { character, dispose } = await setup();
 		for (const speed of [1, 2.5, 4, 6]) {

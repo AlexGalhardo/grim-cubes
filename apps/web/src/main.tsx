@@ -59,6 +59,7 @@ import {
 	renderData,
 	resetOssuary,
 	roundsData,
+	Speed,
 	STEP,
 	soulsForRun,
 	unlockedSkins,
@@ -1169,6 +1170,16 @@ async function boot(): Promise<void> {
 			/** One enemy of the given type index at (x, z) relative to the hero (A-02-02b capture). */
 			spawnEnemy: (typeIndex: number, x: number, z: number) =>
 				spawn.spawnEnemy(world, typeIndex, (Position.x[hero] ?? 0) + x, (Position.z[hero] ?? 0) + z),
+			/**
+			 * Hero-facing capture: one motionless, tough enemy 3 u to the right of the hero and a closer camera. Walk left
+			 * (key A) and the rig must keep looking at it.
+			 */
+			faceTest: () => {
+				const e = spawn.spawnEnemy(world, 0, (Position.x[hero] ?? 0) + 3, Position.z[hero] ?? 0);
+				Health.hp[e] = Health.max[e] = 1e6;
+				Speed.value[e] = 0;
+				game.camera.radius = 9;
+			},
 			/** One enemy of every type in a row 5 u in front of the hero: the horde, VAT included, in a single frame. */
 			/** Applies a video preset live (shadows, scale, enemy cap); pool sizes apply on the next launch. */
 			setPreset: (id: string) => {

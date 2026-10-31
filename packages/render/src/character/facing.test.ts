@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { desiredYaw, turnTowards, wrapAngle } from "./facing";
+import { desiredYaw, isBackpedaling, turnTowards, wrapAngle } from "./facing";
 
 const at = { x: 0, z: 0, vx: 0, vz: 0 };
 
@@ -48,5 +48,15 @@ describe("wrapAngle", () => {
 		expect(wrapAngle(3 * Math.PI)).toBeCloseTo(Math.PI);
 		expect(wrapAngle(-3 * Math.PI)).toBeCloseTo(Math.PI);
 		expect(wrapAngle(0.3)).toBeCloseTo(0.3);
+	});
+});
+
+describe("isBackpedaling", () => {
+	it("is true past 110 degrees between the facing and the velocity", () => {
+		expect(isBackpedaling(0, 0, -3)).toBe(true);
+		expect(isBackpedaling(0, 3, -1)).toBe(false);
+		expect(isBackpedaling(Math.PI / 2, -3, 0)).toBe(true);
+		expect(isBackpedaling(0, 3, 0)).toBe(false);
+		expect(isBackpedaling(0, 0, 0.01)).toBe(false);
 	});
 });
