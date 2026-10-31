@@ -25,6 +25,9 @@
 		},
 		"freeWeaponUpgrades": 1
 	},
+	"ai": {
+		"separationWeight": 0.6
+	},
 	"spawn": {
 		"totalBase": 20,
 		"totalPerRound": 12,

@@ -4,6 +4,7 @@
 		"duration",
 		"boss",
 		"spawn",
+		"ai",
 		"biomeMix",
 		"difficulties",
 		"tierChance",
@@ -131,6 +132,18 @@
 				"freeWeaponUpgrades": {
 					"type": "number",
 					"minimum": 0
+				}
+			}
+		},
+		"ai": {
+			"type": "object",
+			"required": ["separationWeight"],
+			"additionalProperties": false,
+			"properties": {
+				"separationWeight": {
+					"type": "number",
+					"minimum": 0,
+					"description": "Weight of enemy soft-collision push added to Velocity (SDD 04 section 5)."
 				}
 			}
 		},
