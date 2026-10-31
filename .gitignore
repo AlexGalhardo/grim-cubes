@@ -39,3 +39,6 @@ references/concept-arts/*.png
 
 # Output of `bun run assets:build` (regenerated on every build).
 public/assets/
+
+# Smoke screenshot, regenerated per run (CI uploads it as an artifact).
+reports/smoke.png
