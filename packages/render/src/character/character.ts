@@ -47,6 +47,10 @@ export interface Character {
 	/** Multiplies the model colour by `hex` on a private copy of its material (cosmetic skins). */
 	setTint(hex: string): void;
 	setVisible(visible: boolean): void;
+	/** Opacity 0..1 of every mesh of the model (the Alpha Hunter's stealth). */
+	setAlpha(alpha: number): void;
+	/** Raises the model off the ground by `y` u (the Nest Queen's flight, a leap's arc). */
+	setLift(y: number): void;
 	dispose(): void;
 }
 
@@ -84,6 +88,7 @@ export async function loadCharacter(
 	let finalClip = "";
 	let frozen = false;
 	let weapon: AbstractMesh | null = null;
+	let lift = 0;
 
 	function start(clip: string, loop: boolean): boolean {
 		const group = groups.get(clip);
@@ -136,7 +141,7 @@ export async function loadCharacter(
 	return {
 		holder,
 		setPose(x, z, yaw): void {
-			holder.position.set(x, 0, z);
+			holder.position.set(x, lift, z);
 			holder.rotation.y = yaw;
 		},
 		setSpeed(speed): void {
@@ -221,6 +226,13 @@ export async function loadCharacter(
 				copy.diffuseColor = Color3.FromHexString(hex);
 				mesh.material = copy;
 			}
+		},
+		setAlpha(alpha): void {
+			for (const mesh of result.meshes) if (mesh.getTotalVertices() > 0) mesh.visibility = alpha;
+		},
+		setLift(y): void {
+			lift = y;
+			holder.position.y = y;
 		},
 		setVisible(visible): void {
 			holder.setEnabled(visible);

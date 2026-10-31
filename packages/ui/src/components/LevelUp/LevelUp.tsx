@@ -60,7 +60,7 @@ export function LevelUp({
 							{i + 1}
 						</span>
 						<span className="flex flex-col items-center gap-2">
-							{card.icon ? <Icon icon={card.icon} size={64} /> : null}
+							{card.icon ? <Icon icon={card.icon} size={48} /> : null}
 							{card.name}
 						</span>
 					</button>
