@@ -5,14 +5,14 @@
 		"warmupMs": 5000,
 		"measureMs": 30000,
 		"enemies": 100,
-		"frames": 353,
-		"seconds": 30.00459999999404,
-		"fpsAvg": 11.764862721051777,
-		"fpsP1": 5.711022273181269,
-		"frameP99": 175.09999999403954,
-		"frameMsAvg": 85.09490084985836,
+		"frames": 372,
+		"seconds": 30.00259999999404,
+		"fpsAvg": 12.398925426465503,
+		"fpsP1": 6.27746390469999,
+		"frameP99": 159.29999999701977,
+		"frameMsAvg": 80.65349462367995,
 		"drawCalls": 15,
-		"drawCallsAvg": 14.03399433427762,
+		"drawCallsAvg": 13.989247311827956,
 		"activeMeshes": 15,
 		"activeMeshNames": [
 			"husk_mesh",
@@ -32,8 +32,8 @@
 			"chunk_floor"
 		],
 		"heapMB": {
-			"start": 45.20416259765625,
-			"end": 45.20416259765625,
+			"start": 48.065185546875,
+			"end": 48.065185546875,
 			"delta": 0
 		},
 		"enemiesAvg": 100,
@@ -44,25 +44,25 @@
 		"warmupMs": 5000,
 		"measureMs": 30000,
 		"enemies": 100,
-		"frames": 309,
-		"seconds": 30.01159999999404,
-		"fpsAvg": 10.2960188727046,
-		"fpsP1": 5.211047420774311,
-		"frameP99": 191.8999999910593,
-		"frameMsAvg": 97.21100323625559,
+		"frames": 328,
+		"seconds": 30.015,
+		"fpsAvg": 10.927869398634016,
+		"fpsP1": 5.747126436781609,
+		"frameP99": 174,
+		"frameMsAvg": 91.89603658533859,
 		"drawCalls": 19,
-		"drawCallsAvg": 18.284789644012946,
+		"drawCallsAvg": 18.271341463414632,
 		"activeMeshes": 19,
 		"activeMeshNames": [
-			"wail_mesh",
 			"husk_mesh",
+			"wail_mesh",
 			"drowned_mesh",
 			"leech_mesh",
 			"prop_tombstone_01_mesh",
 			"prop_dead_tree_01_mesh",
 			"prop_crypt_01_mesh",
-			"prop_bone_01_mesh",
 			"prop_grass_01_mesh",
+			"prop_bone_01_mesh",
 			"prop_urn_01_mesh",
 			"hero_mesh",
 			"weapon_sword_mesh",
@@ -75,11 +75,11 @@
 			"chunk_floor"
 		],
 		"heapMB": {
-			"start": 42.629241943359375,
-			"end": 42.629241943359375,
+			"start": 37.7655029296875,
+			"end": 37.7655029296875,
 			"delta": 0
 		},
 		"enemiesAvg": 100,
-		"projectilesAvg": 171.23569023569024
+		"projectilesAvg": 173.51
 	}
 }

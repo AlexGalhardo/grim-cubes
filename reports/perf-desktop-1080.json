@@ -5,14 +5,14 @@
 		"warmupMs": 5000,
 		"measureMs": 30000,
 		"enemies": 100,
-		"frames": 563,
-		"seconds": 30.0095,
-		"fpsAvg": 18.76072577017278,
-		"fpsP1": 7.4850299404537,
-		"frameP99": 133.59999999403954,
-		"frameMsAvg": 53.222557726486535,
+		"frames": 613,
+		"seconds": 30.00270000000298,
+		"fpsAvg": 20.431494498826407,
+		"fpsP1": 10.070493454481495,
+		"frameP99": 99.29999999701977,
+		"frameMsAvg": 49.085318107662346,
 		"drawCalls": 15,
-		"drawCallsAvg": 14.031971580817052,
+		"drawCallsAvg": 13.99510603588907,
 		"activeMeshes": 15,
 		"activeMeshNames": [
 			"husk_mesh",
@@ -44,14 +44,14 @@
 		"warmupMs": 5000,
 		"measureMs": 30000,
 		"enemies": 100,
-		"frames": 484,
-		"seconds": 30.00220000000298,
-		"fpsAvg": 16.13215030897574,
-		"fpsP1": 6.944444444444445,
-		"frameP99": 144,
-		"frameMsAvg": 62.01735537188235,
+		"frames": 515,
+		"seconds": 30.004199999988078,
+		"fpsAvg": 17.16426366975972,
+		"fpsP1": 8.680555556453822,
+		"frameP99": 115.19999998807907,
+		"frameMsAvg": 58.26776699030284,
 		"drawCalls": 19,
-		"drawCallsAvg": 18.31404958677686,
+		"drawCallsAvg": 18.302912621359223,
 		"activeMeshes": 19,
 		"activeMeshNames": [
 			"husk_mesh",
@@ -75,11 +75,11 @@
 			"chunk_floor"
 		],
 		"heapMB": {
-			"start": 45.20416259765625,
-			"end": 45.20416259765625,
+			"start": 48.065185546875,
+			"end": 48.065185546875,
 			"delta": 0
 		},
 		"enemiesAvg": 100,
-		"projectilesAvg": 180.7751677852349
+		"projectilesAvg": 180.97
 	}
 }
