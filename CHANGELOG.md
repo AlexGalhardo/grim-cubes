@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-10-31
+
 ### Added
 
 - **docs:** Add web research, brainstorming decisions (D01–D33), GDD, Art Bible with design system, 14 SDDs and 20 ADRs ([2775e6e](https://github.com/AlexGalhardo/grim-cubes/commit/2775e6ee07d913f912d80bf5367bf5b7d867a5bb))
@@ -197,4 +199,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **web:** Revalidate the asset manifest and add CSP and security headers (E-04-02, R-01-05) ([6370507](https://github.com/AlexGalhardo/grim-cubes/commit/6370507dfbdc4e29579e4313f87ad1912991b616))
 - **game:** Apply the knockback the damage system writes to enemy movement (P-04-01) ([6180a55](https://github.com/AlexGalhardo/grim-cubes/commit/6180a55c4e18195196f35427b91548263d1e654a))
 
-[Unreleased]: https://github.com/AlexGalhardo/grim-cubes/compare/2775e6e...HEAD
+[Unreleased]: https://github.com/AlexGalhardo/grim-cubes/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/AlexGalhardo/grim-cubes/compare/2775e6e...v0.1.0
