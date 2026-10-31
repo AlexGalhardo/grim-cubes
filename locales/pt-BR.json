@@ -196,5 +196,19 @@
 	"difficulty.tutorial": "Tutorial de 20 s",
 	"tip.tutorialMove": "Tutorial: mova-se (WASD ou joystick).",
 	"tip.tutorialKill": "Tutorial: a arma ataca sozinha; deixe um inimigo morrer.",
-	"tip.tutorialCollect": "Tutorial: pegue o fragmento que ele soltou."
+	"tip.tutorialCollect": "Tutorial: pegue o fragmento que ele soltou.",
+	"options.panel": "Opções",
+	"options.title": "Opções",
+	"options.video": "Vídeo",
+	"options.preset": "Preset de qualidade",
+	"options.auto": "Automático",
+	"options.audio": "Áudio",
+	"options.volume.master": "Geral",
+	"options.volume.music": "Música",
+	"options.volume.sfx": "Efeitos",
+	"options.gameplay": "Jogabilidade",
+	"options.shake": "Tremor de tela e pulso de dano",
+	"options.language": "Idioma",
+	"options.close": "Fechar",
+	"options.open": "Opções"
 }

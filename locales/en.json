@@ -196,5 +196,19 @@
 	"difficulty.tutorial": "20 s tutorial",
 	"tip.tutorialMove": "Tutorial: move (WASD or joystick).",
 	"tip.tutorialKill": "Tutorial: your weapon attacks by itself; let an enemy die.",
-	"tip.tutorialCollect": "Tutorial: pick up the fragment it dropped."
+	"tip.tutorialCollect": "Tutorial: pick up the fragment it dropped.",
+	"options.panel": "Options",
+	"options.title": "Options",
+	"options.video": "Video",
+	"options.preset": "Quality preset",
+	"options.auto": "Automatic",
+	"options.audio": "Audio",
+	"options.volume.master": "Master",
+	"options.volume.music": "Music",
+	"options.volume.sfx": "Effects",
+	"options.gameplay": "Gameplay",
+	"options.shake": "Screen shake and hit pulse",
+	"options.language": "Language",
+	"options.close": "Close",
+	"options.open": "Options"
 }

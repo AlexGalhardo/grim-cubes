@@ -2,6 +2,7 @@ import { expect, test } from "vitest";
 import {
 	checksumOf,
 	createMetaState,
+	createSettings,
 	MAX_SAVE_BYTES,
 	parseSave,
 	SAVE_SCHEMA_VERSION,
@@ -20,11 +21,11 @@ const meta = () => {
 	return m;
 };
 
-test("a save round-trips and uses schemaVersion 1", async () => {
+test("a save round-trips and uses schemaVersion 2", async () => {
 	const text = await serializeSave(meta(), "0.1.0", new Date("2026-10-31T12:00:00Z"));
 	const envelope = JSON.parse(text) as { schemaVersion: number; app: string; savedAt: string };
-	expect(envelope.schemaVersion).toBe(1);
-	expect(SAVE_SCHEMA_VERSION).toBe(1);
+	expect(envelope.schemaVersion).toBe(2);
+	expect(SAVE_SCHEMA_VERSION).toBe(2);
 	expect(envelope.app).toBe("grim-cubes");
 	expect(envelope.savedAt).toBe("2026-10-31T12:00:00.000Z");
 	expect(await parseSave(text)).toEqual(meta());
@@ -71,7 +72,7 @@ test("untrusted fields are validated", async () => {
 test("a save from another app or a newer schema is refused", async () => {
 	const base = JSON.parse(await serializeSave(meta(), "0.1.0")) as Record<string, unknown>;
 	await expect(parseSave(JSON.stringify({ ...base, app: "other" }))).rejects.toBeInstanceOf(SaveError);
-	await expect(parseSave(JSON.stringify({ ...base, schemaVersion: 2 }))).rejects.toThrow("newer version");
+	await expect(parseSave(JSON.stringify({ ...base, schemaVersion: 3 }))).rejects.toThrow("newer version");
 });
 
 test("size, list and key limits protect the parser", async () => {
@@ -106,4 +107,32 @@ test("a newer schema is reported with the newer code", async () => {
 		code: "newer",
 	});
 	await expect(parseSave("nope")).rejects.toMatchObject({ code: "invalid" });
+});
+
+test("a schema 1 save loads with default settings and a settings block must be valid", async () => {
+	const current = JSON.parse(await serializeSave(meta(), "0.1.0")) as {
+		schemaVersion: number;
+		checksum: string;
+		data: Record<string, unknown>;
+	};
+	const { settings: _settings, ...legacyData } = current.data;
+	const digest = await crypto.subtle.digest(
+		"SHA-256",
+		new TextEncoder().encode(JSON.stringify(legacyData)),
+	);
+	const checksum = `sha256-${[...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("")}`;
+	const legacy = JSON.stringify({ ...current, schemaVersion: 1, checksum, data: legacyData });
+	expect((await parseSave(legacy)).settings).toEqual(createSettings());
+	expect(() =>
+		validateMeta({ ...current.data, settings: { ...createSettings(), preset: "Bad Id" } }),
+	).toThrow(SaveError);
+	expect(() => validateMeta({ ...current.data, settings: { ...createSettings(), locale: "fr" } })).toThrow(
+		SaveError,
+	);
+	expect(() =>
+		validateMeta({
+			...current.data,
+			settings: { ...createSettings(), volume: { master: 101, music: 0, sfx: 0 } },
+		}),
+	).toThrow(SaveError);
 });
