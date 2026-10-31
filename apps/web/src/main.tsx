@@ -93,6 +93,7 @@ import {
 	renderData,
 	resetOssuary,
 	roundsData,
+	STEP,
 	soulsForRun,
 	spawnHero,
 	toBiomeDefs,
@@ -1260,6 +1261,24 @@ async function boot(): Promise<void> {
 			}),
 			/** Stops the simulation and the horde clock so the frame can be captured. */
 			freeze: () => {
+				run.pause();
+				loop.pause();
+				frozenAt = performance.now();
+			},
+			/**
+			 * Steps the simulation, synchronously and one fixed step per frame, from round 9's shop to the first frame of the
+			 * boss round (boss on the field), then freezes. The same step count on every run: a capture of the boss
+			 * no longer depends on how fast the machine renders.
+			 */
+			toBossFrame: () => {
+				run.setRound(9);
+				run.forceEnd(world);
+				if (run.state === "Shop") run.closeShop();
+				let now = performance.now();
+				for (let i = 0; i < 1200 && !(run.state === "BossRound" && boss.view() !== null); i++) {
+					now += STEP * 1000;
+					loop.frame(now);
+				}
 				run.pause();
 				loop.pause();
 				frozenAt = performance.now();
