@@ -182,3 +182,19 @@ test("with biome pools a spawn takes 60% from the hero's ring, 30% from the prev
 	// Last ring (3, type 1): 2/3 own, 1/3 previous (type 0).
 	expect(share(spawnMany(3), 1)).toBeCloseTo(2 / 3, 1);
 });
+
+test("setCap lowers the simultaneous cap for a video preset and never raises it past the data value", () => {
+	const { world, hero, system } = setup();
+	expect(system.cap).toBe(config.maxSimultaneous);
+	system.setCap(40);
+	expect(system.cap).toBe(40);
+	system.startRound(20, { pool, difficultyMult: 1 });
+	let peak = 0;
+	for (let step = 0; step < 3000; step++) {
+		system.run(world, hero);
+		peak = Math.max(peak, query(world, [EnemyFaction]).length);
+	}
+	expect(peak).toBeLessThanOrEqual(40);
+	system.setCap(config.maxSimultaneous * 10);
+	expect(system.cap).toBe(config.maxSimultaneous);
+});

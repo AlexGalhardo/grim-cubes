@@ -48,6 +48,7 @@ import {
 	Position,
 	PrevPosition,
 	parseSeed,
+	presetsData,
 	propsData,
 	queryEnemies,
 	refundValue,
@@ -62,6 +63,7 @@ import {
 } from "@gc/game";
 import { createInputSources, createWebStorage, detectPlatform, type StorageKey } from "@gc/platform";
 import {
+	applyPreset,
 	auraHex,
 	CAMERA,
 	type Character,
@@ -69,6 +71,8 @@ import {
 	createBenchRecorder,
 	createCharacters,
 	createChunkRenderer,
+	createConsumableRenderer,
+	createDynamicScaler,
 	createEliteView,
 	createEnemyShotRenderer,
 	createEngine,
@@ -415,7 +419,21 @@ async function boot(): Promise<void> {
 		resume: () => loop.resume(),
 		now: () => performance.now(),
 	});
+	// Video preset (SDD 14 section 5): `?preset=` in debug builds, else Low on touch devices and the default elsewhere.
+	const preset =
+		presetsData.presets.find((p) => p.id === (__DEBUG_API__ ? params.get("preset") : null)) ??
+		presetsData.presets.find((p) => p.id === (platform.mobile ? "low" : presetsData.default)) ??
+		presetsData.presets[0];
+	if (!preset) throw new Error("data/presets.json has no preset");
+	let applied = applyPreset(game, render.engine, preset);
+	spawn.setCap(preset.enemyCap);
+	// Dynamic resolution only for presets that ask for it; the others keep the fixed scale `applyPreset` set.
+	const scaler = preset.dynamicScale
+		? createDynamicScaler(render.engine, presetsData.dynamicScale, window.devicePixelRatio)
+		: null;
 	const vfx = createVfx(game, {
+		// The pools are sized once, at creation: a preset change applies them on the next launch.
+		config: { ...renderData.vfx, decalPool: preset.decalPool, particlePool: preset.particlePool },
 		onHitStop: (ms) => hitStop.request(ms),
 		// Elites get the long hit-stop of a boss kill too (GDD section 23).
 		reducedMotion: () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
@@ -430,6 +448,7 @@ async function boot(): Promise<void> {
 	let frozenAt: number | null = null;
 	const eliteView = createEliteView(game);
 	const enemyShotView = createEnemyShotRenderer(game, ENEMY_SHOT_POOL_SIZE, renderData.vfx.enemyShotSize);
+	const consumableView = createConsumableRenderer(game);
 	const fragmentView = createFragmentRenderer(game, MAX_ENTITIES_FRAGMENTS);
 	const port = createRenderPort(game, horde, {
 		origin,
@@ -437,6 +456,9 @@ async function boot(): Promise<void> {
 		vfx,
 		elite: eliteView,
 		characters,
+		onEvent: (type) => {
+			if (type === EventType.PropBroken) chunkRenderer.invalidateProps();
+		},
 	});
 	const skin = unlockedSkins(milestonesData, meta).at(-1);
 	if (skin) {
@@ -852,6 +874,7 @@ async function boot(): Promise<void> {
 				origin.z + (Position.z[hero] ?? 0),
 			);
 			// VFX stop with the world while paused (level-up) so a captured frame is stable.
+			scaler?.frame(render.engine.getDeltaTime());
 			vfx.update(run.state === "Paused" ? 0 : Math.min(0.1, render.engine.getDeltaTime() / 1000));
 			projectileView.sync(world, alpha);
 			enemyShotView.sync(world, alpha);
@@ -866,6 +889,7 @@ async function boot(): Promise<void> {
 				game.hero.position.x,
 				game.hero.position.z,
 			);
+			consumableView.sync(world, alpha, (frozenAt ?? performance.now()) / 1000);
 			fragmentView.sync(world, alpha, (frozenAt ?? performance.now()) / 1000);
 			hitStop.update();
 			const camera = game.camera;
@@ -902,6 +926,20 @@ async function boot(): Promise<void> {
 			spawnEnemy: (typeIndex: number, x: number, z: number) =>
 				spawn.spawnEnemy(world, typeIndex, (Position.x[hero] ?? 0) + x, (Position.z[hero] ?? 0) + z),
 			/** One enemy of every type in a row 5 u in front of the hero: the horde, VAT included, in a single frame. */
+			/** Applies a video preset live (shadows, scale, enemy cap); pool sizes apply on the next launch. */
+			setPreset: (id: string) => {
+				const next = presetsData.presets.find((p) => p.id === id);
+				if (!next) return null;
+				applied = applyPreset(game, render.engine, next);
+				spawn.setCap(next.enemyCap);
+				return applied.id;
+			},
+			preset: () => ({
+				id: applied.id,
+				shadowsEnabled: game.scene.shadowsEnabled,
+				enemyCap: spawn.cap,
+				hardwareScalingLevel: render.engine.getHardwareScalingLevel(),
+			}),
 			spawnLineup: () => {
 				const count = enemyIds.length;
 				const spacing = 2.2;

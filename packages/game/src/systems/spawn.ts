@@ -88,6 +88,9 @@ export interface SpawnSystem {
 	/** Creates one extra enemy at (x, z) outside the round budget (elites, summons). */
 	spawnEnemy(world: GameWorld, typeIndex: number, x: number, z: number): number;
 	run(world: GameWorld, hero: number): void;
+	/** Lowers (or restores) the simultaneous enemy cap, e.g. from a video preset; the cap never exceeds the data value. */
+	setCap(cap: number): void;
+	readonly cap: number;
 	readonly remaining: number;
 	readonly spawned: number;
 }
@@ -115,7 +118,9 @@ export const spawnBurst = (c: SpawnConfig, round: number): number =>
 	c.burstBase + Math.floor(round / c.burstRoundDivisor);
 
 export function createSpawnSystem(deps: SpawnSystemDeps): SpawnSystem {
-	const { config, enemies, rng, isBlocked, onSpawn, events, biomes } = deps;
+	const { config: dataConfig, enemies, rng, isBlocked, onSpawn, events, biomes } = deps;
+	// A copy: `setCap` changes only `maxSimultaneous`.
+	const config: SpawnConfig = { ...dataConfig };
 	let round = 1;
 	let remaining = 0;
 	let spawned = 0;
@@ -239,6 +244,12 @@ export function createSpawnSystem(deps: SpawnSystemDeps): SpawnSystem {
 	}
 
 	return {
+		setCap(cap): void {
+			config.maxSimultaneous = Math.max(1, Math.min(dataConfig.maxSimultaneous, Math.floor(cap)));
+		},
+		get cap(): number {
+			return config.maxSimultaneous;
+		},
 		startRound(n: number, options: SpawnRoundOptions): void {
 			round = n;
 			remaining = Math.round(spawnTotal(config, n) * (options.totalScale ?? 1));
