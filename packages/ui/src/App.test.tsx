@@ -28,6 +28,7 @@ const hud = (speed: number): HudState => ({
 	bossIntro: null,
 	tip: null,
 	vignette: 0,
+	demoEnd: false,
 	speed,
 });
 
@@ -83,4 +84,43 @@ test("the button shows the current speed and hides while the options screen is o
 		/>,
 	);
 	expect(screen.queryByTestId("speed-toggle")).toBeNull();
+});
+
+test("the demo end screen blocks the results, its store buttons are disabled and play again restarts", () => {
+	const onRestart = vi.fn();
+	const results = {
+		round: 10,
+		kills: 1,
+		damage: 1,
+		cause: "x",
+		souls: 1,
+		totalSouls: 1,
+		record: 10,
+		newRecord: false,
+		stats: [],
+	};
+	render(
+		<App
+			store={createStore({ ...hud(1), demoEnd: true, results } as unknown as HudState)}
+			onRestart={onRestart}
+			demo
+		/>,
+	);
+	expect(screen.getByRole("dialog")).toBeTruthy();
+	expect(screen.getByTestId("demo-seal").textContent).toBe("DEMO");
+	expect(
+		(screen.getByRole("button", { name: "Lista de desejos na Steam" }) as HTMLButtonElement).disabled,
+	).toBe(true);
+	expect(
+		(screen.getByRole("button", { name: "Jogar o jogo completo" }) as HTMLButtonElement).disabled,
+	).toBe(true);
+	expect(screen.queryByRole("button", { name: "Jogar de novo" })).toBeTruthy();
+	fireEvent.click(screen.getByRole("button", { name: "Jogar de novo" }));
+	expect(onRestart).toHaveBeenCalledTimes(1);
+});
+
+test("without demoEnd no demo screen and no seal outside the demo build", () => {
+	render(<App store={createStore(hud(1))} onRestart={vi.fn()} />);
+	expect(screen.queryByRole("dialog")).toBeNull();
+	expect(screen.queryByTestId("demo-seal")).toBeNull();
 });

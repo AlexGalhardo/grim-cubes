@@ -3,6 +3,7 @@ import { type JSX, useSyncExternalStore } from "react";
 import { Bar } from "./components/Bar/Bar";
 import { BossBar, BossIntro, type BossViewModel } from "./components/BossBar/BossBar";
 import { DashButton, type DashView } from "./components/DashButton/DashButton";
+import { DemoEnd } from "./components/DemoEnd/DemoEnd";
 import {
 	Difficulty,
 	type DifficultyActions,
@@ -50,6 +51,8 @@ export interface HudState {
 	ossuary: OssuaryViewModel | null;
 	/** The pre-run difficulty and seed screen; null while closed. */
 	difficulty: DifficultyViewModel | null;
+	/** The web demo is over (the Gravedigger fell): the DemoEnd screen shows and round 11 never starts. */
+	demoEnd: boolean;
 	/** Simulation speed, 1 to 3. */
 	speed: number;
 	/** The options screen; null while closed. */
@@ -86,6 +89,8 @@ export interface AppProps {
 	/** Touch dash button held state. */
 	onDashHold?: ((down: boolean) => void) | undefined;
 	ossuaryActions?: (OssuaryActions & { open(): void }) | undefined;
+	/** True in the web demo build: shows the DEMO seal. */
+	demo?: boolean | undefined;
 	/** Build release shown bottom-left on the menu and in play, so a tester knows which build they run. */
 	version?: string | undefined;
 }
@@ -105,6 +110,7 @@ export function App({
 	onOpenOptions,
 	optionsActions,
 	onCycleSpeed,
+	demo,
 	version,
 }: AppProps): JSX.Element {
 	const hud = useSyncExternalStore(store.subscribe, store.get);
@@ -132,7 +138,10 @@ export function App({
 			{hud.shop && shopActions ? (
 				<Shop view={hud.shop} stats={hud.stats} actions={shopActions} portrait={shopPortrait} />
 			) : null}
-			{hud.results && onRestart && !hud.difficulty && !hud.ossuary ? (
+			{hud.demoEnd && onRestart && !hud.difficulty && !hud.ossuary ? (
+				<DemoEnd onRestart={onRestart} onOssuary={ossuaryActions?.open} />
+			) : null}
+			{hud.results && onRestart && !hud.demoEnd && !hud.difficulty && !hud.ossuary ? (
 				<Results view={hud.results} onRestart={onRestart} onOssuary={ossuaryActions?.open} />
 			) : null}
 			{hud.difficulty && difficultyActions ? (
@@ -181,6 +190,14 @@ export function App({
 			{hud.tip ? <Tip id={hud.tip} /> : null}
 			{stick ? <VirtualJoystick stick={stick} /> : null}
 			{stick && hud.dash && onDashHold ? <DashButton view={hud.dash} onHold={onDashHold} /> : null}
+			{demo ? (
+				<div
+					className="absolute bottom-1 left-16 z-50 border-2 border-ember px-1 text-xs text-ember-light"
+					data-testid="demo-seal"
+				>
+					{t("demo.badge")}
+				</div>
+			) : null}
 			{version ? (
 				<div className="absolute bottom-1 left-2 z-50 text-xs opacity-70" data-testid="build-version">
 					v{version}

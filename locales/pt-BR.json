@@ -212,5 +212,12 @@
 	"options.close": "Fechar",
 	"options.open": "Opções",
 	"options.speed": "Velocidade do jogo",
-	"hud.speed": "Velocidade {speed}x, toque para mudar"
+	"hud.speed": "Velocidade {speed}x, toque para mudar",
+	"demoEnd.panel": "Demo",
+	"demoEnd.title": "O Coveiro caiu",
+	"demoEnd.body": "Este é o fim da demo. O jogo completo tem mais quatro chefes, novos biomas e o Ossuário inteiro.",
+	"demoEnd.steam": "Lista de desejos na Steam",
+	"demoEnd.play": "Jogar o jogo completo",
+	"demoEnd.again": "Jogar de novo",
+	"demo.badge": "DEMO"
 }
