@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **render:** Pick the video preset from the hardware on boot (cores, memory, renderer) (R-01-03)
+- **assets:** Base models for the Alpha Hunter and the Nest Queen (B-01-01, B-01-02)
+- **art:** Hero refined in Blockbench with armour plates, mask and painted wear (B-03-01)
 - **test:** UI test of the Notice and boss names in English (A-07-01)
 - **ci:** `tools/changelog-check` job that fails a PR with feat/fix commits and no new `[Unreleased]` entry, skippable with the `skip-changelog` label (E-04-06)
 
