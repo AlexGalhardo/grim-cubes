@@ -1,5 +1,6 @@
 import { t } from "@gc/core";
 import { type JSX, useEffect, useRef } from "react";
+import { useDialogNav } from "../../nav/useDialogNav";
 import { Button } from "../Button/Button";
 import { Icon, type IconRef } from "../Icon/Icon";
 import { Panel } from "../Panel/Panel";
@@ -83,8 +84,10 @@ export function Shop({ view, stats, actions, portrait }: ShopProps): JSX.Element
 		return () => window.removeEventListener("keydown", onKey);
 	}, [view.slots.length, actions]);
 
+	const nav = useDialogNav<HTMLDivElement>();
 	return (
 		<div
+			ref={nav}
 			role="dialog"
 			aria-modal="true"
 			aria-labelledby="shop-title"

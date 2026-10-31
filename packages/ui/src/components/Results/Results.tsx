@@ -1,5 +1,6 @@
 import { t } from "@gc/core";
 import { type JSX, useEffect, useState } from "react";
+import { useDialogNav } from "../../nav/useDialogNav";
 import { Button } from "../Button/Button";
 import { Panel } from "../Panel/Panel";
 
@@ -55,8 +56,10 @@ export function Results({ view, onRestart, onOssuary }: ResultsProps): JSX.Eleme
 		return () => window.removeEventListener("keydown", onKey);
 	}, [onRestart]);
 
+	const nav = useDialogNav<HTMLDivElement>();
 	return (
 		<div
+			ref={nav}
 			role="dialog"
 			aria-modal="true"
 			aria-labelledby="results-title"

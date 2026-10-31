@@ -1,5 +1,6 @@
 import { t } from "@gc/core";
 import type { JSX } from "react";
+import { useDialogNav } from "../../nav/useDialogNav";
 import { Button } from "../Button/Button";
 import { Panel } from "../Panel/Panel";
 
@@ -37,8 +38,10 @@ const SELECT = "min-h-12 border-2 border-mist bg-night-2 px-2 font-body text-sm 
 
 /** Video, audio, gameplay and language (A-01-01); the host saves every change as it happens. */
 export function Options({ view, actions }: OptionsProps): JSX.Element {
+	const nav = useDialogNav<HTMLDivElement>({ onCancel: actions.close });
 	return (
 		<div
+			ref={nav}
 			role="dialog"
 			aria-modal="true"
 			aria-labelledby="options-title"

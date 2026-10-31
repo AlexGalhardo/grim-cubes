@@ -1,5 +1,6 @@
 import { t } from "@gc/core";
 import { type JSX, useState } from "react";
+import { useDialogNav } from "../../nav/useDialogNav";
 import { Button } from "../Button/Button";
 import { Panel } from "../Panel/Panel";
 
@@ -35,8 +36,10 @@ export function Difficulty({ view, actions }: DifficultyProps): JSX.Element {
 	const [selected, setSelected] = useState(view.selected);
 	const [seed, setSeed] = useState("");
 	const [tutorial, setTutorial] = useState(false);
+	const nav = useDialogNav<HTMLDivElement>({ onCancel: actions.cancel });
 	return (
 		<div
+			ref={nav}
 			role="dialog"
 			aria-modal="true"
 			aria-labelledby="difficulty-title"

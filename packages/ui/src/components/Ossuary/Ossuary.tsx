@@ -1,5 +1,6 @@
 import { t } from "@gc/core";
 import { type JSX, useState } from "react";
+import { useDialogNav } from "../../nav/useDialogNav";
 import { Button } from "../Button/Button";
 import { Icon, type IconRef } from "../Icon/Icon";
 import { Panel } from "../Panel/Panel";
@@ -90,8 +91,10 @@ export function Ossuary({ view, actions }: OssuaryProps): JSX.Element {
 		</div>
 	);
 
+	const nav = useDialogNav<HTMLDivElement>({ onCancel: actions.close });
 	return (
 		<div
+			ref={nav}
 			role="dialog"
 			aria-modal="true"
 			aria-labelledby="ossuary-title"

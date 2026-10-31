@@ -107,3 +107,9 @@
 	right: 4px;
 	bottom: 4px;
 }
+
+/* Every control shows where the keyboard or gamepad focus is (A-07-02). */
+:focus-visible {
+	outline: 2px solid var(--color-ember);
+	outline-offset: 2px;
+}

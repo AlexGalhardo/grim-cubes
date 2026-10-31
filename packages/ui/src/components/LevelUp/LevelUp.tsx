@@ -1,5 +1,6 @@
 import { t } from "@gc/core";
 import { type JSX, useEffect } from "react";
+import { useDialogNav } from "../../nav/useDialogNav";
 import { Icon, type IconRef } from "../Icon/Icon";
 
 export interface CardView {
@@ -37,8 +38,10 @@ export function LevelUp({
 		return () => window.removeEventListener("keydown", onKey);
 	}, [cards, onChoose]);
 
+	const nav = useDialogNav<HTMLDivElement>();
 	return (
 		<div
+			ref={nav}
 			role="dialog"
 			aria-modal="true"
 			aria-labelledby="levelup-title"
