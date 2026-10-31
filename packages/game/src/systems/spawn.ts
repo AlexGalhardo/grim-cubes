@@ -2,6 +2,7 @@ import { addComponent, query } from "bitecs";
 import {
 	Armor,
 	Behavior,
+	ContactCooldown,
 	ContactDamage,
 	EnemyFaction,
 	EnemyType,
@@ -156,6 +157,7 @@ export function createSpawnSystem(deps: SpawnSystemDeps): SpawnSystem {
 		Behavior.kind[e] = def.behavior;
 		Behavior.state[e] = 0;
 		Behavior.timer[e] = 0;
+		ContactCooldown.ticks[e] = 0;
 		spawned++;
 	}
 

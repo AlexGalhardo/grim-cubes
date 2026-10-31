@@ -2,6 +2,7 @@ export {
 	Armor,
 	Behavior,
 	Boss,
+	ContactCooldown,
 	ContactDamage,
 	Elite,
 	EnemyFaction,
@@ -33,6 +34,8 @@ export {
 	effectiveDodge,
 	knockbackScale,
 } from "./rules/damage";
+export type { BehaviorConfig, BehaviorSystem } from "./systems/behavior";
+export { BehaviorKind, createBehaviorSystem } from "./systems/behavior";
 export type { DamageQueue, DamageSystem, DamageSystemDeps, HeroCombatStats } from "./systems/damage";
 export { createDamageSystem, DAMAGE_QUEUE_CAPACITY } from "./systems/damage";
 export type { SeparationConfig, SeparationSystem } from "./systems/separation";

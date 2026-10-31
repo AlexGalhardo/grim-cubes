@@ -24,7 +24,10 @@
 		"damagePerRound": 0.4,
 		"speed": 5.5,
 		"behavior": "zigzag",
-		"behaviorParams": {},
+		"behaviorParams": {
+			"amplitude": 1.5,
+			"periodSeconds": 0.8
+		},
 		"fragments": 1
 	},
 	{

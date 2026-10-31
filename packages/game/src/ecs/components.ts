@@ -29,3 +29,6 @@ export const Behavior = {
 	state: new Uint8Array(MAX_ENTITIES),
 	timer: new Uint16Array(MAX_ENTITIES),
 };
+
+/** Steps until this enemy can deal contact damage again. */
+export const ContactCooldown = { ticks: new Uint8Array(MAX_ENTITIES) };
