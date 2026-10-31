@@ -1,0 +1,9 @@
+{
+	"prompt": "My children hunger. Feed them.",
+	"model": "eleven_multilingual_v2",
+	"durationSeconds": 4,
+	"generatedAt": "2026-10-31T15:38:57.801Z",
+	"plan": "creator",
+	"hash": "30f7dd4a461921e3c6d8a4ce86cda01854a66c17d03136ba4d8055311055c110",
+	"voiceId": "nPczCjzI2devNBz1zQrb"
+}

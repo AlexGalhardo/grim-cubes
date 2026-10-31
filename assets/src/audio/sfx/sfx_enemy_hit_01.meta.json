@@ -1,0 +1,9 @@
+{
+	"prompt": "bone cracking under impact, short dry crunch, dry tone, close, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 0.5,
+	"generatedAt": "2026-10-31T15:37:18.616Z",
+	"plan": "creator",
+	"hash": "a2482adac853353ebc0967965982d13ce11dc2e0839efaf425393382d961ba7b",
+	"promptInfluence": 0.5
+}

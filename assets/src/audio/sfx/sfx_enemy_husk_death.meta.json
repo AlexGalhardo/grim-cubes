@@ -1,0 +1,9 @@
+{
+	"prompt": "shambling corpse collapsing into a pile of bones, brittle crunch and a rattling clatter, heavy dry tone, close, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 1,
+	"generatedAt": "2026-10-31T15:37:20.096Z",
+	"plan": "creator",
+	"hash": "c7e1adfb61605227b68657a3c0055e75dcc382563668ced9789132039954c5cf",
+	"promptInfluence": 0.5
+}

@@ -1,0 +1,9 @@
+{
+	"prompt": "heavy iron armor taking a blunt hit, dull metal clang with a wet grunt of impact, heavy dry tone, close, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 0.6,
+	"generatedAt": "2026-10-31T15:37:11.445Z",
+	"plan": "creator",
+	"hash": "12401bfc5547a2080726ec50b126c688ced1362eb7423b8af48cf3e44da80269",
+	"promptInfluence": 0.5
+}

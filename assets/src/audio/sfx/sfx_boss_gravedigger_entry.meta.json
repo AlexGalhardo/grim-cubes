@@ -1,0 +1,9 @@
+{
+	"prompt": "giant gravedigger dragging an iron shovel across stone, slow heavy footsteps and a low guttural roar, heavy dry tone, medium distance, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 3,
+	"generatedAt": "2026-10-31T15:37:21.868Z",
+	"plan": "creator",
+	"hash": "08e11d736f2f243e3d58636ef3c917e8901a92c96adcc30b25ac7cf5af9419ea",
+	"promptInfluence": 0.5
+}

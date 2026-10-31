@@ -1,0 +1,9 @@
+{
+	"prompt": "war drum single deep hit with a low rumble tail, heavy dry tone, medium distance, no music melody, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 1.5,
+	"generatedAt": "2026-10-31T15:37:27.043Z",
+	"plan": "creator",
+	"hash": "66b28b66fd4b668e70d15b2cadad4a662546f2f79d2257bd70c1fdaed3b857a6",
+	"promptInfluence": 0.5
+}

@@ -1,0 +1,9 @@
+{
+	"prompt": "heavy iron latch locking shut, solid metal clunk, heavy dry tone, close, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 0.5,
+	"generatedAt": "2026-10-31T15:37:24.322Z",
+	"plan": "creator",
+	"hash": "e8970de76381fc2ea3fc1ae44100d82f6b773800acff2c4b8f901b5e37551c32",
+	"promptInfluence": 0.5
+}
