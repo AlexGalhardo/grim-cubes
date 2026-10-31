@@ -46,6 +46,8 @@ export type { GameWorld } from "./ecs/world";
 export { createGameWorld, spawn, spawnBody } from "./ecs/world";
 export type { Loop, LoopHooks } from "./loop";
 export { createLoop, MAX_STEPS, STEP } from "./loop";
+export type { CardData, CardOffer, CardRng, CardsConfig } from "./rules/cards";
+export { drawCards } from "./rules/cards";
 export type { DamageConfig, HeroCombatData, LifeStealLimiter } from "./rules/damage";
 export {
 	armorMultiplier,
@@ -56,11 +58,15 @@ export {
 } from "./rules/damage";
 export type { FragmentsConfig, XpConfig } from "./rules/fragments";
 export { dropChance, harvestCount, xpForLevel } from "./rules/fragments";
+export type { HeroStatsData, Modifier, PlayerStats, StatCaps } from "./rules/stats";
+export { computeStats, createPlayerStats, STAT_FIELDS } from "./rules/stats";
 export type { BehaviorConfig, BehaviorSystem } from "./systems/behavior";
 export { BehaviorKind, createBehaviorSystem } from "./systems/behavior";
 export type { DamageQueue, DamageSystem, DamageSystemDeps, HeroCombatStats } from "./systems/damage";
 export { createDamageSystem, DAMAGE_QUEUE_CAPACITY } from "./systems/damage";
 export { inputSystem } from "./systems/input";
+export type { LevelUpDeps, LevelUpSystem } from "./systems/levelup";
+export { createLevelUpSystem } from "./systems/levelup";
 export type {
 	DeathSystem,
 	DeathSystemDeps,
@@ -91,6 +97,8 @@ export type {
 	SpawnWeight,
 } from "./systems/spawn";
 export { createSpawnSystem, spawnBurst, spawnIntervalSeconds, spawnTotal } from "./systems/spawn";
+export type { StatsSystem } from "./systems/stats";
+export { createStatsSystem } from "./systems/stats";
 export type { TargetingConfig, TargetingSystem } from "./systems/targeting";
 export { createTargetingSystem } from "./systems/targeting";
 export type { WeaponDef, WeaponStats, WeaponSystem, WeaponSystemDeps } from "./systems/weapon";

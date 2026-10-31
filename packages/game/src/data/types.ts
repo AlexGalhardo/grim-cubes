@@ -1,4 +1,5 @@
 import type { FragmentsConfig, XpConfig } from "../rules/fragments";
+import type { Modifier } from "../rules/stats";
 import type { RunConfig } from "../systems/round";
 import type { SpawnConfig } from "../systems/spawn";
 import type { WeaponDef } from "../systems/weapon";
@@ -80,12 +81,6 @@ export interface BiomeData {
 	propDensity?: number;
 	music?: string;
 	fogColor?: string;
-}
-
-export interface Modifier {
-	stat: string;
-	op: string;
-	value: number;
 }
 
 /** `data/cards.json`. */
