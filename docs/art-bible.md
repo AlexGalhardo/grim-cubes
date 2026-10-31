@@ -58,6 +58,7 @@ Nenhuma fonte pública forneceu hex das referências; esta paleta é **proposta 
 | Osso sombra | `#8C7A5B` | sombra de osso |
 | Ferro | `#5A5F66` | armaduras, armas, estruturas |
 | Ferro escuro | `#2E3136` | sombra de metal |
+| Ferro negro | `#2B2A33` | metal enegrecido, tint da skin do round 50 (token `iron-black`) |
 | Ferrugem | `#8A4A2B` | desgaste de metal, acentos |
 | Sangue | `#5E0E14` | sangue (base) — quase vinho, nunca vermelho vivo |
 | Sangue claro | `#8E1A1F` | destaques de sangue, raridade Lendária |
@@ -66,6 +67,7 @@ Nenhuma fonte pública forneceu hex das referências; esta paleta é **proposta 
 | Noite | `#14121C` | céu/fog, fundo de UI |
 | Sombra fria | `#2B2340` | sombras projetadas, AO |
 | Névoa | `#3F3A52` | fog distante |
+| Lama | `#4A3B2A` | lama e terra molhada (token `mud`) |
 
 Rampas derivadas (usadas pelos modelos gerados e pelo refino no Blockbench): para cada token, claro = mix(token, `bone`, 0,22) e escuro = mix(token, `shadow`, 0,40). Essas cores contam como paleta oficial; o limite de 12 cores por textura continua valendo.
 
@@ -77,6 +79,8 @@ Rampas derivadas (usadas pelos modelos gerados e pelo refino no Blockbench): par
 | Pântano de Ossos | `#2F4A33` | `#1C2E24` | Lodo `#6B8F3A` | Osso `#D9C9A3` |
 | Forja Infernal | `#2A2524` | `#1A1515` | Brasa `#E07A2A` | Ferrugem `#8A4A2B` |
 | Ninho Biomecânico | `#2A1F2A` | `#17111A` | Carne `#6E2F3F` | Ferro `#5A5F66` |
+
+Cor do fog por bioma (`fogColor` em `data/biomes.json`): Cemitério Afundado `#14121C` (Noite), Pântano de Ossos `#1A2420`, Forja Infernal `#241614`, Ninho Biomecânico `#161C26`.
 
 ### 3.3 Semântica de gameplay (obrigatória)
 

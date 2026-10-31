@@ -35,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **docs:** GDD counts the 40 items plus the 2 Ossuary exclusives (`ruin_chalice`, `ossuary_mantle`) and states both IQR limits (10 for players, 25 provisional for the greedy bot); Art Bible lists `iron-black`, `mud` and the biome fog colours (B-05-02)
 - **data:** Rebalance after breakables and consumables: enemy HP and damage per round, Matriarch 12,500 HP, Forgemaster 15,000 HP, item price `base × 0.15 × N`; 64-run deterministic sim check in CI (A-02-03) ([159e9f3](https://github.com/AlexGalhardo/grim-cubes/commit/159e9f34c1b11064585626029a10062f7d52276a))
 
 ### Fixed

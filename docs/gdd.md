@@ -424,7 +424,7 @@ T1: o restante
 
 Sorteio: testa T4, depois T3, depois T2; o que sobrar é T1.
 
-### 15.3 Pool da 1.0 (40 itens)
+### 15.3 Pool da 1.0 (40 itens + 2 exclusivos do Ossuário)
 
 Tabela resumida; a tabela completa com todos os valores vive em `data/items.json` (fonte única, consumida pelo jogo e pelo simulador de balanceamento). Cada item é passivo e acumulável salvo indicação.
 
@@ -470,6 +470,13 @@ Tabela resumida; a tabela completa com todos os valores vive em `data/items.json
 | `cube_of_wrath` | Cubo da Ira | 4 | a cada 50 kills, onda de choque (raio 6 u, 50 + 5N) | — |
 | `soul_jar` | Jarro de Almas | 4 | +50% almas ao morrer | — |
 | `gilded_skull` | Crânio Dourado | 4 | +20 sorte, +20% fragmentos | — |
+
+Exclusivos do Ossuário (entram no pool Lendário só com o nó `ruin_6`, `exclusiveTo` em `data/items.json`; não contam nos 40):
+
+| ID | Nome | Tier | Efeito | Contra-efeito |
+| --- | --- | --- | --- | --- |
+| `ruin_chalice` | Cálice da Ruína | 4 | +30% dano | −20 HP máximo |
+| `ossuary_mantle` | Manto do Ossuário | 4 | +8 armadura, +2 regeneração | −10% velocidade |
 
 ### 15.4 Consumíveis
 
@@ -521,6 +528,8 @@ Exemplos: item base 20 no round 1 = 24; no round 10 = 60. Reroll no round 10: 11
 - Visual: esqueleto alto com capa de couro e um carrinho de ossos; no ALPHA, surge a 4 u do herói ao fim do round, com animação de "emerge do chão".
 - Voz (D24): ~20 falas (saudação, compra, sem ouro, reroll, lock, despedida, round de chefe à frente).
 - Pós-1.0: ofertas especiais do Mercador (1 item Lendário com desconto a cada 10 rounds).
+
+> Velocidade do jogo (decisão do PO em 2026-10-31, para testes): 1x, 2x ou 3x em Opções > Gameplay, no botão do HUD e na tecla TAB (o PO pediu o TAB explicitamente; no HUD o foco por teclado vai pelas Opções). A simulação roda mais passos fixos por frame, sem mudar o `STEP`, então o determinismo se mantém. Vale em todos os builds, inclusive a demo; recordes e almas de runs aceleradas contam normalmente (revisável pelo PO).
 
 ## 18. Economia
 
@@ -705,7 +714,7 @@ Valores iniciais (**proposta**; calibrar por playtest; todos com toggle onde ind
 | Tempo para matar chefe N (build mediano) | 60–120 s, sem enrage ≥ 3 |
 | Ouro por round / preço médio de item | 1,2–1,8 |
 | Level-ups por round (rounds 5–20) | 1–2 |
-| Dispersão do round de morte entre seeds | intervalo interquartil (P75 − P25) ≤ 10 rounds (desvio padrão só informativo) |
+| Dispersão do round de morte entre seeds | intervalo interquartil (P75 − P25): ≤ 10 rounds para jogadores reais (alvo de produto); ≤ 25 provisório para o bot greedy do simulador (desvio padrão só informativo) |
 
 - **Decisão do Orq em 2026-10-31, revisável pelo PO**: a dispersão passou de "desvio ≤ 4" para IQR ≤ 10, e o round de morte conta os sobreviventes no horizonte (censura à direita). Motivo: um bot greedy e estatísticas lineares dão uma distribuição bimodal (atrição nos rounds 5–8 e sobreviventes), na qual o desvio das runs que morreram não mede nada.
 - **IQR provisório (decisão do Orq em 2026-10-31, revisável pelo PO)**: o bot greedy não consegue IQR ≤ 10 com p50 em 18–26 (medido em oito rodadas de 16–24 runs: IQR 21–28); o limite do simulador é **IQR ≤ 25, provisório até os playtests da B-04**. O alvo de produto continua ≤ 10 para jogadores reais.
@@ -752,7 +761,7 @@ Eventos gravados localmente em JSONL e, se o jogador aceitar, enviados em lote p
 Decisões do Diretor não cobertas pelo brainstorming, registradas para revisão do PO:
 
 - Nomes diegéticos: herói "Carrasco", NPC "Mercador de Ossos", meta-árvore "Ossuário", chefes e biomas (§6.2, §12.1). Todos substituíveis sem impacto técnico (IDs em inglês não mudam).
-- Roster da 1.0: 8 inimigos comuns, 4 modificadores de elite, 5 chefes, 5 armas × 4 tiers, 40 itens, 12 cartas, 30 nós no Ossuário, 4 biomas.
+- Roster da 1.0: 8 inimigos comuns, 4 modificadores de elite, 5 chefes, 5 armas × 4 tiers, 40 itens + 2 exclusivos do Ossuário (`ruin_chalice`, `ossuary_mantle`), 12 cartas, 30 nós no Ossuário, 4 biomas.
 - Dash existe, mas só via Ossuário (ramo Sombra); o herói começa sem dash.
 - Almas: fórmula de §18.2 e custos de §19.1 calibrados para completar o Ossuário em 15–25 runs.
 - Contagem de inimigos por round (§10.3) e HP de chefes (§12.1) são propostas sem referência pública; o simulador (§25) valida.
