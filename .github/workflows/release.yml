@@ -41,12 +41,23 @@ jobs:
             exit 1
           fi
 
-      - name: Require green CI on the tagged commit
+      - name: Wait for green CI on the tagged commit
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
+        # The release commit and its tag are pushed together, so ci.yml may still be queued or running.
         run: |
-          test "$(gh run list --commit "$GITHUB_SHA" --workflow ci.yml --limit 1 --json conclusion --jq '.[0].conclusion')" = success
+          id=""
+          for _ in $(seq 1 30); do
+            id=$(gh run list --commit "$GITHUB_SHA" --workflow ci.yml --limit 1 --json databaseId --jq '.[0].databaseId // empty')
+            if [ -n "$id" ]; then break; fi
+            sleep 10
+          done
+          if [ -z "$id" ]; then
+            echo "no ci.yml run found for $GITHUB_SHA" >&2
+            exit 1
+          fi
+          gh run watch "$id" --exit-status
 
       - name: Build
         run: |
