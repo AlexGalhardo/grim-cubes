@@ -9,6 +9,8 @@
 		"weapons/weapon_smg",
 		"weapons/weapon_sword",
 		"enemies/wail",
-		"enemies/hunter"
+		"enemies/hunter",
+		"enemies/drowned",
+		"bosses/gravedigger"
 	]
 }
