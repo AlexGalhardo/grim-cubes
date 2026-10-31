@@ -1,6 +1,6 @@
 # PROGRESS
 
-Atualizado: 2026-10-31 12:00 (fuso do PO) | Versão: 0.0.0 | Fase: 1 — ESTRUTURA (fase 2 adiantada em paralelo) | Sessão: #1
+Atualizado: 2026-10-31 08:51 (fuso do PO) | Versão: 0.0.0 (v0.1.0 ainda não publicada) | Fase: 2 — PROTÓTIPO (itens da ALPHA adiantados em paralelo) | Sessão: #1
 
 Meta do PO (2026-10-31): implementar o ROADMAP até o fim sem interrupções; tarefas `Resp: PO` ficam em Bloqueios e os agentes seguem com o resto. Hooks lefthook instalados em `.git` (valem para todos os worktrees).
 
@@ -8,15 +8,15 @@ Meta do PO (2026-10-31): implementar o ROADMAP até o fim sem interrupções; ta
 
 | Agente | Tarefa atual | Branch | Estado | Desde | Lock |
 | --- | --- | --- | --- | --- | --- |
-| Orq | merges; CI de main; PROGRESS | main | em andamento | 12:00 | — |
-| S1 | P-06-01 etapa 3–4: horda e props glb no `apps/web`, capturas | feat/P-06-01-assets-gen | implementando | 12:00 | `apps/web/**` |
-| S2 | P-04-04 tiers/SMG/MG → P-05-04 loja → P-05-05 itens → P-05-08 resultados | feat/P-04-04-* | implementando | 12:00 | `data/**` |
-| Est | E-05-05, sync de docs (E-04-04/SDD 12), snapshots por plataforma, gate do release, harness `tools/sim` | chore/E-05-05-validate | implementando | 12:00 | docs/sdd/11–12, ADR-0019, `playwright.config.ts`, `.github/**`, `tools/sim/**` |
-| Esp | standby → auditoria a cada merge | — | revisando | 12:00 | — |
+| Orq | merges em `wip/orq-merge`; commits; PROGRESS | wip/orq-merge | em andamento | 08:51 | — |
+| S1 | P-06-06 (rig de personagem) → A-02-01 (biomas Pântano, Forja e Ninho) | — | implementando | 08:51 | — |
+| S2 | P-07-04 (sim com loja) → A-03-02 (O Forjador) → A-03-03 (roster por round) | — | implementando | 08:51 | — |
+| Est | baselines finais do e2e → `rc-major` no `tools/release` (R-01-01) → i18n (A-07-01) → cobertura | — | implementando | 08:51 | — |
+| Esp | docs (CHANGELOG, PROGRESS) → auditoria a cada merge | — | em andamento | 08:51 | `CHANGELOG.md`, `docs/PROGRESS.md` |
 
-Estado de `main` (6b44270): 276 testes unitários + 8 e2e (4 alvos × boot e level-up); CI verde em `main` com e2e real. A run já roda no browser (spawn, combate, drops, XP, level-up, chunks, origin shift); inimigos ainda invisíveis até a S1 ligar a horda com os modelos gerados (P-06-01). Concluídas desde as 09:30: P-01-01, P-02-02, P-03-04 (espelho X corrigido), P-04-03, P-05-02, P-05-03, P-06-01, P-06-07, E-02-06, E-04-01, E-04-04, E-03-01. Release v0.1.0 bloqueada até o gate do `release.yml` esperar o CI (Est).
+Estado (2026-10-31 08:51): `origin/main` está em b899d7b, vermelha até as baselines do e2e entrarem (ver Dívidas). O trabalho integrado está em `origin/wip/orq-merge` (6180a55). Na última verificação em cópia limpa (bf90035), typecheck, `biome ci`, `data:check`, `lint:md` e `bun run test` (84 arquivos, 483 testes) ficaram verdes. Já existem o Coveiro e a Matriarca (padrões por id, A-03-00), os 8 behaviors de inimigo, elites com render, Ossuário com dash e bônus da Ruína, dificuldades, marcos, VFX (P-04-05), culling por frustum e os headers de segurança da Vercel.
 
-Dívida operacional: com 4 agentes rodando testes ao mesmo tempo, o `pre-push` às vezes falha por timeout de CPU/worker (refazer o push resolve; a suíte isolada roda em ~5 s). Não contornar o hook.
+Dívida operacional: com 4 agentes rodando testes ao mesmo tempo, a CPU satura e o `pre-push` falha por timeout de worker (a suíte isolada passa). Solução adotada: janela de push (um agente por vez) e timeout de 20 s nos testes de simulação e determinismo (a2cdbad); o oráculo do VAT ainda pode estourar 5 s sob carga. Não contornar o hook.
 
 Risco: conversor `.bbmodel` validado só contra o próprio pipeline e o Babylon; falta golden contra um export real do Blockbench (quando o PO refinar o 1º modelo).
 
@@ -28,25 +28,30 @@ Dívida: pós-processo ffmpeg do `audio-generate` (SDD 08 §3: LUFS, trim, pitch
 
 ## Concluídas (últimas 20)
 
+Fonte: itens `[x]` do ROADMAP em `origin/wip/orq-merge` (6180a55), ordenados pelo commit mais recente de cada ID.
+
 | ID | Data | Agente | Commit | Observação |
 | --- | --- | --- | --- | --- |
-| E-02-07 | 2026-10-31 | S2 (Orq verificou) | 8add02b | lefthook (biome, markdown, data, secrets, commitlint, typecheck e unit no pre-push); lint-extra ignora `engines` |
-| E-03-04 | 2026-10-31 | Est + Esp | 15b6038 | preço por tier 20/40/80/160 (decisão do Orq, meio das faixas do GDD §15.1); raio dos inimigos pelo Art Bible §5.1; `data/hero.json` |
-| P-06-02 | 2026-10-31 | S1 (Orq verificou; Esp audita) | 278d2ec | `pngjs` 7.0.0 + `@types/pngjs` 6.0.5; `KHR_materials_unlit` reescrito à mão (sem `@gltf-transform/extensions`) |
-| P-01-02 | 2026-10-31 | S1 (Orq verificou; Esp audita) | 00d1dc2 | gerador injetado (P-01-01 aguarda D3); pool 81, slots 9×9 |
-| Auditoria fase 1 | 2026-10-31 | Esp → Orq | 0ab5190 | furos de camada fechados (subcaminhos do Babylon, imports relativos, override de render); `types: ["bun"]`; teste SMHasher `0xB0F57EE3` |
-| E-02-05 | 2026-10-31 | Est (Orq verificou; Esp audita pós-merge) | 36f1f7d | Vitest 5 `projects` unit/unit-ui/integration; istanbul json-summary |
-| E-02-03 | 2026-10-31 | S2 (Orq verificou; Esp audita pós-merge) | 9b5b11a | Biome `preset: recommended`, camadas por override, barrel do Babylon proibido, plugin GritQL contra `Math.random` |
-| E-02-02 | 2026-10-31 | S2 (Orq verificou; Esp audita pós-merge) | d76a6d1 | `skipLibCheck` (Babylon + `exactOptionalPropertyTypes`); `typecheck` = `bun check -b` (89ae8e4, pedido do PO) |
-| E-03-01 (parcial: core, render) | 2026-10-31 | S1 | d8b8d08 | falta `game/loop`, `ui/App`, `platform/detect` (S2); 25 testes verdes |
-| E-02-01 | 2026-10-31 | S2 (Orq verificou asserts; Esp audita pós-merge) | e154a99 | 394 pacotes; TS 7.0.2 com `tsc` ok; jsdom 30.1.3, @testing-library/react 16.3.3, @gltf-transform/core 4.5.1, fake-indexeddb 6.2.7, axe-core 4.14.0 |
-| E-01-05 | 2026-10-31 | Orq | a59cf07 | tabela de comandos adicionada ao `AGENTS.md` |
-| E-01-04 | 2026-10-31 | Orq | a59cf07 | seções obrigatórias presentes; markdownlint ok |
-| E-01-03 | 2026-10-31 | Est + Esp | f14a65b | rodapé `[Unreleased]` ancorado em `compare/2775e6e...HEAD` (sem tag); reescrever na v0.1.0 (E-04-03) |
-| E-01-02 | 2026-10-31 | S2 + Esp | abe4492 | `.gitattributes` LF + binários; `PROMPT.md` renormalizado para LF; `*.pfx` ignorado |
-| E-01-01 | 2026-10-31 | Orq (aprovado pelo PO, inline) | 2775e6e | `git init -b main`, remoto `origin`, push; scan de segredos limpo |
-| DOCS | 2026-10-31 | Diretor (sessão de documentação) | — | Etapas 1–6 da documentação; ver CHANGELOG `[Unreleased]` |
-| PO-OK | 2026-10-31 | PO | — | 4 bloqueios aprovados; `LICENSE` criada; concept arts em `references/concept-arts/` |
+| P-04-01 | 2026-10-31 | S2 | 6180a55 | knockback escrito pelo dano aplicado ao movimento dos inimigos |
+| E-04-04 | 2026-10-31 | Est (+ Esp) | ff185d9 | smoke falha com a API de debug viva (`?debug=1`); actions pinadas por SHA; Dependabot (bun e GitHub Actions) |
+| A-04-01 | 2026-10-31 | S2 | bf90035, 5cce96f, 460a352 | bônus da Ruína: reroll de cartas por run, Incomum garantido só na oferta inicial, 2 lendários `exclusiveTo` conferidos no `data-check` |
+| P-03-05 | 2026-10-31 | S1 (+ S2 no sim) | ac44b46, a514770, 7d89669 | cull de 40 u sem drop (nunca elite/chefe); render por frustum real da câmera; sim com o mesmo cull |
+| E-02-07 | 2026-10-31 | S2 | 92f6135 | `secrets-scan` falha com flag desconhecida e caminho inexistente (achado da revisão de segurança) |
+| A-02-02a | 2026-10-31 | S2 | 3224aa4, 8f123f7, f53bc0b | 6 behaviors do data; contador do Reprodutor por passo; dreno da Sanguessuga por eventos com killer, `PlayerHit` marcado como leak |
+| P-05-06 | 2026-10-31 | S2 | 5640a2d, 44f9cd7 | baús sem itens alpha; elites que escapam reportadas; `ChestOpened` com a posição do baú |
+| A-04-02 | 2026-10-31 | S2 | 2ceb682 | dash do Ossuário (cargas, i-frames, botão touch); `dashSystem` na ordem real do SDD 02 §2.3 |
+| P-03-06 | 2026-10-31 | S1 | 45399e2, a2cdbad | orçamento de CPU na simulação da horda; timeout de 20 s nos testes longos de sim |
+| A-04-03 | 2026-10-31 | S2 | 3b7ac70 | dificuldades Normal/Grim/Nightmare, tela de dificuldade e seed, recordes por dificuldade |
+| P-03-02 | 2026-10-31 | S2 | d5c9fcc | spawns fora dos props bloqueantes |
+| P-04-06 | 2026-10-31 | S1 | e10d4c6, affd535 | render de pilhas de fragmentos e projéteis; pilhas de combate fora do ímã nas capturas |
+| E-03-04 | 2026-10-31 | Est | be2740b | regras cruzadas, enum de effect id, limites do herói e checagem data → assets |
+| E-02-06 | 2026-10-31 | Est | fea93ae, db5fded | baselines por plataforma (win32 e linux), captura só da UI, relógio congelado |
+| P-07-03 | 2026-10-31 | Est | 947f5b7 | teste de determinismo com `hashWorld` (seed 42, 3.600 passos) |
+| P-05-08 | 2026-10-31 | S2 | 98cef15, fabaee5 | runs mescladas no save sob lock; duas cópias corrompidas guardadas |
+| E-03-01 | 2026-10-31 | S1 + S2 | d57699e | store publica sem copiar o set de listeners (fecha a parte que faltava) |
+| P-02-03 | 2026-10-31 | S1 | ab76b1d | materiais de props com fade descongelados; opacidade de slot reciclado zerada; alturas dos modelos |
+| P-01-05 | 2026-10-31 | S1 | 227d00b | constantes de steering em `world.json`; scratch de candidatos maior; overlaps |
+| P-05-05 | 2026-10-31 | S2 | c7401d0 | effect ids sem código falham alto |
 
 ## Bloqueios (precisam do PO)
 
@@ -59,8 +64,8 @@ Dívida: pós-processo ffmpeg do `audio-generate` (SDD 08 §3: LUFS, trim, pitch
 - [x] 2026-10-31 — ElevenLabs: PO colocou `ELEVENLABS_API_KEY` em `.env` local.
 - [x] 2026-10-31 — E-05-01 marca: **manter "Grim Cubes"** (PO consultou; recomendação aceita). Registrado em `docs/legal/trademark-screening.md`; números de processo pendentes antes do anúncio público.
 - [ ] 2026-10-31 — E-05-03 Steamworks (US$ 100): ação manual do PO, depois. — bloqueia: ALPHA (A-06). Única pendência que só o PO pode fazer.
-- [ ] 2026-10-31 — A-01-02 (KTX2 para mobile) precisa do binário `toktx` (KTX-Software, Apache-2.0) instalado no runner do CI (não é pacote npm). Opções: A) instalar `toktx` com versão fixa no job `build-web` (recomendado; só CI, sem dependência de runtime); B) adiar KTX2 para a fase 1.1 (Android) e manter PNG. — bloqueia: A-01-02.
-- [ ] 2026-10-31 — B-04-04 (Android, fase 1.1): Capacitor 8 (`@capacitor/core`, `@capacitor/cli`, `@capacitor/android` e plugins do SDD 10 §3) são dependências novas fora da lista aprovada na E-02-01. Opções: A) aprovar na abertura da fase BETA, versões estáveis exatas (recomendado); B) adiar para a 1.1 conforme o calendário. — bloqueia: B-04-04, M-01-*.
+- [ ] 2026-10-31 — A-01-02 (KTX2 para mobile) precisa do binário `toktx` (KTX-Software, Apache-2.0) instalado no runner do CI (não é pacote npm). Opções: A) instalar `toktx` com versão fixa no job `build-web` (recomendado; só CI, sem dependência de runtime); B) adiar KTX2 para a fase 1.1 (Android) e manter PNG. — bloqueia: A-01-02. Continua aberto em 2026-10-31 08:51: o ADR do `toktx` está na B-05-02, e a M-01-04 (KTX2 no Android) depende dele.
+- [ ] 2026-10-31 — B-04-04 (Android, fase 1.1): Capacitor 8 (`@capacitor/core`, `@capacitor/cli`, `@capacitor/android` e plugins do SDD 10 §3) são dependências novas fora da lista aprovada na E-02-01. Opções: A) aprovar na abertura da fase BETA, versões estáveis exatas (recomendado); B) adiar para a 1.1 conforme o calendário. — bloqueia: B-04-04, M-01-*. Continua aberto em 2026-10-31 08:51: o critério de entrada do apêndice Android (ROADMAP) exige essa aprovação e também a da biblioteca de billing.
 - [x] 2026-10-31 — E-05-04: **plano Creator** (recomendação aceita). Ambiente `audio` criado no GitHub com a variável `ELEVENLABS_PLAN=creator`. Falta o secret: a leitura de `.env` é bloqueada por regra do PO, então o PO roda `! bun -e "process.stdout.write(process.env.ELEVENLABS_API_KEY ?? '')" | gh secret set ELEVENLABS_API_KEY --env audio` e acrescenta `ELEVENLABS_PLAN=creator` ao `.env`. Geração real (8.500 créditos estimados) só sob pedido.
 - [x] 2026-10-31 — Vercel: **B escolhida (recomendação aceita): manter a proteção; o smoke usa bypass token (E-04-04); desligar só em produção ao publicar a demo.** `ssoProtection` está em `all_except_custom_domains`, o que exige login Vercel até no domínio de produção `*.vercel.app`; a demo pública e o smoke (E-04-04) precisam de acesso anônimo. Opções: A) desligar proteção só em produção (`prod_deployment_urls_and_all_previews` → manter previews protegidos); B) manter e usar bypass token no smoke; C) domínio próprio. Recomendação: B agora (nada público antes da demo), A ao publicar a demo. — bloqueia: E-04-02 assert de produção, E-04-04.
 - [x] 2026-10-31 — D1 câmera (GDD §5, ADR-0017): **PO escolheu A (2026-10-31).** `beta` do `ArcRotateCamera` é medido do zênite; 0,96 rad = 35° de elevação, não 55°. A) beta 0,611 rad (55°, intenção do GDD; anel de spawn 22–30 u fica fora da tela) — recomendado; B) manter 0,96 (35°; inimigos nascem à vista). — bloqueia: P-02-01.
@@ -84,3 +89,7 @@ Dívida: pós-processo ffmpeg do `audio-generate` (SDD 08 §3: LUFS, trim, pitch
 - [idle] Revisão S1 (2026-10-31) das fases 1–2: 25 achados. Aplicados no ROADMAP pelo Orq os da fase 1 (ciclo E-03-02 ↔ E-02-06, tarefa nova E-03-06 de ECS, versões e `@babylonjs/inspector` em E-02-01, `createEngine` assíncrono só WebGL2 + `NullEngine`, valores de ouro de rng/loop, protocolo de fps). Os da fase 2 (câmera `beta`, histerese de chunks, contagem de props, chão por bioma, atlas de chão, VAT em PNG 8 bits, oráculo do VAT, bench antes de P-03-04, números em `data/world.json`/`data/render.json`, donos de `core/spatial` e origin shifting) serão aplicados pelo Orq ao abrir a fase 2.
 - Contratos a combinar antes de E-03-01: assinaturas de `core/rng` (`mulberry32`, `hash32` variádico com i32 negativo), `core/store`, `core/logger`, `window.gc` tipado (`ready`, `debug` fora de produção), `render.createEngine(): Promise<Engine>`.
 - `reports/` não está no `.gitignore` de propósito: `reports/perf-*.json` e `sim-*.json` são evidência de asserts.
+- Dívida operacional (CPU saturada no `pre-push`): ver o parágrafo no topo. Janela de push entre agentes e timeout de 20 s nos testes de simulação e determinismo (a2cdbad); falta dar o mesmo timeout ao oráculo do VAT (`tools/bake-vat/babylon-oracle.test.ts`).
+- `tools/sim` ainda roda sem loja e sem `availableItems` (marcos e exclusivos do Ossuário); o balanceamento simulado ignora o pool real até a P-07-04. O cull de 40 u já entrou no sim (7d89669).
+- Bloqueios do PO ainda abertos que travam o ROADMAP: `toktx` (A-01-02, M-01-04) e Capacitor (B-04-04, M-01-*); ver Bloqueios.
+- `origin/main` (b899d7b) segue vermelha até as baselines do e2e entrarem (Est, baselines finais). Até lá, o trabalho integrado e verificado está em `origin/wip/orq-merge`.
