@@ -39,6 +39,10 @@ export const EventType = {
 	BossEnraged: 20,
 	/** a, b = x, z; entity = the elite. The round ended with the elite alive: it leaves without a reward. */
 	EliteEscaped: 21,
+	/** a, b = unit direction x, z; c = seconds until the charge; entity = the enemy (hunter windup). */
+	EnemyTelegraph: 22,
+	/** a, b = x, z where the shot left; c = unused. A watcher fired a projectile. */
+	EnemyShotFired: 23,
 	/** a = new level. The run paused and a card offer is waiting. */
 	LevelUp: 11,
 } as const;

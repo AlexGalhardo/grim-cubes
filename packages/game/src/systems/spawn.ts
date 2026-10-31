@@ -9,7 +9,9 @@ import {
 	EnemyFaction,
 	EnemyType,
 	Health,
+	KnockbackResist,
 	Position,
+	PrevHealth,
 	PrevPosition,
 	Radius,
 	Speed,
@@ -44,6 +46,8 @@ export interface EnemyDef {
 	speed: number;
 	armor: number;
 	behavior: number;
+	/** Fraction of knockback taken (default 1). */
+	knockbackTakenMult?: number;
 }
 
 export interface SpawnWeight {
@@ -189,6 +193,8 @@ export function createSpawnSystem(deps: SpawnSystemDeps): SpawnSystem {
 		Behavior.state[e] = 0;
 		Behavior.timer[e] = 0;
 		ContactCooldown.ticks[e] = 0;
+		KnockbackResist.value[e] = 1 - (def.knockbackTakenMult ?? 1);
+		PrevHealth.hp[e] = Health.hp[e] ?? 0;
 		return e;
 	}
 

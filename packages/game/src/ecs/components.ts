@@ -44,7 +44,16 @@ export const Behavior = {
 	kind: u8(),
 	state: u8(),
 	timer: u16(),
+	/** Second counter for behaviors with a cooldown next to a state timer (charge interval, spawn interval). */
+	aux: u16(),
 };
+
+/** Health at the end of the previous step, so a behavior can tell it was hit (the leech lets go). */
+export const PrevHealth = { hp: f32() };
+/** Fraction of knockback this enemy ignores; 0 for most, 0.7 for the Afogado (it takes x0.3). */
+export const KnockbackResist = { value: f32() };
+/** A projectile fired at the hero; live while `life > 0`. */
+export const EnemyShot = { damage: f32(), life: u16() };
 
 /** Steps until this enemy can deal contact damage again. */
 export const ContactCooldown = { ticks: u8() };

@@ -14,6 +14,7 @@ export type {
 	WorldData,
 } from "./data";
 export {
+	behaviorConfigFromData,
 	biomesData,
 	bossesData,
 	cardsData,
@@ -41,6 +42,7 @@ export {
 	ContactDamage,
 	Elite,
 	EnemyFaction,
+	EnemyShot,
 	EnemyType,
 	Facing,
 	Fragment,
@@ -58,6 +60,8 @@ export {
 	Velocity,
 } from "./ecs/components";
 export type { RenderPort } from "./ecs/contract";
+export type { EnemyShotPool } from "./ecs/enemyShot";
+export { createEnemyShotPool } from "./ecs/enemyShot";
 export type { EventBuffer, EventVisitor } from "./ecs/events";
 export { consumeEvents, createEventBuffer, EVENT_CAPACITY, EventType } from "./ecs/events";
 export { dropFragment } from "./ecs/fragments";
@@ -115,6 +119,8 @@ export type { AuraSystem, AuraSystemDeps, EffectsSystem } from "./systems/effect
 export { createAuraSystem, createEffectsSystem } from "./systems/effects";
 export type { EliteSystem, EliteSystemDeps } from "./systems/elite";
 export { createEliteSystem } from "./systems/elite";
+export type { EnemyShotSystem } from "./systems/enemyShot";
+export { createEnemyShotSystem } from "./systems/enemyShot";
 export { inputSystem } from "./systems/input";
 export type { LevelUpDeps, LevelUpSystem } from "./systems/levelup";
 export { createLevelUpSystem } from "./systems/levelup";

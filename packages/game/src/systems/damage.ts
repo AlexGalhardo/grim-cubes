@@ -9,6 +9,7 @@ import {
 	HitFlash,
 	Invulnerable,
 	Knockback,
+	KnockbackResist,
 } from "../ecs/components";
 import { type EventBuffer, EventType } from "../ecs/events";
 import type { GameWorld } from "../ecs/world";
@@ -148,8 +149,9 @@ export function createDamageSystem(deps: DamageSystemDeps): DamageSystem {
 		HitFlash.ticks[eid] = 2;
 
 		const scale = knockbackScale(config, hasComponent(world, eid, Boss), hasComponent(world, eid, Elite));
-		Knockback.x[eid] = (kbX[i] ?? 0) * scale;
-		Knockback.z[eid] = (kbZ[i] ?? 0) * scale;
+		const resist = 1 - (KnockbackResist.value[eid] ?? 0);
+		Knockback.x[eid] = (kbX[i] ?? 0) * scale * resist;
+		Knockback.z[eid] = (kbZ[i] ?? 0) * scale * resist;
 		Knockback.ticks[eid] = knockbackTicks;
 
 		lifeSteal.add(dealt * stats.lifeSteal);

@@ -47,7 +47,9 @@
 		"speed": 2.8,
 		"walkRefSpeed": 2.8,
 		"behavior": "push",
-		"behaviorParams": {},
+		"behaviorParams": {
+			"knockbackTakenMult": 0.3
+		},
 		"fragments": 2
 	},
 	{
@@ -64,7 +66,8 @@
 		"walkRefSpeed": 4.5,
 		"behavior": "latch_drain",
 		"behaviorParams": {
-			"drainHpPerSecond": 1
+			"drainHpPerSecond": 1,
+			"speedMult": 1.2
 		},
 		"fragments": 1
 	},
@@ -101,7 +104,10 @@
 		"behavior": "ranged_static",
 		"behaviorParams": {
 			"projectileRange": 10,
-			"projectile": "slow"
+			"projectile": "slow",
+			"projectileSpeed": 8,
+			"intervalSeconds": 2,
+			"projectileRadius": 0.25
 		},
 		"fragments": 2
 	},
@@ -119,7 +125,12 @@
 		"walkRefSpeed": 6.5,
 		"behavior": "charge",
 		"behaviorParams": {
-			"chargeIntervalSeconds": 3
+			"chargeIntervalSeconds": 3,
+			"triggerDistance": 8,
+			"windupSeconds": 0.5,
+			"chargeSeconds": 0.6,
+			"speedMult": 3,
+			"recoverSeconds": 1
 		},
 		"fragments": 2
 	},
