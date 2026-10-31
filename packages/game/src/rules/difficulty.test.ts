@@ -8,10 +8,10 @@ import { createSpawnSystem } from "../systems/spawn";
 import { chooseDifficulty, difficultyData, isUnlocked, parseSeed } from "./difficulty";
 
 const list = roundsData.difficulties;
-const records = (normal: number, grim: number) => ({ normal, grim, nightmare: 0 });
+const records = (normal: number, grim: number) => ({ easy: 0, normal, grim, nightmare: 0 });
 
 test("Grim is x1.25 and Nightmare x1.5 on enemy HP and damage, with soul multipliers 1.5 and 2", () => {
-	const hpAt = (id: "normal" | "grim" | "nightmare"): { hp: number; dmg: number } => {
+	const hpAt = (id: "easy" | "normal" | "grim" | "nightmare"): { hp: number; dmg: number } => {
 		const world = createGameWorld();
 		const spawn = createSpawnSystem({
 			config: roundsData.spawn,
@@ -26,6 +26,9 @@ test("Grim is x1.25 and Nightmare x1.5 on enemy HP and damage, with soul multipl
 		return { hp: Health.max[e] ?? 0, dmg: ContactDamage.value[e] ?? 0 };
 	};
 	const normal = hpAt("normal");
+	expect(hpAt("easy").hp).toBeCloseTo(normal.hp * 0.75);
+	expect(hpAt("easy").dmg).toBeCloseTo(normal.dmg * 0.75);
+	expect(difficultyData(list, "easy").soulsMult).toBe(0.75);
 	expect(hpAt("grim").hp).toBeCloseTo(normal.hp * 1.25);
 	expect(hpAt("grim").dmg).toBeCloseTo(normal.dmg * 1.25);
 	expect(hpAt("nightmare").hp).toBeCloseTo(normal.hp * 1.5);
@@ -41,15 +44,15 @@ test("the boss HP scales with the difficulty too", () => {
 	);
 });
 
-test("Grim needs a Normal record of 20 and Nightmare a Grim record of 20", () => {
-	const grim = difficultyData(list, "grim");
+test("Easy, Normal and Grim are open from the start; Nightmare needs a Grim record of 20", () => {
 	const nightmare = difficultyData(list, "nightmare");
-	expect(isUnlocked(grim, records(19, 0))).toBe(false);
-	expect(isUnlocked(grim, records(20, 0))).toBe(true);
+	for (const id of ["easy", "normal", "grim"] as const)
+		expect(isUnlocked(difficultyData(list, id), records(0, 0))).toBe(true);
 	expect(isUnlocked(nightmare, records(50, 19))).toBe(false);
-	expect(isUnlocked(nightmare, records(20, 20))).toBe(true);
+	expect(isUnlocked(nightmare, records(0, 20))).toBe(true);
 	expect(chooseDifficulty(list, "nightmare", records(50, 0))).toBe("normal");
-	expect(chooseDifficulty(list, "grim", records(20, 0))).toBe("grim");
+	expect(chooseDifficulty(list, "grim", records(0, 0))).toBe("grim");
+	expect(chooseDifficulty(list, "easy", records(0, 0))).toBe("easy");
 	expect(chooseDifficulty(list, "bogus", records(20, 20))).toBe("normal");
 	expect(chooseDifficulty(list, null, records(20, 20))).toBe("normal");
 });

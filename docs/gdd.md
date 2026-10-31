@@ -372,9 +372,12 @@ Tempo acumulado de combate (sem loja): round 10 ≈ 7,6 min; round 20 ≈ 16 min
 
 | Nível | Multiplicador HP/dano | Desbloqueio | Almas × |
 | --- | --- | --- | --- |
+| Fácil (`easy`) | ×0,75 | — | ×0,75 |
 | Normal | ×1,0 | — | ×1,0 |
-| Grim | ×1,25 | chegar ao round 20 em Normal | ×1,5 |
-| Nightmare | ×1,5 | chegar ao round 20 em Grim | ×2,0 |
+| Difícil (`grim`) | ×1,25 | — | ×1,5 |
+| Nightmare | ×1,5 | chegar ao round 20 em Difícil | ×2,0 |
+
+Decisão do PO (2026-10-31): numa run nova, Fácil, Normal e Difícil estão liberadas desde o início; só Nightmare é desbloqueio. A dificuldade vale até a run acabar (fica no checkpoint) e não há troca no meio dela. Os recordes são por dificuldade, com Fácil incluída. O id interno `grim` continua o mesmo; só o nome exibido muda para "Difícil".
 
 ### 13.3 Fim de round
 
@@ -590,8 +593,7 @@ Decisão D09: árvore permanente fora da run, comprada com almas. Nome diegétic
 | --- | --- |
 | Primeira morte | Ossuário abre |
 | Round 10 vencido | Dificuldade (nada; só almas) e marcador de recorde |
-| Round 20 em Normal | Grim |
-| Round 20 em Grim | Nightmare |
+| Round 20 em Difícil (`grim`) | Nightmare |
 | 1.000 kills acumulados | item `cube_of_wrath` entra no pool |
 | 10.000 kills | item `warlord_banner` entra no pool |
 | 5 chefes mortos | item `executioner_mark` entra no pool |
@@ -609,7 +611,7 @@ Recordes mostrados no menu: maior round por dificuldade, total de kills, total d
 | Boot/Título | logo, "pressione para começar" (unlock de áudio), versão | PROTÓTIPO |
 | Menu principal | Continuar (só se já houve um slot usado), Novo jogo, Ossuário, Recordes, Opções, Sair; selo "DEMO" quando aplicável | PROTÓTIPO |
 | Slots de save | 3 slots: nome, último jogo, melhor round, almas e se há run em andamento; slot ocupado pede confirmação para sobrescrever; "Apagar" com confirmação | ALPHA |
-| Seleção de dificuldade | Normal/Grim/Nightmare com cadeados; seed opcional | ALPHA |
+| Seleção de dificuldade | Fácil/Normal/Difícil abertas, Nightmare com cadeado; seed opcional | ALPHA |
 | HUD in-run | ver 21.2 | PROTÓTIPO |
 | Level-up | 3 cartas centrais, stats atuais à esquerda; pausa | PROTÓTIPO |
 | Loja | 4 slots, arma atual com botão de upgrade, stats, reroll, lock, "Próximo round" | PROTÓTIPO |

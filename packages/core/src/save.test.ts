@@ -23,11 +23,11 @@ const meta = () => {
 	return m;
 };
 
-test("a save round-trips and uses schemaVersion 10", async () => {
+test("a save round-trips and uses schemaVersion 11", async () => {
 	const text = await serializeSave(meta(), "0.1.0", new Date("2026-10-31T12:00:00Z"));
 	const envelope = JSON.parse(text) as { schemaVersion: number; app: string; savedAt: string };
-	expect(envelope.schemaVersion).toBe(10);
-	expect(SAVE_SCHEMA_VERSION).toBe(10);
+	expect(envelope.schemaVersion).toBe(11);
+	expect(SAVE_SCHEMA_VERSION).toBe(11);
 	expect(envelope.app).toBe("grim-cubes");
 	expect(envelope.savedAt).toBe("2026-10-31T12:00:00.000Z");
 	expect(await parseSave(text)).toEqual(meta());
@@ -74,7 +74,7 @@ test("untrusted fields are validated", async () => {
 test("a save from another app or a newer schema is refused", async () => {
 	const base = JSON.parse(await serializeSave(meta(), "0.1.0")) as Record<string, unknown>;
 	await expect(parseSave(JSON.stringify({ ...base, app: "other" }))).rejects.toBeInstanceOf(SaveError);
-	await expect(parseSave(JSON.stringify({ ...base, schemaVersion: 11 }))).rejects.toThrow("newer version");
+	await expect(parseSave(JSON.stringify({ ...base, schemaVersion: 12 }))).rejects.toThrow("newer version");
 });
 
 test("size, list and key limits protect the parser", async () => {
@@ -211,7 +211,11 @@ async function legacySave(version: number): Promise<string> {
 		>,
 	};
 	const keys = SETTINGS_BY_VERSION[version] ?? null;
-	const { settings, run: _run, ...rest } = current.data;
+	const { settings, run: _run, ...withEasy } = current.data;
+	const rest = {
+		...withEasy,
+		records: { normal: meta().records.normal, grim: 0, nightmare: 0 },
+	};
 	const picked = keys ? Object.fromEntries(keys.map((k) => [k, settings[k]])) : null;
 	// Schemas 7 and 8 stored only the dash and pause buttons.
 	if (picked && "pad" in picked && version < 9) {
@@ -352,7 +356,7 @@ test("a malformed checkpoint is refused field by field", async () => {
 			SaveError,
 		);
 	};
-	await bad({ difficulty: "easy" });
+	await bad({ difficulty: "bogus" });
 	await bad({ round: 0 });
 	await bad({ gold: -1 });
 	await bad({ gold: Number.NaN });
@@ -366,6 +370,26 @@ test("a malformed checkpoint is refused field by field", async () => {
 	await bad({ weapon: { id: "x".repeat(65), tier: 0, paid: 0 } });
 	await bad({ origin: { x: "0", z: 0 } });
 	await bad({ bossRounds: [-1] });
+});
+
+test("a slot file written by schema 10 (no Easy record) still verifies and gets an Easy record of 0", async () => {
+	const m = meta();
+	const data = { ...JSON.parse(JSON.stringify(m)), records: { normal: 12, grim: 0, nightmare: 0 } };
+	delete data.settings;
+	delete data.run;
+	data.run = null;
+	const text = JSON.stringify({
+		schemaVersion: 10,
+		savedAt: "2026-10-31T10:00:00.000Z",
+		app: "grim-cubes",
+		appVersion: "0.1.0",
+		checksum: await checksumOf(data),
+		data,
+	});
+	const loaded = await parseSave(text);
+	expect(loaded.records).toEqual({ easy: 0, normal: 12, grim: 0, nightmare: 0 });
+	const tampered = text.replace('"souls":285', '"souls":286');
+	await expect(parseSave(tampered)).rejects.toThrow("checksum mismatch");
 });
 
 test("a schema 9 save has no checkpoint and no last slot, and its checksum still verifies", async () => {

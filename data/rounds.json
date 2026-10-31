@@ -73,6 +73,11 @@
 	},
 	"difficulties": [
 		{
+			"id": "easy",
+			"hpDamageMult": 0.75,
+			"soulsMult": 0.75
+		},
+		{
 			"id": "normal",
 			"hpDamageMult": 1,
 			"soulsMult": 1
@@ -80,11 +85,7 @@
 		{
 			"id": "grim",
 			"hpDamageMult": 1.25,
-			"soulsMult": 1.5,
-			"unlockedBy": {
-				"difficulty": "normal",
-				"round": 20
-			}
+			"soulsMult": 1.5
 		},
 		{
 			"id": "nightmare",

@@ -260,6 +260,7 @@ test("updateMeta writes only the file that changed", async () => {
 async function singleSave(souls: number): Promise<string> {
 	const data = { ...profileOf(metaWith(souls)), settings: createSettings() } as Record<string, unknown>;
 	delete data.run;
+	data.records = { normal: 0, grim: 0, nightmare: 0 };
 	const settings = { ...createSettings() } as Record<string, unknown>;
 	delete settings.lastSlot;
 	data.settings = settings;

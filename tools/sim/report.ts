@@ -129,7 +129,7 @@ export const IQR_LIMIT = 25;
  */
 export const ALIVE_LIMIT = 0.45;
 
-export type Difficulty = "normal" | "grim" | "nightmare";
+export type Difficulty = "easy" | "normal" | "grim" | "nightmare";
 export type PolicyName = "greedy" | "tank";
 export interface Profile {
 	difficulty: Difficulty;
@@ -151,7 +151,8 @@ interface Ranges {
  */
 export function rangesFor({ difficulty, policy }: Profile): Ranges {
 	if (policy === "greedy") {
-		const p50 = { normal: [18, 26], grim: [14, 22], nightmare: [11, 18] } as const;
+		// Easy starts on the Normal band until the Est calibrates it with the sim.
+		const p50 = { easy: [18, 26], normal: [18, 26], grim: [14, 22], nightmare: [11, 18] } as const;
 		return {
 			p50: p50[difficulty],
 			alive: ALIVE_LIMIT,
