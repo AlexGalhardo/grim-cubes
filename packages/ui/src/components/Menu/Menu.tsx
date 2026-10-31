@@ -18,11 +18,13 @@ export interface MenuActions {
 export interface MenuProps {
 	view: MenuViewModel;
 	actions: MenuActions;
+	/** Build release, shown in the menu (the HUD label hides behind dialogs). */
+	version?: string | undefined;
 	demo?: boolean | undefined;
 }
 
 /** The title screen: shown once when the game opens, before the difficulty choice (GDD 17). */
-export function Menu({ view, actions, demo }: MenuProps): JSX.Element {
+export function Menu({ view, actions, version, demo }: MenuProps): JSX.Element {
 	const play = useRef<HTMLButtonElement>(null);
 	useEffect(() => {
 		play.current?.focus();
@@ -73,6 +75,11 @@ export function Menu({ view, actions, demo }: MenuProps): JSX.Element {
 							))}
 						</ul>
 					</div>
+					{version ? (
+						<div className="mt-3 text-right text-xs opacity-70" data-testid="menu-version">
+							v{version}
+						</div>
+					) : null}
 				</Panel>
 			</div>
 		</div>

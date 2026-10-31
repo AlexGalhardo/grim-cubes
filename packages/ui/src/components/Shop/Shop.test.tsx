@@ -115,3 +115,47 @@ test("has no portrait canvas without a factory", () => {
 	render(<Shop view={view} stats={[]} actions={actions()} />);
 	expect(screen.queryByTestId("shop-portrait")).toBeNull();
 });
+
+function stubShortScreen(short: boolean): void {
+	vi.stubGlobal("matchMedia", (query: string) => ({
+		matches: short && query.includes("max-height"),
+		addEventListener: () => undefined,
+		removeEventListener: () => undefined,
+	}));
+}
+
+test("on a short landscape screen the four offers share one row and the side stats are dropped", () => {
+	stubShortScreen(true);
+	render(<Shop view={view} stats={stats} actions={actions()} />);
+	expect(screen.getByTestId("shop-grid").className).toContain("grid-cols-4");
+	expect(screen.getByTestId("shop-grid").className).not.toContain("grid-cols-2");
+	expect(screen.getByTestId("shop-side").className).not.toContain("mobile-l:flex");
+	expect(screen.getByTestId("shop-buy-3")).toBeTruthy();
+	vi.unstubAllGlobals();
+});
+
+test("on a tall screen the offers keep two columns and the stats panel", () => {
+	stubShortScreen(false);
+	render(<Shop view={view} stats={stats} actions={actions()} />);
+	expect(screen.getByTestId("shop-grid").className).toContain("grid-cols-2");
+	expect(screen.getByTestId("shop-side").className).toContain("mobile-l:flex");
+	vi.unstubAllGlobals();
+});
+
+test("on a short screen the reroll and next buttons sit beside the gold instead of below the offers", () => {
+	stubShortScreen(true);
+	render(<Shop view={view} stats={stats} actions={actions()} />);
+	const gold = screen.getByTestId("shop-gold");
+	const next = screen.getByRole("button", { name: "Próximo round" });
+	expect(gold.parentElement?.contains(next)).toBe(true);
+	vi.unstubAllGlobals();
+	cleanup();
+	stubShortScreen(false);
+	render(<Shop view={view} stats={stats} actions={actions()} />);
+	expect(
+		screen
+			.getByTestId("shop-gold")
+			.parentElement?.contains(screen.getByRole("button", { name: "Próximo round" })),
+	).toBe(false);
+	vi.unstubAllGlobals();
+});

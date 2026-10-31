@@ -1428,6 +1428,8 @@ async function boot(): Promise<void> {
 				progress.gold += amount;
 			},
 			endRound: () => run.forceEnd(world),
+			/** Ends the walk to the Merchant (A-05-01): the shop opens at once. No-op outside `MerchantWait`. */
+			openShop: () => run.enterShop(),
 			/** VFX budget check (P-04-05): off = no particles, no decals, no damage numbers. */
 			setVfx: (on: boolean) => {
 				vfx.setPools(on ? preset.particlePool : 0, on ? preset.decalPool : 0);
