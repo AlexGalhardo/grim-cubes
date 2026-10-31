@@ -485,3 +485,27 @@ describe("boss zones", () => {
 		dispose();
 	});
 });
+
+describe("Matriarch and Forgemaster telegraphs", () => {
+	it("warns with a disc at the pool target, a ring for the scream and a disc under the hammer", () => {
+		const { vfx, world, dispose } = setup();
+		const matriarch = spawnBody(world, 0, 0);
+		Boss.id[matriarch] = 2;
+		vfx.onEvent(EventType.BossPattern, 1, 0, 0, matriarch);
+		vfx.onEvent(EventType.BossTelegraph, 8, 5, 1, matriarch);
+		vfx.onEvent(EventType.BossPattern, 2, 0, 0, matriarch);
+		vfx.onEvent(EventType.BossTelegraph, 0, 1, 1, matriarch);
+		vfx.update(0.1);
+		expect(vfx.zones.poolsLive).toBe(1);
+		expect(vfx.zones.ringsLive).toBe(1);
+		const forger = spawnBody(world, 0, 0);
+		Boss.id[forger] = 3;
+		vfx.onEvent(EventType.BossPattern, 0, 0, 0, forger);
+		vfx.onEvent(EventType.BossTelegraph, 0, 1, 1.2, forger);
+		vfx.update(0.1);
+		expect(vfx.zones.poolsLive).toBe(2);
+		Boss.id[matriarch] = 0;
+		Boss.id[forger] = 0;
+		dispose();
+	});
+});

@@ -6,9 +6,12 @@ import {
 	EnemyType,
 	EventType,
 	enemiesData,
+	enrageMult,
+	heroData,
 	MAX_ENTITIES,
 	Position,
 	renderData,
+	roundsData,
 } from "@gc/game";
 import { CAMERA } from "../scene/camera";
 import { PALETTE } from "../scene/palette";
@@ -26,8 +29,6 @@ const rgb = (hex: string): Rgb => {
 	return [c.r, c.g, c.b];
 };
 
-/** Extra reach of a charge line past its travel distance, so the hit lands inside the drawn warning. */
-const LINE_PAD = 0.5;
 /** How long the scream ring takes to reach its radius. */
 const SCREAM_SECONDS = 0.6;
 const SUMMON_CUBES = 14;
@@ -238,12 +239,27 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 					const value = params?.[key];
 					return typeof value === "number" ? value : fallback;
 				};
+				const bossX = Position.x[entity] ?? 0;
+				const bossZ = Position.z[entity] ?? 0;
 				if (pattern?.id === "shovel_arc") {
 					telegraph.arc(entity, a, b, c, num("range", 3));
 				} else if (pattern?.id === "line_charge") {
+					// The charge runs at the enraged speed and hurts anything its body touches: boss and hero radii count.
 					const reach =
-						(boss?.speed ?? 0) * num("speedMult", 1) * num("chargeSeconds", 0.6) + LINE_PAD;
+						(boss?.speed ?? 0) *
+							enrageMult(roundsData.boss, Boss.enrageStacks[entity] ?? 0) *
+							num("speedMult", 1) *
+							num("chargeSeconds", 0.6) +
+						(boss?.radius ?? 0) +
+						heroData.base.radius;
 					telegraph.line(entity, a, b, c, reach, (boss?.radius ?? 1) * 2);
+				} else if (pattern?.id === "mud_pool") {
+					// a, b = where the pool will form.
+					zones.pool(a, b, num("radius", 2.5), c);
+				} else if (pattern?.id === "scream") {
+					zones.ring(bossX, bossZ, num("radius", 6), c);
+				} else if (pattern?.id === "hammer_shockwave") {
+					zones.pool(bossX, bossZ, num("radius", 7), c);
 				}
 			} else if (type === EventType.BossPool) {
 				// The pool lasts `durationSeconds` of the mud_pool pattern in bosses.json.
@@ -261,14 +277,10 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 				const charge = enemy?.behaviorParams;
 				const speedMult = Number(charge?.speedMult ?? 1);
 				const seconds = Number(charge?.chargeSeconds ?? 0.5);
-				telegraph.line(
-					entity,
-					a,
-					b,
-					c,
-					(enemy?.speed ?? 0) * speedMult * seconds + LINE_PAD,
-					(enemy?.radius ?? 0.5) * 2,
-				);
+				// The charge hurts what the enemy body touches: its radius and the hero's both count.
+				const reach =
+					(enemy?.speed ?? 0) * speedMult * seconds + (enemy?.radius ?? 0) + heroData.base.radius;
+				telegraph.line(entity, a, b, c, reach, (enemy?.radius ?? 0.5) * 2);
 			} else if (type === EventType.BossSummon) {
 				burst(a, b, SUMMON_CUBES, explosionColors, 4, 6, false);
 			} else if (type === EventType.BossDied) {
