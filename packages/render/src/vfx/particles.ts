@@ -27,8 +27,8 @@ export interface ParticlePool {
 		g: number,
 		b: number,
 		lifeSeconds: number,
-		/** Called once when the particle first touches the floor. */
-		landsAsDecal: boolean,
+		/** Called once when the particle first touches the floor; "micro" asks for a small decal. */
+		landsAsDecal: boolean | "micro",
 	): boolean;
 	update(dtSeconds: number): void;
 	/** The world origin moved by (dx, dz). */
@@ -46,7 +46,7 @@ export function createParticlePool(
 	scene: Scene,
 	capacity: number,
 	gravity: number,
-	onLanded: (x: number, z: number) => void,
+	onLanded: (x: number, z: number, micro: boolean) => void,
 ): ParticlePool {
 	const mesh = CreateBox("vfx_particles", { size: 1 }, scene);
 	const material = new StandardMaterial("vfx_particles", scene);
@@ -113,7 +113,7 @@ export function createParticlePool(
 			rgb[i * 3 + 1] = g;
 			rgb[i * 3 + 2] = b;
 			landed[i] = 0;
-			decalOnLand[i] = landsAsDecal ? 1 : 0;
+			decalOnLand[i] = landsAsDecal === "micro" ? 2 : landsAsDecal ? 1 : 0;
 			stats.live = live;
 			if (live > stats.peak) stats.peak = live;
 			return true;
@@ -134,7 +134,7 @@ export function createParticlePool(
 					if ((py[i] ?? 0) <= half) {
 						py[i] = half;
 						landed[i] = 1;
-						if (decalOnLand[i]) onLanded(px[i] ?? 0, pz[i] ?? 0);
+						if (decalOnLand[i]) onLanded(px[i] ?? 0, pz[i] ?? 0, decalOnLand[i] === 2);
 					}
 				}
 				i++;

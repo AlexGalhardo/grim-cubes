@@ -23,6 +23,8 @@ export const PALETTE = {
 	bloodLight: "#8E1A1F",
 	/** --color-flesh: the Nest Queen eggs and the nest biome. */
 	flesh: "#6E2F3F",
+	/** --color-sludge: swamp mud and moss. */
+	sludge: "#6B8F3A",
 	/** --color-mud: the Matriarch pools. */
 	mud: "#4A3B2A",
 	/** --color-ember and --color-ember-light: fire, explosions, projectiles. */
