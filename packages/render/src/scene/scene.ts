@@ -26,6 +26,8 @@ export interface GameScene {
 	setHeroTint(token: string): void;
 	/** The world origin moved by (dx, dz): static geometry shifts by the opposite amount. */
 	shiftWorld(dx: number, dz: number): void;
+	/** Turns the camera rim light on or off (a third light costs the lit materials ~15% of a frame; SDD 14). */
+	setRim(on: boolean): void;
 	dispose(): void;
 }
 
@@ -99,6 +101,9 @@ export function createGameScene(engine: Engine | NullEngine, mobile = false): Ga
 		setHeroPosition(x, z) {
 			hero.position.x = x;
 			hero.position.z = z;
+		},
+		setRim(on) {
+			rim.setEnabled(on);
 		},
 		dispose: () => scene.dispose(),
 	};

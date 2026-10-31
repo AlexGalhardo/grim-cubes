@@ -1505,6 +1505,8 @@ async function boot(): Promise<void> {
 			setVariants: (percent: number) => horde?.setVariantPercent(percent),
 			/** The Merchant the session keeps in the world (fixed spot capture). */
 			merchant: () => session.merchant.view,
+			/** Rim light on or off (the perf cost check). */
+			setRim: (on: boolean) => game.setRim(on),
 			/** Game speed 1, 2 or 3 (perf margin check). */
 			setSpeed: (speed: number) => loop.setSpeed(speed),
 			/**
