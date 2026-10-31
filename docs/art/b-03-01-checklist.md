@@ -30,10 +30,10 @@ Gerado em 2026-10-31 por `tools/assets-gen/checklist.ts` sobre os 76 modelos de 
 | `enemies/leech` | 10/10 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✘ | n/a |
 | `enemies/wail` | 10/10 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✘ | n/a |
 | `enemies/watcher` | 12/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✘ | n/a |
-| `bosses/alpha_hunter` | 23/48 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✘ | n/a |
+| `bosses/alpha_hunter` | 35/48 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✘ | n/a |
 | `bosses/forgemaster` | 23/48 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✘ | n/a |
 | `bosses/gravedigger` | 28/48 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✘ | n/a |
-| `bosses/nest_queen` | 35/48 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✘ | n/a |
+| `bosses/nest_queen` | 44/48 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✘ | n/a |
 | `bosses/swamp_matriarch` | 29/48 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✘ | n/a |
 | `npc/bone_merchant` | 22/28 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✘ | n/a |
 | `props/prop_antenna_01` | 6/8 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✘ | n/a |

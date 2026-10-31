@@ -234,10 +234,10 @@
 	"options.contrast": "Contraste",
 	"options.colorblind": "Modo daltônico",
 	"options.colorblind.off": "Desligado",
-	"options.colorblind.protanopia": "Protanopia",
-	"options.colorblind.deuteranopia": "Deuteranopia",
-	"options.colorblind.tritanopia": "Tritanopia",
-	"options.flash": "Reduzir flashes (sem clarão branco, hit-stop ou tremor)",
+	"options.colorblind.protanopia": "Protanopia (vermelho)",
+	"options.colorblind.deuteranopia": "Deuteranopia (verde)",
+	"options.colorblind.tritanopia": "Tritanopia (azul)",
+	"options.flash": "Reduzir flashes e tremores",
 	"options.uiScale": "Escala da interface",
 	"options.gore": "Gore completo"
 }
