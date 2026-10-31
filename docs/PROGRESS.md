@@ -1,6 +1,6 @@
 # PROGRESS
 
-Atualizado: 2026-10-31 (fuso do PO) | Versão: 0.1.0 (publicada, tag `v0.1.0`, `main` eb12bc2) | Fase: 2 — PROTÓTIPO (itens da ALPHA adiantados em paralelo) | Sessão: #1
+Atualizado: 2026-10-31 (fuso do PO) | Versão: 0.1.0 (publicada, tag `v0.1.0` em eb12bc2; `main` 4a4f19b) | Fase: 2 — PROTÓTIPO (itens da ALPHA adiantados em paralelo) | Sessão: #2
 
 Meta do PO (2026-10-31): implementar o ROADMAP até o fim sem interrupções; tarefas `Resp: PO` ficam em Bloqueios e os agentes seguem com o resto. Hooks lefthook instalados em `.git` (valem para todos os worktrees).
 
@@ -8,11 +8,12 @@ Meta do PO (2026-10-31): implementar o ROADMAP até o fim sem interrupções; ta
 
 | Agente | Tarefa atual | Branch | Estado | Desde | Lock |
 | --- | --- | --- | --- | --- | --- |
-| Orq | integra as branches dos agentes na `main` (release `v0.1.0` feito); PROGRESS | main | em andamento | — | — |
-| S1 | investiga o que continua animando depois do `freeze()` (captura do Coveiro, `toBossFrame`) → A-02-01 (biomas Pântano, Forja e Ninho) | — | implementando | — | — |
-| S2 | A-03-02 (O Forjador) → A-03-03 (roster por round) | — | implementando | — | — |
-| Est | A-07-01: tutorial de 20 s (feito, em branch) e revisão do copy `en` (feita, em branch) → PROGRESS (esta atualização); `feat/A-01-03-perf-ci` parada a pedido do PO | `feat/A-07-01-tutorial` | aguardando merge | — | — |
-| Esp | docs (CHANGELOG, PROGRESS) → auditoria a cada merge | — | em andamento | — | `CHANGELOG.md`, `docs/PROGRESS.md` |
+| Orq | integra as branches dos agentes na `main`; CHANGELOG | main | em andamento | — | — |
+| S1 | R-01-03 (ligar `pickAutoPreset` no `main.tsx`) → render dos chefes 4 e 5 | — | implementando | — | — |
+| S2 | B-01-01 Caçador Alfa e B-01-02 Rainha do Ninho (parte de simulação) | `feat/B-01-01-hunter-alpha-queen` | implementando | — | — |
+| Est | testes de UI com `en` (Notice, nomes de chefe) → próximo `[ ]` de Resp Est sem dependência do PO | — | implementando | — | — |
+| Art | herói no Blockbench via MCP (`docs/art/briefs/hero.md`) | — | implementando | — | — |
+| Esp | reconciliação do ROADMAP (§15.1) → auditoria de eb12bc2..HEAD | main (sem git) | em andamento | — | `ROADMAP.md`, `docs/PROGRESS.md` |
 
 As linhas de S1, S2, Esp e Orq refletem as últimas mensagens do Orq e podem estar defasadas; o Orq confirma ao integrar.
 
