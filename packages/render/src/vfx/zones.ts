@@ -11,6 +11,8 @@ export interface Zones {
 	pool(x: number, z: number, radius: number, seconds: number): void;
 	/** A shockwave ring (the Matriarch scream pattern): expands from the centre to `radius` in `seconds`. */
 	ring(x: number, z: number, radius: number, seconds: number): void;
+	/** A dark shockwave ring (the flash-reduced execution): same motion as `ring`, no bright flash. */
+	wave(x: number, z: number, radius: number, seconds: number): void;
 	/** A ground warning that grows from the centre to `radius` and turns opaque as `seconds` run out (leap, bomb). */
 	warn(x: number, z: number, radius: number, seconds: number): void;
 	update(dtSeconds: number): void;
@@ -18,6 +20,7 @@ export interface Zones {
 	readonly poolsLive: number;
 	readonly ringsLive: number;
 	readonly warnsLive: number;
+	readonly wavesLive: number;
 }
 
 const POOL_CAPACITY = 8;
@@ -83,6 +86,11 @@ export function createZones(game: GameScene): Zones {
 	const warns = createInstanceSet(warnMesh, WARN_CAPACITY, true);
 	const warn = slots(WARN_CAPACITY);
 	let warnCount = 0;
+	const waveMesh = CreateTorus("vfx_wave", { diameter: 2, thickness: 0.2, tessellation: 24 }, game.scene);
+	waveMesh.material = emissive(game, "vfx_wave", PALETTE.mist, true);
+	const waveSet = createInstanceSet(waveMesh, RING_CAPACITY, true);
+	const waveSlots = slots(RING_CAPACITY);
+	let waveCount = 0;
 	const pool = slots(POOL_CAPACITY);
 	const ring = slots(RING_CAPACITY);
 	let poolCount = 0;
@@ -151,6 +159,20 @@ export function createZones(game: GameScene): Zones {
 		get ringsLive(): number {
 			return ringCount;
 		},
+		get wavesLive(): number {
+			return waveCount;
+		},
+		wave(x, z, radius, seconds): void {
+			waveCount = add(
+				waveSlots,
+				waveCount,
+				RING_CAPACITY,
+				x,
+				z,
+				radius,
+				seconds > 0 ? seconds : RING_SECONDS_DEFAULT,
+			);
+		},
 		get warnsLive(): number {
 			return warnCount;
 		},
@@ -175,6 +197,16 @@ export function createZones(game: GameScene): Zones {
 			poolCount = age(pool, poolCount, dt);
 			ringCount = age(ring, ringCount, dt);
 			warnCount = age(warn, warnCount, dt);
+			waveCount = age(waveSlots, waveCount, dt);
+			write(
+				waveSet,
+				waveSlots,
+				waveCount,
+				RING_LAYER,
+				(i) =>
+					(waveSlots.radius[i] ?? 1) * (1 - (waveSlots.left[i] ?? 0) / (waveSlots.total[i] ?? 1)),
+				(i) => (waveSlots.left[i] ?? 0) / (waveSlots.total[i] ?? 1),
+			);
 			write(
 				pools,
 				pool,
@@ -202,6 +234,10 @@ export function createZones(game: GameScene): Zones {
 			);
 		},
 		shift(dx, dz): void {
+			for (let i = 0; i < waveCount; i++) {
+				waveSlots.x[i] = (waveSlots.x[i] ?? 0) - dx;
+				waveSlots.z[i] = (waveSlots.z[i] ?? 0) - dz;
+			}
 			for (let i = 0; i < warnCount; i++) {
 				warn.x[i] = (warn.x[i] ?? 0) - dx;
 				warn.z[i] = (warn.z[i] ?? 0) - dz;

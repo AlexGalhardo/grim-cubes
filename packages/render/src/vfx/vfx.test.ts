@@ -559,6 +559,8 @@ describe("breakables and consumables", () => {
 		expect(view.live).toBe(3);
 		expect((game.scene.getMeshByName("vfx_vials") as Mesh | null)?.thinInstanceCount).toBe(2);
 		expect((game.scene.getMeshByName("vfx_magnets") as Mesh | null)?.thinInstanceCount).toBe(1);
+		expect((game.scene.getMeshByName("vfx_vial_rings") as Mesh | null)?.thinInstanceCount).toBe(2);
+		expect((game.scene.getMeshByName("vfx_magnet_rings") as Mesh | null)?.thinInstanceCount).toBe(1);
 		dispose();
 	});
 });
@@ -709,5 +711,23 @@ describe("bleed and thorns looks", () => {
 		vfx.syncStatus(world, 1 / 60);
 		expect(vfx.particles.stats.peak).toBe(5);
 		dispose();
+	});
+});
+
+describe("flash-reduced execution", () => {
+	it("swaps the bright ring for a dark wave", () => {
+		for (const reduced of [false, true]) {
+			const { vfx, world, dispose } = setup({ flashReduced: () => reduced });
+			const boss = spawnBody(world, 0, 0);
+			Boss.id[boss] = 1;
+			vfx.onEvent(EventType.BossDied, 0, 0, 0, boss);
+			expect([reduced, vfx.zones.ringsLive, vfx.zones.wavesLive]).toEqual([
+				reduced,
+				reduced ? 0 : 1,
+				reduced ? 1 : 0,
+			]);
+			Boss.id[boss] = 0;
+			dispose();
+		}
 	});
 });

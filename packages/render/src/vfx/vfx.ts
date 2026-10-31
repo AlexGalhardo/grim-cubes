@@ -412,7 +412,9 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 					false,
 					PIECE_SIZE_MULT,
 				);
-				if (!options.flashReduced?.()) zones.ring(a, b, FLASH_RADIUS, FLASH_SECONDS);
+				// Flash reduction swaps the bright ring for a dark wave: the same beat, nothing that flashes.
+				if (options.flashReduced?.()) zones.wave(a, b, FLASH_RADIUS, FLASH_SECONDS);
+				else zones.ring(a, b, FLASH_RADIUS, FLASH_SECONDS);
 				executionX = a;
 				executionZ = b;
 				executionNext = 0;

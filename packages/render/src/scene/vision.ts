@@ -64,6 +64,24 @@ const columnMajor = (m: readonly number[]): number[] => [
 	m[8] ?? 0,
 ];
 
+/** The uniforms of each mode, built once at load: nothing is allocated when a mode is selected. */
+const MATRICES: Readonly<
+	Record<Exclude<ColorblindMode, "off">, { simulation: Float32Array; shift: Float32Array }>
+> = {
+	protanopia: {
+		simulation: Float32Array.from(columnMajor(SIMULATION.protanopia)),
+		shift: Float32Array.from(columnMajor(SHIFT.protanopia)),
+	},
+	deuteranopia: {
+		simulation: Float32Array.from(columnMajor(SIMULATION.deuteranopia)),
+		shift: Float32Array.from(columnMajor(SHIFT.deuteranopia)),
+	},
+	tritanopia: {
+		simulation: Float32Array.from(columnMajor(SIMULATION.tritanopia)),
+		shift: Float32Array.from(columnMajor(SHIFT.tritanopia)),
+	},
+};
+
 /**
  * Accessibility look of the game (Options screen): brightness and contrast through the scene's image processing (enabled by default, identity at exposure 1 and contrast 1),
  * the colour-blind correction as a one-pass post-process created only while a mode is on, and the flash-reduction flag
@@ -109,12 +127,11 @@ export function createVision(game: GameScene): Vision {
 			process?.dispose();
 			process = undefined;
 			if (next === "off") return;
-			const simulation = columnMajor(SIMULATION[next]);
-			const shift = columnMajor(SHIFT[next]);
+			const matrices = MATRICES[next];
 			process = new PostProcess("colorblind", SHADER, ["simulation", "shift"], null, 1, camera);
 			process.onApplyObservable.add((effect) => {
-				effect.setMatrix3x3("simulation", simulation as unknown as Float32Array);
-				effect.setMatrix3x3("shift", shift as unknown as Float32Array);
+				effect.setMatrix3x3("simulation", matrices.simulation);
+				effect.setMatrix3x3("shift", matrices.shift);
 			});
 		},
 		setFlashReduction(on): void {
