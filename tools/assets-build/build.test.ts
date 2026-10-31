@@ -285,6 +285,39 @@ describe("buildAssets", () => {
 		expect([png.data[at], png.data[at + 1], png.data[at + 2]]).toEqual([90, 90, 120]);
 	});
 
+	test("the executable and favicon icons in icons/app stay out of the UI atlas and the manifest", async () => {
+		await writeModel("prop_a", {}, 1);
+		const items = join(src, "icons", "item");
+		const app = join(src, "icons", "app");
+		mkdirSync(items, { recursive: true });
+		mkdirSync(app, { recursive: true });
+		writeFileSync(join(items, "rusted_plate.png"), PNG.sync.write(solidPng(32, 32, () => [90, 90, 120])));
+		for (const size of [16, 32, 48, 256]) {
+			writeFileSync(
+				join(app, `app_${size}.png`),
+				PNG.sync.write(solidPng(size, size, () => [250, 10, 10])),
+			);
+		}
+		const manifest = await build();
+		const icons = Object.keys(manifest.entries).filter((id) => id.startsWith("icon_"));
+		expect(icons).toEqual(["icon_item_rusted_plate"]);
+		expect(Object.keys(manifest.entries).some((id) => id.includes("app_"))).toBe(false);
+		// The atlas holds no pixel of the app icon colour: nothing of it was packed.
+		const atlas = manifest.entries.atlas_vfx_ui;
+		const png = PNG.sync.read(readFileSync(join(out, atlas?.url ?? "")));
+		let appPixels = 0;
+		for (let i = 0; i < png.data.length; i += 4) {
+			if (
+				png.data[i] === 250 &&
+				png.data[i + 1] === 10 &&
+				png.data[i + 2] === 10 &&
+				png.data[i + 3] === 255
+			)
+				appPixels++;
+		}
+		expect(appPixels).toBe(0);
+	});
+
 	test("enemies get a baked VAT (.bin RGBA32F plus clip JSON)", async () => {
 		await writeModel("husk", { category: "enemies" }, 1);
 		const manifest = await build();
