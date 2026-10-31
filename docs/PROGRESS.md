@@ -113,4 +113,5 @@ Fonte: IDs dos rodapés `Refs: ROADMAP#` de eb12bc2 a 59d5a42, do commit mais re
 - `reports/` guarda evidência de asserts (`perf-*.json`, `balance-*.json`); os `sim-*.json` regenerados por run ficam no `.gitignore`.
 - `assets/audio-archive/` fica no git (17 MB); se passar de 50 MB, o Orq pergunta ao PO.
 - Pós-processo ffmpeg do `audio-generate` (SDD 08 §3: LUFS, trim, pitch de chefes).
+- `bun audit` (2026-10-31): 3 vulnerabilidades só em ferramentas de desenvolvimento, fora do bundle do jogo: `re2js` 2.8.6 (alta, DoS) e `katex` 0.16.47 (baixa) via `markdownlint-cli2`; `minimatch` (moderada, DoS) via `electron-builder`. Subir `markdownlint-cli2` e `electron-builder` para a primeira versão estável com a correção, com versão exata (sem dependência nova). Conferir a cada release com `bun audit`.
 - Risco: conversor `.bbmodel` validado contra o próprio pipeline e o Babylon; os modelos refinados no Blockbench 5 passam pelo leitor de `groups` separado (4a4f19b).
