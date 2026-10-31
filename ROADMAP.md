@@ -209,7 +209,7 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
 
 ### P-06 Arte e áudio placeholder
 
-- [x] **P-06-01** Modelos (`.bbmodel` gerados por script em `tools/assets-gen` + texturas conforme Art Bible; convertidos para glTF pelo `assets-build`, D5; o PO refina no Blockbench): herói, Carcaça, Lamento, Coveiro, Mercador, 10 props do Cemitério, 4 tiles de chão, 5 armas (meshes na mão). Deps: P-06-02, P-06-07. Resp: S1 (refino visual com o PO no Blockbench). Prio: P0.
+- [ ] **P-06-01** Modelos (`.bbmodel` gerados por script em `tools/assets-gen` + texturas conforme Art Bible; convertidos para glTF pelo `assets-build`, D5; o PO refina no Blockbench): herói, Carcaça, Lamento, Coveiro, Mercador, 10 props do Cemitério, 4 tiles de chão, 5 armas (meshes na mão). Deps: P-06-02, P-06-07. Resp: S1 (refino visual com o PO no Blockbench). Prio: P0.
   - Asserts: `bun run assets:build` exit 0 (validações de elementos, textura, cores, sockets); capturas de cada modelo em `docs/art/review/*.png`; teste de silhueta (preto sólido a 64 px) anexado e aprovado pelo PO em PROGRESS.
 - [x] **P-06-02** `tools/assets-build` (SDD 09): validação, atlas por categoria (MaxRects), reescrita de UV via `@gltf-transform/core` (aprovada; codec PNG `pngjs` aprovado pelo PO em 2026-10-31), manifest com grupos. Deps: E-02-01. Resp: S1. Prio: P0.
   - Asserts: duas execuções seguidas produzem `manifest.json` byte a byte idêntico (sem `generatedAt`); fixtures inválidas (1 por regra) falham com mensagem contendo o nome da regra; a entrada `atlas_characters` do manifest aponta para PNG com hash no nome, 2048×2048.

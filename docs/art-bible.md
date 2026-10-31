@@ -67,6 +67,8 @@ Nenhuma fonte pública forneceu hex das referências; esta paleta é **proposta 
 | Sombra fria | `#2B2340` | sombras projetadas, AO |
 | Névoa | `#3F3A52` | fog distante |
 
+Rampas derivadas (usadas pelos modelos gerados e pelo refino no Blockbench): para cada token, claro = mix(token, `bone`, 0,22) e escuro = mix(token, `shadow`, 0,40). Essas cores contam como paleta oficial; o limite de 12 cores por textura continua valendo.
+
 ### 3.2 Biomas (chão e props dominantes)
 
 | Bioma | Chão | Chão sombra | Acento 1 | Acento 2 |

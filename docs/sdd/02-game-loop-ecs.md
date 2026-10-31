@@ -83,6 +83,8 @@ Entidades são recicladas: `removeEntity` + `addEntity` do bitecs. Nunca criar m
 15. `chunkSystem` — carrega/descarrega chunks pelo anel (SDD 03).
 16. `statsSystem` — recalcula `PlayerStats` derivados quando `dirty` (compra, carta, nó).
 
+Ordem real no PROTÓTIPO (emenda de 2026-10-31, `apps/web/src/main.tsx` e `tools/sim`): `roundSystem`/`spawnSystem` → `inputSystem` → `behaviorSystem` → `separationSystem` → `movementSystem` → `applyOriginShift` → `chunkSystem` → `targetingSystem` → `weaponSystem` → `projectileSystem` → `damageSystem` → `deathSystem` → `pickupSystem` → `statsSystem` → `levelUpSystem`. O input vem depois do round para não mover o herói nas telas de intro/loja, e o `chunkSystem` roda logo após o origin shift para o anel usar a posição do passo. `bossSystem` e `lifetimeSystem` entram nas tarefas que os criam.
+
 Cada sistema é `function system(world: World, step: number): void` e tem teste unitário próprio com world sintético.
 
 ## 3. Determinismo
