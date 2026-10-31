@@ -172,10 +172,10 @@ test("opening a chest heals 25 HP, pauses the run and offers 2 distinct tier 4 i
 		pickupRadius: () => 2.5,
 	});
 	// Out of reach first, then in reach.
-	dropChest(world, 10, 0, 4);
+	dropChest(world, 10, 0, 4, 2, 1);
 	chest.run(world, hero);
 	expect(chest.offer).toBeNull();
-	dropChest(world, 1, 0, 4);
+	dropChest(world, 1, 0, 4, 2, 1);
 	chest.run(world, hero);
 	expect(run.state).toBe("Paused");
 	expect(chest.offer).toHaveLength(2);

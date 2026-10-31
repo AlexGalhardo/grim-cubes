@@ -33,7 +33,8 @@ export const HitFlash = { ticks: u8() };
 /** x, z: total displacement in u to apply over `ticks` steps (movementSystem). */
 export const Knockback = { x: f32(), z: f32(), ticks: u8() };
 export const Elite = { modifier: u8() };
-export const Boss = { id: u8() };
+/** The boss of a round: `phase` 0 before the summon, 1 after; enrage stacks every `enrageEverySeconds`. */
+export const Boss = { id: u8(), phase: u8(), enrageStacks: u8(), enrageTimer: u16() };
 
 export const EnemyType = { id: u8() };
 export const Speed = { value: f32() };
@@ -70,4 +71,5 @@ export const Facing = { yaw: f32() };
 export const Attacking = { ticks: u8() };
 
 /** A reward chest on the floor; opening it offers items of at least this tier. */
-export const Chest = { tier: u8() };
+/** `choices` items are offered and the hero keeps `picks` of them. */
+export const Chest = { tier: u8(), choices: u8(), picks: u8() };

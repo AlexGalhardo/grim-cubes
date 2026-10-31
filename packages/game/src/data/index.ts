@@ -1,4 +1,5 @@
 import biomesJson from "../../../../data/biomes.json";
+import bossesJson from "../../../../data/bosses.json";
 import cardsJson from "../../../../data/cards.json";
 import elitesJson from "../../../../data/elites.json";
 import enemiesJson from "../../../../data/enemies.json";
@@ -15,6 +16,7 @@ import type { EnemyDef } from "../systems/spawn";
 import type { BiomeDef } from "../world/chunkGen";
 import type {
 	BiomeData,
+	BossData,
 	CardsData,
 	ElitesData,
 	EnemyData,
@@ -38,6 +40,7 @@ export const roundsData: RoundsData = roundsJson;
 export const worldData: WorldData = worldJson;
 export const biomesData: readonly BiomeData[] = biomesJson;
 export const cardsData: CardsData = cardsJson;
+export const bossesData: readonly BossData[] = bossesJson;
 export const elitesData: ElitesData = elitesJson;
 export const itemsData: readonly ItemData[] = itemsJson;
 export const propsData: readonly PropData[] = propsJson;
@@ -67,6 +70,8 @@ export function toEnemyDefs(enemies: readonly EnemyData[]): EnemyDef[] {
 
 export type {
 	BiomeData,
+	BossData,
+	BossPatternData,
 	CardsData,
 	EliteModifierData,
 	ElitesData,

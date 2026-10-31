@@ -111,7 +111,14 @@ export function createEliteSystem(deps: EliteSystemDeps): EliteSystem {
 				if (dist <= boom.radius + (Radius.r[hero] ?? 0)) queue.push(hero, boom.damage, e, 0, 0, 0);
 				events.push(EventType.Exploded, x, z, boom.radius, e);
 			}
-			dropChest(world, x, z, config.reward.chest.tier);
+			dropChest(
+				world,
+				x,
+				z,
+				config.reward.chest.tier,
+				config.reward.chest.offered,
+				config.reward.chest.picks,
+			);
 			events.push(EventType.ChestDropped, x, z, 0, 0);
 		},
 		handleHeroHit(source: number, taken: number): void {

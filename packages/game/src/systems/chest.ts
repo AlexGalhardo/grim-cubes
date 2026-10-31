@@ -45,12 +45,13 @@ const chests = createQueryCache([Chest, Position]);
 export function createChestSystem(deps: ChestSystemDeps): ChestSystem {
 	const { reward, items, rng, run, stats, owned, onItemTaken, events, blocked, pickupRadius } = deps;
 	let offer: ChestOffer[] | null = null;
+	let picksLeft = 0;
 
-	function draw(tier: number): ChestOffer[] {
+	function draw(tier: number, count: number): ChestOffer[] {
 		let pool = items.filter((i) => i.tier >= tier);
 		if (pool.length === 0) pool = [...items];
 		const out: ChestOffer[] = [];
-		while (out.length < reward.chest.offered && pool.length > 0) {
+		while (out.length < count && pool.length > 0) {
 			const [pick] = pool.splice(rng.int(pool.length), 1);
 			if (pick) out.push({ id: pick.id, name: pick.name, tier: pick.tier, modifiers: pick.modifiers });
 		}
@@ -70,7 +71,8 @@ export function createChestSystem(deps: ChestSystemDeps): ChestSystem {
 			for (let i = 0; i < list.length; i++) {
 				const c = list[i] ?? 0;
 				if (Math.hypot((Position.x[c] ?? 0) - hx, (Position.z[c] ?? 0) - hz) > reach) continue;
-				offer = draw(Chest.tier[c] ?? reward.chest.tier);
+				offer = draw(Chest.tier[c] || reward.chest.tier, Chest.choices[c] || reward.chest.offered);
+				picksLeft = Math.min(Chest.picks[c] || reward.chest.picks, offer.length);
 				removeEntity(world, c);
 				Health.hp[hero] = Math.min((Health.hp[hero] ?? 0) + reward.healHp, Health.max[hero] ?? 0);
 				run.pause();
@@ -84,8 +86,13 @@ export function createChestSystem(deps: ChestSystemDeps): ChestSystem {
 			stats.add(picked.modifiers);
 			owned.set(picked.id, (owned.get(picked.id) ?? 0) + 1);
 			onItemTaken();
-			offer = null;
-			run.resume();
+			// The taken item leaves the offer; with picks left the screen stays up for the rest.
+			offer = offer?.filter((_, i) => i !== index) ?? null;
+			picksLeft--;
+			if (picksLeft <= 0 || offer === null || offer.length === 0) {
+				offer = null;
+				run.resume();
+			}
 			return true;
 		},
 	};

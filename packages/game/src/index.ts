@@ -1,5 +1,7 @@
 export type {
 	BiomeData,
+	BossData,
+	BossPatternData,
 	CardsData,
 	EliteModifierData,
 	ElitesData,
@@ -13,6 +15,7 @@ export type {
 } from "./data";
 export {
 	biomesData,
+	bossesData,
 	cardsData,
 	elitesData,
 	enemiesData,
@@ -102,6 +105,8 @@ export type { HeroStatsData, Modifier, PlayerStats, StatCaps } from "./rules/sta
 export { computeStats, createPlayerStats, STAT_FIELDS } from "./rules/stats";
 export type { BehaviorConfig, BehaviorSystem } from "./systems/behavior";
 export { BehaviorKind, createBehaviorSystem } from "./systems/behavior";
+export type { BossSystem, BossSystemDeps, BossView } from "./systems/boss";
+export { bossMaxHp, createBossSystem, enrageMult } from "./systems/boss";
 export type { ChestOffer, ChestSystem, ChestSystemDeps } from "./systems/chest";
 export { createChestSystem } from "./systems/chest";
 export type { DamageQueue, DamageSystem, DamageSystemDeps, HeroCombatStats } from "./systems/damage";

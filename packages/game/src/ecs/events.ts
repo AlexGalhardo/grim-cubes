@@ -29,6 +29,14 @@ export const EventType = {
 	ChestDropped: 15,
 	/** An elite chest was opened and the offer is on screen. */
 	ChestOpened: 16,
+	/** a, b = unit direction x, z; c = seconds until the hit lands; entity = the boss. */
+	BossTelegraph: 17,
+	/** a, b = x, z of the summoner; c = number summoned. */
+	BossSummon: 18,
+	/** a, b = x, z; the boss died. */
+	BossDied: 19,
+	/** a = new enrage stack count. */
+	BossEnraged: 20,
 	/** a = new level. The run paused and a card offer is waiting. */
 	LevelUp: 11,
 } as const;

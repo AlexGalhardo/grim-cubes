@@ -68,7 +68,17 @@ export type WeaponData = WeaponDef & { id: string; name: string };
 export interface RoundsData {
 	flow: RunConfig["flow"];
 	duration: RunConfig["duration"];
-	boss: RunConfig["boss"] & { soulsBase: number; soulsPerRound: number };
+	boss: RunConfig["boss"] & {
+		soulsBase: number;
+		soulsPerRound: number;
+		enrageEverySeconds: number;
+		enrageDamageSpeedBonus: number;
+		contactDamageBase: number;
+		contactDamagePerRound: number;
+		hpScalePerTenRounds: number;
+		rewardChest: { minTier: number; offered: number; picks: number };
+		freeWeaponUpgrades: number;
+	};
 	ai: { separationWeight: number; attackAnimationSeconds: number };
 	spawn: SpawnConfig;
 	biomeMix: Record<string, Record<string, number>>;
@@ -195,4 +205,23 @@ export interface ElitesData {
 	entryDelaySeconds: number;
 	reward: { chest: { tier: number; offered: number; picks: number }; souls: number; healHp: number };
 	modifiers: EliteModifierData[];
+}
+
+export interface BossPatternData {
+	id: string;
+	params?: Record<string, number | string | boolean>;
+}
+
+/** One entry of `data/bosses.json`. Only the PROTOTYPE boss carries `radius` and `speed` so far. */
+export interface BossData {
+	id: string;
+	name: string;
+	round: number;
+	hpBaseRound10: number;
+	radius?: number;
+	speed?: number;
+	patternCooldownSeconds?: number;
+	archetype: string;
+	delivery: string;
+	patterns: BossPatternData[];
 }

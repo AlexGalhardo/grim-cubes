@@ -10,11 +10,23 @@
 			{
 				"id": "line_charge",
 				"params": {
-					"telegraphSeconds": 1
+					"telegraphSeconds": 1,
+					"chargeSeconds": 0.6,
+					"speedMult": 4,
+					"recoverSeconds": 1,
+					"minDistance": 5
 				}
 			},
 			{
-				"id": "shovel_arc"
+				"id": "shovel_arc",
+				"params": {
+					"windupSeconds": 0.6,
+					"arcDegrees": 120,
+					"range": 3,
+					"damageMult": 1.5,
+					"recoverSeconds": 0.8,
+					"maxDistance": 3.5
+				}
 			},
 			{
 				"id": "summon",
@@ -24,7 +36,10 @@
 					"atHpFraction": 0.5
 				}
 			}
-		]
+		],
+		"radius": 1.2,
+		"speed": 2.4,
+		"patternCooldownSeconds": 1.5
 	},
 	{
 		"id": "swamp_matriarch",
