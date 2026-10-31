@@ -576,6 +576,22 @@ describe("chain shot telegraph", () => {
 	});
 });
 
+describe("boss executions", () => {
+	it("throws large pieces in the boss palette and a flash ring, one execution per boss", () => {
+		for (const id of ["gravedigger", "swamp_matriarch", "forgemaster", "alpha_hunter", "nest_queen"]) {
+			const { vfx, world, dispose } = setup();
+			const boss = spawnBody(world, 2, 2);
+			Boss.id[boss] = bossesData.findIndex((b) => b.id === id) + 1;
+			vfx.onEvent(EventType.BossDied, 2, 2, 0, boss);
+			vfx.update(0.01);
+			expect([id, vfx.particles.stats.live >= 16]).toEqual([id, true]);
+			expect([id, vfx.zones.ringsLive]).toEqual([id, 1]);
+			Boss.id[boss] = 0;
+			dispose();
+		}
+	});
+});
+
 describe("bosses 4 and 5", () => {
 	const idOf = (id: string): number => bossesData.findIndex((b) => b.id === id) + 1;
 
