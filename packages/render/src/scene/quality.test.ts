@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { createNullEngine } from "../engine";
 import {
 	applyPreset,
+	choosePresetId,
 	createDynamicScaler,
 	hardwareInfo,
 	pickAutoPreset,
@@ -141,5 +142,13 @@ describe("auto preset from the browser hardware (R-01-03)", () => {
 
 	it("picks Minimum on a 2 GB Android", () => {
 		expect(android({ hardwareConcurrency: 8, deviceMemory: 2 }, "Mali-G52")).toBe("minimum");
+	});
+});
+
+describe("choosePresetId", () => {
+	it("orders query > bench/debug default > hardware pick", () => {
+		expect(choosePresetId("low", true, "minimum", "high")).toBe("low");
+		expect(choosePresetId(null, true, "minimum", "high")).toBe("high");
+		expect(choosePresetId(null, false, "minimum", "high")).toBe("minimum");
 	});
 });

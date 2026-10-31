@@ -68,6 +68,7 @@ import {
 	auraHex,
 	CAMERA,
 	type Character,
+	choosePresetId,
 	createAtmosphere,
 	createBenchRecorder,
 	createCharacters,
@@ -429,12 +430,18 @@ async function boot(): Promise<void> {
 		navigator as { hardwareConcurrency?: number; deviceMemory?: number },
 		render.engine.getGlInfo().renderer,
 	);
-	const autoId = pickAutoPreset(presetsData.auto, hardware);
-	const preset =
-		presetsData.presets.find((p) => p.id === forced) ??
-		presetsData.presets.find((p) => p.id === autoId) ??
-		presetsData.presets[0];
-	log.info("preset", { id: preset?.id, reason: forced ? "query" : "auto", hardware });
+	const presetId = choosePresetId(
+		forced,
+		__DEBUG_API__ && (bench !== null || params.has("debug")),
+		pickAutoPreset(presetsData.auto, hardware),
+		presetsData.default,
+	);
+	const preset = presetsData.presets.find((p) => p.id === presetId) ?? presetsData.presets[0];
+	log.info("preset", {
+		id: preset?.id,
+		reason: forced ? "query" : presetId === presetsData.default ? "default" : "auto",
+		hardware,
+	});
 	if (!preset) throw new Error("data/presets.json has no preset");
 	let applied = applyPreset(game, render.engine, preset);
 	spawn.setCap(preset.enemyCap);
