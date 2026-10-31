@@ -16,6 +16,8 @@ export interface BenchResult {
 	drawCalls: number;
 	drawCallsAvg: number;
 	activeMeshes: number;
+	/** Mesh names at the peak (only rewritten when the peak grows), to see what fills the budget. */
+	activeMeshNames: string[];
 	/** `performance.memory.usedJSHeapSize` in MB at start and end; null where the browser does not expose it. */
 	heapMB: { start: number; end: number; delta: number } | null;
 }
@@ -61,6 +63,7 @@ export function createBenchRecorder(
 	let drawSum = 0;
 	let drawMax = 0;
 	let activeMax = 0;
+	let activeNames: string[] = [];
 	let recording = false;
 
 	engine.onEndFrameObservable.add(() => {
@@ -71,7 +74,13 @@ export function createBenchRecorder(
 			drawSum += draws;
 			if (draws > drawMax) drawMax = draws;
 			const active = scene.getActiveMeshes().length;
-			if (active > activeMax) activeMax = active;
+			if (active > activeMax) {
+				activeMax = active;
+				activeNames = scene
+					.getActiveMeshes()
+					.data.slice(0, active)
+					.map((m) => m.name);
+			}
 		}
 		last = t;
 	});
@@ -85,6 +94,7 @@ export function createBenchRecorder(
 			drawSum = 0;
 			drawMax = 0;
 			activeMax = 0;
+			activeNames = [];
 			startHeap = heapMB();
 			startTime = now();
 			recording = true;
@@ -106,6 +116,7 @@ export function createBenchRecorder(
 				drawCalls: drawMax,
 				drawCallsAvg: count > 0 ? drawSum / count : 0,
 				activeMeshes: activeMax,
+				activeMeshNames: activeNames,
 				heapMB:
 					startHeap !== null && endHeap !== null
 						? { start: startHeap, end: endHeap, delta: endHeap - startHeap }

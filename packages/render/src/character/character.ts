@@ -6,6 +6,7 @@ import { Color3 } from "@babylonjs/core/Maths/math.color";
 import type { AbstractMesh } from "@babylonjs/core/Meshes/abstractMesh";
 import { TransformNode } from "@babylonjs/core/Meshes/transformNode";
 import type { Scene } from "@babylonjs/core/scene";
+import { hideEmptyMeshes } from "../assets/gameAssets";
 
 export interface CharacterOptions {
 	/** Seconds a clip takes to fade in while the previous one fades out (SDD 09: 0.1). */
@@ -58,6 +59,7 @@ export async function loadCharacter(
 ): Promise<Character> {
 	await import("@babylonjs/loaders/glTF");
 	const result = await ImportMeshAsync(url, scene, { pluginExtension: ".glb" });
+	hideEmptyMeshes(result.meshes);
 	const groups = new Map<string, AnimationGroup>();
 	for (const group of result.animationGroups) {
 		group.stop();
