@@ -35,7 +35,11 @@
 				"properties": {
 					"id": { "$ref": "common.schema.json#/$defs/id" },
 					"name": { "type": "string", "minLength": 1 },
-					"tint": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" }
+					"tint": {
+						"type": "string",
+						"pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
+						"description": "Name of a theme.css colour token (without the --color- prefix); render keeps the same name in PALETTE."
+					}
 				}
 			}
 		}

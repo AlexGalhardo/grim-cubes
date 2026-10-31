@@ -22,8 +22,8 @@ export interface GameScene {
 	/** The hero cube; its position is what the camera and the prop fade look at. */
 	readonly hero: Mesh;
 	setHeroPosition(x: number, z: number): void;
-	/** Cosmetic skin: recolors the hero cube (GDD 20, round 50 skin). */
-	setHeroTint(hex: string): void;
+	/** Cosmetic skin (GDD 20, round 50): recolors the hero cube with a theme.css token name such as "iron-black". */
+	setHeroTint(token: string): void;
 	/** The world origin moved by (dx, dz): static geometry shifts by the opposite amount. */
 	shiftWorld(dx: number, dz: number): void;
 	dispose(): void;
@@ -76,7 +76,12 @@ export function createGameScene(engine: Engine | NullEngine, mobile = false): Ga
 			ground.position.z -= dz;
 			ground.freezeWorldMatrix();
 		},
-		setHeroTint(hex) {
+		setHeroTint(token) {
+			const key = token.replace(/-([a-z0-9])/g, (_, c: string) =>
+				c.toUpperCase(),
+			) as keyof typeof PALETTE;
+			const hex = PALETTE[key];
+			if (hex === undefined) throw new RangeError(`unknown palette token "${token}"`);
 			const material = hero.material;
 			if (!(material instanceof StandardMaterial)) return;
 			material.unfreeze();

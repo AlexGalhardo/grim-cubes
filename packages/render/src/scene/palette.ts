@@ -23,6 +23,8 @@ export const PALETTE = {
 	ironDark: "#2E3136",
 	/** --color-iron: reduced-gore death cubes. */
 	iron: "#5A5F66",
+	/** --color-iron-black: the "Carrasco de Ferro Negro" skin (round 50). */
+	ironBlack: "#2B2A33",
 	/** Elite auras (data/elites.json `aura`): steel_gray, amber, wine and orange map to these tokens. */
 	ironLight: "#8A9099",
 	/** Directional "dead sun" colour (Art Bible §4); not a UI token. */

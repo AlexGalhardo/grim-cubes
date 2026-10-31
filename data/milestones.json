@@ -21,5 +21,5 @@
 			"unlocksSkin": "iron_executioner"
 		}
 	],
-	"skins": [{ "id": "iron_executioner", "name": "Carrasco de Ferro Negro", "tint": "#2b2a33" }]
+	"skins": [{ "id": "iron_executioner", "name": "Carrasco de Ferro Negro", "tint": "iron-black" }]
 }
