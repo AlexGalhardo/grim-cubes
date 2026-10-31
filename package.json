@@ -25,6 +25,7 @@
 		"test:e2e": "playwright test",
 		"test:smoke": "bun tools/smoke/run.ts",
 		"sim": "bun tools/sim/index.ts",
+		"assets:gen": "bun tools/assets-gen/index.ts",
 		"assets:build": "bun tools/assets-build/index.ts",
 		"audio:generate": "bun tools/audio-generate/index.ts",
 		"data:check": "bun tools/data-check/index.ts",
