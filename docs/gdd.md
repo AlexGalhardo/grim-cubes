@@ -529,7 +529,7 @@ Exemplos: item base 20 no round 1 = 24; no round 10 = 60. Reroll no round 10: 11
 
 ### 17.3 Mercador de Ossos (NPC)
 
-- Visual: esqueleto alto com capa de couro e um carrinho de ossos; no ALPHA, surge a 4 u do herói ao fim do round, com animação de "emerge do chão".
+- Visual: esqueleto alto com capa de couro e um carrinho de ossos; no ALPHA, surge parado a 6 u do herói ao fim do round (`rounds.json` `merchant.distance`), do lado oposto aos inimigos, com animação de "emerge do chão"; o herói anda até ele (A-05-01, decisão do Orq de 2026-10-31).
 - Voz (D24): ~20 falas (saudação, compra, sem ouro, reroll, lock, despedida, round de chefe à frente).
 - Pós-1.0: ofertas especiais do Mercador (1 item Lendário com desconto a cada 10 rounds).
 
