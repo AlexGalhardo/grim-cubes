@@ -1,0 +1,9 @@
+{
+	"prompt": "deep tolling iron bell with a short dark choir swell, cold metal, heavy tone, medium distance, no music melody, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 1.2,
+	"generatedAt": "2026-10-31T15:37:12.918Z",
+	"plan": "creator",
+	"hash": "75cc24e638667bc28d30fe927e254ae8543a28a1015c9b0794ed6c22a04e2fea",
+	"promptInfluence": 0.5
+}
