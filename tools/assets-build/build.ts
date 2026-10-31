@@ -103,6 +103,7 @@ function readSizeClasses(dataDir: string | undefined): Map<string, SizeClass> {
 async function load(
 	item: { category: Category; name: string; path: string },
 	sizeClasses: ReadonlyMap<string, SizeClass>,
+	requireClass: boolean,
 ): Promise<Loaded> {
 	const isBbmodel = item.path.endsWith(".bbmodel");
 	const pngPath = item.path.replace(/(\.glb|\.bbmodel)$/, "_d.png");
@@ -110,6 +111,19 @@ async function load(
 	let extensionsUsed: string[];
 	if (isBbmodel) {
 		const model = parseBbmodel(item.name, readFileSync(item.path, "utf8"));
+		// With a data directory the size class is mandatory for enemies and props: silently falling back to the
+		// category maximum would let an oversized model through.
+		if (
+			requireClass &&
+			(item.category === "enemies" || item.category === "props") &&
+			!sizeClasses.has(item.name)
+		) {
+			throw new RuleError(
+				"bbmodel-size-class",
+				item.name,
+				`no sizeClass for ${item.category} "${item.name}" in data/`,
+			);
+		}
 		validateBbmodel(item.name, item.category, model, sizeClasses.get(item.name));
 		document = bbmodelToDocument(item.name, item.category, model);
 		rigidSkin(item.name, document, { skin: SKINNED.includes(item.category) });
@@ -164,7 +178,7 @@ export async function buildAssets(options: BuildOptions): Promise<Manifest> {
 	const items = listModels(options.srcDir);
 	const loaded: Loaded[] = [];
 	const sizeClasses = readSizeClasses(options.dataDir);
-	for (const item of items) loaded.push(await load(item, sizeClasses));
+	for (const item of items) loaded.push(await load(item, sizeClasses, options.dataDir !== undefined));
 
 	rmSync(join(options.outDir, "models"), { recursive: true, force: true });
 	rmSync(join(options.outDir, "vat"), { recursive: true, force: true });

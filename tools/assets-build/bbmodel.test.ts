@@ -315,6 +315,22 @@ describe("assets-build with a .bbmodel", () => {
 		await expect(buildAssets(options)).resolves.toBeDefined();
 	});
 
+	it("requires a size class for enemies and props when a data directory is given", async () => {
+		const dir = join(root, "src", "models", "enemies");
+		mkdirSync(dir, { recursive: true });
+		writeFileSync(join(dir, "husk.bbmodel"), JSON.stringify(makeEnemy()));
+		const png = new PNG({ width: 32, height: 32 });
+		for (let i = 0; i < 32 * 32; i++) png.data.set([60, 50, 90, 255], i * 4);
+		writeFileSync(join(dir, "husk_d.png"), PNG.sync.write(png));
+		const data = join(root, "data");
+		mkdirSync(data, { recursive: true });
+		writeFileSync(join(data, "enemies.json"), JSON.stringify([{ id: "other", sizeClass: "small" }]));
+
+		const options = { srcDir: join(root, "src"), outDir: join(root, "out"), version: "1.0.0" };
+		await expect(buildAssets({ ...options, dataDir: data })).rejects.toThrow("[bbmodel-size-class]");
+		await expect(buildAssets(options)).resolves.toBeDefined();
+	});
+
 	it("fails the build with the rule name for an invalid .bbmodel", async () => {
 		const dir = join(root, "src", "models", "props");
 		mkdirSync(dir, { recursive: true });
