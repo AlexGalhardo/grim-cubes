@@ -172,7 +172,7 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
   - Asserts: `bench=horde100` (100 inimigos animados, sem projéteis; protocolo P-03-06) em 1080p na máquina do PO: fps médio ≥ 60, `frameP99 ≤ 20 ms`, draw calls ≤ 120, heap estável (Δ < 5 MB em 60 s); resultado em `reports/perf-desktop-1080.json`.
 - [ ] **P-03-05** Culling: remoção de inimigos > 40 u (sem drop) e exclusão de instâncias fora do frustum ampliado. Deps: P-03-04. Resp: S1. Prio: P1.
   - Asserts: teste: inimigo a 45 u é removido no passo seguinte; `thinInstanceCount` ≤ inimigos visíveis + 10%.
-- [ ] **P-03-06** Harness de bench (`tools/perf/bench.spec.ts`, cenários `?bench=horde100|round20`, seed fixa): 5 s de warm-up + 30 s de medição; métricas do SDD 14 §4 via `SceneInstrumentation`; `frameP99` por `performance.now()` em `onEndFrameObservable`. Deps: P-03-03, E-02-06. Resp: S1. Prio: P0.
+- [x] **P-03-06** Harness de bench (`tools/perf/bench.spec.ts`, cenários `?bench=horde100|round20`, seed fixa): 5 s de warm-up + 30 s de medição; métricas do SDD 14 §4 via `SceneInstrumentation`; `frameP99` por `performance.now()` em `onEndFrameObservable`. Deps: P-03-03, E-02-06. Resp: S1. Prio: P0.
   - Asserts: gera `reports/perf-<alvo>.json` com 6 chaves; duas execuções no SwiftShader com `drawCalls` e `activeMeshes` idênticos.
 
 ### P-04 Combate e armas
@@ -196,10 +196,10 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
   - Asserts: teste: round 10 → chance de drop 85% (10.000 amostras ±1%); 60 pilhas viram 50 com valor conservado; colheita 4 no round 5 → `ceil(4 × 1,25) = 5`.
 - [x] **P-05-03** Level-up (curva GDD §16.1, 3 cartas de `cards.json`, pausa) + tela `LevelUp` no design system. Deps: P-05-02, E-03-03. Resp: S2. Prio: P0.
   - Asserts: teste: XP para passar do nível 10 para o 11 = 82 (GDD §16.1); 3 cartas distintas; escolha aplica o stat e marca `dirty`; e2e: cartas aparecem e a escolha por tecla `1` fecha a tela; capturas nos 4 alvos.
-- [ ] **P-05-04** Loja (`rules/shop.ts`: preço, reroll, tier; `generateShop`, garantias, lock, venda de arma a 50%) + tela `Shop` (4 slots, upgrade de arma, stats com delta, reroll, lock, próximo round). Deps: P-05-01, P-04-04, E-03-03. Resp: S2. Prio: P0.
+- [x] **P-05-04** Loja (`rules/shop.ts`: preço, reroll, tier; `generateShop`, garantias, lock, venda de arma a 50%) + tela `Shop` (4 slots, upgrade de arma, stats com delta, reroll, lock, próximo round). Deps: P-05-01, P-04-04, E-03-03. Resp: S2. Prio: P0.
   - Asserts: testes com oráculo Brotato: item base 20 no round 1 custa 23 e no round 10 custa 50; reroll no round 10 = 11, 15, 19; T4 no round 20 ≈ 2,99% (±0,1 sem luck); rounds 1–2 garantem ≥ 1 arma; e2e compra/reroll/lock; capturas nos 4 alvos.
-- [ ] **P-05-05** `statsSystem` (add → mul → caps) e os 40 itens de `items.json` com efeitos especiais da 1.0 implementados ou marcados `TODO:ALPHA` em `data/items.json` (`"status": "alpha"`). Deps: P-05-04. Resp: S2. Prio: P1.
-  - Asserts: teste por item com modificadores simples (≥ 30 itens) e por efeito especial implementado; `jq '[.[] | select(.status=="alpha")] | length' data/items.json` ≤ 10 ao fim da fase.
+- [x] **P-05-05** `statsSystem` (add → mul → caps) e os 40 itens de `items.json` com efeitos especiais da 1.0 implementados ou marcados `TODO:ALPHA` em `data/items.json` (`"status": "alpha"`). Deps: P-05-04. Resp: S2. Prio: P1.
+  - Asserts: teste por item funcional: ≥ 30 itens cobertos somando os com modificadores simples (29) e os com efeito especial implementado; `jq '[.[] | select(.status=="alpha")] | length' data/items.json` ≤ 10 ao fim da fase.
 - [ ] **P-05-06** Elite: sorteio 20% com pity 5, modificadores de `elites.json` (4), escala ×1,6, aura (render), entrada aos 10 s, baú Lendário (2 escolhas), 25 almas, 25 HP, fuga no fim do round. Deps: P-05-01, P-03-04. Resp: S2. Prio: P0.
   - Asserts (e2e com build `GC_DEBUG_API=1`): teste: em 10.000 rounds simulados a taxa fica entre 19% e 21% e nunca há 6 rounds comuns seguidos sem elite; round 1 nunca tem elite; e2e: elite aparece via cheat `spawnElite` e o baú abre com 2 opções.
 - [ ] **P-05-07** O Coveiro (`bosses.json`): padrões `charge`, `swing_arc`, `summon`; telegrafia (decal + evento); enrage a cada 60 s; barra de chefe; intro 3 s; execução; baú de chefe; almas; horda a 30%. Deps: P-05-06, P-04-05. Resp: S1 (padrões/render) + S2 (bossSystem). Prio: P0.

@@ -87,6 +87,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **web:** Add the model review route and silhouette captures (`docs/art/review`); freeze the horde while paused ([c7dc306](https://github.com/AlexGalhardo/grim-cubes/commit/c7dc3063682cb968a6572fc96cc3a1cb8e1ae8eb))
 - **e2e:** Add Cemetery world captures and refresh baselines with the horde, glb props and cube floor ([c8904fa](https://github.com/AlexGalhardo/grim-cubes/commit/c8904fa967b85b3f96db6cff91c0790708bf9308))
 - **docs:** Amend SDD 02/04/05 to match the implemented ECS, combat, spawn and data loaders
+- **game:** Add shop rules (price inflation, reroll, tiers, guarantees, lock, sell) and shop system ([7bbb801](https://github.com/AlexGalhardo/grim-cubes/commit/7bbb801a0b0d62875d4aacab78f986731abe7b9e))
+- **ui:** Add the Shop screen and open it between rounds ([8122209](https://github.com/AlexGalhardo/grim-cubes/commit/8122209b75c93288876a65715e5186ef7dbc38dd))
+- **e2e:** Add shop e2e and per-worktree preview port (`GC_E2E_PORT`) ([9098583](https://github.com/AlexGalhardo/grim-cubes/commit/9098583f73f7580f5f4153805a7e0061b2c2f856))
+- **game:** Fix pickup range as a percentage, add `free_rerolls`, reject unknown stats, cap hero speed ([bf05c9c](https://github.com/AlexGalhardo/grim-cubes/commit/bf05c9c89a78607ecb486112d7e28aa5123696f1))
+- **web:** Pause the loop while the tab is hidden ([470dffc](https://github.com/AlexGalhardo/grim-cubes/commit/470dffc712d96565c443dcde5c8f6165327fa00e))
+- **perf:** Add the bench recorder, `horde100`/`round20` scenarios and Playwright bench harness (`test:perf`) ([2ec32bf](https://github.com/AlexGalhardo/grim-cubes/commit/2ec32bf8208bc35610034fd47f5aa8fb2bcfd289))
+- **game:** Add item special effects (8 of 13 implemented, 5 marked alpha) ([363ad89](https://github.com/AlexGalhardo/grim-cubes/commit/363ad89d013065ca8b2d277e63592eaf9730db67))
 - **ci:** Add CI (lint, typecheck, unit, integration, build-web, e2e gated) and CodeQL workflows (#1) ([da8923e](https://github.com/AlexGalhardo/grim-cubes/commit/da8923ee65069ec95a017f53a20937718c27413b))
 
 ### Changed
