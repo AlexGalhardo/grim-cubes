@@ -4,7 +4,7 @@ Decisões: D19 (Electron + electron-builder), D28 (web = demo), D29 (Android 1.1
 
 ## 1. Web (Vite 8)
 
-- `apps/web/vite.config.ts`: plugins `@vitejs/plugin-react` e `@tailwindcss/vite`; `build.target: "es2022"`; `assetsInclude: ["**/*.glb", "**/*.ktx2"]`; `build.rolldownOptions.output.manualChunks` separando `babylon` (core), `react`, `game`; `define` com `__APP_VERSION__` (do `package.json`) e `__BUILD_TARGET__` (`"web" | "electron" | "android"`).
+- `apps/web/vite.config.ts`: plugins `@vitejs/plugin-react` e `@tailwindcss/vite`; `build.target: "es2022"`; `assetsInclude: ["**/*.glb", "**/*.ktx2"]`; `build.rolldownOptions.output.manualChunks` separando `babylon` (core), `react`, `game`; `define` com `__APP_VERSION__` (do `package.json`), `__BUILD_TARGET__` (`"web" | "electron" | "android"`) e `__DEBUG_API__` (verdadeiro só com `GC_DEBUG_API=1`; o build de e2e liga, o de release não).
 - Modos: `vite build --mode web-demo` (define `__IS_DEMO__ = true`), `--mode electron`, `--mode android`. Flags de demo vêm do build, não de runtime (ADR-0012).
 - Assets grandes em `public/assets` com hash no nome (gerado pelo pipeline), servidos com `Cache-Control: public, max-age=31536000, immutable`.
 - `vercel.json`: `rewrites` SPA (`/(.*)` → `/index.html`) e `headers` de cache para `/assets/*`; sem COOP/COEP (não há SharedArrayBuffer).
