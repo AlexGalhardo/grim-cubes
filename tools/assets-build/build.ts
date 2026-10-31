@@ -5,7 +5,9 @@ import { type Document, Logger, NodeIO } from "@gltf-transform/core";
 import { PNG } from "pngjs";
 import { bakeVat } from "../bake-vat/bake";
 import { ATLAS_SIZE, type Placement, packSprites, renderAtlas, type Sprite } from "./atlas";
+import { bbmodelToDocument, parseBbmodel, validateBbmodel } from "./bbmodel";
 import { packGlb } from "./glb";
+import { rigidSkin } from "./rigidSkin";
 import { CATEGORIES, type Category, type ModelInput, RuleError, validateModel } from "./rules";
 
 export type AtlasName = "atlas_characters" | "atlas_props";
@@ -52,6 +54,9 @@ interface Loaded {
 	atlas: AtlasName;
 }
 
+/** Categories whose models are skinned (every group a bone); the rest are merged static meshes. */
+const SKINNED: readonly Category[] = ["hero", "enemies", "bosses", "npc"];
+
 const io = new NodeIO().setLogger(new Logger(Logger.Verbosity.ERROR));
 
 function digest(bytes: Uint8Array): string {
@@ -63,24 +68,41 @@ function listModels(srcDir: string): { category: Category; name: string; path: s
 	for (const category of CATEGORIES) {
 		const dir = join(srcDir, "models", category);
 		if (!existsSync(dir)) continue;
-		for (const file of readdirSync(dir).sort()) {
-			if (file.endsWith(".glb"))
+		const files = readdirSync(dir).sort();
+		const sources = new Set(files.filter((f) => f.endsWith(".bbmodel")).map((f) => f.slice(0, -8)));
+		for (const file of files) {
+			// A `.bbmodel` is the source of truth (D5); a `.glb` with the same stem is a stale export and is ignored.
+			if (file.endsWith(".bbmodel"))
+				found.push({ category, name: file.slice(0, -8), path: join(dir, file) });
+			else if (file.endsWith(".glb") && !sources.has(file.slice(0, -4))) {
 				found.push({ category, name: file.slice(0, -4), path: join(dir, file) });
+			}
 		}
 	}
 	return found;
 }
 
 async function load(item: { category: Category; name: string; path: string }): Promise<Loaded> {
-	const bytes = new Uint8Array(readFileSync(item.path));
-	const json = await io.binaryToJSON(bytes);
-	const document = await io.readBinary(bytes);
-	const pngPath = item.path.replace(/\.glb$/, "_d.png");
+	const isBbmodel = item.path.endsWith(".bbmodel");
+	const pngPath = item.path.replace(/(\.glb|\.bbmodel)$/, "_d.png");
+	let document: Document;
+	let extensionsUsed: string[];
+	if (isBbmodel) {
+		const model = parseBbmodel(item.name, readFileSync(item.path, "utf8"));
+		validateBbmodel(item.name, item.category, model);
+		document = bbmodelToDocument(item.name, item.category, model);
+		rigidSkin(item.name, document, { skin: SKINNED.includes(item.category) });
+		extensionsUsed = ["KHR_materials_unlit"];
+	} else {
+		const bytes = new Uint8Array(readFileSync(item.path));
+		extensionsUsed = (await io.binaryToJSON(bytes)).json.extensionsUsed ?? [];
+		document = await io.readBinary(bytes);
+	}
 	const input: ModelInput = {
 		name: item.name,
 		category: item.category,
 		document,
-		extensionsUsed: json.json.extensionsUsed ?? [],
+		extensionsUsed,
 		texture: existsSync(pngPath) ? PNG.sync.read(readFileSync(pngPath)) : null,
 	};
 	const texture = validateModel(input);
