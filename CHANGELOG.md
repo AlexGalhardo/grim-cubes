@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **game:** Game speed 1x/2x/3x for testing: Options selector, TAB cycles it, a HUD button on every screen size; save schema 3 (`settings.gameSpeed`)
+- **audio:** Web Audio engine (buses, unlock, crossfaded music by state, event sounds) and 39 ElevenLabs assets documented in `docs/audio.md` (P-06-04, A-05-02)
+- **ui:** Options screen (video preset, volumes, screen shake, language) saved with the meta (A-01-01)
+- **ui:** Animated Merchant portrait in the Shop (A-05-01)
+- **art:** Every character refined in Blockbench: hero, weapons, the eight enemies, the five bosses and the Merchant (B-03-01)
+
 - **render:** Pick the video preset from the hardware on boot (cores, memory, renderer) (R-01-03)
 - **assets:** Base models for the Alpha Hunter and the Nest Queen (B-01-01, B-01-02)
 - **art:** Hero refined in Blockbench with armour plates, mask and painted wear (B-03-01)
