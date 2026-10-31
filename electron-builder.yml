@@ -1,0 +1,24 @@
+appId: com.alexgalhardo.grimcubes
+productName: Grim Cubes
+directories:
+  output: release
+  buildResources: build
+asar: true
+files:
+  - dist/**
+  - apps/electron/dist/**
+  - package.json
+  - "!node_modules/**"
+win:
+  target:
+    - target: nsis
+      arch: x64
+    - target: portable
+      arch: x64
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  artifactName: GrimCubes-Setup-${version}.${ext}
+portable:
+  artifactName: GrimCubes-${version}-portable.${ext}
+publish: null

@@ -15,6 +15,12 @@ bun run dev
 
 Os scripts (`dev`, `build`, `typecheck`, `lint`, `test` e demais) só passam a existir com a tarefa E-02-01; até lá, só os arquivos de convenção estão no repositório. A lista completa de comandos está em [CLAUDE.md](CLAUDE.md).
 
+## Baixar para Windows
+
+Cada versão publicada em [GitHub Releases](https://github.com/AlexGalhardo/grim-cubes/releases) traz dois arquivos para Windows x64: `GrimCubes-Setup-<versão>.exe` (instalador) e `GrimCubes-<versão>-portable.exe` (executável único, sem instalar). Os arquivos não são assinados, então o SmartScreen do Windows avisa na primeira execução ("Mais informações" e depois "Executar assim mesmo"). O jogo abre em tela cheia; F11 ou Alt+Enter alternam para janela.
+
+Para gerar os dois localmente: `bun run build:electron` (saída em `release/`).
+
 ## Documentação
 
 - [GDD](docs/gdd.md) e [Art Bible](docs/art-bible.md)

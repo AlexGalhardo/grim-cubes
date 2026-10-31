@@ -80,3 +80,30 @@ jobs:
           flags=""
           case "$TAG" in *-rc.*) flags="--prerelease" ;; esac
           gh release create "$TAG" --title "$TAG" --notes-file release-notes.md --verify-tag $flags release-assets/*
+
+  desktop:
+    name: windows installer and portable
+    needs: release
+    runs-on: windows-latest
+    timeout-minutes: 40
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      - run: bun install --frozen-lockfile
+
+      - name: Build the Windows x64 installer and portable (unsigned)
+        run: bun run build:electron
+
+      - name: Attach both executables to the release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+        run: gh release upload "$TAG" "release/GrimCubes-Setup-${TAG#v}.exe" "release/GrimCubes-${TAG#v}-portable.exe" --clobber
