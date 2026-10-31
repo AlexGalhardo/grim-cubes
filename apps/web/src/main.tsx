@@ -23,6 +23,7 @@ import {
 	createProgress,
 	createProjectilePool,
 	createProjectileSystem,
+	createPropCollision,
 	createRunSystem,
 	createSeparationSystem,
 	createShopSystem,
@@ -39,6 +40,7 @@ import {
 	itemsData,
 	movementSystem,
 	Position,
+	propsData,
 	queryEnemies,
 	roundsData,
 	spawnHero,
@@ -238,6 +240,13 @@ async function boot(): Promise<void> {
 		maxPropsPerChunk: worldData.maxPropsPerChunk,
 	});
 	const chunks = createChunkSystem(worldData, chunkGen.generate);
+	const propCollision = createPropCollision(chunks, {
+		chunkSize: worldData.chunkSize,
+		avoidLookahead: worldData.propAvoidLookahead,
+		radiusByType: Float32Array.from(
+			chunkGen.propTypes.map((name) => propsData.find((p) => p.id === name)?.radius ?? 0),
+		),
+	});
 
 	const hud = createStore<HudState>({
 		hp: heroData.base.maxHp,
@@ -409,8 +418,11 @@ async function boot(): Promise<void> {
 			if (fighting()) {
 				inputSystem(world, hero, input, weapon.speedMultiplier);
 				behavior.run(world, hero);
+				propCollision.steer(world, origin);
 				separation.run(world);
 				movementSystem(world);
+				propCollision.resolve(world, origin, hero);
+				propCollision.resolveEnemies(world, origin);
 				applyOriginShift(world, origin, hero, events, worldData);
 				chunks.update(origin.x + (Position.x[hero] ?? 0), origin.z + (Position.z[hero] ?? 0));
 				targeting.run(world, hero, weapon.range);
