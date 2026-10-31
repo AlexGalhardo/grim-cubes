@@ -16,6 +16,8 @@ export const PALETTE = {
 	/** --color-blood and --color-blood-light: gore (Art Bible §9). */
 	blood: "#5E0E14",
 	bloodLight: "#8E1A1F",
+	/** --color-mud: the Matriarch pools. */
+	mud: "#4A3B2A",
 	/** --color-ember and --color-ember-light: fire, explosions, projectiles. */
 	ember: "#E07A2A",
 	emberLight: "#F5B04A",

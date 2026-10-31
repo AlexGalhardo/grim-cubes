@@ -49,7 +49,7 @@ export interface HordeOptions {
 	 * `tints[modifier - 1]`). Needs the colour buffer, so it enables it like `flashBrightness`.
 	 */
 	/** Skip `Boss.id > 0` entities: a skeleton rig draws the boss instead. */
-	skipBoss?: boolean;
+	skipBoss?: (bossId: number) => boolean;
 	/** Enemies outside this camera's widened frustum are left out of the instance buffers (P-03-05). */
 	cullCamera?: Camera;
 	/** Vertical scale of an enemy in its hit clip (a squash that reads as a knockback shove); 1 = none. */
@@ -195,7 +195,7 @@ export function createHordeRenderer(types: readonly HordeType[], options: HordeO
 			culler?.update();
 			for (let k = 0; k < enemies.length; k++) {
 				const eid = enemies[k] ?? 0;
-				if (options.skipBoss && (Boss.id[eid] ?? 0) > 0) continue;
+				if ((Boss.id[eid] ?? 0) > 0 && options.skipBoss?.(Boss.id[eid] ?? 0)) continue;
 				const t = EnemyType.id[eid] ?? 0;
 				if (culler) {
 					const reach =

@@ -28,6 +28,8 @@ export interface Character {
 	setSpeed(speed: number): void;
 	/** Plays a clip once over the current pose, then goes back to idle/locomotion. */
 	playOnce(clip: string): boolean;
+	/** Leaves a final clip (a revive): back to idle or locomotion. */
+	clearFinal(): void;
 	/** Plays a clip and keeps its last frame (death, victory). */
 	playFinal(clip: string): boolean;
 	/** Advances the blend by `dt` seconds. */
@@ -148,6 +150,15 @@ export async function loadCharacter(
 			if (!start(clip, false)) return false;
 			oneShot = clip;
 			return true;
+		},
+		clearFinal(): void {
+			if (!finalClip) return;
+			stop(finalClip);
+			finalClip = "";
+			oneShot = "";
+			current = "";
+			previous = "";
+			start(locomotion, true);
 		},
 		playFinal(clip): boolean {
 			if (!start(clip, false)) return false;

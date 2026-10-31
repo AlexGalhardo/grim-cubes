@@ -115,4 +115,17 @@ describe("character rig", () => {
 		expect(character.holder.rotation.y).toBe(0.5);
 		dispose();
 	});
+
+	it("leaves a final clip on revive and goes back to idle", async () => {
+		const { character, dispose } = await setup();
+		character.playFinal("death");
+		character.update(0.2);
+		expect(character.weight("death")).toBe(1);
+		character.clearFinal();
+		character.update(0.2);
+		expect(character.weight("death")).toBe(0);
+		expect(character.weight("idle")).toBe(1);
+		expect(character.playOnce("attack_melee")).toBe(true);
+		dispose();
+	});
 });

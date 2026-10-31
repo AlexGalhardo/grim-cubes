@@ -629,12 +629,10 @@ async function boot(): Promise<void> {
 	};
 	const heroRig = await loadRig("hero", { refSpeed: heroData.base.speed, idle: "idle", move: "run" });
 	const merchantRig = await loadRig("bone_merchant", { refSpeed: 1, idle: "idle", move: "idle" });
-	const gravediggerDef = bossesData.find((b) => b.id === "gravedigger");
-	const bossRig = await loadRig("gravedigger", {
-		refSpeed: gravediggerDef?.speed ?? 2.4,
-		idle: "idle",
-		move: "walk",
-	});
+	// One rig per boss, by Boss.id - 1; a boss whose model is missing keeps its horde instance.
+	const bossRigs = await Promise.all(
+		bossesData.map((def) => loadRig(def.id, { refSpeed: def.speed ?? 2.4, idle: "idle", move: "walk" })),
+	);
 	if (heroRig && assets) {
 		game.hero.isVisible = false;
 		const weaponEntry = assets.manifest.entries[`weapon_${heroData.startingWeapon}`];
@@ -652,7 +650,7 @@ async function boot(): Promise<void> {
 		? createCharacters(game, {
 				hero: heroRig,
 				merchant: merchantRig,
-				boss: bossRig,
+				bosses: bossRigs,
 				executionZoom: renderData.character.executionZoom,
 				executionSeconds: renderData.character.executionSeconds,
 			})
@@ -675,7 +673,7 @@ async function boot(): Promise<void> {
 						flashBrightness: renderData.vfx.flashBrightness,
 						hitSquash: renderData.vfx.hitSquash,
 						cullCamera: game.camera,
-						skipBoss: bossRig !== undefined,
+						skipBoss: (id) => bossRigs[id - 1] !== undefined,
 						boss: {
 							scale: renderData.vfx.bossScale,
 							enrageTint: renderData.vfx.bossEnrageTint as [number, number, number],

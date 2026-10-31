@@ -22,7 +22,6 @@ const RING_CAPACITY = 4;
 const RING_SECONDS_DEFAULT = 0.6;
 const FADE_SECONDS = 1;
 const POOL_ALPHA = 0.7;
-const MUD = "#4A3B2A";
 const LAYER = 0.02;
 const RING_LAYER = 0.15;
 
@@ -57,7 +56,7 @@ export function createZones(game: GameScene): Zones {
 	// Discs are built upright (XY plane); lay it on the ground. Symmetric, so the facing does not matter.
 	poolMesh.rotation.x = Math.PI / 2;
 	poolMesh.bakeCurrentTransformIntoVertices();
-	const poolMaterial = emissive(game, "vfx_mud", MUD, false);
+	const poolMaterial = emissive(game, "vfx_mud", PALETTE.mud, false);
 	poolMaterial.zOffset = -2;
 	poolMesh.material = poolMaterial;
 	const pools = createInstanceSet(poolMesh, POOL_CAPACITY, true);
