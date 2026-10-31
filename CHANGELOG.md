@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **game:** The `pull_fragments` item effect (XP magnet): every N seconds of fighting the fragments on the floor fly to the hero, more often with more copies
+
 ## [0.4.0] - 2026-10-31
 
 ### Added
