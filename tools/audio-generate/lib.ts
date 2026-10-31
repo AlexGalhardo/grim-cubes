@@ -42,7 +42,6 @@ export const DEFAULT_MAX_CREDITS = 20000;
 
 const CREDITS_PER_SFX = 200;
 const CREDITS_PER_MUSIC_MINUTE = 900;
-const CREDITS_PER_VOICE_LINE = 150;
 const KINDS: readonly string[] = ["sfx", "music", "voice"];
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -63,6 +62,11 @@ export function parsePrompts(raw: unknown): PromptEntry[] {
 		if (typeof prompt !== "string" || prompt === "") throw new Error(`prompts[${i}].prompt invalid`);
 		if (typeof durationSeconds !== "number" || durationSeconds <= 0)
 			throw new Error(`prompts[${i}].durationSeconds invalid`);
+		// API limits: sound-generation 0.5-30 s; music 3000-600000 ms.
+		if (kind === "sfx" && (durationSeconds < 0.5 || durationSeconds > 30))
+			throw new Error(`prompts[${i}].durationSeconds must be 0.5-30 for sfx`);
+		if (kind === "music" && (durationSeconds < 3 || durationSeconds > 600))
+			throw new Error(`prompts[${i}].durationSeconds must be 3-600 for music`);
 		if (typeof model !== "string" || model === "") throw new Error(`prompts[${i}].model invalid`);
 		if (kind === "voice" && typeof voiceId !== "string")
 			throw new Error(`prompts[${i}].voiceId required for voice`);
@@ -74,9 +78,10 @@ export function parsePrompts(raw: unknown): PromptEntry[] {
 	});
 }
 
+// Conservative estimate; official SFX/music rates are not published per second. Revise against the real balance.
 export function estimateCredits(entry: PromptEntry): number {
 	if (entry.kind === "sfx") return CREDITS_PER_SFX;
-	if (entry.kind === "voice") return CREDITS_PER_VOICE_LINE;
+	if (entry.kind === "voice") return entry.prompt.length;
 	return Math.round((entry.durationSeconds / 60) * CREDITS_PER_MUSIC_MINUTE);
 }
 
@@ -96,15 +101,22 @@ export function hashEntry(entry: PromptEntry): string {
 		.digest("hex");
 }
 
-export type PlanResult = { ok: true; plan: string } | { ok: false; error: string };
+export type PlanResult =
+	| { ok: true; plan: string }
+	| { ok: false; reason: "missing" | "free"; error: string };
 
 export function resolvePlan(planEnv: string | undefined, allowFree: boolean): PlanResult {
 	const plan = planEnv?.trim().toLowerCase() ?? "";
 	if (plan === "")
-		return { ok: false, error: "ELEVENLABS_PLAN is not set; a paid plan is required for commercial use" };
+		return {
+			ok: false,
+			reason: "missing",
+			error: "ELEVENLABS_PLAN is not set; a paid plan is required for commercial use",
+		};
 	if (plan === "free" && !allowFree)
 		return {
 			ok: false,
+			reason: "free",
 			error: "ELEVENLABS_PLAN=free has no commercial license; refusing (pass --allow-free to override)",
 		};
 	return { ok: true, plan };
@@ -178,6 +190,12 @@ export interface GenerateDeps {
 	maxAttempts?: number;
 }
 
+class HttpError extends Error {
+	constructor(readonly status: number) {
+		super(`HTTP ${status}`);
+	}
+}
+
 export async function generateOne(entry: PromptEntry, deps: GenerateDeps): Promise<void> {
 	const { url, body } = buildRequest(entry);
 	const attempts = deps.maxAttempts ?? 3;
@@ -194,7 +212,7 @@ export async function generateOne(entry: PromptEntry, deps: GenerateDeps): Promi
 				},
 				body: JSON.stringify(body),
 			});
-			if (!response.ok) throw new Error(`HTTP ${response.status}`);
+			if (!response.ok) throw new HttpError(response.status);
 			const audio = new Uint8Array(await response.arrayBuffer());
 			const paths = pathsFor(deps.outDir, entry);
 			await mkdir(join(deps.outDir, entry.kind), { recursive: true });
@@ -213,10 +231,18 @@ export async function generateOne(entry: PromptEntry, deps: GenerateDeps): Promi
 			return;
 		} catch (error) {
 			lastError = error instanceof Error ? error.message : "unknown error";
+			// 4xx (bad request, auth, quota) will not succeed on retry, except 429 (rate limit).
+			if (
+				error instanceof HttpError &&
+				error.status >= 400 &&
+				error.status < 500 &&
+				error.status !== 429
+			)
+				break;
 			if (attempt < attempts) await deps.sleep(500 * 2 ** (attempt - 1));
 		}
 	}
-	throw new Error(`${entry.file}: failed after ${attempts} attempts (${lastError})`);
+	throw new Error(`${entry.file}: generation failed (${lastError})`);
 }
 
 export async function runPool<T>(
@@ -253,10 +279,12 @@ export interface RunOptions {
 export async function run(options: RunOptions): Promise<number> {
 	const { log } = options;
 	const plan = resolvePlan(options.env.ELEVENLABS_PLAN, options.allowFree);
-	if (!plan.ok) {
+	// A dry-run only prints the plan, so a missing ELEVENLABS_PLAN is tolerated there; free is always refused.
+	if (!plan.ok && !(plan.reason === "missing" && options.dryRun)) {
 		log(`error: ${plan.error}`);
-		return 1;
+		return 2;
 	}
+	const planLabel = plan.ok ? plan.plan : "missing";
 	const apiKey = options.env.ELEVENLABS_API_KEY;
 	const hasKey = apiKey !== undefined && apiKey !== "";
 
@@ -270,7 +298,7 @@ export async function run(options: RunOptions): Promise<number> {
 	const credits = todo.reduce((sum, e) => sum + estimateCredits(e), 0);
 
 	log(`audio-generate${options.dryRun ? " (dry-run)" : ""}`);
-	log(`plan: ${plan.plan}`);
+	log(`plan: ${planLabel}`);
 	log(`api key: ${hasKey ? "set" : "missing"}`);
 	log(`to generate: ${todo.length}, up to date: ${skipped.length}`);
 	for (const e of todo) log(`  ${e.file}  ${e.kind}  ${e.durationSeconds}s  ${estimateCredits(e)} credits`);
@@ -282,6 +310,7 @@ export async function run(options: RunOptions): Promise<number> {
 		return 1;
 	}
 	if (options.dryRun) return 0;
+	if (!plan.ok) return 2;
 	if (!hasKey) {
 		log("error: ELEVENLABS_API_KEY is not set (put it in .env)");
 		return 1;

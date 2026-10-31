@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { DEFAULT_MAX_CREDITS, type FetchFn, parsePrompts, run } from "./lib";
 
-const PROMPTS_PATH = fileURLToPath(new URL("./prompts.json", import.meta.url));
+const PROMPTS_PATH = fileURLToPath(new URL("../../assets/src/audio/prompts.json", import.meta.url));
 const DEFAULT_OUT_DIR = fileURLToPath(new URL("../../assets/src/audio", import.meta.url));
 
 function flagValue(argv: string[], name: string): string | undefined {
