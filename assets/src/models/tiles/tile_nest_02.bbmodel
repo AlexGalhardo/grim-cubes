@@ -178,7 +178,7 @@
 			"frame_interpolate": false,
 			"visible": true,
 			"internal": true,
-			"saved": true,
+			"saved": false,
 			"uuid": "30efe30e-9db6-2089-cc34-e308a156f703",
 			"source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACRklEQVR4AezXoXJUQRAF0KmxRGDwQWOo4hOQfAY4PgGLx2MQKBRFYajiC3AIEKjEoGIQUMiwZ5K7NJOXR1Q2YlO57073vd0zqZ1+Sfq3T69Pd4nedvzV37/70HaJ/urN97ZL9AcnX9rDg9MWtobHv49G3hrmWG7G7EnP8OwX99t3741bEB7B5nF853DzPPv+cfS11fgs+/dJPzw5Hh4spt4/uNWs595ydHzhEkoSNcKw1iC6A6rB/PrUtZgX6NgBuyJBEFFxcrj64glHqzW05K1Bn3oQcX/09nl7+vLJf7Hmu0xbyj/7+GK7F/3CR+BU14n9e6CbxRnzPC/pZju+cHxrGk/Vt3eg3s56m3MfZj23mh5/PMbr889fpBYewflDbWr+GcM0OPcNyihpmvUQNg9N1MAmbBrz2NQ6OXwZepoosMlsjI6j2cTaxqlLjk8uOo5mPaN7B2Q2zaV4xqzHV/PJ1dqq13xdb+/AfLLrivfvgZ4ZDpvRzCq+KlK35NcbqsdarhsZn7fbi3ODw2s32BSAuqUJkge9Qc/4re09/iBJkjlIjim5mTUBeRuoAbGDg/USaA7dFWiCqzE5nHw8WIPksRwviMGhMA1DdBr0zGq4zuicS4znuZertVWfterbvwduzv8F5tdc4jXwmOE1T7QlX62nd6PgdoJbieutFYMcGMvcZPklZEL0VlM99qj149dxCrAChSkSZ60QxDUvhuRsIsbppbccjk+vMQV+KqICSSwGcWXFmqQxTYx5sxZDkJ6YL/k/AAAA//9Xf03TAAAABklEQVQDACXm27ws+nsDAAAAAElFTkSuQmCC"
 		}
