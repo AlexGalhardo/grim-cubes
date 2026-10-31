@@ -1,4 +1,5 @@
 import { createStreams, type InputState, type MetaState } from "@gc/core";
+import { hasComponent } from "bitecs";
 import {
 	behaviorConfigFromData,
 	biomesData,
@@ -20,7 +21,7 @@ import {
 	worldData,
 } from "./data";
 import type { DifficultyData } from "./data/types";
-import { Health, Position } from "./ecs/components";
+import { Elite, Health, Position } from "./ecs/components";
 import { createEnemyShotPool } from "./ecs/enemyShot";
 import { createEventBuffer } from "./ecs/events";
 import { spawnHero } from "./ecs/hero";
@@ -281,6 +282,7 @@ function build(options: GameSessionOptions) {
 			elite.handleDeath(w, e, x, z);
 			boss.handleDeath(w, e, x, z);
 			killEffects.onKill(w, e, x, z);
+			if (hasComponent(w, e, Elite)) breakables.dropFrom(x, z, "elite");
 		},
 	});
 	const pickup = createPickupSystem({

@@ -5,10 +5,15 @@
 	"properties": {
 		"dropChance": {
 			"type": "object",
-			"required": ["breakable"],
+			"required": ["breakable", "elite"],
 			"additionalProperties": false,
 			"properties": {
 				"breakable": {
+					"type": "number",
+					"minimum": 0,
+					"maximum": 1
+				},
+				"elite": {
 					"type": "number",
 					"minimum": 0,
 					"maximum": 1
