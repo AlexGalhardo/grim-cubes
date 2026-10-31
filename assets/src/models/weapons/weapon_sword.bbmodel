@@ -1,1 +1,493 @@
-{"meta":{"format_version":"4.10","model_format":"free","box_uv":false},"name":"weapon_sword","resolution":{"width":32,"height":32},"elements":[{"uuid":"e_0","name":"root_0","type":"cube","from":[-2,-4,-2],"to":[2,8,2],"origin":[-2,-4,-2],"faces":{"north":{"uv":[8,0,16,8],"texture":0},"south":{"uv":[8,0,16,8],"texture":0},"east":{"uv":[8,0,16,8],"texture":0},"west":{"uv":[8,0,16,8],"texture":0},"up":{"uv":[0,0,8,8],"texture":0},"down":{"uv":[16,0,24,8],"texture":0}}},{"uuid":"e_1","name":"root_1","type":"cube","from":[-8,8,-3],"to":[8,12,3],"origin":[-8,8,-3],"faces":{"north":{"uv":[0,8,8,16],"texture":0},"south":{"uv":[0,8,8,16],"texture":0},"east":{"uv":[0,8,8,16],"texture":0},"west":{"uv":[0,8,8,16],"texture":0},"up":{"uv":[24,0,32,8],"texture":0},"down":{"uv":[8,8,16,16],"texture":0}}},{"uuid":"e_2","name":"root_2","type":"cube","from":[-3,12,-1],"to":[3,56,1],"origin":[-3,12,-1],"faces":{"north":{"uv":[24,8,32,16],"texture":0},"south":{"uv":[24,8,32,16],"texture":0},"east":{"uv":[24,8,32,16],"texture":0},"west":{"uv":[24,8,32,16],"texture":0},"up":{"uv":[16,8,24,16],"texture":0},"down":{"uv":[0,16,8,24],"texture":0}}},{"uuid":"e_3","name":"root_3","type":"cube","from":[-4,-8,-3],"to":[4,-2,3],"origin":[-4,-8,-3],"faces":{"north":{"uv":[16,16,24,24],"texture":0},"south":{"uv":[16,16,24,24],"texture":0},"east":{"uv":[16,16,24,24],"texture":0},"west":{"uv":[16,16,24,24],"texture":0},"up":{"uv":[8,16,16,24],"texture":0},"down":{"uv":[24,16,32,24],"texture":0}}}],"outliner":[{"uuid":"g_root","name":"root","origin":[0,0,0],"children":["e_0","e_1","e_2","e_3"]}],"textures":[{"name":"weapon_sword_d.png","width":32,"height":32}],"animations":[]}
+{
+	"meta": {
+		"format_version": "4.10",
+		"model_format": "free",
+		"box_uv": false
+	},
+	"name": "weapon_sword",
+	"resolution": {
+		"width": 32,
+		"height": 32
+	},
+	"elements": [
+		{
+			"name": "grip",
+			"box_uv": false,
+			"render_order": "default",
+			"locked": false,
+			"export": true,
+			"scope": 0,
+			"allow_mirror_modeling": true,
+			"from": [
+				-2,
+				-6,
+				-2
+			],
+			"to": [
+				2,
+				6,
+				2
+			],
+			"autouv": 0,
+			"color": 9,
+			"origin": [
+				0,
+				0,
+				0
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						8,
+						0,
+						10,
+						6
+					],
+					"texture": 0
+				},
+				"east": {
+					"uv": [
+						10,
+						0,
+						12,
+						6
+					],
+					"texture": 0
+				},
+				"south": {
+					"uv": [
+						12,
+						0,
+						14,
+						6
+					],
+					"texture": 0
+				},
+				"west": {
+					"uv": [
+						14,
+						0,
+						16,
+						6
+					],
+					"texture": 0
+				},
+				"up": {
+					"uv": [
+						31,
+						31,
+						32,
+						32
+					],
+					"texture": 0
+				},
+				"down": {
+					"uv": [
+						31,
+						31,
+						32,
+						32
+					],
+					"texture": 0
+				}
+			},
+			"type": "cube",
+			"uuid": "73ba972f-a93c-4c8e-835f-8b4d320f1cc0"
+		},
+		{
+			"name": "pommel",
+			"box_uv": false,
+			"render_order": "default",
+			"locked": false,
+			"export": true,
+			"scope": 0,
+			"allow_mirror_modeling": true,
+			"from": [
+				-4,
+				-12,
+				-3
+			],
+			"to": [
+				4,
+				-6,
+				3
+			],
+			"autouv": 0,
+			"color": 0,
+			"origin": [
+				0,
+				-9,
+				0
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						0,
+						22,
+						4,
+						25
+					],
+					"texture": 0
+				},
+				"east": {
+					"uv": [
+						12,
+						22,
+						15,
+						25
+					],
+					"texture": 0
+				},
+				"south": {
+					"uv": [
+						4,
+						22,
+						8,
+						25
+					],
+					"texture": 0
+				},
+				"west": {
+					"uv": [
+						15,
+						22,
+						18,
+						25
+					],
+					"texture": 0
+				},
+				"up": {
+					"uv": [
+						31,
+						31,
+						32,
+						32
+					],
+					"texture": 0
+				},
+				"down": {
+					"uv": [
+						8,
+						22,
+						12,
+						25
+					],
+					"texture": 0
+				}
+			},
+			"type": "cube",
+			"uuid": "100cc97f-f14f-a099-dd59-23ff232a1174"
+		},
+		{
+			"name": "guard",
+			"box_uv": false,
+			"render_order": "default",
+			"locked": false,
+			"export": true,
+			"scope": 0,
+			"allow_mirror_modeling": true,
+			"from": [
+				-11,
+				6,
+				-3
+			],
+			"to": [
+				7,
+				10,
+				3
+			],
+			"autouv": 0,
+			"color": 4,
+			"origin": [
+				-2,
+				8,
+				0
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						18,
+						22,
+						27,
+						24
+					],
+					"texture": 0
+				},
+				"east": {
+					"uv": [
+						9,
+						25,
+						12,
+						27
+					],
+					"texture": 0
+				},
+				"south": {
+					"uv": [
+						0,
+						25,
+						9,
+						27
+					],
+					"texture": 0
+				},
+				"west": {
+					"uv": [
+						12,
+						25,
+						15,
+						27
+					],
+					"texture": 0
+				},
+				"up": {
+					"uv": [
+						31,
+						31,
+						32,
+						32
+					],
+					"texture": 0
+				},
+				"down": {
+					"uv": [
+						22,
+						0,
+						31,
+						3
+					],
+					"texture": 0
+				}
+			},
+			"type": "cube",
+			"uuid": "ab5afeb6-7b3a-4e75-d638-a2c6c429e259"
+		},
+		{
+			"name": "blade",
+			"box_uv": false,
+			"render_order": "default",
+			"locked": false,
+			"export": true,
+			"scope": 0,
+			"allow_mirror_modeling": true,
+			"from": [
+				-3,
+				10,
+				-1
+			],
+			"to": [
+				3,
+				54,
+				1
+			],
+			"autouv": 0,
+			"color": 5,
+			"origin": [
+				0,
+				32,
+				0
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						0,
+						0,
+						3,
+						22
+					],
+					"texture": 0
+				},
+				"east": {
+					"uv": [
+						6,
+						0,
+						7,
+						22
+					],
+					"texture": 0
+				},
+				"south": {
+					"uv": [
+						3,
+						0,
+						6,
+						22
+					],
+					"texture": 0
+				},
+				"west": {
+					"uv": [
+						7,
+						0,
+						8,
+						22
+					],
+					"texture": 0
+				},
+				"up": {
+					"uv": [
+						31,
+						31,
+						32,
+						32
+					],
+					"texture": 0
+				},
+				"down": {
+					"uv": [
+						31,
+						31,
+						32,
+						32
+					],
+					"texture": 0
+				}
+			},
+			"type": "cube",
+			"uuid": "265bd85d-2e66-2231-91e1-2594543c6db2"
+		},
+		{
+			"name": "tip",
+			"box_uv": false,
+			"render_order": "default",
+			"locked": false,
+			"export": true,
+			"scope": 0,
+			"allow_mirror_modeling": true,
+			"from": [
+				-3,
+				54,
+				-1
+			],
+			"to": [
+				1,
+				62,
+				1
+			],
+			"autouv": 0,
+			"color": 3,
+			"origin": [
+				-1,
+				58,
+				0
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						16,
+						0,
+						18,
+						4
+					],
+					"texture": 0
+				},
+				"east": {
+					"uv": [
+						20,
+						0,
+						21,
+						4
+					],
+					"texture": 0
+				},
+				"south": {
+					"uv": [
+						18,
+						0,
+						20,
+						4
+					],
+					"texture": 0
+				},
+				"west": {
+					"uv": [
+						21,
+						0,
+						22,
+						4
+					],
+					"texture": 0
+				},
+				"up": {
+					"uv": [
+						15,
+						25,
+						17,
+						26
+					],
+					"texture": 0
+				},
+				"down": {
+					"uv": [
+						31,
+						31,
+						32,
+						32
+					],
+					"texture": 0
+				}
+			},
+			"type": "cube",
+			"uuid": "82db21f5-c59d-b5d5-b5d9-4063551817af"
+		}
+	],
+	"outliner": [
+		{
+			"name": "root",
+			"uuid": "g_root",
+			"origin": [
+				0,
+				0,
+				0
+			],
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"color": 0,
+			"children": [
+				"73ba972f-a93c-4c8e-835f-8b4d320f1cc0",
+				"100cc97f-f14f-a099-dd59-23ff232a1174",
+				"ab5afeb6-7b3a-4e75-d638-a2c6c429e259",
+				"265bd85d-2e66-2231-91e1-2594543c6db2",
+				"82db21f5-c59d-b5d5-b5d9-4063551817af"
+			]
+		}
+	],
+	"textures": [
+		{
+			"name": "weapon_sword_d.png",
+			"relative_path": "weapon_sword_d.png",
+			"folder": "",
+			"namespace": "",
+			"id": "0",
+			"group": "",
+			"scope": 0,
+			"width": 32,
+			"height": 32,
+			"uv_width": 32,
+			"uv_height": 32,
+			"particle": false,
+			"use_as_default": false,
+			"layers_enabled": false,
+			"sync_to_project": "",
+			"file_format": "png",
+			"render_mode": "default",
+			"render_sides": "auto",
+			"wrap_mode": "limited",
+			"pbr_channel": "color",
+			"fps": 7,
+			"force_translucent": false,
+			"frame_time": 1,
+			"frame_order_type": "loop",
+			"frame_order": "",
+			"frame_interpolate": false,
+			"visible": true,
+			"internal": true,
+			"saved": true,
+			"uuid": "947e9696-da1b-9d39-4ad1-f867c32c581c",
+			"source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACIUlEQVR4AeyWvUoDQRDH97a1EEQLRfABFImNCPYWPoIGUgjaidUVgj5AsBA7C4tAnsHCykYQQXIEU1hYCBILRbCwNeY3uGFv77LJxbtUBv6Zj52v252bW109Pe8sr6wKXB755HC74wM2+NsUfnpqvjMIqvvTXajy7BdEsLRcEmr+vqNI+WDsRqVSQDSz3tdfl0rKBxztB0DOAl2vXWSxT7Wtv04k9O8fL8Eg4KTLlR1oDw/NqMfD+LaftfBgL2g27gKbwuM7DOQIfIa1xxnlg893mLVEAW4Ttp6uAx+GSeKzyaUHfAkGrSV6IOZwdRYTixC0spK4b0Rad+ddhFYb+6r0diNx3TfClcUo5z9pQt8gyjlfIlyvCf8yzRJRMyh6TTiO806rS44gbWFcOinAHb/jSk4eKcBMP/c1xKBoSAEmif3ajauYWAGmEKhdDHJR6FtAUQnduIkCTEPKEVhj2nXMS44VQFLTkHIE3TGdV6J+cXTUuJc1EjMN+S7A85Fizb3ZblV2O9XNRQE8QOZmbAMdQAcljiRy/jRbblC9/VRMRGQoxTj2yqxhCw+wte3YPXQAPTRcm4RNQPPU7ee2Aqy6Mjob2AEC2rbcCw3C33uikaHhZSuw4xheU93cwpwysGWMjB6KTGLD8ykPj48Ut1/WRkGsCd0AFGPrSG7reFJg22TlNdszLNhGYwufNVmavXcH0hzy1v0XUPgO+I6M4fQDAAD//yXA88IAAAAGSURBVAMAOR2WkY+sYigAAAAASUVORK5CYII="
+		}
+	]
+}

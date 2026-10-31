@@ -1,4 +1,11 @@
 {
 	"$comment": "Models edited by hand in Blockbench; assets:gen skips them. See docs/blockbench.md.",
-	"models": ["hero/hero"]
+	"models": [
+		"hero/hero",
+		"weapons/weapon_sword",
+		"weapons/weapon_pistol",
+		"weapons/weapon_smg",
+		"weapons/weapon_mg",
+		"weapons/weapon_bazooka"
+	]
 }
