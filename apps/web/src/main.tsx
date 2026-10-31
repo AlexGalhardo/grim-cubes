@@ -51,8 +51,10 @@ import {
 	itemsData,
 	movementSystem,
 	Position,
+	PrevPosition,
 	propsData,
 	queryEnemies,
+	renderData,
 	roundsData,
 	soulsForRun,
 	spawnHero,
@@ -356,7 +358,13 @@ async function boot(): Promise<void> {
 		const placeholder = PLACEHOLDER_PROPS.find((p) => name.startsWith(p.name)) ?? PLACEHOLDER_PROPS[0];
 		if (!placeholder) continue;
 		const mesh = assets?.props.get(name);
-		propTypes.push({ ...placeholder, name, ...(mesh ? { mesh } : {}) });
+		const data = propsData.find((p) => p.id === name);
+		// Tall props fade while they hide the hero (P-02-03).
+		const fade =
+			data && data.height > renderData.propFade.minHeight
+				? { fade: { radius: data.radius, height: data.height } }
+				: {};
+		propTypes.push({ ...placeholder, name, ...(mesh ? { mesh } : {}), ...fade });
 	}
 	const chunkRenderer = createChunkRenderer(
 		game,
@@ -365,6 +373,7 @@ async function boot(): Promise<void> {
 			chunkSize: worldData.chunkSize,
 			maxPropsPerChunk: worldData.maxPropsPerChunk,
 			loadRadius: worldData.loadRadius,
+			fade: renderData.propFade,
 		},
 		propTypes,
 	);
@@ -535,6 +544,18 @@ async function boot(): Promise<void> {
 				origin.x + (Position.x[hero] ?? 0),
 				origin.z + (Position.z[hero] ?? 0),
 			);
+			const camera = game.camera;
+			chunkRenderer.updateFade(
+				{
+					cameraX: camera.position.x,
+					cameraZ: camera.position.z,
+					cameraHeight: camera.position.y,
+					heroX: game.hero.position.x,
+					heroZ: game.hero.position.z,
+					heroHeight: renderData.propFade.heroHeight,
+				},
+				Math.min(0.1, render.engine.getDeltaTime() / 1000),
+			);
 			game.scene.render();
 		},
 		publish: (now) => {
@@ -557,6 +578,34 @@ async function boot(): Promise<void> {
 				Health.hp[hero] = 0;
 			},
 			meta: () => ({ souls: meta.souls, record: meta.records.normal, runs: meta.stats.runs }),
+			/** Nearest loaded blocking prop taller than propFade.minHeight, in scene coordinates (P-02-03). */
+			tallProp: () => {
+				let best: { x: number; z: number; radius: number } | null = null;
+				let bestDistance = Number.POSITIVE_INFINITY;
+				for (const chunk of chunks.slots) {
+					if (!chunk) continue;
+					for (let p = 0; p < chunk.propCount; p++) {
+						const name = chunkGen.propTypes[chunk.propType[p] ?? 0];
+						const data = propsData.find((d) => d.id === name);
+						if (!data || data.height <= renderData.propFade.minHeight) continue;
+						const x = chunk.cx * worldData.chunkSize + (chunk.propX[p] ?? 0) - origin.x;
+						const z = chunk.cz * worldData.chunkSize + (chunk.propZ[p] ?? 0) - origin.z;
+						const distance = Math.hypot(x - (Position.x[hero] ?? 0), z - (Position.z[hero] ?? 0));
+						if (distance < bestDistance) {
+							bestDistance = distance;
+							best = { x, z, radius: data.radius };
+						}
+					}
+				}
+				return best;
+			},
+			teleport: (x: number, z: number) => {
+				Position.x[hero] = PrevPosition.x[hero] = x;
+				Position.z[hero] = PrevPosition.z[hero] = z;
+			},
+			minPropAlpha: () => chunkRenderer.minAlpha(),
+			/** Stops the simulation and the horde clock so the frame can be captured. */
+			freeze: () => run.pause(),
 		};
 	}
 
