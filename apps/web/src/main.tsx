@@ -70,7 +70,7 @@ async function boot(): Promise<void> {
 		},
 	});
 
-	if (new URLSearchParams(location.search).has("debug")) {
+	if (__DEBUG_API__ && new URLSearchParams(location.search).has("debug")) {
 		window.gc.debug = { hero: () => ({ x: Position.x[hero] ?? 0, z: Position.z[hero] ?? 0 }) };
 	}
 
