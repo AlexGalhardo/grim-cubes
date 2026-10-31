@@ -175,3 +175,83 @@ jobs:
           name: playwright-report-${{ matrix.shard }}
           path: playwright-report/
           if-no-files-found: warn
+
+  # The id of the last green CI run on main, whose `perf-main` artifact is the baseline of the perf job.
+  perf-base:
+    name: perf-base
+    needs: [gate]
+    if: needs.gate.outputs.web == 'true' && github.ref != 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    permissions:
+      actions: read
+      contents: read
+    outputs:
+      run-id: ${{ steps.last.outputs.run-id }}
+    steps:
+      - id: last
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          id=$(gh run list --workflow ci.yml --branch main --status success --limit 1 --json databaseId --jq '.[0].databaseId // empty')
+          echo "run-id=$id" >> "$GITHUB_OUTPUT"
+
+  # SDD 14 section 4, A-01-03: 3 bench runs on SwiftShader. drawCalls and activeMeshes are deterministic and block
+  # against main; frameP99 (median of the 3 runs) is informative because CPU time on a shared runner is noisy.
+  perf:
+    name: perf
+    needs: [gate, build-web, perf-base]
+    if: ${{ !cancelled() && needs.build-web.result == 'success' && needs.gate.outputs.web == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      actions: read
+      contents: read
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
+      options: --ipc=host
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: npm install -g bun@${{ env.BUN_VERSION }}
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+      - run: bun install --frozen-lockfile
+      # dist/ was built with GC_DEBUG_API=1 (the ?bench= scenarios live behind it).
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: dist
+          path: dist/
+      - name: Baseline from main
+        if: needs.perf-base.outputs.run-id != ''
+        continue-on-error: true
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: perf-main
+          path: baseline/
+          run-id: ${{ needs.perf-base.outputs.run-id }}
+          github-token: ${{ github.token }}
+      - name: Bench x3
+        run: |
+          for i in 1 2 3; do
+            bun run test:perf -- --project=desktop-1080
+            mkdir -p "perf-runs/$i"
+            cp reports/perf-*.json "perf-runs/$i/"
+          done
+      - name: Compare with main
+        run: bun tools/perf/compare.ts --runs perf-runs --baseline baseline --project desktop-1080
+      # On main this becomes the baseline of the next pull requests.
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always() && github.ref == 'refs/heads/main'
+        with:
+          name: perf-main
+          path: perf-current.json
+          if-no-files-found: warn
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: perf-runs
+          path: perf-runs/
+          if-no-files-found: warn
