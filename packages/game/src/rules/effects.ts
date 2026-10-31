@@ -58,6 +58,10 @@ export interface ItemEffects {
 	explosions: ExplosionEffect[];
 	/** Every-N-kills waves around the hero (`cube_of_wrath`), one entry per owned copy. */
 	shockwaves: ShockwaveEffect[];
+	/** Seconds between two pulls of every fragment on the floor (`pull_fragments`); 0 when no item has it. */
+	pullInterval: number;
+	/** How long each pull lasts, in seconds. */
+	pullSeconds: number;
 }
 
 export function createItemEffects(): ItemEffects {
@@ -77,6 +81,8 @@ export function createItemEffects(): ItemEffects {
 		contactDamage: 0,
 		explosions: [],
 		shockwaves: [],
+		pullInterval: 0,
+		pullSeconds: 0,
 	};
 }
 
@@ -119,6 +125,8 @@ export function computeEffects(
 	out.contactDamage = 0;
 	out.explosions.length = 0;
 	out.shockwaves.length = 0;
+	out.pullInterval = 0;
+	out.pullSeconds = 0;
 	let revives = 0;
 
 	for (const item of items) {
@@ -192,6 +200,14 @@ export function computeEffects(
 						});
 					}
 					break;
+				case "pull_fragments": {
+					// Copies stack by pulling more often.
+					const every = num(p, "intervalSeconds") / count;
+					if (every > 0)
+						out.pullInterval = out.pullInterval > 0 ? Math.min(out.pullInterval, every) : every;
+					out.pullSeconds = Math.max(out.pullSeconds, num(p, "pullSeconds") || 2);
+					break;
+				}
 				default:
 					// An id nobody implemented would silently do nothing; mark the item `status: "alpha"` instead.
 					throw new RangeError(`unknown effect "${effect.id}" on item "${item.id}"`);

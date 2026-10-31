@@ -102,6 +102,7 @@
 				"hit_all_in_arc",
 				"on_kill_explode",
 				"proximity_aura_damage",
+				"pull_fragments",
 				"revive_once",
 				"self_damage_in_radius",
 				"shockwave_every_kills",

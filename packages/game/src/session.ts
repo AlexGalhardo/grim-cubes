@@ -44,6 +44,7 @@ import {
 	createBleedSystem,
 	createEffectsSystem,
 	createKillEffectsSystem,
+	createMagnetSystem,
 	createThornsSystem,
 } from "./systems/effects";
 import { createEliteSystem } from "./systems/elite";
@@ -314,6 +315,10 @@ function build(options: GameSessionOptions) {
 		enemies: separation.hash,
 		round: () => run.round,
 	});
+	const magnet = createMagnetSystem({
+		effects: itemEffects.effects,
+		pull: (seconds) => pickup.pullAll(seconds),
+	});
 	const bleed = createBleedSystem({ events });
 	const thorns = createThornsSystem({
 		effects: itemEffects.effects,
@@ -452,6 +457,7 @@ function build(options: GameSessionOptions) {
 			projectileSystem.run(world);
 			enemyShotSystem.run(world, hero);
 			aura.run(world, hero);
+			magnet.run();
 			thorns.run(world, hero);
 			bleed.run(world);
 			damage.run(world);

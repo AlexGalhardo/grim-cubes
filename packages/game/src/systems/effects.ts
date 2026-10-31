@@ -70,6 +70,29 @@ export function createEffectsSystem(
 	};
 }
 
+export interface MagnetSystemDeps {
+	effects: ItemEffects;
+	/** Pulls every fragment on the floor to the hero for this many seconds (`pickup.pullAll`). */
+	pull: (seconds: number) => void;
+}
+
+/** The XP magnet (`pull_fragments`): every `pullInterval` seconds of fighting, the fragments on the floor fly to the hero. */
+export function createMagnetSystem(deps: MagnetSystemDeps): { run(): void } {
+	const { effects, pull } = deps;
+	let steps = 0;
+	return {
+		run(): void {
+			if (effects.pullInterval <= 0) {
+				steps = 0;
+				return;
+			}
+			if (++steps * STEP < effects.pullInterval) return;
+			steps = 0;
+			pull(effects.pullSeconds);
+		},
+	};
+}
+
 export interface AuraSystemDeps {
 	effects: ItemEffects;
 	queue: DamageQueue;

@@ -160,6 +160,7 @@ export {
 	createBleedSystem,
 	createEffectsSystem,
 	createKillEffectsSystem,
+	createMagnetSystem,
 	createThornsSystem,
 } from "./systems/effects";
 export type { EliteSystem, EliteSystemDeps } from "./systems/elite";

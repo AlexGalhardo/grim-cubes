@@ -28,6 +28,7 @@ import {
 	createBleedSystem,
 	createEffectsSystem,
 	createKillEffectsSystem,
+	createMagnetSystem,
 	createThornsSystem,
 } from "./effects";
 import { applyRoundEndBonus, createDeathSystem, createPickupSystem, createProgress } from "./loot";
@@ -496,4 +497,27 @@ test("spiked_boots cooldowns run down for enemies that left the hero's reach", (
 	hash.insert(e, 50, 0);
 	for (let i = 0; i < 30; i++) thorns.run(world, hero);
 	expect(ThornsCooldown.ticks[e]).toBe(0);
+});
+
+const magnetItem = {
+	id: "test_magnet",
+	effects: [{ id: "pull_fragments", params: { intervalSeconds: 10, pullSeconds: 3 } }],
+};
+
+test("pull_fragments pulls the floor to the hero every N seconds, more often with copies, and not at all without it", () => {
+	const pulls: number[] = [];
+	const run = (count: number, steps: number): void => {
+		const fx = createEffectsSystem([magnetItem], new Map(count > 0 ? [["test_magnet", count]] : []));
+		const magnet = createMagnetSystem({ effects: fx.effects, pull: (s) => pulls.push(s) });
+		for (let i = 0; i < steps; i++) magnet.run();
+	};
+	run(0, 60 * 30);
+	expect(pulls).toEqual([]);
+	run(1, 60 * 10 - 1);
+	expect(pulls).toEqual([]);
+	run(1, 60 * 10);
+	expect(pulls).toEqual([3]);
+	pulls.length = 0;
+	run(2, 60 * 10);
+	expect(pulls).toEqual([3, 3]);
 });
