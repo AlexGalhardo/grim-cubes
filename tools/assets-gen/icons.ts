@@ -1,4 +1,4 @@
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { PNG } from "pngjs";
 import { hexToRgb, type Rgb, TOKENS, type TokenName } from "./palette";
@@ -72,11 +72,21 @@ export function buildIcon(spec: IconSpec): PNG {
 	return png;
 }
 
-/** Writes `<srcDir>/icons/<kind>/<id>.png` for every spec; byte-stable. */
+/** `models/authored.json` lists `icons/*` once the icons are drawn by hand: then only the missing ones get a placeholder. */
+function iconsAreAuthored(srcDir: string): boolean {
+	const file = join(srcDir, "models", "authored.json");
+	if (!existsSync(file)) return false;
+	const models = (JSON.parse(readFileSync(file, "utf8")) as { models?: unknown }).models;
+	return Array.isArray(models) && models.includes("icons/*");
+}
+
+/** Writes `<srcDir>/icons/<kind>/<id>.png` for every spec (new ones only when `icons/*` is authored); byte-stable. */
 export function writeIcons(srcDir: string, dataDir: string): string[] {
 	const written: string[] = [];
+	const authored = iconsAreAuthored(srcDir);
 	for (const spec of iconSpecs(dataDir)) {
 		const dir = join(srcDir, "icons", spec.kind);
+		if (authored && existsSync(join(dir, `${spec.id}.png`))) continue;
 		mkdirSync(dir, { recursive: true });
 		writeFileSync(join(dir, `${spec.id}.png`), PNG.sync.write(buildIcon(spec), { filterType: 0 }));
 		written.push(`${spec.kind}/${spec.id}`);

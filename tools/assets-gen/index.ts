@@ -15,9 +15,11 @@ export function readAuthored(srcDir: string): ReadonlySet<string> {
 	const models = (parsed as { models?: unknown }).models;
 	if (
 		!Array.isArray(models) ||
-		!models.every((m) => typeof m === "string" && /^[a-z]+\/[a-z0-9_]+$/.test(m))
+		!models.every((m) => typeof m === "string" && /^[a-z]+\/([a-z0-9_]+|\*)$/.test(m))
 	) {
-		throw new Error(`${file}: "models" must be an array of "category/name" strings`);
+		throw new Error(
+			`${file}: "models" must be an array of "category/name" strings ("icons/*" keeps the hand-drawn icons)`,
+		);
 	}
 	return new Set(models);
 }

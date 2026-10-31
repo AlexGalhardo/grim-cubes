@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { PIXELS_PER_UNIT } from "../assets-build/bbmodel";
 import { buildAssets } from "../assets-build/build";
 import { buildCatalog } from "./catalog";
-import { buildIcon, ICON_SIZE, iconSpecs } from "./icons";
+import { buildIcon, ICON_SIZE, iconSpecs, writeIcons } from "./icons";
 import { writeCatalog } from "./index";
 
 const DATA_DIR = fileURLToPath(new URL("../../data", import.meta.url));
@@ -168,5 +168,36 @@ describe("icons", () => {
 		for (let i = 0; i < a.data.length; i += 4)
 			colours.add(((a.data[i] ?? 0) << 16) | ((a.data[i + 1] ?? 0) << 8) | (a.data[i + 2] ?? 0));
 		expect(colours.size).toBeLessThanOrEqual(4);
+	});
+	it("keeps hand-drawn icons when authored.json lists icons/* and only adds the missing ones", () => {
+		const dir = mkdtempSync(join(tmpdir(), "assets-gen-icons-"));
+		try {
+			mkdirSync(join(dir, "models"), { recursive: true });
+			writeFileSync(join(dir, "models", "authored.json"), JSON.stringify({ models: ["icons/*"] }));
+			const first = specs[0];
+			if (!first) throw new Error("no icons");
+			mkdirSync(join(dir, "icons", first.kind), { recursive: true });
+			writeFileSync(join(dir, "icons", first.kind, `${first.id}.png`), "hand-drawn");
+			const written = writeIcons(dir, "data");
+			expect(written).not.toContain(`${first.kind}/${first.id}`);
+			expect(written.length).toBe(specs.length - 1);
+			expect(readFileSync(join(dir, "icons", first.kind, `${first.id}.png`), "utf8")).toBe(
+				"hand-drawn",
+			);
+		} finally {
+			rmSync(dir, { recursive: true, force: true });
+		}
+	});
+
+	it("has a distinct drawing for every committed icon", () => {
+		const seen = new Map<string, string>();
+		for (const spec of specs) {
+			const bytes = readFileSync(join("assets/src/icons", spec.kind, `${spec.id}.png`)).toString(
+				"base64",
+			);
+			const key = `${spec.kind}/${spec.id}`;
+			expect(seen.get(bytes)).toBeUndefined();
+			seen.set(bytes, key);
+		}
 	});
 });
