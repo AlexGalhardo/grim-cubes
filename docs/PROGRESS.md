@@ -20,9 +20,9 @@ Dívida operacional: com 4 agentes rodando testes ao mesmo tempo, a CPU satura e
 
 Risco: conversor `.bbmodel` validado só contra o próprio pipeline e o Babylon; falta golden contra um export real do Blockbench (quando o PO refinar o 1º modelo).
 
-Pendência do PO: secret `VERCEL_AUTOMATION_BYPASS_SECRET` (Vercel → Deployment Protection → Protection Bypass for Automation; e `gh secret set VERCEL_AUTOMATION_BYPASS_SECRET`) para o smoke pós-deploy (E-04-04).
+Pendência do PO: secret `VERCEL_AUTOMATION_BYPASS_SECRET` (Vercel → Deployment Protection → Protection Bypass for Automation; e `gh secret set VERCEL_AUTOMATION_BYPASS_SECRET`) para o smoke pós-deploy (E-04-04). Continua pendente em 2026-10-31 08:51: sem ele, o smoke de produção (que agora também falha com a API de debug viva, ff185d9) não roda.
 
-Vercel: build corrigido (3721471: `--config apps/web/vite.config.ts` + `vercel.json`); deploy de produção `grim-cubes-fc7qzglh5` **Ready**; URL de produção responde 302 (proteção SSO mantida, decisão B).
+Vercel: build corrigido (3721471: `--config apps/web/vite.config.ts` + `vercel.json`); deploy de produção `grim-cubes-fc7qzglh5` **Ready**; URL de produção responde 302 (proteção SSO mantida, decisão B). Desde 6370507, o `vercel.json` traz CSP, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy` e COOP, e revalida o `manifest.json` (os demais assets seguem `immutable`). O projeto `grim-cubes` na Vercel não tem variáveis de ambiente (conferido pela API em 2026-10-31), então `GC_DEBUG_API` fica desligado em produção.
 
 Dívida: pós-processo ffmpeg do `audio-generate` (SDD 08 §3: LUFS, trim, pitch de chefes).
 
@@ -77,9 +77,16 @@ Fonte: itens `[x]` do ROADMAP em `origin/wip/orq-merge` (6180a55), ordenados pel
 
 ## Próximos
 
-1. E-02-06 (Playwright + capturas nos 4 alvos), E-03-02 (input + HUD), E-03-03 (design system) — liberados por `@types/react`.
-2. Release `v0.1.0` (`bun run release minor --publish`) quando o critério de saída da fase 1 fechar (E-02-06 + E-04-01 + E-04-04).
-3. E-04-02 (`vercel.json`) e E-04-04 (smoke com bypass token).
+1. Fechar a fase 1:
+   - Est: baselines finais do e2e para a `main` voltar a ficar verde.
+   - Orq: release `v0.1.0` (E-04-03, `bun run release minor --publish`), que depende da `main` verde.
+   - Em aberto: E-03-02 (input + HUD), E-04-02 (`vercel.json`; a CSP e os headers já entraram em 6370507, falta o assert de produção, que depende do bypass do PO), E-05-05 e E-01-06 (o Dependabot já entrou em ff185d9).
+2. Fechar a fase 2: P-04-05 (VFX), P-07-01 (modo demo e `DemoEnd`), P-07-02 (Electron) e P-07-04 (sim com loja e `availableItems`, S2).
+3. ALPHA em paralelo:
+   - S1: A-02-01 (biomas).
+   - S2: A-03-02 (O Forjador) e A-03-03 (roster por round).
+   - Est: R-01-01 (`rc-major` no `tools/release`) e A-07-01 (i18n, com o inventário de chaves do Esp).
+4. PO: secret `VERCEL_AUTOMATION_BYPASS_SECRET`, E-05-03 (Steamworks), `toktx` e Capacitor (ver Bloqueios).
 
 ## Dívidas e observações
 
