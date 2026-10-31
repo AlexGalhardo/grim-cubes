@@ -332,5 +332,14 @@
 	"slots.confirmOverwrite": "{name} já tem progresso. Um novo jogo apaga almas, Ossuário, recordes e a run salva nele. Continuar?",
 	"slots.confirmOverwriteYes": "Apagar e começar",
 	"slots.confirmErase": "Apagar {name}? Almas, Ossuário, recordes e a run salva se perdem para sempre.",
-	"slots.confirmEraseYes": "Apagar"
+	"slots.confirmEraseYes": "Apagar",
+	"pause.open": "Pausar",
+	"pause.panel": "Pausado",
+	"pause.title": "Jogo pausado",
+	"pause.resume": "Continuar",
+	"pause.options": "Opções",
+	"pause.quit": "Sair para o menu",
+	"pause.confirmQuit": "Sair para o menu? A run fica salva no início do round {round}.",
+	"pause.stay": "Ficar",
+	"pause.confirmYes": "Sair"
 }

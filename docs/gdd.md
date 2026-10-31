@@ -618,7 +618,7 @@ Recordes mostrados no menu: maior round por dificuldade, total de kills, total d
 | Ossuário | 5 ramos radiais, nós com custo, saldo de almas, reset | ALPHA |
 | Opções | áudio (3 sliders), vídeo (escala de renderização, qualidade, fullscreen, vsync), gameplay (gore, shake, flash, escala UI, daltônico), controles (remap) | ALPHA |
 | Fim da demo | após vencer o Coveiro: resumo + botões "Comprar na Steam" / "Google Play" / "Continuar no Ossuário (limitado)" | BETA |
-| Pausa | Continuar, Opções, Abandonar run (confirmação) | PROTÓTIPO |
+| Pausa | Esc (PC) ou Start (controle) abre; no celular, botão "‖" no canto superior direito, ao lado da velocidade. Continuar, Opções, Sair para o menu (confirmação; a run fica salva no início do round) | PROTÓTIPO |
 
 ### 21.4 Slots de save e retomar a run (decisão do PO, 2026-10-31)
 

@@ -16,6 +16,7 @@ import { MerchantPrompt, type MerchantPromptView } from "./components/MerchantPr
 import { Notice } from "./components/Notice/Notice";
 import { Options, type OptionsActions, type OptionsViewModel } from "./components/Options/Options";
 import { Ossuary, type OssuaryActions, type OssuaryViewModel } from "./components/Ossuary/Ossuary";
+import { type PauseActions, PauseMenu, type PauseViewModel } from "./components/PauseMenu/PauseMenu";
 import { Results, type ResultsViewModel } from "./components/Results/Results";
 import {
 	type PortraitFactory,
@@ -57,6 +58,8 @@ export interface HudState {
 	ossuary: OssuaryViewModel | null;
 	/** The pre-run difficulty and seed screen; null while closed. */
 	difficulty: DifficultyViewModel | null;
+	/** The pause menu; null while playing. */
+	pause: PauseViewModel | null;
 	/** The save slot choice before a new game; null while closed. */
 	slots: SlotsViewModel | null;
 	/** The title screen; null once the player left it. */
@@ -110,6 +113,9 @@ export interface AppProps {
 	onRestart?: (() => void) | undefined;
 	difficultyActions?: DifficultyActions | undefined;
 	slotsActions?: SlotsActions | undefined;
+	pauseActions?: PauseActions | undefined;
+	/** The pause button of the corner (touch screens); the keyboard and pad open the menu from the host. */
+	onPause?: (() => void) | undefined;
 	/** Opens the options screen from the gear button; the screen itself talks through `optionsActions`. */
 	onOpenOptions?: (() => void) | undefined;
 	optionsActions?: OptionsActions | undefined;
@@ -139,6 +145,8 @@ export function App({
 	onDashHold,
 	difficultyActions,
 	slotsActions,
+	pauseActions,
+	onPause,
 	onOpenOptions,
 	optionsActions,
 	onCycleSpeed,
@@ -162,6 +170,7 @@ export function App({
 		hud.results !== null ||
 		hud.difficulty !== null ||
 		hud.slots !== null ||
+		hud.pause !== null ||
 		hud.ossuary !== null ||
 		hud.options !== null ||
 		hud.menu !== null ||
@@ -215,16 +224,30 @@ export function App({
 			{hud.results && onRestart && !hud.demoEnd && !hud.difficulty && !hud.ossuary ? (
 				<Results view={hud.results} onRestart={onRestart} onOssuary={ossuaryActions?.open} />
 			) : null}
+			{hud.pause && !hud.options && pauseActions ? (
+				<PauseMenu view={hud.pause} actions={pauseActions} />
+			) : null}
 			{hud.slots && slotsActions ? <Slots view={hud.slots} actions={slotsActions} /> : null}
 			{hud.difficulty && difficultyActions ? (
 				<Difficulty view={hud.difficulty} actions={difficultyActions} />
 			) : null}
 			{hud.ossuary && ossuaryActions ? <Ossuary view={hud.ossuary} actions={ossuaryActions} /> : null}
-			{!dialogOpen && (onOpenOptions || onCycleSpeed) ? (
+			{!dialogOpen && (onOpenOptions || onCycleSpeed || onPause) ? (
 				<div
 					className="pointer-events-none absolute top-2 right-2 z-20 flex gap-2"
 					data-testid="hud-corner"
 				>
+					{onPause ? (
+						<button
+							type="button"
+							data-testid="pause-open"
+							aria-label={t("pause.open")}
+							onClick={onPause}
+							className="pointer-events-auto min-h-12 min-w-12 border-2 border-iron-dark bg-night-2 px-2 font-display text-lg text-bone hover:border-ember hover:text-ember-light focus-visible:outline-2 focus-visible:outline-ember"
+						>
+							‖
+						</button>
+					) : null}
 					{onCycleSpeed ? (
 						<button
 							type="button"

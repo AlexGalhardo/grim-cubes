@@ -332,5 +332,14 @@
 	"slots.confirmOverwrite": "{name} already has progress. A new game erases souls, Ossuary, records and the saved run in it. Continue?",
 	"slots.confirmOverwriteYes": "Erase and start",
 	"slots.confirmErase": "Erase {name}? Souls, Ossuary, records and the saved run are lost for good.",
-	"slots.confirmEraseYes": "Erase"
+	"slots.confirmEraseYes": "Erase",
+	"pause.open": "Pause",
+	"pause.panel": "Paused",
+	"pause.title": "Game paused",
+	"pause.resume": "Continue",
+	"pause.options": "Options",
+	"pause.quit": "Quit to menu",
+	"pause.confirmQuit": "Quit to the menu? The run stays saved at the start of round {round}.",
+	"pause.stay": "Stay",
+	"pause.confirmYes": "Quit"
 }

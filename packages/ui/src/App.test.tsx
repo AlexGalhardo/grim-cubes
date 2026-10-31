@@ -26,6 +26,7 @@ const hud = (speed: number): HudState => ({
 	ossuary: null,
 	difficulty: null,
 	slots: null,
+	pause: null,
 	dash: null,
 	cardRerolls: 0,
 	bossIntro: null,
@@ -205,6 +206,16 @@ test("Continuar shows only when a slot was used, names it and the saved round, a
 	render(<App store={createStore({ ...hud(1), menu: menuView })} menuActions={menuActions()} />);
 	expect(screen.queryByTestId("menu-continue")).toBeNull();
 	expect(document.activeElement).toBe(screen.getByTestId("menu-play"));
+});
+
+test("the pause button shows in the corner only when the host offers it and opens the menu action", () => {
+	const onPause = vi.fn();
+	render(<App store={createStore(hud(1))} onPause={onPause} />);
+	fireEvent.click(screen.getByTestId("pause-open"));
+	expect(onPause).toHaveBeenCalledTimes(1);
+	cleanup();
+	render(<App store={createStore(hud(1))} />);
+	expect(screen.queryByTestId("pause-open")).toBeNull();
 });
 
 test("the title screen steps aside for the difficulty screen", () => {
