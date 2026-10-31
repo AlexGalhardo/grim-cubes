@@ -43,6 +43,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **game:** Add roundSystem, run state machine and fragment bag ([5466579](https://github.com/AlexGalhardo/grim-cubes/commit/5466579e4fb7b21f2163798523ac83ed73b015f9))
 - **game:** Cull farthest common enemy at the spawn cap; allocation guards for per-step systems ([2bb2dda](https://github.com/AlexGalhardo/grim-cubes/commit/2bb2dda0e6b28eaa0701484208abd8876935e990))
 - **build:** Point build at the web Vite config and add `vercel.json` (frozen install, SPA rewrite, immutable assets cache) ([3721471](https://github.com/AlexGalhardo/grim-cubes/commit/3721471b0eb3e3b06e8e50856057d3b9005eb1f8))
+- **game:** Keep one registered query per world in `createQueryCache` ([fe43442](https://github.com/AlexGalhardo/grim-cubes/commit/fe434425c38977570c85d8f501cbfbf3dac2fc45))
+- **release:** Add `tools/release` (SemVer bump, CHANGELOG rewrite, notes; `--publish` gated) and `tools/sbom` (CycloneDX 1.6, checksums) ([897a05c](https://github.com/AlexGalhardo/grim-cubes/commit/897a05c4f3fcaaa0c314efe1335c3033d084aeff))
+- **ci:** Add release workflow for `v*` tags; pin `setup-bun` by commit SHA in the write-scoped job ([5f2f2eb](https://github.com/AlexGalhardo/grim-cubes/commit/5f2f2ebb44b08fc2ff81e6e077d4802870f8befa))
+- **audio:** Refine audio-generate: exit 2 on refused plan, per-character voice cost, no 4xx retries, prompts in `assets/src/audio` ([f0030ee](https://github.com/AlexGalhardo/grim-cubes/commit/f0030ee712ae8d48ab7a9abd5cf51f8e869afcc0))
+- **game:** Add targetingSystem and weaponSystem for sword (arc) and pistol (projectile) ([8db77cb](https://github.com/AlexGalhardo/grim-cubes/commit/8db77cb13301f24b4f7a0d79d0ff953777375639))
+- **ui:** Add Tailwind v4 theme tokens (Art Bible §16) and Panel, Button, Bar components ([cb14fb7](https://github.com/AlexGalhardo/grim-cubes/commit/cb14fb7a72972015987e80dc089256045a010034))
+- **assets:** Bake VAT relative to the skeleton base (parent of the skeleton root) and verify against the Babylon skeleton ([8cd9909](https://github.com/AlexGalhardo/grim-cubes/commit/8cd9909b8aa798b2eaaf8379a708367518afba27))
+- **render:** Draw the floor as one quad per cube (32 px/u) and instance only props within Chebyshev 3 ([a2afa48](https://github.com/AlexGalhardo/grim-cubes/commit/a2afa4832cfe0da078a5836e2ff2da6049eb6ba4))
+- **game:** Use registered queries in origin shifting; render port independent of event/sync order ([5dd486f](https://github.com/AlexGalhardo/grim-cubes/commit/5dd486fcca6cac51eb19ad166548ec5d283f8bac))
+- **render:** Render the horde with thin instances, per-instance VAT settings and death ghosts ([6d07ec4](https://github.com/AlexGalhardo/grim-cubes/commit/6d07ec416fbb45efac13f0d8930191a17df432d9))
+- **ci:** Add CI (lint, typecheck, unit, integration, build-web, e2e gated) and CodeQL workflows (#1) ([da8923e](https://github.com/AlexGalhardo/grim-cubes/commit/da8923ee65069ec95a017f53a20937718c27413b))
 
 ### Changed
 

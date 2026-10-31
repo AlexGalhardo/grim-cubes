@@ -8,15 +8,17 @@ Meta do PO (2026-10-31): implementar o ROADMAP até o fim sem interrupções; ta
 
 | Agente | Tarefa atual | Branch | Estado | Desde | Lock |
 | --- | --- | --- | --- | --- | --- |
-| Orq | merges; Vercel; PROGRESS | main | em andamento | 08:10 | — |
-| S1 | correções VAT (base do esqueleto) e `findHero` sem alocação → chão por cubo (P-01-03) → P-03-04 horda | feat/P-03-04-horde-render | implementando | 08:10 | `data/world.json` |
-| S2 | P-04-02 armas → E-03-03 design system → P-02-02 input/HUD | feat/P-04-02-weapons | implementando | 08:10 | `data/**` |
-| Est | P-06-05 correções → PR #1 (cache, concurrency, rebase) | fix/P-06-05-audio | implementando | 08:10 | `.github/**`, `tools/release/**`, `tools/sbom/**` |
-| Esp | standby → próxima revisão a cada HANDOFF | — | revisando | 08:10 | — |
+| Orq | merges; CI de main; PROGRESS | main | em andamento | 09:30 | — |
+| S1 | P-01-01 geração de chunks → P-06-07 `.bbmodel`→skin → P-06-01 modelos por script | feat/P-01-01-chunk-gen | implementando | 09:30 | `data/biomes.json`, `data/world.json` |
+| S2 | P-02-02 input/HUD + componentes EnemyType/Attacking/Facing → P-04-03 → P-05-02 | feat/P-02-02-input | implementando | 09:30 | `data/**` |
+| Est | E-02-06 Playwright + capturas nos 4 alvos | feat/E-02-06-playwright | implementando | 09:30 | `playwright.config.ts`, `tests/**`, `.github/**` |
+| Esp | auditoria pós-merge fe43442, E-04-03, P-06-05, P-04-02 | main | revisando | 09:30 | — |
+
+Merges desta rodada (Orq verificou gates; Esp audita): E-03-03 (cb14fb7), P-04-02, E-04-03 (tools; release v0.1.0 ainda não publicada), P-06-05 (falta só o secret do PO), P-01-03 (chão por cubo), P-03-04 render da horda (bench real pendente de P-03-06), correções do Esp em VAT e origin shifting. PR #1 mesclado pelo PO (da8923e): CI e CodeQL em `main`; E-04-01 fica [ ] até o e2e rodar (E-02-06). 187 testes.
 
 Vercel: build corrigido (3721471: `--config apps/web/vite.config.ts` + `vercel.json`); deploy de produção `grim-cubes-fc7qzglh5` **Ready**; URL de produção responde 302 (proteção SSO mantida, decisão B).
 
-PR #1 (CI + CodeQL) aberto: CI verde; merge aguarda o PO (merge e autoaprovação pelo agente negados pelo classificador de permissões).
+Dívida: pós-processo ffmpeg do `audio-generate` (SDD 08 §3: LUFS, trim, pitch de chefes).
 
 ## Concluídas (últimas 20)
 
@@ -63,7 +65,7 @@ PR #1 (CI + CodeQL) aberto: CI verde; merge aguarda o PO (merge e autoaprovaçã
 ## Próximos
 
 1. E-02-06 (Playwright + capturas nos 4 alvos), E-03-02 (input + HUD), E-03-03 (design system) — liberados por `@types/react`.
-2. Merge do PR #1 (CI) pelo PO: o merge e a autoaprovação foram negados ao agente pelo classificador de permissões (revisão do Esp em andamento).
+2. Release `v0.1.0` (`bun run release minor --publish`) quando o critério de saída da fase 1 fechar (E-02-06 + E-04-01 + E-04-04).
 3. E-04-02 (`vercel.json`) e E-04-04 (smoke com bypass token).
 
 ## Dívidas e observações
