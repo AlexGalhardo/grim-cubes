@@ -143,3 +143,92 @@
 [data-theme="cb"] .rarity-mark[data-tier="4"]::before {
 	content: "°5";
 }
+
+/*
+ * Plate button (Art Bible 16): a riveted iron plate with a light edge on top and a dark one below, a solid "base"
+ * (`--btn-base`) under it and a cast shadow. Hovering warms it with an ember glow; pressing (`:active`, or the
+ * `data-pressed` flag a keyboard or gamepad confirm sets) drops the plate by the height of the base in 60 ms and the
+ * base disappears, then it springs back. Only theme tokens.
+ */
+.btn-plate {
+	--btn-base: 4px;
+	--btn-cast: color-mix(in srgb, var(--color-night) 55%, transparent);
+	position: relative;
+	margin-bottom: var(--btn-base);
+	border: 2px solid;
+	border-color: var(--color-iron-light) var(--color-iron-dark) var(--color-night) var(--color-iron-dark);
+	background: var(--color-iron);
+	color: var(--color-bone);
+	box-shadow:
+		0 var(--btn-base) 0 var(--color-night),
+		0 calc(var(--btn-base) + 3px) 6px var(--btn-cast);
+	transform: translateY(0);
+	transition:
+		transform 60ms var(--ease-out),
+		box-shadow 60ms var(--ease-out),
+		color var(--duration-fast),
+		border-color var(--duration-fast);
+}
+
+.btn-plate-lg {
+	--btn-base: 6px;
+}
+
+/* Two corner rivets, like the panels. */
+.btn-plate::before,
+.btn-plate::after {
+	content: "";
+	position: absolute;
+	width: 2px;
+	height: 2px;
+	background: var(--color-iron-light);
+	pointer-events: none;
+}
+
+.btn-plate::before {
+	top: 3px;
+	left: 3px;
+}
+
+.btn-plate::after {
+	right: 3px;
+	bottom: 3px;
+}
+
+.btn-plate:hover:not(:disabled) {
+	border-top-color: var(--color-ember-light);
+	color: var(--color-ember-light);
+	box-shadow:
+		0 var(--btn-base) 0 var(--color-night),
+		0 calc(var(--btn-base) + 3px) 6px var(--btn-cast),
+		0 0 12px color-mix(in srgb, var(--color-ember) 40%, transparent);
+}
+
+.btn-plate:active:not(:disabled),
+.btn-plate[data-pressed="true"]:not(:disabled) {
+	transform: translateY(var(--btn-base));
+	box-shadow:
+		0 0 0 var(--color-night),
+		0 2px 3px var(--btn-cast);
+}
+
+.btn-plate:disabled {
+	opacity: 0.5;
+	color: var(--color-mist);
+}
+
+/* The primary action (Play): an ember rim and ember lettering. */
+.btn-plate-primary {
+	border-color: var(--color-ember-light) var(--color-ember) var(--color-blood) var(--color-ember);
+	color: var(--color-ember-light);
+}
+
+.btn-plate-primary:hover:not(:disabled) {
+	color: var(--color-bone);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.btn-plate {
+		transition: none;
+	}
+}
