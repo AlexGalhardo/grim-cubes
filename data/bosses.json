@@ -3,7 +3,7 @@
 		"id": "gravedigger",
 		"name": "O Coveiro",
 		"round": 10,
-		"hpBaseRound10": 1200,
+		"hpBaseRound10": 4800,
 		"archetype": "slow_tank_charge",
 		"delivery": "PROTOTYPE",
 		"patterns": [
@@ -39,13 +39,14 @@
 		],
 		"radius": 1.65,
 		"speed": 2.4,
-		"patternCooldownSeconds": 1.5
+		"patternCooldownSeconds": 1.5,
+		"contactDamageMult": 1
 	},
 	{
 		"id": "swamp_matriarch",
 		"name": "A Matriarca do Pântano",
 		"round": 20,
-		"hpBaseRound10": 2800,
+		"hpBaseRound10": 11000,
 		"archetype": "summoner",
 		"delivery": "ALPHA",
 		"patterns": [
@@ -79,20 +80,21 @@
 					"maxDistance": 5,
 					"knockbackDistance": 5,
 					"knockbackSeconds": 0.25,
-					"damageMult": 0.5,
+					"damageMult": 3,
 					"recoverSeconds": 1
 				}
 			}
 		],
 		"radius": 1.5,
 		"speed": 2,
-		"patternCooldownSeconds": 2
+		"patternCooldownSeconds": 2,
+		"contactDamageMult": 2
 	},
 	{
 		"id": "forgemaster",
 		"name": "O Forjador",
 		"round": 30,
-		"hpBaseRound10": 5000,
+		"hpBaseRound10": 10000,
 		"archetype": "area_projectiles",
 		"delivery": "ALPHA",
 		"patterns": [
@@ -103,7 +105,7 @@
 					"telegraphSeconds": 1.2,
 					"radius": 7,
 					"maxDistance": 7,
-					"damageMult": 1.3,
+					"damageMult": 4,
 					"knockbackDistance": 3,
 					"knockbackSeconds": 0.2,
 					"recoverSeconds": 1.2
@@ -118,7 +120,7 @@
 					"telegraphSeconds": 0.8,
 					"projectileSpeed": 9,
 					"range": 18,
-					"damageMult": 0.7,
+					"damageMult": 3,
 					"projectileRadius": 0.35,
 					"minDistance": 3,
 					"recoverSeconds": 1
@@ -135,7 +137,8 @@
 		],
 		"radius": 2,
 		"speed": 1.8,
-		"patternCooldownSeconds": 1.5
+		"patternCooldownSeconds": 1.5,
+		"contactDamageMult": 2
 	},
 	{
 		"id": "alpha_hunter",

@@ -284,18 +284,20 @@ velocidade: constante por tipo (não escala)
 
 Multiplicador de dificuldade (D13) aplicado ao final: Normal ×1,0; Grim ×1,25; Nightmare ×1,5.
 
+Balanceamento A-02-03 (2026-10-31): os valores da tabela abaixo saíram do simulador (`bun run sim`, bot greedy, relatório em `reports/`): o dano base caiu para ~20% e o crescimento por round para ~160% do proposto antes, e o HP por round subiu 50%, porque com os números antigos o herói simulado morria no round 8–10 (Coveiro em 15 s, p50 de morte 8). Os números continuam só em `data/enemies.json`.
+
 ### 10.2 Roster da 1.0 (8 tipos)
 
 | ID | Nome | Bioma | HP base | HP/round | Dano base | Dano/round | Vel. (u/s) | Comportamento | Fragmentos |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `husk` | Carcaça | 0 | 8 | +4 | 3 | +0,6 | 3,5 | persegue em linha reta | 1 |
-| `wail` | Lamento | 0 | 4 | +2 | 2 | +0,4 | 5,5 | rápido, zigue-zague | 1 |
-| `drowned` | Afogado | 1 | 20 | +9 | 5 | +0,9 | 2,8 | lento, tanque, empurra | 2 |
-| `leech` | Sanguessuga | 1 | 6 | +3 | 2 | +0,5 | 4,5 | gruda e drena 1 HP/s | 1 |
-| `forged` | Forjado | 2 | 35 | +14 | 7 | +1,1 | 3,0 | armadura 10 (reduz dano) | 3 |
-| `watcher` | Vigia | 2 | 12 | +5 | 4 | +0,8 | 0 (fixo) | atira projétil lento a 10 u | 2 |
-| `hunter` | Caçador | 3 | 18 | +8 | 6 | +1,0 | 6,5 | investida a cada 3 s | 2 |
-| `breeder` | Reprodutor | 3 | 40 | +16 | 0 | 0 | 2,0 | solta 1 Lamento a cada 4 s | 4 |
+| `husk` | Carcaça | 0 | 8 | +6 | 0,6 | +0,96 | 3,5 | persegue em linha reta | 1 |
+| `wail` | Lamento | 0 | 4 | +3 | 0,4 | +0,64 | 5,5 | rápido, zigue-zague | 1 |
+| `drowned` | Afogado | 1 | 20 | +13,5 | 1 | +1,44 | 2,8 | lento, tanque, empurra | 2 |
+| `leech` | Sanguessuga | 1 | 6 | +4,5 | 0,4 | +0,8 | 4,5 | gruda e drena 1 HP/s | 1 |
+| `forged` | Forjado | 2 | 35 | +21 | 1,4 | +1,76 | 3,0 | armadura 10 (reduz dano) | 3 |
+| `watcher` | Vigia | 2 | 12 | +7,5 | 0,8 | +1,28 | 0 (fixo) | atira projétil lento a 10 u | 2 |
+| `hunter` | Caçador | 3 | 18 | +12 | 1,2 | +1,6 | 6,5 | investida a cada 3 s | 2 |
+| `breeder` | Reprodutor | 3 | 40 | +24 | 0 | 0 | 2,0 | solta 1 Lamento a cada 4 s | 4 |
 
 Regra de mistura: um round usa 60% inimigos do bioma atual, 30% do anterior, 10% do próximo (se existir). No anel 0 não há "anterior": 80/20.
 
@@ -335,14 +337,14 @@ Decisão D02: roster de 3–5 chefes únicos; ordem fixa até o round 50; depois
 
 | Round | Chefe | Fase de entrega | Arquétipo | HP base (round 10) | Padrões |
 | --- | --- | --- | --- | --- | --- |
-| 10 | O Coveiro | PROTÓTIPO | tanque lento com investida | 1.200 | investida em linha (telegrafada 1 s), golpe de pá em arco, invoca 6 Carcaças a 50% HP |
-| 20 | A Matriarca do Pântano | ALPHA | invocadora | 2.800 | solta 3 Sanguessugas a cada 8 s, poça de lodo (lentidão), grito (knockback) |
-| 30 | O Forjador | ALPHA | área e projéteis | 5.000 | martelo (onda de choque radial), lança correntes em 4 direções, fase 2 com armadura 30 |
+| 10 | O Coveiro | PROTÓTIPO | tanque lento com investida | 4.800 | investida em linha (telegrafada 1 s), golpe de pá em arco, invoca 6 Carcaças a 50% HP |
+| 20 | A Matriarca do Pântano | ALPHA | invocadora | 11.000 | solta 3 Sanguessugas a cada 8 s, poça de lodo (lentidão), grito (knockback) |
+| 30 | O Forjador | ALPHA | área e projéteis | 10.000 | martelo (onda de choque radial), lança correntes em 4 direções, fase 2 com armadura 30 |
 | 40 | O Caçador Alfa | BETA | rápido, caça | 7.500 | fica invisível 3 s e ataca pelas costas, salto com área, visão térmica (persegue sem obstáculos) |
 | 50 | A Rainha do Ninho | BETA | dois estágios | 11.000 | ovos que eclodem Caçadores, cauda varredura, fase 2 voa e bombardeia |
 | 60+ | sorteio do roster | — | — | HP(N) = HP_base_do_chefe × (1 + 0,35 × (N − round_original) / 10) | + 1 modificador de elite a partir do 60; 2 a partir do 100 |
 
-HP escala com o multiplicador de dificuldade (D13). Dano de contato dos chefes: 25 + 1,5 × N; projéteis 18 + 1,2 × N (**proposta**).
+HP escala com o multiplicador de dificuldade (D13). Dano de contato dos chefes: (3 + 0,18 × N) × multiplicador do chefe (Coveiro ×1, Matriarca ×2, Forjador ×2; `contactDamageMult` em `bosses.json`); projéteis 18 + 1,2 × N (**proposta**). Os padrões de área e projétil escalam esse contato: grito ×3, martelo ×4, correntes ×3. HP e dano saíram do simulador (A-02-03): com 1.200/2.800/5.000 os chefes caíam em 15–40 s.
 
 ### 12.2 Regras gerais
 
@@ -480,7 +482,7 @@ Decisão D10: fragmentos dão XP e ouro ao mesmo tempo. Ao subir de nível, o jo
 ### 16.1 Curva de XP (proposta, inspirada em VS)
 
 ```text
-xp_para_proximo(L) = 10 + 8 × (L - 1)   # XP para passar do nível L para L+1: 1→2 = 10, 10→11 = 82, 20→21 = 162
+xp_para_proximo(L) = 8 + 5 × (L - 1)   # XP para passar do nível L para L+1: 1→2 = 8, 10→11 = 53, 20→21 = 103 (A-02-03; era 10 + 8 × (L - 1))
 xp_por_fragmento = 1 (×(1 + xp_gain/100))
 ```
 
@@ -698,13 +700,14 @@ Valores iniciais (**proposta**; calibrar por playtest; todos com toggle onde ind
 
 | Métrica | Alvo |
 | --- | --- |
-| Round mediano de morte (jogador simulado médio) | 18–26 |
+| Round mediano de morte (jogador simulado médio; sobrevivente conta como o round do horizonte, `--rounds 50`) | 18–26 |
 | Tempo para matar o Coveiro (build mediano do round 10) | 45–90 s |
 | Tempo para matar chefe N (build mediano) | 60–120 s, sem enrage ≥ 3 |
 | Ouro por round / preço médio de item | 1,2–1,8 |
 | Level-ups por round (rounds 5–20) | 1–2 |
-| Variância do round de morte entre seeds | desvio padrão ≤ 4 rounds |
+| Dispersão do round de morte entre seeds | intervalo interquartil (P75 − P25) ≤ 10 rounds (desvio padrão só informativo) |
 
+- **Decisão do Orq em 2026-10-31, revisável pelo PO**: a dispersão passou de "desvio ≤ 4" para IQR ≤ 10, e o round de morte conta os sobreviventes no horizonte (censura à direita). Motivo: um bot greedy e estatísticas lineares dão uma distribuição bimodal (atrição nos rounds 5–8 e sobreviventes), na qual o desvio das runs que morreram não mede nada.
 - **Fluxo**: toda mudança em `data/*.json` roda o simulador no CI e publica o relatório; desvio dos alvos bloqueia o merge (assert no ROADMAP).
 - **Playtest humano**: a partir do PROTÓTIPO, 3 sessões por semana com telemetria (§26).
 

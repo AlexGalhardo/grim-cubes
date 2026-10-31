@@ -18,8 +18,8 @@
 		"enrageDamageSpeedBonus": 0.15,
 		"remainingHordeFraction": 0.3,
 		"hordeIntervalMult": 1.5,
-		"contactDamageBase": 25,
-		"contactDamagePerRound": 1.5,
+		"contactDamageBase": 3,
+		"contactDamagePerRound": 0.18,
 		"projectileDamageBase": 18,
 		"projectileDamagePerRound": 1.2,
 		"soulsBase": 100,
@@ -116,7 +116,7 @@
 		"dropPercentBase": 100,
 		"dropPercentPerRound": 1.5,
 		"dropPercentMin": 50,
-		"goldPerFragment": 1,
+		"goldPerFragment": 1.7,
 		"xpPerFragment": 1,
 		"groundPileCap": 50,
 		"harvestPerRound": 0.05,
@@ -124,8 +124,8 @@
 		"collectRadius": 0.6
 	},
 	"xp": {
-		"base": 10,
-		"perLevel": 8
+		"base": 8,
+		"perLevel": 5
 	},
 	"shop": {
 		"slots": 4,
