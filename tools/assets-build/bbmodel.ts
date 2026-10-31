@@ -50,6 +50,8 @@ export interface BbModel {
 	resolution: { width: number; height: number };
 	elements: BbElement[];
 	outliner: (string | BbGroup)[];
+	/** Blockbench 5.0 keeps the groups here and the outliner only references their uuids. */
+	groups?: BbGroup[];
 	textures?: { name?: string; width?: number; height?: number }[];
 	animations?: BbAnimation[];
 }
@@ -103,6 +105,24 @@ function groups(entries: readonly (string | BbGroup)[], out: BbGroup[] = []): Bb
 	return out;
 }
 
+/** Replaces the uuid references of a 5.0 outliner with the group objects; elements stay as uuid strings. */
+function resolveGroups(model: BbModel): void {
+	const byUuid = new Map((model.groups ?? []).map((g) => [g.uuid, g]));
+	const seen = new Set<string>();
+	const resolve = (entry: string | BbGroup): string | BbGroup => {
+		const group = typeof entry === "string" ? byUuid.get(entry) : (byUuid.get(entry.uuid) ?? entry);
+		if (!group) return entry;
+		if (seen.has(group.uuid))
+			return fail("bbmodel-json", model.name ?? "?", `group cycle at ${group.uuid}`);
+		seen.add(group.uuid);
+		const own = typeof entry === "string" ? undefined : entry.children;
+		const resolved = { ...group, children: (own?.length ? own : (group.children ?? [])).map(resolve) };
+		seen.delete(group.uuid);
+		return resolved;
+	};
+	model.outliner = model.outliner.map(resolve);
+}
+
 export function parseBbmodel(name: string, text: string): BbModel {
 	let json: unknown;
 	try {
@@ -114,6 +134,7 @@ export function parseBbmodel(name: string, text: string): BbModel {
 	if (!model || !Array.isArray(model.elements) || !Array.isArray(model.outliner) || !model.resolution) {
 		return fail("bbmodel-json", name, "missing elements, outliner or resolution");
 	}
+	if (Array.isArray(model.groups)) resolveGroups(model as BbModel);
 	return model as BbModel;
 }
 
