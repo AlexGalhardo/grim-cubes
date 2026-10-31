@@ -1,11 +1,15 @@
 import { ImportMeshAsync } from "@babylonjs/core/Loading/sceneLoader";
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
+import type { BaseTexture } from "@babylonjs/core/Materials/Textures/baseTexture";
+import { RawTexture } from "@babylonjs/core/Materials/Textures/rawTexture";
 import { Texture } from "@babylonjs/core/Materials/Textures/texture";
 import { Color3 } from "@babylonjs/core/Maths/math.color";
 import type { AbstractMesh } from "@babylonjs/core/Meshes/abstractMesh";
 import type { Mesh } from "@babylonjs/core/Meshes/mesh";
 import type { Scene } from "@babylonjs/core/scene";
+import { LIGHTING } from "../scene/palette";
 import { type LoadedVat, loadVat } from "../vat/loader";
+import { TERRAIN_TILE, TERRAIN_VARIANTS } from "../world/placeholder";
 import { type AtlasFormat, pickAtlasFormat } from "./atlasFormat";
 
 /** Mirrors `Manifest` in tools/assets-build (render cannot import tools); the JSON on disk is the contract. */
@@ -76,6 +80,8 @@ export interface GameAssets {
 	enemies: LoadedEnemy[];
 	/** Variants of the loaded enemy types; the horde draws a share of each type with them. */
 	variants: LoadedVariant[];
+	/** The authored floor strip (`atlas_terrain`), or null when the manifest has none (placeholder floor). */
+	terrain: BaseTexture | null;
 	props: Map<string, Mesh>;
 	/** The shared character atlas material, for models loaded outside the horde (hero, Merchant, bosses, weapons). */
 	characterMaterial: StandardMaterial | null;
@@ -110,6 +116,43 @@ async function enableKtx2(decoderUrl: string): Promise<void> {
 		wasmMSCTranscoder: `${decoderUrl}msc_basis_transcoder.wasm`,
 		wasmZSTDDecoder: null,
 	};
+}
+
+/**
+ * The floor strip with `LIGHTING.floorBiomeShade` multiplied into each biome's block of tiles, so the ground of every
+ * biome sits at a similar dark level whatever the authored tiles' own brightness. Falls back to the plain image
+ * where the browser has no image decoding (tests).
+ */
+async function loadTerrain(scene: Scene, terrainUrl: string, fetchFn: Fetcher): Promise<BaseTexture> {
+	try {
+		const bitmap = await createImageBitmap(await (await getOk(fetchFn, terrainUrl)).blob());
+		const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
+		const context = canvas.getContext("2d");
+		if (!context) throw new Error("no 2d context");
+		context.drawImage(bitmap, 0, 0);
+		const image = context.getImageData(0, 0, bitmap.width, bitmap.height);
+		const block = TERRAIN_TILE * TERRAIN_VARIANTS;
+		for (let y = 0; y < image.height; y++) {
+			for (let x = 0; x < image.width; x++) {
+				const shade = LIGHTING.floorBiomeShade[Math.floor(x / block)] ?? 1;
+				const o = (y * image.width + x) * 4;
+				image.data[o] = (image.data[o] ?? 0) * shade;
+				image.data[o + 1] = (image.data[o + 1] ?? 0) * shade;
+				image.data[o + 2] = (image.data[o + 2] ?? 0) * shade;
+			}
+		}
+		return RawTexture.CreateRGBATexture(
+			new Uint8Array(image.data.buffer),
+			image.width,
+			image.height,
+			scene,
+			false,
+			false,
+			Texture.NEAREST_SAMPLINGMODE,
+		);
+	} catch {
+		return new Texture(terrainUrl, scene, true, false, Texture.NEAREST_SAMPLINGMODE);
+	}
 }
 
 /** Emissive texture gain: the ember pixels of the `_e.png` masks read as glowing under the dark night lighting. */
@@ -240,5 +283,7 @@ export async function loadGameAssets(scene: Scene, options: GameAssetsOptions): 
 
 	await Promise.all([loadEnemies, loadVariants, loadProps]);
 	variants.sort((a, b) => (a.id < b.id ? -1 : 1));
-	return { manifest, enemies, variants, props, characterMaterial };
+	const terrainEntry = entry("atlas_terrain");
+	const terrain = terrainEntry ? await loadTerrain(scene, url(terrainEntry.url), fetchFn) : null;
+	return { manifest, enemies, variants, terrain, props, characterMaterial };
 }

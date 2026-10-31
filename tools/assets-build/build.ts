@@ -193,6 +193,52 @@ function blackLike(texture: PNG): PNG {
 	return black;
 }
 
+/**
+ * `atlas_terrain`: the floor tiles the game draws, one 32 px square per `floorTiles` entry of `data/biomes.json`, in
+ * biome order then variant order, in a single strip (the layout `chunkRenderer` indexes). The tiles are the authored
+ * `tile_*` models' textures, so the floor of the game is the floor the Art painted.
+ */
+function buildTerrain(
+	options: BuildOptions,
+	loaded: readonly Loaded[],
+	entries: Record<string, ManifestEntry>,
+): void {
+	for (const file of existsSync(options.outDir) ? readdirSync(options.outDir) : []) {
+		if (/^atlas_terrain\..*\.png$/.test(file)) rmSync(join(options.outDir, file));
+	}
+	const biomesPath = options.dataDir ? join(options.dataDir, "biomes.json") : "";
+	if (!biomesPath || !existsSync(biomesPath)) return;
+	const biomes = JSON.parse(readFileSync(biomesPath, "utf8")) as { floorTiles?: string[] }[];
+	const byName = new Map(loaded.map((l) => [l.input.name, l.texture]));
+	const tiles = biomes.flatMap((biome) => biome.floorTiles ?? []);
+	const textures = tiles.map((name) => byName.get(name));
+	if (tiles.length === 0 || textures.some((t) => !t)) return;
+	const tile = textures[0]?.width ?? 32;
+	const strip = new PNG({ width: tile * tiles.length, height: tile });
+	textures.forEach((png, i) => {
+		if (!png || png.width !== tile || png.height !== tile)
+			throw new RuleError("terrain-size", tiles[i] ?? "?", `floor tiles must all be ${tile}x${tile}`);
+		for (let y = 0; y < tile; y++) {
+			png.data.copy(strip.data, (y * strip.width + i * tile) * 4, y * tile * 4, (y + 1) * tile * 4);
+		}
+	});
+	const bytes = new Uint8Array(PNG.sync.write(strip, { filterType: 0 }));
+	const hash = digest(bytes);
+	const url = `atlas_terrain.${hash}.png`;
+	writeFileSync(join(options.outDir, url), bytes);
+	entries.atlas_terrain = {
+		url,
+		hash,
+		bytes: bytes.length,
+		kind: "atlas",
+		group: "core",
+		sampling: "nearest",
+		mipmaps: false,
+		width: strip.width,
+		height: strip.height,
+	};
+}
+
 function remapUvs(document: Document, p: Placement, size: number): void {
 	const done = new Set<unknown>();
 	for (const primitive of document.getRoot().listMeshes()[0]?.listPrimitives() ?? []) {
@@ -420,6 +466,7 @@ export async function buildAssets(options: BuildOptions): Promise<Manifest> {
 		};
 	}
 
+	buildTerrain(options, loaded, entries);
 	buildIconAtlas(options, entries);
 	copyAudio(options);
 

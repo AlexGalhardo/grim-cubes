@@ -744,6 +744,7 @@ async function boot(): Promise<void> {
 			maxPropsPerChunk: worldData.maxPropsPerChunk,
 			loadRadius: worldData.loadRadius,
 			fade: renderData.propFade,
+			terrain: assets?.terrain ?? undefined,
 			floorTints: biomesData.map((biome, index) =>
 				index === 0 || !biome.fogColor ? undefined : floorTint(biome.fogColor),
 			),

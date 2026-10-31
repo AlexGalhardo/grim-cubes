@@ -1,6 +1,7 @@
 import { VertexBuffer } from "@babylonjs/core/Buffers/buffer";
 import { Material } from "@babylonjs/core/Materials/material";
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
+import type { BaseTexture } from "@babylonjs/core/Materials/Textures/baseTexture";
 import { Color3 } from "@babylonjs/core/Maths/math.color";
 import { CreateBox } from "@babylonjs/core/Meshes/Builders/boxBuilder";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
@@ -8,7 +9,7 @@ import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData";
 import { type ChunkSystem, PROP_KIND } from "@gc/game";
 import "@babylonjs/core/Meshes/thinInstanceMesh";
 import { toLoaderLocalX } from "../coords";
-import { PALETTE } from "../scene/palette";
+import { LIGHTING, PALETTE } from "../scene/palette";
 import { flatMaterial, type GameScene } from "../scene/scene";
 import { createPlaceholderTerrain, type PropTypeDef, TERRAIN_TILE, TERRAIN_VARIANTS } from "./placeholder";
 
@@ -26,6 +27,11 @@ export interface ChunkRendererConfig {
 	fade?: FadeConfig;
 	/** Base colour of each biome's floor tiles (hex, by biome index); undefined keeps the cemetery look. */
 	floorTints?: readonly (string | undefined)[];
+	/**
+	 * The authored floor strip (`atlas_terrain`: 32 px tiles, biome by biome, `TERRAIN_VARIANTS` each). When absent the
+	 * generated placeholder drawn from `floorTints` is used (dev server before the first `assets:build`).
+	 */
+	terrain?: BaseTexture | undefined;
 }
 
 export interface FadeView {
@@ -124,8 +130,9 @@ export function createChunkRenderer(
 	vertexData.applyToMesh(floor, true);
 	floor.alwaysSelectAsActiveMesh = true;
 	const floorMaterial = new StandardMaterial("chunk_floor", scene);
-	floorMaterial.diffuseTexture = createPlaceholderTerrain(scene, config.floorTints);
+	floorMaterial.diffuseTexture = config.terrain ?? createPlaceholderTerrain(scene, config.floorTints);
 	floorMaterial.specularColor = Color3.Black();
+	floorMaterial.diffuseColor = new Color3(LIGHTING.floorShade, LIGHTING.floorShade, LIGHTING.floorShade);
 	floorMaterial.backFaceCulling = false;
 	floorMaterial.freeze();
 	floor.material = floorMaterial;

@@ -227,6 +227,21 @@ Decisão D23: gore alto estilizado, toggle para reduzir.
 - Telegrafia de ataques de chefe: decal no chão (Sangue claro, 60%), cresce durante o wind-up.
 - Números de dano: sprites de dígitos pixel (fonte §11) em billboard, renderizados pela engine, 0,6 s de vida. Em inimigos são quase brancos (token `damage-white` `#F4F1EA`, que existe porque `#FFFFFF` puro é proibido em textura); crítico usa Brasa clara. Decisão do PO em 2026-10-31.
 
+### 9.1 Exposição em jogo (2026-10-31)
+
+A revisão em jogo mostrou a cena escura demais: os modelos ficavam em média 14 abaixo do chão em luminância (mediana de 26 contra 40 em 255) e 18 de 22 modelos amostrados tinham diferença menor que 10 contra o chão. Método de medição: a rota `?art=<id>&ingame=1` renderiza o modelo sobre o tile do bioma com a câmera, a luz e o fog do jogo; a mesma cena sem o modelo (`&bare=1`) é subtraída pixel a pixel, e a mediana de luminância (0,2126 R + 0,7152 G + 0,0722 B) dos pixels que mudaram dá o modelo, e a dos mesmos pixels da cena sem ele dá o chão.
+
+Mudanças (`LIGHTING` em `packages/render/src/scene/palette.ts`, o grimdark do chão fica): luz hemisférica de 0,45 para 2,5 com céu `#8A9099` (antes `mist`, escuro demais), luz direcional de 1,1 para 4,2, uma luz de contorno fraca (0,6) vinda da câmera e o chão a 24% do difuso, com um fator por bioma gravado na faixa de tiles (0,55 cemitério, 0,78 pântano, 0,92 forja, 1 ninho) porque os tiles do cemitério são os mais claros. Os sliders de brilho e contraste da acessibilidade continuam valendo por cima (exposição e contraste do processamento de imagem).
+
+| Amostra de 22 modelos (mediana, 0 a 255) | Antes | Depois |
+| --- | --- | --- |
+| Modelo | 26 | 64 |
+| Chão | 40 | 36 |
+| Diferença média | -14 | +28 |
+| Modelos com diferença menor que 10 | 18 | 2 (`bone_merchant`, `prop_furnace_01`, cuja brasa já brilha) |
+
+O chão da Forja e do Ninho é emissivo (anéis de brasa e veios nos tiles), por isso a sombra do chão quase não os mexe.
+
 ## 10. Pipeline de assets e nomenclatura
 
 ### 10.1 Fluxo

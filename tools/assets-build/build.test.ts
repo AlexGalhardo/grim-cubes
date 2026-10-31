@@ -212,6 +212,27 @@ describe("buildAssets", () => {
 		expect(manifest.entries.tile_a?.atlas).toBe("atlas_props");
 	});
 
+	test("atlas_terrain strips the biomes' floor tiles in data order, and only when every tile exists", async () => {
+		const data = join(root, "data");
+		mkdirSync(data, { recursive: true });
+		writeFileSync(
+			join(data, "biomes.json"),
+			JSON.stringify([{ floorTiles: ["tile_a_01", "tile_a_02"] }, { floorTiles: ["tile_b_01"] }]),
+		);
+		await writeModel("tile_a_01", { category: "tiles" }, 1);
+		await writeModel("tile_a_02", { category: "tiles" }, 2);
+		const missing = await buildAssets({ srcDir: src, outDir: out, version: "1", dataDir: data });
+		expect(missing.entries.atlas_terrain).toBeUndefined();
+		await writeModel("tile_b_01", { category: "tiles" }, 3);
+		const manifest = await buildAssets({ srcDir: src, outDir: out, version: "1", dataDir: data });
+		const entry = manifest.entries.atlas_terrain;
+		expect([entry?.width, entry?.height]).toEqual([96, 32]);
+		const strip = PNG.sync.read(readFileSync(join(out, entry?.url ?? "")));
+		// The second tile's first pixel is the second fixture's colour (40 + seed * 20 on red).
+		expect(strip.data[32 * 4]).toBe(40 + 2 * 20);
+		expect(strip.data[64 * 4]).toBe(40 + 3 * 20);
+	});
+
 	test("fitAtlas grows to the smallest power of two that holds the sprites", () => {
 		const sprite = (name: string, size: number): { name: string; png: PNG } => ({
 			name,
