@@ -37,17 +37,17 @@ Pilar P5 (GDD §2) e Art Bible §5.4. Alvos de tela D31.
 
 - Thin instances para inimigos, props, fragmentos, partículas cúbicas e projéteis (1 mesh por tipo); buffers `Float32Array` reutilizados; `thinInstanceSetBuffer(..., false)` e `thinInstanceBufferUpdated` uma vez por frame por mesh.
 - VAT para animação de inimigos comuns; skeleton só para herói, NPC e chefes.
-- `scene.freezeActiveMeshes()` com `scene.unfreezeActiveMeshes()` quando o anel de chunks muda; `material.freeze()` em todos os materiais estáticos; `mesh.freezeWorldMatrix()` em chão e props.
+- `scene.freezeActiveMeshes()` só para meshes estáticos (chão e props), com `scene.unfreezeActiveMeshes()` quando o anel de chunks muda ou em `OriginShifted`; meshes de thin instances animadas (inimigos) usam `alwaysSelectAsActiveMesh = true`; `material.freeze()` em todos os materiais estáticos; `mesh.freezeWorldMatrix()` em chão e props.
 - `scene.autoClear = false` onde o chão cobre a tela; `skipPointerMovePicking = true`; picking só para UI (nenhum `scene.pick` por frame).
 - Culling manual por distância na simulação (inimigos > 40 u são removidos sem drop) e no render (instâncias fora do frustum ampliado não entram no buffer).
 - `engine.setHardwareScalingLevel()` dinâmico via `SceneOptimizer` (Android): começa em `devicePixelRatio / 1.5`; degrada até 2,0 se p99 > 45 ms por 3 s; recupera lentamente.
-- Texturas `NEAREST`, sem mipmaps nos atlas de personagens (pixel art), mipmaps só no atlas de chão.
+- Texturas `NEAREST` e sem mipmaps em todos os atlas por ora (pixel art); mipmaps no atlas de chão ficam para uma medição futura.
 - Áudio: ≤ 24 vozes simultâneas; `maxInstances` por som.
 - UI: React a 12 Hz; nenhum layout thrash (medir com Performance panel: `Recalculate Style` < 1 ms por atualização).
 
 ## 4. Medição
 
-- `tools/perf/bench.spec.ts` (Playwright): carrega `?debug=1&bench=round20`, que instancia o cenário de referência determinístico (seed fixa), roda 30 s e grava `{ fpsAvg, fpsP1, frameP99, drawCalls, activeMeshes, heapMB }` via `engine.getFps()`, `scene.getActiveMeshes().length`, `engine._drawCalls` (ou `SceneInstrumentation`), `performance.memory` quando disponível. Resultado em `reports/perf-<alvo>.json` e comentário no PR (informativo no CI com SwiftShader; os números válidos vêm da execução local/manual com GPU real, registrada no checklist de fase).
+- `tools/perf/bench.spec.ts` (Playwright): carrega `?debug=1&bench=round20`, que instancia o cenário de referência determinístico (seed fixa), roda 5 s de warm-up (descartados) e 30 s de medição, e grava `{ fpsAvg, fpsP1, frameP99, drawCalls, activeMeshes, heapMB }` via `engine.getFps()`, `scene.getActiveMeshes().length`, `SceneInstrumentation` (`drawCallsCounter`); `frameP99` por `performance.now()` em `scene.onEndFrameObservable`, `performance.memory` quando disponível. Resultado em `reports/perf-<alvo>.json` e comentário no PR (informativo no CI com SwiftShader; os números válidos vêm da execução local/manual com GPU real, registrada no checklist de fase).
 - Android: mesmo cenário via Capacitor em device real; coleta com `adb shell dumpsys gfxinfo` + overlay de fps do jogo; registrado em `reports/perf-android-<device>.json` ao final de cada fase.
 - Inspector do Babylon (`@babylonjs/inspector`) disponível em `?debug=1` para profiling manual; nunca no bundle de produção.
 - Regressão: variação > 10% em `frameP99` ou > 15% em draw calls no bench do CI bloqueia o merge (comparação com `main`).

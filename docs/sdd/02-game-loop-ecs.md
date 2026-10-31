@@ -93,7 +93,7 @@ Cada sistema é `function system(world: World, step: number): void` e tem teste 
 
 ## 4. Eventos
 
-Ring buffer de 1.024 eventos por passo (struct de arrays: `type: u8, a: f32, b: f32, c: f32, entity: u16`). `render` e `ui` consomem após `simulate`; eventos não consumidos no frame são descartados (nunca acumulam).
+Ring buffer contínuo de 1.024 eventos (struct de arrays: `type: u8, a: f32, b: f32, c: f32, entity: u16`). `render` e `ui` consomem após `simulate`, cada um com seu cursor de leitura. Se o produtor ultrapassar o consumidor (mais de 1.024 eventos não lidos), os mais antigos são sobrescritos e o contador `dropped` é incrementado (exposto em `?debug=1`; deve ser 0 nos testes).
 
 ## 5. Estado da run (máquina de estados)
 

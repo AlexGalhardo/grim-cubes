@@ -14,8 +14,8 @@ public/assets/            (gerado por tools/assets-build; commitado)
 ├── atlas_characters.png | .ktx2
 ├── atlas_props.png | .ktx2
 ├── atlas_vfx_ui.png
-├── models/<name>.glb      (UVs reescritos para o atlas)
-├── vat/<name>.png         (texturas de animação, RGBA16F empacotado)
+├── models/<name>.glb      (UVs reescritos para o atlas; texturas `.png` ao lado do `.glb`)
+├── vat/<name>.<hash>.bin  (matrizes de osso, RGBA32F) + <name>.<hash>.json
 ├── audio/...
 └── manifest.json
 ```
@@ -26,11 +26,11 @@ Etapas, cada uma com validação que falha o build:
 
 1. **Validate models**: lê cada `.bbmodel` (JSON): só elementos `cube`/`quad` (sem `mesh`), rotações múltiplas de 22,5°, contagem de elementos ≤ orçamento por categoria (Art Bible §5.1), grupos obrigatórios (`root`, `body`, `head`, `weapon_socket`/`hit_socket`), textura única e múltipla de 32 px, sem `#FFFFFF`/`#000000`, ≤ 12 cores por textura.
 2. **Validate glTF**: abre o `.glb` com `@gltf-transform/core` (dependência de dev; ADR-0011) e confere: 1 mesh, 1 material, animações obrigatórias por classe (Art Bible §8), `KHR_materials_unlit` ou material sem metallic/roughness.
-3. **Atlas**: empacota todas as `_d.png` por categoria num atlas 2048² (algoritmo MaxRects simples, próprio); reescreve UVs dos `.glb` (escala/offset) e grava `public/assets/models/<name>.glb`. Emissivas em canal separado do mesmo atlas (`_e` empacotado nas mesmas coordenadas num segundo PNG).
-4. **VAT**: para `enemies/*`: amostra cada clipe a 12 fps, grava posições de vértice por frame numa textura (largura = vértices, altura = frames totais), gera `vat/<name>.png` + JSON com ranges de frames por clipe. Usa o mesmo loader glTF em Node (`@gltf-transform`) e cálculo de skinning em CPU (próprio, ~200 linhas).
+3. **Atlas**: empacota todas as `_d.png` por categoria num atlas 2048² (algoritmo MaxRects simples, próprio); reescreve UVs dos `.glb` (escala/offset), reescreve o material para `KHR_materials_unlit` (o pipeline é a fonte dessa extensão) e grava `public/assets/models/<name>.glb` com o `.png` ao lado. Emissivas em canal separado do mesmo atlas (`_e` empacotado nas mesmas coordenadas num segundo PNG).
+4. **VAT**: para `enemies/*`: amostra cada clipe (idle, walk, attack, hit, death) a 12 fps e grava as matrizes de osso por frame, no formato do `VertexAnimationBaker` do Babylon: RGBA32F, largura = (ossos + 1) × 4 texels, altura = frames totais (largura ≤ 4096). Saída `vat/<name>.<hash>.bin` + JSON com ranges de frames por clipe. Usa o mesmo loader glTF em Node (`@gltf-transform`); o cálculo das matrizes é próprio. Nenhuma saída contém data/hora, para o bake ser byte a byte reprodutível.
 5. **KTX2**: converte atlas para KTX2 ETC1S (`toktx` do KTX-Software se instalado; senão pula e marca `ktx2: false` no manifest; CI tem o binário).
 6. **Audio**: copia mp3 cujo `meta.plan !== "free"`; falha se algum asset referenciado no jogo tiver `plan: free`.
-7. **Manifest**: `manifest.json` com `{ version, generatedAt, entries: { [id]: { url, hash, bytes, kind, group: "core" | "biome:<id>" | "boss:<id>" } } }`. Grupos permitem lazy load.
+7. **Manifest**: `manifest.json` (sem `generatedAt`, byte a byte idêntico entre execuções sem mudanças; nomes de arquivo com hash) com `{ version, entries: { [id]: { url, hash, bytes, kind, group: "core" | "biome:<id>" | "boss:<id>" } } }`. Grupos permitem lazy load.
 
 Tempo alvo: < 60 s com todos os assets da 1.0 em CI.
 
@@ -48,5 +48,5 @@ Fontes OFL (`assets/src/ui/fonts/*.woff2`) com `LICENSE.txt` ao lado; carregadas
 ## 5. Testes
 
 - `tools/assets-build` com fixtures mínimas (1 modelo válido, 1 inválido por regra) cobrindo cada validação.
-- VAT: vértice conhecido em frame conhecido bate com a pose do glTF (tolerância 1e-4).
-- Manifest: hash estável entre duas execuções sem mudanças (build reprodutível).
+- VAT: oráculo por fixture analítica de 2 ossos com rotação de 90° no frame 5; a matriz gravada bate com a esperada (tolerância 1e-4).
+- Manifest e VAT: bytes idênticos entre duas execuções sem mudanças (build reprodutível, sem `generatedAt`).

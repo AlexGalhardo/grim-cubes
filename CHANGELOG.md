@@ -33,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **platform:** Add runtime and touch detection ([46d9f88](https://github.com/AlexGalhardo/grim-cubes/commit/46d9f886e893d27db7daf8e2e8ffa1e5fb0fad5d))
 - **game:** Add bitecs world, components, event ring buffer and render port contract ([dbbe953](https://github.com/AlexGalhardo/grim-cubes/commit/dbbe95305eb5b868f48f150f52035440ab93a9c4))
 - **data:** Require `world.json` and its schema in data-check ([0a97079](https://github.com/AlexGalhardo/grim-cubes/commit/0a97079f053c64319b7c9f623f0054e7644f491a))
+- **world:** Add origin shifting (positions relative to a f64 origin, shift at 1024 u) and minimal render port ([91cce83](https://github.com/AlexGalhardo/grim-cubes/commit/91cce83324e77cff27ce975a3b613d720a71db3b))
 
 ### Changed
 
@@ -42,5 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **docs:** Amend SDD 10/11 for `bun check`, Vitest projects, Biome preset and GritQL plugin
 - **lint:** Close layer import gaps (Babylon subpaths, relative cross-package imports, render override), drop `vitest/globals` types and add SMHasher verification test ([0ab5190](https://github.com/AlexGalhardo/grim-cubes/commit/0ab51906e7fc74d659395c8aa4ebcb2ad5c32251))
 - **docs:** Amend SDD 01 §2: `ui` imports only `core`; Biome layer patterns documented
+- **docs:** Apply phase 2 review fixes to ROADMAP (new P-03-06, P-06-06, P-06-07) and SDD 02/03/09/10/11/14; add `.env.example` variable names
+- **tooling:** Tighten `secrets-scan` patterns (no false positives on docs/code; adds GitHub PAT and AWS keys)
 
 [Unreleased]: https://github.com/AlexGalhardo/grim-cubes/compare/2775e6e...HEAD

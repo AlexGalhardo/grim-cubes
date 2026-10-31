@@ -38,6 +38,8 @@ Versão 1.0.0 — 2026-10-31. Este prompt é autossuficiente: um agente sem cont
 | **Especialista (Esp)** | Claude Opus 5.5 | revisa, audita e corrige o trabalho de S1, S2 e Est antes de devolver ao Orq; segurança, performance, aderência a GDD/Art Bible/SDD/ADR | nenhum módulo próprio; edita qualquer arquivo durante correção, na branch da tarefa |
 | **PO** | Alex (humano) | decisões de design não cobertas, gastos, contas, ações manuais, aprovação de fase | — |
 
+`core/spatial` (spatial hash) e `separationSystem` pertencem ao S2 (`packages/core` e `packages/game`); o S1 apenas os consome em render e mundo.
+
 Regras dos subagentes:
 
 - **Standby permanente**: subagentes nunca são finalizados pelo Orquestrador; ao concluir uma tarefa, recebem a próxima da fila na mesma conversa (use `SendMessage` para continuar o mesmo agente, preservando contexto).
