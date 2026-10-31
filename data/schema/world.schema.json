@@ -12,7 +12,8 @@
 		"poolSize",
 		"originShiftThreshold",
 		"maxPropsPerChunk",
-		"hordeRenderSlack"
+		"hordeRenderSlack",
+		"propAvoidLookahead"
 	],
 	"properties": {
 		"chunkSize": { "type": "integer", "minimum": 1, "description": "Chunk edge in world units." },
@@ -46,6 +47,11 @@
 			"type": "integer",
 			"minimum": 0,
 			"description": "Extra instance capacity per enemy type on top of the simultaneous-enemy cap (rounds.json maxSimultaneous), also the death-ghost capacity."
+		},
+		"propAvoidLookahead": {
+			"type": "number",
+			"minimum": 0,
+			"description": "Distance ahead, in units, at which enemies start steering around a blocking prop (SDD 03 section 4)."
 		}
 	}
 }

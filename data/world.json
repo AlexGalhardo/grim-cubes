@@ -6,5 +6,6 @@
 	"poolSize": 81,
 	"originShiftThreshold": 1024,
 	"maxPropsPerChunk": 32,
-	"hordeRenderSlack": 20
+	"hordeRenderSlack": 20,
+	"propAvoidLookahead": 2
 }
