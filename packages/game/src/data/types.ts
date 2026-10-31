@@ -166,8 +166,10 @@ export interface PropData {
 	id: string;
 	sizeClass: string;
 	kind: string;
-	/** Collision circle radius in units (blocking props). */
+	/** Collision circle radius in units (blocking and breakable props). */
 	radius: number;
+	/** Hit points of a breakable prop. */
+	hp?: number;
 	/** Model height in units. */
 	height: number;
 }
@@ -302,4 +304,22 @@ export interface SkinData {
 export interface MilestonesData {
 	milestones: MilestoneData[];
 	skins: SkinData[];
+}
+
+/** `data/consumables.json` (GDD 15.4). */
+export interface ConsumableKindData {
+	id: string;
+	name: string;
+	/** Relative drop weight among the kinds. */
+	weight: number;
+	/** `blood_vial`: fraction of max HP healed on pickup. */
+	healFraction?: number;
+	/** `bone_magnet`: seconds every fragment on the floor flies to the hero. */
+	pullSeconds?: number;
+}
+
+export interface ConsumablesData {
+	dropChance: { breakable: number };
+	pickupRadius: number;
+	kinds: ConsumableKindData[];
 }

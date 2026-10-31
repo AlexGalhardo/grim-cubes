@@ -18,6 +18,7 @@ export {
 	biomesData,
 	bossesData,
 	cardsData,
+	consumablesData,
 	elitesData,
 	enemiesData,
 	heroData,

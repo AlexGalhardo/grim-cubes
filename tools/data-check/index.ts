@@ -155,6 +155,10 @@ export function checkIntegrity(data: DataSet): string[] {
 	checkUniqueIds("bosses.json", asArray(data["bosses.json"]), errors);
 
 	const propIds = checkUniqueIds("props.json", asArray(data["props.json"]), errors);
+	for (const prop of asArray(data["props.json"])) {
+		if (prop.kind === "breakable" && typeof prop.hp !== "number")
+			errors.push(`props.json: breakable ${idOf(prop)} needs hp (A-02-04)`);
+	}
 	const biomes = asArray(data["biomes.json"]);
 	checkUniqueIds("biomes.json", biomes, errors);
 	for (const biome of biomes) {
@@ -319,6 +323,7 @@ const EXPECTED_FILES = [
 	"cards",
 	"ossuary",
 	"milestones",
+	"consumables",
 	"rounds",
 	"biomes",
 	"hero",

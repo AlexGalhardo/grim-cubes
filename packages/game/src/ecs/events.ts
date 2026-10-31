@@ -61,6 +61,12 @@ export const EventType = {
 	BossPhase: 29,
 	/** The hero was revived (Phylactery): leave the death pose; entity = the hero. */
 	Revived: 30,
+	/** a, b = x, z; c = index of the prop in its chunk; entity = prop type id. A breakable prop broke. */
+	PropBroken: 31,
+	/** a, b = x, z; c = kind (1 blood vial, 2 bone magnet). A consumable dropped. */
+	ConsumableDropped: 32,
+	/** a = kind (1 blood vial, 2 bone magnet); the hero picked a consumable up. */
+	ConsumablePicked: 33,
 	/** a = new level. The run paused and a card offer is waiting. */
 	LevelUp: 11,
 } as const;

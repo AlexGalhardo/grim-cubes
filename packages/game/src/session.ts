@@ -4,6 +4,7 @@ import {
 	biomesData,
 	bossesData,
 	cardsData,
+	consumablesData,
 	elitesData,
 	enemiesData,
 	heroData,
@@ -32,6 +33,7 @@ import { createRunStats } from "./rules/runstats";
 import { createPlayerStats } from "./rules/stats";
 import { createBehaviorSystem } from "./systems/behavior";
 import { createBossRoster } from "./systems/boss";
+import { createBreakableSystem } from "./systems/breakables";
 import { createChestSystem } from "./systems/chest";
 import { createDamageSystem } from "./systems/damage";
 import { createDashSystem } from "./systems/dash";
@@ -64,7 +66,7 @@ import { createStatsSystem } from "./systems/stats";
 import { createTargetingSystem } from "./systems/targeting";
 import { createWeaponSystem } from "./systems/weapon";
 import { createChunkGenerator } from "./world/chunkGen";
-import { createChunkSystem } from "./world/chunkSystem";
+import { type ChunkHooks, createChunkSystem } from "./world/chunkSystem";
 import { cullDistantEnemies } from "./world/cull";
 import { applyOriginShift, createOrigin } from "./world/originShift";
 import { createPropCollision } from "./world/propCollision";
@@ -351,9 +353,25 @@ function build(options: GameSessionOptions) {
 		chunkSize: worldData.chunkSize,
 		maxPropsPerChunk: worldData.maxPropsPerChunk,
 	});
-	const chunks = createChunkSystem(worldData, chunkGen.generate);
+	const chunkHooks: ChunkHooks = {};
+	const chunks = createChunkSystem(worldData, chunkGen.generate, chunkHooks);
 	// Rings by distance (A-02-01): the one map the chunk generator and the atmosphere share (the spawner joins it with the per-biome pools).
 	const biomeMap = chunkGen.biomeMap;
+	const breakables = createBreakableSystem({
+		world,
+		chunks,
+		chunkSize: worldData.chunkSize,
+		origin,
+		types: chunkGen.propTypes.map((name) => {
+			const prop = propsData.find((p) => p.id === name);
+			return { radius: prop?.radius ?? 0, hp: prop?.kind === "breakable" ? (prop.hp ?? 0) : 0 };
+		}),
+		config: consumablesData,
+		rng: rng.loot,
+		events,
+		pullFragments: (seconds) => pickup.pullAll(seconds),
+	});
+	chunkHooks.onRelease = breakables.release;
 	const propCollision = createPropCollision(chunks, {
 		chunkSize: worldData.chunkSize,
 		avoidLookahead: worldData.propAvoidLookahead,
@@ -377,6 +395,8 @@ function build(options: GameSessionOptions) {
 			boss.run(world);
 			propCollision.steer(world, origin);
 			separation.run(world);
+			breakables.populate();
+			breakables.insertInto(separation.hash);
 			movementSystem(world);
 			cullDistantEnemies(world, Position.x[hero] ?? 0, Position.z[hero] ?? 0, worldData.cullDistance);
 			propCollision.resolve(world, origin, hero);
@@ -391,8 +411,10 @@ function build(options: GameSessionOptions) {
 			thorns.run(world, hero);
 			bleed.run(world);
 			damage.run(world);
+			breakables.run();
 			death.run(world);
 			pickup.run(world, hero);
+			breakables.collect(hero);
 			elite.run(world);
 			chest.run(world, hero);
 			stats.run(hero);
@@ -445,6 +467,7 @@ function build(options: GameSessionOptions) {
 		chunkGen,
 		chunks,
 		biomeMap,
+		breakables,
 		propCollision,
 		ossuaryBonus,
 		rng,
@@ -499,6 +522,7 @@ export interface GameSession {
 	readonly shop: ReturnType<typeof build>["shop"];
 	readonly chunkGen: ReturnType<typeof build>["chunkGen"];
 	readonly chunks: ReturnType<typeof build>["chunks"];
+	readonly breakables: ReturnType<typeof build>["breakables"];
 	readonly biomeMap: ReturnType<typeof build>["biomeMap"];
 	readonly propCollision: ReturnType<typeof build>["propCollision"];
 	readonly ossuaryBonus: ReturnType<typeof build>["ossuaryBonus"];

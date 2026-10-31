@@ -36,6 +36,16 @@ export interface ChunkData {
 	propKind: Uint8Array;
 	propX: Float32Array;
 	propZ: Float32Array;
+	/** Bit p set: the breakable prop p was broken. Remembered only while the chunk stays loaded (A-02-04). */
+	broken: number;
+	/** True once the breakables of this chunk have their entities. */
+	populated: boolean;
+}
+
+/** Lifecycle hooks for systems that tie entities to a chunk. */
+export interface ChunkHooks {
+	/** The chunk leaves the window; its data is about to be reused. */
+	onRelease?(chunk: ChunkData): void;
 }
 
 export type ChunkGenerator = (cx: number, cz: number, out: ChunkData) => void;
@@ -57,7 +67,11 @@ export interface ChunkSystem {
 	readonly stats: Readonly<ChunkStats>;
 }
 
-export function createChunkSystem(config: WorldConfig, generate: ChunkGenerator): ChunkSystem {
+export function createChunkSystem(
+	config: WorldConfig,
+	generate: ChunkGenerator,
+	hooks: ChunkHooks = {},
+): ChunkSystem {
 	const { chunkSize, loadRadius, unloadRadius, chunksPerStep, poolSize, maxPropsPerChunk } = config;
 	if (unloadRadius <= loadRadius) throw new Error("unloadRadius must be greater than loadRadius");
 	// Every chunk closer than unloadRadius fits one window of this width, so (cx mod W, cz mod W) is unique.
@@ -91,6 +105,8 @@ export function createChunkSystem(config: WorldConfig, generate: ChunkGenerator)
 			propKind: new Uint8Array(maxPropsPerChunk),
 			propX: new Float32Array(maxPropsPerChunk),
 			propZ: new Float32Array(maxPropsPerChunk),
+			broken: 0,
+			populated: false,
 		};
 	}
 
@@ -102,6 +118,7 @@ export function createChunkSystem(config: WorldConfig, generate: ChunkGenerator)
 		for (let i = 0; i < slots.length; i++) {
 			const chunk = slots[i];
 			if (chunk && Math.max(Math.abs(chunk.cx - hcx), Math.abs(chunk.cz - hcz)) >= unloadRadius) {
+				hooks.onRelease?.(chunk);
 				slots[i] = null;
 				free[freeCount++] = chunk;
 				stats.released++;
@@ -132,6 +149,8 @@ export function createChunkSystem(config: WorldConfig, generate: ChunkGenerator)
 			chunk.cz = bestZ;
 			chunk.floorVariant = 0;
 			chunk.propCount = 0;
+			chunk.broken = 0;
+			chunk.populated = false;
 			generate(bestX, bestZ, chunk);
 			slots[slotOf(bestX, bestZ)] = chunk;
 			stats.generated++;

@@ -1,6 +1,7 @@
 import biomesJson from "../../../../data/biomes.json";
 import bossesJson from "../../../../data/bosses.json";
 import cardsJson from "../../../../data/cards.json";
+import consumablesJson from "../../../../data/consumables.json";
 import elitesJson from "../../../../data/elites.json";
 import enemiesJson from "../../../../data/enemies.json";
 import heroJson from "../../../../data/hero.json";
@@ -20,6 +21,7 @@ import type {
 	BiomeData,
 	BossData,
 	CardsData,
+	ConsumablesData,
 	ElitesData,
 	EnemyData,
 	HeroData,
@@ -46,6 +48,7 @@ export const biomesData: readonly BiomeData[] = biomesJson;
 export const cardsData: CardsData = cardsJson;
 export const ossuaryData: OssuaryData = ossuaryJson;
 export const milestonesData: MilestonesData = milestonesJson;
+export const consumablesData: ConsumablesData = consumablesJson;
 export const bossesData: readonly BossData[] = bossesJson;
 export const elitesData: ElitesData = elitesJson;
 export const itemsData: readonly ItemData[] = itemsJson;

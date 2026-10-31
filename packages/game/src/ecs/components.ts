@@ -86,4 +86,8 @@ export const Attacking = { ticks: u8() };
 /** A reward chest on the floor; opening it offers items of at least this tier. */
 /** `choices` items are offered and the hero keeps `picks` of them. */
 /** `heals`: 1 when opening it restores HP (elite chests; the boss chest does not, GDD 12.2). */
+/** A breakable prop as an entity: `index` is its place in the chunk (cx, cz), `type` indexes the prop type list. */
+export const Breakable = { cx: f32(), cz: f32(), index: u8(), type: u8() };
+/** A dropped consumable (GDD 15.4): `kind` is 1 blood vial, 2 bone magnet. */
+export const Consumable = { kind: u8() };
 export const Chest = { tier: u8(), choices: u8(), picks: u8(), heals: u8() };

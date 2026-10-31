@@ -1,6 +1,6 @@
 import type { SpatialHash } from "@gc/core";
 import { hasComponent } from "bitecs";
-import { EnemyFaction, Health, Position, Radius } from "../ecs/components";
+import { Breakable, EnemyFaction, Health, Position, Radius } from "../ecs/components";
 import { type EventBuffer, EventType } from "../ecs/events";
 import type { ProjectilePool, ProjectileSpec } from "../ecs/projectile";
 import type { GameWorld } from "../ecs/world";
@@ -162,7 +162,11 @@ export function createWeaponSystem(deps: WeaponSystemDeps): WeaponSystem {
 		const n = enemies.queryCircle(hx, hz, range + 1, near);
 		for (let i = 0; i < n; i++) {
 			const e = near[i] ?? 0;
-			if ((Health.hp[e] ?? 0) <= 0 || !hasComponent(world, e, EnemyFaction)) continue;
+			if (
+				(Health.hp[e] ?? 0) <= 0 ||
+				!(hasComponent(world, e, EnemyFaction) || hasComponent(world, e, Breakable))
+			)
+				continue;
 			const ex = (Position.x[e] ?? 0) - hx;
 			const ez = (Position.z[e] ?? 0) - hz;
 			const dist = Math.hypot(ex, ez);

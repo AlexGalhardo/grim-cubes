@@ -1,0 +1,20 @@
+{
+	"dropChance": {
+		"breakable": 0.25
+	},
+	"kinds": [
+		{
+			"id": "blood_vial",
+			"name": "Frasco de Sangue",
+			"weight": 3,
+			"healFraction": 0.2
+		},
+		{
+			"id": "bone_magnet",
+			"name": "Ímã de Ossos",
+			"weight": 1,
+			"pullSeconds": 3
+		}
+	],
+	"pickupRadius": 0.8
+}

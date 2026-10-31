@@ -28,6 +28,11 @@
 				"type": "number",
 				"exclusiveMinimum": 0,
 				"description": "Model height in units; props taller than render.json propFade.minHeight fade when they hide the hero."
+			},
+			"hp": {
+				"type": "number",
+				"minimum": 1,
+				"description": "Hit points of a breakable prop (kind breakable only)."
 			}
 		}
 	}

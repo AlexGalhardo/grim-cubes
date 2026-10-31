@@ -57,7 +57,10 @@ export function createPropCollision(chunks: ChunkSystem, config: PropCollisionCo
 				const chunk = chunks.get(cx, cz);
 				if (!chunk) continue;
 				for (let p = 0; p < chunk.propCount; p++) {
-					if (chunk.propKind[p] !== PROP_KIND.blocking) continue;
+					const kind = chunk.propKind[p];
+					// A breakable blocks like a prop until it breaks (A-02-04).
+					if (kind === PROP_KIND.breakable ? (chunk.broken >> p) & 1 : kind !== PROP_KIND.blocking)
+						continue;
 					const r = radiusByType[chunk.propType[p] ?? 0] ?? 0;
 					if (r <= 0) continue;
 					const px = cx * chunkSize + (chunk.propX[p] ?? 0);

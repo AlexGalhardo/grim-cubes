@@ -13,6 +13,8 @@ function blank(): ChunkData {
 		cx: 0,
 		cz: 0,
 		floorVariant: 0,
+		broken: 0,
+		populated: false,
 		biome: 0,
 		propCount: 0,
 		propType: new Uint8Array(n),

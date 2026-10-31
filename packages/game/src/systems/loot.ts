@@ -152,6 +152,8 @@ export interface PickupSystemDeps {
 
 export interface PickupSystem {
 	run(world: GameWorld, hero: number): void;
+	/** Bone magnet (GDD 15.4): for `seconds` every pile on the floor flies to the hero. */
+	pullAll(seconds: number): void;
 }
 
 /** SDD 02 section 2.3 step 12: piles inside the pickup radius fly to the hero and are collected on arrival. */
@@ -159,9 +161,15 @@ export function createPickupSystem(deps: PickupSystemDeps): PickupSystem {
 	const { fragments, xp, progress, stats, effects } = deps;
 	const magnetStep = fragments.magnetSpeed * STEP;
 	const taken = new Uint16Array(4096);
+	let pullSteps = 0;
 
 	return {
+		pullAll(seconds: number): void {
+			pullSteps = Math.max(pullSteps, Math.round(seconds / STEP));
+		},
 		run(world: GameWorld, hero: number): void {
+			const pulling = pullSteps > 0;
+			if (pulling) pullSteps--;
 			const hx = Position.x[hero] ?? 0;
 			const hz = Position.z[hero] ?? 0;
 			const reach = fragments.collectRadius + (Radius.r[hero] ?? 0);
@@ -172,7 +180,7 @@ export function createPickupSystem(deps: PickupSystemDeps): PickupSystem {
 				const dx = hx - (Position.x[p] ?? 0);
 				const dz = hz - (Position.z[p] ?? 0);
 				const dist = Math.hypot(dx, dz);
-				if ((Fragment.magnetTimer[p] ?? 0) === 0 && dist > stats.pickupRadius) continue;
+				if ((Fragment.magnetTimer[p] ?? 0) === 0 && !pulling && dist > stats.pickupRadius) continue;
 				Fragment.magnetTimer[p] = 1;
 				if (dist <= reach || dist <= magnetStep) {
 					if (collected < taken.length) taken[collected++] = p;

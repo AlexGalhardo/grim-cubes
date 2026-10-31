@@ -1,0 +1,54 @@
+{
+	"type": "object",
+	"required": ["dropChance", "kinds", "pickupRadius"],
+	"additionalProperties": false,
+	"properties": {
+		"dropChance": {
+			"type": "object",
+			"required": ["breakable"],
+			"additionalProperties": false,
+			"properties": {
+				"breakable": {
+					"type": "number",
+					"minimum": 0,
+					"maximum": 1
+				}
+			}
+		},
+		"pickupRadius": {
+			"type": "number",
+			"minimum": 0.1
+		},
+		"kinds": {
+			"type": "array",
+			"minItems": 1,
+			"items": {
+				"type": "object",
+				"required": ["id", "name", "weight"],
+				"additionalProperties": false,
+				"properties": {
+					"id": {
+						"enum": ["blood_vial", "bone_magnet"]
+					},
+					"name": {
+						"type": "string",
+						"minLength": 1
+					},
+					"weight": {
+						"type": "number",
+						"minimum": 0
+					},
+					"healFraction": {
+						"type": "number",
+						"minimum": 0,
+						"maximum": 1
+					},
+					"pullSeconds": {
+						"type": "number",
+						"minimum": 0
+					}
+				}
+			}
+		}
+	}
+}

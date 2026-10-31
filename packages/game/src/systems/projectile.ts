@@ -1,6 +1,6 @@
 import type { SpatialHash } from "@gc/core";
 import { hasComponent } from "bitecs";
-import { EnemyFaction, Health, Position, Projectile, Radius, Velocity } from "../ecs/components";
+import { Breakable, EnemyFaction, Health, Position, Projectile, Radius, Velocity } from "../ecs/components";
 import { type EventBuffer, EventType } from "../ecs/events";
 import { HIT_HISTORY, ProjectileHits, type ProjectilePool } from "../ecs/projectile";
 import { createQueryCache, type GameWorld } from "../ecs/world";
@@ -38,7 +38,11 @@ export function createProjectileSystem(deps: ProjectileSystemDeps): ProjectileSy
 		const n = enemies.queryCircle(x, z, radius + maxEnemyRadius, near);
 		for (let k = 0; k < n; k++) {
 			const e = near[k] ?? 0;
-			if ((Health.hp[e] ?? 0) <= 0 || !hasComponent(world, e, EnemyFaction)) continue;
+			if (
+				(Health.hp[e] ?? 0) <= 0 ||
+				!(hasComponent(world, e, EnemyFaction) || hasComponent(world, e, Breakable))
+			)
+				continue;
 			const ex = (Position.x[e] ?? 0) - x;
 			const ez = (Position.z[e] ?? 0) - z;
 			const dist = Math.hypot(ex, ez);
@@ -93,7 +97,11 @@ export function createProjectileSystem(deps: ProjectileSystemDeps): ProjectileSy
 				let spent = false;
 				for (let k = 0; k < n && !spent; k++) {
 					const e = near[k] ?? 0;
-					if ((Health.hp[e] ?? 0) <= 0 || !hasComponent(world, e, EnemyFaction)) continue;
+					if (
+						(Health.hp[e] ?? 0) <= 0 ||
+						!(hasComponent(world, e, EnemyFaction) || hasComponent(world, e, Breakable))
+					)
+						continue;
 					if (
 						Math.hypot((Position.x[e] ?? 0) - px, (Position.z[e] ?? 0) - pz) >
 						pr + (Radius.r[e] ?? 0)

@@ -3,6 +3,7 @@ import {
 	Armor,
 	Bleed,
 	Boss,
+	Breakable,
 	Elite,
 	EnemyFaction,
 	EnemyType,
@@ -177,7 +178,9 @@ export function createDamageSystem(deps: DamageSystemDeps): DamageSystem {
 
 		lifeSteal.add(dealt * stats.lifeSteal);
 		events.push(EventType.Damaged, dealt, crit ? 1 : 0, 0, eid);
-		if ((Health.hp[eid] ?? 0) <= 0) events.push(EventType.Died, 0, 0, 0, eid);
+		// A broken prop announces itself with PropBroken (breakables.ts), not as a dying enemy.
+		if ((Health.hp[eid] ?? 0) <= 0 && !hasComponent(world, eid, Breakable))
+			events.push(EventType.Died, 0, 0, 0, eid);
 	}
 
 	let drained = 0;
