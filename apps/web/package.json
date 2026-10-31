@@ -1,0 +1,13 @@
+{
+	"name": "@gc/web",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"dependencies": {
+		"@gc/core": "workspace:*",
+		"@gc/game": "workspace:*",
+		"@gc/platform": "workspace:*",
+		"@gc/render": "workspace:*",
+		"@gc/ui": "workspace:*"
+	}
+}

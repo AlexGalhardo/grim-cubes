@@ -1,0 +1,7 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"lib": ["ES2023"], "outDir": "../../node_modules/.tsc/game", "tsBuildInfoFile": "../../node_modules/.tsc/game/.tsbuildinfo", "rootDir": "src" },
+	"include": ["src"],
+	"references": [{ "path": "../core" }]
+}

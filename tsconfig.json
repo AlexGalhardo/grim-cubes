@@ -1,0 +1,11 @@
+{
+	"files": [],
+	"references": [
+		{ "path": "packages/core" },
+		{ "path": "packages/game" },
+		{ "path": "packages/render" },
+		{ "path": "packages/ui" },
+		{ "path": "packages/platform" },
+		{ "path": "apps/web" }
+	]
+}

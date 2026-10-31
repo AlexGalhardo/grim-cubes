@@ -33,6 +33,50 @@
         "vitest": "5.0.5",
       },
     },
+    "apps/web": {
+      "name": "@gc/web",
+      "version": "0.0.0",
+      "dependencies": {
+        "@gc/core": "workspace:*",
+        "@gc/game": "workspace:*",
+        "@gc/platform": "workspace:*",
+        "@gc/render": "workspace:*",
+        "@gc/ui": "workspace:*",
+      },
+    },
+    "packages/core": {
+      "name": "@gc/core",
+      "version": "0.0.0",
+    },
+    "packages/game": {
+      "name": "@gc/game",
+      "version": "0.0.0",
+      "dependencies": {
+        "@gc/core": "workspace:*",
+      },
+    },
+    "packages/platform": {
+      "name": "@gc/platform",
+      "version": "0.0.0",
+      "dependencies": {
+        "@gc/core": "workspace:*",
+      },
+    },
+    "packages/render": {
+      "name": "@gc/render",
+      "version": "0.0.0",
+      "dependencies": {
+        "@gc/core": "workspace:*",
+        "@gc/game": "workspace:*",
+      },
+    },
+    "packages/ui": {
+      "name": "@gc/ui",
+      "version": "0.0.0",
+      "dependencies": {
+        "@gc/core": "workspace:*",
+      },
+    },
   },
   "packages": {
     "@asamuzakjp/css-color": ["@asamuzakjp/css-color@7.1.9", "", { "dependencies": { "@csstools/css-calc": "^3.4.3", "@csstools/css-color-parser": "^4.2.6", "@csstools/css-parser-algorithms": "^4.0.2", "@csstools/css-tokenizer": "^4.0.2", "lru-cache": "^11.5.3" } }, "sha512-vZ6JQVq8Ivgz6b/IBlAf90wZviXdluY13cQOPO+nJHbmXwGrPl2GcpqUY7a55/8ZVdfONXpCFMpRijOBCHNlcQ=="],
@@ -286,6 +330,18 @@
     "@fluentui/set-version": ["@fluentui/set-version@8.2.24", "", { "dependencies": { "tslib": "^2.1.0" } }, "sha512-8uNi2ThvNgF+6d3q2luFVVdk/wZV0AbRfJ85kkvf2+oSRY+f6QVK0w13vMorNhA5puumKcZniZoAfUF02w7NSg=="],
 
     "@fluentui/tokens": ["@fluentui/tokens@1.0.0-alpha.24", "", { "dependencies": { "@swc/helpers": "^0.5.1" } }, "sha512-YrjGQfnxBR+9o8wXyTflON3Ohsv7OrZWYLVRU+7RaiFO1gcu36iDm3WjudlVmYuWRLDO0Gmxotm6RQNhbZuEQQ=="],
+
+    "@gc/core": ["@gc/core@workspace:packages/core"],
+
+    "@gc/game": ["@gc/game@workspace:packages/game"],
+
+    "@gc/platform": ["@gc/platform@workspace:packages/platform"],
+
+    "@gc/render": ["@gc/render@workspace:packages/render"],
+
+    "@gc/ui": ["@gc/ui@workspace:packages/ui"],
+
+    "@gc/web": ["@gc/web@workspace:apps/web"],
 
     "@gltf-transform/core": ["@gltf-transform/core@4.5.1", "", { "dependencies": { "property-graph": "^4.1.0" } }, "sha512-OWgBYssKHKoXMIrMb2N20jXqWRnMP9HdtcTFQBEAJtz4P+OOxx5fozl5eAeK7nktIs5uDE/lu4NbkE5VCZaR9g=="],
 
