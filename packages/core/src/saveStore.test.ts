@@ -263,6 +263,8 @@ async function singleSave(souls: number): Promise<string> {
 	data.records = { normal: 0, grim: 0, nightmare: 0 };
 	const settings = { ...createSettings() } as Record<string, unknown>;
 	delete settings.lastSlot;
+	delete settings.hpBarHero;
+	delete settings.hpBarEnemies;
 	data.settings = settings;
 	return JSON.stringify({
 		schemaVersion: 9,
