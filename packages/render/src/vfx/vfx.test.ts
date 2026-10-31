@@ -319,7 +319,7 @@ describe("elite view", () => {
 		view.shift(16, 0);
 		view.update(0.016, -11, 7);
 		expect(view.chestAt(0)?.x).toBeCloseTo(-11, 5);
-		view.onEvent(EventType.ChestOpened, 0, 0, 0);
+		view.onEvent(EventType.ChestOpened, -11, 7, 0);
 		view.update(0.016, -11, 7);
 		expect(view.chests).toBe(0);
 		dispose();
@@ -425,22 +425,39 @@ describe("enemy shot renderer", () => {
 });
 
 describe("vignette and shake", () => {
-	it("pulses on a hero hit and decays; warns at low HP; shakes the camera and settles", () => {
+	it("pulses on a PlayerHit and decays; warns at low HP; shakes the camera and settles", () => {
 		let health = 1;
-		const { game, vfx, world, dispose } = setup({ isHero: () => true, heroHealth: () => health });
+		const { game, vfx, world, dispose } = setup({ heroHealth: () => health });
 		const hero = spawnBody(world, 0, 0);
 		expect(vfx.vignette).toBe(0);
-		vfx.onEvent(EventType.Damaged, 10, 0, 0, hero);
+		vfx.onEvent(EventType.PlayerHit, 10, 0, 0, hero);
 		expect(vfx.vignette).toBeCloseTo(config.vignetteHit, 5);
 		expect(vfx.shaking).toBe(true);
 		vfx.update(0.05);
 		expect(game.camera.targetScreenOffset.x !== 0 || game.camera.targetScreenOffset.y !== 0).toBe(true);
+		vfx.update(0);
+		expect(Math.abs(game.camera.targetScreenOffset.x)).toBe(0);
 		for (let i = 0; i < 60; i++) vfx.update(1 / 60);
 		expect(vfx.vignette).toBe(0);
 		expect(vfx.shaking).toBe(false);
-		expect(Math.abs(game.camera.targetScreenOffset.x)).toBe(0);
 		health = 0.1;
 		expect(vfx.vignette).toBeGreaterThan(0);
 		dispose();
+	});
+
+	it("ignores the leech drain (c = 1) and reduced motion; the low-HP vignette stays", () => {
+		const { vfx, world, dispose } = setup({ heroHealth: () => 0.1, reducedMotion: () => false });
+		const hero = spawnBody(world, 0, 0);
+		const low = vfx.vignette;
+		vfx.onEvent(EventType.PlayerHit, 2, 0, 1, hero);
+		expect(vfx.vignette).toBe(low);
+		expect(vfx.shaking).toBe(false);
+		dispose();
+		const calm = setup({ heroHealth: () => 0.1, reducedMotion: () => true });
+		const other = spawnBody(calm.world, 0, 0);
+		calm.vfx.onEvent(EventType.PlayerHit, 10, 0, 0, other);
+		expect(calm.vfx.shaking).toBe(false);
+		expect(calm.vfx.vignette).toBe(low);
+		calm.dispose();
 	});
 });

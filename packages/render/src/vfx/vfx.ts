@@ -39,8 +39,8 @@ export interface VfxOptions {
 	onHitStop?: (ms: number) => void;
 	/** Whether a dying entity is a boss, for the longer hit-stop. */
 	isBoss?: (entity: number) => boolean;
-	/** Whether a damaged entity is the hero: drives the hit vignette and the camera shake. */
-	isHero?: (entity: number) => boolean;
+	/** prefers-reduced-motion (Art Bible 16.8): no hit pulse and no camera shake; the static low-HP vignette stays. */
+	reducedMotion?: () => boolean;
 	/** Hero HP as a fraction of the maximum, for the low-HP vignette. */
 	heroHealth?: () => number;
 	seed?: number;
@@ -100,6 +100,7 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 	let shakeLeft = 0;
 	let clock = 0;
 	const shake = (amplitude: number): void => {
+		if (options.reducedMotion?.()) return;
 		if (amplitude >= shakeAmplitude * (shakeLeft / config.shakeSeconds)) {
 			shakeAmplitude = amplitude;
 			shakeLeft = config.shakeSeconds;
@@ -197,11 +198,13 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 				numbers.spawn(a, x, z, b === 1);
 				burst(x, z, count(config.bloodCubesPerHit), bloodColors(), 4, 5, gore);
 				if (b === 1) options.onHitStop?.(config.hitStopCritMs);
-				if (options.isHero?.(entity)) {
-					pulse = config.vignetteHit;
-					shake(config.shakeHeroHit);
-				}
+			} else if (type === EventType.PlayerHit) {
+				// c = 1: the leech drain, which hurts without a pulse or a shake (Orq decision).
+				if (c === 1 || options.reducedMotion?.()) return;
+				pulse = config.vignetteHit;
+				shake(config.shakeHeroHit);
 			} else if (type === EventType.Died) {
+				telegraph.cancel(entity);
 				// b = 1: purged at round end, nothing to see.
 				if (b === 1) return;
 				const x = Position.x[entity] ?? 0;
@@ -263,7 +266,10 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 			pulse = Math.max(0, pulse - (config.vignetteHit / config.vignetteSeconds) * dt);
 			clock += dt;
 			const offset = game.camera.targetScreenOffset;
-			if (shakeLeft > 0) {
+			if (dt <= 0) {
+				// Paused: a shake frozen mid-way would leave the camera off-centre.
+				offset.x = offset.y = 0;
+			} else if (shakeLeft > 0) {
 				shakeLeft = Math.max(0, shakeLeft - dt);
 				const strength = shakeAmplitude * (shakeLeft / config.shakeSeconds);
 				offset.x = Math.sin(clock * 83) * strength;
