@@ -1,4 +1,10 @@
-import { consoleLogViolations, hexViolations, rangeViolations, type Violation } from "./rules";
+import {
+	consoleLogViolations,
+	hardcodedTextViolations,
+	hexViolations,
+	rangeViolations,
+	type Violation,
+} from "./rules";
 
 const SKIP = ["node_modules/", "dist/", "coverage/", "graphify-out/"];
 const LOGGER = "packages/core/src/logger.ts";
@@ -14,7 +20,9 @@ async function files(pattern: string): Promise<string[]> {
 
 const violations: Violation[] = [];
 for (const file of await files("packages/ui/**/*.tsx")) {
-	violations.push(...hexViolations(file, await Bun.file(file).text()));
+	const source = await Bun.file(file).text();
+	violations.push(...hexViolations(file, source));
+	if (!file.endsWith(".test.tsx")) violations.push(...hardcodedTextViolations(file, source));
 }
 for (const file of [...(await files("packages/**/*.{ts,tsx}")), ...(await files("apps/**/*.{ts,tsx}"))]) {
 	if (file === LOGGER) continue;
