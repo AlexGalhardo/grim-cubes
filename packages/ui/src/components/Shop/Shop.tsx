@@ -47,6 +47,10 @@ export interface ShopProps {
 }
 
 const PORTRAIT_PX = 160;
+/** Same threshold as the `desktop` breakpoint of theme.css, where the portrait is shown; below it the pass is skipped. */
+const DESKTOP_QUERY = "(min-width: 1024px)";
+const isDesktopWidth = (): boolean =>
+	typeof window.matchMedia !== "function" || window.matchMedia(DESKTOP_QUERY).matches;
 
 const TIER_BORDER: Readonly<Record<number, string>> = {
 	1: "border-rarity-1",
@@ -62,7 +66,7 @@ export function Shop({ view, stats, actions, portrait }: ShopProps): JSX.Element
 	const portraitCanvas = useRef<HTMLCanvasElement>(null);
 	useEffect(() => {
 		const canvas = portraitCanvas.current;
-		if (!portrait || !canvas) return;
+		if (!portrait || !canvas || !isDesktopWidth()) return;
 		const running = portrait(canvas);
 		running.start();
 		return () => running.stop();
@@ -143,7 +147,7 @@ export function Shop({ view, stats, actions, portrait }: ShopProps): JSX.Element
 							{portrait ? (
 								<div
 									aria-hidden="true"
-									className="pointer-events-none mx-auto size-24 shrink-0 border-2 border-iron-dark bg-night desktop:size-32"
+									className="pointer-events-none mx-auto hidden size-32 shrink-0 border-2 border-iron-dark bg-night desktop:block"
 								>
 									<canvas
 										ref={portraitCanvas}
