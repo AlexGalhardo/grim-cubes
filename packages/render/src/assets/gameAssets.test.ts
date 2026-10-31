@@ -91,6 +91,33 @@ describe("loadGameAssets", () => {
 		dispose();
 	});
 
+	it("binds the emissive atlas unless the preset asks to go without it", async () => {
+		const png =
+			"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
+		const entry = (url: string) => ({ url, hash: "h", bytes: 1, kind: "atlas" as const, group: "core" });
+		const manifest: AssetManifest = {
+			version: "0.0.0",
+			entries: { atlas_characters: entry(png), atlas_characters_e: entry(png) },
+		};
+		const { engine, dispose } = createNullEngine();
+		for (const emissive of [true, false]) {
+			const scene = new Scene(engine);
+			const loaded = await loadGameAssets(scene, {
+				baseUrl: "",
+				enemyIds: [],
+				propIds: [],
+				emissive,
+				fetchFn: async () => Response.json(manifest),
+			});
+			expect([emissive, loaded.characterMaterial?.emissiveTexture !== null]).toEqual([
+				emissive,
+				emissive,
+			]);
+			scene.dispose();
+		}
+		dispose();
+	});
+
 	it("rejects when the manifest is missing", async () => {
 		const { engine, dispose } = createNullEngine();
 		const scene = new Scene(engine);
