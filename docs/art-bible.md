@@ -107,8 +107,9 @@ As cinco raridades (decisão do PO, 2026-10-31) usam os tokens `rarity-1..5` de 
 
 Obrigatório (orçamento mobile):
 
-- 1 `DirectionalLight` (sol morto): direção fixa (−0,5, −1, −0,3), cor `#C9B8A8` (quente-neutra), intensidade 1,1.
-- 1 `HemisphericLight`: céu `#3F3A52`, chão `#2B2340`, intensidade 0,45 (sombra colorida).
+- 1 `DirectionalLight` (sol morto): direção fixa (−0,5, −1, −0,3), cor `#C9B8A8` (quente-neutra), intensidade 4,2 (era 1,1 até 2026-10-31; ver §9.1).
+- 1 `HemisphericLight`: céu `#8A9099`, chão `#2B2340`, intensidade 2,5 (era `#3F3A52` a 0,45; sombra colorida).
+- 1 `DirectionalLight` de contorno (decisão de 2026-10-31, a pedido da revisão em jogo): cor Osso, intensidade 0,6, na direção da câmera, para tirar as silhuetas dos modelos escuros do chão. É uma segunda direcional, fora do orçamento original de 1 + 1, e custou 7 a 12% do frame no bench `round20` em software (SDD 14: acima dos 5% do critério). Fica **desligada nos presets `low` e `minimum`**; `medium` para cima a mantêm. Sem ela o ganho de luminância dos modelos contra o chão cai bastante (estimado em +10 a +15 nas iterações de ajuste; não foi remedido com as intensidades finais); se a medição em GPU real (`BENCH_GPU=1`) mostrar custo acima de 5%, a alternativa é trocá-la por mais ganho no hemisférico e no emissivo.
 - Materiais: `StandardMaterial` sem specular (`specularColor = black`) ou unlit para VFX. **Sem PBR** (Hytale). Sampling `NEAREST` em todas as texturas.
 - Sombras: herói, chefes e elites com `ShadowGenerator` de 1 cascata (1024 px, PCF) no desktop; em mobile, **blob shadows** (quad escuro no chão). Inimigos comuns: blob shadow sempre.
 - AO: pintada na textura (cantos e bases) + `vertexColor` escurecido nas bases dos props. Sem SSAO.
