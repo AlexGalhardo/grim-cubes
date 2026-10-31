@@ -1,8 +1,8 @@
-import { query } from "bitecs";
-import { PlayerFaction, Position, PrevPosition } from "../ecs/components";
+import { Position, PrevPosition } from "../ecs/components";
 import { type EventBuffer, EventType } from "../ecs/events";
 import type { GameWorld } from "../ecs/world";
 import type { WorldConfig } from "./chunkSystem";
+import { queryBodies } from "./queries";
 
 /** Absolute world position of the render origin (f64). Position/PrevPosition are relative to it. */
 export interface Origin {
@@ -14,11 +14,6 @@ export type OriginShiftConfig = Pick<WorldConfig, "chunkSize" | "originShiftThre
 
 export function createOrigin(): Origin {
 	return { x: 0, z: 0 };
-}
-
-/** First entity tagged PlayerFaction, or -1. Allocation-free after the query is registered. */
-export function findHero(world: GameWorld): number {
-	return query(world, [PlayerFaction, Position])[0] ?? -1;
 }
 
 /**
@@ -43,7 +38,7 @@ export function applyOriginShift(
 
 	origin.x += dx;
 	origin.z += dz;
-	const bodies = query(world, [Position, PrevPosition]);
+	const bodies = queryBodies(world);
 	for (let i = 0; i < bodies.length; i++) {
 		const eid = bodies[i] ?? 0;
 		Position.x[eid] = (Position.x[eid] ?? 0) - dx;

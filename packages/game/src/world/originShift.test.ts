@@ -6,7 +6,8 @@ import { PlayerFaction, Position, PrevPosition } from "../ecs/components";
 import { createEventBuffer, EventType } from "../ecs/events";
 import { createGameWorld, spawnBody } from "../ecs/world";
 import { createChunkSystem, type WorldConfig } from "./chunkSystem";
-import { applyOriginShift, createOrigin, findHero } from "./originShift";
+import { applyOriginShift, createOrigin } from "./originShift";
+import { findHero } from "./queries";
 
 const config = JSON.parse(
 	readFileSync(new URL("../../../../data/world.json", import.meta.url), "utf8"),
@@ -111,16 +112,38 @@ describe("applyOriginShift", () => {
 		expect(events.size).toBe(0);
 	});
 
-	it("allocates nothing per step once warm", () => {
+	it("does not allocate arrays or strings per step, including the shift path and findHero", () => {
 		const world = createGameWorld();
 		const events = createEventBuffer();
 		const origin = createOrigin();
 		const hero = spawnBody(world, 0, 0);
 		addComponent(world, hero, PlayerFaction);
 		for (let i = 0; i < 20; i++) spawnBody(world, i, i);
-		for (let i = 0; i < 20_000; i++) applyOriginShift(world, origin, hero, events, config);
-		const before = process.memoryUsage().heapUsed;
-		for (let i = 0; i < 300_000; i++) applyOriginShift(world, origin, hero, events, config);
-		expect(process.memoryUsage().heapUsed - before).toBeLessThan(1_000_000);
+		const step = (): void => {
+			Position.x[hero] = 1100;
+			findHero(world);
+			applyOriginShift(world, origin, hero, events, config);
+		};
+		for (let i = 0; i < 100; i++) step();
+
+		// bitecs query() builds arrays with filter/map and a cache key with join; count them as a proxy for allocation.
+		let calls = 0;
+		const proto = Array.prototype as unknown as Record<string, (...args: unknown[]) => unknown>;
+		const originals = new Map<string, (...args: unknown[]) => unknown>();
+		for (const name of ["filter", "map", "slice", "concat", "join"]) {
+			const original = proto[name];
+			if (!original) continue;
+			originals.set(name, original);
+			proto[name] = function (this: unknown, ...args: unknown[]): unknown {
+				calls++;
+				return original.apply(this, args);
+			};
+		}
+		try {
+			for (let i = 0; i < 1000; i++) step();
+		} finally {
+			for (const [name, original] of originals) proto[name] = original;
+		}
+		expect(calls).toBe(0);
 	});
 });

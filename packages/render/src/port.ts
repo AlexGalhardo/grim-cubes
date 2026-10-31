@@ -11,9 +11,8 @@ export function createRenderPort(game: GameScene): RenderPort {
 	// Created once: consumeEvents runs every frame and must not allocate.
 	const onEvent = (type: number, a: number, b: number): void => {
 		if (type === EventType.OriginShifted) {
+			// The camera target is rewritten from the (already shifted) hero in `sync`, so no order dependence.
 			game.shiftWorld(a, b);
-			target.x -= a;
-			target.z -= b;
 		}
 	};
 	return {

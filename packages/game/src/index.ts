@@ -63,4 +63,5 @@ export { createWeaponSystem } from "./systems/weapon";
 export type { ChunkData, ChunkGenerator, ChunkStats, ChunkSystem, WorldConfig } from "./world/chunkSystem";
 export { createChunkSystem } from "./world/chunkSystem";
 export type { Origin, OriginShiftConfig } from "./world/originShift";
-export { applyOriginShift, createOrigin, findHero } from "./world/originShift";
+export { applyOriginShift, createOrigin } from "./world/originShift";
+export { findHero, queryBodies, queryEnemies } from "./world/queries";
