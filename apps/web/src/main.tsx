@@ -1,4 +1,5 @@
 import {
+	applyRun,
 	createInputState,
 	createLogger,
 	createStore,
@@ -6,7 +7,8 @@ import {
 	createVirtualStick,
 	loadMeta,
 	type MetaState,
-	persistMeta,
+	persistRun,
+	type RunResult,
 	type SaveIO,
 } from "@gc/core";
 import {
@@ -16,9 +18,11 @@ import {
 	applyRoundEndBonus,
 	Boss,
 	biomesData,
+	bossesData,
 	cardsData,
 	createAuraSystem,
 	createBehaviorSystem,
+	createBossSystem,
 	createChestSystem,
 	createChunkGenerator,
 	createChunkSystem,
@@ -144,6 +148,8 @@ async function boot(): Promise<void> {
 	const saveIO: SaveIO = {
 		read: (key) => storage.read(key as StorageKey),
 		write: (key, value) => storage.write(key as StorageKey, value),
+		// One lock per origin, so two tabs finishing runs never interleave their read-modify-write.
+		withLock: (fn) => (navigator.locks ? navigator.locks.request("grim-cubes-save", fn) : fn()),
 	};
 	// A save that is unreadable or newer is never overwritten: `readOnly` blocks writes for the whole session.
 	const loaded = await loadMeta(saveIO);
@@ -251,6 +257,24 @@ async function boot(): Promise<void> {
 		hero,
 	});
 	hooks.heroHit = elite.handleHeroHit;
+	const bossDef = bossesData.find((b) => b.round === 10);
+	if (!bossDef) throw new Error("No boss defined for round 10");
+	const bossName = bossDef.name;
+	const boss = createBossSystem({
+		def: bossDef,
+		rounds: roundsData.boss,
+		spawn,
+		events,
+		queue: damage.queue,
+		hero,
+		rng: rng.combat,
+		summonType: enemyIds.indexOf("husk"),
+		difficulty: () => 1,
+		onDefeated: () => {
+			run.bossDied();
+			for (let i = 0; i < roundsData.boss.freeWeaponUpgrades; i++) weapon.upgrade();
+		},
+	});
 	const run = createRunSystem({
 		config: { flow: roundsData.flow, duration: roundsData.duration, boss: roundsData.boss },
 		spawn,
@@ -261,7 +285,10 @@ async function boot(): Promise<void> {
 			{ type: enemyIds.indexOf("wail"), weight: 4 },
 		],
 		difficultyMult: 1,
-		onRoundStart: (round, boss) => elite.onRoundStart(round, boss),
+		onRoundStart: (round, isBoss) => {
+			elite.onRoundStart(round, isBoss);
+			if (isBoss) boss.start(world, round);
+		},
 		onRoundEnd: (round) => {
 			applyHarvest(progress, fragments, xp, round, stats.stats.harvest, stats.stats.xpGain);
 			applyRoundEndBonus(progress, fragments, xp, itemEffects.effects, stats.stats.xpGain);
@@ -276,7 +303,10 @@ async function boot(): Promise<void> {
 		round: () => run.round,
 		effects: itemEffects.effects,
 		runStats,
-		onDeath: (w, e, x, z) => elite.handleDeath(w, e, x, z),
+		onDeath: (w, e, x, z) => {
+			elite.handleDeath(w, e, x, z);
+			boss.handleDeath(w, e, x, z);
+		},
 	});
 	const pickup = createPickupSystem({
 		fragments,
@@ -347,6 +377,8 @@ async function boot(): Promise<void> {
 		stats: [],
 		results: null,
 		notice: loaded.notice,
+		boss: null,
+		bossIntro: null,
 	});
 	createRoot(uiRoot).render(
 		<App
@@ -459,6 +491,8 @@ async function boot(): Promise<void> {
 	let lastOffer: readonly CardView[] = NO_CARDS;
 	let lastOfferSource: unknown = null;
 	let lastChest: readonly CardView[] = NO_CARDS;
+	let lastBossJson = "";
+	let lastBoss: HudState["boss"] = null;
 	let lastChestSource: unknown = null;
 	let lastHud = Number.NEGATIVE_INFINITY;
 	let inShop = false;
@@ -482,16 +516,25 @@ async function boot(): Promise<void> {
 			itemEffects.effects.soulGain,
 		);
 		const newRecord = run.round > meta.records.normal;
-		meta.souls += souls;
-		meta.records.normal = Math.max(meta.records.normal, run.round);
-		meta.stats.runs++;
-		meta.stats.kills += runStats.kills;
-		meta.stats.bossKills += runStats.bossRounds.length;
-		meta.stats.elitesKilled += runStats.elitesKilled;
+		const result: RunResult = {
+			souls,
+			round: run.round,
+			difficulty: "normal",
+			kills: runStats.kills,
+			bossKills: runStats.bossRounds.length,
+			elitesKilled: runStats.elitesKilled,
+		};
+		applyRun(meta, result);
 		if (!loaded.readOnly) {
-			persistMeta(saveIO, meta, __APP_VERSION__).catch((error: unknown) =>
-				log.error("save failed", error),
-			);
+			// The stored save is re-read and the run added to it, so progress from another tab is kept.
+			persistRun(saveIO, result, __APP_VERSION__)
+				.then((merged) => {
+					Object.assign(meta, merged);
+					if (results)
+						results = { ...results, totalSouls: merged.souls, record: merged.records.normal };
+					publishNow();
+				})
+				.catch((error: unknown) => log.error("save failed", error));
 		}
 
 		const weaponName = weaponsData.find((w) => w.id === weapon.weapon.id)?.name ?? weapon.weapon.id ?? "";
@@ -551,6 +594,18 @@ async function boot(): Promise<void> {
 		} else {
 			lastShopJson = "";
 		}
+		const view = boss.view();
+		if (view === null) {
+			lastBossJson = "";
+			lastBoss = null;
+		} else {
+			const json = JSON.stringify(view);
+			if (json !== lastBossJson) {
+				lastBossJson = json;
+				lastBoss = view;
+			}
+		}
+		const bossView = lastBoss;
 		const next: HudState = {
 			hp: Math.max(0, Math.ceil(Health.hp[hero] ?? 0)),
 			maxHp: Math.ceil(Health.max[hero] ?? 0),
@@ -565,6 +620,8 @@ async function boot(): Promise<void> {
 			stats: shopView ? describeStats(stats.stats) : NO_STATS,
 			results,
 			notice: loaded.notice,
+			boss: bossView,
+			bossIntro: run.state === "BossIntro" ? bossName : null,
 		};
 		const cur = hud.get();
 		if (
@@ -576,6 +633,8 @@ async function boot(): Promise<void> {
 			cur.gold !== next.gold ||
 			cur.cards !== next.cards ||
 			cur.chest !== next.chest ||
+			cur.boss !== next.boss ||
+			cur.bossIntro !== next.bossIntro ||
 			cur.shop !== next.shop ||
 			cur.results !== next.results
 		) {
@@ -643,6 +702,7 @@ async function boot(): Promise<void> {
 			if (fighting()) {
 				inputSystem(world, hero, input, weapon.speedMultiplier);
 				behavior.run(world, hero);
+				boss.run(world);
 				propCollision.steer(world, origin);
 				separation.run(world);
 				movementSystem(world);
@@ -714,6 +774,18 @@ async function boot(): Promise<void> {
 			endRound: () => run.forceEnd(world),
 			spawnElite: (modifier?: number) => {
 				elite.spawnNow(world, (Position.x[hero] ?? 0) + 1.5, Position.z[hero] ?? 0, modifier);
+			},
+			toRound: (n: number) => {
+				run.setRound(n - 1);
+				run.forceEnd(world);
+			},
+			killBoss: () => {
+				for (const e of query(world, [Boss])) {
+					// The chest drops where the boss dies; bring it within pickup range so the test need not walk there.
+					Position.x[e] = (Position.x[hero] ?? 0) + 1.5;
+					Position.z[e] = Position.z[hero] ?? 0;
+					Health.hp[e] = 0;
+				}
 			},
 			killElites: () => {
 				for (const e of query(world, [Elite])) Health.hp[e] = 0;
