@@ -7,11 +7,13 @@ export type { Logger, LoggerOptions, LogLevel, LogSink } from "./logger";
 export { createLogger } from "./logger";
 export type { Rng, RngStreams, StreamName } from "./rng";
 export { createStreams, hash32, hash32x3, mulberry32, murmur3x86_32, RNG_STREAMS } from "./rng";
-export type { Difficulty, MetaState, SaveEnvelope, SaveErrorCode } from "./save";
+export type { Difficulty, MetaState, SaveEnvelope, SaveErrorCode, Settings, SettingsLocale } from "./save";
 export {
 	checksumOf,
 	createMetaState,
+	createSettings,
 	DIFFICULTIES,
+	LOCALES,
 	MAX_SAVE_BYTES,
 	parseSave,
 	SAVE_APP,

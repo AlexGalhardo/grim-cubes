@@ -1,4 +1,4 @@
-export const SAVE_SCHEMA_VERSION = 1;
+export const SAVE_SCHEMA_VERSION = 2;
 export const SAVE_APP = "grim-cubes";
 /** Upper bound on any counter read from a save; far above a real run, low enough to reject garbage. */
 const MAX_COUNTER = 1_000_000_000;
@@ -10,6 +10,27 @@ const FORBIDDEN_KEYS = new Set(["__proto__", "constructor", "prototype"]);
 export type Difficulty = "normal" | "grim" | "nightmare";
 export const DIFFICULTIES: readonly Difficulty[] = ["normal", "grim", "nightmare"];
 
+export const LOCALES = ["pt-BR", "en"] as const;
+export type SettingsLocale = (typeof LOCALES)[number];
+
+/** Options screen choices (A-01-01). Volumes are whole percents; `preset` is "auto" or a `data/presets.json` id. */
+export interface Settings {
+	preset: string;
+	volume: { master: number; music: number; sfx: number };
+	/** Off removes the camera shake and the hit pulse, like prefers-reduced-motion. */
+	screenShake: boolean;
+	locale: SettingsLocale;
+}
+
+export function createSettings(): Settings {
+	return {
+		preset: "auto",
+		volume: { master: 100, music: 70, sfx: 100 },
+		screenShake: true,
+		locale: "pt-BR",
+	};
+}
+
 /** Account-level progress that survives runs (SDD 06 section 2). */
 export interface MetaState {
 	souls: number;
@@ -20,6 +41,7 @@ export interface MetaState {
 	/** Ossuary nodes bought, by node id. */
 	ossuary: Record<string, boolean>;
 	flags: { isDemo: boolean; fullVersion: boolean };
+	settings: Settings;
 }
 
 export interface SaveEnvelope {
@@ -39,6 +61,7 @@ export function createMetaState(): MetaState {
 		unlocks: [],
 		ossuary: {},
 		flags: { isDemo: false, fullVersion: false },
+		settings: createSettings(),
 	};
 }
 
@@ -90,6 +113,33 @@ function counter(value: unknown, label: string): number {
 	return value;
 }
 
+function percent(value: unknown, label: string): number {
+	if (typeof value !== "number" || !Number.isInteger(value) || value < 0 || value > 100) {
+		throw new SaveError(`${label} must be an integer between 0 and 100`);
+	}
+	return value;
+}
+
+/** A save written before schema 2 has no settings: it gets the defaults. */
+function validateSettings(raw: unknown): Settings {
+	if (raw === undefined) return createSettings();
+	if (!isRecord(raw) || !isRecord(raw.volume)) throw new SaveError("settings must be an object");
+	if (typeof raw.preset !== "string" || !/^[a-z][a-z0-9_]{0,31}$/.test(raw.preset))
+		throw new SaveError("settings.preset must be a short id");
+	if (typeof raw.screenShake !== "boolean") throw new SaveError("settings.screenShake must be a boolean");
+	if (!LOCALES.includes(raw.locale as SettingsLocale)) throw new SaveError("settings.locale is unknown");
+	return {
+		preset: raw.preset,
+		volume: {
+			master: percent(raw.volume.master, "settings.volume.master"),
+			music: percent(raw.volume.music, "settings.volume.music"),
+			sfx: percent(raw.volume.sfx, "settings.volume.sfx"),
+		},
+		screenShake: raw.screenShake,
+		locale: raw.locale as SettingsLocale,
+	};
+}
+
 /** Validates untrusted save data field by field and returns a clean copy; unknown keys are dropped. */
 export function validateMeta(raw: unknown): MetaState {
 	if (!isRecord(raw)) throw new SaveError("data must be an object");
@@ -136,12 +186,13 @@ export function validateMeta(raw: unknown): MetaState {
 		unlocks: [...unlocks] as string[],
 		ossuary: nodes,
 		flags: { isDemo: flags.isDemo, fullVersion: flags.fullVersion },
+		settings: validateSettings(raw.settings),
 	};
 }
 
 /**
  * Parses and verifies a save: JSON, envelope, schema version, checksum, then field validation.
- * Migrations from older versions would run here, in a chain, before validation (none exist yet).
+ * Schema 1 saves load with default settings (the checksum rule above); later migrations would chain here.
  */
 export async function parseSave(text: string): Promise<MetaState> {
 	if (text.length > MAX_SAVE_BYTES) throw new SaveError("save is too large");
@@ -160,6 +211,9 @@ export async function parseSave(text: string): Promise<MetaState> {
 		throw new SaveError("save was written by a newer version", "newer");
 	if (envelope.schemaVersion < 1) throw new SaveError("unsupported schemaVersion");
 	const data = validateMeta(envelope.data);
-	if (envelope.checksum !== (await checksumOf(data))) throw new SaveError("checksum mismatch");
+	// A schema 1 checksum covers the data as it was then, without `settings` (migration 1 -> 2).
+	const covered = envelope.schemaVersion < 2 ? (({ settings: _settings, ...rest }) => rest)(data) : data;
+	if (envelope.checksum !== (await sha256(JSON.stringify(covered))))
+		throw new SaveError("checksum mismatch");
 	return data;
 }

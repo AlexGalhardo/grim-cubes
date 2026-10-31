@@ -96,11 +96,11 @@ import {
 	type PropTypeDef,
 	pickAutoPreset,
 } from "@gc/render";
-import { App, type CardView, type HudState, type IconRef } from "@gc/ui";
+import { App, type CardView, type HudState, type IconRef, type VolumeBus } from "@gc/ui";
 import { query } from "bitecs";
 import { createRoot } from "react-dom/client";
 import { bootArtReview } from "./artReview";
-import { initLocale } from "./locale";
+import { applyLocale, initLocale } from "./locale";
 import "./main.css";
 
 const log = createLogger("boot");
@@ -179,6 +179,8 @@ async function boot(): Promise<void> {
 	const loaded = await loadMeta(saveIO);
 	const meta: MetaState = loaded.meta;
 	if (loaded.notice) log.warn("save problem", loaded.notice);
+	// The saved language applies unless `?lang=` forces one for this session.
+	if (!params.has("lang")) applyLocale(meta.settings.locale);
 	const { fragments, xp } = roundsData;
 
 	// A locked or unknown difficulty in the URL falls back to Normal (GDD 17).
@@ -259,7 +261,21 @@ async function boot(): Promise<void> {
 		difficulty: null,
 		dash: null,
 		cardRerolls: 0,
+		options: null,
 	});
+	// The handlers are function declarations further down; the screen only calls them after boot.
+	const optionsActions = {
+		setPreset: (id: string): void => setPresetOption(id),
+		setVolume: (bus: VolumeBus, percent: number): void =>
+			void changeSettings((st) => (st.volume[bus] = percent)),
+		setScreenShake: (on: boolean): void => void changeSettings((st) => (st.screenShake = on)),
+		setLocale: (id: string): void => setLocaleOption(id),
+		close: (): void => {
+			optionsOpen = false;
+			loop.resume();
+			publishNow();
+		},
+	};
 	createRoot(uiRoot).render(
 		<App
 			store={hud}
@@ -271,6 +287,12 @@ async function boot(): Promise<void> {
 			onDashHold={(down) => {
 				touchDash = down;
 			}}
+			onOpenOptions={() => {
+				optionsOpen = true;
+				loop.pause();
+				publishNow();
+			}}
+			optionsActions={optionsActions}
 			onRestart={() => {
 				difficultyOpen = true;
 				publishNow();
@@ -434,16 +456,23 @@ async function boot(): Promise<void> {
 		navigator as { hardwareConcurrency?: number; deviceMemory?: number },
 		render.engine.getGlInfo().renderer,
 	);
-	const presetId = choosePresetId(
+	const pinned = __DEBUG_API__ && (bench !== null || params.has("debug"));
+	const autoId = choosePresetId(
 		forced,
-		__DEBUG_API__ && (bench !== null || params.has("debug")),
+		pinned,
 		pickAutoPreset(presetsData.auto, hardware),
 		presetsData.default,
 	);
-	const preset = presetsData.presets.find((p) => p.id === presetId) ?? presetsData.presets[0];
+	/** "auto" (or an id that no longer exists) resolves through the hardware table. */
+	const presetFor = (id: string): (typeof presetsData.presets)[number] | undefined =>
+		presetsData.presets.find((p) => p.id === id) ??
+		presetsData.presets.find((p) => p.id === autoId) ??
+		presetsData.presets[0];
+	// A query or a pinned bench/debug run wins over the saved Options choice, so measurements stay comparable.
+	const preset = presetFor(forced || pinned ? autoId : meta.settings.preset);
 	log.info("preset", {
 		id: preset?.id,
-		reason: forced ? "query" : presetId === presetsData.default ? "default" : "auto",
+		reason: forced ? "query" : pinned ? "default" : meta.settings.preset === "auto" ? "auto" : "options",
 		hardware,
 	});
 	if (!preset) throw new Error("data/presets.json has no preset");
@@ -458,7 +487,8 @@ async function boot(): Promise<void> {
 		config: { ...renderData.vfx, decalPool: preset.decalPool, particlePool: preset.particlePool },
 		onHitStop: (ms) => hitStop.request(ms),
 		// Elites get the long hit-stop of a boss kill too (GDD section 23).
-		reducedMotion: () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+		reducedMotion: () =>
+			!meta.settings.screenShake || window.matchMedia("(prefers-reduced-motion: reduce)").matches,
 		heroHealth: () => (Health.hp[hero] ?? 0) / Math.max(1, Health.max[hero] ?? 1),
 		isBoss: (entity) => (Boss.id[entity] ?? 0) > 0 || (Elite.modifier[entity] ?? 0) > 0,
 	});
@@ -617,6 +647,55 @@ async function boot(): Promise<void> {
 
 	let ossuaryOpen = false;
 	let difficultyOpen = false;
+	let optionsOpen = false;
+
+	function optionsView(): NonNullable<HudState["options"]> {
+		return {
+			preset: meta.settings.preset,
+			presets: presetsData.presets.map((p) => ({ id: p.id, name: p.name })),
+			volume: meta.settings.volume,
+			screenShake: meta.settings.screenShake,
+			locale: meta.settings.locale,
+			locales: [
+				{ id: "pt-BR", name: "Português" },
+				{ id: "en", name: "English" },
+			],
+		};
+	}
+
+	/** Applies the change in memory at once and saves it under the lock (a read-only save only keeps it for this session). */
+	function changeSettings(mutate: (s: MetaState["settings"]) => unknown): Promise<void> {
+		mutate(meta.settings);
+		publishNow();
+		if (loaded.readOnly) return Promise.resolve();
+		return updateMeta(
+			saveIO,
+			(m) => {
+				mutate(m.settings);
+			},
+			__APP_VERSION__,
+		)
+			.then(() => undefined)
+			.catch((error: unknown) => log.warn("settings change refused", error));
+	}
+
+	function setPresetOption(id: string): void {
+		const next = presetFor(id);
+		if (!next) return;
+		void changeSettings((s) => (s.preset = id));
+		applied = applyPreset(game, render.engine, next);
+		spawn.setCap(next.enemyCap);
+	}
+
+	/** The catalog is picked at boot, so a language change reloads (`?lang=` is dropped so the saved one wins). */
+	function setLocaleOption(id: string): void {
+		const next = new URLSearchParams(location.search);
+		next.delete("lang");
+		if (loaded.readOnly) next.set("lang", id);
+		void changeSettings((s) => (s.locale = id === "en" ? "en" : "pt-BR")).then(() => {
+			location.search = next.toString();
+		});
+	}
 
 	function difficultyView(): NonNullable<HudState["difficulty"]> {
 		return {
@@ -799,6 +878,7 @@ async function boot(): Promise<void> {
 			boss: bossView,
 			ossuary: ossuaryOpen ? ossuaryView() : null,
 			difficulty: difficultyOpen ? difficultyView() : null,
+			options: optionsOpen ? optionsView() : null,
 			bossIntro: run.state === "BossIntro" ? t(`boss.${boss.defFor(run.round).id}`) : null,
 			dash: dash.unlocked
 				? {
@@ -847,6 +927,8 @@ async function boot(): Promise<void> {
 			cur.ossuary !== null ||
 			cur.difficulty !== null ||
 			next.difficulty !== null ||
+			cur.options !== null ||
+			next.options !== null ||
 			next.ossuary !== null ||
 			cur.bossIntro !== next.bossIntro ||
 			cur.tip !== next.tip ||

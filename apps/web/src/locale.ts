@@ -5,6 +5,11 @@ import ptBR from "../../../locales/pt-BR.json" with { type: "json" };
 /** The shipped UI language until the options screen offers a choice (`?lang=en` switches it for a session). */
 const DEFAULT_LOCALE = "pt-BR";
 
+/** Switches the active language and `<html lang>`; unknown ids are ignored. */
+export function applyLocale(locale: string): void {
+	if (i18n.setLocale(locale)) document.documentElement.lang = i18n.locale;
+}
+
 /** Registers both catalogs, picks the locale and keeps `<html lang>` in sync. Call once at boot. */
 export function initLocale(search: string = location.search): string {
 	i18n.registerLocale("en", en);

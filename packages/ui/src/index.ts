@@ -20,6 +20,13 @@ export type { CardView, LevelUpProps } from "./components/LevelUp/LevelUp";
 export { LevelUp } from "./components/LevelUp/LevelUp";
 export { Notice, noticeText } from "./components/Notice/Notice";
 export type {
+	OptionsActions,
+	OptionsProps,
+	OptionsViewModel,
+	VolumeBus,
+} from "./components/Options/Options";
+export { Options } from "./components/Options/Options";
+export type {
 	OssuaryActions,
 	OssuaryBranchView,
 	OssuaryNodeState,

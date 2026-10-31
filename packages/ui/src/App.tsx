@@ -10,6 +10,7 @@ import {
 } from "./components/Difficulty/Difficulty";
 import { type CardView, LevelUp } from "./components/LevelUp/LevelUp";
 import { Notice } from "./components/Notice/Notice";
+import { Options, type OptionsActions, type OptionsViewModel } from "./components/Options/Options";
 import { Ossuary, type OssuaryActions, type OssuaryViewModel } from "./components/Ossuary/Ossuary";
 import { Results, type ResultsViewModel } from "./components/Results/Results";
 import { Shop, type ShopActions, type ShopViewModel, type StatLineView } from "./components/Shop/Shop";
@@ -43,6 +44,8 @@ export interface HudState {
 	ossuary: OssuaryViewModel | null;
 	/** The pre-run difficulty and seed screen; null while closed. */
 	difficulty: DifficultyViewModel | null;
+	/** The options screen; null while closed. */
+	options: OptionsViewModel | null;
 	/** Null until the Ossuary unlocks the dash. */
 	dash: DashView | null;
 	/** Level-up card rerolls left (Ossuary). */
@@ -65,6 +68,9 @@ export interface AppProps {
 	shopActions?: ShopActions | undefined;
 	onRestart?: (() => void) | undefined;
 	difficultyActions?: DifficultyActions | undefined;
+	/** Opens the options screen from the gear button; the screen itself talks through `optionsActions`. */
+	onOpenOptions?: (() => void) | undefined;
+	optionsActions?: OptionsActions | undefined;
 	/** Touch dash button held state. */
 	onDashHold?: ((down: boolean) => void) | undefined;
 	ossuaryActions?: (OssuaryActions & { open(): void }) | undefined;
@@ -83,6 +89,8 @@ export function App({
 	ossuaryActions,
 	onDashHold,
 	difficultyActions,
+	onOpenOptions,
+	optionsActions,
 	version,
 }: AppProps): JSX.Element {
 	const hud = useSyncExternalStore(store.subscribe, store.get);
@@ -117,6 +125,17 @@ export function App({
 				<Difficulty view={hud.difficulty} actions={difficultyActions} />
 			) : null}
 			{hud.ossuary && ossuaryActions ? <Ossuary view={hud.ossuary} actions={ossuaryActions} /> : null}
+			{onOpenOptions && !hud.options ? (
+				<button
+					type="button"
+					data-testid="options-open"
+					onClick={onOpenOptions}
+					className="pointer-events-auto absolute top-2 right-2 z-20 min-h-12 border-2 border-iron-dark bg-night-2 px-3 font-display text-sm text-bone hover:border-ember hover:text-ember-light focus-visible:outline-2 focus-visible:outline-ember"
+				>
+					{t("options.open")}
+				</button>
+			) : null}
+			{hud.options && optionsActions ? <Options view={hud.options} actions={optionsActions} /> : null}
 			{hud.boss ? <BossBar boss={hud.boss} /> : null}
 			{hud.bossIntro ? <BossIntro name={hud.bossIntro} /> : null}
 			{hud.notice ? <Notice notice={hud.notice} /> : null}
