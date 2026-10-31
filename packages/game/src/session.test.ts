@@ -55,6 +55,8 @@ test("hp_regen heals the hero during a round by the GDD formula and never above 
 	expect(regenPerSecond(0, 0.2, 0.09)).toBe(0);
 	expect(regenPerSecond(1, 0.2, 0.09)).toBeCloseTo(0.2);
 	expect(regenPerSecond(5, 0.2, 0.09)).toBeCloseTo(0.56);
+	expect(regenPerSecond(0.5, 0.2, 0.09)).toBeCloseTo(0.1);
+	expect(regenPerSecond(1.5, 0.2, 0.09)).toBeCloseTo(0.245);
 
 	const session = createGameSession({ seed: 7, difficulty, meta: createMetaState() });
 	session.stats.add([{ stat: "hp_regen", op: "add", value: 5 }]);

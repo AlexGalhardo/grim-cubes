@@ -69,9 +69,12 @@ export interface StatCaps {
 }
 
 /** The slice of `data/hero.json` the stats read. */
-/** GDD 8: the first regeneration point heals `first` HP/s and every extra point `extra` HP/s; zero or less heals nothing. */
+/**
+ * GDD 8: the first regeneration point heals `first` HP/s and every extra point `extra` HP/s. Continuous, so fractional
+ * points (the +0.5 card) scale linearly inside each segment; zero or less heals nothing.
+ */
 export function regenPerSecond(points: number, first: number, extra: number): number {
-	return points <= 0 ? 0 : first + extra * (points - 1);
+	return first * Math.min(Math.max(points, 0), 1) + extra * Math.max(0, points - 1);
 }
 
 export interface HeroStatsData {
