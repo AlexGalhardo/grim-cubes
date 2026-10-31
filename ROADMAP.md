@@ -72,8 +72,8 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
   - Asserts: `bun run test` exit 0 com ≥ 5 testes; `bunx vitest run --coverage` gera `coverage/coverage-summary.json`.
 - [ ] **E-02-06** Playwright config (4 projetos de viewport D31, flags SwiftShader, `webServer` com `vite preview`) + 1 teste e2e que abre a página e verifica que o `<canvas>` existe e que `window.gc.ready === true`. Deps: E-02-04, E-03-02. Resp: Est. Prio: P0.
   - Asserts: `bunx playwright test` exit 0 nos 4 projetos; capturas `tests/visual/__screenshots__/boot-<alvo>.png` nos 4 alvos commitadas (`maxDiffPixelRatio` documentado); `playwright-report/index.html` gerado; no teste, `gl.getParameter(gl.RENDERER)` logado contém `SwiftShader` ou `ANGLE` (prova de WebGL headless).
-- [ ] **E-02-07** lefthook (`lefthook.yml` do SDD 11 §4) + `tools/commitlint` + `tools/secrets-scan` + `tools/lint-extra` (hex em TSX, `console.log`, `^` em versões). Deps: E-02-01. Resp: S2. Prio: P0.
-  - Asserts: `bunx lefthook install` exit 0; commit com mensagem `bad message` é rejeitado (exit ≠ 0) e `feat(core): add logger` aceito; arquivo staged contendo `ELEVENLABS_API_KEY=sk_test` bloqueia o commit; `bun tools/lint-extra/index.ts` exit 0 no repositório.
+- [x] **E-02-07** lefthook (`lefthook.yml` do SDD 11 §4) + `tools/commitlint` + `tools/secrets-scan` + `tools/lint-extra` (hex em TSX, `console.log`, `^` em versões). Deps: E-02-01. Resp: S2. Prio: P0.
+  - Asserts: `bunx lefthook install` exit 0; commit com mensagem `bad message` é rejeitado (exit ≠ 0) e `feat(core): add logger` aceito; arquivo staged com a variável da chave ElevenLabs atribuída a um valor no formato `sk_` (fixture gerada no teste, nunca literal no repositório) bloqueia o commit; `bun tools/lint-extra/index.ts` exit 0 no repositório.
 - [ ] **E-02-08** markdownlint (`.markdownlint-cli2.jsonc` já existente) integrado ao script `lint:md` e ao hook. Deps: E-02-07. Resp: Est. Prio: P1.
   - Asserts: `bun run lint:md` exit 0 em todos os `.md` do repositório.
 
@@ -89,7 +89,7 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
   - Asserts: `bun run data:check` exit 0; teste negativo: id duplicado em `items.json` faz o check falhar; `jq length data/items.json` = 40; `jq length data/enemies.json` = 8.
 - [ ] **E-03-05** `packages/platform` com adaptadores `web` (storage IndexedDB) e stubs `electron`/`capacitor` que lançam `NotImplemented`. Deps: E-03-01. Resp: S2. Prio: P1.
   - Asserts: teste de storage web em jsdom com `fake-indexeddb` (dev dep, versão estável; aprovação do PO) faz round-trip de `save`; stubs cobertos por teste de "lança erro".
-- [ ] **E-03-06** ECS base em `packages/game/src/ecs/`: world bitecs, `components.ts` (`Position`, `PrevPosition`, `Velocity`, `Radius`, `Health`, tags de facção) e `events.ts` (ring buffer de eventos consumido por `render` via `consumeEvents`), conforme SDD 02 §2; contrato `render.sync(world, alpha)` combinado com S1. Deps: E-03-01. Resp: S2. Prio: P0.
+- [x] **E-03-06** ECS base em `packages/game/src/ecs/`: world bitecs, `components.ts` (`Position`, `PrevPosition`, `Velocity`, `Radius`, `Health`, tags de facção) e `events.ts` (ring buffer de eventos consumido por `render` via `consumeEvents`), conforme SDD 02 §2; contrato `render.sync(world, alpha)` combinado com S1. Deps: E-03-01. Resp: S2. Prio: P0.
   - Asserts: testes de criação/remoção de entidade e de reciclagem de ids; ring buffer não aloca após o warm-up (teste com contador) e descarta o mais antigo ao encher; `render` não importa nada que escreva em componentes (regra do Biome ou teste de import).
 
 ### E-04 CI/CD e deploy
@@ -211,7 +211,7 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
   - Asserts: `bun run assets:build` exit 0 (validações de elementos, textura, cores, sockets); capturas de cada modelo em `docs/art/review/*.png`; teste de silhueta (preto sólido a 64 px) anexado e aprovado pelo PO em PROGRESS.
 - [x] **P-06-02** `tools/assets-build` (SDD 09): validação, atlas por categoria (MaxRects), reescrita de UV via `@gltf-transform/core` (aprovação do PO para a dependência), manifest com grupos. Deps: E-02-01. Resp: S1. Prio: P0.
   - Asserts: duas execuções seguidas produzem `manifest.json` idêntico (hash); fixtures inválidas (1 por regra) falham com mensagem contendo o nome da regra; `public/assets/atlas_characters.png` é 2048×2048.
-- [ ] **P-06-03** Bake de VAT (`tools/bake-vat`) para Carcaça e Lamento (12 fps) + loader no render. Deps: P-06-02. Resp: S1. Prio: P0.
+- [x] **P-06-03** Bake de VAT (`tools/bake-vat`) para Carcaça e Lamento (12 fps) + loader no render. Deps: P-06-02. Resp: S1. Prio: P0.
   - Asserts: teste: vértice conhecido no frame 5 do clipe `walk` bate com o glTF (tolerância 1e-4); `vat/enemy_husk.png` existe e seu JSON lista 4 clipes.
 - [ ] **P-06-04** Áudio v2 no jogo (SDD 08 §1–§2): engine, buses, unlock na tela de título, sons de hit/morte/pickup/level-up/UI (placeholders jsfxr ou ElevenLabs se E-05-04 pronta), música do menu e do Cemitério. Deps: E-05-04 (opcional), P-04-05. Resp: S2. Prio: P1.
   - Asserts: e2e: antes do clique nenhum `AudioContext` está `running`; após o clique em "Começar", `audioEngine.state === "running"`; throttle: ≤ 12 sons novos por frame (assert em debug).

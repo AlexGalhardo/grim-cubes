@@ -26,6 +26,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **data:** Add game data JSON files (enemies, weapons, rounds, biomes, elites, 40 items, cards, ossuary, bosses, hero) with JSON Schemas and `tools/data-check` ([15b6038](https://github.com/AlexGalhardo/grim-cubes/commit/15b6038702b778ca63e28ae209b1432444577527))
 - **assets:** Add `tools/assets-build` with glTF validation rules, MaxRects atlas (2 px extrusion, NEAREST) and deterministic hashed manifest ([278d2ec](https://github.com/AlexGalhardo/grim-cubes/commit/278d2ec2d586670c7d7eb0571e501ce5e33b032f))
 - **world:** Add chunk streaming system with load/unload hysteresis, fixed 81-slot pool and `data/world.json` ([00d1dc2](https://github.com/AlexGalhardo/grim-cubes/commit/00d1dc2b311d3a492f4358c37e47f170ae887c52))
+- **tooling:** Add `lefthook.yml` and `tools/commitlint`, `tools/secrets-scan`, `tools/lint-extra` with tests ([8add02b](https://github.com/AlexGalhardo/grim-cubes/commit/8add02bbed09e3539ac0cb43d2163d5e1a6f8ab0))
+- **assets:** Bake bone-matrix VAT (RGBA32F `.bin`, 12 fps, 5 clips) in `assets:build` and add render VAT loader ([217051d](https://github.com/AlexGalhardo/grim-cubes/commit/217051d714b36bb5a58d5f916fff28d126cc5eab))
+- **audio:** Add `tools/audio-generate` (ElevenLabs batch with dry-run, paid-plan check, credit limit and hash-based skip) ([b616425](https://github.com/AlexGalhardo/grim-cubes/commit/b6164255f845a4b43731aed2ba022c4dc8be4aba))
+- **game:** Add fixed-timestep loop with slow frame guard ([0309abc](https://github.com/AlexGalhardo/grim-cubes/commit/0309abce557acd7e1ede6216584e8d5ff2c28e81))
+- **platform:** Add runtime and touch detection ([46d9f88](https://github.com/AlexGalhardo/grim-cubes/commit/46d9f886e893d27db7daf8e2e8ffa1e5fb0fad5d))
+- **game:** Add bitecs world, components, event ring buffer and render port contract ([dbbe953](https://github.com/AlexGalhardo/grim-cubes/commit/dbbe95305eb5b868f48f150f52035440ab93a9c4))
+- **data:** Require `world.json` and its schema in data-check ([0a97079](https://github.com/AlexGalhardo/grim-cubes/commit/0a97079f053c64319b7c9f623f0054e7644f491a))
 
 ### Changed
 
@@ -33,5 +40,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **docs:** Add command table to `AGENTS.md` (E-01-05)
 - **build:** Use `bun check -b` for typecheck, raise node engine floor to 22.12 and fix stub roadmap ids ([89ae8e4](https://github.com/AlexGalhardo/grim-cubes/commit/89ae8e4354db80ae348b94a38c0067991936c1c2))
 - **docs:** Amend SDD 10/11 for `bun check`, Vitest projects, Biome preset and GritQL plugin
+- **lint:** Close layer import gaps (Babylon subpaths, relative cross-package imports, render override), drop `vitest/globals` types and add SMHasher verification test ([0ab5190](https://github.com/AlexGalhardo/grim-cubes/commit/0ab51906e7fc74d659395c8aa4ebcb2ad5c32251))
+- **docs:** Amend SDD 01 §2: `ui` imports only `core`; Biome layer patterns documented
 
 [Unreleased]: https://github.com/AlexGalhardo/grim-cubes/compare/2775e6e...HEAD

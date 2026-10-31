@@ -1,25 +1,32 @@
 # PROGRESS
 
-Atualizado: 2026-10-31 04:30 (fuso do PO) | Versão: 0.0.0 | Fase: 1 — ESTRUTURA | Sessão: #1
+Atualizado: 2026-10-31 05:40 (fuso do PO) | Versão: 0.0.0 | Fase: 1 — ESTRUTURA | Sessão: #1
 
-Meta do PO (2026-10-31): implementar o ROADMAP até o fim sem interrupções; tarefas `Resp: PO` ficam em Bloqueios e os agentes seguem com o resto.
+Meta do PO (2026-10-31): implementar o ROADMAP até o fim sem interrupções; tarefas `Resp: PO` ficam em Bloqueios e os agentes seguem com o resto. Hooks lefthook instalados em `.git` (valem para todos os worktrees).
 
 ## Agentes
 
 | Agente | Tarefa atual | Branch | Estado | Desde | Lock |
 | --- | --- | --- | --- | --- | --- |
-| Orq | merges; docs; PROGRESS | main | em andamento | 04:30 | — |
-| S1 | rebase P-06-02 (aguardando Esp) → P-01-02 chunkSystem (adiantada da fase 2, gerador injetado) | feat/P-06-02-assets-build, feat/P-01-02-chunk-system | implementando | 04:30 | `data/world.json` (novo) |
-| S2 | E-02-04 Vite + boot `apps/web` (parte apps/ui da E-03-02) → E-02-07 | feat/E-02-04-vite | implementando | 04:30 | — |
-| Est | correções do Esp em E-03-04 + `data/hero.json` | feat/E-03-04-data | implementando | 04:30 | `data/**` |
-| Esp | auditoria pós-merge E-02-02/03/05, E-03-01 (core+render), E-03-02 (render) | main | revisando | 04:30 | — |
+| Orq | merges; docs; PROGRESS | main | em andamento | 06:20 | — |
+| S1 | P-01-04 origin shifting + `RenderPort` mínimo no render | feat/P-01-04-origin-shift | implementando | 06:20 | `data/world.json` |
+| S2 | E-03-05 storage web → P-04-01 dano | feat/E-03-05-platform-storage | implementando | 06:20 | — |
+| Est | E-02-08 + correções da fase 2 no ROADMAP/SDD/ADR (sem D1/D3/D5) | docs/phase2-roadmap-fixes | implementando | 06:20 | ROADMAP.md, docs/sdd/**, docs/adrs/**, prompt-workers.md, .env.example |
+| Esp | auditoria pós-merge P-06-02, P-01-02, E-03-04, E-02-07; revisão da branch E-02-04 | main, feat/E-02-04-vite | revisando | 05:40 | — |
 
-Fila do Esp: P-06-02 (S1), E-03-04 (Est, após correções).
+Concluídas nesta rodada (Orq verificou; Esp audita): P-06-03 (217051d), P-06-05 parcial — dry-run e prompts; falta E-05-04 (b616425), E-03-01 parte S2 loop/detect (0309abc, 46d9f88), E-03-06 (dbbe953). Lote de áudio estimado em 8.500 créditos (20 SFX + 2 músicas), nada gerado.
+
+Branch pronta fora de `main`: `feat/E-02-04-vite` (3a4f1da) — aguarda aprovação de `@types/react`/`@types/react-dom` (Bloqueios).
 
 ## Concluídas (últimas 20)
 
 | ID | Data | Agente | Commit | Observação |
 | --- | --- | --- | --- | --- |
+| E-02-07 | 2026-10-31 | S2 (Orq verificou) | 8add02b | lefthook (biome, markdown, data, secrets, commitlint, typecheck e unit no pre-push); lint-extra ignora `engines` |
+| E-03-04 | 2026-10-31 | Est + Esp | 15b6038 | preço por tier 20/40/80/160 (decisão do Orq, meio das faixas do GDD §15.1); raio dos inimigos pelo Art Bible §5.1; `data/hero.json` |
+| P-06-02 | 2026-10-31 | S1 (Orq verificou; Esp audita) | 278d2ec | `pngjs` 7.0.0 + `@types/pngjs` 6.0.5; `KHR_materials_unlit` reescrito à mão (sem `@gltf-transform/extensions`) |
+| P-01-02 | 2026-10-31 | S1 (Orq verificou; Esp audita) | 00d1dc2 | gerador injetado (P-01-01 aguarda D3); pool 81, slots 9×9 |
+| Auditoria fase 1 | 2026-10-31 | Esp → Orq | 0ab5190 | furos de camada fechados (subcaminhos do Babylon, imports relativos, override de render); `types: ["bun"]`; teste SMHasher `0xB0F57EE3` |
 | E-02-05 | 2026-10-31 | Est (Orq verificou; Esp audita pós-merge) | 36f1f7d | Vitest 5 `projects` unit/unit-ui/integration; istanbul json-summary |
 | E-02-03 | 2026-10-31 | S2 (Orq verificou; Esp audita pós-merge) | 9b5b11a | Biome `preset: recommended`, camadas por override, barrel do Babylon proibido, plugin GritQL contra `Math.random` |
 | E-02-02 | 2026-10-31 | S2 (Orq verificou; Esp audita pós-merge) | d76a6d1 | `skipLibCheck` (Babylon + `exactOptionalPropertyTypes`); `typecheck` = `bun check -b` (89ae8e4, pedido do PO) |
@@ -49,6 +56,7 @@ Fila do Esp: P-06-02 (S1), E-03-04 (Est, após correções).
 - [ ] 2026-10-31 — D1 câmera (GDD §5, ADR-0017): `beta` do `ArcRotateCamera` é medido do zênite; 0,96 rad = 35° de elevação, não 55°. A) beta 0,611 rad (55°, intenção do GDD; anel de spawn 22–30 u fica fora da tela) — recomendado; B) manter 0,96 (35°; inimigos nascem à vista). — bloqueia: P-02-01.
 - [ ] 2026-10-31 — D3 densidade de props (GDD §6.3): com a regra de corredor cabem no máximo 8–9 bloqueantes por chunk 4×4. A) 4–8 bloqueantes — recomendado; B) manter 4–10 e afrouxar corredor para "≤ 3 vizinhos". — bloqueia: P-01-01.
 - [ ] 2026-10-31 — D5 fluxo de arte (Art Bible §8/§10): A) `.bbmodel` como fonte gerado por script e convertido para glTF pelo `assets-build` (PO refina no Blockbench) — recomendado; B) export manual de glTF pelo Blockbench. — bloqueia: P-06-01.
+- [ ] 2026-10-31 — Dependência nova: `@types/react` 19.3.0 e `@types/react-dom` 19.3.0 (devDeps exatas). React 19 não traz tipos; sem elas nenhum `.tsx` passa no typecheck (HUD, `ui/App`, design system). Opções: A) aprovar (recomendado; só tipos, mesmo mantenedor DefinitelyTypes do ecossistema React); B) escrever declarações mínimas próprias (frágil). — bloqueia: E-02-04 (branch pronta), E-02-06, E-03-02, E-03-03, toda UI.
 
 ## Próximos
 
