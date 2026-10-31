@@ -1,17 +1,23 @@
 import { Color3 } from "@babylonjs/core/Maths/math.color";
 import { mulberry32 } from "@gc/core";
 import {
+	Bleed,
 	Boss,
 	bossesData,
 	EnemyType,
 	EventType,
 	enemiesData,
 	enrageMult,
+	type GameWorld,
 	heroData,
 	MAX_ENTITIES,
 	Position,
+	queryBleeding,
+	queryThorned,
 	renderData,
 	roundsData,
+	STEP,
+	ThornsCooldown,
 } from "@gc/game";
 import { CAMERA } from "../scene/camera";
 import { PALETTE } from "../scene/palette";
@@ -41,6 +47,10 @@ const EGG_CUBES = 4;
 const EXECUTION_SECONDS = 1.5;
 const EXECUTION_BURSTS = 3;
 const EXECUTION_CUBES = 12;
+/** Blood drips per second per bleeding enemy, and the cap on drips emitted in one frame. */
+const BLEED_DRIPS_PER_SECOND = 6;
+const BLEED_DRIPS_PER_FRAME = 16;
+const THORN_SPIKES = 5;
 /** Art Bible section 9: the boss comes apart into 12 to 20 large pieces. */
 const EXECUTION_PIECES = 16;
 const PIECE_SIZE_MULT = 4;
@@ -71,6 +81,11 @@ export interface Vfx {
 	shift(dx: number, dz: number): void;
 	/** false = reduced gore: no decals, no blood, grey cubes on death (GDD §23, Art Bible §9). */
 	setGore(full: boolean): void;
+	/**
+	 * Status looks read from the world: blood drips from bleeding enemies (`Bleed`) and iron spikes fly where a
+	 * spiked boot hurt an enemy (`ThornsCooldown` just set). Call once per rendered frame with the frame time.
+	 */
+	syncStatus(world: GameWorld, dtSeconds: number): void;
 	readonly gore: boolean;
 	readonly particles: ParticlePool;
 	readonly decals: DecalPool;
@@ -201,6 +216,7 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 		alpha_hunter: [rgb(PALETTE.mist), rgb(PALETTE.shadow), rgb(PALETTE.bone), emberLight],
 		nest_queen: [rgb(PALETTE.bloodLight), rgb(PALETTE.bone), rgb(PALETTE.boneDark), emberLight],
 	};
+	const spikeColors: readonly Rgb[] = [rgb(PALETTE.ironLight), rgb(PALETTE.iron), rgb(PALETTE.emberLight)];
 	const propDust: readonly Rgb[] = [rgb(PALETTE.boneDark), rgb(PALETTE.rust)];
 
 	return {
@@ -225,6 +241,33 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 		},
 		get shaking(): boolean {
 			return shakeLeft > 0;
+		},
+		syncStatus(world, dt): void {
+			if (dt <= 0) return;
+			const bleeding = queryBleeding(world);
+			let drips = 0;
+			for (let i = 0; i < bleeding.length && drips < BLEED_DRIPS_PER_FRAME; i++) {
+				const e = bleeding[i] ?? 0;
+				if ((Bleed.ticks[e] ?? 0) <= 0 || !rng.chance(dt * BLEED_DRIPS_PER_SECOND)) continue;
+				burst(Position.x[e] ?? 0, Position.z[e] ?? 0, 1, bloodColors(), 0.6, 1.5, gore);
+				drips++;
+			}
+			const justHit = Math.max(1, Math.round(heroData.combat.contactCooldownSeconds / STEP)) - 1;
+			const thorned = queryThorned(world);
+			for (let i = 0; i < thorned.length; i++) {
+				const e = thorned[i] ?? 0;
+				if ((ThornsCooldown.ticks[e] ?? 0) < justHit) continue;
+				const hero = game.hero.position;
+				burst(
+					((Position.x[e] ?? 0) + hero.x) / 2,
+					((Position.z[e] ?? 0) + hero.z) / 2,
+					THORN_SPIKES,
+					spikeColors,
+					4,
+					4,
+					false,
+				);
+			}
 		},
 		setGore(full): void {
 			gore = full;

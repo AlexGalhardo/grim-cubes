@@ -1194,7 +1194,9 @@ async function boot(): Promise<void> {
 			);
 			// VFX stop with the world while paused (level-up) so a captured frame is stable.
 			scaler?.frame(render.engine.getDeltaTime());
-			vfx.update(run.state === "Paused" ? 0 : Math.min(0.1, render.engine.getDeltaTime() / 1000));
+			const vfxDelta = run.state === "Paused" ? 0 : Math.min(0.1, render.engine.getDeltaTime() / 1000);
+			vfx.syncStatus(world, vfxDelta);
+			vfx.update(vfxDelta);
 			projectileView.sync(world, alpha);
 			enemyShotView.sync(world, alpha);
 			characters?.sync(

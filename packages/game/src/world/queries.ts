@@ -1,4 +1,5 @@
 import {
+	Bleed,
 	Consumable,
 	Egg,
 	Elite,
@@ -9,6 +10,7 @@ import {
 	Position,
 	PrevPosition,
 	Projectile,
+	ThornsCooldown,
 } from "../ecs/components";
 import { createQueryCache, type GameWorld } from "../ecs/world";
 
@@ -20,6 +22,8 @@ const enemyShotList = createQueryCache([EnemyShot, Position, PrevPosition]);
 const consumableList = createQueryCache([Consumable, Position, PrevPosition]);
 const eliteList = createQueryCache([Elite, Position, PrevPosition]);
 const eggList = createQueryCache([Egg, Position]);
+const bleedList = createQueryCache([Bleed, Position]);
+const thornedList = createQueryCache([ThornsCooldown, Position]);
 const enemyList = createQueryCache([EnemyFaction, Position, PrevPosition]);
 
 /** First entity tagged PlayerFaction, or -1. */
@@ -65,4 +69,14 @@ export function queryElites(world: GameWorld): readonly number[] {
 /** Boss eggs that have not hatched or broken yet. */
 export function queryEggs(world: GameWorld): readonly number[] {
 	return eggList(world);
+}
+
+/** Entities with an active bleed (`Bleed.ticks > 0`; the component leaves with the last tick). */
+export function queryBleeding(world: GameWorld): readonly number[] {
+	return bleedList(world);
+}
+
+/** Enemies that carry a thorns cooldown; `ThornsCooldown.ticks` is at its maximum on the step they were hit. */
+export function queryThorned(world: GameWorld): readonly number[] {
+	return thornedList(world);
 }
