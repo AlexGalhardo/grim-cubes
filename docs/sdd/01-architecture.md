@@ -44,7 +44,7 @@ grim-cubes/
 │   ├── ossuary.json  rounds.json   bosses.json biomes.json
 │   └── schema/          # JSON Schema de cada arquivo
 ├── assets/src/           # .bbmodel, .glb, .png, prompts de áudio (fonte)
-├── public/assets/        # saída do pipeline (gerado, versionado por manifest)
+├── public/assets/        # saída do pipeline (gerado por `assets:build`, NÃO versionado; ver SDD 09 §1)
 ├── tools/                # scripts Bun: assets:build, bake:vat, audio:generate, sim
 ├── tests/
 │   ├── unit/  integration/  e2e/  smoke/

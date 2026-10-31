@@ -44,7 +44,7 @@ Decisões: D19 (Electron + electron-builder), D28 (web = demo), D29 (Android 1.1
 | `lint:md` | `markdownlint-cli2 "**/*.md"` |
 | `test` | `vitest run` |
 | `test:e2e` | `playwright test` |
-| `test:smoke` | `bun tools/smoke/run.ts` (agent-browser) |
+| `test:smoke` | `bun tools/smoke/run.ts` (Playwright) |
 | `sim` | `bun tools/sim/index.ts` |
 | `assets:build` | `bun tools/assets-build/index.ts` |
 | `audio:generate` | `bun tools/audio-generate/index.ts` |

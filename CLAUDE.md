@@ -26,9 +26,10 @@ Roguelite de sobrevivência em ondas, 3D voxel grimdark, Babylon.js 9 + TypeScri
 | `bun run lint:md` | markdownlint-cli2 |
 | `bun run test` | Vitest (unit + integration) |
 | `bun run test:e2e` | Playwright (4 viewports) |
-| `bun run test:smoke` | agent-browser contra uma URL |
+| `bun run test:smoke` | Playwright smoke contra uma URL (bypass da Vercel por secret) |
 | `bun run sim` | simulador de balanceamento |
-| `bun run assets:build` | pipeline Blockbench → glTF → atlas/VAT/KTX2 |
+| `bun run assets:gen` | gera os `.bbmodel` placeholder por script |
+| `bun run assets:build` | pipeline `.bbmodel` → glTF (skin rígido) → atlas/VAT (KTX2 na ALPHA) |
 | `bun run audio:generate` | gera SFX/música/voz via ElevenLabs (chave em `.env`) |
 | `bun run release <patch\|minor\|major\|rc>` | release no padrão vukem |
 

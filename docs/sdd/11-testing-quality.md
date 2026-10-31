@@ -1,6 +1,6 @@
 # SDD 11 — Testes e qualidade
 
-Ferramentas (versões em `docs/web-search.md` §5.1): Vitest 5.0.5, Playwright 1.64.1, agent-browser 0.41.0, Biome 2.6.4, markdownlint-cli2 0.24.0, lefthook 2.2.2, TypeScript 7.0.2.
+Ferramentas (versões em `docs/web-search.md` §5.1): Vitest 5.0.5, Playwright 1.64.1; smoke também em Playwright (agent-browser descartado, ADR-0019 emendado), Biome 2.6.4, markdownlint-cli2 0.24.0, lefthook 2.2.2, TypeScript 7.0.2.
 
 ## 1. Pirâmide
 
@@ -11,7 +11,7 @@ Ferramentas (versões em `docs/web-search.md` §5.1): Vitest 5.0.5, Playwright 1
 | Balance | `tools/sim` (Node) | 500 runs simuladas por dificuldade; asserts de GDD §25 | CI (job separado, 10 min) | dentro das faixas |
 | Visual | Playwright `toHaveScreenshot` | telas do design system nos 4 viewports (D31) | CI em PR de UI | diff ≤ 1% |
 | E2E | Playwright (Chromium, WebGL via SwiftShader) | fluxo título → run → morte (cheat) → resultado → Ossuário; demo end; opções | CI | verdes; < 5 min |
-| Smoke | agent-browser (CLI) | abre build de produção, espera canvas, tira screenshot, lê console sem erros, mede fps por 10 s | CI pós-deploy (preview Vercel) e manual | 0 erros de console; fps ≥ 30 em SwiftShader |
+| Smoke | Playwright (`tools/smoke`) | abre build de produção, espera canvas, tira screenshot, lê console sem erros, mede fps por 10 s | CI pós-deploy (preview Vercel) e manual | 0 erros de console; fps ≥ 30 em SwiftShader |
 | Performance | script Playwright + `engine.getFps()` + `scene.getActiveMeshes()` | cenário "100 inimigos, round 20" em 1080p/1440p; mobile em device real (manual) | CI (desktop, informativo) e checklist de fase | SDD 14 |
 | Manual | checklist por fase no ROADMAP | gamepad, Steam overlay, Android device | fim de fase | — |
 
