@@ -54,12 +54,14 @@ describe("chunkSystem", () => {
 	it("generates at most 2 chunks per step, nearest first", () => {
 		const { system, calls } = setup();
 		let previous = 0;
+		let maxPerStep = 0;
 		for (let step = 0; step < 40; step++) {
 			system.update(0, 0);
-			expect(calls() - previous).toBeLessThanOrEqual(config.chunksPerStep);
+			maxPerStep = Math.max(maxPerStep, calls() - previous);
 			previous = calls();
 			if (step === 0) expect(system.get(-1, -1) ?? system.get(0, 0)).not.toBeNull();
 		}
+		expect(maxPerStep).toBeLessThanOrEqual(config.chunksPerStep);
 		expect(system.stats.loaded).toBe(49);
 	});
 
@@ -67,14 +69,16 @@ describe("chunkSystem", () => {
 		const { system, calls } = setup();
 		let x = 0;
 		let previous = 0;
+		let maxPerStep = 0;
 		let afterWarmup = -1;
 		for (let step = 0; step < Math.ceil(2000 / 6) * 60; step++) {
 			x += 6 / 60;
 			system.update(x, 0);
-			expect(calls() - previous).toBeLessThanOrEqual(config.chunksPerStep);
+			maxPerStep = Math.max(maxPerStep, calls() - previous);
 			previous = calls();
 			if (step === 600) afterWarmup = system.stats.newChunkData;
 		}
+		expect(maxPerStep).toBeLessThanOrEqual(config.chunksPerStep);
 		for (let i = 0; i < 40; i++) system.update(x, 0);
 		checkRings(system, x, 0);
 		expect(afterWarmup).toBeGreaterThan(0);
