@@ -43,6 +43,7 @@ import {
 	biomesData,
 	bossesData,
 	buyNode,
+	captureCheckpoint,
 	chooseDifficulty,
 	createGameSession,
 	createLoop,
@@ -82,6 +83,7 @@ import {
 	refundValue,
 	renderData,
 	resetOssuary,
+	restoreCheckpoint,
 	roundsData,
 	Speed,
 	STAT_FIELDS,
@@ -220,7 +222,6 @@ async function boot(): Promise<void> {
 
 	// Bench scenarios (P-03-06) are debug-only and always run on the same seed.
 	const bench = __DEBUG_API__ ? params.get("bench") : null;
-	const seed = bench ? 42 : runSeed();
 
 	// Account progress lives in IndexedDB on the web and in files under the app data folder in Electron (SDD 06,
 	// ADR-0009). A corrupt or unreadable save starts a fresh one.
@@ -251,13 +252,20 @@ async function boot(): Promise<void> {
 			: Math.min(Math.max(global.settings.lastSlot, 1), SLOT_COUNT);
 	const loaded = await loadMeta(saveIO, slot, __APP_VERSION__);
 	const meta: MetaState = loaded.meta;
+	// "Continuar" with a run in progress reloads with `?resume=1`: that run's seed and difficulty win over the URL.
+	const resumeRun = params.get("resume") === "1" && !bench ? meta.run : null;
+	const seed = resumeRun?.seed ?? (bench ? 42 : runSeed());
 	if (loaded.notice) log.warn("save problem", loaded.notice);
 	// The saved language applies unless `?lang=` forces one for this session.
 	if (!params.has("lang")) applyLocale(meta.settings.locale);
 	const { fragments, xp } = roundsData;
 
 	// A locked or unknown difficulty in the URL falls back to Normal (GDD 17).
-	const difficultyId = chooseDifficulty(roundsData.difficulties, params.get("difficulty"), meta.records);
+	const difficultyId = chooseDifficulty(
+		roundsData.difficulties,
+		resumeRun?.difficulty ?? params.get("difficulty"),
+		meta.records,
+	);
 	const difficulty = difficultyData(roundsData.difficulties, difficultyId);
 
 	// The web demo ends at the first boss: no walk to the Merchant there, the DemoEnd shows at once.
@@ -1070,6 +1078,35 @@ async function boot(): Promise<void> {
 	const landing = menuOpen ? params.get("next") : null;
 	if (landing === "difficulty") difficultyOpen = true;
 
+	// The run is saved into the slot when a round is about to start (GDD 21.4); debug and bench runs never touch it.
+	const checkpointsOn = !menuOpen && !loaded.readOnly && !bench && !params.has("debug");
+	let checkpointRound = resumeRun?.round ?? 0;
+
+	function storeRun(next: MetaState["run"]): void {
+		meta.run = next;
+		updateMeta(
+			saveIO,
+			slot,
+			(m) => {
+				m.run = next;
+			},
+			__APP_VERSION__,
+		).catch((error: unknown) => log.warn("checkpoint not saved", error));
+	}
+
+	/** Saves the run at each round intro and drops it as soon as the hero is dying (the results settle the rest). */
+	function checkpointTick(): void {
+		if (!checkpointsOn || settled) return;
+		if (run.state === "Dying") {
+			if (meta.run) storeRun(null);
+			return;
+		}
+		if ((run.state === "RoundIntro" || run.state === "BossIntro") && checkpointRound !== run.round) {
+			checkpointRound = run.round;
+			storeRun(captureCheckpoint(session, { seed, difficulty: difficultyId }));
+		}
+	}
+
 	function menuView(): NonNullable<HudState["menu"]> {
 		return {
 			records: roundsData.difficulties.map((def) => ({
@@ -1620,6 +1657,7 @@ async function boot(): Promise<void> {
 				return;
 			}
 			session.step(input);
+			checkpointTick();
 			// No results screen yet (P-05-08): a finished run starts over.
 			if (run.state === "Results" && !settled) settleRun();
 		},
@@ -2056,7 +2094,17 @@ async function boot(): Promise<void> {
 		// Maximum-cadence MG at its top tier fires for real; the emitter below holds the projectile count.
 		if (bench === "round20" && heavy) weapon.setWeapon(heavy, weapon.maxTier);
 	} else {
-		run.newRun();
+		if (resumeRun) {
+			try {
+				restoreCheckpoint(session, resumeRun);
+			} catch (error) {
+				// A checkpoint the game cannot rebuild (a removed weapon, say) is dropped; the run starts over.
+				log.warn("checkpoint could not be restored", error);
+				meta.run = null;
+				checkpointRound = 0;
+				run.newRun();
+			}
+		} else run.newRun();
 		telemetry.track("run_start", {
 			difficulty: difficultyId,
 			weapon: session.startingWeapon.id,

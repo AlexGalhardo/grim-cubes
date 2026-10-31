@@ -1,3 +1,4 @@
+export { captureCheckpoint, type RunIdentity, restoreCheckpoint } from "./checkpoint";
 export type {
 	BiomeData,
 	BossData,

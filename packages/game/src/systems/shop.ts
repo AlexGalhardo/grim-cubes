@@ -62,6 +62,8 @@ export interface ShopSystem {
 	readonly owned: ReadonlyMap<string, number>;
 	/** Total paid for the weapon in hand, including upgrades (half is refunded when it is replaced). */
 	readonly paid: number;
+	/** Puts back what was paid for the weapon in hand (a resumed run). */
+	restorePaid(value: number): void;
 	/** Draws the offers for the current round, keeping locked slots, and resets the reroll counter. */
 	open(): void;
 	buy(index: number): boolean;
@@ -123,6 +125,9 @@ export function createShopSystem(deps: ShopSystemDeps): ShopSystem {
 		owned,
 		get paid(): number {
 			return paid;
+		},
+		restorePaid(value: number): void {
+			paid = value;
 		},
 		open(): void {
 			rerolls = 0;

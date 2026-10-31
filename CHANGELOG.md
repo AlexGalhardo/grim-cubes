@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **save:** Three save slots, each a complete profile (souls, Ossuary, records, stats, milestones, skins); settings and keys stay global. Save schema 10 moves the old single save into slot 1 with its checksum verified; per-slot storage keys and backups on web and Electron
+- **ui:** The slot screen opens from New game (overwrite and erase need a confirmation; keyboard, D-pad and axe covered), and the title menu shows Continue when a slot was used before
+- **game:** The run is saved into the slot at the start of every round (round, gold, XP, HP, items, weapon, upgrades, stats, rerolls, difficulty, seed and RNG state; no enemies) and Continue resumes it; dying or finishing the run deletes the checkpoint
 - **ui:** Gamepad dash and pause buttons can be remapped in Options (save schema 7)
 - **ui:** Boss voice lines are subtitled, with an Options toggle that is on by default (save schema 8)
 - **tests:** The effect id enum in the data schema is tied to the implemented handlers, so `data:check` refuses an id without one

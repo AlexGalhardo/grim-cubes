@@ -607,7 +607,8 @@ Recordes mostrados no menu: maior round por dificuldade, total de kills, total d
 | Tela | Conteúdo | Fase |
 | --- | --- | --- |
 | Boot/Título | logo, "pressione para começar" (unlock de áudio), versão | PROTÓTIPO |
-| Menu principal | Jogar, Ossuário, Recordes, Opções, Sair; selo "DEMO" quando aplicável | PROTÓTIPO |
+| Menu principal | Continuar (só se já houve um slot usado), Novo jogo, Ossuário, Recordes, Opções, Sair; selo "DEMO" quando aplicável | PROTÓTIPO |
+| Slots de save | 3 slots: nome, último jogo, melhor round, almas e se há run em andamento; slot ocupado pede confirmação para sobrescrever; "Apagar" com confirmação | ALPHA |
 | Seleção de dificuldade | Normal/Grim/Nightmare com cadeados; seed opcional | ALPHA |
 | HUD in-run | ver 21.2 | PROTÓTIPO |
 | Level-up | 3 cartas centrais, stats atuais à esquerda; pausa | PROTÓTIPO |
@@ -618,6 +619,13 @@ Recordes mostrados no menu: maior round por dificuldade, total de kills, total d
 | Opções | áudio (3 sliders), vídeo (escala de renderização, qualidade, fullscreen, vsync), gameplay (gore, shake, flash, escala UI, daltônico), controles (remap) | ALPHA |
 | Fim da demo | após vencer o Coveiro: resumo + botões "Comprar na Steam" / "Google Play" / "Continuar no Ossuário (limitado)" | BETA |
 | Pausa | Continuar, Opções, Abandonar run (confirmação) | PROTÓTIPO |
+
+### 21.4 Slots de save e retomar a run (decisão do PO, 2026-10-31)
+
+- **Três slots**, cada um um perfil completo (almas, Ossuário, recordes, estatísticas, marcos e skins). Opções e teclas são globais e não mudam de slot.
+- **Novo jogo** abre a escolha de slot e depois a dificuldade. Um slot ocupado só é usado depois de confirmar que o perfil dele será apagado; um slot vazio entra direto. Cada slot ocupado também tem "Apagar", com confirmação.
+- **Continuar** aparece quando já houve um slot usado e abre o último: retoma a run em andamento dele; sem run, abre o perfil e vai para a escolha de dificuldade. O Ossuário e as Opções do menu valem para o slot atual.
+- **Retomar a run:** o jogo salva o estado da run ao começar cada round (depois de sair da loja). Ao retomar, a run volta ao início desse round com a mesma economia, build, HP e sorteios; os inimigos não são salvos, o round recomeça limpo. Morrer ou terminar a run apaga o checkpoint. Ver SDD 06 seção 2.1.
 
 ### 21.2 HUD in-run
 
