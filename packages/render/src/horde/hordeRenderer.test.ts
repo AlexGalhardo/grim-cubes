@@ -5,6 +5,7 @@ import {
 	Attacking,
 	createEventBuffer,
 	createGameWorld,
+	Elite,
 	EnemyFaction,
 	EnemyType,
 	EventType,
@@ -280,6 +281,54 @@ describe("horde renderer", () => {
 			for (const [proto, name, original] of patched) proto[name] = original;
 		}
 		expect(calls).toBe(0);
+		dispose();
+	});
+});
+
+describe("elite look", () => {
+	it("scales elite instances by elitesData.scale and tints them per modifier", () => {
+		const { engine, dispose } = createNullEngine();
+		const game = createGameScene(engine);
+		const mesh = skinnedBox("elite_enemy", game.scene);
+		const vat = createVat(
+			game.scene,
+			"elite_enemy",
+			new Float32Array(meta.width * meta.height * 4).buffer,
+			meta,
+		);
+		const tints = [
+			[2, 0, 0],
+			[0, 2, 0],
+		] as const;
+		const horde = createHordeRenderer([{ mesh, vat, walkRefSpeed: 3 }], {
+			capacity: 8,
+			ghostCapacity: 2,
+			deltaSeconds: () => 1 / 60,
+			elite: { scale: 1.6, tints },
+		});
+		const world = createGameWorld();
+		const plain = spawnEnemy(world, 0, 0);
+		const first = spawnEnemy(world, 3, 0);
+		const second = spawnEnemy(world, 6, 0);
+		for (const [eid, modifier] of [
+			[first, 1],
+			[second, 2],
+		] as const) {
+			addComponent(world, eid, Elite);
+			Elite.modifier[eid] = modifier;
+		}
+		horde.sync(world, 1);
+		const matrix = mesh.thinInstanceGetWorldMatrices();
+		expect(mesh.thinInstanceCount).toBe(3);
+		const scaleOf = (n: number): number => matrix[n]?.m[5] ?? 0;
+		expect(scaleOf(0)).toBeCloseTo(1, 5);
+		expect(scaleOf(1)).toBeCloseTo(1.6, 5);
+		expect(scaleOf(2)).toBeCloseTo(1.6, 5);
+		const colors = mesh.getVertexBuffer("instanceColor")?.getData() as Float32Array | null;
+		expect(Array.from(colors?.slice(0, 3) ?? [])).toEqual([1, 1, 1]);
+		expect(Array.from(colors?.slice(4, 7) ?? [])).toEqual([2, 0, 0]);
+		expect(Array.from(colors?.slice(8, 11) ?? [])).toEqual([0, 2, 0]);
+		expect(plain).toBeGreaterThanOrEqual(0);
 		dispose();
 	});
 });

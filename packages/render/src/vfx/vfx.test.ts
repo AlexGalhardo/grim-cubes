@@ -13,6 +13,7 @@ import {
 import { describe, expect, it } from "vitest";
 import { createNullEngine } from "../engine";
 import { createGameScene } from "../scene/scene";
+import { createEliteView } from "./elite";
 import { createFragmentRenderer } from "./fragments";
 import { createHitStop } from "./hitStop";
 import { createProjectileRenderer } from "./projectiles";
@@ -299,6 +300,48 @@ describe("fragment renderer", () => {
 		expect(piles.live).toBe(50);
 		expect(game.scene.getMeshByName("vfx_projectiles")?.subMeshes.length).toBe(1);
 		expect(game.scene.getMeshByName("vfx_fragments")?.subMeshes.length).toBe(1);
+		dispose();
+	});
+});
+
+describe("elite view", () => {
+	it("places a chest at the ChestDropped point, removes it when opened and shifts with the origin", () => {
+		const { engine, dispose } = createNullEngine();
+		const game = createGameScene(engine);
+		const view = createEliteView(game);
+		view.onEvent(EventType.ChestDropped, 5, 7, 0);
+		view.update(0.016, 0, 0);
+		const mesh = game.scene.getMeshByName("vfx_chests") as Mesh | null;
+		expect(view.chests).toBe(1);
+		expect(mesh?.thinInstanceCount).toBe(1);
+		expect(view.chestAt(0)).toEqual({ x: 5, z: 7 });
+		view.shift(16, 0);
+		view.update(0.016, -11, 7);
+		expect(view.chestAt(0)?.x).toBeCloseTo(-11, 5);
+		view.onEvent(EventType.ChestOpened, 0, 0, 0);
+		view.update(0.016, -11, 7);
+		expect(view.chests).toBe(0);
+		dispose();
+	});
+
+	it("shows the edge marker for an elite out of frame until it spawns", () => {
+		const { engine, dispose } = createNullEngine();
+		const game = createGameScene(engine);
+		const view = createEliteView(game);
+		view.onEvent(EventType.EliteIncoming, 40, 0, 0);
+		let shown = 0;
+		for (let i = 0; i < 60; i++) {
+			view.update(1 / 60, 0, 0);
+			shown += (game.scene.getMeshByName("vfx_elite_marker") as Mesh | null)?.thinInstanceCount ?? 0;
+		}
+		expect(shown).toBeGreaterThan(0);
+		// Clamped to the edge ring along +x, not drawn at the 40 u arrival point.
+		expect(view.markerDrawnX).toBeLessThan(15);
+		expect(view.markerDrawnX).toBeGreaterThan(5);
+		view.onEvent(EventType.EliteSpawned, 40, 0, 1);
+		view.update(1 / 60, 0, 0);
+		expect(view.markerVisible).toBe(false);
+		expect((game.scene.getMeshByName("vfx_elite_marker") as Mesh | null)?.thinInstanceCount).toBe(0);
 		dispose();
 	});
 });

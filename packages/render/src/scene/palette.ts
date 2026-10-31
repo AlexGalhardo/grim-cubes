@@ -23,6 +23,8 @@ export const PALETTE = {
 	ironDark: "#2E3136",
 	/** --color-iron: reduced-gore death cubes. */
 	iron: "#5A5F66",
+	/** Elite auras (data/elites.json `aura`): steel_gray, amber, wine and orange map to these tokens. */
+	steelGray: "#8A9099",
 	/** Directional "dead sun" colour (Art Bible §4); not a UI token. */
 	sun: "#C9B8A8",
 } as const;

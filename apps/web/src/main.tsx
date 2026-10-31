@@ -64,6 +64,7 @@ import {
 	difficultyData,
 	dropFragment,
 	Elite,
+	EventType,
 	elitesData,
 	enemiesData,
 	Health,
@@ -97,6 +98,7 @@ import {
 	CAMERA,
 	createBenchRecorder,
 	createChunkRenderer,
+	createEliteView,
 	createEngine,
 	createFragmentRenderer,
 	createGameScene,
@@ -106,6 +108,7 @@ import {
 	createRenderPort,
 	createVfx,
 	loadGameAssets,
+	PALETTE,
 	PLACEHOLDER_PROPS,
 	type PropTypeDef,
 } from "@gc/render";
@@ -125,6 +128,21 @@ const BENCH_PROJECTILE_STEPS = 300;
 const BENCH_ENEMY_HP = 1e9;
 /** Fragment piles drawn at once; piles beyond this are simply not shown (the drop cap keeps it far below). */
 const MAX_ENTITIES_FRAGMENTS = 256;
+const AURA_COLORS: Readonly<Record<string, string>> = {
+	steel_gray: PALETTE.steelGray,
+	amber: PALETTE.emberLight,
+	wine: PALETTE.bloodLight,
+	orange: PALETTE.ember,
+};
+
+/** Instance colour of an elite aura: the token colour pushed past 1 so the texture glows towards it. */
+function auraTint(aura: string): readonly [number, number, number] {
+	const hex = (AURA_COLORS[aura] ?? PALETTE.steelGray).slice(1);
+	const channel = (offset: number): number =>
+		(Number.parseInt(hex.slice(offset, offset + 2), 16) / 255) * 2;
+	return [channel(0), channel(2), channel(4)];
+}
+
 const NO_CARDS: readonly CardView[] = [];
 const NO_STATS: HudState["stats"] = [];
 
@@ -525,6 +543,10 @@ async function boot(): Promise<void> {
 						deltaSeconds: () =>
 							run.state === "Paused" ? 0 : render.engine.getDeltaTime() / 1000,
 						flashBrightness: renderData.vfx.flashBrightness,
+						elite: {
+							scale: elitesData.scale,
+							tints: elitesData.modifiers.map((modifier) => auraTint(modifier.aura)),
+						},
 					},
 				)
 			: undefined;
@@ -544,8 +566,14 @@ async function boot(): Promise<void> {
 		renderData.vfx.projectileSize,
 	);
 	let frozenAt: number | null = null;
+	const eliteView = createEliteView(game);
 	const fragmentView = createFragmentRenderer(game, MAX_ENTITIES_FRAGMENTS);
-	const port = createRenderPort(game, horde, { origin, followRate: CAMERA.followRate, vfx });
+	const port = createRenderPort(game, horde, {
+		origin,
+		followRate: CAMERA.followRate,
+		vfx,
+		elite: eliteView,
+	});
 	const propTypes: PropTypeDef[] = [];
 	for (const name of chunkGen.propTypes) {
 		const placeholder = PLACEHOLDER_PROPS.find((p) => name.startsWith(p.name)) ?? PLACEHOLDER_PROPS[0];
@@ -904,6 +932,11 @@ async function boot(): Promise<void> {
 			// VFX stop with the world while paused (level-up) so a captured frame is stable.
 			vfx.update(run.state === "Paused" ? 0 : Math.min(0.1, render.engine.getDeltaTime() / 1000));
 			projectileView.sync(world, alpha);
+			eliteView.update(
+				run.state === "Paused" ? 0 : Math.min(0.1, render.engine.getDeltaTime() / 1000),
+				game.hero.position.x,
+				game.hero.position.z,
+			);
 			fragmentView.sync(world, alpha, (frozenAt ?? performance.now()) / 1000);
 			hitStop.update();
 			const camera = game.camera;
@@ -950,6 +983,16 @@ async function boot(): Promise<void> {
 					Position.z[e] = Position.z[hero] ?? 0;
 					Health.hp[e] = 0;
 				}
+			},
+			/** Announces a chest next to the hero (placeholder render, P-05-06b capture). */
+			showChest: () => {
+				events.push(
+					EventType.ChestDropped,
+					(Position.x[hero] ?? 0) + 3,
+					(Position.z[hero] ?? 0) + 2,
+					0,
+					0,
+				);
 			},
 			killElites: () => {
 				for (const e of query(world, [Elite])) Health.hp[e] = 0;

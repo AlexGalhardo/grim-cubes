@@ -9,6 +9,7 @@ import {
 } from "@gc/game";
 import type { HordeRenderer } from "./horde/hordeRenderer";
 import type { GameScene } from "./scene/scene";
+import type { EliteView } from "./vfx/elite";
 import type { Vfx } from "./vfx/vfx";
 
 export interface RenderPortOptions {
@@ -23,6 +24,8 @@ export interface RenderPortOptions {
 	deltaSeconds?: () => number;
 	/** Combat juice fed from the same event stream (blood, decals, damage numbers). */
 	vfx?: Vfx;
+	/** Elite chest and incoming marker (P-05-06b). */
+	elite?: EliteView;
 }
 
 /**
@@ -35,7 +38,7 @@ export function createRenderPort(
 	options: RenderPortOptions = {},
 ): RenderPort {
 	const target = game.camera.target;
-	const { origin, vfx } = options;
+	const { origin, vfx, elite } = options;
 	const followRate = options.followRate ?? Number.POSITIVE_INFINITY;
 	const engine = game.scene.getEngine();
 	const deltaSeconds = options.deltaSeconds ?? ((): number => Math.min(0.1, engine.getDeltaTime() / 1000));
@@ -46,11 +49,13 @@ export function createRenderPort(
 	// Created once: consumeEvents runs every frame and must not allocate.
 	const onEvent = (type: number, a: number, b: number, c: number, entity: number): void => {
 		vfx?.onEvent(type, a, b, c, entity);
+		elite?.onEvent(type, a, b, c);
 		if (type === EventType.Died) horde?.onDied(entity);
 		if (type === EventType.OriginShifted) {
 			game.shiftWorld(a, b);
 			horde?.shift(a, b);
 			vfx?.shift(a, b);
+			elite?.shift(a, b);
 		}
 	};
 	return {

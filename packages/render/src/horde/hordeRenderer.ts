@@ -2,6 +2,7 @@ import { Material } from "@babylonjs/core/Materials/material";
 import type { Mesh } from "@babylonjs/core/Meshes/mesh";
 import {
 	Attacking,
+	Elite,
 	EnemyType,
 	Facing,
 	type GameWorld,
@@ -38,6 +39,11 @@ export interface HordeOptions {
 	 * towards white. Omit to leave the colour buffer out.
 	 */
 	flashBrightness?: number;
+	/**
+	 * Elite look: instance scale for entities with `Elite` and a tint per modifier (`Elite.modifier` is 1-based, so
+	 * `tints[modifier - 1]`). Needs the colour buffer, so it enables it like `flashBrightness`.
+	 */
+	elite?: { scale: number; tints: readonly (readonly [number, number, number])[] };
 }
 
 export interface HordeRenderer {
@@ -82,7 +88,7 @@ export function createHordeRenderer(types: readonly HordeType[], options: HordeO
 		type.mesh.alwaysSelectAsActiveMesh = true;
 		type.mesh.thinInstanceSetBuffer("matrix", m, 16, false);
 		type.mesh.thinInstanceSetBuffer(SETTINGS_KIND, s, 4, false);
-		if (options.flashBrightness !== undefined) {
+		if (options.flashBrightness !== undefined || options.elite) {
 			const colors = new Float32Array(total * 4).fill(1);
 			type.mesh.thinInstanceSetBuffer("color", colors, 4, false);
 			flashColors[t] = colors;
@@ -136,6 +142,7 @@ export function createHordeRenderer(types: readonly HordeType[], options: HordeO
 		clip: number,
 		offset: number,
 		speed: number,
+		scale = 1,
 	): void {
 		const m = matrices[t];
 		const s = settings[t];
@@ -144,10 +151,11 @@ export function createHordeRenderer(types: readonly HordeType[], options: HordeO
 		const local = toLoaderLocalYaw(yaw);
 		const c = Math.cos(local);
 		const s2 = Math.sin(local);
-		m[n * 16] = c;
-		m[n * 16 + 2] = -s2;
-		m[n * 16 + 8] = s2;
-		m[n * 16 + 10] = c;
+		m[n * 16] = c * scale;
+		m[n * 16 + 2] = -s2 * scale;
+		m[n * 16 + 5] = scale;
+		m[n * 16 + 8] = s2 * scale;
+		m[n * 16 + 10] = c * scale;
 		m[n * 16 + 12] = toLoaderLocalX(x);
 		m[n * 16 + 14] = z;
 		s[n * 4] = from(t, clip);
@@ -199,21 +207,26 @@ export function createHordeRenderer(types: readonly HordeType[], options: HordeO
 				const pz = PrevPosition.z[eid] ?? 0;
 				const x = px + ((Position.x[eid] ?? 0) - px) * alpha;
 				const z = pz + ((Position.z[eid] ?? 0) - pz) * alpha;
-				const brightness = options.flashBrightness;
+				const modifier = Elite.modifier[eid] ?? 0;
+				const scale = modifier > 0 && options.elite ? options.elite.scale : 1;
 				const colors = flashColors[t];
-				if (colors && brightness !== undefined) {
-					const level = (HitFlash.ticks[eid] ?? 0) > 0 ? brightness : 1;
-					colors[n * 4] = colors[n * 4 + 1] = colors[n * 4 + 2] = level;
+				if (colors) {
+					const flashed = (HitFlash.ticks[eid] ?? 0) > 0 && options.flashBrightness !== undefined;
+					const tint = modifier > 0 ? options.elite?.tints[modifier - 1] : undefined;
+					const level = flashed ? (options.flashBrightness ?? 1) : 1;
+					colors[n * 4] = level * (tint?.[0] ?? 1);
+					colors[n * 4 + 1] = level * (tint?.[1] ?? 1);
+					colors[n * 4 + 2] = level * (tint?.[2] ?? 1);
 				}
 				const yaw = Facing.yaw[eid] ?? 0;
 				if (next === STATE_WALK) {
 					const speed =
 						Math.hypot(Velocity.x[eid] ?? 0, Velocity.z[eid] ?? 0) /
 						(types[t]?.walkRefSpeed || 1);
-					write(t, n, x, z, yaw, CLIP_WALK, walkOffset[eid] ?? 0, (fps[t] ?? 12) * speed);
+					write(t, n, x, z, yaw, CLIP_WALK, walkOffset[eid] ?? 0, (fps[t] ?? 12) * speed, scale);
 				} else {
 					const clip = next === STATE_HIT ? CLIP_HIT : CLIP_ATTACK;
-					write(t, n, x, z, yaw, clip, oneShotFrame(t, clip, stateStart[eid] ?? 0), 0);
+					write(t, n, x, z, yaw, clip, oneShotFrame(t, clip, stateStart[eid] ?? 0), 0, scale);
 				}
 			}
 
