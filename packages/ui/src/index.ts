@@ -40,6 +40,7 @@ export { Panel } from "./components/Panel/Panel";
 export type { ResultsProps, ResultsViewModel } from "./components/Results/Results";
 export { Results } from "./components/Results/Results";
 export type {
+	PortraitFactory,
 	ShopActions,
 	ShopProps,
 	ShopSlotView,

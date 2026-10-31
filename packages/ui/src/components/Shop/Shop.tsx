@@ -1,5 +1,5 @@
 import { t } from "@gc/core";
-import { type JSX, useEffect } from "react";
+import { type JSX, useEffect, useRef } from "react";
 import { Button } from "../Button/Button";
 import { Icon, type IconRef } from "../Icon/Icon";
 import { Panel } from "../Panel/Panel";
@@ -36,11 +36,17 @@ export interface ShopActions {
 	next(): void;
 }
 
+/** Animated Merchant portrait: the app draws the rig into the canvas between `start` and `stop`. */
+export type PortraitFactory = (canvas: HTMLCanvasElement) => { start(): void; stop(): void };
+
 export interface ShopProps {
 	view: ShopViewModel;
 	stats: readonly StatLineView[];
 	actions: ShopActions;
+	portrait?: PortraitFactory | undefined;
 }
+
+const PORTRAIT_PX = 160;
 
 const TIER_BORDER: Readonly<Record<number, string>> = {
 	1: "border-rarity-1",
@@ -52,7 +58,16 @@ const kindLabel = (kind: ShopSlotView["kind"]): string =>
 	kind === "weapon" ? t("shop.kindWeapon") : kind === "upgrade" ? t("shop.kindUpgrade") : "";
 
 /** Between-rounds shop (GDD 17): 4 offers, lock, reroll, hero stats, next round. Keys 1-4 buy, R rerolls, Enter continues. */
-export function Shop({ view, stats, actions }: ShopProps): JSX.Element {
+export function Shop({ view, stats, actions, portrait }: ShopProps): JSX.Element {
+	const portraitCanvas = useRef<HTMLCanvasElement>(null);
+	useEffect(() => {
+		const canvas = portraitCanvas.current;
+		if (!portrait || !canvas) return;
+		const running = portrait(canvas);
+		running.start();
+		return () => running.stop();
+	}, [portrait]);
+
 	useEffect(() => {
 		const onKey = (e: KeyboardEvent): void => {
 			const index = Number(e.key) - 1;
@@ -71,7 +86,21 @@ export function Shop({ view, stats, actions }: ShopProps): JSX.Element {
 			aria-labelledby="shop-title"
 			className="pointer-events-auto absolute inset-0 z-20 flex overflow-y-auto bg-night/80 p-2 mobile-l:p-4"
 		>
-			<div className="m-auto w-full max-w-5xl">
+			<div className="relative m-auto w-full max-w-5xl">
+				{portrait ? (
+					<div
+						aria-hidden="true"
+						className="pointer-events-none absolute top-2 right-2 z-10 hidden size-24 border-2 border-iron-dark bg-night mobile-l:block desktop:size-32"
+					>
+						<canvas
+							ref={portraitCanvas}
+							width={PORTRAIT_PX}
+							height={PORTRAIT_PX}
+							data-testid="shop-portrait"
+							className="size-full"
+						/>
+					</div>
+				) : null}
 				<Panel title={t("shop.panel")} riveted>
 					<h1 id="shop-title" className="sr-only">
 						{t("shop.title")}

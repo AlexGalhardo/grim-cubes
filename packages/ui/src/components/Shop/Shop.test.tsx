@@ -98,3 +98,20 @@ test("the reroll button is disabled when the hero cannot pay", () => {
 	render(<Shop view={{ ...view, gold: 5 }} stats={stats} actions={actions()} />);
 	expect((screen.getByRole("button", { name: /Rolar de novo/ }) as HTMLButtonElement).disabled).toBe(true);
 });
+
+test("starts the portrait on mount and stops it on unmount", () => {
+	const start = vi.fn();
+	const stop = vi.fn();
+	const portrait = vi.fn(() => ({ start, stop }));
+	const { unmount } = render(<Shop view={view} stats={[]} actions={actions()} portrait={portrait} />);
+	expect(portrait).toHaveBeenCalledWith(screen.getByTestId("shop-portrait"));
+	expect(start).toHaveBeenCalledTimes(1);
+	expect(stop).not.toHaveBeenCalled();
+	unmount();
+	expect(stop).toHaveBeenCalledTimes(1);
+});
+
+test("has no portrait canvas without a factory", () => {
+	render(<Shop view={view} stats={[]} actions={actions()} />);
+	expect(screen.queryByTestId("shop-portrait")).toBeNull();
+});
