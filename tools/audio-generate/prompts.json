@@ -1,0 +1,178 @@
+[
+	{
+		"file": "sfx_player_hit",
+		"kind": "sfx",
+		"prompt": "heavy iron armor taking a blunt hit, dull metal clang with a wet grunt of impact, heavy dry tone, close, no music, game sound effect",
+		"durationSeconds": 0.6,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_player_death",
+		"kind": "sfx",
+		"prompt": "armored executioner collapsing, rusted plate armor crashing to stone ground, low exhale, heavy dry tone, close, no music, game sound effect",
+		"durationSeconds": 1.5,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_player_levelup",
+		"kind": "sfx",
+		"prompt": "deep tolling iron bell with a short dark choir swell, cold metal, heavy tone, medium distance, no music melody, game sound effect",
+		"durationSeconds": 1.2,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_pickup_fragment_01",
+		"kind": "sfx",
+		"prompt": "small bone fragment snapping and clinking into a pouch, dry bone and tiny metal, dry tone, close, no music, game sound effect",
+		"durationSeconds": 0.5,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_sword_swing_01",
+		"kind": "sfx",
+		"prompt": "rusted broadsword swinging through air, heavy iron blade whoosh, dry tone, close, no music, game sound effect",
+		"durationSeconds": 0.5,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_sword_hit_01",
+		"kind": "sfx",
+		"prompt": "rusted sword slicing into a skeleton, crunch of bone and dull metal scrape, heavy dry tone, close, no music, game sound effect",
+		"durationSeconds": 0.5,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_sword_hit_02",
+		"kind": "sfx",
+		"prompt": "rusted sword chopping through rotten flesh and bone, wet crunch with a metal ring, heavy tone, close, no music, game sound effect",
+		"durationSeconds": 0.5,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_pistol_shot_01",
+		"kind": "sfx",
+		"prompt": "single shot from a heavy old iron pistol, dry loud crack with short low thump, heavy dry tone, close, no music, game sound effect",
+		"durationSeconds": 0.6,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_enemy_spawn_01",
+		"kind": "sfx",
+		"prompt": "undead rising from graveyard soil, dirt crumbling and bones clacking, low wet groan, wet tone, medium distance, no music, game sound effect",
+		"durationSeconds": 1.0,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_enemy_hit_01",
+		"kind": "sfx",
+		"prompt": "bone cracking under impact, short dry crunch, dry tone, close, no music, game sound effect",
+		"durationSeconds": 0.5,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_enemy_husk_death",
+		"kind": "sfx",
+		"prompt": "shambling corpse collapsing into a pile of bones, brittle crunch and a rattling clatter, heavy dry tone, close, no music, game sound effect",
+		"durationSeconds": 1.0,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_enemy_wail_death",
+		"kind": "sfx",
+		"prompt": "ghostly wail cut short by a sharp bone snap, thin high rasp fading out, cold tone, medium distance, no music, game sound effect",
+		"durationSeconds": 1.0,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_boss_gravedigger_entry",
+		"kind": "sfx",
+		"prompt": "giant gravedigger dragging an iron shovel across stone, slow heavy footsteps and a low guttural roar, heavy dry tone, medium distance, no music, game sound effect",
+		"durationSeconds": 3.0,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_boss_gravedigger_charge",
+		"kind": "sfx",
+		"prompt": "huge armored brute charging forward, pounding heavy footfalls on stone with a rising iron rattle, heavy dry tone, medium distance, no music, game sound effect",
+		"durationSeconds": 1.5,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_ui_hover",
+		"kind": "sfx",
+		"prompt": "soft iron plate tick, small metal click, dry tone, close, no music, game sound effect",
+		"durationSeconds": 0.5,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_ui_confirm",
+		"kind": "sfx",
+		"prompt": "heavy iron latch locking shut, solid metal clunk, heavy dry tone, close, no music, game sound effect",
+		"durationSeconds": 0.5,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_ui_buy",
+		"kind": "sfx",
+		"prompt": "handful of old coins dropped on a wooden counter with a bone rattle, dry tone, close, no music, game sound effect",
+		"durationSeconds": 0.8,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_ui_no_gold",
+		"kind": "sfx",
+		"prompt": "dull empty thud of a hollow wooden chest closing, short dry low tone, close, no music, game sound effect",
+		"durationSeconds": 0.5,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_round_start_drum",
+		"kind": "sfx",
+		"prompt": "war drum single deep hit with a low rumble tail, heavy dry tone, medium distance, no music melody, game sound effect",
+		"durationSeconds": 1.5,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_round_end_bell",
+		"kind": "sfx",
+		"prompt": "single cracked iron church bell toll, long cold metallic decay, heavy tone, far distance, no music melody, game sound effect",
+		"durationSeconds": 3.0,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "mus_menu",
+		"kind": "music",
+		"prompt": "slow dark ritual music, 75 BPM, deep low choir chanting with distorted gregorian feel, heavy detuned guitar drones and slow war drums, grimdark, no cheerful synthesizers, seamless loop",
+		"durationSeconds": 150,
+		"loop": true,
+		"model": "music_v1"
+	},
+	{
+		"file": "mus_biome_cemetery",
+		"kind": "music",
+		"prompt": "aggressive heavy metal combat music, 130 BPM, chugging low guitars, pounding war drums, ominous low choir, grimdark graveyard mood, no cheerful synthesizers, seamless loop",
+		"durationSeconds": 150,
+		"loop": true,
+		"model": "music_v1"
+	}
+]
