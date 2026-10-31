@@ -4,7 +4,14 @@
 	"title": "World streaming constants (SDD 03 §2)",
 	"type": "object",
 	"additionalProperties": false,
-	"required": ["chunkSize", "loadRadius", "unloadRadius", "chunksPerStep", "poolSize"],
+	"required": [
+		"chunkSize",
+		"loadRadius",
+		"unloadRadius",
+		"chunksPerStep",
+		"poolSize",
+		"originShiftThreshold"
+	],
 	"properties": {
 		"chunkSize": { "type": "integer", "minimum": 1, "description": "Chunk edge in world units." },
 		"loadRadius": { "type": "integer", "minimum": 1, "description": "Chebyshev radius kept loaded." },
@@ -22,6 +29,11 @@
 			"type": "integer",
 			"minimum": 1,
 			"description": "ChunkData pool capacity; at least (2 * (unloadRadius - 1) + 1)^2."
+		},
+		"originShiftThreshold": {
+			"type": "integer",
+			"minimum": 16,
+			"description": "Hero distance from the render origin, per axis, that triggers an origin shift (SDD 03 §1)."
 		}
 	}
 }

@@ -20,6 +20,8 @@ export interface GameScene {
 	readonly scene: Scene;
 	readonly camera: ArcRotateCamera;
 	setHeroPosition(x: number, z: number): void;
+	/** The world origin moved by (dx, dz): static geometry shifts by the opposite amount. */
+	shiftWorld(dx: number, dz: number): void;
 	dispose(): void;
 }
 
@@ -63,6 +65,12 @@ export function createGameScene(engine: Engine | NullEngine, mobile = false): Ga
 	return {
 		scene,
 		camera,
+		shiftWorld(dx, dz) {
+			ground.unfreezeWorldMatrix();
+			ground.position.x -= dx;
+			ground.position.z -= dz;
+			ground.freezeWorldMatrix();
+		},
 		setHeroPosition(x, z) {
 			hero.position.x = x;
 			hero.position.z = z;

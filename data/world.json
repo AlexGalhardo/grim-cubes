@@ -3,5 +3,6 @@
 	"loadRadius": 3,
 	"unloadRadius": 5,
 	"chunksPerStep": 2,
-	"poolSize": 81
+	"poolSize": 81,
+	"originShiftThreshold": 1024
 }

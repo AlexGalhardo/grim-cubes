@@ -1,5 +1,6 @@
 export type { RenderEngine } from "./engine";
 export { createEngine, createNullEngine, EngineUnavailableError } from "./engine";
+export { createRenderPort } from "./port";
 export { CAMERA } from "./scene/camera";
 export { LIGHTING, PALETTE } from "./scene/palette";
 export type { GameScene } from "./scene/scene";

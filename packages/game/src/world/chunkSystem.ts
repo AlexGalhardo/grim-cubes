@@ -4,6 +4,8 @@ export interface WorldConfig {
 	unloadRadius: number;
 	chunksPerStep: number;
 	poolSize: number;
+	/** Hero distance from the render origin (per axis) that triggers an origin shift. */
+	originShiftThreshold: number;
 }
 
 /** P-01-01 extends this with the generated content (biome, props); the pool reuses the same objects. */
@@ -24,7 +26,7 @@ export interface ChunkStats {
 }
 
 export interface ChunkSystem {
-	/** Feed the absolute hero position once per simulation step. */
+	/** Feed the absolute hero position (origin + Position) once per simulation step. */
 	update(heroX: number, heroZ: number): void;
 	get(cx: number, cz: number): ChunkData | null;
 	/** Window table, `null` for empty slots; iterate by index, do not mutate. */
