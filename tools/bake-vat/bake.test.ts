@@ -1,6 +1,7 @@
 import { Document } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
 import { assertVatLimits, bakeVat, ENEMY_CLIPS, VAT_FPS } from "./bake";
+import { makeRootedRig } from "./rigFixture";
 
 interface ClipSpec {
 	duration: number;
@@ -108,6 +109,19 @@ describe("bakeVat", () => {
 		bakeVat("rig", doc);
 		expect(doc.getRoot().listNodes()[1]?.getRotation()).toEqual([0, 0, 0, 1]);
 		for (let i = 0; i < 16; i++) expect(data[i]).toBeCloseTo(i % 5 === 0 ? 1 : 0, 6);
+	});
+});
+
+describe("bakeVat with a transformed non-joint root", () => {
+	it("bakes identity matrices at the rest pose (ancestors are not applied twice)", () => {
+		const { data, meta } = bakeVat("rooted", makeRootedRig(), ["walk", "attack"]);
+		const first = meta.clips.walk?.from ?? 0;
+		for (let bone = 0; bone < meta.boneCount; bone++) {
+			for (let i = 0; i < 16; i++) {
+				const expected = i % 5 === 0 ? 1 : 0;
+				expect(data[first * meta.width * 4 + bone * 16 + i]).toBeCloseTo(expected, 5);
+			}
+		}
 	});
 });
 

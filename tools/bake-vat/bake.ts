@@ -42,6 +42,62 @@ function multiply(a: Mat4, b: Mat4): Mat4 {
 	return out;
 }
 
+/** Inverse of an affine column-major mat4 (last row 0,0,0,1); glTF node transforms are always affine. */
+function invertAffine(m: Mat4): Mat4 {
+	// Row-major view of the 3x3 block: row r = (m[r], m[4 + r], m[8 + r]).
+	const [a, b, c, d, e, f, g, h, i] = [m[0], m[4], m[8], m[1], m[5], m[9], m[2], m[6], m[10]].map(
+		(v) => v ?? 0,
+	) as [number, number, number, number, number, number, number, number, number];
+	const tx = m[12] ?? 0;
+	const ty = m[13] ?? 0;
+	const tz = m[14] ?? 0;
+	const co0 = e * i - f * h;
+	const co1 = f * g - d * i;
+	const co2 = d * h - e * g;
+	const det = a * co0 + b * co1 + c * co2;
+	if (Math.abs(det) < 1e-12)
+		throw new RuleError("vat-singular", "skin", "joint base transform is not invertible");
+	const r = 1 / det;
+	// Inverse rows (row-major): inv[row][col].
+	const inv = [
+		[co0 * r, (c * h - b * i) * r, (b * f - c * e) * r],
+		[co1 * r, (a * i - c * g) * r, (c * d - a * f) * r],
+		[co2 * r, (b * g - a * h) * r, (a * e - b * d) * r],
+	] as const;
+	const out: Mat4 = identity();
+	for (let row = 0; row < 3; row++) {
+		for (let col = 0; col < 3; col++) out[col * 4 + row] = inv[row]?.[col] ?? 0;
+		out[12 + row] = -((inv[row]?.[0] ?? 0) * tx + (inv[row]?.[1] ?? 0) * ty + (inv[row]?.[2] ?? 0) * tz);
+	}
+	return out;
+}
+
+function ancestors(node: Node): Node[] {
+	const chain: Node[] = [];
+	for (let n: Node | null = node; n; n = n.getParentNode()) chain.push(n);
+	return chain;
+}
+
+/**
+ * World matrix of the space the skeleton lives in: the parent of the single top joint or, with several top
+ * joints, their lowest common ancestor. Ancestors that are not joints would otherwise be applied twice, once
+ * in the bake and once more by the mesh world matrix.
+ */
+function skeletonBase(joints: readonly Node[]): Mat4 {
+	const jointSet = new Set<Node>(joints);
+	const tops = joints.filter(
+		(j) =>
+			!ancestors(j)
+				.slice(1)
+				.some((a) => jointSet.has(a)),
+	);
+	const first = tops[0];
+	if (!first) return identity();
+	if (tops.length === 1) return (first.getParentNode()?.getWorldMatrix() as Mat4 | undefined) ?? identity();
+	const common = ancestors(first).find((candidate) => tops.every((t) => ancestors(t).includes(candidate)));
+	return (common?.getWorldMatrix() as Mat4 | undefined) ?? identity();
+}
+
 function slerp(a: readonly number[], b: readonly number[], t: number): number[] {
 	let dot =
 		(a[0] ?? 0) * (b[0] ?? 0) +
@@ -107,7 +163,7 @@ export function assertVatLimits(name: string, width: number, height: number): vo
 }
 
 /**
- * Bakes per-frame skin matrices (jointWorld * inverseBind, glTF column-major, which is the layout Babylon's
+ * Bakes per-frame skin matrices (inverse(base) * jointWorld * inverseBind, glTF column-major, which is the layout Babylon's
  * Matrix uses) into the row layout of VertexAnimationBaker: row = frame, bone b at texels [4b, 4b + 3].
  */
 export function bakeVat(
@@ -141,6 +197,7 @@ export function bakeVat(
 		});
 	};
 
+	const inverseBase = invertAffine(skeletonBase(joints));
 	const width = (joints.length + 1) * 4;
 	const rows: number[][] = [];
 	const clips: Record<string, VatClip> = {};
@@ -166,7 +223,11 @@ export function bakeVat(
 				const inverseBind = ibm
 					? (ibm.getElement(b, new Array<number>(16).fill(0)) as Mat4)
 					: identity();
-				row.splice(b * 16, 16, ...multiply(joint.getWorldMatrix() as Mat4, inverseBind));
+				row.splice(
+					b * 16,
+					16,
+					...multiply(multiply(inverseBase, joint.getWorldMatrix() as Mat4), inverseBind),
+				);
 			});
 			// Slot after the last bone mirrors Babylon's (bones + 1) layout; keep it identity so stray indices are harmless.
 			row.splice(joints.length * 16, 16, ...identity());

@@ -63,11 +63,16 @@ export async function loadVat(
 	name: string,
 	binUrl: string,
 	metaUrl: string,
-	fetchFn: typeof fetch = fetch,
+	fetchFn: (url: string) => Promise<Response> = (url) => fetch(url),
 ): Promise<LoadedVat> {
+	const get = async (url: string): Promise<Response> => {
+		const response = await fetchFn(url);
+		if (!response.ok) throw new Error(`VAT fetch failed: ${response.status} ${url}`);
+		return response;
+	};
 	const [bin, meta] = await Promise.all([
-		fetchFn(binUrl).then((r) => r.arrayBuffer()),
-		fetchFn(metaUrl).then((r) => r.json() as Promise<VatMeta>),
+		get(binUrl).then((r) => r.arrayBuffer()),
+		get(metaUrl).then((r) => r.json() as Promise<VatMeta>),
 	]);
 	return createVat(scene, name, bin, meta);
 }

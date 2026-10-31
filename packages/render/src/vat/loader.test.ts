@@ -1,7 +1,7 @@
 import { Scene } from "@babylonjs/core/scene";
 import { describe, expect, it } from "vitest";
 import { createNullEngine } from "../engine";
-import { createVat, parseVat, setVatClip, type VatMeta } from "./loader";
+import { createVat, loadVat, parseVat, setVatClip, type VatMeta } from "./loader";
 
 const meta: VatMeta = {
 	format: "rgba32f",
@@ -29,6 +29,15 @@ describe("vat loader", () => {
 		setVatClip(vat, "walk", 3);
 		expect(Array.from(vat.manager.animationParameters.asArray())).toEqual([2, 3, 3, 12]);
 		expect(() => setVatClip(vat, "dance")).toThrow("dance");
+		scene.dispose();
+		dispose();
+	});
+
+	it("rejects non-OK responses instead of parsing an error page", async () => {
+		const { engine, dispose } = createNullEngine();
+		const scene = new Scene(engine);
+		const notFound = async (): Promise<Response> => new Response("nope", { status: 404 });
+		await expect(loadVat(scene, "x", "/a.bin", "/a.json", notFound)).rejects.toThrow("404");
 		scene.dispose();
 		dispose();
 	});
