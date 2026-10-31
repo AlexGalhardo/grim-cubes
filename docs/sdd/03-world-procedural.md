@@ -46,8 +46,8 @@ generate(cx, cz, out) {
 - Chão (`createChunkRenderer`, `render/world/chunkRenderer.ts`): um único `Mesh` com 1 quad por cubo (16 × 16 por chunk) para cada um dos 81 slots, índices `Uint32`. Cada cubo aponta para o tile 32² da variante (sorteada por hash do cubo). Só os slots que mudam (ou todos, quando `origin` muda) são escritos com `VertexBuffer.updateDirectly`; slots vazios ficam degenerados; `alwaysSelectAsActiveMesh`. Hoje o tile é um placeholder gerado em runtime, provisório até P-06-01 (`atlas_terrain` do pipeline).
 - Props: thin instances por tipo de prop (um mesh base por `prop_*`; os meshes vindos do glTF têm `x` conjugado por causa do espelho do `__root__`). Só os props de chunks com Chebyshev ≤ `loadRadius` são instanciados (orçamento do SDD 14); os chunks da histerese ficam carregados e invisíveis. Os buffers são reconstruídos quando o anel ou a origem mudam, não por frame.
 - Fade (P-02-03): props com altura ≥ `propFade.minHeight` (`data/render.json`) que cortam a linha de visada câmera → herói recebem alpha por instância (buffer `color`, `hasVertexAlpha`). A opacidade fica por (slot, prop) e sobrevive aos rebuilds.
-- Props destrutíveis com entidade ECS: provisório até P-05/P-01 (hoje são só render, sem colisão).
-- Decals de sangue: pool fixo de quads (200 desktop / 60 mobile) como thin instances de 1 quad, acima do chão; FIFO (provisório até P-04-05).
+- Props destrutíveis são entidades ECS (`Breakable`, A-02-04): o `breakableSystem` os cria quando o chunk carrega, armas e projéteis os atingem pelo hash de inimigos, e a urna quebrada vira o bit `chunk.broken` e o evento `PropBroken`. Ver SDD 05.
+- Decals de sangue: pool fixo de quads (200 desktop / 60 mobile) como thin instances de 1 quad, acima do chão; FIFO (`createDecalPool` em `render/vfx/decals.ts`).
 
 ## 3. Biomas
 
@@ -69,8 +69,8 @@ generate(cx, cz, out) {
 }
 ```
 
-- `biomeFn(cx, cz)`: distância `d` do centro do chunk ao spawn; usa o bioma definido de maior `minDistance` ≤ d (enquanto só existe o Cemitério, todos os anéis resolvem para ele); anel 3 repete acima de 420 u. Borda misturada: 16 u a partir do limite, props sorteados 50/50 entre os dois biomas; chão muda em linha dura (aceitável no look cúbico). A borda misturada é provisória até A-02 (hoje a troca de bioma é seca). `propDensity` não é mais usado: as contagens vêm de `propCounts`.
-- Pool de spawn do round: 60% bioma atual (do herói), 30% anterior, 10% próximo (GDD §10.2). Quando um desses biomas não está definido, o pool renormaliza os pesos entre os biomas existentes. Provisório até P-05-06/A-02: hoje `apps/web` usa um pool fixo do anel 0 (`husk` 6, `wail` 4).
+- `biomeFn(cx, cz)`: distância `d` do centro do chunk ao spawn; usa o bioma definido de maior `minDistance` ≤ d (os quatro biomas existem: Cemitério Afundado 0–120 u, Pântano de Ossos 120–260, Forja Infernal 260–420 e Ninho Biomecânico acima de 420 u, que se repete ao infinito). Borda misturada (`BIOME_BLEND` = 16 u, `game/world/biome.ts`, A-02-01): metade antes e metade depois do limite; um chunk na borda toma um dos dois biomas de forma determinística por chunk, e o chão muda em linha dura (aceitável no look cúbico). `propDensity` não é mais usado: as contagens vêm de `propCounts`.
+- Pool de spawn do round: 60% bioma atual (do herói), 30% anterior, 10% próximo (GDD §10.2). Quando um desses biomas não está definido, o pool renormaliza os pesos entre os biomas existentes. O `spawnSystem` recebe `biomes.at(x, z)` e os `pools` de `biomes.json` (`session.ts`); o `poolFor` fixo (`husk` 6, `wail` 4) só vale para o início do round e como reserva.
 
 ## 4. Colisão herói/inimigo vs props
 
@@ -78,12 +78,12 @@ generate(cx, cz, out) {
 
 - Props bloqueantes: círculo `(x, z, r)`, com `r` de `data/props.json` (`radius`). A própria grade de chunks funciona como hash estático (célula = 1 chunk, no máximo `maxPropsPerChunk` props, só `kind` bloqueante testado); a busca alarga pelo maior raio de prop, então props do chunk vizinho contam. As posições são absolutas em f64 (`origin + Position`), o que mantém a colisão correta através de origin shifts.
 - `resolve`/`resolveEnemies` (depois do `movementSystem`, para o herói e para os inimigos): para cada prop sobreposto, se `dist < r_prop + r_ent`, empurra para fora ao longo da normal (uma iteração; suficiente para props convexos pequenos).
-- `steer` (depois do `behaviorSystem`): o prop mais forte à frente, dentro de `propAvoidLookahead` (2 u, `data/world.json`) + folga, desvia o rumo para o lado oposto e mantém a velocidade; sem pathfinding (GDD §6.3). Os ganhos de steering (`STEER_GAIN`, `STEER_MARGIN`) ainda estão fixos no código, provisório até a correção da P-01-05.
+- `steer` (depois do `behaviorSystem`): o prop mais forte à frente, dentro de `propAvoidLookahead` (2 u, `data/world.json`) + folga, desvia o rumo para o lado oposto e mantém a velocidade; sem pathfinding (GDD §6.3). Os ganhos de steering vêm de `data/world.json` (`propSteerGain`, `propSteerMargin`).
 - Sem alocação: candidatos num `Float64Array` de rascunho (hoje 64 props por consulta).
 
 ## 5. Spawn de posições
 
-- Anel de 22–30 u em torno do herói, ângulo com viés de 60% para o hemisfério oposto ao `Velocity` do herói; rejeita posição dentro de prop bloqueante (até 4 tentativas, senão aceita). O `spawnSystem` aceita `isBlocked`, mas `apps/web` ainda não o liga: hoje um inimigo pode nascer dentro de um prop e é empurrado para fora no passo seguinte (provisório até a correção listada para o S2).
+- Anel de 22–30 u em torno do herói, ângulo com viés de 60% para o hemisfério oposto ao `Velocity` do herói; rejeita posição dentro de prop bloqueante (até 4 tentativas, senão aceita). O `spawnSystem` recebe `isBlocked` ligado à `propCollision` em `session.ts`, então um inimigo não nasce dentro de um prop bloqueante, salvo quando as 4 tentativas acabam.
 - Posições fora do anel carregado não acontecem (22–30 u < 48 u do raio 3).
 
 ## 6. Testes
