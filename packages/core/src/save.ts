@@ -1,4 +1,4 @@
-export const SAVE_SCHEMA_VERSION = 7;
+export const SAVE_SCHEMA_VERSION = 8;
 export const SAVE_APP = "grim-cubes";
 /** Upper bound on any counter read from a save; far above a real run, low enough to reject garbage. */
 const MAX_COUNTER = 1_000_000_000;
@@ -47,6 +47,8 @@ export interface Settings {
 	keys: KeyMap;
 	/** Remapped gamepad buttons (indexes of the standard mapping). */
 	pad: PadMap;
+	/** Captions for the boss voice lines (on by default). */
+	subtitles: boolean;
 }
 
 export function createSettings(): Settings {
@@ -65,6 +67,7 @@ export function createSettings(): Settings {
 		gore: true,
 		keys: createKeyMap(),
 		pad: createPadMap(),
+		subtitles: true,
 	};
 }
 
@@ -224,6 +227,8 @@ function validateSettings(raw: unknown): Settings {
 		throw new SaveError("settings.uiScale must be 90, 100, 125 or 150");
 	const keys = validateKeys(raw.keys);
 	const pad = validatePad(raw.pad);
+	const subtitles = raw.subtitles === undefined ? true : raw.subtitles;
+	if (typeof subtitles !== "boolean") throw new SaveError("settings.subtitles must be a boolean");
 	return {
 		preset: raw.preset,
 		volume: {
@@ -243,6 +248,7 @@ function validateSettings(raw: unknown): Settings {
 		gore,
 		keys,
 		pad,
+		subtitles,
 	};
 }
 
@@ -329,6 +335,22 @@ const SETTINGS_KEYS: Readonly<Record<number, readonly (keyof Settings)[]>> = {
 		"uiScale",
 		"gore",
 		"keys",
+	],
+	7: [
+		"preset",
+		"volume",
+		"screenShake",
+		"locale",
+		"gameSpeed",
+		"telemetry",
+		"brightness",
+		"contrast",
+		"colorblind",
+		"flashReduction",
+		"uiScale",
+		"gore",
+		"keys",
+		"pad",
 	],
 };
 

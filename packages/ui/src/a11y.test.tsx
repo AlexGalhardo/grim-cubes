@@ -94,6 +94,7 @@ test("the options screen has no serious violations", async () => {
 					gore: true,
 					keys: createKeyMap(),
 					pad: createPadMap(),
+					subtitles: true,
 					locale: "pt-BR",
 					locales: [{ id: "pt-BR", name: "Português" }],
 				}}
@@ -109,6 +110,7 @@ test("the options screen has no serious violations", async () => {
 					setFlashReduction: vi.fn(),
 					setUiScale: vi.fn(),
 					setGore: vi.fn(),
+					setSubtitles: vi.fn(),
 					setKey: vi.fn(() => ({ ok: true }) as const),
 					resetKeys: vi.fn(),
 					setPadButton: vi.fn(() => ({ ok: true }) as const),

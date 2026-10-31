@@ -22,6 +22,8 @@ Implementado em P-06-04 (`apps/web/src/audio/`), em Web Audio puro, sem dependê
 
 Vozes dos chefes: `voice_<id do chefe>_entry | phase | death` (ex.: `voice_gravedigger_death`); a entrada também toca `sfx_boss_<id>_entry`. UI: `sfx_ui_hover` ao passar o mouse e `sfx_ui_confirm` ao clicar em botões.
 
+As falas dos chefes também geram legenda: `captionKeyFor` converte `voice_<chefe>_<momento>` na chave `voice.<chefe>.<momento>` (SDD 07, acessibilidade).
+
 Ids ainda sem arquivo (silêncio com aviso, ver prompts.json): `sfx_player_dodge`, `sfx_explosion_01`, `sfx_boss_telegraph`, `sfx_boss_*`, `sfx_egg_*`, `sfx_dash`, `sfx_prop_break`, `sfx_pickup_consumable`, `mus_round`, `mus_boss` e as vozes.
 
 ## 3. Geração com ElevenLabs (`tools/audio-generate`)

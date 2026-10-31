@@ -118,15 +118,25 @@ export function soundFor(
 	}
 }
 
+/** `voice_gravedigger_entry` -> `voice.gravedigger.entry`, the locale key of its caption; null for any other sound. */
+export function captionKeyFor(soundId: string): string | null {
+	const match = /^voice_([a-z][a-z_]*)_(entry|phase|death)$/.exec(soundId);
+	return match ? `voice.${match[1]}.${match[2]}` : null;
+}
+
 /** The visitor to give the event buffer: plays what `soundFor` names and ducks the music on a hero hit. */
 export function createEventAudio(
 	engine: AudioEngine,
 	ctx: SoundContext,
+	/** Called with the caption key when a boss voice line plays (also when its file is missing). */
+	onCaption?: ((key: string) => void) | undefined,
 ): (type: number, a: number, b: number, c: number, entity: number) => void {
 	return (type, a, b, c, entity) => {
 		const sound = soundFor(type, a, b, c, entity, ctx);
 		if (!sound) return;
 		engine.play(sound.ids, sound.options);
+		const caption = typeof sound.ids === "string" ? captionKeyFor(sound.ids) : null;
+		if (caption) onCaption?.(caption);
 		if (type === EventType.PlayerHit) engine.duck();
 	};
 }

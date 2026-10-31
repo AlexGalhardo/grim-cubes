@@ -2,6 +2,7 @@ import { type SaveNotice, type Store, t, type VirtualStick } from "@gc/core";
 import { type CSSProperties, type JSX, useSyncExternalStore } from "react";
 import { Bar } from "./components/Bar/Bar";
 import { BossBar, BossIntro, type BossViewModel } from "./components/BossBar/BossBar";
+import { Caption } from "./components/Caption/Caption";
 import { DashButton, type DashView } from "./components/DashButton/DashButton";
 import { DemoEnd } from "./components/DemoEnd/DemoEnd";
 import {
@@ -56,6 +57,8 @@ export interface HudState {
 	menu: MenuViewModel | null;
 	/** The web demo is over (the Gravedigger fell): the DemoEnd screen shows and round 11 never starts. */
 	demoEnd: boolean;
+	/** The subtitle of the boss voice line being heard; null otherwise. */
+	caption: string | null;
 	/** `KeyboardEvent.code` of the reroll key (Options remap). */
 	rerollKey: string;
 	/** Colour-blind mode on: rarities get shapes and a safer palette (`data-theme="cb"`). */
@@ -204,6 +207,7 @@ export function App({
 			) : null}
 			{hud.options && optionsActions ? <Options view={hud.options} actions={optionsActions} /> : null}
 			{hud.boss ? <BossBar boss={hud.boss} /> : null}
+			{hud.caption ? <Caption text={hud.caption} /> : null}
 			{hud.bossIntro ? <BossIntro name={hud.bossIntro} /> : null}
 			{hud.notice ? <Notice notice={hud.notice} /> : null}
 			{hud.vignette > 0 ? (
