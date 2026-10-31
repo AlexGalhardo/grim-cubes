@@ -1,4 +1,4 @@
 {
 	"$comment": "Models edited by hand in Blockbench; assets:gen skips them. See docs/blockbench.md.",
-	"models": []
+	"models": ["hero/hero"]
 }
