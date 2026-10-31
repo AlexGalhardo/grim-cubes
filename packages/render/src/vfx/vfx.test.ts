@@ -559,6 +559,8 @@ describe("breakables and consumables", () => {
 		expect(view.live).toBe(3);
 		expect((game.scene.getMeshByName("vfx_vials") as Mesh | null)?.thinInstanceCount).toBe(2);
 		expect((game.scene.getMeshByName("vfx_magnets") as Mesh | null)?.thinInstanceCount).toBe(1);
+		expect((game.scene.getMeshByName("vfx_vial_rings") as Mesh | null)?.thinInstanceCount).toBe(2);
+		expect((game.scene.getMeshByName("vfx_magnet_rings") as Mesh | null)?.thinInstanceCount).toBe(1);
 		dispose();
 	});
 });
@@ -754,5 +756,23 @@ describe("damage numbers and drips", () => {
 		for (const prop of [0, 10, 20, 30]) vfx.onEvent(EventType.PropBroken, 1, 1, 0, prop);
 		expect(vfx.particles.stats.peak).toBeGreaterThan(20);
 		dispose();
+	});
+});
+
+describe("flash-reduced execution", () => {
+	it("swaps the bright ring for a dark wave", () => {
+		for (const reduced of [false, true]) {
+			const { vfx, world, dispose } = setup({ flashReduced: () => reduced });
+			const boss = spawnBody(world, 0, 0);
+			Boss.id[boss] = 1;
+			vfx.onEvent(EventType.BossDied, 0, 0, 0, boss);
+			expect([reduced, vfx.zones.ringsLive, vfx.zones.wavesLive]).toEqual([
+				reduced,
+				reduced ? 0 : 1,
+				reduced ? 1 : 0,
+			]);
+			Boss.id[boss] = 0;
+			dispose();
+		}
 	});
 });
