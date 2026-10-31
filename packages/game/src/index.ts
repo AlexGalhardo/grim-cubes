@@ -122,6 +122,7 @@ export type { RunSummary, SoulsConfig } from "./rules/souls";
 export { soulsForRun } from "./rules/souls";
 export type { HeroStatsData, Modifier, PlayerStats, StatCaps } from "./rules/stats";
 export { computeStats, createPlayerStats, STAT_FIELDS } from "./rules/stats";
+export { createGameSession, type GameSession, type GameSessionOptions } from "./session";
 export type { BehaviorConfig, BehaviorSystem } from "./systems/behavior";
 export { BehaviorKind, createBehaviorSystem } from "./systems/behavior";
 export type { BossSystem, BossSystemDeps, BossView } from "./systems/boss";

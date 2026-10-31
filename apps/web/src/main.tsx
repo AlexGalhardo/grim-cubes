@@ -3,7 +3,6 @@ import {
 	createInputState,
 	createLogger,
 	createStore,
-	createStreams,
 	createVirtualStick,
 	loadMeta,
 	type MetaState,
@@ -14,57 +13,15 @@ import {
 } from "@gc/core";
 import {
 	addFragmentValue,
-	applyHarvest,
 	applyOriginShift,
-	applyOssuary,
-	applyRoundEndBonus,
-	availableItems,
 	Boss,
-	behaviorConfigFromData,
 	biomesData,
 	bossesData,
 	buyNode,
-	cardsData,
 	chooseDifficulty,
-	createAuraSystem,
-	createBehaviorSystem,
-	createBiomeMap,
-	createBleedSystem,
-	createBossRoster,
-	createChestSystem,
-	createChunkGenerator,
-	createChunkSystem,
-	createDamageSystem,
-	createDashSystem,
-	createDeathSystem,
-	createEffectsSystem,
-	createEliteSystem,
-	createEnemyShotPool,
-	createEnemyShotSystem,
-	createEventBuffer,
-	createGameWorld,
-	createHeroStatus,
-	createKillEffectsSystem,
-	createLevelUpSystem,
+	createGameSession,
 	createLoop,
-	createOrigin,
-	createPickupSystem,
-	createPlayerStats,
-	createProgress,
-	createProjectilePool,
-	createProjectileSystem,
-	createPropCollision,
-	createRunStats,
-	createRunSystem,
-	createSeparationSystem,
-	createShopSystem,
-	createSpawnSystem,
-	createStatsSystem,
-	createTargetingSystem,
-	createThornsSystem,
-	createWeaponSystem,
 	cullDistantEnemies,
-	damageConfigFromHero,
 	describeEffect,
 	describeModifier,
 	describeStats,
@@ -77,7 +34,6 @@ import {
 	enemiesData,
 	Health,
 	heroData,
-	inputSystem,
 	isUnlocked,
 	itemsData,
 	milestonesData,
@@ -94,10 +50,6 @@ import {
 	resetOssuary,
 	roundsData,
 	soulsForRun,
-	spawnHero,
-	toBiomeDefs,
-	toEnemyDefs,
-	toShopWeapons,
 	unlockedSkins,
 	weaponsData,
 	worldData,
@@ -204,12 +156,6 @@ async function boot(): Promise<void> {
 	// Bench scenarios (P-03-06) are debug-only and always run on the same seed.
 	const bench = __DEBUG_API__ ? params.get("bench") : null;
 	const seed = bench ? 42 : runSeed();
-	const rng = createStreams(seed);
-	const events = createEventBuffer();
-	const world = createGameWorld();
-	const origin = createOrigin();
-	const progress = createProgress();
-	const runStats = createRunStats();
 
 	// Account progress lives in IndexedDB (SDD 06). A corrupt or unreadable save starts a fresh one.
 	const storage = createWebStorage();
@@ -230,280 +176,47 @@ async function boot(): Promise<void> {
 	const difficultyId = chooseDifficulty(roundsData.difficulties, params.get("difficulty"), meta.records);
 	const difficulty = difficultyData(roundsData.difficulties, difficultyId);
 
-	// Permanent Ossuary nodes shape the run before it starts (GDD 19).
-	const ossuaryBonus = applyOssuary(ossuaryData, meta);
-	const runHeroData = {
-		...heroData,
-		base: { ...heroData.base, critMult: ossuaryBonus.critMult ?? heroData.base.critMult },
-	};
-	progress.gold += ossuaryBonus.startGold;
-
-	const hero = spawnHero(world, {
-		speed: heroData.base.speed,
-		maxHp: heroData.base.maxHp,
-		radius: heroData.base.radius,
-	});
-	const stats = createStatsSystem(runHeroData, createPlayerStats());
-	stats.add(ossuaryBonus.modifiers);
-	stats.run(hero);
-
-	const owned = new Map<string, number>();
-	// Milestone-gated items (GDD 20) stay out of shops and chests until the account reaches them; the run starts with
-	// the pool the saved stats allow.
-	const poolItems = availableItems(itemsData, milestonesData, meta);
-	const dash = createDashSystem(heroData.dash, {
-		unlocked: ossuaryBonus.dashUnlocked,
-		charges: ossuaryBonus.dashCharges,
-		cooldownReductionSeconds: ossuaryBonus.dashCooldownReductionSeconds,
+	const session = createGameSession({ seed, difficulty, meta });
+	const {
 		events,
-	});
-	let touchDash = false;
-	const itemEffects = createEffectsSystem(
-		itemsData,
-		owned,
-		{
-			fragmentGain: ossuaryBonus.fragmentGain,
-			soulGain: ossuaryBonus.soulGain,
-			weakReviveHpFraction: ossuaryBonus.weakReviveHpFraction,
-		},
-		events,
-	);
-
-	const startingWeapon = weaponsData.find((w) => w.id === heroData.startingWeapon);
-	if (!startingWeapon) throw new Error(`Unknown starting weapon ${heroData.startingWeapon}`);
-	const enemyIds = enemiesData.map((e) => e.id);
-
-	const hooks: { heroHit?: (source: number, taken: number) => void } = {};
-	const damage = createDamageSystem({
-		config: damageConfigFromHero(heroData),
-		rng,
-		events,
-		hero,
-		stats: stats.stats,
-		effects: itemEffects.effects,
+		world,
+		origin,
+		progress,
 		runStats,
-		onHeroHit: (source, taken) => hooks.heroHit?.(source, taken),
-	});
-	const separation = createSeparationSystem({
-		weight: roundsData.ai.separationWeight,
-		maxRadius: Math.max(...enemiesData.map((e) => e.radius)),
-	});
-	const targeting = createTargetingSystem(
-		{ priorityDistanceMult: heroData.combat.targetPriorityDistanceMult, retargetEvery: 3 },
-		separation.hash,
-	);
-	const projectiles = createProjectilePool(world, events);
-	const weapon = createWeaponSystem({
-		weapon: startingWeapon,
-		tier: 0,
-		stats: stats.stats,
-		attackSpeedCap: heroData.caps.attackSpeedPerSecond,
-		queue: damage.queue,
-		events,
-		targeting,
-		enemies: separation.hash,
-		rng: rng.weapon,
-		projectiles,
-		effects: itemEffects.effects,
-	});
-	const projectileSystem = createProjectileSystem({
-		pool: projectiles,
-		queue: damage.queue,
-		enemies: separation.hash,
-		maxEnemyRadius: Math.max(...enemiesData.map((e) => e.radius)),
 		hero,
-		events,
-	});
-	const maxEnemyRadius = Math.max(...enemiesData.map((e) => e.radius));
-	// `run` is created after `spawn` but spawn must call back into it for the fragment bag.
-	const bag: { release?: (w: typeof world, x: number, z: number) => void } = {};
-	const spawn = createSpawnSystem({
-		config: roundsData.spawn,
-		enemies: toEnemyDefs(enemiesData),
-		rng: rng.spawn,
-		events,
-		// propCollision is created further down; it is only called once the loop runs.
-		isBlocked: (x, z) => propCollision.overlaps(origin, x, z, maxEnemyRadius),
-		onSpawn: (w, x, z) => bag.release?.(w, x, z),
-	});
+		stats,
+		owned,
+		dash,
+		itemEffects,
+		enemyIds,
+		damage,
+		separation,
+		targeting,
+		projectiles,
+		weapon,
+		projectileSystem,
+		spawn,
+		behavior,
+		elite,
+		boss,
+		run,
+		death,
+		pickup,
+		levelUp,
+		chest,
+		shop,
+		chunkGen,
+		chunks,
+		biomeMap,
+	} = session;
+	// Bench-only state (P-03-06): the ring emitter and the horde it keeps at the cap.
+	let touchDash = false;
 	let benchEmit = 0;
 	let benchAngle = 0;
-	const enemyShots = createEnemyShotPool(world);
-	const enemyShotSystem = createEnemyShotSystem(enemyShots, damage.queue);
-	const behavior = createBehaviorSystem(
-		behaviorConfigFromData(
-			enemiesData,
-			heroData.combat.contactCooldownSeconds,
-			roundsData.ai.attackAnimationSeconds,
-			roundsData.spawn.maxSimultaneous,
-		),
-		damage.queue,
-		{ events, spawn, shots: enemyShots, drain: damage.drain },
-	);
 	const benchPool = [
 		{ type: enemyIds.indexOf("husk"), weight: 6 },
 		{ type: enemyIds.indexOf("wail"), weight: 4 },
 	];
-	const elitePool = [
-		{ type: enemyIds.indexOf("husk"), weight: 6 },
-		{ type: enemyIds.indexOf("wail"), weight: 4 },
-	];
-	const elite = createEliteSystem({
-		config: elitesData,
-		spawn,
-		events,
-		queue: damage.queue,
-		rng: rng.elite,
-		pool: () => elitePool,
-		ring: { min: roundsData.spawn.ringMin, max: roundsData.spawn.ringMax },
-		hero,
-	});
-	hooks.heroHit = (source, taken) => {
-		elite.handleHeroHit(source, taken);
-		boss.handleHeroHit(source, taken);
-	};
-	const heroStatus = createHeroStatus();
-	const boss = createBossRoster(
-		{
-			rounds: roundsData.boss,
-			spawn,
-			events,
-			queue: damage.queue,
-			hero,
-			rng: rng.combat,
-			summonType: enemyIds.indexOf("husk"),
-			enemyIndex: (id) => enemyIds.indexOf(id),
-			heroStatus,
-			shots: enemyShots,
-			eliteModifiers: elitesData.modifiers,
-			seed,
-			difficulty: () => difficulty.hpDamageMult,
-			onDefeated: () => {
-				run.bossDied();
-				for (let i = 0; i < roundsData.boss.freeWeaponUpgrades; i++) weapon.upgrade();
-			},
-		},
-		bossesData,
-	);
-	const run = createRunSystem({
-		config: { flow: roundsData.flow, duration: roundsData.duration, boss: roundsData.boss },
-		spawn,
-		events,
-		// The first biome ring only until biome selection by distance reaches the spawner (SDD 03 section 5).
-		poolFor: () => [
-			{ type: enemyIds.indexOf("husk"), weight: 6 },
-			{ type: enemyIds.indexOf("wail"), weight: 4 },
-		],
-		difficultyMult: difficulty.hpDamageMult,
-		onRoundStart: (round, isBoss) => {
-			elite.onRoundStart(round, isBoss);
-			if (isBoss) boss.start(world, round);
-		},
-		onRoundEnd: (round) => {
-			applyHarvest(progress, fragments, xp, round, stats.stats.harvest, stats.stats.xpGain);
-			applyRoundEndBonus(progress, fragments, xp, itemEffects.effects, stats.stats.xpGain);
-		},
-	});
-	bag.release = run.releaseFromBag;
-
-	const death = createDeathSystem({
-		fragments,
-		fragmentsPerType: enemiesData.map((e) => e.fragments),
-		rng: rng.loot,
-		round: () => run.round,
-		effects: itemEffects.effects,
-		runStats,
-		onDeath: (w, e, x, z) => {
-			elite.handleDeath(w, e, x, z);
-			boss.handleDeath(w, e, x, z);
-			killEffects.onKill(w, e, x, z);
-		},
-	});
-	const pickup = createPickupSystem({
-		fragments,
-		xp,
-		progress,
-		stats: stats.stats,
-		effects: itemEffects.effects,
-	});
-	const aura = createAuraSystem({
-		effects: itemEffects.effects,
-		queue: damage.queue,
-		enemies: separation.hash,
-		round: () => run.round,
-	});
-	const bleed = createBleedSystem({ events });
-	const thorns = createThornsSystem({
-		effects: itemEffects.effects,
-		queue: damage.queue,
-		enemies: separation.hash,
-		cooldownSeconds: heroData.combat.contactCooldownSeconds,
-	});
-	// Declared after `death` only for readability: the death hook calls it once the loop runs.
-	const killEffects = createKillEffectsSystem({
-		effects: itemEffects.effects,
-		queue: damage.queue,
-		enemies: separation.hash,
-		events,
-		rng: rng.effects,
-		round: () => run.round,
-		hero,
-	});
-	const levelUp = createLevelUpSystem({
-		progress,
-		run,
-		cards: cardsData,
-		rng: rng.cards,
-		stats,
-		events,
-		rerolls: ossuaryBonus.cardRerolls,
-	});
-	const chest = createChestSystem({
-		reward: elitesData.reward,
-		items: poolItems,
-		rng: rng.loot,
-		run,
-		stats,
-		owned,
-		onItemTaken: itemEffects.refresh,
-		events,
-		blocked: () => levelUp.offer !== null,
-		pickupRadius: () => stats.stats.pickupRadius,
-	});
-	const shop = createShopSystem({
-		config: roundsData.shop,
-		guaranteedUncommon: ossuaryBonus.guaranteedUncommonShopItems,
-		tiers: roundsData.tierChance,
-		catalog: { items: poolItems, weapons: toShopWeapons(weaponsData) },
-		weaponDefs: weaponsData,
-		rng: rng.shop,
-		progress,
-		stats,
-		weapon,
-		round: () => run.round,
-		owned,
-		onItemBought: itemEffects.refresh,
-	});
-
-	const chunkGen = createChunkGenerator(seed, toBiomeDefs(biomesData), {
-		chunkSize: worldData.chunkSize,
-		maxPropsPerChunk: worldData.maxPropsPerChunk,
-	});
-	const chunks = createChunkSystem(worldData, chunkGen.generate);
-	// Rings by distance (A-02-01). `biomeMap.at(absX, absZ)` is what the spawner uses to pick the enemy pool.
-	const biomeMap = createBiomeMap(
-		biomesData,
-		biomesData.flatMap((biome, index) => (biome.props ? [index] : [])),
-	);
-	const propCollision = createPropCollision(chunks, {
-		chunkSize: worldData.chunkSize,
-		avoidLookahead: worldData.propAvoidLookahead,
-		steerGain: worldData.propSteerGain,
-		steerMargin: worldData.propSteerMargin,
-		radiusByType: Float32Array.from(
-			chunkGen.propTypes.map((name) => propsData.find((p) => p.id === name)?.radius ?? 0),
-		),
-	});
 
 	const hud = createStore<HudState>({
 		hp: heroData.base.maxHp,
@@ -758,7 +471,7 @@ async function boot(): Promise<void> {
 		(track) => log.info("biome music", track),
 	);
 
-	const fighting = (): boolean => run.state === "Round" || run.state === "BossRound";
+	const _fighting = (): boolean => run.state === "Round" || run.state === "BossRound";
 	let lastOffer: readonly CardView[] = NO_CARDS;
 	let lastOfferSource: unknown = null;
 	let lastChest: readonly CardView[] = NO_CARDS;
@@ -766,7 +479,6 @@ async function boot(): Promise<void> {
 	let lastBoss: HudState["boss"] = null;
 	let lastChestSource: unknown = null;
 	let lastHud = Number.NEGATIVE_INFINITY;
-	let inShop = false;
 	let settled = false;
 	let results: HudState["results"] = null;
 	let lastShopJson = "";
@@ -1057,44 +769,7 @@ async function boot(): Promise<void> {
 				pickup.run(world, hero);
 				return;
 			}
-			run.run(world, hero);
-			if (fighting()) {
-				inputSystem(world, hero, input, weapon.speedMultiplier * heroStatus.speedMultiplier);
-				dash.run(hero, input);
-				heroStatus.run(hero);
-				behavior.run(world, hero);
-				boss.run(world);
-				propCollision.steer(world, origin);
-				separation.run(world);
-				movementSystem(world);
-				cullDistantEnemies(
-					world,
-					Position.x[hero] ?? 0,
-					Position.z[hero] ?? 0,
-					worldData.cullDistance,
-				);
-				propCollision.resolve(world, origin, hero);
-				propCollision.resolveEnemies(world, origin);
-				applyOriginShift(world, origin, hero, events, worldData, boss.shiftOrigin);
-				chunks.update(origin.x + (Position.x[hero] ?? 0), origin.z + (Position.z[hero] ?? 0));
-				targeting.run(world, hero, weapon.range);
-				weapon.run(world, hero);
-				projectileSystem.run(world);
-				enemyShotSystem.run(world, hero);
-				aura.run(world, hero);
-				thorns.run(world, hero);
-				bleed.run(world);
-				damage.run(world);
-				death.run(world);
-				pickup.run(world, hero);
-				elite.run(world);
-				chest.run(world, hero);
-				stats.run(hero);
-				levelUp.run();
-				if ((Health.hp[hero] ?? 0) <= 0 && !itemEffects.tryRevive(hero)) run.heroDied();
-			}
-			if (run.state === "Shop" && !inShop) shop.open();
-			inShop = run.state === "Shop";
+			session.step(input);
 			// No results screen yet (P-05-08): a finished run starts over.
 			if (run.state === "Results" && !settled) settleRun();
 		},
