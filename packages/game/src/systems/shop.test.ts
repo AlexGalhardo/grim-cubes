@@ -150,3 +150,15 @@ test("open() resets the reroll counter and the view mirrors affordability", () =
 	expect(view.slots.every((s) => !s.affordable)).toBe(true);
 	expect(view.slots.some((s) => s.kind === "item" && s.lines.length > 0)).toBe(true);
 });
+
+test("free rerolls cost nothing and do not escalate the paid price", () => {
+	const { shop, progress, stats } = setup(10, 2);
+	stats.add([{ stat: "free_rerolls", op: "add", value: 1 }]);
+	stats.run(0);
+	progress.gold = 100;
+	shop.open();
+	expect(shop.rerollPrice).toBe(0);
+	expect(shop.reroll()).toBe(true);
+	expect(progress.gold).toBe(100);
+	expect(shop.rerollPrice).toBe(11);
+});

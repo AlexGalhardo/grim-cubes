@@ -26,6 +26,8 @@ export interface PlayerStats {
 	enemySpeed: number;
 	bossDamage: number;
 	explosionSize: number;
+	/** Rerolls per shop visit that cost nothing. */
+	freeRerolls: number;
 	/** Set whenever a modifier is added; the statsSystem clears it after recomputing. */
 	dirty: boolean;
 }
@@ -53,6 +55,7 @@ export const STAT_FIELDS: Readonly<Record<string, StatField>> = {
 	enemy_speed: "enemySpeed",
 	boss_damage: "bossDamage",
 	explosion_size: "explosionSize",
+	free_rerolls: "freeRerolls",
 };
 
 const FIELDS = [...new Set(Object.values(STAT_FIELDS))];
@@ -103,6 +106,7 @@ export function createPlayerStats(): PlayerStats {
 		enemySpeed: 0,
 		bossDamage: 0,
 		explosionSize: 0,
+		freeRerolls: 0,
 		dirty: false,
 	};
 }
@@ -127,8 +131,9 @@ export function computeStats(
 	}
 	for (let i = 0; i < modifiers.length; i++) {
 		const m = modifiers[i];
-		const field = m && STAT_FIELDS[m.stat];
-		if (!m || !field) continue;
+		if (!m) continue;
+		const field = STAT_FIELDS[m.stat];
+		if (!field) throw new RangeError(`unknown stat "${m.stat}" in a modifier`);
 		if (m.op === "add") add[field] += m.value;
 		else if (m.op === "mul") mul[field] *= m.value;
 	}
@@ -154,4 +159,5 @@ export function computeStats(
 	out.enemySpeed = add.enemySpeed * mul.enemySpeed;
 	out.bossDamage = add.bossDamage * mul.bossDamage;
 	out.explosionSize = add.explosionSize * mul.explosionSize;
+	out.freeRerolls = Math.max(0, Math.floor(add.freeRerolls * mul.freeRerolls));
 }

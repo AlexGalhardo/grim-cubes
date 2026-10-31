@@ -7,7 +7,7 @@ import { spawnHero } from "../ecs/hero";
 import { createGameWorld } from "../ecs/world";
 import { drawCards } from "../rules/cards";
 import { xpForLevel } from "../rules/fragments";
-import { computeStats, createPlayerStats } from "../rules/stats";
+import { computeStats, createPlayerStats, STAT_FIELDS } from "../rules/stats";
 import { createLevelUpSystem } from "./levelup";
 import { addFragmentValue, createProgress } from "./loot";
 import type { RunSystem } from "./round";
@@ -156,4 +156,21 @@ test("pickup range modifiers are percentages of the base radius", () => {
 	computeStats(heroData, [{ stat: "pickup_range", op: "add", value: 0.25 }], out);
 	expect(out.pickupRadius).toBeCloseTo(heroData.base.pickupRadius * 1.25);
 	expect(out.pickupRadius).toBeCloseTo(3.125);
+});
+
+test("an unknown stat in a modifier throws instead of being dropped", () => {
+	expect(() =>
+		computeStats(heroData, [{ stat: "nope", op: "add", value: 1 }], createPlayerStats()),
+	).toThrow(RangeError);
+});
+
+test("every stat in the schema enum maps to a player stat field", async () => {
+	const { readFileSync } = await import("node:fs");
+	const schema = JSON.parse(
+		readFileSync(new URL("../../../../data/schema/common.schema.json", import.meta.url), "utf8"),
+	) as {
+		$defs: { stat: { enum: string[] } };
+	};
+	for (const stat of schema.$defs.stat.enum) expect(STAT_FIELDS[stat], stat).toBeDefined();
+	for (const stat of Object.keys(STAT_FIELDS)) expect(schema.$defs.stat.enum).toContain(stat);
 });

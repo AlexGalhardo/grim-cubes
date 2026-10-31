@@ -80,7 +80,10 @@ export function createShopSystem(deps: ShopSystemDeps): ShopSystem {
 		shopPrice: stats.stats.shopPrice,
 		currentWeapon: { id: weapon.weapon.id ?? "", tier: weapon.tier, maxTier: weapon.maxTier },
 	});
-	const nextRerollPrice = (): number => rerollPrice(config, round(), rerolls + 1);
+	const nextRerollPrice = (): number => {
+		const free = stats.stats.freeRerolls;
+		return rerolls < free ? 0 : rerollPrice(config, round(), rerolls - free + 1);
+	};
 
 	function describe(slot: ShopSlot): { name: string; lines: string[]; tier: number } {
 		if (slot.kind === "item") {
