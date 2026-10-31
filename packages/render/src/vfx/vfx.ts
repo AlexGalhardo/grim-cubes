@@ -369,7 +369,7 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 					false,
 					PIECE_SIZE_MULT,
 				);
-				zones.ring(a, b, FLASH_RADIUS, FLASH_SECONDS);
+				if (!options.flashReduced?.()) zones.ring(a, b, FLASH_RADIUS, FLASH_SECONDS);
 				executionX = a;
 				executionZ = b;
 				executionNext = 0;
