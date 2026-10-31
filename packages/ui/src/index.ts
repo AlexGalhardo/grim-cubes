@@ -8,6 +8,8 @@ export type { ButtonProps, ButtonSize } from "./components/Button/Button";
 export { Button } from "./components/Button/Button";
 export type { DashButtonProps, DashView } from "./components/DashButton/DashButton";
 export { DashButton } from "./components/DashButton/DashButton";
+export type { DemoEndProps } from "./components/DemoEnd/DemoEnd";
+export { DemoEnd } from "./components/DemoEnd/DemoEnd";
 export type {
 	DifficultyActions,
 	DifficultyOptionView,

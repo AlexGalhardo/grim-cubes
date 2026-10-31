@@ -212,5 +212,12 @@
 	"options.close": "Close",
 	"options.open": "Options",
 	"options.speed": "Game speed",
-	"hud.speed": "Game speed {speed}x, tap to change"
+	"hud.speed": "Game speed {speed}x, tap to change",
+	"demoEnd.panel": "Demo",
+	"demoEnd.title": "The Gravedigger is down",
+	"demoEnd.body": "That is the end of the demo. The full game has four more bosses, new biomes and the whole Ossuary.",
+	"demoEnd.steam": "Wishlist on Steam",
+	"demoEnd.play": "Play the full game",
+	"demoEnd.again": "Play again",
+	"demo.badge": "DEMO"
 }

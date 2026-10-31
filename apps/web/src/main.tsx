@@ -278,6 +278,7 @@ async function boot(): Promise<void> {
 		cardRerolls: 0,
 		options: null,
 		speed: meta.settings.gameSpeed,
+		demoEnd: false,
 	});
 	// The handlers are function declarations further down; the screen only calls them after boot.
 	const optionsActions = {
@@ -304,6 +305,7 @@ async function boot(): Promise<void> {
 			shopPortrait={shopPortrait}
 			store={hud}
 			version={__APP_VERSION__}
+			demo={__IS_DEMO__}
 			stick={stick}
 			onChooseCard={(index) => levelUp.choose(index)}
 			onRerollCards={() => levelUp.reroll()}
@@ -365,7 +367,8 @@ async function boot(): Promise<void> {
 					publishNow();
 				},
 				next: () => {
-					if (run.state === "Shop") run.closeShop();
+					if (run.state === "Shop" && !(__IS_DEMO__ && run.round >= (bossesData[0]?.round ?? 10)))
+						run.closeShop();
 					publishNow();
 				},
 			}}
@@ -901,8 +904,11 @@ async function boot(): Promise<void> {
 					}))
 				: NO_CARDS;
 		}
+		// Web demo: the Gravedigger is the last fight. Settle the run once, hide the shop and never open round 11.
+		const demoEnd = __IS_DEMO__ && run.state === "Shop" && run.round >= (bossesData[0]?.round ?? 10);
+		if (demoEnd && !settled) settleRun();
 		let shopView: HudState["shop"] = null;
-		if (run.state === "Shop") {
+		if (run.state === "Shop" && !demoEnd) {
 			const view = shop.view();
 			const json = JSON.stringify(view);
 			if (json !== lastShopJson) {
@@ -974,6 +980,7 @@ async function boot(): Promise<void> {
 			difficulty: difficultyOpen ? difficultyView() : null,
 			options: optionsOpen ? optionsView() : null,
 			speed: loop.speed,
+			demoEnd,
 			bossIntro: run.state === "BossIntro" ? t(`boss.${boss.defFor(run.round).id}`) : null,
 			dash: dash.unlocked
 				? {
@@ -1023,6 +1030,7 @@ async function boot(): Promise<void> {
 			cur.difficulty !== null ||
 			next.difficulty !== null ||
 			cur.speed !== next.speed ||
+			cur.demoEnd !== next.demoEnd ||
 			cur.options !== null ||
 			next.options !== null ||
 			next.ossuary !== null ||
