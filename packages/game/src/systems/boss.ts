@@ -116,14 +116,16 @@ export function createBossSystem(deps: BossSystemDeps): BossSystem {
 	}
 
 	/** Picks the pattern to start: the only one that can, or a draw among several (the draw is the only RNG use). */
-	function choose(distance: number): PatternHandler | null {
-		const ready = patterns.filter(
-			(p) => p.handler.start && p.handler.canStart?.(ctx, distance) !== false,
+	function choose(distance: number): { handler: PatternHandler; index: number } | null {
+		const ready = patterns.flatMap((p, index) =>
+			p.handler.start && p.handler.canStart?.(ctx, distance) !== false
+				? [{ handler: p.handler, index }]
+				: [],
 		);
 		if (ready.length === 0) return null;
 		const pick =
 			ready.length === 1 ? 0 : Math.min(ready.length - 1, Math.floor(rng.float(0, ready.length)));
-		return ready[pick]?.handler ?? null;
+		return ready[pick] ?? null;
 	}
 
 	function tickPattern(): void {
@@ -142,8 +144,9 @@ export function createBossSystem(deps: BossSystemDeps): BossSystem {
 		}
 		const next = choose(dist);
 		if (next) {
-			active = next;
-			next.start?.(ctx);
+			active = next.handler;
+			events.push(EventType.BossPattern, next.index, 0, 0, entity);
+			next.handler.start?.(ctx);
 		}
 	}
 
@@ -197,6 +200,7 @@ export function createBossSystem(deps: BossSystemDeps): BossSystem {
 			events.push(EventType.BossDied, x, z, 0, e);
 			const chest = rounds.rewardChest;
 			dropChest(world, x, z, chest.minTier, chest.offered, chest.picks);
+			events.push(EventType.ChestDropped, x, z, 0, 0);
 			onDefeated();
 		},
 		view(): BossView | null {

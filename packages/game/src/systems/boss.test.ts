@@ -134,9 +134,11 @@ test("the line charge is telegraphed for 1 s, then the boss rushes the hero", ()
 	Position.z[e] = 0;
 	let telegraphStep = -1;
 	let rushStep = -1;
+	const started: number[] = [];
 	for (let step = 0; step < 600 && rushStep < 0; step++) {
 		boss.run(world);
-		events.consume((type, _a, _b, c) => {
+		events.consume((type, a, _b, c) => {
+			if (type === EventType.BossPattern) started.push(a);
 			if (type === EventType.BossTelegraph && telegraphStep < 0) {
 				telegraphStep = step;
 				expect(c).toBeCloseTo(1);
@@ -147,6 +149,8 @@ test("the line charge is telegraphed for 1 s, then the boss rushes the hero", ()
 	expect(telegraphStep).toBeGreaterThanOrEqual(0);
 	expect((rushStep - telegraphStep) / 60).toBeCloseTo(1, 0);
 	expect(Velocity.x[e]).toBeLessThan(0);
+	// The telegraph is announced by the index of line_charge in bosses.json, so the render can read its params.
+	expect(started).toEqual([def?.patterns.findIndex((p) => p.id === "line_charge")]);
 	void hero;
 });
 
@@ -327,4 +331,15 @@ test("patterns are handlers looked up by id: unknown ids throw and registered on
 	]);
 	expect(calls.filter((c) => c === "tick")).toHaveLength(12);
 	expect(() => registerPattern("test_pattern", () => ({}))).toThrow(RangeError);
+});
+
+test("the boss chest is announced to the render when the boss dies", () => {
+	const { world, boss, events } = setup();
+	const e = boss.start(world, 10);
+	boss.handleDeath(world, e, 3, 4);
+	const dropped: number[] = [];
+	events.consume((type, a, b) => {
+		if (type === EventType.ChestDropped) dropped.push(a, b);
+	});
+	expect(dropped).toEqual([3, 4]);
 });

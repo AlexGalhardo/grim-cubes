@@ -25,11 +25,14 @@ export const EventType = {
 	EliteIncoming: 13,
 	/** a, b = x, z; c = modifier id (1-based, `Elite.modifier`); entity = the elite. */
 	EliteSpawned: 14,
-	/** a, b = x, z. An elite chest dropped. */
+	/** a, b = x, z. An elite or boss chest dropped. */
 	ChestDropped: 15,
 	/** a, b = x, z of the chest that was opened; the offer is on screen. */
 	ChestOpened: 16,
-	/** a, b = unit direction x, z; c = seconds until the hit lands; entity = the boss. */
+	/**
+	 * a, b = unit direction x, z; c = seconds until the hit lands; entity = the boss. Always preceded by a
+	 * BossPattern event that names the pattern.
+	 */
 	BossTelegraph: 17,
 	/** a, b = x, z of the summoner; c = number summoned. */
 	BossSummon: 18,
@@ -43,6 +46,8 @@ export const EventType = {
 	EnemyTelegraph: 22,
 	/** a, b = x, z where the shot left; c = unused. A watcher fired a projectile. */
 	EnemyShotFired: 23,
+	/** a = index of the pattern in the boss's `patterns` list (bosses.json); entity = the boss. A pattern started. */
+	BossPattern: 24,
 	/** a = new level. The run paused and a card offer is waiting. */
 	LevelUp: 11,
 } as const;
