@@ -13,13 +13,15 @@ export interface MerchantPromptView {
 export interface MerchantPromptProps {
 	view: MerchantPromptView;
 	onTalk: () => void;
+	/** The key or button to show on the talk action ("Enter", "A" or "\u2715"). */
+	hint?: string | undefined;
 }
 
 /** While the Merchant waits (A-05-01): an arrow toward him, and the talk action once the hero is close. */
 /** The screen reader hears the countdown every 5 s (20, 15, 10, 5), not every second. */
 export const announcedSeconds = (seconds: number): number => Math.max(0, Math.ceil(seconds / 5) * 5);
 
-export function MerchantPrompt({ view, onTalk }: MerchantPromptProps): JSX.Element {
+export function MerchantPrompt({ view, onTalk, hint = "Enter" }: MerchantPromptProps): JSX.Element {
 	return (
 		<button
 			type="button"
@@ -39,7 +41,7 @@ export function MerchantPrompt({ view, onTalk }: MerchantPromptProps): JSX.Eleme
 				{"\u2191"}
 			</span>
 			<span className="flex flex-col items-start">
-				<span>{view.near ? t("merchant.talk") : t("merchant.go")}</span>
+				<span>{view.near ? t("merchant.talk", { key: hint }) : t("merchant.go")}</span>
 				<span
 					aria-hidden="true"
 					data-testid="merchant-countdown"

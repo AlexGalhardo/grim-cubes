@@ -7,7 +7,7 @@ export type { KeyAction, KeyCheck, KeyMap } from "./keys";
 export { checkKey, createKeyMap, FIXED_KEYS, KEY_ACTIONS, keyBindingsFor, validKeyMap } from "./keys";
 export type { Logger, LoggerOptions, LogLevel, LogSink } from "./logger";
 export { createLogger } from "./logger";
-export type { PadAction, PadCheck, PadMap } from "./pad";
+export type { PadAction, PadCheck, PadMap, PadStyle } from "./pad";
 export {
 	checkPadButton,
 	createPadMap,
@@ -15,6 +15,7 @@ export {
 	PAD_ACTIONS,
 	padBindingsFor,
 	padButtonName,
+	padStyleFromId,
 	validPadMap,
 } from "./pad";
 export type { Rng, RngStreams, StreamName } from "./rng";

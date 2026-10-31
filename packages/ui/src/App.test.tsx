@@ -35,6 +35,8 @@ const hud = (speed: number): HudState => ({
 	rerollKey: "KeyR",
 	inputDevice: "keyboard",
 	padReroll: 2,
+	padDash: 0,
+	padStyle: "xbox",
 	caption: null,
 	merchant: null,
 	colorblind: false,
@@ -384,4 +386,48 @@ test("the reroll hint names the keyboard key, or the pad button once the pad was
 		/>,
 	);
 	expect(screen.getByTestId("levelup-reroll").textContent).toContain("[T]");
+});
+
+test("the hints name the buttons of the connected controller: PlayStation symbols or Xbox letters", () => {
+	const cards = [{ id: "a", name: "A", double: false }];
+	render(
+		<App
+			store={createStore({
+				...hud(1),
+				cards,
+				cardRerolls: 1,
+				inputDevice: "pad",
+				padStyle: "playstation",
+			})}
+			onChooseCard={vi.fn()}
+			onRerollCards={vi.fn()}
+		/>,
+	);
+	expect(screen.getByTestId("levelup-reroll").textContent).toContain("[\u25A1]");
+	cleanup();
+	render(
+		<App
+			store={createStore({
+				...hud(1),
+				inputDevice: "pad",
+				padStyle: "playstation",
+				merchant: { angle: 0, near: true, secondsLeft: 9 },
+			})}
+			onMerchantTalk={vi.fn()}
+		/>,
+	);
+	expect(screen.getByTestId("merchant-prompt").textContent).toContain("Fale com o Mercador [\u2715]");
+	cleanup();
+	render(
+		<App
+			store={createStore({
+				...hud(1),
+				inputDevice: "pad",
+				padStyle: "xbox",
+				merchant: { angle: 0, near: true, secondsLeft: 9 },
+			})}
+			onMerchantTalk={vi.fn()}
+		/>,
+	);
+	expect(screen.getByTestId("merchant-prompt").textContent).toContain("Fale com o Mercador [A]");
 });

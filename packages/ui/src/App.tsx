@@ -1,4 +1,4 @@
-import { padButtonName, type SaveNotice, type Store, t, type VirtualStick } from "@gc/core";
+import { type PadStyle, padButtonName, type SaveNotice, type Store, t, type VirtualStick } from "@gc/core";
 import { type CSSProperties, type JSX, useSyncExternalStore } from "react";
 import { Bar } from "./components/Bar/Bar";
 import { BossBar, BossIntro, type BossViewModel } from "./components/BossBar/BossBar";
@@ -70,6 +70,10 @@ export interface HudState {
 	inputDevice: "keyboard" | "pad";
 	/** Gamepad button of the reroll (standard mapping index). */
 	padReroll: number;
+	/** Gamepad button of the dash, which also talks to the Merchant. */
+	padDash: number;
+	/** Which label set the connected controller uses (Xbox letters, PlayStation symbols, neutral). */
+	padStyle: PadStyle;
 	/** Colour-blind mode on: rarities get shapes and a safer palette (`data-theme="cb"`). */
 	colorblind: boolean;
 	/** HUD scale in percent (90, 100, 125 or 150), applied through the `--ui-scale` variable on the root. */
@@ -140,7 +144,9 @@ export function App({
 }: AppProps): JSX.Element {
 	const hud = useSyncExternalStore(store.subscribe, store.get);
 	const height = useViewportHeight();
-	const rerollHint = hud.inputDevice === "pad" ? padButtonName(hud.padReroll) : keyLabel(hud.rerollKey);
+	const usingPad = hud.inputDevice === "pad";
+	const rerollHint = usingPad ? padButtonName(hud.padReroll, hud.padStyle) : keyLabel(hud.rerollKey);
+	const talkHint = usingPad ? padButtonName(hud.padDash, hud.padStyle) : "Enter";
 	const scale = effectiveUiScale(hud.uiScale, height) / 100;
 	// The HUD chrome (buttons, version, seal) is not drawn while a dialog is open: it would sit on top of the dialog
 	// and still take clicks.
@@ -238,7 +244,7 @@ export function App({
 			{hud.options && optionsActions ? <Options view={hud.options} actions={optionsActions} /> : null}
 			{hud.boss ? <BossBar boss={hud.boss} /> : null}
 			{hud.merchant && onMerchantTalk ? (
-				<MerchantPrompt view={hud.merchant} onTalk={onMerchantTalk} />
+				<MerchantPrompt view={hud.merchant} hint={talkHint} onTalk={onMerchantTalk} />
 			) : null}
 			{hud.caption ? <Caption text={hud.caption} /> : null}
 			{hud.bossIntro ? <BossIntro name={hud.bossIntro} /> : null}

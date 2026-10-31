@@ -7,6 +7,7 @@ import {
 	type PadAction,
 	type PadCheck,
 	type PadMap,
+	type PadStyle,
 	padButtonName,
 	t,
 } from "@gc/core";
@@ -43,6 +44,8 @@ export interface OptionsViewModel {
 	gore: boolean;
 	keys: KeyMap;
 	pad: PadMap;
+	/** Label set of the connected controller. */
+	padStyle?: PadStyle | undefined;
 	subtitles: boolean;
 	locale: string;
 	locales: readonly { id: string; name: string }[];
@@ -384,7 +387,7 @@ export function Options({ view, actions, getPad }: OptionsProps): JSX.Element {
 								<button
 									type="button"
 									data-testid={`options-pad-${action}`}
-									aria-label={`${t(`options.pad.${action}`)}: ${padCapturing === action ? t("options.padPress") : padButtonName(view.pad[action])}`}
+									aria-label={`${t(`options.pad.${action}`)}: ${padCapturing === action ? t("options.padPress") : padButtonName(view.pad[action], view.padStyle)}`}
 									onClick={() => {
 										setProblem("");
 										setCapturing(null);
@@ -394,7 +397,7 @@ export function Options({ view, actions, getPad }: OptionsProps): JSX.Element {
 								>
 									{padCapturing === action
 										? t("options.padPress")
-										: padButtonName(view.pad[action])}
+										: padButtonName(view.pad[action], view.padStyle)}
 								</button>
 							</div>
 						))}

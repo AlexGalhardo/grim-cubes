@@ -206,3 +206,11 @@ test("the pad rows list reroll and speed with their default buttons", () => {
 	expect(screen.getByTestId("options-pad-reroll").textContent).toBe("X");
 	expect(screen.getByTestId("options-pad-speed").textContent).toBe("Back");
 });
+
+test("the pad rows name the buttons with the controller's own labels", () => {
+	render(<Options view={{ ...view, padStyle: "playstation" }} actions={actions()} />);
+	expect(screen.getByTestId("options-pad-dash").textContent).toBe("\u2715");
+	expect(screen.getByTestId("options-pad-pause").textContent).toBe("Options");
+	expect(screen.getByTestId("options-pad-reroll").textContent).toBe("\u25A1");
+	expect(screen.getByTestId("options-pad-speed").textContent).toBe("Share");
+});

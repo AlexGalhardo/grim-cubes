@@ -1,5 +1,12 @@
 import { expect, test } from "vitest";
-import { checkPadButton, createPadMap, padBindingsFor, padButtonName, validPadMap } from "./pad";
+import {
+	checkPadButton,
+	createPadMap,
+	padBindingsFor,
+	padButtonName,
+	padStyleFromId,
+	validPadMap,
+} from "./pad";
 
 test("the default map is valid and the bindings add the fixed shoulder button to the dash", () => {
 	const map = createPadMap();
@@ -38,4 +45,55 @@ test("buttons have readable names", () => {
 	expect(padButtonName(2)).toBe("X");
 	expect(padButtonName(8)).toBe("Back");
 	expect(padButtonName(16)).toBe("#16");
+});
+
+// `Gamepad.id` strings as the browsers report them (Chrome: name + vendor and product; Firefox: vendor-product-name).
+const IDS = {
+	xbox: [
+		"Xbox 360 Controller (XInput STANDARD GAMEPAD)",
+		"Xbox Wireless Controller (STANDARD GAMEPAD Vendor: 045e Product: 02fd)",
+		"045e-02fd-Xbox Wireless Controller",
+		"Microsoft Controller (STANDARD GAMEPAD Vendor: 045e Product: 0b13)",
+	],
+	playstation: [
+		"DualShock 4 Wireless Controller (STANDARD GAMEPAD Vendor: 054c Product: 09cc)",
+		"DualSense Wireless Controller (STANDARD GAMEPAD Vendor: 054c Product: 0ce6)",
+		"054c-0ce6-Wireless Controller",
+		"PS4 Controller",
+		"Sony Interactive Entertainment Wireless Controller",
+	],
+	generic: [
+		"Pro Controller (STANDARD GAMEPAD Vendor: 057e Product: 2009)",
+		"8BitDo Pro 2 (STANDARD GAMEPAD Vendor: 2dc8 Product: 6006)",
+		"Logitech Dual Action (STANDARD GAMEPAD Vendor: 046d Product: c216)",
+		"",
+	],
+} as const;
+
+test("a controller is told apart by its Gamepad.id: Xbox, PlayStation, or generic", () => {
+	for (const [style, ids] of Object.entries(IDS)) {
+		for (const id of ids) expect(padStyleFromId(id), id).toBe(style);
+	}
+	expect(padStyleFromId(null)).toBe("generic");
+	expect(padStyleFromId(undefined)).toBe("generic");
+});
+
+test("buttons are named with the letters of an Xbox pad, the symbols of a PlayStation pad or neutral names", () => {
+	const names = (style: "xbox" | "playstation" | "generic") =>
+		[0, 1, 2, 3, 4, 5, 8, 9].map((b) => padButtonName(b, style));
+	expect(names("xbox")).toEqual(["A", "B", "X", "Y", "LB", "RB", "Back", "Start"]);
+	expect(names("playstation")).toEqual([
+		"\u2715",
+		"\u25CB",
+		"\u25A1",
+		"\u25B3",
+		"L1",
+		"R1",
+		"Share",
+		"Options",
+	]);
+	expect(names("generic")).toEqual(["A", "B", "X", "Y", "L1", "R1", "Select", "Start"]);
+	expect(padButtonName(16, "playstation")).toBe("#16");
+	// Without a style the Xbox names stay, as before.
+	expect(padButtonName(8)).toBe("Back");
 });
