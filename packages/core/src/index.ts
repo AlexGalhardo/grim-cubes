@@ -18,8 +18,16 @@ export {
 	serializeSave,
 	validateMeta,
 } from "./save";
-export type { LoadedMeta, SaveIO, SaveNotice } from "./saveStore";
-export { loadMeta, persistMeta, SAVE_BACKUP_KEY, SAVE_CORRUPT_KEY, SAVE_KEY } from "./saveStore";
+export type { LoadedMeta, RunResult, SaveIO, SaveNotice } from "./saveStore";
+export {
+	applyRun,
+	loadMeta,
+	persistRun,
+	SAVE_BACKUP_KEY,
+	SAVE_CORRUPT_KEY,
+	SAVE_CORRUPT_PREVIOUS_KEY,
+	SAVE_KEY,
+} from "./saveStore";
 export type { SpatialHash, SpatialHashOptions } from "./spatial";
 export { createSpatialHash } from "./spatial";
 export type { Store } from "./store";
