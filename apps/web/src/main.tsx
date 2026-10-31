@@ -552,12 +552,29 @@ async function boot(): Promise<void> {
 	const horde =
 		assets && assets.enemies.length > 0
 			? createHordeRenderer(
-					assets.enemies.map((enemy, index) => ({
-						mesh: enemy.mesh,
-						vat: enemy.vat,
-						walkRefSpeed: enemiesData[index]?.walkRefSpeed ?? 1,
-						radius: enemiesData[index]?.radius ?? 0.6,
-					})),
+					[
+						...assets.enemies.map((enemy, index) => ({
+							mesh: enemy.mesh,
+							vat: enemy.vat,
+							walkRefSpeed: enemiesData[index]?.walkRefSpeed ?? 1,
+							radius: enemiesData[index]?.radius ?? 0.6,
+						})),
+						// Cosmetic variants share their base type's stats; only the mesh and the VAT differ.
+						...assets.variants.flatMap((variant) => {
+							const base = assets.enemies.findIndex((enemy) => enemy.id === variant.base);
+							return base < 0
+								? []
+								: [
+										{
+											mesh: variant.mesh,
+											vat: variant.vat,
+											walkRefSpeed: enemiesData[base]?.walkRefSpeed ?? 1,
+											radius: enemiesData[base]?.radius ?? 0.6,
+											base,
+										},
+									];
+						}),
+					],
 					{
 						capacity: roundsData.spawn.maxSimultaneous + worldData.hordeRenderSlack,
 						ghostCapacity: worldData.hordeRenderSlack,

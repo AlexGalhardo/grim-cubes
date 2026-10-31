@@ -6,6 +6,7 @@ export type {
 	GameAssets,
 	GameAssetsOptions,
 	LoadedEnemy,
+	LoadedVariant,
 } from "./assets/gameAssets";
 export { importModelMesh, loadGameAssets, loadManifest } from "./assets/gameAssets";
 export type { BenchRecorder, BenchResult } from "./bench/recorder";
@@ -19,7 +20,7 @@ export { createPortrait } from "./character/portrait";
 export type { RenderEngine } from "./engine";
 export { createEngine, createNullEngine, EngineUnavailableError } from "./engine";
 export type { HordeOptions, HordeRenderer, HordeType } from "./horde/hordeRenderer";
-export { createHordeRenderer } from "./horde/hordeRenderer";
+export { createHordeRenderer, hash32, VARIANT_PERCENT } from "./horde/hordeRenderer";
 export { createRenderPort } from "./port";
 export type { ModelReviewOptions } from "./review/modelReview";
 export { startModelReview } from "./review/modelReview";

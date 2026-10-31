@@ -182,6 +182,24 @@ describe("buildAssets", () => {
 		expect(calls[0]).toContain("etc1s");
 	});
 
+	test("models/variants/<base>_NN builds as an enemy of the base's size class with its own VAT and variantOf", async () => {
+		const real = join(__dirname, "..", "..", "assets", "src", "models", "variants");
+		const dir = join(src, "models", "variants");
+		mkdirSync(dir, { recursive: true });
+		for (const file of ["husk_02.bbmodel", "husk_02_d.png"])
+			writeFileSync(join(dir, file), readFileSync(join(real, file)));
+		const manifest = await buildAssets({
+			srcDir: src,
+			outDir: out,
+			version: "1.2.3",
+			dataDir: join(__dirname, "..", "..", "data"),
+		});
+		expect(manifest.entries.husk_02?.variantOf).toBe("husk");
+		expect(manifest.entries.husk_02?.kind).toBe("model");
+		expect(manifest.entries.vat_husk_02?.kind).toBe("vat");
+		expect(manifest.entries.husk).toBeUndefined();
+	});
+
 	test("an _e.png next to a _d.png makes an emissive atlas with the same placements; without one nothing changes", async () => {
 		await writeModel("husk", { category: "enemies" }, 1);
 		await writeModel("wail", { category: "enemies" }, 2);

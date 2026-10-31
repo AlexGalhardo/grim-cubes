@@ -30,6 +30,22 @@ export interface HordeType {
 	walkRefSpeed: number;
 	/** Collision radius in u, widened by the elite or boss scale when culling. */
 	radius?: number;
+	/**
+	 * Set on a cosmetic variant: the index of the base type it can replace. Variants come after the base types in the
+	 * `types` array (a base type's index is its `EnemyType.id`) and share the base's stats, so only the mesh differs.
+	 */
+	base?: number;
+}
+
+/** Share of a type's entities (0..100) that draw with one of its variants when it has any. */
+export const VARIANT_PERCENT = 30;
+
+/** 32-bit integer mix (murmur3 finalizer): a stable, allocation-free per-entity number. */
+export function hash32(value: number): number {
+	let h = value | 0;
+	h = Math.imul(h ^ (h >>> 16), 0x85ebca6b);
+	h = Math.imul(h ^ (h >>> 13), 0xc2b2ae35);
+	return (h ^ (h >>> 16)) >>> 0;
 }
 
 export interface HordeOptions {
@@ -44,6 +60,8 @@ export interface HordeOptions {
 	 * towards white. Omit to leave the colour buffer out.
 	 */
 	flashBrightness?: number;
+	/** Share (0..100) of a type drawn with its variants; defaults to `VARIANT_PERCENT`. */
+	variantPercent?: number;
 	/** Flash reduction (Options): the hit flash is not drawn. */
 	flashReduced?: () => boolean;
 	/**
@@ -119,6 +137,20 @@ export function createHordeRenderer(types: readonly HordeType[], options: HordeO
 			clipRange[(t * CLIP_NAMES.length + k) * 2 + 1] = range.to;
 		});
 	});
+
+	// Variants of each base type, and the visual slot of an entity: the same entity always lands on the same mesh, and
+	// nothing here touches the simulation (no RNG, no ECS write).
+	const variantsOf: number[][] = types.map(() => []);
+	types.forEach((type, t) => {
+		if (type.base !== undefined) variantsOf[type.base]?.push(t);
+	});
+	const percent = options.variantPercent ?? VARIANT_PERCENT;
+	function visual(eid: number, kind: number): number {
+		const list = variantsOf[kind];
+		if (!list || list.length === 0) return kind;
+		const h = hash32(eid);
+		return h % 100 < percent ? (list[(h >>> 8) % list.length] ?? kind) : kind;
+	}
 
 	const culler = options.cullCamera ? createFrustumCuller(options.cullCamera) : null;
 	const state = new Uint8Array(MAX_ENTITIES);
@@ -198,7 +230,7 @@ export function createHordeRenderer(types: readonly HordeType[], options: HordeO
 			for (let k = 0; k < enemies.length; k++) {
 				const eid = enemies[k] ?? 0;
 				if ((Boss.id[eid] ?? 0) > 0 && options.skipBoss?.(Boss.id[eid] ?? 0)) continue;
-				const t = EnemyType.id[eid] ?? 0;
+				const t = visual(eid, EnemyType.id[eid] ?? 0);
 				if (culler) {
 					const reach =
 						(types[t]?.radius ?? DEFAULT_RADIUS) *
@@ -334,7 +366,7 @@ export function createHordeRenderer(types: readonly HordeType[], options: HordeO
 			state[eid] = STATE_WALK;
 			hitEnd[eid] = 0;
 			hitPrev[eid] = 0;
-			const t = EnemyType.id[eid] ?? 0;
+			const t = visual(eid, EnemyType.id[eid] ?? 0);
 			if (!types[t]) return;
 			for (let g = 0; g < ghostCapacity; g++) {
 				const slot = t * ghostCapacity + g;

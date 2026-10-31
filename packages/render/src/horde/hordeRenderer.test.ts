@@ -25,7 +25,7 @@ import { createNullEngine } from "../engine";
 import { createRenderPort } from "../port";
 import { createGameScene } from "../scene/scene";
 import { createVat, type VatMeta } from "../vat/loader";
-import { createHordeRenderer } from "./hordeRenderer";
+import { createHordeRenderer, hash32 } from "./hordeRenderer";
 
 const meta: VatMeta = {
 	format: "rgba32f",
@@ -414,5 +414,57 @@ describe("render culling", () => {
 		// The margin (body radius + 1 u of follow slack) draws a ring just off screen: bounded, not zero.
 		expect(drawn).toBeLessThanOrEqual(onScreen * 1.5);
 		dispose();
+	});
+});
+
+describe("cosmetic variants", () => {
+	function withVariant() {
+		const { engine, dispose } = createNullEngine();
+		const game = createGameScene(engine);
+		const make = (name: string) => ({
+			mesh: skinnedBox(name, game.scene),
+			vat: createVat(game.scene, name, new Float32Array(meta.width * meta.height * 4).buffer, meta),
+			walkRefSpeed: 3,
+		});
+		const types = [make("base"), make("other"), { ...make("variant"), base: 0 }];
+		const horde = createHordeRenderer(types, {
+			capacity: 3000,
+			ghostCapacity: 8,
+			deltaSeconds: () => 1 / 60,
+		});
+		return { game, types, horde, world: createGameWorld(), dispose };
+	}
+
+	it("draws about 30% of a type with its variant, none of the type that has none", () => {
+		const { types, horde, world, dispose } = withVariant();
+		for (let i = 0; i < 2000; i++) spawnEnemy(world, i, 0, 0);
+		for (let i = 0; i < 500; i++) spawnEnemy(world, i, 5, 1);
+		horde.sync(world, 1);
+		const [base, other, variant] = types.map((t) => t.mesh.thinInstanceCount);
+		expect((base ?? 0) + (variant ?? 0)).toBe(2000);
+		expect(other).toBe(500);
+		expect((variant ?? 0) / 2000).toBeGreaterThan(0.26);
+		expect((variant ?? 0) / 2000).toBeLessThan(0.34);
+		dispose();
+	});
+
+	it("keeps an entity on the same mesh frame after frame and for its death clip", () => {
+		const { types, horde, world, dispose } = withVariant();
+		const eids = Array.from({ length: 200 }, (_, i) => spawnEnemy(world, i, 0, 0));
+		horde.sync(world, 1);
+		const first = types.map((t) => t.mesh.thinInstanceCount);
+		horde.sync(world, 1);
+		expect(types.map((t) => t.mesh.thinInstanceCount)).toEqual(first);
+		for (const eid of eids) horde.onDied(eid);
+		horde.sync(world, 1);
+		expect(horde.stats.ghosts).toBeGreaterThan(0);
+		dispose();
+	});
+
+	it("hash32 spreads consecutive ids evenly and never touches the world", () => {
+		let low = 0;
+		for (let i = 0; i < 10000; i++) if (hash32(i) % 100 < 30) low++;
+		expect(low / 10000).toBeGreaterThan(0.27);
+		expect(low / 10000).toBeLessThan(0.33);
 	});
 });
