@@ -1,0 +1,9 @@
+{
+	"prompt": "huge armored brute charging forward, pounding heavy footfalls on stone with a rising iron rattle, heavy dry tone, medium distance, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 1.5,
+	"generatedAt": "2026-10-31T15:37:21.869Z",
+	"plan": "creator",
+	"hash": "02f9a775a3db9201e8d5c2de3d1e6a53f45c4a40ddbfc7a0e07fb283125d8c79",
+	"promptInfluence": 0.5
+}

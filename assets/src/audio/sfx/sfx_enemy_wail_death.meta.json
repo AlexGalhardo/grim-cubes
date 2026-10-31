@@ -1,0 +1,9 @@
+{
+	"prompt": "ghostly wail cut short by a sharp bone snap, thin high rasp fading out, cold tone, medium distance, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 1,
+	"generatedAt": "2026-10-31T15:37:20.130Z",
+	"plan": "creator",
+	"hash": "d4b305a7d64015b698094d041178988d8bc8000c59d73b50df14940b961cecee",
+	"promptInfluence": 0.5
+}

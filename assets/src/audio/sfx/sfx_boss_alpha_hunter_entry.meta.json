@@ -1,0 +1,9 @@
+{
+	"prompt": "towering alien hunter decloaking with a crackle of static, wet clicking mandibles and a low predatory snarl, heavy dry tone, medium distance, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 3,
+	"generatedAt": "2026-10-31T15:38:35.602Z",
+	"plan": "creator",
+	"hash": "80360863c639c1dab830b2b3b37a1775c1ddb5a2f83f70a049ea45d3782c118c",
+	"promptInfluence": 0.5
+}

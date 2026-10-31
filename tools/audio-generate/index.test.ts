@@ -45,7 +45,7 @@ async function runWith(
 		force: false,
 		allowFree: false,
 		...(extra.only !== undefined && { only: extra.only }),
-		maxCredits: extra.maxCredits ?? 20000,
+		maxCredits: extra.maxCredits ?? 30000,
 		fetch: extra.fetch ?? mockFetch(),
 		log: (l) => lines.push(l),
 		sleep: async () => {},
@@ -54,15 +54,20 @@ async function runWith(
 }
 
 describe("audio-generate", () => {
-	it("ships 20 sfx and 5 music prompts (menu, graveyard and the three ALPHA biomes)", async () => {
+	it("ships 24 sfx, 9 music and 6 voice prompts (3 themes, 4 biomes, bosses 4 and 5)", async () => {
 		const prompts = await loadPrompts();
-		expect(prompts.filter((p) => p.kind === "sfx")).toHaveLength(20);
-		expect(prompts.filter((p) => p.kind === "music")).toHaveLength(5);
+		expect(prompts.filter((p) => p.kind === "sfx")).toHaveLength(24);
+		expect(prompts.filter((p) => p.kind === "music")).toHaveLength(9);
+		expect(prompts.filter((p) => p.kind === "voice")).toHaveLength(6);
 	});
 
 	it("estimates credits per kind", async () => {
 		const prompts = await loadPrompts();
-		expect(prompts.reduce((s, p) => s + estimateCredits(p), 0)).toBe(20 * 200 + 5 * 2250);
+		const music = prompts.filter((p) => p.kind === "music").reduce((n, p) => n + p.durationSeconds, 0);
+		const voice = prompts.filter((p) => p.kind === "voice").reduce((n, p) => n + p.prompt.length, 0);
+		expect(prompts.reduce((s, p) => s + estimateCredits(p), 0)).toBe(
+			24 * 200 + Math.round((music / 60) * 900) + voice,
+		);
 	});
 
 	it("refuses missing and free plans", () => {

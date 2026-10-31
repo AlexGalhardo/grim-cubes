@@ -1,0 +1,9 @@
+{
+	"prompt": "rusted sword chopping through rotten flesh and bone, wet crunch with a metal ring, heavy tone, close, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 0.5,
+	"generatedAt": "2026-10-31T15:37:16.906Z",
+	"plan": "creator",
+	"hash": "bb72c3603d2715a9ba5ec89ff336668a4afcb95d0ac0af2e3231c754336383b3",
+	"promptInfluence": 0.5
+}

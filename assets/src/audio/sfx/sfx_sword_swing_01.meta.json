@@ -1,0 +1,9 @@
+{
+	"prompt": "rusted broadsword swinging through air, heavy iron blade whoosh, dry tone, close, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 0.5,
+	"generatedAt": "2026-10-31T15:37:15.283Z",
+	"plan": "creator",
+	"hash": "fc6f02c3c7a14290b25a3c03ff6f91a2a5f7f85f1642a18a7669f49a006e57da",
+	"promptInfluence": 0.5
+}

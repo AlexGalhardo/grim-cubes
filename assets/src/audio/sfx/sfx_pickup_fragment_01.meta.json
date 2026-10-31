@@ -1,0 +1,9 @@
+{
+	"prompt": "small bone fragment snapping and clinking into a pouch, dry bone and tiny metal, dry tone, close, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 0.5,
+	"generatedAt": "2026-10-31T15:37:13.271Z",
+	"plan": "creator",
+	"hash": "b44b5dada03d64acdb5763753d7281e10faa6fb53ba272861dfea309cc956835",
+	"promptInfluence": 0.5
+}

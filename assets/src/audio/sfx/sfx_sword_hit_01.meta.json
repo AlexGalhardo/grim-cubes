@@ -1,0 +1,9 @@
+{
+	"prompt": "rusted sword slicing into a skeleton, crunch of bone and dull metal scrape, heavy dry tone, close, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 0.5,
+	"generatedAt": "2026-10-31T15:37:15.283Z",
+	"plan": "creator",
+	"hash": "0627037b3861bdf06e860a60ab1e115790d126f1f53161083459dbf2622db373",
+	"promptInfluence": 0.5
+}

@@ -1,0 +1,9 @@
+{
+	"prompt": "huge predator leaping through the air then slamming into the ground, heavy impact with cracking stone and a guttural roar, heavy dry tone, medium distance, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 1.5,
+	"generatedAt": "2026-10-31T15:38:37.266Z",
+	"plan": "creator",
+	"hash": "57ff1c781c4489b080db93fd789f746ab54d65a9521e81cd2d0930142e415ddf",
+	"promptInfluence": 0.5
+}

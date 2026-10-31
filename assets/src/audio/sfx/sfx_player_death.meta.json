@@ -1,0 +1,9 @@
+{
+	"prompt": "armored executioner collapsing, rusted plate armor crashing to stone ground, low exhale, heavy dry tone, close, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 1.5,
+	"generatedAt": "2026-10-31T15:37:11.601Z",
+	"plan": "creator",
+	"hash": "26a064db8565c6926dc146f81838e0dfb87a0fd88592b44a19534c2470cafe5f",
+	"promptInfluence": 0.5
+}
