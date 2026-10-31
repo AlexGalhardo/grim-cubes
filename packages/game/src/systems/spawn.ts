@@ -100,7 +100,7 @@ const ENEMY_COMPONENTS = [
 	Behavior,
 	Armor,
 ] as const;
-const MAX_PLACEMENT_TRIES = 4;
+const MAX_PLACEMENT_TRIES = 16;
 
 export const spawnTotal = (c: SpawnConfig, round: number): number => c.totalBase + c.totalPerRound * round;
 export const spawnIntervalSeconds = (c: SpawnConfig, round: number): number =>

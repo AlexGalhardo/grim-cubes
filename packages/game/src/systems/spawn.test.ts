@@ -127,3 +127,17 @@ test("hp and damage scale with round and difficulty", () => {
 	expect(Health.max[first]).toBeCloseTo((def.hpBase + 4 * def.hpPerRound) * 1.25);
 	expect(ContactDamage.value[first]).toBeCloseTo((def.damageBase + 4 * def.damagePerRound) * 1.25);
 });
+
+test("an enemy never spawns where isBlocked says a prop stands", () => {
+	const world = createGameWorld();
+	const hero = spawnBody(world, 0, 0);
+	addComponent(world, hero, PlayerFaction);
+	addComponent(world, hero, Velocity);
+	// Half of the ring is blocked, a harsher case than the 8 props a chunk can hold.
+	const isBlocked = (x: number): boolean => x < 0;
+	const system = createSpawnSystem({ config, enemies, rng: mulberry32(5), isBlocked });
+	system.startRound(10, { pool, difficultyMult: 1 });
+	for (let step = 0; step < 6_000 && system.remaining > 0; step++) system.run(world, hero);
+	expect(system.spawned).toBe(140);
+	for (const e of query(world, [EnemyFaction])) expect(Position.x[e] ?? 0).toBeGreaterThanOrEqual(0);
+});

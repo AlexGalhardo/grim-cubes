@@ -252,6 +252,7 @@ async function boot(): Promise<void> {
 		hero,
 		events,
 	});
+	const maxEnemyRadius = Math.max(...enemiesData.map((e) => e.radius));
 	// `run` is created after `spawn` but spawn must call back into it for the fragment bag.
 	const bag: { release?: (w: typeof world, x: number, z: number) => void } = {};
 	const spawn = createSpawnSystem({
@@ -259,6 +260,8 @@ async function boot(): Promise<void> {
 		enemies: toEnemyDefs(enemiesData),
 		rng: rng.spawn,
 		events,
+		// propCollision is created further down; it is only called once the loop runs.
+		isBlocked: (x, z) => propCollision.overlaps(origin, x, z, maxEnemyRadius),
 		onSpawn: (w, x, z) => bag.release?.(w, x, z),
 	});
 	let benchEmit = 0;
