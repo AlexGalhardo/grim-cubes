@@ -349,3 +349,52 @@ test("the boss chest is announced to the render when the boss dies", () => {
 	});
 	expect(dropped).toEqual([3, 4]);
 });
+
+test("a boss assembled only from data (line_charge + mud_pool) runs telegraph, start and end of each pattern", () => {
+	const source = def as NonNullable<typeof def>;
+	const pick = (id: string) => {
+		const found = bossesData.flatMap((b) => b.patterns).find((p) => p.id === id);
+		if (!found) throw new Error(`${id} missing from bosses.json`);
+		return found;
+	};
+	const fixture = {
+		...source,
+		id: "fixture_boss",
+		patterns: [pick("line_charge"), pick("mud_pool")],
+	};
+	const { world, events, damage, spawn } = setup(1e9);
+	const boss = createBossSystem({
+		def: fixture,
+		rounds: roundsData.boss,
+		spawn,
+		events,
+		queue: damage.queue,
+		hero: 1,
+		rng: mulberry32(4),
+		summonType: husk,
+		difficulty: () => 1,
+		onDefeated: () => undefined,
+	});
+	const e = boss.start(world, 10);
+	const log: string[] = [];
+	let topSpeed = 0;
+	for (let step = 0; step < 3000; step++) {
+		boss.run(world);
+		topSpeed = Math.max(topSpeed, Math.abs(Velocity.x[e] ?? 0));
+		events.consume((type, a) => {
+			if (type === EventType.BossPattern) log.push(`start:${a}`);
+			if (type === EventType.BossTelegraph) log.push("telegraph");
+			if (type === EventType.BossPool) log.push("pool");
+		});
+	}
+	// A pattern starts only after the previous one ended, so every start is followed by its telegraph before the next start.
+	const starts = log.filter((l) => l.startsWith("start:"));
+	expect(new Set(starts)).toEqual(new Set(["start:0", "start:1"]));
+	const sections = log.join(",").split("start:").slice(1);
+	expect(sections.length).toBeGreaterThanOrEqual(3);
+	for (const section of sections.slice(0, -1)) {
+		expect(section).toContain("telegraph");
+		if (section.startsWith("1")) expect(section).toContain("pool");
+	}
+	expect(topSpeed).toBeGreaterThan(5);
+});
