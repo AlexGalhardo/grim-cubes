@@ -31,6 +31,8 @@ export interface GameAssetsOptions {
 	/** Prop ids as named in biomes.json / props.json. */
 	propIds: readonly string[];
 	fetchFn?: Fetcher;
+	/** Called for every enemy that has no model or VAT in the manifest and is drawn with a stand-in. */
+	warn?: (message: string) => void;
 }
 
 export interface LoadedEnemy {
@@ -41,7 +43,7 @@ export interface LoadedEnemy {
 
 export interface GameAssets {
 	manifest: AssetManifest;
-	/** Contiguous prefix of `enemyIds` that has a model and a VAT: the horde indexes types by EnemyType id. */
+	/** One entry per `enemyIds` (same order: the horde indexes types by EnemyType id). Enemies without assets reuse the first available model and VAT. */
 	enemies: LoadedEnemy[];
 	props: Map<string, Mesh>;
 	/** The shared character atlas material, for models loaded outside the horde (hero, Merchant, bosses, weapons). */
@@ -104,10 +106,18 @@ export async function loadGameAssets(scene: Scene, options: GameAssetsOptions): 
 
 	const enemies: LoadedEnemy[] = [];
 	const loadEnemies = (async () => {
+		const hasAssets = (id: string): boolean => Boolean(entry(id) && entry(`vat_${id}`)?.meta);
+		const standIn = options.enemyIds.find(hasAssets);
 		const results = await Promise.all(
 			options.enemyIds.map(async (id): Promise<LoadedEnemy | null> => {
-				const model = entry(id);
-				const vat = entry(`vat_${id}`);
+				const source = hasAssets(id) ? id : standIn;
+				if (source === undefined) return null;
+				if (source !== id)
+					options.warn?.(
+						`enemy "${id}" has no model or VAT in the manifest, drawing "${source}" instead`,
+					);
+				const model = entry(source);
+				const vat = entry(`vat_${source}`);
 				if (!model || !vat?.meta) return null;
 				const [mesh, loadedVat] = await Promise.all([
 					importModelMesh(scene, url(model.url)),
@@ -117,10 +127,7 @@ export async function loadGameAssets(scene: Scene, options: GameAssetsOptions): 
 				return { id, mesh, vat: loadedVat };
 			}),
 		);
-		for (const loaded of results) {
-			if (!loaded) break;
-			enemies.push(loaded);
-		}
+		for (const loaded of results) if (loaded) enemies.push(loaded);
 	})();
 
 	const props = new Map<string, Mesh>();

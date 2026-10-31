@@ -573,6 +573,7 @@ async function boot(): Promise<void> {
 		baseUrl: "/assets/",
 		enemyIds,
 		propIds: chunkGen.propTypes,
+		warn: (message) => log.warn(message),
 	}).catch((error: unknown) => {
 		log.warn("assets unavailable, using placeholders", error);
 		return null;

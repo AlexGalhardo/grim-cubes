@@ -59,18 +59,25 @@ describe("loadGameAssets", () => {
 			return new Response("missing", { status: 404 });
 		};
 
+		const warnings: string[] = [];
 		const { engine, dispose } = createNullEngine();
 		const scene = new Scene(engine);
 		const loaded = await loadGameAssets(scene, {
 			baseUrl: "",
-			enemyIds: ["husk", "wail"],
+			enemyIds: ["wail", "husk"],
 			propIds: ["prop_a", "prop_missing"],
+			warn: (message) => warnings.push(message),
 			fetchFn: async (url) =>
 				fetchFn(url === "manifest.json" ? "/assets/manifest.json" : `/assets/${url}`),
 		});
 
-		expect(loaded.enemies.map((e) => e.id)).toEqual(["husk"]);
-		expect(loaded.enemies[0]?.vat.meta.clips.walk).toEqual({ from: 0, to: 1 });
+		// "wail" has no VAT: it keeps its slot (the horde indexes by EnemyType id) and draws the first model available.
+		expect(loaded.enemies.map((e) => e.id)).toEqual(["wail", "husk"]);
+		expect(warnings).toEqual([
+			'enemy "wail" has no model or VAT in the manifest, drawing "husk" instead',
+		]);
+		expect(loaded.enemies[0]?.mesh).not.toBe(loaded.enemies[1]?.mesh);
+		expect(loaded.enemies[1]?.vat.meta.clips.walk).toEqual({ from: 0, to: 1 });
 		expect([...loaded.props.keys()]).toEqual(["prop_a"]);
 		expect(loaded.props.get("prop_a")?.getTotalVertices()).toBe(3);
 		expect(requested).not.toContain("/assets/vat/wail.json");
