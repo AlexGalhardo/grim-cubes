@@ -24,7 +24,14 @@ export interface HeroData {
 		harvest: number;
 		radius: number;
 	};
-	caps: { lifeStealHpPerSecond: number; attackSpeedPerSecond: number; dodge: number };
+	caps: {
+		lifeStealHpPerSecond: number;
+		attackSpeedPerSecond: number;
+		critChance: number;
+		dodge: number;
+		speedMax: number;
+		speedMin: number;
+	};
 	formulas: { armorConstant: number; lifeStealTriggerSeconds: number };
 	combat: {
 		iFramesOnHitSeconds: number;

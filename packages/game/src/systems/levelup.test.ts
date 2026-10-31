@@ -174,3 +174,12 @@ test("every stat in the schema enum maps to a player stat field", async () => {
 	for (const stat of schema.$defs.stat.enum) expect(STAT_FIELDS[stat], stat).toBeDefined();
 	for (const stat of Object.keys(STAT_FIELDS)) expect(schema.$defs.stat.enum).toContain(stat);
 });
+
+test("speed bonuses are capped at x2 and floored at x0.5", () => {
+	const fast = createPlayerStats();
+	computeStats(heroData, [{ stat: "speed", op: "add", value: 1.5 }], fast);
+	expect(fast.speed).toBeCloseTo(heroData.base.speed * 2);
+	const slow = createPlayerStats();
+	computeStats(heroData, [{ stat: "speed", op: "add", value: -0.8 }], slow);
+	expect(slow.speed).toBeCloseTo(heroData.base.speed * 0.5);
+});

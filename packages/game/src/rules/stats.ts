@@ -61,6 +61,9 @@ export const STAT_FIELDS: Readonly<Record<string, StatField>> = {
 const FIELDS = [...new Set(Object.values(STAT_FIELDS))];
 
 export interface StatCaps {
+	/** Bounds of the speed bonus as a fraction: speed stays within base x (1 + min) .. base x (1 + max). */
+	speedMin: number;
+	speedMax: number;
 	dodge: number;
 	critChance: number;
 }
@@ -81,7 +84,7 @@ export interface HeroStatsData {
 		luck: number;
 		harvest: number;
 	};
-	caps: { dodge: number };
+	caps: { dodge: number; speedMin: number; speedMax: number };
 }
 
 export function createPlayerStats(): PlayerStats {
@@ -123,7 +126,12 @@ export function computeStats(
 	data: HeroStatsData,
 	modifiers: readonly Modifier[],
 	out: PlayerStats,
-	caps: StatCaps = { dodge: data.caps.dodge, critChance: 1 },
+	caps: StatCaps = {
+		dodge: data.caps.dodge,
+		critChance: 1,
+		speedMin: data.caps.speedMin,
+		speedMax: data.caps.speedMax,
+	},
 ): void {
 	for (const f of FIELDS) {
 		add[f] = 0;
@@ -149,7 +157,8 @@ export function computeStats(
 	out.range = add.range * mul.range;
 	out.armor = (b.armor + add.armor) * mul.armor;
 	out.dodge = Math.min(Math.max((b.dodge + add.dodge) * mul.dodge, 0), caps.dodge);
-	out.speed = b.speed * (1 + add.speed) * mul.speed;
+	out.speed =
+		b.speed * Math.min(Math.max((1 + add.speed) * mul.speed, 1 + caps.speedMin), 1 + caps.speedMax);
 	out.luck = (b.luck + add.luck) * mul.luck;
 	out.harvest = (b.harvest + add.harvest) * mul.harvest;
 	out.pickupRadius = b.pickupRadius * (1 + add.pickupRadius) * mul.pickupRadius;
