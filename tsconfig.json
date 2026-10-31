@@ -6,6 +6,7 @@
 		{ "path": "packages/render" },
 		{ "path": "packages/ui" },
 		{ "path": "packages/platform" },
-		{ "path": "apps/web" }
+		{ "path": "apps/web" },
+		{ "path": "tools" }
 	]
 }

@@ -1,0 +1,10 @@
+{
+	"extends": "../tsconfig.base.json",
+	"compilerOptions": {
+		"lib": ["ES2023"],
+		"outDir": "../node_modules/.tsc/tools",
+		"tsBuildInfoFile": "../node_modules/.tsc/tools/.tsbuildinfo",
+		"rootDir": "."
+	},
+	"include": ["**/*.ts"]
+}

@@ -1,0 +1,25 @@
+pre-commit:
+  parallel: true
+  jobs:
+    - name: biome
+      run: bunx biome check --write {staged_files}
+      glob: "*.{ts,tsx,js,json,jsonc,css}"
+      stage_fixed: true
+    - name: markdown
+      run: bunx markdownlint-cli2 {staged_files}
+      glob: "*.md"
+    - name: data
+      run: bun run data:check
+      glob: "data/*.json"
+    - name: secrets
+      run: bun tools/secrets-scan/index.ts {staged_files}
+commit-msg:
+  jobs:
+    - name: conventional
+      run: bun tools/commitlint/index.ts {1}
+pre-push:
+  jobs:
+    - name: typecheck
+      run: bun run typecheck
+    - name: unit
+      run: bunx vitest run --project unit
