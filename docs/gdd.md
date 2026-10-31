@@ -727,6 +727,25 @@ Valores iniciais (**proposta**; calibrar por playtest; todos com toggle onde ind
 - **Fluxo**: toda mudança em `data/*.json` roda o simulador no CI e publica o relatório; desvio dos alvos bloqueia o merge (assert no ROADMAP).
 - **Playtest humano**: a partir do PROTÓTIPO, 3 sessões por semana com telemetria (§26).
 
+### 25.1 Três dificuldades, duas políticas (B-02-02, 2026-10-31)
+
+Medido com `bun run sim --runs 128 --rounds 35 --difficulty <d> --policy <p>` (relatórios em `reports/balance-final-<dificuldade>-<política>.json`). Grim e Nightmare só fazem sentido com parte do Ossuário comprado, porque se desbloqueiam ao chegar ao round 20 na dificuldade anterior. Perfis de referência do simulador (`--ossuary`): **Grim** = `flesh_1..3,steel_1..3` (700 almas); **Nightmare** = `flesh_1..4,steel_1..4,shadow_1..3` (1.750 almas). Sem Ossuário o bot greedy morre no round 9,5 em Grim e no 5 em Nightmare; com a árvore quase toda (4 ramos de 4 a 5 nós), o p50 sobe para ~27: a escala de dificuldade depende do Ossuário e as faixas abaixo valem só com os perfis de referência.
+
+| Dificuldade | Política | p50 | IQR | Vivas | Kill gravedigger / matriarca / forjador (s) | Fúria máx. |
+| --- | --- | --- | --- | --- | --- | --- |
+| Normal | greedy | 23,5 | 21,8 | 38% | 64 / 78 / 88 | 1 |
+| Normal | tank | 35 | 16,0 | 60% | 108 / 131 / 148 | 2 |
+| Grim (700 almas) | greedy | 18 | 20,2 | 23% | 71 / 84 / 91 | 1 |
+| Grim (700 almas) | tank | 30 | 25,0 | 52% | 113 / 144 / 172 | 2 |
+| Nightmare (1.750 almas) | greedy | 15 | 16,0 | 13% | 82 / 81 / 88 | 1 |
+| Nightmare (1.750 almas) | tank | 35 | 5,8 | 66% | 141 / 186 / 162 | 3 |
+
+Faixas propostas para o bot greedy (decisão do Orq, 2026-10-31, revisável pelo PO): p50 Normal 18–26 (como em §25), **Grim 14–22**, **Nightmare 11–18**, com o perfil de Ossuário acima; as três passam. Dados `data/*.json` não mudaram: os multiplicadores D13 (×1,25 e ×1,5 em HP e dano) ficam como estão.
+
+Faixas propostas para o bot **tank** (política de sobrevivência: prioriza HP, armadura, regeneração e roubo de vida, recua e usa o dash), também como proposta do Orq: ele é a build segura e lenta, então vale o contrário do greedy: p50 **26–35** em Normal e Grim e ≥ 30 em Nightmare; fração de vivas ≤ 65% (≤ 70% em Nightmare); tempo de kill dos chefes ≤ 150 s em Normal e Grim e ≤ 190 s em Nightmare (limite de 180 s do B-01-03 vale para Normal e Grim); fúria < 3 em Normal e Grim, ≤ 3 em Nightmare. Hoje o tank passa em todas, exceto o tempo do Forjador em Grim (172 s, acima de 150 s mas dentro do limite de 180 s do B-01-03); a Matriarca em Nightmare (186 s) passa pelo limite de 190 s.
+
+O Forjador é o chefe mais lento para o tank (148 s em Normal, 172 s em Grim) porque a fase 2 tem armadura 30 e o tank tem pouco dano: a armadura pune quem luta de perto com pouco dano e premia dano alto, o que combina com o desenho do chefe. Não recomendo mexer nos dados do Forjador agora; revisitar depois do playtest B-04 se um jogador defensivo real reportar luta arrastada.
+
 ## 26. Métricas de sucesso e telemetria
 
 ### 26.1 Métricas de produto
