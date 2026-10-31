@@ -112,6 +112,18 @@ export interface AppProps {
 	version?: string | undefined;
 }
 
+/** Screens this tall or less (the landscape phones) cap the HUD scale: 150% leaves a 414 px screen 276 px of room. */
+const LOW_SCREEN_HEIGHT = 414;
+const LOW_SCREEN_MAX_SCALE = 125;
+
+export const effectiveScale = (percent: number, height: number): number =>
+	height <= LOW_SCREEN_HEIGHT ? Math.min(percent, LOW_SCREEN_MAX_SCALE) : percent;
+
+function subscribeResize(onChange: () => void): () => void {
+	window.addEventListener("resize", onChange);
+	return () => window.removeEventListener("resize", onChange);
+}
+
 export function App({
 	store,
 	stick,
@@ -133,6 +145,7 @@ export function App({
 	version,
 }: AppProps): JSX.Element {
 	const hud = useSyncExternalStore(store.subscribe, store.get);
+	const viewportHeight = useSyncExternalStore(subscribeResize, () => window.innerHeight);
 	// A full-screen dialog is open (the title menu keeps the corner and the build label): on the low landscape
 	// screens the corner buttons, the DEMO seal and the build label would sit over its header and its buttons.
 	const dialogOpen =
@@ -143,11 +156,17 @@ export function App({
 		hud.demoEnd ||
 		hud.difficulty !== null ||
 		hud.ossuary !== null;
-	const lowHide = dialogOpen ? "low:hidden" : "";
+	// The HUD chrome steps out of the way and cannot be clicked through the modal.
+	const lowHide = dialogOpen ? "hidden" : "";
 	return (
 		<div
 			className="pointer-events-none absolute inset-0 p-4 font-display text-bone [text-shadow:1px_1px_0_var(--color-night)]"
-			style={{ "--ui-scale": hud.uiScale / 100, zoom: "var(--ui-scale)" } as CSSProperties}
+			style={
+				{
+					"--ui-scale": effectiveScale(hud.uiScale, viewportHeight) / 100,
+					zoom: "var(--ui-scale)",
+				} as CSSProperties
+			}
 			data-testid="hud-root"
 			data-theme={hud.colorblind ? "cb" : undefined}
 		>
@@ -196,6 +215,7 @@ export function App({
 			{!hud.options && (onOpenOptions || onCycleSpeed) ? (
 				<div
 					className={`pointer-events-none absolute top-2 right-2 z-20 flex gap-2 ${lowHide}`}
+					inert={dialogOpen}
 					data-testid="hud-corner"
 				>
 					{onCycleSpeed ? (
@@ -242,6 +262,7 @@ export function App({
 			{demo ? (
 				<div
 					className={`absolute bottom-1 left-16 z-50 border-2 border-ember px-1 text-xs text-ember-light ${lowHide}`}
+					inert={dialogOpen}
 					data-testid="demo-seal"
 				>
 					{t("demo.badge")}

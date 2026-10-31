@@ -292,8 +292,9 @@ test("the Merchant prompt points toward him, asks to walk while far and offers t
 test("no Merchant prompt without a waiting Merchant", () => {
 	render(<App store={createStore(hud(1))} onMerchantTalk={vi.fn()} />);
 	expect(screen.queryByTestId("merchant-prompt")).toBeNull();
+});
 
-test("a dialog hides the corner buttons, the DEMO seal and the build label on low landscape screens only", () => {
+test("a dialog hides the corner buttons, the DEMO seal and the build label and makes them inert", () => {
 	const withCards = { ...hud(1), cards: [{ id: "armor", name: "+3 armor", double: false }] };
 	render(
 		<App
@@ -306,7 +307,8 @@ test("a dialog hides the corner buttons, the DEMO seal and the build label on lo
 		/>,
 	);
 	for (const id of ["hud-corner", "demo-seal", "build-version"]) {
-		expect(screen.getByTestId(id).className).toContain("low:hidden");
+		const el = screen.getByTestId(id);
+		expect([id, el.className.includes("hidden"), el.hasAttribute("inert")]).toEqual([id, true, true]);
 	}
 	cleanup();
 	render(
@@ -319,6 +321,26 @@ test("a dialog hides the corner buttons, the DEMO seal and the build label on lo
 		/>,
 	);
 	for (const id of ["hud-corner", "demo-seal", "build-version"]) {
-		expect(screen.getByTestId(id).className).not.toContain("low:hidden");
+		const el = screen.getByTestId(id);
+		expect([id, el.className.includes("hidden"), el.hasAttribute("inert")]).toEqual([id, false, false]);
 	}
+});
+
+test("the HUD scale is capped at 125% on screens 414 px tall or less", () => {
+	const root = () => screen.getByTestId("hud-root").style.getPropertyValue("--ui-scale");
+	window.innerHeight = 360;
+	render(<App store={createStore({ ...hud(1), uiScale: 150 })} />);
+	expect(root()).toBe("1.25");
+	cleanup();
+	window.innerHeight = 414;
+	render(<App store={createStore({ ...hud(1), uiScale: 150 })} />);
+	expect(root()).toBe("1.25");
+	cleanup();
+	window.innerHeight = 1080;
+	render(<App store={createStore({ ...hud(1), uiScale: 150 })} />);
+	expect(root()).toBe("1.5");
+	cleanup();
+	window.innerHeight = 360;
+	render(<App store={createStore({ ...hud(1), uiScale: 100 })} />);
+	expect(root()).toBe("1");
 });
