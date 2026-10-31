@@ -32,6 +32,8 @@ export interface BreakableSystem {
 	insertInto(hash: SpatialHash): void;
 	/** Breaks what ran out of HP: `PropBroken`, memory in the chunk, a consumable maybe. */
 	run(): void;
+	/** Rolls a consumable drop at (x, z) with the chance of `source` (GDD 15.4: breakables and elites). */
+	dropFrom(x: number, z: number, source: "breakable" | "elite"): void;
 	/** Picks consumables up when the hero walks over them. */
 	collect(hero: number): void;
 }
@@ -47,8 +49,8 @@ export function createBreakableSystem(deps: BreakableDeps): BreakableSystem {
 	const byChunk = new Map<ChunkData, number[]>();
 	const totalWeight = config.kinds.reduce((sum, k) => sum + k.weight, 0);
 
-	function dropAt(x: number, z: number): void {
-		if (totalWeight <= 0 || rng.float(0, 1) >= config.dropChance.breakable) return;
+	function dropAt(x: number, z: number, source: "breakable" | "elite"): void {
+		if (totalWeight <= 0 || rng.float(0, 1) >= config.dropChance[source]) return;
 		let roll = rng.float(0, totalWeight);
 		let kind = 0;
 		for (const [i, k] of config.kinds.entries()) {
@@ -134,9 +136,10 @@ export function createBreakableSystem(deps: BreakableDeps): BreakableSystem {
 				}
 				events.push(EventType.PropBroken, x, z, index, Breakable.type[e] ?? 0);
 				removeEntity(world, e);
-				dropAt(x, z);
+				dropAt(x, z, "breakable");
 			}
 		},
+		dropFrom: dropAt,
 		collect(hero: number): void {
 			const list = drops(world);
 			const hx = Position.x[hero] ?? 0;

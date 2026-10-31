@@ -1,6 +1,7 @@
 {
 	"dropChance": {
-		"breakable": 0.25
+		"breakable": 0.25,
+		"elite": 0.5
 	},
 	"kinds": [
 		{

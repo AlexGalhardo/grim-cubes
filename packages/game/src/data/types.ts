@@ -319,7 +319,7 @@ export interface ConsumableKindData {
 }
 
 export interface ConsumablesData {
-	dropChance: { breakable: number };
+	dropChance: { breakable: number; elite: number };
 	pickupRadius: number;
 	kinds: ConsumableKindData[];
 }

@@ -165,3 +165,19 @@ test("drops follow the data: a blood vial heals 20% of max HP and a bone magnet 
 		consumablesData.dropChance.breakable = original;
 	}
 });
+
+test("an elite's death can drop a consumable with the elite chance from the data", () => {
+	const session = loaded();
+	const original = consumablesData.dropChance.elite;
+	consumablesData.dropChance.elite = 1;
+	try {
+		const before = [...query(session.world, [Consumable])].length;
+		session.breakables.dropFrom(5, 5, "elite");
+		expect([...query(session.world, [Consumable])]).toHaveLength(before + 1);
+		consumablesData.dropChance.elite = 0;
+		session.breakables.dropFrom(5, 5, "elite");
+		expect([...query(session.world, [Consumable])]).toHaveLength(before + 1);
+	} finally {
+		consumablesData.dropChance.elite = original;
+	}
+});
