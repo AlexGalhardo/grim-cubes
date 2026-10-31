@@ -1,1 +1,186 @@
-{"meta":{"format_version":"4.10","model_format":"free","box_uv":false},"name":"tile_forge_02","resolution":{"width":32,"height":32},"elements":[{"uuid":"e_0","name":"floor","type":"quad","from":[-16,0,-16],"to":[16,0,16],"faces":{"up":{"uv":[0,0,32,32],"texture":0}}}],"outliner":[{"uuid":"g_root","name":"root","origin":[0,0,0],"children":["e_0"]}],"textures":[{"name":"tile_forge_02_d.png","width":32,"height":32}],"animations":[]}
+{
+	"meta": {
+		"format_version": "5.0",
+		"model_format": "free",
+		"box_uv": false
+	},
+	"name": "tile_forge_02",
+	"model_identifier": "",
+	"visible_box": [
+		1,
+		1,
+		0
+	],
+	"variable_placeholders": "",
+	"multi_file_ruleset": "",
+	"variable_placeholder_buttons": [],
+	"timeline_setups": [],
+	"unhandled_root_fields": {},
+	"resolution": {
+		"width": 32,
+		"height": 32
+	},
+	"elements": [
+		{
+			"name": "floor",
+			"box_uv": false,
+			"render_order": "default",
+			"locked": false,
+			"export": true,
+			"scope": 0,
+			"allow_mirror_modeling": true,
+			"from": [
+				-16,
+				-1,
+				-16
+			],
+			"to": [
+				16,
+				0,
+				16
+			],
+			"autouv": 0,
+			"color": 2,
+			"origin": [
+				0,
+				0,
+				0
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						0,
+						0,
+						1,
+						1
+					],
+					"texture": 0
+				},
+				"east": {
+					"uv": [
+						0,
+						0,
+						1,
+						1
+					],
+					"texture": 0
+				},
+				"south": {
+					"uv": [
+						0,
+						0,
+						1,
+						1
+					],
+					"texture": 0
+				},
+				"west": {
+					"uv": [
+						0,
+						0,
+						1,
+						1
+					],
+					"texture": 0
+				},
+				"up": {
+					"uv": [
+						0,
+						0,
+						32,
+						32
+					],
+					"texture": 0
+				},
+				"down": {
+					"uv": [
+						0,
+						0,
+						1,
+						1
+					],
+					"texture": 0
+				}
+			},
+			"type": "cube",
+			"uuid": "e_0"
+		}
+	],
+	"groups": [
+		{
+			"name": "root",
+			"uuid": "g_root",
+			"export": true,
+			"locked": false,
+			"scope": 0,
+			"selected": false,
+			"visibility": true,
+			"_static": {
+				"properties": {},
+				"temp_data": {}
+			},
+			"origin": [
+				0,
+				0,
+				0
+			],
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"color": 0,
+			"children": [],
+			"reset": false,
+			"shade": true,
+			"mirror_uv": false,
+			"autouv": 0,
+			"isOpen": false,
+			"primary_selected": false
+		}
+	],
+	"outliner": [
+		{
+			"uuid": "g_root",
+			"isOpen": false,
+			"children": [
+				"e_0"
+			]
+		}
+	],
+	"textures": [
+		{
+			"name": "tile_forge_02_d.png",
+			"path": "",
+			"folder": "",
+			"namespace": "",
+			"id": "0",
+			"group": "",
+			"scope": 0,
+			"width": 32,
+			"height": 32,
+			"uv_width": 32,
+			"uv_height": 32,
+			"particle": false,
+			"use_as_default": false,
+			"layers_enabled": false,
+			"sync_to_project": "",
+			"file_format": "png",
+			"render_mode": "default",
+			"render_sides": "auto",
+			"wrap_mode": "limited",
+			"pbr_channel": "color",
+			"fps": 7,
+			"force_translucent": false,
+			"frame_time": 1,
+			"frame_order_type": "loop",
+			"frame_order": "",
+			"frame_interpolate": false,
+			"visible": true,
+			"internal": true,
+			"saved": true,
+			"uuid": "191ed94f-6e9e-1f5f-3275-b3d6776c2089",
+			"source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAC20lEQVR4AcTXMW4UQRAF0JFTMgQBFhIXQMiIkJxTWCIgJySDQ5ATIPkU5IQIC3EBEhMQE8O81v5WTW/vCm8C4m9V/apf83s0nrXP7t19+Od/4mxZ/71593Y5BeePzlf1cpLW9eibAVuuv35ZYPn0frn6+KHl6hG1R9ex6sbZWlddeNpuQHHx9Nlyff/58vjJhXKKy5evpjwd/cWvz9N+do4z3cD3b9ft1FN1Ibkv5SbVu/p5Z8ONhRlmw3cDCCbEIKdJDH8o0veTrneCDszriUH4boAQMlBjdVz5YzlNYG7crYfvBhQjDMVpejlJYnjRRWa8Hoy7cHsGxiEmDAYuIk+Uj4iJugs37qLrBgwgxqHwekFdHE7EMwbquiscvqIbuHzwu/Itz8JW7D4Yqot3dAuH+NYsH/am7AZm4hl36CRZeNvYDXDlJZEF6uROnbzOhEs81jNjj5l6sG4A6SVhMCCQ59TqzMj1Krxuaz3m9tDXw3UDddhyhggqX+uaZ2bGpVej3THRDHDuooHh5MeiORj1xzTp5ZXdDNz8uFlOBQOnaumaAd/Np8D3OQOnaGnomwFLPBzg9wHRbRWPgS7IXPRjTF/svVXcDaz5Un9EDj1QZszOoOcB06sxD5yYGbm5jQHuNEATPDRiYCb5GMdetNWMO0sXbmOAQAMMqXMnqim9scYBjQjRyoNw0W8MpDkOq5kiygXU+BHjjrGfOvqNgTQPRaJ/vcBsB/Og5zDirQwQZIG8Igsrlzwa5gHvMOJBAxEZCnBZEC4xC1NXQzNN+nsG0piJ8jtDZnKxWayGGB816e8Z0CCoS4lBD58orzBT6+SMH9JsDHhJEOX0WUgM6syY28OL140y15LdB+0ubS87eWY2BrxI6umrkKjV659g8hno8fmmy0VwPd/p2661sTGw1v3Psi5AroixCFfq4P/cwTqbPDHiZsDr0QUqnKLWBLWW42Cm14djoP0LAAD//4xjaNEAAAAGSURBVAMAESntOd2OI1IAAAAASUVORK5CYII="
+		}
+	]
+}

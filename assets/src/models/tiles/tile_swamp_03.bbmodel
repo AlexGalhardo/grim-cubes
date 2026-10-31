@@ -1,1 +1,186 @@
-{"meta":{"format_version":"4.10","model_format":"free","box_uv":false},"name":"tile_swamp_03","resolution":{"width":32,"height":32},"elements":[{"uuid":"e_0","name":"floor","type":"quad","from":[-16,0,-16],"to":[16,0,16],"faces":{"up":{"uv":[0,0,32,32],"texture":0}}}],"outliner":[{"uuid":"g_root","name":"root","origin":[0,0,0],"children":["e_0"]}],"textures":[{"name":"tile_swamp_03_d.png","width":32,"height":32}],"animations":[]}
+{
+	"meta": {
+		"format_version": "5.0",
+		"model_format": "free",
+		"box_uv": false
+	},
+	"name": "tile_swamp_03",
+	"model_identifier": "",
+	"visible_box": [
+		1,
+		1,
+		0
+	],
+	"variable_placeholders": "",
+	"multi_file_ruleset": "",
+	"variable_placeholder_buttons": [],
+	"timeline_setups": [],
+	"unhandled_root_fields": {},
+	"resolution": {
+		"width": 32,
+		"height": 32
+	},
+	"elements": [
+		{
+			"name": "floor",
+			"box_uv": false,
+			"render_order": "default",
+			"locked": false,
+			"export": true,
+			"scope": 0,
+			"allow_mirror_modeling": true,
+			"from": [
+				-16,
+				-1,
+				-16
+			],
+			"to": [
+				16,
+				0,
+				16
+			],
+			"autouv": 0,
+			"color": 2,
+			"origin": [
+				0,
+				0,
+				0
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						0,
+						0,
+						1,
+						1
+					],
+					"texture": 0
+				},
+				"east": {
+					"uv": [
+						0,
+						0,
+						1,
+						1
+					],
+					"texture": 0
+				},
+				"south": {
+					"uv": [
+						0,
+						0,
+						1,
+						1
+					],
+					"texture": 0
+				},
+				"west": {
+					"uv": [
+						0,
+						0,
+						1,
+						1
+					],
+					"texture": 0
+				},
+				"up": {
+					"uv": [
+						0,
+						0,
+						32,
+						32
+					],
+					"texture": 0
+				},
+				"down": {
+					"uv": [
+						0,
+						0,
+						1,
+						1
+					],
+					"texture": 0
+				}
+			},
+			"type": "cube",
+			"uuid": "e_0"
+		}
+	],
+	"groups": [
+		{
+			"name": "root",
+			"uuid": "g_root",
+			"export": true,
+			"locked": false,
+			"scope": 0,
+			"selected": false,
+			"visibility": true,
+			"_static": {
+				"properties": {},
+				"temp_data": {}
+			},
+			"origin": [
+				0,
+				0,
+				0
+			],
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"color": 0,
+			"children": [],
+			"reset": false,
+			"shade": true,
+			"mirror_uv": false,
+			"autouv": 0,
+			"isOpen": false,
+			"primary_selected": false
+		}
+	],
+	"outliner": [
+		{
+			"uuid": "g_root",
+			"isOpen": false,
+			"children": [
+				"e_0"
+			]
+		}
+	],
+	"textures": [
+		{
+			"name": "tile_swamp_03_d.png",
+			"path": "",
+			"folder": "",
+			"namespace": "",
+			"id": "0",
+			"group": "",
+			"scope": 0,
+			"width": 32,
+			"height": 32,
+			"uv_width": 32,
+			"uv_height": 32,
+			"particle": false,
+			"use_as_default": false,
+			"layers_enabled": false,
+			"sync_to_project": "",
+			"file_format": "png",
+			"render_mode": "default",
+			"render_sides": "auto",
+			"wrap_mode": "limited",
+			"pbr_channel": "color",
+			"fps": 7,
+			"force_translucent": false,
+			"frame_time": 1,
+			"frame_order_type": "loop",
+			"frame_order": "",
+			"frame_interpolate": false,
+			"visible": true,
+			"internal": true,
+			"saved": true,
+			"uuid": "2355b67a-cf64-c119-8bd7-75f2f97867a5",
+			"source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAADRUlEQVR4AYTWva5McRQF8MkUeh+JRjRUNDqJQuhUGio1DQ/hKVQ8Ao1Kp9apVCqdQvSaK79/siZrtjOuZGWvvfbn2Wdy3P39Z/fOtvD688szmLHbNx6cwZVL185g8pkfP71io+8fvrizy7/mn99+3UFisZfv/tn9/P19uVcv3lycJdB/fbmAHtA98dlzL1OADaYfPTYD4xuM0y2IBz2weeJ7IhjKCsTip2BYD5558xKneh4uIGEWzaZ8OQYDH5rzPcy8BB3E2GAtYLjA03e3oi/77dOP3cQc5hKBIgu+f/7tnzp9xM1i5bFrAUQAcMlJ4Dcy7Naj6zvoJ+3l5M06PfWmq+OvBTw9kSBBcZrhDXmJ4aAZ4I1TdWaYqWYtkCdPYzbFuKZs4MlpmrBgeTaQ2zx++npN4ofvgGYJCkCK8MRYubQtdI349GmNvU1s/+bJx9aPPjAdcLZcbOqWA0Nj5eCAi8V6FesVtBiuAI/FDVcczEXEwSuSrza5LB86thYgSgj4kjTSkA+J/+8VJCe1rz483ukRJK4/vhaIQwg0CJ/F88nleY1sw6IzV6/O2Wd4npCV1A1x6MLJ1UzN72tqfDNY2HOAA1kIB4M1Bz7Q2PPgy+oKM69nrAtE6EUyMLabbGkdD5/nj972nwt08Dyep8tF+NB1W0t4UJB3uIArQAKCgaY9JHqau0ji0ZKzZeXTzVoX4IBffoL8QNPoeIaJ4+B994/O0uLQnA/6qdkjBoNAw5cKDABcMzXJw8FibHS+XD7Ogj4sWHh9BzgTEp0IvBqQo8gi4hAuFhgMPZgv3kvi6z+jBCU0DAVL0Nn2aYFlwi25NXzO4R9dgKCJZgbhp4Z2XB6oYz0Z27AQ0DIHX3+UIpCENDCc3phaFonNEl2TvhnMx9l1AUQBkZ1NMtSQQB4uFkvL8unFgpg54Xz86DcgQUCTNOY36HwWcLAEG6QXP9xAPtBgXYDQQb4l2G5sYPy2dJAfpJ8h0dj25azfQIt9ft8GjS2TgXzQLFp4+zQwhAVzpn+4gARBw3oJvphlwg3KEmIwfZp+bMC3RPtHCySYQUlkFbNbsBBsxdJTrHn8owWIp6DYZXy/87RsMOvkA31r+Wh/AQAA//+h1qqqAAAABklEQVQDAPNErR/DgzhqAAAAAElFTkSuQmCC"
+		}
+	]
+}

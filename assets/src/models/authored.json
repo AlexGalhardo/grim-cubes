@@ -60,6 +60,22 @@
 		"props/prop_circuit_01",
 		"props/prop_antenna_01",
 		"props/prop_mesh_01",
-		"props/prop_canister_01"
+		"props/prop_canister_01",
+		"tiles/tile_cemetery_01",
+		"tiles/tile_cemetery_02",
+		"tiles/tile_cemetery_03",
+		"tiles/tile_cemetery_04",
+		"tiles/tile_swamp_01",
+		"tiles/tile_swamp_02",
+		"tiles/tile_swamp_03",
+		"tiles/tile_swamp_04",
+		"tiles/tile_forge_01",
+		"tiles/tile_forge_02",
+		"tiles/tile_forge_03",
+		"tiles/tile_forge_04",
+		"tiles/tile_nest_01",
+		"tiles/tile_nest_02",
+		"tiles/tile_nest_03",
+		"tiles/tile_nest_04"
 	]
 }

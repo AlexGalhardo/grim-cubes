@@ -1,1 +1,186 @@
-{"meta":{"format_version":"4.10","model_format":"free","box_uv":false},"name":"tile_cemetery_04","resolution":{"width":32,"height":32},"elements":[{"uuid":"e_0","name":"floor","type":"quad","from":[-16,0,-16],"to":[16,0,16],"faces":{"up":{"uv":[0,0,32,32],"texture":0}}}],"outliner":[{"uuid":"g_root","name":"root","origin":[0,0,0],"children":["e_0"]}],"textures":[{"name":"tile_cemetery_04_d.png","width":32,"height":32}],"animations":[]}
+{
+	"meta": {
+		"format_version": "5.0",
+		"model_format": "free",
+		"box_uv": false
+	},
+	"name": "tile_cemetery_04",
+	"model_identifier": "",
+	"visible_box": [
+		1,
+		1,
+		0
+	],
+	"variable_placeholders": "",
+	"multi_file_ruleset": "",
+	"variable_placeholder_buttons": [],
+	"timeline_setups": [],
+	"unhandled_root_fields": {},
+	"resolution": {
+		"width": 32,
+		"height": 32
+	},
+	"elements": [
+		{
+			"name": "floor",
+			"box_uv": false,
+			"render_order": "default",
+			"locked": false,
+			"export": true,
+			"scope": 0,
+			"allow_mirror_modeling": true,
+			"from": [
+				-16,
+				-1,
+				-16
+			],
+			"to": [
+				16,
+				0,
+				16
+			],
+			"autouv": 0,
+			"color": 6,
+			"origin": [
+				0,
+				0,
+				0
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						0,
+						0,
+						1,
+						1
+					],
+					"texture": 0
+				},
+				"east": {
+					"uv": [
+						0,
+						0,
+						1,
+						1
+					],
+					"texture": 0
+				},
+				"south": {
+					"uv": [
+						0,
+						0,
+						1,
+						1
+					],
+					"texture": 0
+				},
+				"west": {
+					"uv": [
+						0,
+						0,
+						1,
+						1
+					],
+					"texture": 0
+				},
+				"up": {
+					"uv": [
+						0,
+						0,
+						32,
+						32
+					],
+					"texture": 0
+				},
+				"down": {
+					"uv": [
+						0,
+						0,
+						1,
+						1
+					],
+					"texture": 0
+				}
+			},
+			"type": "cube",
+			"uuid": "e_0"
+		}
+	],
+	"groups": [
+		{
+			"name": "root",
+			"uuid": "g_root",
+			"export": true,
+			"locked": false,
+			"scope": 0,
+			"selected": false,
+			"visibility": true,
+			"_static": {
+				"properties": {},
+				"temp_data": {}
+			},
+			"origin": [
+				0,
+				0,
+				0
+			],
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"color": 0,
+			"children": [],
+			"reset": false,
+			"shade": true,
+			"mirror_uv": false,
+			"autouv": 0,
+			"isOpen": false,
+			"primary_selected": false
+		}
+	],
+	"outliner": [
+		{
+			"uuid": "g_root",
+			"isOpen": false,
+			"children": [
+				"e_0"
+			]
+		}
+	],
+	"textures": [
+		{
+			"name": "tile_cemetery_04_d.png",
+			"path": "",
+			"folder": "",
+			"namespace": "",
+			"id": "0",
+			"group": "",
+			"scope": 0,
+			"width": 32,
+			"height": 32,
+			"uv_width": 32,
+			"uv_height": 32,
+			"particle": false,
+			"use_as_default": false,
+			"layers_enabled": false,
+			"sync_to_project": "",
+			"file_format": "png",
+			"render_mode": "default",
+			"render_sides": "auto",
+			"wrap_mode": "limited",
+			"pbr_channel": "color",
+			"fps": 7,
+			"force_translucent": false,
+			"frame_time": 1,
+			"frame_order_type": "loop",
+			"frame_order": "",
+			"frame_interpolate": false,
+			"visible": true,
+			"internal": true,
+			"saved": true,
+			"uuid": "5bba647b-a5ff-57e2-0e7b-3de906ad1af4",
+			"source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAADPUlEQVR4AcTWu68NURgF8CEexSUekZAQFMSz0Hi0OqV/Qq3yV6jU/gmlTuvRKDxDgZBQeAWFkDC/fe8a++w7c8+9FE7Omu/b6/tmr7X3nDMz63ft3Pfrf2J913xOHD3TAVqcB31nzh0TOnE1KM1Lh2UGFrZ/6R4+uVsmk8/D0jwlvHz6o3vz+sMytHxpXjrMGNi941ChrcJJZTByULt7+3EHyuLefbu7DQtfup/ftqJmgK8JvRkXA7aZ6IEjG4dJ5WmqI/F3H58XyjmSROLERHyLmmfCgouBNFpJJsN93f6tC4xr1H01L2fwzet3/aWYBV49YLYYcM2RmZTo6SuHUd35S6dKxEmmdsbqTKgHrA6sFJKr1eaKAZdAASJ06/p9wy6RkdRKoTlE3OQEjUFbbU6uDmrFgKQFwZqLkZrze6jHU3mMqNc5E6MGWnFjMEGN+nJYWV2ThxMB12IwkNW8v7Op9NQrlsOWTwulNnaoV5Z6zSVnBNIzGMhqxHtXn5V6veqVxEtzf8j179OZby0uhzQUA/kXZBcUCTIiAk7dX1UuGsthTLxeqZ4I13wxoGhC/1NxCup6g3rsB2XiQE8E5TXCMz0Y0OA+MA/6IH3ywMRBuHlxxsC8ZltOeKzPyvFtxK2EGQNTWx/elstNKEJyNVvaRtwUnDsYsLLVwonplbuTrhXOg2LAZJ7jtlgM2nF4J9a58bz3BnX/toCm50MxYALwAxL/FS5NC3MSDYzdc2YMICE/pLUYslvOJRyROqqNYdQA4ZgYO2mMs5qIj9WnuFEDmpkQW1y8drZQ205u7qDrP78Ovi1vUlbcDye/2aW6YdJA3ZScuIdSxm3MS0yEEtNnl5InThrIJUhsxR/dfDW8LeWhFXMRSiTWmsHBpAFFyKW4cfmO4YDjF/YPb0sRHop9EkERajN9efiOGrBqwuLQ2SefH3zvj4tfq4bF0eIxT83F0Z9jxBkJm3wwQAw0EK+jPLD1ycdWnlpEE/Fj+WCAKGicgnu6mjuYS5IdWfdiD/qvUAz4/2bydhZ8oOa5H6PZMfxaQROKgZxMKLnYjonjgxjJeLWRcHpnDIQUI07Ulot4WMvK9Qf54WUs/gYAAP//7QJZAwAAAAZJREFUAwCmwXyrjIGdWgAAAABJRU5ErkJggg=="
+		}
+	]
+}

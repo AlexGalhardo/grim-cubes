@@ -1,1 +1,186 @@
-{"meta":{"format_version":"4.10","model_format":"free","box_uv":false},"name":"tile_forge_03","resolution":{"width":32,"height":32},"elements":[{"uuid":"e_0","name":"floor","type":"quad","from":[-16,0,-16],"to":[16,0,16],"faces":{"up":{"uv":[0,0,32,32],"texture":0}}}],"outliner":[{"uuid":"g_root","name":"root","origin":[0,0,0],"children":["e_0"]}],"textures":[{"name":"tile_forge_03_d.png","width":32,"height":32}],"animations":[]}
+{
+	"meta": {
+		"format_version": "5.0",
+		"model_format": "free",
+		"box_uv": false
+	},
+	"name": "tile_forge_03",
+	"model_identifier": "",
+	"visible_box": [
+		1,
+		1,
+		0
+	],
+	"variable_placeholders": "",
+	"multi_file_ruleset": "",
+	"variable_placeholder_buttons": [],
+	"timeline_setups": [],
+	"unhandled_root_fields": {},
+	"resolution": {
+		"width": 32,
+		"height": 32
+	},
+	"elements": [
+		{
+			"name": "floor",
+			"box_uv": false,
+			"render_order": "default",
+			"locked": false,
+			"export": true,
+			"scope": 0,
+			"allow_mirror_modeling": true,
+			"from": [
+				-16,
+				-1,
+				-16
+			],
+			"to": [
+				16,
+				0,
+				16
+			],
+			"autouv": 0,
+			"color": 4,
+			"origin": [
+				0,
+				0,
+				0
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						0,
+						0,
+						1,
+						1
+					],
+					"texture": 0
+				},
+				"east": {
+					"uv": [
+						0,
+						0,
+						1,
+						1
+					],
+					"texture": 0
+				},
+				"south": {
+					"uv": [
+						0,
+						0,
+						1,
+						1
+					],
+					"texture": 0
+				},
+				"west": {
+					"uv": [
+						0,
+						0,
+						1,
+						1
+					],
+					"texture": 0
+				},
+				"up": {
+					"uv": [
+						0,
+						0,
+						32,
+						32
+					],
+					"texture": 0
+				},
+				"down": {
+					"uv": [
+						0,
+						0,
+						1,
+						1
+					],
+					"texture": 0
+				}
+			},
+			"type": "cube",
+			"uuid": "e_0"
+		}
+	],
+	"groups": [
+		{
+			"name": "root",
+			"uuid": "g_root",
+			"export": true,
+			"locked": false,
+			"scope": 0,
+			"selected": false,
+			"visibility": true,
+			"_static": {
+				"properties": {},
+				"temp_data": {}
+			},
+			"origin": [
+				0,
+				0,
+				0
+			],
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"color": 0,
+			"children": [],
+			"reset": false,
+			"shade": true,
+			"mirror_uv": false,
+			"autouv": 0,
+			"isOpen": false,
+			"primary_selected": false
+		}
+	],
+	"outliner": [
+		{
+			"uuid": "g_root",
+			"isOpen": false,
+			"children": [
+				"e_0"
+			]
+		}
+	],
+	"textures": [
+		{
+			"name": "tile_forge_03_d.png",
+			"path": "",
+			"folder": "",
+			"namespace": "",
+			"id": "0",
+			"group": "",
+			"scope": 0,
+			"width": 32,
+			"height": 32,
+			"uv_width": 32,
+			"uv_height": 32,
+			"particle": false,
+			"use_as_default": false,
+			"layers_enabled": false,
+			"sync_to_project": "",
+			"file_format": "png",
+			"render_mode": "default",
+			"render_sides": "auto",
+			"wrap_mode": "limited",
+			"pbr_channel": "color",
+			"fps": 7,
+			"force_translucent": false,
+			"frame_time": 1,
+			"frame_order_type": "loop",
+			"frame_order": "",
+			"frame_interpolate": false,
+			"visible": true,
+			"internal": true,
+			"saved": true,
+			"uuid": "c04116b1-8393-0d4a-cdf7-c46dc5869013",
+			"source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACyElEQVR4AcTWsa5NXRQF4P1rf6FS0HgBEaWEWiHhAUSiE0+g8AieQ6WVkOglCsWNeAEFCpVCjW8lY2fclb3vPSRCMu4cc4w51557rbPOcebeg4c//iXOLL/+fXh/tOzhl33M6/za1zfSY/68joLW5nwMQPz88fPSoDXivX7xctTxnn35XxiInzjE+hO9+69cvbaMAZCqPYj+Sc+8sJ0ZAyCzeVqu5/7F76MscSS/+WcMcEjPu0fnloaeHIHYHs4/BOsAly5fWm7dub0kzs13X51dgiefbs72Qnt+9N9aY1dAoeOyboMO6wAS29oRDywSnk9/clGvncABB1x999OCMQBzDwp5ifjRhRuLCK3LZ/DVi7MnHwOYfoapNUE8Wngif0vn0/n4FnhjACT3NNH2aeIB/enbb+M7AKcFamkNHl2E9nCa9dcBCP8CJw7gjP7mUG7JGACZH0SzRdHd7Ub0xPZw+mkv4IjGAEjf0cfXzy80iwT5DkiMnhhd9J1A7xfo9XE+jAGQxvxwu9H+abwfvFXbOzMGIOzBAu7xSf6eR9cvNlobA5g4YIb3PW49vrilt9ZcPfS6YwBF7ib073UfRXQ1oKdBC9S2h8cTfZ8YhL4OIGnYss5nfpo/12/lPlu7A2w1tJY3aO13uc/WOoC728g5ZdH28OiJtEb0xPZwumesA7i/gd9159/bHC/RAg098cTutdW0ht5jO0AIPBw/aZstqiZIT/LunT01Blx3QLKHFM++6Wl7Pg/2fLo11iMw8RYUbunR4oveKHoiPXwrjgEY7mdDY94Abw+nNdx995sH3auO1qA5xjGAZAsG29IP0Q7p9dk4cYBDHrRXM+/AXt0YQLG72egGfudbvHvxeQdojawxBlDcdxRX0A/2G95oT63/A4BecL6pEWmQGj0wBkACxeGJBsTbi0YHOXiw3PnK8UTcTRGDnwAAAP//yGCyfgAAAAZJREFUAwC/gxCIuaGJOAAAAABJRU5ErkJggg=="
+		}
+	]
+}
