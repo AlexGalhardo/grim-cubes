@@ -22,6 +22,7 @@ import {
 	type FragmentsConfig,
 	Health,
 	type HeroCombatData,
+	hashWorld,
 	inputSystem,
 	movementSystem,
 	Position,
@@ -81,6 +82,8 @@ export interface SimOptions {
 	rounds: number;
 	difficulty: string;
 	weapon?: string;
+	/** Stop after this many simulation steps (determinism test); default: enough for `rounds` rounds. */
+	maxSteps?: number;
 }
 
 export interface RoundReport {
@@ -109,6 +112,8 @@ export interface SimReport {
 	heroHp: number;
 	steps: number;
 	eventsDropped: number;
+	/** `hashWorld` of the final state (determinism anchor). */
+	worldHash: number;
 	perRound: RoundReport[];
 }
 
@@ -261,6 +266,7 @@ export function runSim(data: SimData, options: SimOptions): SimReport {
 		heroHp: heroData.base.maxHp,
 		steps: 0,
 		eventsDropped: 0,
+		worldHash: 0,
 		perRound: [],
 	};
 	let roundKills = 0;
@@ -310,9 +316,9 @@ export function runSim(data: SimData, options: SimOptions): SimReport {
 		input.moveZ = length > 0 && Number.isFinite(length) ? -dz / length : 0;
 	}
 
-	const maxSteps = Math.ceil((options.rounds * MAX_SECONDS_PER_ROUND) / STEP);
+	const maxSteps = options.maxSteps ?? Math.ceil((options.rounds * MAX_SECONDS_PER_ROUND) / STEP);
 	run.newRun();
-	for (let step = 0; step < maxSteps; step++) {
+	while (report.steps < maxSteps) {
 		const state = run.state;
 		if (state === "Results") {
 			report.outcome = "died";
@@ -353,5 +359,6 @@ export function runSim(data: SimData, options: SimOptions): SimReport {
 	report.level = progress.level;
 	report.heroHp = Math.max(0, Health.hp[hero] ?? 0);
 	report.eventsDropped = events.dropped;
+	report.worldHash = hashWorld(world);
 	return report;
 }
