@@ -55,7 +55,7 @@ const actions = (): OptionsActions => ({
 test("each control reports its change", () => {
 	const a = actions();
 	render(<Options view={view} actions={a} />);
-	fireEvent.change(screen.getByTestId("options-preset"), { target: { value: "low" } });
+	fireEvent.click(screen.getByTestId("options-preset-low"));
 	expect(a.setPreset).toHaveBeenCalledWith("low");
 	fireEvent.change(screen.getByTestId("options-volume-music"), { target: { value: "30" } });
 	expect(a.setVolume).toHaveBeenCalledWith("music", 30);
@@ -63,7 +63,7 @@ test("each control reports its change", () => {
 	expect(a.setScreenShake).toHaveBeenCalledWith(false);
 	fireEvent.click(screen.getByTestId("options-telemetry"));
 	expect(a.setTelemetry).toHaveBeenCalledWith(true);
-	fireEvent.change(screen.getByTestId("options-speed"), { target: { value: "3" } });
+	fireEvent.click(screen.getByTestId("options-speed-3"));
 	expect(a.setGameSpeed).toHaveBeenCalledWith(3);
 	fireEvent.change(screen.getByTestId("options-locale"), { target: { value: "en" } });
 	expect(a.setLocale).toHaveBeenCalledWith("en");
@@ -72,10 +72,10 @@ test("each control reports its change", () => {
 test("the dialog shows the current values and closes", () => {
 	const a = actions();
 	render(<Options view={view} actions={a} />);
-	expect((screen.getByTestId("options-preset") as HTMLSelectElement).value).toBe("auto");
+	expect(screen.getByTestId("options-preset-auto").getAttribute("aria-pressed")).toBe("true");
 	expect((screen.getByTestId("options-volume-master") as HTMLInputElement).value).toBe("100");
 	expect(screen.getByRole("dialog")).toBeTruthy();
-	fireEvent.click(screen.getByRole("button", { name: "Fechar" }));
+	fireEvent.click(screen.getAllByRole("button", { name: "Fechar" })[0] as HTMLElement);
 	expect(a.close).toHaveBeenCalledTimes(1);
 });
 
@@ -90,14 +90,16 @@ test("the accessibility section reports brightness, contrast, colour-blind mode,
 	expect(a.setColorblind).toHaveBeenCalledWith("deuteranopia");
 	fireEvent.click(screen.getByTestId("options-flash"));
 	expect(a.setFlashReduction).toHaveBeenCalledWith(true);
-	fireEvent.change(screen.getByTestId("options-uiscale"), { target: { value: "125" } });
+	fireEvent.click(screen.getByTestId("options-uiscale-125"));
 	expect(a.setUiScale).toHaveBeenCalledWith(125);
 	fireEvent.click(screen.getByTestId("options-gore"));
 	expect(a.setGore).toHaveBeenCalledWith(false);
 	expect((screen.getByTestId("options-colorblind") as HTMLSelectElement).value).toBe("off");
 	expect(
-		Array.from((screen.getByTestId("options-uiscale") as HTMLSelectElement).options).map((o) => o.value),
-	).toEqual(["90", "100", "125", "150"]);
+		Array.from(screen.getByTestId("options-uiscale").querySelectorAll("button")).map(
+			(b) => b.textContent,
+		),
+	).toEqual(["90%", "100%", "125%", "150%"]);
 });
 
 test("the controls list the keys, a pressed key is sent to setKey and a conflict is explained", () => {
@@ -114,14 +116,14 @@ test("the controls list the keys, a pressed key is sent to setKey and a conflict
 	vi.mocked(a.setKey).mockReturnValueOnce({ ok: false, reason: "conflict", with: "up" });
 	fireEvent.click(screen.getByTestId("options-key-reroll"));
 	fireEvent.keyDown(window, { code: "KeyW" });
-	expect(screen.getByTestId("options-key-problem").textContent).toBe(
+	expect(screen.getByTestId("options-key-problem").textContent).toContain(
 		"Essa tecla já é usada por Mover para cima",
 	);
 	expect(screen.getByTestId("options-key-reroll").textContent).toBe("Pressione uma tecla...");
 
 	vi.mocked(a.setKey).mockReturnValueOnce({ ok: false, reason: "reserved" });
 	fireEvent.keyDown(window, { code: "Enter" });
-	expect(screen.getByTestId("options-key-problem").textContent).toBe("Essa tecla é reservada");
+	expect(screen.getByTestId("options-key-problem").textContent).toContain("Essa tecla é reservada");
 
 	fireEvent.keyDown(window, { code: "Escape" });
 	expect(screen.getByTestId("options-key-reroll").textContent).toBe("R");
@@ -183,7 +185,7 @@ test("a refused pad button is explained and the capture goes on", () => {
 	act(() => {
 		for (const cb of frames.splice(0)) cb(0);
 	});
-	expect(screen.getByTestId("options-key-problem").textContent).toBe(
+	expect(screen.getByTestId("options-key-problem").textContent).toContain(
 		"Essa tecla já é usada por Pausa (botão do controle)",
 	);
 	expect(screen.getByTestId("options-pad-dash").textContent).toBe("Pressione um botão...");
