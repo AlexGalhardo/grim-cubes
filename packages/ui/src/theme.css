@@ -1,0 +1,107 @@
+@import "tailwindcss";
+@source ".";
+
+@theme {
+	--color-night: #14121c;
+	--color-night-2: #1c1926;
+	--color-shadow: #2b2340;
+	--color-mist: #3f3a52;
+	--color-iron: #5a5f66;
+	--color-iron-dark: #2e3136;
+	--color-iron-light: #8a9099;
+	--color-rust: #8a4a2b;
+	--color-bone: #d9c9a3;
+	--color-bone-dark: #8c7a5b;
+	--color-blood: #5e0e14;
+	--color-blood-light: #8e1a1f;
+	--color-ember: #e07a2a;
+	--color-ember-light: #f5b04a;
+	--color-sludge: #6b8f3a;
+	--color-cold: #4c7fb8;
+	--color-cb-blue: #5a9bd5;
+	--color-cb-orange: #e07a2a;
+	--color-cb-magenta: #c04a9e;
+
+	--color-rarity-1: var(--color-bone);
+	--color-rarity-2: var(--color-sludge);
+	--color-rarity-3: var(--color-cold);
+	--color-rarity-4: var(--color-blood-light);
+	--color-heal: var(--color-sludge);
+	--color-danger: var(--color-blood-light);
+	--color-currency: var(--color-ember-light);
+
+	--font-display: "PixelFont", monospace;
+	--font-body: "Inter", sans-serif;
+	--font-mono: "PixelFont", monospace;
+
+	--spacing: 4px;
+	--radius-*: initial;
+
+	--breakpoint-mobile-l: 821px;
+	--breakpoint-desktop: 1024px;
+	--breakpoint-desktop-xl: 2048px;
+
+	--duration-fast: 100ms;
+	--duration-base: 150ms;
+	--duration-slow: 300ms;
+	--ease-step: steps(4);
+	--ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+	--shadow-plate: 2px 2px 0 var(--color-night);
+	--animate-low: low-pulse 0.8s steps(2) infinite;
+
+	@keyframes low-pulse {
+		50% {
+			opacity: 0.5;
+		}
+	}
+}
+
+:root {
+	--z-hud: 10;
+	--z-overlay: 20;
+	--z-modal: 30;
+	--z-toast: 40;
+	--z-debug: 50;
+	--ui-scale: 1;
+}
+
+:root[data-theme="cb"] {
+	--color-rarity-2: var(--color-cb-blue);
+	--color-rarity-3: var(--color-cb-orange);
+	--color-rarity-4: var(--color-cb-magenta);
+	--color-heal: var(--color-cb-blue);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	:root {
+		--animate-low: none;
+		--duration-fast: 0ms;
+		--duration-base: 0ms;
+		--duration-slow: 0ms;
+	}
+}
+
+/* Corner rivets: two 4 px squares on opposite corners (Art Bible 16.3). */
+.panel-riveted {
+	position: relative;
+}
+
+.panel-riveted::before,
+.panel-riveted::after {
+	content: "";
+	position: absolute;
+	width: 4px;
+	height: 4px;
+	background: var(--color-iron-light);
+}
+
+.panel-riveted::before {
+	top: 4px;
+	left: 4px;
+}
+
+.panel-riveted::after {
+	right: 4px;
+	bottom: 4px;
+}

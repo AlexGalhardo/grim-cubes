@@ -10,6 +10,7 @@
 			"!bun.lock"
 		]
 	},
+	"css": { "parser": { "tailwindDirectives": true } },
 	"formatter": { "indentStyle": "tab", "indentWidth": 4, "lineWidth": 110 },
 	"linter": {
 		"rules": {

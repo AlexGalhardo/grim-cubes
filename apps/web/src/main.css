@@ -1,22 +1,15 @@
-@import "tailwindcss";
+@import "../../../packages/ui/src/theme.css";
 
 html,
 body {
-	margin: 0;
-	height: 100%;
-	overflow: hidden;
-	background: black;
+	@apply m-0 h-full overflow-hidden bg-night;
 }
 
 #game {
-	display: block;
-	width: 100%;
-	height: 100%;
+	@apply block h-full w-full;
 	touch-action: none;
 }
 
 #ui {
-	position: absolute;
-	inset: 0;
-	pointer-events: none;
+	@apply pointer-events-none absolute inset-0;
 }
