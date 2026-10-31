@@ -1,3 +1,5 @@
+// Registered up front: loading the glTF plugin on first use counts against the test timeout under CPU load.
+import "@babylonjs/loaders/glTF";
 import { Scene } from "@babylonjs/core/scene";
 import { Document, NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
