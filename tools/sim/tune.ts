@@ -40,6 +40,13 @@ const parts = await Promise.all(
 );
 const reports = parts.flat().sort((x, y) => x.seed - y.seed);
 const metrics = summarize(reports);
+console.log(
+	"p50/iqr",
+	metrics.deathRound.p50,
+	metrics.deathRound.iqr.toFixed(1),
+	"survivors",
+	metrics.survivors,
+);
 console.log("deaths", reports.map((r) => (r.outcome === "died" ? r.roundReached : "S")).join(","));
 for (const c of checkTargets(metrics, 30)) {
 	console.log(

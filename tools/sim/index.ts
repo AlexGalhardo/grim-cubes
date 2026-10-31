@@ -102,7 +102,7 @@ async function main(argv: string[]): Promise<number> {
 	writeFileSync(out, `${JSON.stringify(payload, null, "\t")}\n`);
 
 	console.log(
-		`sim: ${runs} run(s), death round p50 ${metrics.deathRound.p50} (stdev ${metrics.deathRound.stdev.toFixed(2)}) -> ${out}`,
+		`sim: ${runs} run(s), death round p50 ${metrics.deathRound.p50} (IQR ${metrics.deathRound.iqr.toFixed(1)}, stdev ${metrics.deathRound.stdev.toFixed(2)}, ${metrics.survivors} alive at the end) -> ${out}`,
 	);
 	let failed = false;
 	for (const check of checks) {

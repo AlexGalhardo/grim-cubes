@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 import { runSim } from "./lib";
-import { checkTargets, median, summarize } from "./report";
+import { checkTargets, median, percentile, summarize } from "./report";
 
 // Full 3,600-step simulations by design; the default 5 s trips when other processes saturate the CPU.
-vi.setConfig({ testTimeout: 30_000 });
+vi.setConfig({ testTimeout: 90_000 });
 
 describe("sim harness", () => {
 	it("is deterministic for a fixed seed", () => {
@@ -81,6 +81,24 @@ describe("sim report", () => {
 		expect(m.goldPerPrice).toBeCloseTo(1.5);
 		expect(m.levelUpsPerRound).toBe(1);
 		expect(median([1, 2, 3, 4])).toBe(2.5);
+	});
+
+	it("counts survivors at the horizon and measures the spread by the interquartile range", () => {
+		const alive = (round: number) =>
+			({ ...(fake(round, null) as object), outcome: "completed" }) as never;
+		// Two deaths at 10 and 20 and two survivors at the 50-round horizon: the median sits between 20 and 50.
+		const m = summarize([fake(10, null), fake(20, null), alive(50), alive(50)]);
+		expect(m.deathRound.p50).toBe(35);
+		expect(m.survivors).toBe(2);
+		expect(m.deathRound.p25).toBeCloseTo(17.5);
+		expect(m.deathRound.p75).toBe(50);
+		expect(m.deathRound.iqr).toBeCloseTo(32.5);
+		expect(percentile([1, 2, 3, 4, 5], 0.5)).toBe(3);
+		const checks = checkTargets(m, 50);
+		expect(checks.find((c) => c.id === "death-round-iqr")).toMatchObject({ ok: false, skipped: false });
+		const tight = summarize([20, 21, 22, 23, 24].map((r) => fake(r, null)));
+		expect(checkTargets(tight, 50).find((c) => c.id === "death-round-iqr")?.ok).toBe(true);
+		expect(checkTargets(tight, 50).find((c) => c.id === "death-round-p50")?.ok).toBe(true);
 	});
 
 	it("checks the GDD 25 targets and skips what short runs cannot judge", () => {

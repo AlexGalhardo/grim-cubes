@@ -12,8 +12,12 @@ export interface Check {
 
 export interface Metrics {
 	runs: number;
-	/** Death rounds of the runs that died; runs that reached the requested round alive are counted in `survivors`. */
-	deathRound: { p50: number; mean: number; stdev: number };
+	/**
+	 * Round each run ended in, over ALL runs: a survivor counts as the round it reached (the requested horizon),
+	 * i.e. right-censored. A bot with linear stats gives a bimodal distribution, so the spread is the interquartile
+	 * range; the standard deviation is kept as information (GDD 25, decision of 2026-10-31).
+	 */
+	deathRound: { p50: number; p25: number; p75: number; iqr: number; mean: number; stdev: number };
 	survivors: number;
 	/** Per boss id: runs that fought it, that killed it, and the median kill time. */
 	bosses: Record<
@@ -42,6 +46,16 @@ function mean(values: readonly number[]): number {
 	return values.length === 0 ? Number.NaN : values.reduce((a, b) => a + b, 0) / values.length;
 }
 
+/** Linear-interpolated percentile (0..1) of an unsorted list. */
+export function percentile(values: readonly number[], p: number): number {
+	if (values.length === 0) return Number.NaN;
+	const sorted = [...values].sort((a, b) => a - b);
+	const at = p * (sorted.length - 1);
+	const lo = Math.floor(at);
+	const hi = Math.ceil(at);
+	return (sorted[lo] ?? 0) + ((sorted[hi] ?? 0) - (sorted[lo] ?? 0)) * (at - lo);
+}
+
 function stdev(values: readonly number[]): number {
 	const m = mean(values);
 	return values.length === 0 ? Number.NaN : Math.sqrt(mean(values.map((v) => (v - m) ** 2)));
@@ -49,7 +63,9 @@ function stdev(values: readonly number[]): number {
 
 export function summarize(reports: readonly SimReport[]): Metrics {
 	const dead = reports.filter((r) => r.outcome === "died");
-	const rounds = dead.map((r) => r.roundReached);
+	const rounds = reports.map((r) => r.roundReached);
+	const p25 = percentile(rounds, 0.25);
+	const p75 = percentile(rounds, 0.75);
 	const bosses: Metrics["bosses"] = {};
 	for (const report of reports) {
 		for (const fight of report.bosses) {
@@ -82,7 +98,14 @@ export function summarize(reports: readonly SimReport[]): Metrics {
 	);
 	return {
 		runs: reports.length,
-		deathRound: { p50: median(rounds), mean: mean(rounds), stdev: stdev(rounds) },
+		deathRound: {
+			p50: median(rounds),
+			p25,
+			p75,
+			iqr: p75 - p25,
+			mean: mean(rounds),
+			stdev: stdev(rounds),
+		},
 		survivors: reports.length - dead.length,
 		bosses,
 		goldPerPrice: ratios.length > 0 ? mean(ratios) : null,
@@ -105,10 +128,10 @@ export function checkTargets(metrics: Metrics, roundsRequested: number): Check[]
 		skipped: !longEnough,
 	});
 	checks.push({
-		id: "death-round-stdev",
-		target: "<= 4",
-		value: metrics.deathRound.stdev,
-		ok: Number.isFinite(metrics.deathRound.stdev) && metrics.deathRound.stdev <= 4,
+		id: "death-round-iqr",
+		target: "<= 10",
+		value: metrics.deathRound.iqr,
+		ok: Number.isFinite(metrics.deathRound.iqr) && metrics.deathRound.iqr <= 10,
 		skipped: !longEnough,
 	});
 	for (const [id, entry] of Object.entries(metrics.bosses)) {
