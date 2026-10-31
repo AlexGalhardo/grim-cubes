@@ -1,18 +1,49 @@
-import { type EventBuffer, EventType, findHero, Position, PrevPosition, type RenderPort } from "@gc/game";
+import {
+	type EventBuffer,
+	EventType,
+	findHero,
+	type Origin,
+	Position,
+	PrevPosition,
+	type RenderPort,
+} from "@gc/game";
 import type { HordeRenderer } from "./horde/hordeRenderer";
 import type { GameScene } from "./scene/scene";
 
+export interface RenderPortOptions {
+	/**
+	 * The live world origin. With it the camera target is re-expressed whenever the origin moves, independent of when
+	 * `OriginShifted` is consumed (so `consumeEvents` and `sync` may run in either order).
+	 */
+	origin?: Origin;
+	/** Exponential follow rate per second of the camera target (GDD §5: 8). Infinity (default) follows rigidly. */
+	followRate?: number;
+	/** Seconds since the previous sync; defaults to the engine delta, capped at 0.1 s. */
+	deltaSeconds?: () => number;
+}
+
 /**
  * Render side of the game/render contract: mirrors the hero cube, delegates the horde to `horde` when given,
- * and keeps the camera target on the hero. The camera follows rigidly here; the 8/s lerp arrives with P-02-01.
+ * and makes the camera target follow the interpolated hero position.
  */
-export function createRenderPort(game: GameScene, horde?: HordeRenderer): RenderPort {
+export function createRenderPort(
+	game: GameScene,
+	horde?: HordeRenderer,
+	options: RenderPortOptions = {},
+): RenderPort {
 	const target = game.camera.target;
+	const { origin } = options;
+	const followRate = options.followRate ?? Number.POSITIVE_INFINITY;
+	const engine = game.scene.getEngine();
+	const deltaSeconds = options.deltaSeconds ?? ((): number => Math.min(0.1, engine.getDeltaTime() / 1000));
+	let lastOriginX = origin?.x ?? 0;
+	let lastOriginZ = origin?.z ?? 0;
+	let snapped = false;
+
 	// Created once: consumeEvents runs every frame and must not allocate.
 	const onEvent = (type: number, a: number, b: number, _c: number, entity: number): void => {
 		if (type === EventType.Died) horde?.onDied(entity);
 		if (type === EventType.OriginShifted) {
-			// The camera target is rewritten from the (already shifted) hero in `sync`, so no order dependence.
 			game.shiftWorld(a, b);
 			horde?.shift(a, b);
 		}
@@ -27,8 +58,23 @@ export function createRenderPort(game: GameScene, horde?: HordeRenderer): Render
 			const x = px + ((Position.x[hero] ?? 0) - px) * alpha;
 			const z = pz + ((Position.z[hero] ?? 0) - pz) * alpha;
 			game.setHeroPosition(x, z);
-			target.x = x;
-			target.z = z;
+
+			if (origin) {
+				// Positions are relative to the origin: when it moves, the camera target moves the opposite way.
+				target.x += lastOriginX - origin.x;
+				target.z += lastOriginZ - origin.z;
+				lastOriginX = origin.x;
+				lastOriginZ = origin.z;
+			}
+			if (!snapped || followRate === Number.POSITIVE_INFINITY) {
+				target.x = x;
+				target.z = z;
+				snapped = true;
+				return;
+			}
+			const k = 1 - Math.exp(-followRate * deltaSeconds());
+			target.x += (x - target.x) * k;
+			target.z += (z - target.z) * k;
 		},
 		consumeEvents(events: EventBuffer): void {
 			events.consume(onEvent);

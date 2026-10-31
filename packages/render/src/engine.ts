@@ -23,7 +23,18 @@ export async function createEngine(canvas: HTMLCanvasElement): Promise<RenderEng
 	return { engine, dispose: () => engine.dispose() };
 }
 
-export function createNullEngine(): RenderEngine {
-	const engine = new NullEngine();
+/** `size` sets the render target the picking rays and the aspect ratio are computed against. */
+export function createNullEngine(size?: { width: number; height: number }): RenderEngine {
+	const engine = new NullEngine(
+		size
+			? {
+					renderWidth: size.width,
+					renderHeight: size.height,
+					textureSize: 512,
+					deterministicLockstep: false,
+					lockstepMaxSteps: 4,
+				}
+			: undefined,
+	);
 	return { engine, dispose: () => engine.dispose() };
 }

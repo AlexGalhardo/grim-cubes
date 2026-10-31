@@ -78,6 +78,18 @@ export interface RoundsData {
 	tierChance: TierChance[];
 }
 
+/** `data/render.json`. */
+export interface RenderData {
+	camera: {
+		alpha: number;
+		elevationDegrees: number;
+		fov: number;
+		radius: number;
+		radiusMobile: number;
+		followRate: number;
+	};
+}
+
 /** One entry of `data/props.json`. */
 export interface PropData {
 	id: string;

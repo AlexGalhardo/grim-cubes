@@ -4,6 +4,7 @@ import enemiesJson from "../../../../data/enemies.json";
 import heroJson from "../../../../data/hero.json";
 import itemsJson from "../../../../data/items.json";
 import propsJson from "../../../../data/props.json";
+import renderJson from "../../../../data/render.json";
 import roundsJson from "../../../../data/rounds.json";
 import weaponsJson from "../../../../data/weapons.json";
 import worldJson from "../../../../data/world.json";
@@ -18,6 +19,7 @@ import type {
 	HeroData,
 	ItemData,
 	PropData,
+	RenderData,
 	RoundsData,
 	WeaponData,
 	WorldData,
@@ -36,6 +38,7 @@ export const biomesData: readonly BiomeData[] = biomesJson;
 export const cardsData: CardsData = cardsJson;
 export const itemsData: readonly ItemData[] = itemsJson;
 export const propsData: readonly PropData[] = propsJson;
+export const renderData: RenderData = renderJson;
 
 const BEHAVIORS: Readonly<Record<string, number>> = {
 	chase: BehaviorKind.Chase,
@@ -67,6 +70,7 @@ export type {
 	ItemData,
 	ItemEffect,
 	PropData,
+	RenderData,
 	RoundsData,
 	WeaponData,
 	WorldData,
