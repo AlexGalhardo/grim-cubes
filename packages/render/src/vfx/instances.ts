@@ -21,6 +21,8 @@ export function createInstanceSet(mesh: Mesh, capacity: number, withColor: boole
 	mesh.thinInstanceSetBuffer("matrix", matrices, 16, false);
 	mesh.thinInstanceCount = 0;
 	mesh.alwaysSelectAsActiveMesh = true;
+	// With no instance published yet Babylon would draw the bare mesh once, at the origin.
+	mesh.setEnabled(false);
 	mesh.isPickable = false;
 	let colors: Float32Array | null = null;
 	if (withColor) {
