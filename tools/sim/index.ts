@@ -1,4 +1,4 @@
-import { mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { cpus } from "node:os";
 import { dirname } from "node:path";
 import type { SimOptions, SimReport } from "./lib";
@@ -82,7 +82,8 @@ async function main(argv: string[]): Promise<number> {
 
 	const date = new Date().toLocaleDateString("sv-SE");
 	const out = flag(argv, "--out") ?? `reports/sim-${date}-seed${seed}-runs${runs}.json`;
-	mkdirSync(dirname(out), { recursive: true });
+	// Bun on Windows throws EEXIST for recursive mkdir of an existing relative dir such as "..".
+	if (!existsSync(dirname(out))) mkdirSync(dirname(out), { recursive: true });
 	const payload =
 		runs === 1
 			? { report: reports[0], metrics, checks }

@@ -28,8 +28,8 @@ describe("sim harness", () => {
 	});
 
 	it("fights the round 10 boss and records how long it took", () => {
-		// Seed 12 survives to round 10 and kills the Gravedigger (about 11 s); other seeds die earlier.
-		const report = runSim({ seed: 12, rounds: 10, difficulty: "normal" });
+		// Seed 10 survives to round 10 and kills the Gravedigger (about 25 s); other seeds die earlier.
+		const report = runSim({ seed: 10, rounds: 10, difficulty: "normal" });
 		expect(report.bosses).toHaveLength(1);
 		expect(report.bosses[0]).toMatchObject({ round: 10, boss: "gravedigger" });
 		expect(report.bosses[0]?.killSeconds).toBeGreaterThan(0);
@@ -60,18 +60,24 @@ describe("sim report", () => {
 	const fake = (round: number, bossSeconds: number | null) =>
 		({
 			seed: round,
+			outcome: "died",
 			roundReached: round,
 			bosses:
 				bossSeconds === undefined
 					? []
-					: [{ round: 10, boss: "gravedigger", killSeconds: bossSeconds }],
+					: [{ round: 10, boss: "gravedigger", killSeconds: bossSeconds, enrageStacks: 1 }],
 			perRound: [{ round: 6, goldEarned: 30, avgItemPrice: 20, levelUps: 1 }],
 		}) as never;
 
 	it("summarizes the death round distribution and boss kill times", () => {
 		const m = summarize([fake(10, 50), fake(20, 70), fake(30, null)]);
 		expect(m.deathRound.p50).toBe(20);
-		expect(m.bosses.gravedigger).toEqual({ fought: 3, killed: 2, medianKillSeconds: 60 });
+		expect(m.bosses.gravedigger).toEqual({
+			fought: 3,
+			killed: 2,
+			medianKillSeconds: 60,
+			medianEnrageStacks: 1,
+		});
 		expect(m.goldPerPrice).toBeCloseTo(1.5);
 		expect(m.levelUpsPerRound).toBe(1);
 		expect(median([1, 2, 3, 4])).toBe(2.5);
@@ -86,5 +92,18 @@ describe("sim report", () => {
 		expect(long.find((c) => c.id === "death-round-p50")).toMatchObject({ skipped: false, ok: true });
 		const slow = summarize([fake(10, 200)]);
 		expect(checkTargets(slow, 10).find((c) => c.id === "boss-kill-seconds:gravedigger")?.ok).toBe(false);
+	});
+});
+
+describe("sim report fields", () => {
+	it("measures killSeconds from the start of the boss round to the BossDied event", () => {
+		// Seed 10 kills the Gravedigger (see the boss test above); the fight is recorded with its own clock.
+		const report = runSim({ seed: 10, rounds: 10, difficulty: "normal" });
+		const fight = report.bosses[0];
+		const secondsInBossRound = fight?.killSeconds ?? 0;
+		expect(secondsInBossRound).toBeGreaterThan(0);
+		// A boss round lasts at most its own timer plus the intro, so the number cannot be a whole-run clock.
+		expect(secondsInBossRound).toBeLessThan(report.steps / 60);
+		expect(fight?.enrageStacks).toBeGreaterThanOrEqual(0);
 	});
 });

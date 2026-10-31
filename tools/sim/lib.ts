@@ -1,64 +1,17 @@
-import { createInputState, createMetaState, createStreams } from "../../packages/core/src/index";
+import { createInputState, createMetaState } from "../../packages/core/src/index";
 import {
-	applyHarvest,
-	applyOssuary,
-	applyRoundEndBonus,
-	availableItems,
-	behaviorConfigFromData,
-	bossesData,
-	cardsData,
-	createAuraSystem,
-	createBehaviorSystem,
-	createBleedSystem,
-	createBossRoster,
-	createChestSystem,
-	createDamageSystem,
-	createDeathSystem,
-	createEffectsSystem,
-	createEliteSystem,
-	createEnemyShotPool,
-	createEnemyShotSystem,
-	createEventBuffer,
-	createGameWorld,
-	createKillEffectsSystem,
-	createLevelUpSystem,
-	createPickupSystem,
-	createPlayerStats,
-	createProgress,
-	createProjectilePool,
-	createProjectileSystem,
-	createRunSystem,
-	createSeparationSystem,
-	createShopSystem,
-	createSpawnSystem,
-	createStatsSystem,
-	createTargetingSystem,
-	createThornsSystem,
-	createWeaponSystem,
-	cullDistantEnemies,
-	damageConfigFromHero,
+	createGameSession,
 	difficultyData,
 	EventType,
-	elitesData,
-	enemiesData,
 	Health,
 	hashWorld,
 	heroData,
-	inputSystem,
-	itemsData,
 	type Modifier,
-	milestonesData,
-	movementSystem,
-	ossuaryData,
 	Position,
 	queryEnemies,
 	roundsData,
 	STEP,
-	spawnHero,
-	toEnemyDefs,
-	toShopWeapons,
 	weaponsData,
-	worldData,
 } from "../../packages/game/src/index";
 
 export interface SimOptions {
@@ -91,6 +44,8 @@ export interface BossFight {
 	boss: string;
 	/** Seconds from the start of the boss round to its death; null when the hero died first. */
 	killSeconds: number | null;
+	/** Enrage stacks the boss had when the fight ended (GDD 25: a build that needs 3 is too weak). */
+	enrageStacks: number;
 }
 
 export interface SimReport {
@@ -160,250 +115,21 @@ function difficultyId(id: string): "normal" | "grim" | "nightmare" {
 export function runSim(options: SimOptions): SimReport {
 	const difficulty = difficultyData(roundsData.difficulties, difficultyId(options.difficulty));
 	const weaponId = options.weapon ?? heroData.startingWeapon;
-	const weaponDef = weaponsData.find((w) => w.id === weaponId);
-	if (!weaponDef) throw new Error(`unknown weapon "${weaponId}"`);
+	if (!weaponsData.some((w) => w.id === weaponId)) throw new Error(`unknown weapon "${weaponId}"`);
 
 	const meta = createMetaState();
 	for (const node of options.ossuary ?? []) meta.ossuary[node] = true;
-	const bonus = applyOssuary(ossuaryData, meta);
-	const poolItems = availableItems(itemsData, milestonesData, meta);
-
-	const streams = createStreams(options.seed);
-	const world = createGameWorld();
-	const events = createEventBuffer();
-	const progress = createProgress();
-	progress.gold += bonus.startGold;
-	const hero = spawnHero(world, {
-		speed: heroData.base.speed,
-		maxHp: heroData.base.maxHp,
-		radius: heroData.base.radius,
+	// The same wiring the game runs (P-07-05): shop, cards, elites, bosses, props, hero status, item effects.
+	const session = createGameSession({
+		seed: options.seed,
+		difficulty,
+		meta,
+		...(options.weapon !== undefined && { weapon: options.weapon }),
 	});
-	const stats = createStatsSystem(
-		{ ...heroData, base: { ...heroData.base, critMult: bonus.critMult ?? heroData.base.critMult } },
-		createPlayerStats(),
-	);
-	stats.add(bonus.modifiers);
-	stats.run(hero);
-	const owned = new Map<string, number>();
-	const itemEffects = createEffectsSystem(
-		itemsData,
-		owned,
-		{
-			fragmentGain: bonus.fragmentGain,
-			soulGain: bonus.soulGain,
-			weakReviveHpFraction: bonus.weakReviveHpFraction,
-		},
-		events,
-	);
-
-	const enemyIds = enemiesData.map((e) => e.id);
-	const maxRadius = Math.max(...enemiesData.map((e) => e.radius));
-	// Same first-biome ring the game spawns from (apps/web main.tsx poolFor); keep the two in step.
-	const pool = [
-		{ type: enemyIds.indexOf("husk"), weight: 6 },
-		{ type: enemyIds.indexOf("wail"), weight: 4 },
-	];
-
-	const damage = createDamageSystem({
-		config: damageConfigFromHero(heroData),
-		rng: { dodge: streams.dodge, combat: streams.combat },
-		events,
-		hero,
-		stats: stats.stats,
-		effects: itemEffects.effects,
-	});
-	const separation = createSeparationSystem({ weight: roundsData.ai.separationWeight, maxRadius });
-	const targeting = createTargetingSystem(
-		{ priorityDistanceMult: heroData.combat.targetPriorityDistanceMult, retargetEvery: 3 },
-		separation.hash,
-	);
-	const projectiles = createProjectilePool(world, events);
-	const weapon = createWeaponSystem({
-		weapon: weaponDef,
-		tier: 0,
-		stats: stats.stats,
-		attackSpeedCap: heroData.caps.attackSpeedPerSecond,
-		queue: damage.queue,
-		events,
-		targeting,
-		enemies: separation.hash,
-		rng: streams.weapon,
-		projectiles,
-		effects: itemEffects.effects,
-	});
-	const projectileSystem = createProjectileSystem({
-		pool: projectiles,
-		queue: damage.queue,
-		enemies: separation.hash,
-		maxEnemyRadius: maxRadius,
-		hero,
-		events,
-	});
-	const bag: { release?: (w: typeof world, x: number, z: number) => void } = {};
-	const spawn = createSpawnSystem({
-		config: roundsData.spawn,
-		enemies: toEnemyDefs(enemiesData),
-		rng: streams.spawn,
-		events,
-		onSpawn: (w, x, z) => bag.release?.(w, x, z),
-	});
-	const enemyShots = createEnemyShotPool(world);
-	const enemyShotSystem = createEnemyShotSystem(enemyShots, damage.queue);
-	const behavior = createBehaviorSystem(
-		behaviorConfigFromData(
-			enemiesData,
-			heroData.combat.contactCooldownSeconds,
-			roundsData.ai.attackAnimationSeconds,
-			roundsData.spawn.maxSimultaneous,
-		),
-		damage.queue,
-		{ events, spawn, shots: enemyShots, drain: damage.drain },
-	);
-	const elite = createEliteSystem({
-		config: elitesData,
-		spawn,
-		events,
-		queue: damage.queue,
-		rng: streams.elite,
-		pool: () => pool,
-		ring: { min: roundsData.spawn.ringMin, max: roundsData.spawn.ringMax },
-		hero,
-	});
-	let steps = 0;
-	let bossStartStep = 0;
-	const bosses: BossFight[] = [];
-	const boss = createBossRoster(
-		{
-			rounds: roundsData.boss,
-			spawn,
-			events,
-			queue: damage.queue,
-			hero,
-			rng: streams.combat,
-			summonType: enemyIds.indexOf("husk"),
-			enemyIndex: (id) => enemyIds.indexOf(id),
-			shots: enemyShots,
-			eliteModifiers: elitesData.modifiers,
-			seed: options.seed,
-			difficulty: () => difficulty.hpDamageMult,
-			onDefeated: () => {
-				run.bossDied();
-				for (let i = 0; i < roundsData.boss.freeWeaponUpgrades; i++) weapon.upgrade();
-			},
-		},
-		bossesData,
-	);
-	const run = createRunSystem({
-		config: { flow: roundsData.flow, duration: roundsData.duration, boss: roundsData.boss },
-		spawn,
-		events,
-		poolFor: () => pool,
-		difficultyMult: difficulty.hpDamageMult,
-		onRoundStart: (round, isBoss) => {
-			elite.onRoundStart(round, isBoss);
-			if (isBoss) {
-				boss.start(world, round);
-				bossStartStep = steps;
-				bosses.push({ round, boss: boss.defFor(round).id, killSeconds: null });
-			}
-		},
-		onRoundEnd: (round) => {
-			applyHarvest(
-				progress,
-				roundsData.fragments,
-				roundsData.xp,
-				round,
-				stats.stats.harvest,
-				stats.stats.xpGain,
-			);
-			applyRoundEndBonus(
-				progress,
-				roundsData.fragments,
-				roundsData.xp,
-				itemEffects.effects,
-				stats.stats.xpGain,
-			);
-		},
-	});
-	bag.release = run.releaseFromBag;
-	const killEffects = createKillEffectsSystem({
-		effects: itemEffects.effects,
-		queue: damage.queue,
-		enemies: separation.hash,
-		events,
-		rng: streams.effects,
-		round: () => run.round,
-		hero,
-	});
-	const death = createDeathSystem({
-		fragments: roundsData.fragments,
-		fragmentsPerType: enemiesData.map((e) => e.fragments),
-		rng: streams.loot,
-		round: () => run.round,
-		effects: itemEffects.effects,
-		onDeath: (w, e, x, z) => {
-			elite.handleDeath(w, e, x, z);
-			boss.handleDeath(w, e, x, z);
-			killEffects.onKill(w, e, x, z);
-		},
-	});
-	const pickup = createPickupSystem({
-		fragments: roundsData.fragments,
-		xp: roundsData.xp,
-		progress,
-		stats: stats.stats,
-		effects: itemEffects.effects,
-	});
-	const aura = createAuraSystem({
-		effects: itemEffects.effects,
-		queue: damage.queue,
-		enemies: separation.hash,
-		round: () => run.round,
-	});
-	const bleed = createBleedSystem({ events });
-	const thorns = createThornsSystem({
-		effects: itemEffects.effects,
-		queue: damage.queue,
-		enemies: separation.hash,
-		cooldownSeconds: heroData.combat.contactCooldownSeconds,
-	});
-	const levelUp = createLevelUpSystem({
-		progress,
-		run,
-		cards: cardsData,
-		rng: streams.cards,
-		stats,
-		events,
-		rerolls: bonus.cardRerolls,
-	});
-	const chest = createChestSystem({
-		reward: elitesData.reward,
-		items: poolItems,
-		rng: streams.loot,
-		run,
-		stats,
-		owned,
-		onItemTaken: itemEffects.refresh,
-		events,
-		blocked: () => levelUp.offer !== null,
-		pickupRadius: () => stats.stats.pickupRadius,
-	});
-	const shop = createShopSystem({
-		config: roundsData.shop,
-		guaranteedUncommon: bonus.guaranteedUncommonShopItems,
-		tiers: roundsData.tierChance,
-		catalog: { items: poolItems, weapons: toShopWeapons(weaponsData) },
-		weaponDefs: weaponsData,
-		rng: streams.shop,
-		progress,
-		stats,
-		weapon,
-		round: () => run.round,
-		owned,
-		onItemBought: itemEffects.refresh,
-	});
+	const { world, hero, events, progress, run, shop, levelUp, chest, weapon, boss, poolItems } = session;
 
 	const input = createInputState();
+	const bosses: BossFight[] = [];
 	const report: SimReport = {
 		seed: options.seed,
 		roundsRequested: options.rounds,
@@ -425,6 +151,8 @@ export function runSim(options: SimOptions): SimReport {
 		bosses,
 		itemsBought: 0,
 	};
+	let steps = 0;
+	let bossStartStep = 0;
 	let roundKills = 0;
 	let roundDamageTaken = 0;
 	let roundLevelUps = 0;
@@ -442,6 +170,9 @@ export function runSim(options: SimOptions): SimReport {
 			roundKills++;
 		} else if (type === EventType.LevelUp) {
 			roundLevelUps++;
+		} else if (type === EventType.BossEnraged) {
+			const last = bosses.at(-1);
+			if (last) last.enrageStacks = a;
 		} else if (type === EventType.BossDied) {
 			const last = bosses.at(-1);
 			if (last && last.killSeconds === null) last.killSeconds = (steps - bossStartStep) * STEP;
@@ -523,8 +254,8 @@ export function runSim(options: SimOptions): SimReport {
 		for (;;) {
 			let bestIndex = -1;
 			let bestRatio = 0;
-			shop.slots.forEach((slot, i) => {
-				if (slot.sold || slot.price > progress.gold) return;
+			for (const [i, slot] of shop.slots.entries()) {
+				if (slot.sold || slot.price > progress.gold) continue;
 				let benefit = 0;
 				if (slot.kind === "item") {
 					const item = poolItems.find((it) => it.id === slot.id);
@@ -539,7 +270,7 @@ export function runSim(options: SimOptions): SimReport {
 					bestRatio = ratio;
 					bestIndex = i;
 				}
-			});
+			}
 			if (bestIndex < 0 || !shop.buy(bestIndex)) return;
 			report.itemsBought++;
 		}
@@ -547,61 +278,42 @@ export function runSim(options: SimOptions): SimReport {
 
 	const maxSteps = options.maxSteps ?? Math.ceil((options.rounds * MAX_SECONDS_PER_ROUND) / STEP);
 	run.newRun();
-	let inShop = false;
+	let inBossRound = false;
 	while (steps < maxSteps) {
-		const state = run.state;
-		if (state === "Results") {
+		if (run.state === "Results") {
 			report.outcome = "died";
 			break;
 		}
-		if (state === "Shop") {
-			if (!inShop) {
-				shop.open();
-				shopGreedy();
-				const last = report.perRound.at(-1);
-				if (last) last.avgItemPrice = avgPriceOfNextShop;
-				inShop = true;
-			}
-			if (run.round >= options.rounds) {
-				report.outcome = "completed";
-				break;
-			}
-			run.closeShop();
-			inShop = false;
-			continue;
-		}
-
 		choose();
-		run.run(world, hero);
-		if (run.state === "Round" || run.state === "BossRound") {
-			steer();
-			inputSystem(world, hero, input, weapon.speedMultiplier);
-			behavior.run(world, hero);
-			boss.run(world);
-			separation.run(world);
-			movementSystem(world);
-			// The game culls stragglers at the same point of the step; without it the sim and the game diverge (P-03-05).
-			cullDistantEnemies(world, Position.x[hero] ?? 0, Position.z[hero] ?? 0, worldData.cullDistance);
-			targeting.run(world, hero, weapon.range);
-			weapon.run(world, hero);
-			projectileSystem.run(world);
-			enemyShotSystem.run(world, hero);
-			aura.run(world, hero);
-			thorns.run(world, hero);
-			bleed.run(world);
-			damage.run(world);
-			death.run(world);
-			pickup.run(world, hero);
-			elite.run(world);
-			chest.run(world, hero);
-			stats.run(hero);
-			levelUp.run();
-			if ((Health.hp[hero] ?? 0) <= 0 && !itemEffects.tryRevive(hero)) run.heroDied();
+		if (run.state === "Round" || run.state === "BossRound") steer();
+		session.step(input);
+		if (run.state === "BossRound" && !inBossRound) {
+			inBossRound = true;
+			bossStartStep = steps;
+			bosses.push({
+				round: run.round,
+				boss: boss.defFor(run.round).id,
+				killSeconds: null,
+				enrageStacks: 0,
+			});
+		} else if (run.state !== "BossRound") {
+			inBossRound = false;
 		}
 		if (progress.gold > lastGold) roundGoldEarned += progress.gold - lastGold;
 		lastGold = progress.gold;
 		events.consume(visit);
 		steps++;
+		if (run.state === "Shop") {
+			shopGreedy();
+			const last = report.perRound.at(-1);
+			if (last) last.avgItemPrice = avgPriceOfNextShop;
+			lastGold = progress.gold;
+			if (run.round >= options.rounds) {
+				report.outcome = "completed";
+				break;
+			}
+			run.closeShop();
+		}
 	}
 
 	report.steps = steps;

@@ -12,9 +12,19 @@ export interface Check {
 
 export interface Metrics {
 	runs: number;
+	/** Death rounds of the runs that died; runs that reached the requested round alive are counted in `survivors`. */
 	deathRound: { p50: number; mean: number; stdev: number };
+	survivors: number;
 	/** Per boss id: runs that fought it, that killed it, and the median kill time. */
-	bosses: Record<string, { fought: number; killed: number; medianKillSeconds: number | null }>;
+	bosses: Record<
+		string,
+		{
+			fought: number;
+			killed: number;
+			medianKillSeconds: number | null;
+			medianEnrageStacks: number | null;
+		}
+	>;
 	/** Mean of (gold picked up in a round / mean item price of the next shop). */
 	goldPerPrice: number | null;
 	/** Mean level-ups per round over rounds 5-20. */
@@ -38,11 +48,17 @@ function stdev(values: readonly number[]): number {
 }
 
 export function summarize(reports: readonly SimReport[]): Metrics {
-	const rounds = reports.map((r) => r.roundReached);
+	const dead = reports.filter((r) => r.outcome === "died");
+	const rounds = dead.map((r) => r.roundReached);
 	const bosses: Metrics["bosses"] = {};
 	for (const report of reports) {
 		for (const fight of report.bosses) {
-			const entry = bosses[fight.boss] ?? { fought: 0, killed: 0, medianKillSeconds: null };
+			const entry = bosses[fight.boss] ?? {
+				fought: 0,
+				killed: 0,
+				medianKillSeconds: null,
+				medianEnrageStacks: null,
+			};
 			entry.fought++;
 			if (fight.killSeconds !== null) entry.killed++;
 			bosses[fight.boss] = entry;
@@ -53,6 +69,10 @@ export function summarize(reports: readonly SimReport[]): Metrics {
 			r.bosses.flatMap((f) => (f.boss === id && f.killSeconds !== null ? [f.killSeconds] : [])),
 		);
 		entry.medianKillSeconds = times.length > 0 ? median(times) : null;
+		const stacks = reports.flatMap((r) =>
+			r.bosses.filter((f) => f.boss === id).map((f) => f.enrageStacks),
+		);
+		entry.medianEnrageStacks = stacks.length > 0 ? median(stacks) : null;
 	}
 	const ratios = reports.flatMap((r) =>
 		r.perRound.flatMap((p) => (p.avgItemPrice > 0 ? [p.goldEarned / p.avgItemPrice] : [])),
@@ -63,6 +83,7 @@ export function summarize(reports: readonly SimReport[]): Metrics {
 	return {
 		runs: reports.length,
 		deathRound: { p50: median(rounds), mean: mean(rounds), stdev: stdev(rounds) },
+		survivors: reports.length - dead.length,
 		bosses,
 		goldPerPrice: ratios.length > 0 ? mean(ratios) : null,
 		levelUpsPerRound: levelUps.length > 0 ? mean(levelUps) : null,
@@ -98,6 +119,13 @@ export function checkTargets(metrics: Metrics, roundsRequested: number): Check[]
 			value: entry.medianKillSeconds,
 			ok: within(entry.medianKillSeconds, lo, hi),
 			skipped: entry.killed === 0 && entry.fought === 0,
+		});
+		checks.push({
+			id: `boss-enrage-stacks:${id}`,
+			target: "< 3",
+			value: entry.medianEnrageStacks,
+			ok: entry.medianEnrageStacks !== null && entry.medianEnrageStacks < 3,
+			skipped: entry.fought === 0,
 		});
 	}
 	checks.push({
