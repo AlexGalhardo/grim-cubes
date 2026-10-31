@@ -1,4 +1,4 @@
-import { mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -79,6 +79,20 @@ describe("assets-gen catalog", () => {
 			const xs = generated.bbmodel.elements.flatMap((e) => [e.from[0], e.to[0]]);
 			const width = (Math.max(...xs) - Math.min(...xs)) / PIXELS_PER_UNIT[category];
 			expect([name, width >= range[0] && width <= range[1]]).toEqual([name, true]);
+		}
+	});
+
+	it("never overwrites a model listed in authored.json", () => {
+		const dir = mkdtempSync(join(tmpdir(), "assets-gen-authored-"));
+		try {
+			mkdirSync(join(dir, "models", "hero"), { recursive: true });
+			writeFileSync(join(dir, "models", "authored.json"), JSON.stringify({ models: ["hero/hero"] }));
+			writeFileSync(join(dir, "models", "hero", "hero.bbmodel"), "hand-made");
+			const written = writeCatalog(dir, ["hero", "husk"]);
+			expect(written).toEqual(["enemies/husk"]);
+			expect(readFileSync(join(dir, "models", "hero", "hero.bbmodel"), "utf8")).toBe("hand-made");
+		} finally {
+			rmSync(dir, { recursive: true, force: true });
 		}
 	});
 
