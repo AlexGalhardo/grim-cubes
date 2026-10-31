@@ -246,7 +246,7 @@ Decisão D07/D08: uma arma por vez. Comprar outra substitui (a antiga é vendida
 
 | ID | Nome | Tipo | Alcance (u) | Ataques/s | Dano base T1 | Projétil | Knockback | Especial |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `sword` | Espada Enferrujada | corpo a corpo, arco 120° | 2,5 | 1,4 | 12 | — | 1,5 u | Acerta todos no arco |
+| `sword` | Espada Enferrujada | corpo a corpo, arco 130° | 3,25 | 1,4 | 12 | — | 1,5 u | Acerta todos no arco |
 | `pistol` | Pistola de Ferro | tiro único | 12 | 2,0 | 10 | 1, perfura 0 | 0,5 u | +15% crítico |
 | `smg` | Submetralhadora | rajada | 10 | 8,0 | 4 | 1, dispersão 6° | 0,2 u | Dano ×1,3 em alvo < 4 u |
 | `mg` | Metralhadora Pesada | contínuo | 14 | 12,0 | 3 | 1, dispersão 10° | 0,3 u | −20% velocidade do herói enquanto atira |
@@ -743,6 +743,10 @@ Medido com `bun run sim --runs 128 --rounds 35 --difficulty <d> --policy <p>` (r
 Faixas aprovadas para o bot greedy (decisão do Orq, 2026-10-31, revisável pelo PO; implementadas em `tools/sim/report.ts`, e o CI continua só com greedy Normal em duas seeds, por custo): p50 Normal 18–26 (como em §25), **Grim 14–22**, **Nightmare 11–18**, com o perfil de Ossuário acima; as três passam. Dados `data/*.json` não mudaram: os multiplicadores D13 (×1,25 e ×1,5 em HP e dano) ficam como estão.
 
 Faixas aprovadas para o bot **tank** (política de sobrevivência: prioriza HP, armadura, regeneração e roubo de vida, recua e usa o dash), também decisão do Orq de 2026-10-31: ele é a build segura e lenta, então vale o contrário do greedy: p50 **26–35** em Normal e Grim e ≥ 30 em Nightmare; fração de vivas ≤ 65% (≤ 70% em Nightmare); tempo de kill dos chefes ≤ 150 s em Normal e Grim e ≤ 190 s em Nightmare (limite de 180 s do B-01-03 vale para Normal e Grim); fúria < 3 em Normal e Grim, ≤ 3 em Nightmare. Hoje o tank passa em todas, exceto o tempo do Forjador em Grim (172 s, acima de 150 s mas dentro do limite de 180 s do B-01-03); a Matriarca em Nightmare (186 s) passa pelo limite de 190 s.
+
+**Alcance da espada (pedido do PO, 2026-10-31):** a Espada Enferrujada passou de alcance 2,5 u para **3,25 u** (+30%) e de arco 120° para **130°** (golpe mais horizontal); cada tier soma +0,5 u como antes (tier 4: 4,75 u). Medido: 64 × 35 com seeds 1 e 1001 deu p50 23,5 e 26; 500 × 30 deu p50 22 (35% vivas). Com 3,4 u e arco 140° o p50 subia para 27 e 27,5 e saía da faixa; 3,25 u e 130° é o maior alcance que fica nela.
+
+**Dificuldade Fácil (proposta, ainda não implementada):** inimigos ×0,75 de HP e dano e almas ×0,75. Simulada por parâmetro (Normal com `hpDamageMult` 0,75; 128 × 35): greedy p50 35 com 79% vivas (kill 59 / 65 / 80 s), tank p50 35 com 85% vivas (kill 85 / 92 / 121 s). Faixas propostas, decisão do Orq: p50 30–35 nas duas políticas, vivas ≤ 85% (greedy) e ≤ 90% (tank), kill dos chefes nas mesmas faixas do Normal (≤ 150 s para o tank), ouro por preço ≥ 1,1 em vez de 1,2 (o Fácil rende menos ouro por preço) e IQR ≤ 25. Já estão em `rangesFor` para a dificuldade `easy`; falta medir com a branch real do S2.
 
 O Forjador é o chefe mais lento para o tank (148 s em Normal, 172 s em Grim) porque a fase 2 tem armadura 30 e o tank tem pouco dano: a armadura pune quem luta de perto com pouco dano e premia dano alto, o que combina com o desenho do chefe. Não recomendo mexer nos dados do Forjador agora; revisitar depois do playtest B-04 se um jogador defensivo real reportar luta arrastada.
 

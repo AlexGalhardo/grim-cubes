@@ -30,7 +30,8 @@ const KNOWN = new Set([
  * Run i uses seed (seed + i). `--check` exits 3 when a GDD 25 target is missed (skipped targets do not count); the ranges depend on
  * `--difficulty` and `--policy` (GDD 25.1), and Grim and Nightmare are calibrated with the reference `--ossuary` profiles.
  */
-const difficultyName = (id: string): Difficulty => (id === "grim" || id === "nightmare" ? id : "normal");
+const difficultyName = (id: string): Difficulty =>
+	id === "easy" || id === "grim" || id === "nightmare" ? id : "normal";
 
 /** Runs the batches on worker threads (one per job); a single job runs in-process. */
 async function simulate(all: SimOptions[], jobs: number): Promise<SimReport[]> {

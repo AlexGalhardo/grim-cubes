@@ -129,7 +129,7 @@ export const IQR_LIMIT = 25;
  */
 export const ALIVE_LIMIT = 0.45;
 
-export type Difficulty = "normal" | "grim" | "nightmare";
+export type Difficulty = "easy" | "normal" | "grim" | "nightmare";
 export type PolicyName = "greedy" | "tank";
 export interface Profile {
 	difficulty: Difficulty;
@@ -143,6 +143,8 @@ interface Ranges {
 	killMax: { gravedigger: number; other: number };
 	/** Boss enrage stacks must stay below this (a Nightmare tank may reach 3). */
 	enrageBelow: number;
+	/** Lowest gold per item price: Easy hands out less gold per price because its hordes are weaker. */
+	goldMin: number;
 }
 
 /**
@@ -151,20 +153,23 @@ interface Ranges {
  */
 export function rangesFor({ difficulty, policy }: Profile): Ranges {
 	if (policy === "greedy") {
-		const p50 = { normal: [18, 26], grim: [14, 22], nightmare: [11, 18] } as const;
+		const p50 = { easy: [30, 35], normal: [18, 26], grim: [14, 22], nightmare: [11, 18] } as const;
 		return {
 			p50: p50[difficulty],
-			alive: ALIVE_LIMIT,
+			alive: difficulty === "easy" ? 0.85 : ALIVE_LIMIT,
 			killMax: { gravedigger: 90, other: 120 },
 			enrageBelow: 3,
+			goldMin: difficulty === "easy" ? 1.1 : 1.2,
 		};
 	}
 	const nightmare = difficulty === "nightmare";
+	const easy = difficulty === "easy";
 	return {
-		p50: nightmare ? [30, 35] : [26, 35],
-		alive: nightmare ? 0.7 : 0.65,
+		p50: nightmare || easy ? [30, 35] : [26, 35],
+		alive: nightmare ? 0.7 : easy ? 0.9 : 0.65,
 		killMax: nightmare ? { gravedigger: 190, other: 190 } : { gravedigger: 150, other: 150 },
 		enrageBelow: nightmare ? 4 : 3,
+		goldMin: easy ? 1.1 : 1.2,
 	};
 }
 
@@ -219,9 +224,9 @@ export function checkTargets(
 	}
 	checks.push({
 		id: "gold-per-item-price",
-		target: "1.2-1.8",
+		target: `${ranges.goldMin}-1.8`,
 		value: metrics.goldPerPrice,
-		ok: within(metrics.goldPerPrice, 1.2, 1.8),
+		ok: within(metrics.goldPerPrice, ranges.goldMin, 1.8),
 		skipped: metrics.goldPerPrice === null,
 	});
 	checks.push({

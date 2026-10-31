@@ -11,7 +11,7 @@ const run = (seed: number, maxSteps = STEPS) => runSim({ seed, rounds: 50, diffi
  * Re-anchor (update this value) whenever a task legitimately changes the simulation, e.g. P-05-07 (SDD 11 section 2).
  * A change that is NOT meant to alter the simulation must leave it untouched.
  */
-const ANCHOR_SEED_42_3600 = 419922015;
+const ANCHOR_SEED_42_3600 = 2298365344;
 
 describe("determinism (seed 42, 3600 steps)", () => {
 	it("two runs end in the same world", () => {

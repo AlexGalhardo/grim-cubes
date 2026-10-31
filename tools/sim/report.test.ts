@@ -48,3 +48,15 @@ test("the tank may leave more runs alive and take longer on the bosses than the 
 	expect(tank.killMax.other).toBeGreaterThan(greedy.killMax.other);
 	expect(rangesFor({ difficulty: "nightmare", policy: "tank" }).enrageBelow).toBe(4);
 });
+
+test("Easy expects a late p50 with most runs alive and accepts a little less gold per price", () => {
+	const greedy = rangesFor({ difficulty: "easy", policy: "greedy" });
+	const tank = rangesFor({ difficulty: "easy", policy: "tank" });
+	expect(greedy.p50).toEqual([30, 35]);
+	expect(greedy.alive).toBe(0.85);
+	expect(tank.alive).toBe(0.9);
+	expect(greedy.goldMin).toBe(1.1);
+	expect(rangesFor({ difficulty: "normal", policy: "greedy" }).goldMin).toBe(1.2);
+	expect(p50Check(32, { difficulty: "easy", policy: "greedy" })).toBe(true);
+	expect(p50Check(24, { difficulty: "easy", policy: "greedy" })).toBe(false);
+});

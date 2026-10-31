@@ -117,7 +117,8 @@ test("pistol projectile carries speed, pierce 0, range-based life and the crit b
 
 test("tier and stats scale damage, range and attack speed", () => {
 	const { add, tick, damage, weapon } = setup("sword", 1, { damage: 0.2 });
-	expect(weapon.range).toBeCloseTo(2.5 + 0.5);
+	const sword = def("sword");
+	expect(weapon.range).toBeCloseTo(sword.range + sword.rangeBonusPerTier);
 	add(1, 0);
 	tick();
 	expect(damage.queue.size).toBe(1);
