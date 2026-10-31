@@ -830,6 +830,21 @@ async function boot(): Promise<void> {
 				progress.gold += amount;
 			},
 			endRound: () => run.forceEnd(world),
+			/** One enemy of the given type index at (x, z) relative to the hero (A-02-02b capture). */
+			spawnEnemy: (typeIndex: number, x: number, z: number) =>
+				spawn.spawnEnemy(world, typeIndex, (Position.x[hero] ?? 0) + x, (Position.z[hero] ?? 0) + z),
+			/** One enemy of every type in a row 5 u in front of the hero: the horde, VAT included, in a single frame. */
+			spawnLineup: () => {
+				const count = enemyIds.length;
+				for (let type = 0; type < count; type++) {
+					spawn.spawnEnemy(
+						world,
+						type,
+						(Position.x[hero] ?? 0) + (type - (count - 1) / 2) * 2.2,
+						(Position.z[hero] ?? 0) + 5,
+					);
+				}
+			},
 			spawnElite: (modifier?: number) => {
 				elite.spawnNow(world, (Position.x[hero] ?? 0) + 1.5, Position.z[hero] ?? 0, modifier);
 			},
