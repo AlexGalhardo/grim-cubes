@@ -1,8 +1,11 @@
 export {
 	Armor,
+	Behavior,
 	Boss,
+	ContactDamage,
 	Elite,
 	EnemyFaction,
+	EnemyType,
 	Health,
 	HitFlash,
 	Invulnerable,
@@ -12,6 +15,7 @@ export {
 	Position,
 	PrevPosition,
 	Radius,
+	Speed,
 	Velocity,
 } from "./ecs/components";
 export type { RenderPort } from "./ecs/contract";
@@ -33,6 +37,15 @@ export type { DamageQueue, DamageSystem, DamageSystemDeps, HeroCombatStats } fro
 export { createDamageSystem, DAMAGE_QUEUE_CAPACITY } from "./systems/damage";
 export type { SeparationConfig, SeparationSystem } from "./systems/separation";
 export { createSeparationSystem } from "./systems/separation";
+export type {
+	EnemyDef,
+	SpawnConfig,
+	SpawnRoundOptions,
+	SpawnSystem,
+	SpawnSystemDeps,
+	SpawnWeight,
+} from "./systems/spawn";
+export { createSpawnSystem, spawnBurst, spawnIntervalSeconds, spawnTotal } from "./systems/spawn";
 export type { ChunkData, ChunkGenerator, ChunkStats, ChunkSystem, WorldConfig } from "./world/chunkSystem";
 export { createChunkSystem } from "./world/chunkSystem";
 export type { Origin, OriginShiftConfig } from "./world/originShift";
