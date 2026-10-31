@@ -239,5 +239,19 @@
 	"options.colorblind.tritanopia": "Tritanopia",
 	"options.flash": "Reduce flashes (no white flash, hit-stop or shake)",
 	"options.uiScale": "UI scale",
-	"options.gore": "Full gore"
+	"options.gore": "Full gore",
+	"options.controls": "Controls",
+	"options.key.up": "Move up",
+	"options.key.down": "Move down",
+	"options.key.left": "Move left",
+	"options.key.right": "Move right",
+	"options.key.dash": "Dash",
+	"options.key.pause": "Pause",
+	"options.key.reroll": "Reroll",
+	"options.key.speed": "Game speed",
+	"options.keyPress": "Press a key...",
+	"options.keyConflict": "That key is already used by {action}",
+	"options.keyReserved": "That key is reserved",
+	"options.keyInvalid": "That key cannot be used",
+	"options.keysReset": "Restore default keys"
 }

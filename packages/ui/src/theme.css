@@ -70,7 +70,9 @@
 	--ui-scale: 1;
 }
 
-:root[data-theme="cb"] {
+/* The HUD root carries `data-theme="cb"` in colour-blind mode (Options); the rule also keeps working on `:root`. */
+:root[data-theme="cb"],
+[data-theme="cb"] {
 	--color-rarity-2: var(--color-cb-blue);
 	--color-rarity-3: var(--color-cb-orange);
 	--color-rarity-4: var(--color-cb-magenta);
@@ -114,4 +116,30 @@
 :focus-visible {
 	outline: 2px solid var(--color-ember);
 	outline-offset: 2px;
+}
+
+/* Colour-blind mode: a shape per rarity next to the safer palette, so tiers do not depend on colour alone. */
+.rarity-mark {
+	display: none;
+}
+
+[data-theme="cb"] .rarity-mark {
+	display: inline-block;
+	margin-right: 0.25rem;
+}
+
+[data-theme="cb"] .rarity-mark[data-tier="1"]::before {
+	content: "CF";
+}
+
+[data-theme="cb"] .rarity-mark[data-tier="2"]::before {
+	content: "C6";
+}
+
+[data-theme="cb"] .rarity-mark[data-tier="3"]::before {
+	content: "B2";
+}
+
+[data-theme="cb"] .rarity-mark[data-tier="4"]::before {
+	content: "°5";
 }

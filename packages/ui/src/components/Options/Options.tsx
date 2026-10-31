@@ -1,5 +1,5 @@
-import { t } from "@gc/core";
-import type { JSX } from "react";
+import { KEY_ACTIONS, type KeyAction, type KeyCheck, type KeyMap, t } from "@gc/core";
+import { type JSX, useEffect, useState } from "react";
 import { useDialogNav } from "../../nav/useDialogNav";
 import { Button } from "../Button/Button";
 import { Panel } from "../Panel/Panel";
@@ -29,6 +29,7 @@ export interface OptionsViewModel {
 	uiScale: number;
 	/** true = full gore. */
 	gore: boolean;
+	keys: KeyMap;
 	locale: string;
 	locales: readonly { id: string; name: string }[];
 }
@@ -45,6 +46,9 @@ export interface OptionsActions {
 	setFlashReduction(on: boolean): void;
 	setUiScale(percent: number): void;
 	setGore(full: boolean): void;
+	/** Tries to bind `code` to `action`; the answer says why not (conflict, reserved, invalid). */
+	setKey(action: KeyAction, code: string): KeyCheck;
+	resetKeys(): void;
 	setLocale(id: string): void;
 	close(): void;
 }
@@ -56,8 +60,40 @@ export interface OptionsProps {
 
 const SELECT = "min-h-12 border-2 border-mist bg-night-2 px-2 font-body text-sm text-bone focus:border-ember";
 
+/** `KeyW` -> "W", `Digit5` -> "5"; other codes (Space, Tab, ArrowUp) read as they are. */
+export function keyLabel(code: string): string {
+	return code.replace(/^Key|^Digit/, "");
+}
+
 /** Video, audio, gameplay and language (A-01-01); the host saves every change as it happens. */
 export function Options({ view, actions }: OptionsProps): JSX.Element {
+	const [capturing, setCapturing] = useState<KeyAction | null>(null);
+	const [problem, setProblem] = useState("");
+
+	useEffect(() => {
+		if (!capturing) return;
+		// Capture phase: the next key press is the new binding, and Esc cancels instead of closing the screen.
+		const onKey = (event: KeyboardEvent): void => {
+			event.preventDefault();
+			event.stopPropagation();
+			if (event.code === "Escape" && capturing !== "pause") {
+				setCapturing(null);
+				return;
+			}
+			const result = actions.setKey(capturing, event.code);
+			if (result.ok) {
+				setProblem("");
+				setCapturing(null);
+			} else if (result.reason === "conflict") {
+				setProblem(t("options.keyConflict", { action: t(`options.key.${result.with}`) }));
+			} else {
+				setProblem(t(result.reason === "reserved" ? "options.keyReserved" : "options.keyInvalid"));
+			}
+		};
+		window.addEventListener("keydown", onKey, true);
+		return () => window.removeEventListener("keydown", onKey, true);
+	}, [capturing, actions]);
+
 	const nav = useDialogNav<HTMLDivElement>({ onCancel: actions.close });
 	return (
 		<div
@@ -239,6 +275,34 @@ export function Options({ view, actions }: OptionsProps): JSX.Element {
 							/>
 							{t("options.gore")}
 						</label>
+					</fieldset>
+					<fieldset className="mt-3 flex flex-col gap-2 font-body text-sm text-bone-dark">
+						<legend className="font-display text-base text-bone">{t("options.controls")}</legend>
+						{KEY_ACTIONS.map((action) => (
+							<div key={action} className="flex min-h-12 items-center gap-3">
+								<span className="flex-1">{t(`options.key.${action}`)}</span>
+								<button
+									type="button"
+									data-testid={`options-key-${action}`}
+									aria-label={`${t(`options.key.${action}`)}: ${capturing === action ? t("options.keyPress") : keyLabel(view.keys[action])}`}
+									onClick={() => {
+										setProblem("");
+										setCapturing(action);
+									}}
+									className="min-h-12 min-w-28 border-2 border-iron-dark bg-night-2 px-3 font-display text-base text-bone hover:border-ember hover:text-ember-light"
+								>
+									{capturing === action
+										? t("options.keyPress")
+										: keyLabel(view.keys[action])}
+								</button>
+							</div>
+						))}
+						<p role="status" data-testid="options-key-problem" className="min-h-5 text-danger">
+							{problem}
+						</p>
+						<div>
+							<Button onClick={actions.resetKeys}>{t("options.keysReset")}</Button>
+						</div>
 					</fieldset>
 					<div className="mt-4 flex justify-end">
 						<Button size="lg" onClick={actions.close}>

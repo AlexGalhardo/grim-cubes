@@ -239,5 +239,19 @@
 	"options.colorblind.tritanopia": "Tritanopia (azul)",
 	"options.flash": "Reduzir flashes e tremores",
 	"options.uiScale": "Escala da interface",
-	"options.gore": "Gore completo"
+	"options.gore": "Gore completo",
+	"options.controls": "Controles",
+	"options.key.up": "Mover para cima",
+	"options.key.down": "Mover para baixo",
+	"options.key.left": "Mover para a esquerda",
+	"options.key.right": "Mover para a direita",
+	"options.key.dash": "Dash",
+	"options.key.pause": "Pausa",
+	"options.key.reroll": "Reroll",
+	"options.key.speed": "Velocidade do jogo",
+	"options.keyPress": "Pressione uma tecla...",
+	"options.keyConflict": "Essa tecla já é usada por {action}",
+	"options.keyReserved": "Essa tecla é reservada",
+	"options.keyInvalid": "Essa tecla não pode ser usada",
+	"options.keysReset": "Restaurar teclas padrão"
 }

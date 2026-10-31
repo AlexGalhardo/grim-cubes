@@ -87,7 +87,7 @@ test("keys 1-4 buy, R rerolls and Enter continues", () => {
 	render(<Shop view={view} stats={stats} actions={a} />);
 	fireEvent.keyDown(window, { key: "2" });
 	fireEvent.keyDown(window, { key: "5" });
-	fireEvent.keyDown(window, { key: "r" });
+	fireEvent.keyDown(window, { code: "KeyR" });
 	fireEvent.keyDown(window, { key: "Enter" });
 	expect(a.buy.mock.calls).toEqual([[1]]);
 	expect(a.reroll).toHaveBeenCalledTimes(1);

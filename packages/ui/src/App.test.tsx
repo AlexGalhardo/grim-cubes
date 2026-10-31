@@ -1,4 +1,4 @@
-import { createStore } from "@gc/core";
+import { createKeyMap, createStore } from "@gc/core";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
 import { App, type HudState } from "./App";
@@ -30,6 +30,8 @@ const hud = (speed: number): HudState => ({
 	vignette: 0,
 	demoEnd: false,
 	uiScale: 100,
+	rerollKey: "KeyR",
+	colorblind: false,
 	menu: null,
 	speed,
 });
@@ -74,6 +76,7 @@ test("the button shows the current speed and hides while the options screen is o
 			flashReduction: false,
 			uiScale: 100,
 			gore: true,
+			keys: createKeyMap(),
 			locale: "pt-BR",
 			locales: [],
 		},
@@ -94,6 +97,8 @@ test("the button shows the current speed and hides while the options screen is o
 				setFlashReduction: vi.fn(),
 				setUiScale: vi.fn(),
 				setGore: vi.fn(),
+				setKey: vi.fn(() => ({ ok: true }) as const),
+				resetKeys: vi.fn(),
 				setLocale: vi.fn(),
 				close: vi.fn(),
 			}}
@@ -186,4 +191,56 @@ test("the HUD scale goes to the root as a CSS variable", () => {
 	render(<App store={createStore({ ...hud(1), uiScale: 125 })} />);
 	const root = screen.getByTestId("hud-root");
 	expect(root.style.getPropertyValue("--ui-scale")).toBe("1.25");
+});
+
+test("colour-blind mode puts data-theme cb on the HUD root and the shop shows a shape mark per tier", () => {
+	const shop = {
+		gold: 10,
+		rerollPrice: 5,
+		slots: [
+			{
+				kind: "item" as const,
+				id: "a",
+				name: "A",
+				lines: [],
+				price: 1,
+				tier: 3,
+				locked: false,
+				sold: false,
+				affordable: true,
+			},
+		],
+	};
+	render(
+		<App
+			store={createStore({ ...hud(1), colorblind: true, shop })}
+			shopActions={{ buy: vi.fn(), toggleLock: vi.fn(), reroll: vi.fn(), next: vi.fn() }}
+		/>,
+	);
+	expect(screen.getByTestId("hud-root").getAttribute("data-theme")).toBe("cb");
+	expect(screen.getByTestId("rarity-mark-0").getAttribute("data-tier")).toBe("3");
+	cleanup();
+	render(<App store={createStore(hud(1))} />);
+	expect(screen.getByTestId("hud-root").getAttribute("data-theme")).toBeNull();
+});
+
+test("at 150% on 800x360 the HUD corner and the dialogs stay inside the scaled root", () => {
+	window.innerWidth = 800;
+	window.innerHeight = 360;
+	const shop = { gold: 10, rerollPrice: 5, slots: [] };
+	render(
+		<App
+			store={createStore({ ...hud(1), uiScale: 150, shop })}
+			onOpenOptions={vi.fn()}
+			onCycleSpeed={vi.fn()}
+			shopActions={{ buy: vi.fn(), toggleLock: vi.fn(), reroll: vi.fn(), next: vi.fn() }}
+		/>,
+	);
+	const root = screen.getByTestId("hud-root");
+	expect(root.style.getPropertyValue("--ui-scale")).toBe("1.5");
+	// The corner buttons and the dialog are descendants of the root, so one zoom scales all of them.
+	expect(root.contains(screen.getByTestId("hud-corner"))).toBe(true);
+	expect(root.contains(screen.getByRole("dialog"))).toBe(true);
+	// A dialog scrolls instead of being clipped when the zoomed content outgrows the screen.
+	expect(screen.getByRole("dialog").className).toContain("overflow-y-auto");
 });

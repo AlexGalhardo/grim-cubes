@@ -1,14 +1,19 @@
 import {
 	applyRun,
 	COLORBLIND_MODES,
+	checkKey,
 	consoleSink,
 	createInputState,
+	createKeyMap,
 	createLogger,
 	createStore,
 	createTelemetry,
 	createVirtualStick,
 	type Described,
 	i18n,
+	type KeyAction,
+	type KeyCheck,
+	keyBindingsFor,
 	loadMeta,
 	type MetaState,
 	persistRun,
@@ -68,7 +73,6 @@ import {
 	Speed,
 	STEP,
 	soulsForRun,
-	ThornsCooldown,
 	unlockedSkins,
 	weaponsData,
 	worldData,
@@ -291,6 +295,8 @@ async function boot(): Promise<void> {
 		options: null,
 		speed: meta.settings.gameSpeed,
 		uiScale: meta.settings.uiScale,
+		rerollKey: meta.settings.keys.reroll,
+		colorblind: meta.settings.colorblind !== "off",
 		demoEnd: false,
 		menu: null,
 	});
@@ -332,6 +338,18 @@ async function boot(): Promise<void> {
 		setGore: (full: boolean): void => {
 			vfx.setGore(full);
 			void changeSettings((st) => (st.gore = full));
+		},
+		setKey: (action: KeyAction, code: string): KeyCheck => {
+			const check = checkKey(meta.settings.keys, action, code);
+			if (check.ok) {
+				void changeSettings((st) => (st.keys[action] = code));
+				sources.keyboard.setBindings(keyBindingsFor(meta.settings.keys));
+			}
+			return check;
+		},
+		resetKeys: (): void => {
+			void changeSettings((st) => Object.assign(st.keys, createKeyMap()));
+			sources.keyboard.setBindings(keyBindingsFor(meta.settings.keys));
 		},
 		setLocale: (id: string): void => setLocaleOption(id),
 		close: (): void => {
@@ -438,6 +456,7 @@ async function boot(): Promise<void> {
 	const input = createInputState();
 	const sources = createInputSources({
 		target: window,
+		bindings: keyBindingsFor(meta.settings.keys),
 		getGamepads: () => navigator.getGamepads(),
 		...(stick ? { stick } : {}),
 	});
@@ -858,6 +877,7 @@ async function boot(): Promise<void> {
 			flashReduction: meta.settings.flashReduction,
 			uiScale: meta.settings.uiScale,
 			gore: meta.settings.gore,
+			keys: meta.settings.keys,
 			locale: meta.settings.locale,
 			locales: [
 				{ id: "pt-BR", name: "Português" },
@@ -1093,6 +1113,8 @@ async function boot(): Promise<void> {
 			options: optionsOpen ? optionsView() : null,
 			speed: loop.speed,
 			uiScale: meta.settings.uiScale,
+			rerollKey: meta.settings.keys.reroll,
+			colorblind: meta.settings.colorblind !== "off",
 			menu: menuOpen ? menuView() : null,
 			demoEnd,
 			bossIntro: run.state === "BossIntro" ? t(`boss.${boss.defFor(run.round).id}`) : null,
@@ -1148,6 +1170,8 @@ async function boot(): Promise<void> {
 			next.difficulty !== null ||
 			cur.speed !== next.speed ||
 			cur.uiScale !== next.uiScale ||
+			cur.rerollKey !== next.rerollKey ||
+			cur.colorblind !== next.colorblind ||
 			cur.menu !== null ||
 			next.menu !== null ||
 			cur.demoEnd !== next.demoEnd ||
@@ -1303,7 +1327,7 @@ async function boot(): Promise<void> {
 			/** Game speed 1, 2 or 3 (perf margin check). */
 			setSpeed: (speed: number) => loop.setSpeed(speed),
 			/**
-			 * Effect captures. "bleed": three bleeding enemies; "thorns": three enemies hit by spiked boots every 200 ms;
+			 * Effect captures. "bleed": three bleeding enemies; "thorns": three enemies get a ThornsHit event every 200 ms;
 			 * "boss:<index>": a motionless boss of that bosses.json index that is executed after 0.6 s.
 			 */
 			fx: (kind: string) => {
@@ -1330,8 +1354,13 @@ async function boot(): Promise<void> {
 					} else {
 						const timer = setInterval(() => {
 							for (const e of list) {
-								addComponent(world, e, ThornsCooldown);
-								ThornsCooldown.ticks[e] = 30;
+								const x = Position.x[e] ?? 0;
+								const z = Position.z[e] ?? 0;
+								const dist = Math.hypot(
+									x - (Position.x[hero] ?? 0),
+									z - (Position.z[hero] ?? 0),
+								);
+								events.push(EventType.ThornsHit, x, z, dist, e);
 							}
 						}, 200);
 						setTimeout(() => clearInterval(timer), 3000);
@@ -1596,9 +1625,14 @@ async function boot(): Promise<void> {
 	}
 
 	loop.setSpeed(meta.settings.gameSpeed);
-	// TAB cycles the speed during play; inside a dialog it keeps moving the focus.
+	// The speed key (TAB by default, remappable) cycles the speed during play; inside a dialog TAB moves the focus.
 	window.addEventListener("keydown", (event) => {
-		if (event.code !== "Tab" || event.repeat || document.querySelector('[role="dialog"]')) return;
+		if (
+			event.code !== meta.settings.keys.speed ||
+			event.repeat ||
+			document.querySelector('[role="dialog"]')
+		)
+			return;
 		event.preventDefault();
 		setSpeed(nextSpeed(loop.speed));
 	});

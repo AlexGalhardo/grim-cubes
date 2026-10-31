@@ -46,7 +46,7 @@ test("the reroll button and the R key appear only with rerolls left", () => {
 		<LevelUp cards={cards} onChoose={() => {}} rerollsLeft={1} onReroll={onReroll} />,
 	);
 	fireEvent.click(screen.getByTestId("levelup-reroll"));
-	fireEvent.keyDown(window, { key: "r" });
+	fireEvent.keyDown(window, { code: "KeyR" });
 	expect(onReroll).toHaveBeenCalledTimes(2);
 	rerender(<LevelUp cards={cards} onChoose={() => {}} rerollsLeft={0} onReroll={onReroll} />);
 	expect(screen.queryByTestId("levelup-reroll")).toBeNull();
