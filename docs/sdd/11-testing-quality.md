@@ -8,7 +8,7 @@ Ferramentas (versões em `docs/web-search.md` §5.1): Vitest 5.0.5, Playwright 1
 | --- | --- | --- | --- | --- |
 | Unit | Vitest (Node) | `core`, `game/rules`, `game/systems` (world sintético), `ui/components` (Testing Library + jsdom), `tools/*` | pre-push, CI | cobertura ≥ 80% linhas em `packages/game` e `packages/core`; ≥ 60% em `ui` |
 | Integration | Vitest (Node) | run completa sem render (10 rounds), determinismo, save round-trip + migrações, loja/level-up/Ossuário com fixtures, chunk streaming | CI | todos verdes |
-| Balance | `tools/sim` (Node) | 500 runs simuladas por dificuldade; asserts de GDD §25 | CI (job separado, 10 min) | dentro das faixas (provisório até P-07-04: `tools/sim` é stub) |
+| Balance | `tools/sim` (Node) | 500 runs simuladas por dificuldade; asserts de GDD §25 | CI (job separado, 10 min) | dentro das faixas; `bun run sim --runs 500 --rounds 30 --check` roda de verdade e o relatório de fechamento da A-02-03 está em `reports/balance-a0203-final.json` (`reports/sim-*.json` é ignorado pelo git e pelo Biome) |
 | Visual | Playwright `toHaveScreenshot` | telas nos 4 viewports (D31), dentro dos specs e2e | CI (job e2e) | tolerância do `playwright.config.ts` (hoje `maxDiffPixelRatio` 0,02; redução com o Est) |
 | E2E | Playwright (Chromium, WebGL via SwiftShader) | hoje: boot, level-up, loja, resultados, save-safety, elite/baú, fade, mundo, revisão de arte (`tests/e2e/*.spec.ts`); alvo: título → run → morte (cheat) → resultado → Ossuário; demo end; opções | CI | verdes; < 5 min |
 | Smoke | Playwright (`tools/smoke`) | abre a URL, espera `window.gc.ready`, tira screenshot (`reports/smoke.png`), falha com erro de console, `x-vercel-protection-bypass` só na mesma origem | CI pós-deploy de produção (`deploy-web.yml`) e manual | 0 erros de console (a medição de fps no smoke é provisória; o fps vem do bench) |
@@ -71,3 +71,9 @@ pre-push:
 5. Se tocou `data/*.json`: `bun run sim` dentro das faixas.
 6. Docs afetadas atualizadas (SDD/GDD/ADR) e `CHANGELOG.md` `[Unreleased]`.
 7. Commit em Conventional Commits; PR com descrição, capturas e link para a tarefa do ROADMAP.
+
+## 6. Testes de aloc e de locale
+
+- Sistemas por passo (`separation`, `behavior`, `breakables`) têm teste de zero alocação: espiam `Array.prototype.filter/map/slice`, `Array`, `Float32Array`, `Map` e `Set` durante 100 passos depois de aquecer (`packages/game/src/systems/alloc.test.ts`, `breakables.test.ts`).
+- Componentes de UI com texto têm teste no locale `en` (`locale-en.test.tsx`): `setLocale("en")` por teste e volta para `pt-BR` no `afterEach`; o setup `tests/setup/i18n.ts` registra os dois catálogos.
+- Um chefe montado só por data (`line_charge` + `mud_pool`) roda o ciclo comum de padrões em `boss.test.ts` (A-03-00).
