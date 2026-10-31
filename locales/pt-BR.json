@@ -189,5 +189,8 @@
 	"branch.gold": "Ouro",
 	"branch.ruin": "Ruína",
 	"skin.iron_executioner": "Carrasco de Ferro Negro",
-	"levelUp.reroll": "Rolar cartas de novo ({left}) [R]"
+	"levelUp.reroll": "Rolar cartas de novo ({left}) [R]",
+	"tip.move": "Mova-se com WASD ou arraste o joystick.",
+	"tip.fragments": "Pegue os fragmentos: dão ouro e XP.",
+	"tip.shop": "Compre com ouro, trave o que quiser guardar e comece o próximo round."
 }

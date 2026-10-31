@@ -128,6 +128,8 @@ export type { RunSummary, SoulsConfig } from "./rules/souls";
 export { soulsForRun } from "./rules/souls";
 export type { HeroStatsData, Modifier, PlayerStats, StatCaps } from "./rules/stats";
 export { computeStats, createPlayerStats, STAT_FIELDS } from "./rules/stats";
+export type { TipId, Tips, TipsInput } from "./rules/tips";
+export { createTips, MOVE_DONE_DISTANCE, TIP_TIMEOUT_MS } from "./rules/tips";
 export { createGameSession, type GameSession, type GameSessionOptions } from "./session";
 export type { BehaviorConfig, BehaviorSystem } from "./systems/behavior";
 export { BehaviorKind, createBehaviorSystem } from "./systems/behavior";

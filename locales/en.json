@@ -189,5 +189,8 @@
 	"branch.gold": "Gold",
 	"branch.ruin": "Ruin",
 	"skin.iron_executioner": "Iron Executioner",
-	"levelUp.reroll": "Reroll cards ({left}) [R]"
+	"levelUp.reroll": "Reroll cards ({left}) [R]",
+	"tip.move": "Move with WASD or drag the joystick.",
+	"tip.fragments": "Pick up the fragments: they give gold and XP.",
+	"tip.shop": "Buy with gold, lock what you want to keep and start the next round."
 }

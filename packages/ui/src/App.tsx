@@ -13,6 +13,7 @@ import { Notice } from "./components/Notice/Notice";
 import { Ossuary, type OssuaryActions, type OssuaryViewModel } from "./components/Ossuary/Ossuary";
 import { Results, type ResultsViewModel } from "./components/Results/Results";
 import { Shop, type ShopActions, type ShopViewModel, type StatLineView } from "./components/Shop/Shop";
+import { Tip, type TipId } from "./components/Tip/Tip";
 import { VirtualJoystick } from "./components/VirtualJoystick/VirtualJoystick";
 
 /** Snapshot the game publishes to the store at 12 Hz (SDD 07). */
@@ -48,6 +49,8 @@ export interface HudState {
 	cardRerolls: number;
 	/** Boss name during the 3 s intro; null otherwise. */
 	bossIntro: string | null;
+	/** The round 1 hint on screen; null when none. */
+	tip: TipId | null;
 	/** Red edge vignette strength, 0 (hidden) to 1: a hit pulse and the low-HP warning. */
 	vignette: number;
 }
@@ -124,6 +127,7 @@ export function App({
 					data-testid="hud-vignette"
 				/>
 			) : null}
+			{hud.tip ? <Tip id={hud.tip} /> : null}
 			{stick ? <VirtualJoystick stick={stick} /> : null}
 			{stick && hud.dash && onDashHold ? <DashButton view={hud.dash} onHold={onDashHold} /> : null}
 			{version ? (
