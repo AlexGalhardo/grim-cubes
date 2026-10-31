@@ -54,9 +54,11 @@ function openWindow(): void {
 	});
 
 	win.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
-	win.webContents.on("will-navigate", (event, url) => {
+	const keepInside = (event: { preventDefault(): void }, url: string): void => {
 		if (!url.startsWith(`${ORIGIN}/`)) event.preventDefault();
-	});
+	};
+	win.webContents.on("will-navigate", keepInside);
+	win.webContents.on("will-redirect", keepInside);
 	// F11 and Alt+Enter toggle fullscreen; Esc is left to the game.
 	win.webContents.on("before-input-event", (event, input) => {
 		if (input.type !== "keyDown") return;
@@ -83,6 +85,7 @@ if (!app.requestSingleInstanceLock()) {
 		Menu.setApplicationMenu(null);
 		// The game needs no browser permission (the Gamepad API is not gated): refuse everything.
 		session.defaultSession.setPermissionRequestHandler((_contents, _permission, done) => done(false));
+		session.defaultSession.setPermissionCheckHandler(() => false);
 		serveDist();
 		openWindow();
 	});
