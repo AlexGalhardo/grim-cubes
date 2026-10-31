@@ -73,7 +73,7 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
 - [ ] **E-02-06** Playwright config (4 projetos de viewport D31, flags SwiftShader, `webServer` com `vite preview`) + 1 teste e2e que abre a página e verifica que o `<canvas>` existe e que `window.gc.ready === true`. Deps: E-02-04, E-03-02. Resp: Est. Prio: P0.
   - Asserts: `bunx playwright test` exit 0 nos 4 projetos; capturas `tests/visual/__screenshots__/boot-<alvo>.png` nos 4 alvos commitadas (`maxDiffPixelRatio` documentado); `playwright-report/index.html` gerado; no teste, `gl.getParameter(gl.RENDERER)` logado contém `SwiftShader` ou `ANGLE` (prova de WebGL headless).
 - [ ] **E-02-07** lefthook (`lefthook.yml` do SDD 11 §4) + `tools/commitlint` + `tools/secrets-scan` + `tools/lint-extra` (hex em TSX, `console.log`, `^` em versões). Deps: E-02-01. Resp: S2. Prio: P0.
-  - Asserts: `bunx lefthook install` exit 0; commit com mensagem `bad message` é rejeitado (exit ≠ 0) e `feat(core): add logger` aceito; arquivo staged contendo `ELEVENLABS_API_KEY=sk_test` bloqueia o commit; `bun tools/lint-extra/index.ts` exit 0 no repositório.
+  - Asserts: `bunx lefthook install` exit 0; commit com mensagem `bad message` é rejeitado (exit ≠ 0) e `feat(core): add logger` aceito; arquivo staged que atribui um valor de teste à variável `ELEVENLABS_API_KEY` bloqueia o commit; `bun tools/lint-extra/index.ts` exit 0 no repositório.
 - [ ] **E-02-08** markdownlint (`.markdownlint-cli2.jsonc` já existente) integrado ao script `lint:md` e ao hook. Deps: E-02-07. Resp: Est. Prio: P1.
   - Asserts: `bun run lint:md` exit 0 em todos os `.md` do repositório.
 
@@ -85,7 +85,7 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
   - Asserts: `window.gc.ready === true` verificado por script Playwright local (o e2e definitivo, com as capturas `tests/visual/__screenshots__/boot-<alvo>.png` nos 4 alvos, é entregue em E-02-06); fps no desktop-1080 medido por `SceneInstrumentation` em 30 s após 5 s de warm-up, média ≥ 120 com vsync desligado, na máquina do PO (CPU/GPU registradas em `docs/PROGRESS.md`); `scene.getActiveMeshes().length` ≤ 5.
 - [ ] **E-03-03** Tailwind v4 `theme.css` com todos os tokens do Art Bible §16.9 e componentes `Panel`, `Button`, `Bar` do design system. Deps: E-03-01. Resp: S2. Prio: P0.
   - Asserts: `packages/ui/src/theme.css` contém `--color-night: #14121c` e `--breakpoint-desktop-xl: 2048px`; testes de componente (3) verdes; `bun tools/lint-extra/index.ts` não encontra hex em `.tsx`.
-- [x] **E-03-04** `data/` com JSON Schema e arquivos iniciais (`enemies.json` com os 8 tipos, `weapons.json` com 5 armas, `rounds.json`, `biomes.json`, `elites.json`, `items.json` com 40 itens, `cards.json`, `ossuary.json`, `bosses.json` com o Coveiro) copiados do GDD, e `tools/data-check`. Deps: E-02-01. Resp: Est. Prio: P0.
+- [x] **E-03-04** `data/` com JSON Schema e arquivos iniciais (`enemies.json` com os 8 tipos, `weapons.json` com 5 armas, `rounds.json`, `biomes.json`, `elites.json`, `items.json` com 40 itens, `cards.json`, `ossuary.json`, `bosses.json` com o Coveiro, `hero.json`, `world.json`; `render.json` e `presets.json` pendentes da D1, fase 2) copiados do GDD, e `tools/data-check`. Deps: E-02-01. Resp: Est. Prio: P0.
   - Asserts: `bun run data:check` exit 0; teste negativo: id duplicado em `items.json` faz o check falhar; `jq length data/items.json` = 40; `jq length data/enemies.json` = 8.
 - [ ] **E-03-05** `packages/platform` com adaptadores `web` (storage IndexedDB) e stubs `electron`/`capacitor` que lançam `NotImplemented`. Deps: E-03-01. Resp: S2. Prio: P1.
   - Asserts: teste de storage web em jsdom com `fake-indexeddb` (dev dep, versão estável; aprovação do PO) faz round-trip de `save`; stubs cobertos por teste de "lança erro".
@@ -142,14 +142,14 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
 
 - [ ] **P-01-01** `game/world/chunks`: `generateChunk` determinístico (SDD 03 §2.1) com props do `biomes.json` (só Cemitério), regra de corredor, exclusão perto do spawn. Deps: E-03-04. Resp: S1. Prio: P0.
   - Asserts: testes: mesma seed → mesmo hash em 1.000 chunks; bloqueantes ∈ [4, 10]; regra de corredor 0 violações em 10.000 chunks; nenhum prop > 2 u a < 3 u do spawn; `generate 49 chunks` < 50 ms em Node (teste com `performance.now()`).
-- [x] **P-01-02** `chunkSystem`: anel raio 3, fila por distância, ≤ 2 chunks por frame, descarga ≥ 5, pool de `ChunkData`. Deps: P-01-01. Resp: S1. Prio: P0.
-  - Asserts: teste de integração: mover o herói 2.000 u em linha reta mantém exatamente 49 chunks carregados após estabilizar e nunca aloca além do pool (contador de alocações = 0 após o warm-up).
-- [ ] **P-01-03** Render de chunks: chão por chunk com variante de atlas, props por thin instances por tipo, reconstrução de buffers só quando o anel muda. Deps: P-01-02, P-06-02. Resp: S1. Prio: P0.
-  - Asserts: `scene.getActiveMeshes().length` ≤ 12 com 49 chunks; draw calls ≤ 60 sem inimigos (via `SceneInstrumentation` logado em `?debug=1`); captura visual `world-cemetery-<alvo>.png` nos 4 alvos.
-- [ ] **P-01-04** Origin shifting a cada 1.024 u com teste de continuidade. Deps: P-01-02. Resp: S1. Prio: P0.
-  - Asserts: teste: andar 5.000 u e verificar `|Δ(hero − prop)| < 0,01 u` em todos os shifts; nenhum "salto" visível em vídeo de 10 s anexado ao PR.
-- [ ] **P-01-05** Colisão herói/inimigo vs props bloqueantes (spatial hash estático) e steering de desvio dos inimigos. Deps: P-01-02, P-03-01, E-03-06. Resp: S1. Prio: P0.
-  - Asserts: teste: herói contra lápide não atravessa (`dist ≥ r_prop + r_hero − 0,01`); 100 inimigos perseguindo através de um campo de 20 props chegam ao herói em ≤ 15 s simulados (nenhum preso).
+- [x] **P-01-02** `chunkSystem`: anel raio 3, fila por distância, ≤ 2 chunks gerados por passo, descarga (Chebyshev ≥ 5) antes da carga no mesmo passo, pool fixo de 81 `ChunkData` (9×9). Deps: P-01-01. Resp: S1. Prio: P0.
+  - Asserts: teste de integração: mover o herói 2.000 u em linha reta mantém sempre todos os chunks com Chebyshev ≤ 3 carregados (após estabilizar), nenhum com ≥ 5, total ∈ [49, 81] após estabilizar e nunca aloca além do pool (contador de alocações = 0 após o warm-up).
+- [ ] **P-01-03** Render de chunks: chão em 1 mesh único (1 quad por chunk, slots fixos para 81 chunks, UV para o tile 32² da variante em `atlas_terrain`), props por thin instances por tipo, reconstrução de buffers só quando o anel muda ou quando ocorre `OriginShifted`. Deps: P-01-02, P-06-02. Resp: S1. Prio: P0.
+  - Asserts: `scene.getActiveMeshes().length` ≤ 12 com 49–81 chunks (chão = 1 mesh); draw calls ≤ 60 sem inimigos (via `SceneInstrumentation` logado em `?debug=1`); captura visual `world-cemetery-<alvo>.png` nos 4 alvos.
+- [ ] **P-01-04** Origin shifting (SDD 03 §1): `Position`/`PrevPosition` relativos à origem; `applyOriginShift` em `game/world` quando |hero| > 1.024 u (`data/world.json`); delta múltiplo de 16; evento `OriginShifted {dx, dz}`; render desloca câmera e reescreve buffers de chão/props. Deps: P-01-02. Resp: S1. Prio: P0.
+  - Asserts: teste: andar 5.000 u e verificar `|Δ(hero − prop)| < 0,01 u` em todos os shifts; |Δ alvo da câmera| < 0,01 u no passo do shift (teste NullEngine); vídeo de 10 s pelo PO (manual).
+- [ ] **P-01-05** Colisão herói/inimigo vs props bloqueantes (spatial hash estático) e steering de desvio dos inimigos. Deps: P-01-02, P-03-01, P-03-03, E-03-06. Resp: S1. Prio: P0.
+  - Asserts: teste: herói contra lápide não atravessa (`dist ≥ r_prop + r_hero − 0,01`); 100 inimigos perseguindo através de um campo de 20 props (fixture determinística `tests/fixtures/prop-field-20.json`, seed 42) chegam ao herói em ≤ 15 s simulados (nenhum preso).
 
 ### P-02 Herói, câmera e input
 
@@ -162,16 +162,18 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
 
 ### P-03 Horda
 
-- [ ] **P-03-01** Spatial hash dinâmico (célula 2 u, `queryCircle` sem alocação) + `separationSystem`. Deps: E-03-01, E-03-06. Resp: S1. Prio: P0.
+- [ ] **P-03-01** Spatial hash dinâmico (célula 2 u, `queryCircle` sem alocação) + `separationSystem`. Deps: E-03-01, E-03-06. Resp: S2. Prio: P0.
   - Asserts: teste: 600 entidades aleatórias, `queryCircle` devolve o mesmo conjunto que a busca ingênua (100 consultas); custo de rebuild + 600 consultas < 1 ms em Node (p50 de 100 execuções).
 - [ ] **P-03-02** `spawnSystem` com `rounds.json` (total, intervalo, rajada, cap 100, anel 22–30 u com viés de 60%). Deps: P-03-01. Resp: S2. Prio: P0.
   - Asserts: integração: round 10 gera exatamente `20 + 12 × 10 = 140` spawns com herói parado e sem arma; simultâneos nunca > 100 (assert por passo).
 - [ ] **P-03-03** `behaviorSystem` para `chase` (Carcaça) e `zigzag` (Lamento); dano de contato com cooldown 0,5 s; i-frames do herói. Deps: P-03-02. Resp: S2. Prio: P0.
   - Asserts: testes: Carcaça a 10 u alcança o herói parado em ≤ 3 s simulados; herói cercado por 10 Carcaças recebe no máximo 1 hit por 0,3 s (i-frames).
-- [ ] **P-03-04** Render da horda: 1 mesh por tipo + thin instances + VAT (`BakedVertexAnimationManager`) com clipes walk/attack/hit/death; buffers reutilizados; `thinInstanceBufferUpdated` 1×/frame/mesh. Deps: P-06-03, P-03-03. Resp: S1. Prio: P0.
-  - Asserts: `bench=round20` (100 inimigos animados, 200 projéteis) em 1080p na máquina do PO: fps médio ≥ 60, `frameP99 ≤ 20 ms`, draw calls ≤ 120, heap estável (Δ < 5 MB em 60 s); resultado em `reports/perf-desktop-1080.json`.
+- [ ] **P-03-04** Render da horda: 1 mesh por tipo + thin instances + VAT (`BakedVertexAnimationManager`) com clipes idle/walk/attack/hit/death (2º buffer por instância `bakedVertexAnimationSettingsInstanced`, `alwaysSelectAsActiveMesh = true`); buffers reutilizados; `thinInstanceBufferUpdated` 1×/frame por buffer (matriz + VAT). Deps: P-06-03, P-03-03, P-03-06. Resp: S1. Prio: P0.
+  - Asserts: `bench=horde100` (100 inimigos animados, sem projéteis; protocolo P-03-06) em 1080p na máquina do PO: fps médio ≥ 60, `frameP99 ≤ 20 ms`, draw calls ≤ 120, heap estável (Δ < 5 MB em 60 s); resultado em `reports/perf-desktop-1080.json`.
 - [ ] **P-03-05** Culling: remoção de inimigos > 40 u (sem drop) e exclusão de instâncias fora do frustum ampliado. Deps: P-03-04. Resp: S1. Prio: P1.
   - Asserts: teste: inimigo a 45 u é removido no passo seguinte; `thinInstanceCount` ≤ inimigos visíveis + 10%.
+- [ ] **P-03-06** Harness de bench (`tools/perf/bench.spec.ts`, cenários `?bench=horde100|round20`, seed fixa): 5 s de warm-up + 30 s de medição; métricas do SDD 14 §4 via `SceneInstrumentation`; `frameP99` por `performance.now()` em `onEndFrameObservable`. Deps: P-03-03, E-02-06. Resp: S1. Prio: P0.
+  - Asserts: gera `reports/perf-<alvo>.json` com 6 chaves; duas execuções no SwiftShader com `drawCalls` e `activeMeshes` idênticos.
 
 ### P-04 Combate e armas
 
@@ -183,7 +185,7 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
   - Asserts: teste: projétil com `pierce 2` atravessa 3 inimigos em linha e some; 600 projéteis simultâneos nunca excedem o pool (assert) e o 601º é descartado com evento `PoolExhausted`.
 - [ ] **P-04-04** Tiers de arma (multiplicadores) e upgrade; `smg`, `mg` (dispersão, penalidade de velocidade) e `bazooka` (área, autodano). Deps: P-04-03. Resp: S2. Prio: P1.
   - Asserts: testes de cada arma com valores de `weapons.json`; bazuca a 1 u do herói causa 50% do dano nele; T4 da espada = dano ×3,2.
-- [ ] **P-04-05** Juice do combate (Art Bible §9, GDD §23): números de dano por engine (sprites), flash branco, partículas cúbicas de sangue (pool 600), decals (pool 200 FIFO), desmembramento em cubos, knockback visual, hit-stop (30/80 ms), vignette de dano, shake (toggle). Deps: P-03-04, P-04-01. Resp: S1. Prio: P1.
+- [ ] **P-04-05** Juice do combate (Art Bible §9, GDD §23): números de dano por engine (sprites), flash branco, partículas cúbicas de sangue (pool 600), decals (pool 200 FIFO), desmembramento em cubos, knockback visual, hit-stop (30/80 ms), vignette de dano, shake (toggle). Decals como thin instances de 1 quad (1 draw call). Deps: P-03-04, P-04-01. Resp: S1. Prio: P1.
   - Asserts: vídeo de 15 s no PR; pools nunca excedidos (asserts em debug); toggle de gore reduz decals a 0 e troca cor (captura comparativa); `frameP99` do bench não piora > 10% com VFX ligado.
 
 ### P-05 Rounds, loja, level-up, elite, chefe
@@ -209,26 +211,29 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
 
 - [ ] **P-06-01** Modelos Blockbench (`.bbmodel` + `.glb` + texturas conforme Art Bible): herói, Carcaça, Lamento, Coveiro, Mercador, 10 props do Cemitério, 4 tiles de chão, 5 armas (meshes na mão). Deps: —. Resp: S1 (com o PO no Blockbench quando necessário). Prio: P0.
   - Asserts: `bun run assets:build` exit 0 (validações de elementos, textura, cores, sockets); capturas de cada modelo em `docs/art/review/*.png`; teste de silhueta (preto sólido a 64 px) anexado e aprovado pelo PO em PROGRESS.
-- [x] **P-06-02** `tools/assets-build` (SDD 09): validação, atlas por categoria (MaxRects), reescrita de UV via `@gltf-transform/core` (aprovação do PO para a dependência), manifest com grupos. Deps: E-02-01. Resp: S1. Prio: P0.
-  - Asserts: duas execuções seguidas produzem `manifest.json` idêntico (hash); fixtures inválidas (1 por regra) falham com mensagem contendo o nome da regra; `public/assets/atlas_characters.png` é 2048×2048.
-- [ ] **P-06-03** Bake de VAT (`tools/bake-vat`) para Carcaça e Lamento (12 fps) + loader no render. Deps: P-06-02. Resp: S1. Prio: P0.
-  - Asserts: teste: vértice conhecido no frame 5 do clipe `walk` bate com o glTF (tolerância 1e-4); `vat/enemy_husk.png` existe e seu JSON lista 4 clipes.
+- [x] **P-06-02** `tools/assets-build` (SDD 09): validação, atlas por categoria (MaxRects), reescrita de UV via `@gltf-transform/core` (aprovada; codec PNG `pngjs` aprovado pelo PO em 2026-10-31), manifest com grupos. Deps: E-02-01. Resp: S1. Prio: P0.
+  - Asserts: duas execuções seguidas produzem `manifest.json` byte a byte idêntico (sem `generatedAt`); fixtures inválidas (1 por regra) falham com mensagem contendo o nome da regra; a entrada `atlas_characters` do manifest aponta para PNG com hash no nome, 2048×2048.
+- [ ] **P-06-03** Bake de VAT de matrizes de osso (formato do `VertexAnimationBaker`) para Carcaça e Lamento, dentro do `assets:build`: RGBA32F em `vat/<nome>.<hash>.bin` + JSON com 5 clipes (idle/walk/attack/hit/death) a 12 fps, largura (ossos+1)×4 ≤ 4096; loader no render. Deps: P-06-02. Resp: S1. Prio: P0.
+  - Asserts: oráculo: fixture analítica de 2 ossos com rotação de 90° no frame 5 bate com a matriz esperada (tolerância 1e-4); o JSON de `enemy_husk` lista 5 clipes a 12 fps e largura ≤ 4096; duas execuções do bake produzem `.bin` byte a byte idêntico.
 - [ ] **P-06-04** Áudio v2 no jogo (SDD 08 §1–§2): engine, buses, unlock na tela de título, sons de hit/morte/pickup/level-up/UI (placeholders jsfxr ou ElevenLabs se E-05-04 pronta), música do menu e do Cemitério. Deps: E-05-04 (opcional), P-04-05. Resp: S2. Prio: P1.
   - Asserts: e2e: antes do clique nenhum `AudioContext` está `running`; após o clique em "Começar", `audioEngine.state === "running"`; throttle: ≤ 12 sons novos por frame (assert em debug).
 - [ ] **P-06-05** `tools/audio-generate` (SDD 08 §3) com `prompts.json` para os 20 SFX do PROTÓTIPO e 2 músicas; `meta.json`; recusa de plano free. Deps: E-05-04. Resp: Est. Prio: P1.
   - Asserts: `bun run audio:generate --dry-run` lista 22 itens; com mock de API, gera arquivos e `meta.json` com `plan`; com `ELEVENLABS_PLAN=free` sem `--allow-free` sai com exit 2 e mensagem.
+- [ ] **P-06-06** Render de personagens com skeleton (herói, Mercador, Coveiro): `AnimationGroup` com blend de 0,1 s, arma no `weapon_socket`, `hit_socket` exposto, `speedRatio` ∝ velocidade. Deps: P-06-01, P-06-02, P-02-01. Resp: S1. Prio: P0.
+  - Asserts: NullEngine com pai da arma = `weapon_socket`; peso intermediário em t = 0,05 s; `speedRatio` = |v|/v_ref ±5%; capturas nos 4 alvos.
+- [ ] **P-06-07** Conversão nó→skin rígido no `assets-build` (Blockbench exporta animação por nó): cada nó animado vira osso com peso 1; primitivas unidas em 1 mesh. Deps: P-06-03, D5. Resp: S1. Prio: P0.
 
 ### P-07 Demo, Electron e qualidade
 
 - [ ] **P-07-01** Modo `web-demo`: `__IS_DEMO__`, limite ao vencer o Coveiro → tela `DemoEnd` (botões Steam/Play desabilitados até existirem URLs), selo "DEMO" no menu. Deps: P-05-08. Resp: S2. Prio: P0.
-  - Asserts: e2e no build `web-demo`: após `killBoss` via cheat, a tela `DemoEnd` aparece e `Round 11` nunca inicia; no build `electron` (não demo) o round 11 inicia; `grep -c "gc.debug" dist/assets/*.js` = 0 no build de produção.
+  - Asserts: e2e no build `web-demo`: após `killBoss` via cheat, a tela `DemoEnd` aparece e `Round 11` nunca inicia; no build `electron` (não demo) o round 11 inicia; `grep -c "gc.debug" dist/assets/*.js` = 0 no build de release (sem `GC_DEBUG_API=1`); o build de e2e usa `GC_DEBUG_API=1`.
 - [ ] **P-07-02** Electron 45 + electron-builder: main/preload, `contextIsolation`, build NSIS e portable, execução local do jogo completo; `steamworks.js` inicializado em modo "sem Steam" (sem App ID real ainda). Deps: P-05-08. Resp: S2. Prio: P0.
   - Asserts: `bun run build:electron` exit 0 e gera `release/grim-cubes_0.3.0_windows_x64.exe` (< 250 MB); executável abre em fullscreen e uma run completa é jogável (checklist manual do PO); `electron.yml` verde em `workflow_dispatch`.
 - [ ] **P-07-03** Determinismo: teste de hash de world por 3.600 passos (seed 42) e teste de alerta de dt. Deps: P-05-07. Resp: Est. Prio: P0.
   - Asserts: `tests/integration/determinism.test.ts` verde em Node (Windows e Linux no CI); hash documentado no teste.
 - [ ] **P-07-04** `tools/sim` (SDD 05 §6) com política greedy, relatório e asserts de GDD §25 para rounds 1–10 (chefe 1). Deps: P-05-08. Resp: Est. Prio: P0.
   - Asserts: `bun run sim --runs 200 --rounds 10` termina em < 2 min e escreve `reports/sim-*.json` com p50 de round de morte e tempo de kill do Coveiro; `balance.yml` verde.
-- [ ] **P-07-05** Bench de performance (`tools/perf`, `?bench=round20`) desktop no CI (informativo) e manual (GPU real) + relatório Android preliminar em device do PO via Chrome mobile (sem Capacitor ainda). Deps: P-03-04. Resp: Est. Prio: P0.
+- [ ] **P-07-05** Bench de performance (`tools/perf`, `?bench=round20`) desktop no CI (informativo) e manual (GPU real) + relatório Android preliminar em device do PO via Chrome mobile (sem Capacitor ainda). Deps: P-03-04, P-03-06, P-04-03, P-04-05. Resp: Est. Prio: P0.
   - Asserts: `reports/perf-desktop-1080.json` e `reports/perf-desktop-1440.json` com `fpsAvg ≥ 60`; `reports/perf-android-chrome-<device>.json` com `fpsAvg ≥ 30` em 896×414 e cap 60; se falhar, tarefa de otimização aberta na ALPHA (A-01).
 - [ ] **P-07-06** Playtests: 3 sessões (PO + 2 convidados) com formulário (diversão 1–5, clareza, frustrações, round alcançado) e telemetria local JSONL; síntese em `docs/playtests/2026-12-protótipo.md`. Deps: P-07-01. Resp: PO (sessões) + Est (síntese). Prio: P1.
   - Asserts: arquivo com ≥ 3 sessões, round mediano alcançado, 5 problemas priorizados com IDs de microtarefa criadas na ALPHA.
