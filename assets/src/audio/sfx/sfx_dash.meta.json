@@ -1,0 +1,9 @@
+{
+	"prompt": "armored hero lunging forward in a sharp dash, metal plates scraping and a hard air burst, heavy dry tone, medium distance, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 0.5,
+	"generatedAt": "2026-10-31T16:05:11.123Z",
+	"plan": "creator",
+	"hash": "ef2efb6c2e6a0fd195f66b8a85126e62b6fa1377761f1030fc2bf0b63f072d84",
+	"promptInfluence": 0.5
+}

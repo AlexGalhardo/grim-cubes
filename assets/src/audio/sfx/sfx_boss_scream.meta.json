@@ -1,0 +1,9 @@
+{
+	"prompt": "monstrous shriek, a shockwave of piercing scream with a deep low distortion, heavy dry tone, medium distance, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 1.5,
+	"generatedAt": "2026-10-31T16:05:21.868Z",
+	"plan": "creator",
+	"hash": "4c13fc424c76a487bf59a59b0fe92616f8baa189c8ba27d2259b11d6b925a7b1",
+	"promptInfluence": 0.5
+}

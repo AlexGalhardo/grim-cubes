@@ -1,0 +1,9 @@
+{
+	"prompt": "heavy iron-bound chest landing on stone, solid wooden thud with a metal rattle, heavy dry tone, medium distance, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 1,
+	"generatedAt": "2026-10-31T16:05:16.177Z",
+	"plan": "creator",
+	"hash": "b675feb4b81af421a5fe023fc0baf109fe92198bc589647f9aae82be414aa26f",
+	"promptInfluence": 0.5
+}

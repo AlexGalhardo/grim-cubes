@@ -1,0 +1,9 @@
+{
+	"prompt": "deep rising warning growl with a metallic screech, a huge attack winding up, heavy dry tone, medium distance, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 1,
+	"generatedAt": "2026-10-31T16:05:17.989Z",
+	"plan": "creator",
+	"hash": "49e55fb74a56913b1fe52da10ee9170fa730a73f3b7b9fcdf411c8fb26d1649d",
+	"promptInfluence": 0.5
+}

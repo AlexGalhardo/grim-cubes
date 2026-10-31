@@ -224,7 +224,7 @@
 		"model": "eleven_text_to_sound_v2"
 	},
 	{
-		"file": "sfx_boss_alpha_hunter_leap",
+		"file": "sfx_boss_leap",
 		"kind": "sfx",
 		"prompt": "huge predator leaping through the air then slamming into the ground, heavy impact with cracking stone and a guttural roar, heavy dry tone, medium distance, no music, game sound effect",
 		"durationSeconds": 1.5,
@@ -240,7 +240,7 @@
 		"model": "eleven_text_to_sound_v2"
 	},
 	{
-		"file": "sfx_boss_nest_queen_sweep",
+		"file": "sfx_boss_sweep",
 		"kind": "sfx",
 		"prompt": "massive barbed tail whipping across the ground, fast whoosh and a crunching impact on bone and metal, heavy dry tone, medium distance, no music, game sound effect",
 		"durationSeconds": 1.2,
@@ -264,7 +264,7 @@
 		"model": "music_v1"
 	},
 	{
-		"file": "vo_boss_alpha_hunter_entry",
+		"file": "voice_alpha_hunter_entry",
 		"kind": "voice",
 		"prompt": "You cannot see me. You can only die.",
 		"durationSeconds": 4,
@@ -272,7 +272,7 @@
 		"model": "eleven_multilingual_v2"
 	},
 	{
-		"file": "vo_boss_alpha_hunter_phase",
+		"file": "voice_alpha_hunter_phase",
 		"kind": "voice",
 		"prompt": "The hunt begins in earnest.",
 		"durationSeconds": 4,
@@ -280,7 +280,7 @@
 		"model": "eleven_multilingual_v2"
 	},
 	{
-		"file": "vo_boss_alpha_hunter_death",
+		"file": "voice_alpha_hunter_death",
 		"kind": "voice",
 		"prompt": "A worthy prey... after all.",
 		"durationSeconds": 4,
@@ -288,7 +288,7 @@
 		"model": "eleven_multilingual_v2"
 	},
 	{
-		"file": "vo_boss_nest_queen_entry",
+		"file": "voice_nest_queen_entry",
 		"kind": "voice",
 		"prompt": "My children hunger. Feed them.",
 		"durationSeconds": 4,
@@ -296,7 +296,7 @@
 		"model": "eleven_multilingual_v2"
 	},
 	{
-		"file": "vo_boss_nest_queen_phase",
+		"file": "voice_nest_queen_phase",
 		"kind": "voice",
 		"prompt": "Rise, my brood. Rise!",
 		"durationSeconds": 4,
@@ -304,9 +304,321 @@
 		"model": "eleven_multilingual_v2"
 	},
 	{
-		"file": "vo_boss_nest_queen_death",
+		"file": "voice_nest_queen_death",
 		"kind": "voice",
 		"prompt": "The hive... will remember.",
+		"durationSeconds": 4,
+		"voiceId": "nPczCjzI2devNBz1zQrb",
+		"model": "eleven_multilingual_v2"
+	},
+	{
+		"file": "sfx_player_dodge",
+		"kind": "sfx",
+		"prompt": "armored executioner sidestepping fast, quick cloth and plate scrape with a short air whoosh, heavy dry tone, medium distance, no music, game sound effect",
+		"durationSeconds": 0.5,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_explosion_01",
+		"kind": "sfx",
+		"prompt": "heavy bazooka shell exploding, deep boom with a debris crackle and a short low rumble tail, heavy dry tone, medium distance, no music, game sound effect",
+		"durationSeconds": 1.5,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_dash",
+		"kind": "sfx",
+		"prompt": "armored hero lunging forward in a sharp dash, metal plates scraping and a hard air burst, heavy dry tone, medium distance, no music, game sound effect",
+		"durationSeconds": 0.5,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_prop_break",
+		"kind": "sfx",
+		"prompt": "old clay burial urn smashing, ceramic shards scattering over stone with a dry crack, heavy dry tone, medium distance, no music, game sound effect",
+		"durationSeconds": 0.8,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_pickup_consumable",
+		"kind": "sfx",
+		"prompt": "small glass vial and bone charm snatched up, short wet glass clink and a low soft chime, heavy dry tone, medium distance, no music, game sound effect",
+		"durationSeconds": 0.6,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_player_revive",
+		"kind": "sfx",
+		"prompt": "dead warrior revived by a phylactery, deep heartbeat thump, cold magical breath and a low choir swell, heavy dry tone, medium distance, no music, game sound effect",
+		"durationSeconds": 2.0,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_elite_incoming",
+		"kind": "sfx",
+		"prompt": "ominous low horn blast and distant heavy footsteps approaching, warning of a stronger enemy, heavy dry tone, medium distance, no music, game sound effect",
+		"durationSeconds": 2.0,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_elite_spawn",
+		"kind": "sfx",
+		"prompt": "powerful monster materializing, dark energy crackle and a deep guttural growl, heavy dry tone, medium distance, no music, game sound effect",
+		"durationSeconds": 1.5,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_chest_drop",
+		"kind": "sfx",
+		"prompt": "heavy iron-bound chest landing on stone, solid wooden thud with a metal rattle, heavy dry tone, medium distance, no music, game sound effect",
+		"durationSeconds": 1.0,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_chest_open",
+		"kind": "sfx",
+		"prompt": "rusted chest lid creaking open, metal latch click and a faint ethereal chime, heavy dry tone, medium distance, no music, game sound effect",
+		"durationSeconds": 1.2,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_boss_telegraph",
+		"kind": "sfx",
+		"prompt": "deep rising warning growl with a metallic screech, a huge attack winding up, heavy dry tone, medium distance, no music, game sound effect",
+		"durationSeconds": 1.0,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_boss_summon",
+		"kind": "sfx",
+		"prompt": "dark ritual horn and a rumble as undead claw out of the ground, dirt bursting and bones clacking, heavy dry tone, medium distance, no music, game sound effect",
+		"durationSeconds": 2.0,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_boss_enrage",
+		"kind": "sfx",
+		"prompt": "boss roaring in fury, distorted deep bellow with a rattling metal growl, heavy dry tone, medium distance, no music, game sound effect",
+		"durationSeconds": 2.0,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_boss_pool",
+		"kind": "sfx",
+		"prompt": "thick toxic mud pool bubbling up, wet gurgling splash and slow dripping, heavy dry tone, medium distance, no music, game sound effect",
+		"durationSeconds": 1.5,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_boss_scream",
+		"kind": "sfx",
+		"prompt": "monstrous shriek, a shockwave of piercing scream with a deep low distortion, heavy dry tone, medium distance, no music, game sound effect",
+		"durationSeconds": 1.5,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_boss_shockwave",
+		"kind": "sfx",
+		"prompt": "giant war hammer slamming the ground, huge deep impact and a rolling shockwave boom, heavy dry tone, medium distance, no music, game sound effect",
+		"durationSeconds": 1.5,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_boss_stealth",
+		"kind": "sfx",
+		"prompt": "predator fading into invisibility, soft electric crackle and a low inhale, heavy dry tone, medium distance, no music, game sound effect",
+		"durationSeconds": 1.0,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_boss_reveal",
+		"kind": "sfx",
+		"prompt": "predator decloaking, sharp static burst and a menacing snarl, heavy dry tone, medium distance, no music, game sound effect",
+		"durationSeconds": 1.0,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_boss_bomb",
+		"kind": "sfx",
+		"prompt": "flying insectoid dropping a bomb, falling whistle ending in a wet acid splat before the blast, heavy dry tone, medium distance, no music, game sound effect",
+		"durationSeconds": 1.2,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_egg_laid",
+		"kind": "sfx",
+		"prompt": "organic egg being laid on the floor, wet squelch and a soft leathery thump, heavy dry tone, medium distance, no music, game sound effect",
+		"durationSeconds": 0.8,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_egg_broken",
+		"kind": "sfx",
+		"prompt": "leathery alien egg smashed, wet crack and a gooey splash, heavy dry tone, medium distance, no music, game sound effect",
+		"durationSeconds": 0.8,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_egg_hatched",
+		"kind": "sfx",
+		"prompt": "egg bursting open as a creature emerges, wet tearing and a high screech, heavy dry tone, medium distance, no music, game sound effect",
+		"durationSeconds": 1.2,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_boss_swamp_matriarch_entry",
+		"kind": "sfx",
+		"prompt": "huge swamp hag rising from black water, thick bubbling, wet gurgling roar and slow heavy splashes, heavy dry tone, medium distance, no music, game sound effect",
+		"durationSeconds": 3.0,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_boss_forgemaster_entry",
+		"kind": "sfx",
+		"prompt": "colossal armored forgemaster stomping in, giant hammer dragging on iron, furnace roar and clanging chains, heavy dry tone, medium distance, no music, game sound effect",
+		"durationSeconds": 3.0,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_enemy_drowned_death",
+		"kind": "sfx",
+		"prompt": "drowned corpse collapsing into water, wet gurgle and a heavy splash, heavy dry tone, medium distance, no music, game sound effect",
+		"durationSeconds": 1.0,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_enemy_leech_death",
+		"kind": "sfx",
+		"prompt": "giant blood leech bursting, wet squelch and a short hiss, heavy dry tone, medium distance, no music, game sound effect",
+		"durationSeconds": 1.0,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_enemy_forged_death",
+		"kind": "sfx",
+		"prompt": "forged iron golem breaking apart, metal clanging and glowing slag hissing, heavy dry tone, medium distance, no music, game sound effect",
+		"durationSeconds": 1.0,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_enemy_watcher_death",
+		"kind": "sfx",
+		"prompt": "mechanical watcher turret exploding, sparks, metal crunch and a short electric whine, heavy dry tone, medium distance, no music, game sound effect",
+		"durationSeconds": 1.0,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_enemy_hunter_death",
+		"kind": "sfx",
+		"prompt": "fast alien hunter dying with a sharp screech and a thud of its body hitting the ground, heavy dry tone, medium distance, no music, game sound effect",
+		"durationSeconds": 1.0,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_enemy_breeder_death",
+		"kind": "sfx",
+		"prompt": "bloated breeder bursting, heavy wet pop with sloshing fluid and a low groan, heavy dry tone, medium distance, no music, game sound effect",
+		"durationSeconds": 1.0,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "voice_gravedigger_entry",
+		"kind": "voice",
+		"prompt": "Another soul for my graves.",
+		"durationSeconds": 4,
+		"voiceId": "nPczCjzI2devNBz1zQrb",
+		"model": "eleven_multilingual_v2"
+	},
+	{
+		"file": "voice_gravedigger_phase",
+		"kind": "voice",
+		"prompt": "Rise! Rise from the dirt!",
+		"durationSeconds": 4,
+		"voiceId": "nPczCjzI2devNBz1zQrb",
+		"model": "eleven_multilingual_v2"
+	},
+	{
+		"file": "voice_gravedigger_death",
+		"kind": "voice",
+		"prompt": "Back... into the earth...",
+		"durationSeconds": 4,
+		"voiceId": "nPczCjzI2devNBz1zQrb",
+		"model": "eleven_multilingual_v2"
+	},
+	{
+		"file": "voice_swamp_matriarch_entry",
+		"kind": "voice",
+		"prompt": "Come closer, little one. The swamp is hungry.",
+		"durationSeconds": 4,
+		"voiceId": "N2lVS1w4EtoT3dr4eOWO",
+		"model": "eleven_multilingual_v2"
+	},
+	{
+		"file": "voice_swamp_matriarch_phase",
+		"kind": "voice",
+		"prompt": "Drown them all, my leeches.",
+		"durationSeconds": 4,
+		"voiceId": "N2lVS1w4EtoT3dr4eOWO",
+		"model": "eleven_multilingual_v2"
+	},
+	{
+		"file": "voice_swamp_matriarch_death",
+		"kind": "voice",
+		"prompt": "The water... takes me back...",
+		"durationSeconds": 4,
+		"voiceId": "N2lVS1w4EtoT3dr4eOWO",
+		"model": "eleven_multilingual_v2"
+	},
+	{
+		"file": "voice_forgemaster_entry",
+		"kind": "voice",
+		"prompt": "I will forge you into scrap.",
+		"durationSeconds": 4,
+		"voiceId": "nPczCjzI2devNBz1zQrb",
+		"model": "eleven_multilingual_v2"
+	},
+	{
+		"file": "voice_forgemaster_phase",
+		"kind": "voice",
+		"prompt": "My armor is unbreakable!",
+		"durationSeconds": 4,
+		"voiceId": "nPczCjzI2devNBz1zQrb",
+		"model": "eleven_multilingual_v2"
+	},
+	{
+		"file": "voice_forgemaster_death",
+		"kind": "voice",
+		"prompt": "The fire... goes out.",
 		"durationSeconds": 4,
 		"voiceId": "nPczCjzI2devNBz1zQrb",
 		"model": "eleven_multilingual_v2"

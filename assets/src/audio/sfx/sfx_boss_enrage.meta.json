@@ -1,0 +1,9 @@
+{
+	"prompt": "boss roaring in fury, distorted deep bellow with a rattling metal growl, heavy dry tone, medium distance, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 2,
+	"generatedAt": "2026-10-31T16:05:19.976Z",
+	"plan": "creator",
+	"hash": "4abc48a47b6e51a94925a95bf24609456dd1f41e7e4d89345c9c4f99448276bf",
+	"promptInfluence": 0.5
+}

@@ -1,0 +1,9 @@
+{
+	"prompt": "drowned corpse collapsing into water, wet gurgle and a heavy splash, heavy dry tone, medium distance, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 1,
+	"generatedAt": "2026-10-31T16:05:31.063Z",
+	"plan": "creator",
+	"hash": "508c4ea4ca1ad39db63b4185e46d5ec548c09d90cbcf06d23a1328a55f150467",
+	"promptInfluence": 0.5
+}

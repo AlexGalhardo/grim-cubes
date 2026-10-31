@@ -21,7 +21,7 @@ Este documento descreve o áudio gerado para o jogo: direção sonora, desenho d
 | UI | `sfx_ui_*` | placas de ferro, trinco, moedas e madeira oca | 0,5 a 0,8 s |
 | Rounds | `sfx_round_*` | tambor de guerra no início, sino rachado no fim | 1,5 a 3 s |
 | Música | `mus_*` | menu lento e ritual; ondas tensas e percussivas; chefe épico com coral e metal industrial; uma faixa por bioma e uma para cada um dos chefes 4 e 5 | 60 s (temas) e 150 s (biomas e chefes) |
-| Voz | `vo_boss_*` | falas curtas de entrada, mudança de fase e morte dos chefes 4 e 5 | 1,6 a 2,6 s |
+| Voz | `voice_<chefe>_*` | falas curtas de entrada, mudança de fase e morte dos 5 chefes | 1,6 a 2,6 s |
 
 ## 3. Assets
 
@@ -57,26 +57,66 @@ A duração é a medida com `ffprobe` nos arquivos gerados. Os prompts estão ex
 | `mus_round` | `assets/src/audio/music/mus_round.mp3` | music | 60.1 s | tense percussive grimdark combat music for survival waves, 120 BPM, driving war drums and industrial metal hits, low palm-muted guitar pulse, ominous brass drones, rising tension, no melody hooks, no cheerful synthesizers, seamless loop | — | tema genérico das ondas (reserva quando o bioma não tem faixa própria) |
 | `mus_boss` | `assets/src/audio/music/mus_boss.mp3` | music | 60.0 s | epic heavy boss battle music, 140 BPM, massive wordless choir, crushing industrial metal guitars, pounding orchestral percussion and anvil strikes, apocalyptic grimdark mood, no cheerful synthesizers, seamless loop | — | tema genérico de chefe (reserva quando o chefe não tem faixa própria) |
 | `sfx_boss_alpha_hunter_entry` | `assets/src/audio/sfx/sfx_boss_alpha_hunter_entry.mp3` | sfx | 3.0 s | towering alien hunter decloaking with a crackle of static, wet clicking mandibles and a low predatory snarl, heavy dry tone, medium distance, no music, game sound effect | — | `BossIntro` do Caçador Alfa (round 40) |
-| `sfx_boss_alpha_hunter_leap` | `assets/src/audio/sfx/sfx_boss_alpha_hunter_leap.mp3` | sfx | 1.5 s | huge predator leaping through the air then slamming into the ground, heavy impact with cracking stone and a guttural roar, heavy dry tone, medium distance, no music, game sound effect | — | evento `BossLeap` do Caçador Alfa |
+| `sfx_boss_leap` | `assets/src/audio/sfx/sfx_boss_leap.mp3` | sfx | 1.5 s | huge predator leaping through the air then slamming into the ground, heavy impact with cracking stone and a guttural roar, heavy dry tone, medium distance, no music, game sound effect | — | evento `BossLeap` (salto do Caçador Alfa) |
 | `sfx_boss_nest_queen_entry` | `assets/src/audio/sfx/sfx_boss_nest_queen_entry.mp3` | sfx | 3.0 s | colossal biomechanical queen rising with a shriek, wet chitin scraping, deep resonant hiss and dripping ichor, heavy dry tone, medium distance, no music, game sound effect | — | `BossIntro` da Rainha do Ninho (round 50) |
-| `sfx_boss_nest_queen_sweep` | `assets/src/audio/sfx/sfx_boss_nest_queen_sweep.mp3` | sfx | 1.2 s | massive barbed tail whipping across the ground, fast whoosh and a crunching impact on bone and metal, heavy dry tone, medium distance, no music, game sound effect | — | evento `BossSweep` da Rainha |
+| `sfx_boss_sweep` | `assets/src/audio/sfx/sfx_boss_sweep.mp3` | sfx | 1.2 s | massive barbed tail whipping across the ground, fast whoosh and a crunching impact on bone and metal, heavy dry tone, medium distance, no music, game sound effect | — | evento `BossSweep` (varrida de cauda da Rainha) |
 | `mus_boss_alpha_hunter` | `assets/src/audio/music/mus_boss_alpha_hunter.mp3` | music | 150.0 s | relentless heavy metal boss music, 140 BPM, stalking low guitar riffs, tribal war drums, tense high string stabs, predator hunt mood, grimdark, no cheerful synthesizers, seamless loop | — | round de chefe 40 (Caçador Alfa) |
 | `mus_boss_nest_queen` | `assets/src/audio/music/mus_boss_nest_queen.mp3` | music | 150.0 s | crushing heavy metal boss music, 135 BPM, detuned low guitars, industrial grinding percussion, shrieking choir swells, biomechanical hive horror mood, grimdark, no cheerful synthesizers, seamless loop | — | round de chefe 50 (Rainha do Ninho) |
-| `vo_boss_alpha_hunter_entry` | `assets/src/audio/voice/vo_boss_alpha_hunter_entry.mp3` | voice | 2.6 s | You cannot see me. You can only die. | Callum (rouca) | `BossIntro` do Caçador Alfa |
-| `vo_boss_alpha_hunter_phase` | `assets/src/audio/voice/vo_boss_alpha_hunter_phase.mp3` | voice | 1.9 s | The hunt begins in earnest. | Callum (rouca) | início da fase de caça (padrão `thermal_vision`) |
-| `vo_boss_alpha_hunter_death` | `assets/src/audio/voice/vo_boss_alpha_hunter_death.mp3` | voice | 2.3 s | A worthy prey... after all. | Callum (rouca) | `BossDied` do Caçador Alfa |
-| `vo_boss_nest_queen_entry` | `assets/src/audio/voice/vo_boss_nest_queen_entry.mp3` | voice | 2.0 s | My children hunger. Feed them. | Brian (grave) | `BossIntro` da Rainha do Ninho |
-| `vo_boss_nest_queen_phase` | `assets/src/audio/voice/vo_boss_nest_queen_phase.mp3` | voice | 1.7 s | Rise, my brood. Rise! | Brian (grave) | início da fase de ovos (`egg_spawn`) |
-| `vo_boss_nest_queen_death` | `assets/src/audio/voice/vo_boss_nest_queen_death.mp3` | voice | 1.6 s | The hive... will remember. | Brian (grave) | `BossDied` da Rainha do Ninho |
+| `voice_alpha_hunter_entry` | `assets/src/audio/voice/voice_alpha_hunter_entry.mp3` | voice | 2.6 s | You cannot see me. You can only die. | Callum (rouca) | `BossIntro` do Caçador Alfa |
+| `voice_alpha_hunter_phase` | `assets/src/audio/voice/voice_alpha_hunter_phase.mp3` | voice | 1.9 s | The hunt begins in earnest. | Callum (rouca) | início da fase de caça (padrão `thermal_vision`) |
+| `voice_alpha_hunter_death` | `assets/src/audio/voice/voice_alpha_hunter_death.mp3` | voice | 2.3 s | A worthy prey... after all. | Callum (rouca) | `BossDied` do Caçador Alfa |
+| `voice_nest_queen_entry` | `assets/src/audio/voice/voice_nest_queen_entry.mp3` | voice | 2.0 s | My children hunger. Feed them. | Brian (grave) | `BossIntro` da Rainha do Ninho |
+| `voice_nest_queen_phase` | `assets/src/audio/voice/voice_nest_queen_phase.mp3` | voice | 1.7 s | Rise, my brood. Rise! | Brian (grave) | início da fase de ovos (`egg_spawn`) |
+| `voice_nest_queen_death` | `assets/src/audio/voice/voice_nest_queen_death.mp3` | voice | 1.6 s | The hive... will remember. | Brian (grave) | `BossDied` da Rainha do Ninho |
+| `sfx_player_dodge` | `assets/src/audio/sfx/sfx_player_dodge.mp3` | sfx | 0.5 s | armored executioner sidestepping fast, quick cloth and plate scrape with a short air whoosh, heavy dry tone, medium distance, no music, game sound effect | — | evento `Dodged` |
+| `sfx_explosion_01` | `assets/src/audio/sfx/sfx_explosion_01.mp3` | sfx | 1.5 s | heavy bazooka shell exploding, deep boom with a debris crackle and a short low rumble tail, heavy dry tone, medium distance, no music, game sound effect | — | evento `Exploded` (bazuca e explosões) |
+| `sfx_dash` | `assets/src/audio/sfx/sfx_dash.mp3` | sfx | 0.5 s | armored hero lunging forward in a sharp dash, metal plates scraping and a hard air burst, heavy dry tone, medium distance, no music, game sound effect | — | evento `DashStarted` |
+| `sfx_prop_break` | `assets/src/audio/sfx/sfx_prop_break.mp3` | sfx | 0.8 s | old clay burial urn smashing, ceramic shards scattering over stone with a dry crack, heavy dry tone, medium distance, no music, game sound effect | — | evento `PropBroken` (urna quebrada) |
+| `sfx_pickup_consumable` | `assets/src/audio/sfx/sfx_pickup_consumable.mp3` | sfx | 0.6 s | small glass vial and bone charm snatched up, short wet glass clink and a low soft chime, heavy dry tone, medium distance, no music, game sound effect | — | evento `ConsumablePicked` |
+| `sfx_player_revive` | `assets/src/audio/sfx/sfx_player_revive.mp3` | sfx | 2.0 s | dead warrior revived by a phylactery, deep heartbeat thump, cold magical breath and a low choir swell, heavy dry tone, medium distance, no music, game sound effect | — | evento `Revived` (Filactério) |
+| `sfx_elite_incoming` | `assets/src/audio/sfx/sfx_elite_incoming.mp3` | sfx | 2.0 s | ominous low horn blast and distant heavy footsteps approaching, warning of a stronger enemy, heavy dry tone, medium distance, no music, game sound effect | — | evento `EliteIncoming` (aviso 2 s antes) |
+| `sfx_elite_spawn` | `assets/src/audio/sfx/sfx_elite_spawn.mp3` | sfx | 1.5 s | powerful monster materializing, dark energy crackle and a deep guttural growl, heavy dry tone, medium distance, no music, game sound effect | — | evento `EliteSpawned` |
+| `sfx_chest_drop` | `assets/src/audio/sfx/sfx_chest_drop.mp3` | sfx | 1.0 s | heavy iron-bound chest landing on stone, solid wooden thud with a metal rattle, heavy dry tone, medium distance, no music, game sound effect | — | evento `ChestDropped` |
+| `sfx_chest_open` | `assets/src/audio/sfx/sfx_chest_open.mp3` | sfx | 1.2 s | rusted chest lid creaking open, metal latch click and a faint ethereal chime, heavy dry tone, medium distance, no music, game sound effect | — | evento `ChestOpened` |
+| `sfx_boss_telegraph` | `assets/src/audio/sfx/sfx_boss_telegraph.mp3` | sfx | 1.0 s | deep rising warning growl with a metallic screech, a huge attack winding up, heavy dry tone, medium distance, no music, game sound effect | — | evento `BossTelegraph` |
+| `sfx_boss_summon` | `assets/src/audio/sfx/sfx_boss_summon.mp3` | sfx | 2.0 s | dark ritual horn and a rumble as undead claw out of the ground, dirt bursting and bones clacking, heavy dry tone, medium distance, no music, game sound effect | — | evento `BossSummon` |
+| `sfx_boss_enrage` | `assets/src/audio/sfx/sfx_boss_enrage.mp3` | sfx | 2.0 s | boss roaring in fury, distorted deep bellow with a rattling metal growl, heavy dry tone, medium distance, no music, game sound effect | — | evento `BossEnraged` |
+| `sfx_boss_pool` | `assets/src/audio/sfx/sfx_boss_pool.mp3` | sfx | 1.5 s | thick toxic mud pool bubbling up, wet gurgling splash and slow dripping, heavy dry tone, medium distance, no music, game sound effect | — | evento `BossPool` (poça da Matriarca) |
+| `sfx_boss_scream` | `assets/src/audio/sfx/sfx_boss_scream.mp3` | sfx | 1.5 s | monstrous shriek, a shockwave of piercing scream with a deep low distortion, heavy dry tone, medium distance, no music, game sound effect | — | evento `BossScream` |
+| `sfx_boss_shockwave` | `assets/src/audio/sfx/sfx_boss_shockwave.mp3` | sfx | 1.5 s | giant war hammer slamming the ground, huge deep impact and a rolling shockwave boom, heavy dry tone, medium distance, no music, game sound effect | — | evento `BossShockwave` (martelo, pouso do salto) |
+| `sfx_boss_stealth` | `assets/src/audio/sfx/sfx_boss_stealth.mp3` | sfx | 1.0 s | predator fading into invisibility, soft electric crackle and a low inhale, heavy dry tone, medium distance, no music, game sound effect | — | evento `BossStealth` com a = 1 (some) |
+| `sfx_boss_reveal` | `assets/src/audio/sfx/sfx_boss_reveal.mp3` | sfx | 1.0 s | predator decloaking, sharp static burst and a menacing snarl, heavy dry tone, medium distance, no music, game sound effect | — | evento `BossStealth` com a = 0 (aparece) |
+| `sfx_boss_bomb` | `assets/src/audio/sfx/sfx_boss_bomb.mp3` | sfx | 1.2 s | flying insectoid dropping a bomb, falling whistle ending in a wet acid splat before the blast, heavy dry tone, medium distance, no music, game sound effect | — | evento `BossBomb` |
+| `sfx_egg_laid` | `assets/src/audio/sfx/sfx_egg_laid.mp3` | sfx | 0.8 s | organic egg being laid on the floor, wet squelch and a soft leathery thump, heavy dry tone, medium distance, no music, game sound effect | — | evento `BossEggLaid` |
+| `sfx_egg_broken` | `assets/src/audio/sfx/sfx_egg_broken.mp3` | sfx | 0.8 s | leathery alien egg smashed, wet crack and a gooey splash, heavy dry tone, medium distance, no music, game sound effect | — | evento `BossEggBroken` |
+| `sfx_egg_hatched` | `assets/src/audio/sfx/sfx_egg_hatched.mp3` | sfx | 1.2 s | egg bursting open as a creature emerges, wet tearing and a high screech, heavy dry tone, medium distance, no music, game sound effect | — | evento `BossEggHatched` |
+| `sfx_boss_swamp_matriarch_entry` | `assets/src/audio/sfx/sfx_boss_swamp_matriarch_entry.mp3` | sfx | 3.0 s | huge swamp hag rising from black water, thick bubbling, wet gurgling roar and slow heavy splashes, heavy dry tone, medium distance, no music, game sound effect | — | `BossIntro` da Matriarca (round 20) |
+| `sfx_boss_forgemaster_entry` | `assets/src/audio/sfx/sfx_boss_forgemaster_entry.mp3` | sfx | 3.0 s | colossal armored forgemaster stomping in, giant hammer dragging on iron, furnace roar and clanging chains, heavy dry tone, medium distance, no music, game sound effect | — | `BossIntro` do Forjador (round 30) |
+| `sfx_enemy_drowned_death` | `assets/src/audio/sfx/sfx_enemy_drowned_death.mp3` | sfx | 1.0 s | drowned corpse collapsing into water, wet gurgle and a heavy splash, heavy dry tone, medium distance, no music, game sound effect | — | `Died` do Afogado |
+| `sfx_enemy_leech_death` | `assets/src/audio/sfx/sfx_enemy_leech_death.mp3` | sfx | 1.0 s | giant blood leech bursting, wet squelch and a short hiss, heavy dry tone, medium distance, no music, game sound effect | — | `Died` da Sanguessuga |
+| `sfx_enemy_forged_death` | `assets/src/audio/sfx/sfx_enemy_forged_death.mp3` | sfx | 1.0 s | forged iron golem breaking apart, metal clanging and glowing slag hissing, heavy dry tone, medium distance, no music, game sound effect | — | `Died` do Forjado |
+| `sfx_enemy_watcher_death` | `assets/src/audio/sfx/sfx_enemy_watcher_death.mp3` | sfx | 1.0 s | mechanical watcher turret exploding, sparks, metal crunch and a short electric whine, heavy dry tone, medium distance, no music, game sound effect | — | `Died` do Vigia |
+| `sfx_enemy_hunter_death` | `assets/src/audio/sfx/sfx_enemy_hunter_death.mp3` | sfx | 1.0 s | fast alien hunter dying with a sharp screech and a thud of its body hitting the ground, heavy dry tone, medium distance, no music, game sound effect | — | `Died` do Caçador |
+| `sfx_enemy_breeder_death` | `assets/src/audio/sfx/sfx_enemy_breeder_death.mp3` | sfx | 1.0 s | bloated breeder bursting, heavy wet pop with sloshing fluid and a low groan, heavy dry tone, medium distance, no music, game sound effect | — | `Died` do Reprodutor |
+| `voice_gravedigger_entry` | `assets/src/audio/voice/voice_gravedigger_entry.mp3` | voice | 1.7 s | Another soul for my graves. | Brian (grave) | `BossIntro` do Coveiro |
+| `voice_gravedigger_phase` | `assets/src/audio/voice/voice_gravedigger_phase.mp3` | voice | 1.7 s | Rise! Rise from the dirt! | Brian (grave) | `BossPhase` do Coveiro (invocação a 50% de HP) |
+| `voice_gravedigger_death` | `assets/src/audio/voice/voice_gravedigger_death.mp3` | voice | 2.0 s | Back... into the earth... | Brian (grave) | `BossDied` do Coveiro |
+| `voice_swamp_matriarch_entry` | `assets/src/audio/voice/voice_swamp_matriarch_entry.mp3` | voice | 3.4 s | Come closer, little one. The swamp is hungry. | Callum (rouca) | `BossIntro` da Matriarca |
+| `voice_swamp_matriarch_phase` | `assets/src/audio/voice/voice_swamp_matriarch_phase.mp3` | voice | 2.1 s | Drown them all, my leeches. | Callum (rouca) | `BossPhase` da Matriarca |
+| `voice_swamp_matriarch_death` | `assets/src/audio/voice/voice_swamp_matriarch_death.mp3` | voice | 2.2 s | The water... takes me back... | Callum (rouca) | `BossDied` da Matriarca |
+| `voice_forgemaster_entry` | `assets/src/audio/voice/voice_forgemaster_entry.mp3` | voice | 1.8 s | I will forge you into scrap. | Brian (grave) | `BossIntro` do Forjador |
+| `voice_forgemaster_phase` | `assets/src/audio/voice/voice_forgemaster_phase.mp3` | voice | 1.6 s | My armor is unbreakable! | Brian (grave) | `BossPhase` do Forjador (armadura 30) |
+| `voice_forgemaster_death` | `assets/src/audio/voice/voice_forgemaster_death.mp3` | voice | 1.9 s | The fire... goes out. | Brian (grave) | `BossDied` do Forjador |
 
-Vozes (conta ElevenLabs, plano Creator): o Caçador Alfa usa **Callum** (`N2lVS1w4EtoT3dr4eOWO`, rouca e inquietante) e a Rainha do Ninho usa **Brian** (`nPczCjzI2devNBz1zQrb`, grave e ressonante). A escolha saiu da lista de vozes da conta, entre as que soavam graves e sombrias. Trocar a voz exige alterar o `voiceId` no `prompts.json` e regenerar com `--force`.
+Vozes (conta ElevenLabs, plano Creator): **Callum** (`N2lVS1w4EtoT3dr4eOWO`, rouca e inquietante) fala pela Matriarca do Pântano e pelo Caçador Alfa; **Brian** (`nPczCjzI2devNBz1zQrb`, grave e ressonante) fala pelo Coveiro, pelo Forjador e pela Rainha do Ninho. A escolha saiu da lista de vozes da conta, entre as que soavam graves e sombrias. Trocar a voz exige alterar o `voiceId` no `prompts.json` e regenerar com `--force`.
 
 Os temas `mus_menu`, `mus_round` e `mus_boss` têm 60 s. A API de música (`POST /v1/music`, `music_length_ms` de 3.000 a 600.000, modelo `music_v1`) não tem parâmetro de loop; o "seamless loop" é só pedido no prompt, então o ponto de emenda precisa ser conferido de ouvido antes de o motor de áudio usar a faixa em `loop`.
 
 ## 4. Créditos
 
-- Estimativa do script para o conjunto: 21.167 créditos (SFX 200 cada, música 900 por minuto, voz 1 por caractere).
-- Consumo real medido no saldo da conta: de 31.917 para 45.105 de 124.333 créditos do ciclo, ou seja, **13.188 créditos** para os 39 arquivos (inclui a repetição de uma faixa que falhou com HTTP 429). A estimativa do script é conservadora (cerca de 60% acima do real).
+- Primeira leva (39 arquivos: 24 SFX, 9 músicas, 6 falas): o script estimou 21.167 créditos; o saldo da conta foi de 31.917 para 45.105 de 124.333, ou seja, **13.188 créditos** reais (inclui a repetição de uma faixa que falhou com HTTP 429).
+- Segunda leva (39 arquivos: 30 SFX e 9 falas, com os ids que o motor de áudio pede): o script estimou 6.251 créditos; o saldo foi de 47.167 para 47.502, ou seja, **335 créditos** reais.
+- Total medido: cerca de **13.500 créditos** para os 78 arquivos. A estimativa do script é conservadora, sobretudo na música. O saldo é de uma conta compartilhada, então o delta pode incluir outro uso entre as leituras.
 - Plano: Creator (`plan: creator` em todos os `.meta.json`), com licença comercial.
 
 ## 5. Como regenerar
@@ -90,6 +130,8 @@ Os temas `mus_menu`, `mus_round` e `mus_boss` têm 60 s. A API de música (`POST
 
 ## 6. Pendências
 
-- O motor de áudio (S2) ainda não carrega estes arquivos: não existe manifest nem etapa de áudio no `assets-build`. Os arquivos estão em `assets/src/audio/<tipo>/<id>.mp3`; o caminho e o formato do manifest ficam para o S2 definir.
+- O `assets:build` copia os mp3 para `public/assets/audio/<id>.mp3` e o motor de áudio (`apps/web/src/audio`) pede os ids pelo nome: `voice_<id do chefe>_<entry|phase|death>`, `sfx_boss_<id>_entry` e os `sfx_*` por evento (`eventSounds.ts`).
+- O `enemyDeath` de `apps/web/src/main.tsx` só distingue `wail` e `husk`. Os ids `sfx_enemy_<id>_death` dos 8 tipos já existem, e o S2 precisa trocar o mapa por `sfx_enemy_${id}_death`.
+- As falas de `entry` existem para os 5 chefes, mas o `soundFor` só mapeia `phase` e `death`; a de `entry` toca no `BossIntro` de `main.tsx`.
 - O pós-processo (loudness −16/−14 LUFS, trim de silêncio, pitch dos chefes) não está implementado (SDD 08 §3).
 - Faltam SFX de passos, dash, armas extras, mortes por tipo e demais itens do GDD §22.1, e as falas do Mercador de Ossos (§22.3).

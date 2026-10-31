@@ -1,0 +1,9 @@
+{
+	"prompt": "forged iron golem breaking apart, metal clanging and glowing slag hissing, heavy dry tone, medium distance, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 1,
+	"generatedAt": "2026-10-31T16:05:33.119Z",
+	"plan": "creator",
+	"hash": "e1c75c4d71e99e49e088951d84d41dcc5cfa01228a009e104cc4ad20cab84c11",
+	"promptInfluence": 0.5
+}

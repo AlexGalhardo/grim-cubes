@@ -1,0 +1,9 @@
+{
+	"prompt": "fast alien hunter dying with a sharp screech and a thud of its body hitting the ground, heavy dry tone, medium distance, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 1,
+	"generatedAt": "2026-10-31T16:05:34.619Z",
+	"plan": "creator",
+	"hash": "ec965458fd276ad527acf288b3ce7e483639861f135bc58a199f773babcd82fa",
+	"promptInfluence": 0.5
+}

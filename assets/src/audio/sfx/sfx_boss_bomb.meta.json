@@ -1,0 +1,9 @@
+{
+	"prompt": "flying insectoid dropping a bomb, falling whistle ending in a wet acid splat before the blast, heavy dry tone, medium distance, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 1.2,
+	"generatedAt": "2026-10-31T16:05:25.781Z",
+	"plan": "creator",
+	"hash": "a2030bedfe65ffd29374a64c01ee043ee59ed9c4c2e9beaffec0b9229757358d",
+	"promptInfluence": 0.5
+}

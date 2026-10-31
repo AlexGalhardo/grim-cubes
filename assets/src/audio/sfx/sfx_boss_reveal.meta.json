@@ -1,0 +1,9 @@
+{
+	"prompt": "predator decloaking, sharp static burst and a menacing snarl, heavy dry tone, medium distance, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 1,
+	"generatedAt": "2026-10-31T16:05:24.433Z",
+	"plan": "creator",
+	"hash": "b22c20cf2606e511809acb3a690e80b752602537cc4102ce560358b3c50d345e",
+	"promptInfluence": 0.5
+}

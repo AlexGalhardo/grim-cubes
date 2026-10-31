@@ -1,0 +1,9 @@
+{
+	"prompt": "dark ritual horn and a rumble as undead claw out of the ground, dirt bursting and bones clacking, heavy dry tone, medium distance, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 2,
+	"generatedAt": "2026-10-31T16:05:18.386Z",
+	"plan": "creator",
+	"hash": "4ad39fa541d71ae5821ceabb3d7c5dff12ccb199c51930400288c587d46bb38e",
+	"promptInfluence": 0.5
+}
