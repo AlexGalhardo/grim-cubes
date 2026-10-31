@@ -1,4 +1,10 @@
 {
+	"flow": {
+		"introSeconds": 2,
+		"outroSeconds": 1,
+		"bossIntroSeconds": 3,
+		"dyingSeconds": 1.5
+	},
 	"duration": {
 		"firstRoundSeconds": 20,
 		"stepSeconds": 5,
@@ -11,6 +17,7 @@
 		"enrageEverySeconds": 60,
 		"enrageDamageSpeedBonus": 0.15,
 		"remainingHordeFraction": 0.3,
+		"hordeIntervalMult": 1.5,
 		"contactDamageBase": 25,
 		"contactDamagePerRound": 1.5,
 		"projectileDamageBase": 18,
@@ -24,6 +31,9 @@
 			"picks": 2
 		},
 		"freeWeaponUpgrades": 1
+	},
+	"ai": {
+		"separationWeight": 0.6
 	},
 	"spawn": {
 		"totalBase": 20,

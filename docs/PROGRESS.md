@@ -1,6 +1,6 @@
 # PROGRESS
 
-Atualizado: 2026-10-31 05:40 (fuso do PO) | Versão: 0.0.0 | Fase: 1 — ESTRUTURA | Sessão: #1
+Atualizado: 2026-10-31 08:10 (fuso do PO) | Versão: 0.0.0 | Fase: 1 — ESTRUTURA (fase 2 adiantada em paralelo) | Sessão: #1
 
 Meta do PO (2026-10-31): implementar o ROADMAP até o fim sem interrupções; tarefas `Resp: PO` ficam em Bloqueios e os agentes seguem com o resto. Hooks lefthook instalados em `.git` (valem para todos os worktrees).
 
@@ -8,15 +8,15 @@ Meta do PO (2026-10-31): implementar o ROADMAP até o fim sem interrupções; ta
 
 | Agente | Tarefa atual | Branch | Estado | Desde | Lock |
 | --- | --- | --- | --- | --- | --- |
-| Orq | merges; docs; PROGRESS | main | em andamento | 06:20 | — |
-| S1 | P-01-04 origin shifting + `RenderPort` mínimo no render | feat/P-01-04-origin-shift | implementando | 06:20 | `data/world.json` |
-| S2 | E-03-05 storage web → P-04-01 dano | feat/E-03-05-platform-storage | implementando | 06:20 | — |
-| Est | E-02-08 + correções da fase 2 no ROADMAP/SDD/ADR (sem D1/D3/D5) | docs/phase2-roadmap-fixes | implementando | 06:20 | ROADMAP.md, docs/sdd/**, docs/adrs/**, prompt-workers.md, .env.example |
-| Esp | auditoria pós-merge P-06-02, P-01-02, E-03-04, E-02-07; revisão da branch E-02-04 | main, feat/E-02-04-vite | revisando | 05:40 | — |
+| Orq | merges; Vercel; PROGRESS | main | em andamento | 08:10 | — |
+| S1 | correções VAT (base do esqueleto) e `findHero` sem alocação → chão por cubo (P-01-03) → P-03-04 horda | feat/P-03-04-horde-render | implementando | 08:10 | `data/world.json` |
+| S2 | P-04-02 armas → E-03-03 design system → P-02-02 input/HUD | feat/P-04-02-weapons | implementando | 08:10 | `data/**` |
+| Est | P-06-05 correções → PR #1 (cache, concurrency, rebase) | fix/P-06-05-audio | implementando | 08:10 | `.github/**`, `tools/release/**`, `tools/sbom/**` |
+| Esp | standby → próxima revisão a cada HANDOFF | — | revisando | 08:10 | — |
 
-Concluídas nesta rodada (Orq verificou; Esp audita): P-06-03 (217051d), P-06-05 parcial — dry-run e prompts; falta E-05-04 (b616425), E-03-01 parte S2 loop/detect (0309abc, 46d9f88), E-03-06 (dbbe953). Lote de áudio estimado em 8.500 créditos (20 SFX + 2 músicas), nada gerado.
+Vercel: build corrigido (3721471: `--config apps/web/vite.config.ts` + `vercel.json`); deploy de produção `grim-cubes-fc7qzglh5` **Ready**; URL de produção responde 302 (proteção SSO mantida, decisão B).
 
-Branch pronta fora de `main`: `feat/E-02-04-vite` (3a4f1da) — aguarda aprovação de `@types/react`/`@types/react-dom` (Bloqueios).
+PR #1 (CI + CodeQL) aberto: CI verde; merge aguarda o PO (merge e autoaprovação pelo agente negados pelo classificador de permissões).
 
 ## Concluídas (últimas 20)
 

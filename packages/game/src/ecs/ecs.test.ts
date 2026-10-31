@@ -1,8 +1,8 @@
-import { hasComponent } from "bitecs";
-import { expect, test } from "vitest";
-import { MAX_ENTITIES, Position, PrevPosition } from "./components";
+import { $internal, hasComponent, removeEntity } from "bitecs";
+import { expect, test, vi } from "vitest";
+import { Armor, Health, MAX_ENTITIES, Position, PrevPosition, Radius, Velocity } from "./components";
 import { consumeEvents, createEventBuffer, EventType } from "./events";
-import { createGameWorld, spawn, spawnBody } from "./world";
+import { createGameWorld, createQueryCache, spawn, spawnBody } from "./world";
 
 test("spawnBody sets matching position and previous position", () => {
 	const world = createGameWorld();
@@ -36,4 +36,74 @@ test("OriginShifted carries dx and dz", () => {
 		got = [t, a, b];
 	});
 	expect(got).toEqual([EventType.OriginShifted, 16, -32]);
+});
+
+test("a recycled entity id comes back with zeroed components", () => {
+	const world = createGameWorld();
+	const eid = spawnBody(world, 7, 9);
+	Velocity.x[eid] = 3;
+	Radius.r[eid] = 2;
+	Health.hp[eid] = 50;
+	Armor.value[eid] = 4;
+	removeEntity(world, eid);
+	const again = spawn(world);
+	expect(again).toBe(eid);
+	for (const value of [
+		Position.x[eid],
+		Position.z[eid],
+		PrevPosition.x[eid],
+		Velocity.x[eid],
+		Radius.r[eid],
+		Health.hp[eid],
+		Armor.value[eid],
+	]) {
+		expect(value).toBe(0);
+	}
+});
+
+test("10,000 push/consume cycles allocate no typed arrays or arrays", () => {
+	const events = createEventBuffer();
+	const visit = (): void => {};
+	const spies = [
+		vi.spyOn(globalThis, "Float32Array"),
+		vi.spyOn(globalThis, "Uint16Array"),
+		vi.spyOn(globalThis, "Array"),
+	];
+	for (let i = 0; i < 10_000; i++) {
+		events.push(EventType.Damaged, i, 0, 0, i & 0xff);
+		events.consume(visit);
+	}
+	const created = spies.reduce((sum, spy) => sum + spy.mock.calls.length, 0);
+	for (const spy of spies) spy.mockRestore();
+	expect(created).toBe(0);
+});
+
+test("a query cache shared by two worlds registers each query once and allocates nothing", () => {
+	const cache = createQueryCache([Position]);
+	const a = createGameWorld();
+	const b = createGameWorld();
+	spawnBody(a, 0, 0);
+	spawnBody(b, 1, 1);
+	spawnBody(b, 2, 2);
+	cache(a);
+	cache(b);
+	const sizes = (): number[] =>
+		[a, b].map(
+			(w) => (w as unknown as Record<symbol, { queries: Set<unknown> }>)[$internal]?.queries.size ?? -1,
+		);
+	const before = sizes();
+
+	const spies = [
+		vi.spyOn(Array.prototype, "filter"),
+		vi.spyOn(Array.prototype, "map"),
+		vi.spyOn(Array.prototype, "join"),
+	];
+	for (let i = 0; i < 1000; i++) {
+		expect(cache(a).length).toBe(1);
+		expect(cache(b).length).toBe(2);
+	}
+	const calls = spies.reduce((sum, spy) => sum + spy.mock.calls.length, 0);
+	for (const spy of spies) spy.mockRestore();
+	expect(calls).toBe(0);
+	expect(sizes()).toEqual(before);
 });

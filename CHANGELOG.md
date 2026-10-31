@@ -37,6 +37,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **platform:** Add IndexedDB storage adapter with boundary validation and electron/capacitor stubs ([35830b8](https://github.com/AlexGalhardo/grim-cubes/commit/35830b816969270c17c65c4608ba6a9abe65e45b))
 - **game:** Add damage rules, damage queue and damageSystem (crit, armor, dodge, life steal cap, knockback, i-frames) ([e6e247d](https://github.com/AlexGalhardo/grim-cubes/commit/e6e247d5e998af8ae8d97f357feba978f3d04aae))
 - **web:** Add Vite config (babylon/react chunks, `rolldownOptions`) and minimal boot with canvas, engine, scene and HUD ([f4ac22b](https://github.com/AlexGalhardo/grim-cubes/commit/f4ac22b62d08f604b24b1f19ba3f2d1acb62b3f3))
+- **game:** Add dynamic spatial hash (core) and separationSystem ([d044e09](https://github.com/AlexGalhardo/grim-cubes/commit/d044e096edddd1a49cbf41096f36e5670f554acd))
+- **game:** Add spawnSystem with ring placement, bias and round scaling ([1af4aba](https://github.com/AlexGalhardo/grim-cubes/commit/1af4abaaa362985d2ed5f1be14cdd56ca885f1ba))
+- **game:** Add behaviorSystem (chase, zigzag) with contact damage ([060d01b](https://github.com/AlexGalhardo/grim-cubes/commit/060d01b2cb933aad1ebc989c80bc33df251c9385))
+- **game:** Add roundSystem, run state machine and fragment bag ([5466579](https://github.com/AlexGalhardo/grim-cubes/commit/5466579e4fb7b21f2163798523ac83ed73b015f9))
+- **game:** Cull farthest common enemy at the spawn cap; allocation guards for per-step systems ([2bb2dda](https://github.com/AlexGalhardo/grim-cubes/commit/2bb2dda0e6b28eaa0701484208abd8876935e990))
+- **build:** Point build at the web Vite config and add `vercel.json` (frozen install, SPA rewrite, immutable assets cache) ([3721471](https://github.com/AlexGalhardo/grim-cubes/commit/3721471b0eb3e3b06e8e50856057d3b9005eb1f8))
 
 ### Changed
 

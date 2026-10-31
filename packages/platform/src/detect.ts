@@ -18,9 +18,10 @@ export function detectPlatform(scope: PlatformScope = globalThis): PlatformInfo 
 	const userAgent = scope.navigator?.userAgent ?? "";
 	const native = scope.Capacitor?.isNativePlatform() === true;
 	const runtime: Runtime = native ? "capacitor" : /\bElectron\//.test(userAgent) ? "electron" : "web";
+	const touch = (scope.navigator?.maxTouchPoints ?? 0) > 0;
 	return {
 		runtime,
-		mobile: native || MOBILE_UA.test(userAgent),
-		touch: (scope.navigator?.maxTouchPoints ?? 0) > 0,
+		mobile: native || MOBILE_UA.test(userAgent) || (/Macintosh/.test(userAgent) && touch),
+		touch,
 	};
 }

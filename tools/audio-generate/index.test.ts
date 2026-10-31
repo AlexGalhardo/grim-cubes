@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { estimateCredits, type FetchFn, type PromptEntry, parsePrompts, resolvePlan, run } from "./lib";
 
-const promptsPath = fileURLToPath(new URL("./prompts.json", import.meta.url));
+const promptsPath = fileURLToPath(new URL("../../assets/src/audio/prompts.json", import.meta.url));
 const SECRET = "sk-test-secret-123";
 
 let outDir = "";
@@ -83,7 +83,7 @@ describe("audio-generate", () => {
 	});
 
 	it("exits non-zero on a free plan without calling the API", async () => {
-		expect(await runWith({ ELEVENLABS_PLAN: "free", ELEVENLABS_API_KEY: SECRET })).toBe(1);
+		expect(await runWith({ ELEVENLABS_PLAN: "free", ELEVENLABS_API_KEY: SECRET })).toBe(2);
 		expect(calls).toBe(0);
 	});
 
@@ -133,5 +133,48 @@ describe("audio-generate", () => {
 		);
 		expect(code).toBe(0);
 		expect(calls).toBe(2);
+	});
+
+	it("dry-run does not require ELEVENLABS_PLAN and logs plan: missing", async () => {
+		expect(await runWith({}, { dryRun: true })).toBe(0);
+		expect(lines).toContain("plan: missing");
+		expect(calls).toBe(0);
+	});
+
+	it("dry-run still refuses the free plan with exit 2", async () => {
+		expect(await runWith({ ELEVENLABS_PLAN: "free" }, { dryRun: true })).toBe(2);
+	});
+
+	it("a real run without a plan is refused with exit 2", async () => {
+		expect(await runWith({ ELEVENLABS_API_KEY: SECRET })).toBe(2);
+		expect(calls).toBe(0);
+	});
+
+	it("does not retry 4xx errors, except 429", async () => {
+		const env = { ELEVENLABS_PLAN: "creator", ELEVENLABS_API_KEY: SECRET };
+		expect(await runWith(env, { only: "sfx_ui_hover", fetch: mockFetch([401]) })).toBe(1);
+		expect(calls).toBe(1);
+
+		calls = 0;
+		expect(await runWith(env, { only: "sfx_ui_hover", fetch: mockFetch([429, 200]) })).toBe(0);
+		expect(calls).toBe(2);
+	});
+
+	it("estimates voice credits per character", () => {
+		const voice: PromptEntry = {
+			file: "vo_test",
+			kind: "voice",
+			prompt: "hello there",
+			durationSeconds: 2,
+			voiceId: "v",
+			model: "m",
+		};
+		expect(estimateCredits(voice)).toBe(11);
+	});
+
+	it("rejects durations outside the API limits", () => {
+		const base = { file: "a", prompt: "p", model: "m" };
+		expect(() => parsePrompts([{ ...base, kind: "sfx", durationSeconds: 0.3 }])).toThrow(/0.5-30/);
+		expect(() => parsePrompts([{ ...base, kind: "music", durationSeconds: 2 }])).toThrow(/3-600/);
 	});
 });

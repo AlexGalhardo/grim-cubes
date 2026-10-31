@@ -162,11 +162,11 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
 
 ### P-03 Horda
 
-- [ ] **P-03-01** Spatial hash dinâmico (célula 2 u, `queryCircle` sem alocação) + `separationSystem`. Deps: E-03-01, E-03-06. Resp: S2. Prio: P0.
+- [x] **P-03-01** Spatial hash dinâmico (célula 2 u, `queryCircle` sem alocação) + `separationSystem`. Deps: E-03-01, E-03-06. Resp: S2. Prio: P0.
   - Asserts: teste: 600 entidades aleatórias, `queryCircle` devolve o mesmo conjunto que a busca ingênua (100 consultas); custo de rebuild + 600 consultas < 1 ms em Node (p50 de 100 execuções).
-- [ ] **P-03-02** `spawnSystem` com `rounds.json` (total, intervalo, rajada, cap 100, anel 22–30 u com viés de 60%). Deps: P-03-01. Resp: S2. Prio: P0.
+- [x] **P-03-02** `spawnSystem` com `rounds.json` (total, intervalo, rajada, cap 100, anel 22–30 u com viés de 60%). Deps: P-03-01. Resp: S2. Prio: P0.
   - Asserts: integração: round 10 gera exatamente `20 + 12 × 10 = 140` spawns com herói parado e sem arma; simultâneos nunca > 100 (assert por passo).
-- [ ] **P-03-03** `behaviorSystem` para `chase` (Carcaça) e `zigzag` (Lamento); dano de contato com cooldown 0,5 s; i-frames do herói. Deps: P-03-02. Resp: S2. Prio: P0.
+- [x] **P-03-03** `behaviorSystem` para `chase` (Carcaça) e `zigzag` (Lamento); dano de contato com cooldown 0,5 s; i-frames do herói. Deps: P-03-02. Resp: S2. Prio: P0.
   - Asserts: testes: Carcaça a 10 u alcança o herói parado em ≤ 3 s simulados; herói cercado por 10 Carcaças recebe no máximo 1 hit por 0,3 s (i-frames).
 - [ ] **P-03-04** Render da horda: 1 mesh por tipo + thin instances + VAT (`BakedVertexAnimationManager`) com clipes idle/walk/attack/hit/death (2º buffer por instância `bakedVertexAnimationSettingsInstanced`, `alwaysSelectAsActiveMesh = true`); buffers reutilizados; `thinInstanceBufferUpdated` 1×/frame por buffer (matriz + VAT). Deps: P-06-03, P-03-03, P-03-06. Resp: S1. Prio: P0.
   - Asserts: `bench=horde100` (100 inimigos animados, sem projéteis; protocolo P-03-06) em 1080p na máquina do PO: fps médio ≥ 60, `frameP99 ≤ 20 ms`, draw calls ≤ 120, heap estável (Δ < 5 MB em 60 s); resultado em `reports/perf-desktop-1080.json`.
@@ -190,7 +190,7 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
 
 ### P-05 Rounds, loja, level-up, elite, chefe
 
-- [ ] **P-05-01** `roundSystem` + máquina de estados da run (SDD 02 §5): rampa de duração (GDD §13.1), intro/outro, fim de round mata restantes sem drop, Bolsa. Deps: P-03-02. Resp: S2. Prio: P0.
+- [x] **P-05-01** `roundSystem` + máquina de estados da run (SDD 02 §5): rampa de duração (GDD §13.1), intro/outro, fim de round mata restantes sem drop, Bolsa. Deps: P-03-02. Resp: S2. Prio: P0.
   - Asserts: teste: durações dos rounds 1–12 = [20,25,30,35,40,45,50,55,60,60(chefe: sem timer),60,60] s em passos; fragmentos no chão ao fim do round vão para a Bolsa e reaparecem no seguinte (contagem conservada).
 - [ ] **P-05-02** Fragmentos (drop por tipo, chance decrescente, 50 pilhas, magnet por raio de pickup), XP + ouro, colheita no fim do round. Deps: P-05-01, P-04-01. Resp: S2. Prio: P0.
   - Asserts: teste: round 10 → chance de drop 85% (10.000 amostras ±1%); 60 pilhas viram 50 com valor conservado; colheita 4 no round 5 → `ceil(4 × 1,25) = 5`.

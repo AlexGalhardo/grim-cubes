@@ -1,6 +1,7 @@
 export const EventType = {
 	/** a = amount, b = 1 when critical, entity = target. */
 	Damaged: 1,
+	/** b = 1 when the entity was purged at round end: no drops, no souls. */
 	Died: 2,
 	/** a = dx, b = dz: the world origin moved; Position and PrevPosition were already shifted by (-dx, -dz). */
 	OriginShifted: 3,
@@ -8,6 +9,14 @@ export const EventType = {
 	Dodged: 4,
 	/** a = amount taken by the hero. */
 	PlayerHit: 5,
+	/** a = round number. */
+	RoundStarted: 6,
+	/** a = round number. */
+	RoundEnded: 7,
+	/** a, b = unit direction x, z; c = reach in u. The hero swung a melee weapon. */
+	Swung: 8,
+	/** a, b = unit direction x, z. The hero fired a projectile. */
+	Fired: 9,
 } as const;
 
 export const EVENT_CAPACITY = 1024;
@@ -17,7 +26,10 @@ export type EventVisitor = (type: number, a: number, b: number, c: number, entit
 export interface EventBuffer {
 	/** Overwrites the oldest event when full. */
 	push(type: number, a: number, b: number, c: number, entity: number): void;
-	/** Visits events oldest to newest, then empties the buffer. Allocates nothing. */
+	/**
+	 * Visits events oldest to newest, then empties the buffer. Allocates nothing.
+	 * The visitor must not call `push` during the consume.
+	 */
 	consume(visit: EventVisitor): void;
 	readonly size: number;
 	/** Events overwritten before being consumed, since creation (SDD 02 section 4). */

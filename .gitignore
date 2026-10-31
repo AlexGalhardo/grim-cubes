@@ -25,7 +25,7 @@ Thumbs.db
 !.vscode/extensions.json
 
 # Release / platform builds
-release/
+/release/
 apps/android/android/app/build/
 apps/android/android/.gradle/
 apps/android/android/local.properties

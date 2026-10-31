@@ -15,7 +15,7 @@
 	],
 	"scripts": {
 		"dev": "vite --config apps/web/vite.config.ts",
-		"build": "bun run data:check && bun run assets:build && vite build --mode web-demo",
+		"build": "bun run data:check && bun run assets:build && vite build --config apps/web/vite.config.ts --mode web-demo",
 		"build:electron": "bun tools/build-electron/index.ts",
 		"build:android": "bun tools/build-android/index.ts",
 		"typecheck": "bun check -b",
