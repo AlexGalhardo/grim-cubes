@@ -24,6 +24,23 @@ describe("tips", () => {
 		expect(tips.update(at({ state: "RoundIntro", round: 2, nowMs: 5000 }))).toBeNull();
 	});
 
+	it("sends the player to the Merchant before the shop tip", () => {
+		const tips = createTips();
+		expect(tips.update(at({ state: "RoundIntro" }))).toBe("move");
+		expect(tips.update(at({ heroX: MOVE_DONE_DISTANCE, piles: 2, nowMs: 1000 }))).toBe("fragments");
+		expect(tips.update(at({ piles: 0, gold: 2, nowMs: 2000, state: "RoundOutro" }))).toBeNull();
+		expect(tips.update(at({ state: "MerchantWait", nowMs: 3000 }))).toBe("merchant");
+		expect(tips.update(at({ state: "MerchantWait", nowMs: 4000 }))).toBe("merchant");
+		expect(tips.update(at({ state: "Shop", nowMs: 5000 }))).toBe("shop");
+		expect(tips.update(at({ state: "RoundIntro", round: 2, nowMs: 6000 }))).toBeNull();
+	});
+
+	it("goes to the Merchant tip even if the earlier tips were never answered", () => {
+		const tips = createTips();
+		expect(tips.update(at({ state: "RoundIntro" }))).toBe("move");
+		expect(tips.update(at({ state: "MerchantWait", nowMs: 500 }))).toBe("merchant");
+	});
+
 	it("drops the move tip by itself after the timeout", () => {
 		const tips = createTips();
 		expect(tips.update(at({ nowMs: 0 }))).toBe("move");

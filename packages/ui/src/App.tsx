@@ -12,6 +12,7 @@ import {
 } from "./components/Difficulty/Difficulty";
 import { type CardView, LevelUp } from "./components/LevelUp/LevelUp";
 import { Menu, type MenuActions, type MenuViewModel } from "./components/Menu/Menu";
+import { MerchantPrompt, type MerchantPromptView } from "./components/MerchantPrompt/MerchantPrompt";
 import { Notice } from "./components/Notice/Notice";
 import { Options, type OptionsActions, type OptionsViewModel } from "./components/Options/Options";
 import { Ossuary, type OssuaryActions, type OssuaryViewModel } from "./components/Ossuary/Ossuary";
@@ -57,6 +58,8 @@ export interface HudState {
 	menu: MenuViewModel | null;
 	/** The web demo is over (the Gravedigger fell): the DemoEnd screen shows and round 11 never starts. */
 	demoEnd: boolean;
+	/** The Merchant is waiting: direction and whether the hero is close enough to talk; null otherwise. */
+	merchant: MerchantPromptView | null;
 	/** The subtitle of the boss voice line being heard; null otherwise. */
 	caption: string | null;
 	/** `KeyboardEvent.code` of the reroll key (Options remap). */
@@ -99,6 +102,7 @@ export interface AppProps {
 	/** Cycles the game speed 1x, 2x, 3x (the button beside Options, and the TAB key in the host). */
 	onCycleSpeed?: (() => void) | undefined;
 	menuActions?: MenuActions | undefined;
+	onMerchantTalk?: (() => void) | undefined;
 	/** Touch dash button held state. */
 	onDashHold?: ((down: boolean) => void) | undefined;
 	ossuaryActions?: (OssuaryActions & { open(): void }) | undefined;
@@ -124,6 +128,7 @@ export function App({
 	optionsActions,
 	onCycleSpeed,
 	menuActions,
+	onMerchantTalk,
 	demo,
 	version,
 }: AppProps): JSX.Element {
@@ -207,6 +212,9 @@ export function App({
 			) : null}
 			{hud.options && optionsActions ? <Options view={hud.options} actions={optionsActions} /> : null}
 			{hud.boss ? <BossBar boss={hud.boss} /> : null}
+			{hud.merchant && onMerchantTalk ? (
+				<MerchantPrompt view={hud.merchant} onTalk={onMerchantTalk} />
+			) : null}
 			{hud.caption ? <Caption text={hud.caption} /> : null}
 			{hud.bossIntro ? <BossIntro name={hud.bossIntro} /> : null}
 			{hud.notice ? <Notice notice={hud.notice} /> : null}

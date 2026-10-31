@@ -32,6 +32,7 @@ const hud = (speed: number): HudState => ({
 	uiScale: 100,
 	rerollKey: "KeyR",
 	caption: null,
+	merchant: null,
 	colorblind: false,
 	menu: null,
 	speed,
@@ -259,4 +260,36 @@ test("a boss subtitle shows as a polite status and disappears with the caption",
 	cleanup();
 	render(<App store={createStore(hud(1))} />);
 	expect(screen.queryByTestId("caption")).toBeNull();
+});
+
+test("the Merchant prompt points toward him, asks to walk while far and offers the talk action when near", () => {
+	const onTalk = vi.fn();
+	render(
+		<App
+			store={createStore({ ...hud(1), merchant: { angle: Math.PI / 2, near: false } })}
+			onMerchantTalk={onTalk}
+		/>,
+	);
+	const prompt = screen.getByTestId("merchant-prompt") as HTMLButtonElement;
+	expect(prompt.textContent).toContain("Vá até o Mercador");
+	expect(prompt.disabled).toBe(true);
+	expect(screen.getByTestId("merchant-arrow").style.transform).toBe(`rotate(${Math.PI / 2}rad)`);
+	fireEvent.click(prompt);
+	expect(onTalk).not.toHaveBeenCalled();
+	cleanup();
+	render(
+		<App
+			store={createStore({ ...hud(1), merchant: { angle: 0, near: true } })}
+			onMerchantTalk={onTalk}
+		/>,
+	);
+	const near = screen.getByTestId("merchant-prompt") as HTMLButtonElement;
+	expect(near.textContent).toContain("Fale com o Mercador [Enter]");
+	fireEvent.click(near);
+	expect(onTalk).toHaveBeenCalledTimes(1);
+});
+
+test("no Merchant prompt without a waiting Merchant", () => {
+	render(<App store={createStore(hud(1))} onMerchantTalk={vi.fn()} />);
+	expect(screen.queryByTestId("merchant-prompt")).toBeNull();
 });

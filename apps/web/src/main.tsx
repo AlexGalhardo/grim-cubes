@@ -225,7 +225,14 @@ async function boot(): Promise<void> {
 	const difficultyId = chooseDifficulty(roundsData.difficulties, params.get("difficulty"), meta.records);
 	const difficulty = difficultyData(roundsData.difficulties, difficultyId);
 
-	const session = createGameSession({ seed, difficulty, meta });
+	// The web demo ends at the first boss: no walk to the Merchant there, the DemoEnd shows at once.
+	const demoLastRound = bossesData[0]?.round ?? 10;
+	const session = createGameSession({
+		seed,
+		difficulty,
+		meta,
+		autoShop: __IS_DEMO__ ? (round: number) => round >= demoLastRound : false,
+	});
 	const {
 		events,
 		world,
@@ -305,6 +312,7 @@ async function boot(): Promise<void> {
 		rerollKey: meta.settings.keys.reroll,
 		colorblind: meta.settings.colorblind !== "off",
 		caption: null,
+		merchant: null,
 		demoEnd: false,
 		menu: null,
 	});
@@ -422,6 +430,10 @@ async function boot(): Promise<void> {
 				},
 			}}
 			onCycleSpeed={() => setSpeed(nextSpeed(loop.speed))}
+			onMerchantTalk={() => {
+				session.merchant.talk();
+				publishNow();
+			}}
 			onRestart={() => {
 				difficultyOpen = true;
 				publishNow();
@@ -931,6 +943,18 @@ async function boot(): Promise<void> {
 
 	const nextSpeedOf = (speed: number): GameSpeed => (speed === 3 ? 3 : speed === 2 ? 2 : 1);
 
+	/** Arrow and talk prompt while the Merchant waits; the angle is rounded to 15 degrees so the HUD does not churn. */
+	function merchantPrompt(): HudState["merchant"] {
+		const m = session.merchant.view;
+		if (run.state !== "MerchantWait" || !m) return null;
+		const angle = Math.atan2(m.x - (Position.x[hero] ?? 0), m.z - (Position.z[hero] ?? 0));
+		const step = Math.PI / 12;
+		return {
+			angle: Math.round(angle / step) * step,
+			near: session.merchant.distance() <= session.merchant.config.talkRadius,
+		};
+	}
+
 	function optionsView(): NonNullable<HudState["options"]> {
 		return {
 			preset: meta.settings.preset,
@@ -1187,6 +1211,7 @@ async function boot(): Promise<void> {
 			rerollKey: meta.settings.keys.reroll,
 			colorblind: meta.settings.colorblind !== "off",
 			caption: captionText,
+			merchant: merchantPrompt(),
 			menu: menuOpen ? menuView() : null,
 			demoEnd,
 			bossIntro: run.state === "BossIntro" ? t(`boss.${boss.defFor(run.round).id}`) : null,
@@ -1243,6 +1268,9 @@ async function boot(): Promise<void> {
 			cur.speed !== next.speed ||
 			cur.uiScale !== next.uiScale ||
 			cur.caption !== next.caption ||
+			cur.merchant?.angle !== next.merchant?.angle ||
+			cur.merchant?.near !== next.merchant?.near ||
+			(cur.merchant === null) !== (next.merchant === null) ||
 			cur.rerollKey !== next.rerollKey ||
 			cur.colorblind !== next.colorblind ||
 			cur.menu !== null ||
@@ -1682,6 +1710,9 @@ async function boot(): Promise<void> {
 				loop.resume();
 				let now = performance.now();
 				for (let i = 0; i < 1200 && !(run.state === "BossRound" && boss.view() !== null); i++) {
+					// The capture does not walk to the Merchant.
+					if (run.state === "MerchantWait") run.enterShop();
+					if (run.state === "Shop") run.closeShop();
 					now += STEP * 1000;
 					loop.frame(now);
 				}
@@ -1709,6 +1740,13 @@ async function boot(): Promise<void> {
 	}
 
 	loop.setSpeed(meta.settings.gameSpeed);
+	// Enter talks to the Merchant when he is close (the on-screen prompt does the same for touch).
+	window.addEventListener("keydown", (event) => {
+		if ((event.code !== "Enter" && event.code !== "NumpadEnter") || event.repeat) return;
+		if (run.state !== "MerchantWait" || document.querySelector('[role="dialog"]')) return;
+		if (session.merchant.talk()) publishNow();
+	});
+
 	// The speed key (TAB by default, remappable) cycles the speed during play; inside a dialog TAB moves the focus.
 	window.addEventListener("keydown", (event) => {
 		if (

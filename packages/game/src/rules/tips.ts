@@ -1,9 +1,9 @@
 /** The three contextual tips of round 1 (A-07-01): how to move, that fragments are worth picking up, the shop. */
-export type TipId = "move" | "fragments" | "shop";
+export type TipId = "move" | "fragments" | "merchant" | "shop";
 
 export interface TipsInput {
 	round: number;
-	/** `RunState` name: only "RoundIntro", "Round" and "Shop" show tips. */
+	/** `RunState` name: only "RoundIntro", "Round", "MerchantWait" and "Shop" show tips. */
 	state: string;
 	heroX: number;
 	heroZ: number;
@@ -26,7 +26,7 @@ export const MOVE_DONE_DISTANCE = 3;
 /** A tip goes away by itself after this long on screen, in case the player never does what it asks. */
 export const TIP_TIMEOUT_MS = 10_000;
 
-type Phase = "move" | "fragments" | "shop" | "done";
+type Phase = "move" | "fragments" | "merchant" | "shop" | "done";
 
 export function createTips(): Tips {
 	let phase: Phase = "move";
@@ -55,6 +55,8 @@ export function createTips(): Tips {
 			if (!input.enabled || input.round !== 1 || phase === "done") return null;
 
 			// The shop can open before the player did what an earlier tip asked: skip straight to the shop tip.
+			if (input.state === "MerchantWait" && (phase === "move" || phase === "fragments"))
+				advance("merchant");
 			if (input.state === "Shop" && phase !== "shop") advance("shop");
 			const playing = input.state === "Round" || input.state === "RoundIntro";
 			if (phase === "move") {
@@ -74,9 +76,15 @@ export function createTips(): Tips {
 				if (input.state === "Shop") advance("shop");
 				else if (input.state === "Round" && input.piles > 0) {
 					if (shownAt < 0) shownAt = input.nowMs;
-					if (input.gold > goldAtStart || input.nowMs - shownAt > TIP_TIMEOUT_MS) advance("shop");
+					if (input.gold > goldAtStart || input.nowMs - shownAt > TIP_TIMEOUT_MS)
+						advance("merchant");
 					else return "fragments";
 				}
+			}
+			if (phase === "merchant") {
+				if (input.state === "MerchantWait") return "merchant";
+				if (input.state === "Shop") advance("shop");
+				else if (input.state === "RoundIntro" || input.round > 1) advance("done");
 			}
 			if (phase === "shop") {
 				if (input.state === "Shop") return "shop";

@@ -81,8 +81,21 @@ export interface DifficultyData {
 }
 
 /** `data/rounds.json` (the blocks the game reads). */
+/** The Merchant NPC that waits for the hero after a round (A-05-01). */
+export interface MerchantConfig {
+	/** Distance from the hero at which he appears, in u. */
+	distance: number;
+	arriveSeconds: number;
+	leaveSeconds: number;
+	/** The shop opens by itself when the hero gets this close. */
+	openRadius: number;
+	/** The talk action works within this distance. */
+	talkRadius: number;
+}
+
 export interface RoundsData {
 	flow: RunConfig["flow"];
+	merchant: MerchantConfig;
 	duration: RunConfig["duration"];
 	boss: RunConfig["boss"] & {
 		soulsBase: number;
