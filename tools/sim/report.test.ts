@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { ALIVE_LIMIT, checkTargets, type Metrics } from "./report";
+import { ALIVE_LIMIT, checkTargets, type Metrics, rangesFor } from "./report";
 
 const metrics = (runs: number, survivors: number): Metrics => ({
 	runs,
@@ -21,4 +21,30 @@ test("the alive-at-horizon check passes up to the limit and fails above it", () 
 
 test("the alive-at-horizon check is skipped for short runs", () => {
 	expect(alive(metrics(100, 90), 10)?.skipped).toBe(true);
+});
+
+const p50Check = (p50: number, profile: Parameters<typeof checkTargets>[2]): boolean | undefined =>
+	checkTargets(
+		{ ...metrics(100, 10), deathRound: { ...metrics(100, 10).deathRound, p50 } },
+		35,
+		profile,
+	).find((c) => c.id === "death-round-p50")?.ok;
+
+test("the p50 range follows the difficulty and the policy (GDD 25.1)", () => {
+	expect(rangesFor({ difficulty: "normal", policy: "greedy" }).p50).toEqual([18, 26]);
+	expect(rangesFor({ difficulty: "grim", policy: "greedy" }).p50).toEqual([14, 22]);
+	expect(rangesFor({ difficulty: "nightmare", policy: "greedy" }).p50).toEqual([11, 18]);
+	expect(p50Check(16, { difficulty: "grim", policy: "greedy" })).toBe(true);
+	expect(p50Check(16, { difficulty: "normal", policy: "greedy" })).toBe(false);
+	expect(p50Check(30, { difficulty: "normal", policy: "tank" })).toBe(true);
+	expect(p50Check(30, { difficulty: "normal", policy: "greedy" })).toBe(false);
+	expect(p50Check(28, { difficulty: "nightmare", policy: "tank" })).toBe(false);
+});
+
+test("the tank may leave more runs alive and take longer on the bosses than the greedy bot", () => {
+	const tank = rangesFor({ difficulty: "normal", policy: "tank" });
+	const greedy = rangesFor({ difficulty: "normal", policy: "greedy" });
+	expect(tank.alive).toBeGreaterThan(greedy.alive);
+	expect(tank.killMax.other).toBeGreaterThan(greedy.killMax.other);
+	expect(rangesFor({ difficulty: "nightmare", policy: "tank" }).enrageBelow).toBe(4);
 });

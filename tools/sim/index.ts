@@ -4,7 +4,7 @@ import { dirname } from "node:path";
 import type { SimOptions, SimReport } from "./lib";
 import { runSim } from "./lib";
 import { parsePolicy } from "./policy";
-import { checkTargets, summarize } from "./report";
+import { checkTargets, type Difficulty, summarize } from "./report";
 
 function flag(argv: string[], name: string): string | undefined {
 	const i = argv.indexOf(name);
@@ -27,8 +27,11 @@ const KNOWN = new Set([
 /**
  * Usage: bun run sim -- [--runs 200] [--seed 1] [--rounds 10] [--difficulty normal] [--weapon sword]
  *   [--policy greedy|tank] [--ossuary flesh_1,steel_1] [--jobs 4] [--out reports/x.json] [--check]
- * Run i uses seed (seed + i). `--check` exits 3 when a GDD 25 target is missed (skipped targets do not count).
+ * Run i uses seed (seed + i). `--check` exits 3 when a GDD 25 target is missed (skipped targets do not count); the ranges depend on
+ * `--difficulty` and `--policy` (GDD 25.1), and Grim and Nightmare are calibrated with the reference `--ossuary` profiles.
  */
+const difficultyName = (id: string): Difficulty => (id === "grim" || id === "nightmare" ? id : "normal");
+
 /** Runs the batches on worker threads (one per job); a single job runs in-process. */
 async function simulate(all: SimOptions[], jobs: number): Promise<SimReport[]> {
 	if (jobs <= 1 || all.length <= 1) return all.map((options) => runSim(options));
@@ -88,7 +91,7 @@ async function main(argv: string[]): Promise<number> {
 	}));
 	const reports = await simulate(all, jobs);
 	const metrics = summarize(reports);
-	const checks = checkTargets(metrics, rounds);
+	const checks = checkTargets(metrics, rounds, { difficulty: difficultyName(difficulty), policy });
 
 	const date = new Date().toLocaleDateString("sv-SE");
 	const suffix = policy === "greedy" ? "" : `-${policy}`;
