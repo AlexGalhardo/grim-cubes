@@ -286,12 +286,16 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
   - Asserts: `assets:build` exit 0 com os 6 modelos novos e `vat_<id>` no manifest para os 8 inimigos; oráculo VAT × skeleton do Babylon < 1e-5 em cada um; captura dos 8 tipos nos 4 alvos.
 - [ ] **A-02-03** Balanceamento de rounds 1–30 com os 8 inimigos: `tools/sim` com asserts completos de GDD §25 (3 chefes). Deps: A-02-02a, A-02-02b, A-03-02, P-07-04. Resp: Est. Prio: P0.
   - Asserts: `bun run sim --runs 500 --rounds 30` com p50 de morte ∈ [18, 26], desvio ≤ 4, ouro/preço ∈ [1,2, 1,8], level-ups/round ∈ [1, 2] nos rounds 5–20; relatório commitado em `reports/`.
+- [ ] **A-02-04** Props destrutíveis com entidade ECS (SDD 03 §2.2): urnas e afins de `kind: "breakable"` viram entidades com `Health`, colisão circular (`radius` de `data/props.json`), dano por armas e projéteis, drop de consumível (GDD §15.4: Frasco de Sangue e Ímã de Ossos, chances em `data/`) e render de quebra (cubos). O chunk lembra quais já foram quebrados enquanto estiver carregado. Deps: A-02-01, P-01-05. Resp: S2 (entidade/drop) + S1 (render). Prio: P1.
+  - Asserts: teste: urna recebe dano da espada e de projétil e quebra ao zerar o HP; drop sorteado em `rng.loot` com as chances do data; herói e inimigos colidem com a urna inteira e não colidem depois de quebrada; nenhuma alocação por passo (contador); e2e num build com `GC_DEBUG_API=1`: quebrar uma urna e pegar o Frasco de Sangue cura 20% do HP.
 
 ### A-03 Chefes 2 e 3
 
-- [ ] **A-03-01** Matriarca do Pântano (round 20): modelo, padrões `summon`, `pool`, `scream`, fases, voz. Deps: P-05-07, A-02-01. Resp: S1 (modelo/padrões) + S2 (sistema). Prio: P0.
+- [ ] **A-03-00** Generalização do `bossSystem` em despachante de padrões por id: cada padrão de `bosses.json` (`line_charge`, `shovel_arc`, `summon`, …) é um handler registrado por id, com telegrafia/ativo/recuperação comuns, fases por % de HP e enrage compartilhados. Os padrões do Coveiro são migrados sem mudar comportamento. Deps: P-05-07. Resp: S2. Prio: P0.
+  - Asserts: os testes de `boss.test.ts` e o `boss.spec` continuam verdes sem mudar valores; um chefe de teste com 2 padrões novos de fixture é montado só por `bosses.json` (sem código específico do chefe); id de padrão desconhecido falha no `data-check` ou na criação, com o nome do id.
+- [ ] **A-03-01** Matriarca do Pântano (round 20): modelo, padrões `summon`, `pool`, `scream`, fases, voz. Deps: A-03-00, P-05-07, A-02-01, P-06-06, E-05-04 (voz). Resp: S1 (modelo/padrões) + S2 (sistema). Prio: P0.
   - Asserts: teste: HP 2.800 no round 20; `pool` aplica lentidão 50% por 3 s; greedy mata em [60, 120] s; vídeo no PR.
-- [ ] **A-03-02** O Forjador (round 30): `shockwave`, `chains`, fase 2 com armadura 30. Deps: A-03-01. Resp: S1 + S2. Prio: P0.
+- [ ] **A-03-02** O Forjador (round 30): `shockwave`, `chains`, fase 2 com armadura 30. Deps: A-03-00, A-03-01. Resp: S1 + S2. Prio: P0.
   - Asserts: teste: HP 5.000; fase 2 reduz dano recebido em ≈ 33% (armadura 30); greedy mata em [60, 120] s.
 - [ ] **A-03-03** Roster por round: ordem fixa 10/20/30 e, a partir do 40, repetição escalada (GDD §12.1) até os chefes 4–5 existirem; modificadores de elite a partir do 60. Deps: A-03-02. Resp: S2. Prio: P1.
   - Asserts: teste: round 40 sorteia um dos 3 com HP × (1 + 0,35 × 3); round 60 adiciona 1 modificador; round 100 adiciona 2.
@@ -300,7 +304,7 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
 
 - [x] **A-04-01** Ossuário: loader tipado `ossuaryData` em `packages/game/src/data` (o `ossuary.json` com 30 nós e custos 50→800 já existe desde a E-03-04), `applyOssuary` (modificadores e flags), compra e reset com devolução total no `MetaState`, tela `Ossuary` (radial no desktop, tabs no mobile). Deps: P-05-08. Resp: S2. Prio: P0.
   - Asserts: teste: custo total = 10.250; `requires` respeitado; reset devolve 100%; demo bloqueia `index > demoMaxNodeIndex`; e2e num build com `GC_DEBUG_API=1`: comprar `flesh_1` com 50 almas via cheat e verificar +10 HP na run seguinte; capturas nos 4 alvos.
-- [ ] **A-04-02** Dash (ramo Sombra): 4 u em 0,15 s, i-frames 0,2 s, recarga 3 s, 2 cargas no nó 6; botão mobile. Deps: A-04-01, P-02-02. Resp: S2. Prio: P1.
+- [x] **A-04-02** Dash (ramo Sombra): 4 u em 0,15 s, i-frames 0,2 s, recarga 3 s, 2 cargas no nó 6; botão mobile. Deps: A-04-01, P-02-02. Resp: S2. Prio: P1.
   - Asserts: teste: deslocamento 4 u ± 0,05; sem dano durante 0,2 s; e2e mobile: botão de dash funciona.
 - [x] **A-04-03** Dificuldades Normal/Grim/Nightmare (multiplicadores, desbloqueio no round 20, almas ×1,5/×2) + tela `Difficulty` com seed opcional; `difficultyMult` no spawn e `soulsMult` no fechamento da run. Deps: P-05-08, P-07-03. Resp: S2. Prio: P0.
   - Asserts: teste: Grim ×1,25 em HP e dano; Nightmare bloqueado até recorde Grim ≥ 20; seed digitada reproduz o mesmo hash de world (determinismo).
@@ -356,56 +360,58 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
 
 **Critério de entrada.** Saída da ALPHA; `v0.6.0`; demo pública no ar; wishlists e feedback do Next Fest coletados em `docs/marketing/next-fest-2027-02.md`.
 
-**Critério de saída.** Conteúdo da 1.0 100% implementado (GDD §28 roster); zero bugs P0/P1 abertos; `sim` até o round 60 dentro das faixas; beta fechado com ≥ 10 testers e ≥ 50 runs registradas; `bench` em metas nos 4 alvos (mobile em Chrome); `v0.9.0`; checklist de lançamento Steam preenchido.
+**Critério de saída.** Conteúdo da 1.0 100% implementado (GDD §28 roster); zero bugs P0/P1 abertos (bugs registrados em `docs/PROGRESS.md` §Dívidas com tag `[bug P0]`/`[bug P1]`; nenhuma entrada aberta com essas tags); `sim` até o round 60 dentro das faixas; beta fechado com ≥ 10 testers e ≥ 50 runs registradas; `bench` em metas nos 4 alvos (mobile em Chrome) com a carga de referência round20 representativa (SDD 14 §1: 8 tipos de inimigo, elites, projéteis, chefe e VFX finais); `v0.9.0`; checklist de lançamento Steam preenchido.
 
 ### B-01 Chefes 4 e 5 e roster infinito
 
-- [ ] **B-01-01** Caçador Alfa (round 40): `stealth`, `leap`, visão térmica (ignora props), modelo, voz. Deps: A-03-03. Resp: S1 + S2. Prio: P0.
-  - Asserts: teste: HP 7.500; durante `stealth` (3 s) `Render.tint` alpha 0,15 e mira do herói não o escolhe; greedy mata em [60, 120] s.
-- [ ] **B-01-02** Rainha do Ninho (round 50): `eggs`, `sweep`, fase 2 `fly_bomb`. Deps: B-01-01. Resp: S1 + S2. Prio: P0.
+- [ ] **B-01-01** Caçador Alfa (round 40): `stealth`, `leap`, visão térmica (ignora props), modelo, voz. Deps: A-03-00, A-03-03, P-06-06, E-05-04 (voz). Resp: S1 + S2. Prio: P0.
+  - Asserts: teste: HP 7.500; durante `stealth` (3 s) o chefe tem componente `Stealth` e o `targetingSystem` não o escolhe; render aplica alpha por instância 0,15 (canal da cor da instância, como no fade de morte) e volta a 1 ao sair; greedy mata em [60, 120] s.
+- [ ] **B-01-02** Rainha do Ninho (round 50): `eggs`, `sweep`, fase 2 `fly_bomb`. Deps: A-03-00, B-01-01, P-06-06, A-02-02b (Caçador dos ovos). Resp: S1 + S2. Prio: P0.
   - Asserts: teste: HP 11.000; ovos eclodem Caçadores em 6 s respeitando o cap; fase 2 aos 50%; greedy mata em [60, 120] s.
-- [ ] **B-01-03** Roster completo 60+: sorteio, 1 modificador (≥ 60), 2 (≥ 100); `sim` até o round 60. Deps: B-01-02. Resp: S2 + Est. Prio: P0.
+- [ ] **B-01-03** Roster completo 60+: sorteio, 1 modificador (≥ 60), 2 (≥ 100); `sim` até o round 60. Deps: B-01-02, P-07-04. Resp: S2 + Est. Prio: P0.
   - Asserts: `bun run sim --runs 300 --rounds 60` termina sem erro; nenhum chefe com tempo de kill > 180 s no p50 do build greedy; relatório commitado.
 
 ### B-02 Itens, cartas e efeitos finais
 
-- [ ] **B-02-01** Todos os efeitos especiais de `items.json` implementados (`status: "done"` em 40/40), cartas duplas ≥ nível 10, consumíveis (Frasco de Sangue, Ímã de Ossos) em destrutíveis. Deps: P-05-05. Resp: S2. Prio: P0.
-  - Asserts: `jq '[.[] | select(.status!="done")] | length' data/items.json` = 0; teste por efeito (10 efeitos especiais); e2e: quebrar urna solta consumível e curar 20%.
+- [ ] **B-02-01** Todos os efeitos especiais de `items.json` implementados (`status: "done"` em 40/40), cartas duplas ≥ nível 10, consumíveis (Frasco de Sangue, Ímã de Ossos) em destrutíveis (A-02-04). Deps: P-05-05, A-02-04. Resp: S2. Prio: P0.
+  - Asserts: `jq '[.[] | select(.status=="alpha")] | length' data/items.json` = 0 (hoje 4: `bleed_on_crit`, `contact_damage`, `on_kill_explode`, `shockwave_every_kills`); o enum de effect id do `data-check` não aceita id sem handler implementado; teste por efeito (10 efeitos especiais); e2e: quebrar urna solta consumível e curar 20%.
 - [ ] **B-02-02** Balanceamento final com `sim` 3 dificuldades e 2 políticas (greedy e "tanque"); ajustes em `data/`. Deps: B-02-01, B-01-03. Resp: Est. Prio: P0.
-  - Asserts: faixas de GDD §25 nas 3 dificuldades (Grim e Nightmare com p50 ∈ [14, 22] e [11, 18], alvos propostos e registrados no GDD como emenda).
+  - Asserts: política "tanque" definida em `tools/sim` (prioriza HP, armadura e regeneração) e documentada no GDD §25; faixas de GDD §25 nas 3 dificuldades (Grim e Nightmare com p50 ∈ [14, 22] e [11, 18], alvos propostos e registrados no GDD §25 como emenda).
 
 ### B-03 Arte, VFX, áudio e juice finais
 
-- [ ] **B-03-01** Revisão de arte de todos os modelos conforme checklist do Art Bible §14 (herói, 8 inimigos, 5 chefes, Mercador, 40 props, 16 tiles, 5 armas, 40 ícones de item, 12 ícones de carta, 30 ícones de nós). Deps: B-01-02. Resp: S1 + PO. Prio: P0.
+- [ ] **B-03-01** Revisão de arte de todos os modelos conforme checklist do Art Bible §14 (herói, 8 inimigos, 5 chefes, Mercador, 40 props, 16 tiles, 5 armas, 40 ícones de item, 12 ícones de carta, 30 ícones de nós). Deps: B-01-02, B-03-05. Resp: S1 + PO. Prio: P0.
   - Asserts: `docs/art/review/checklist.md` com todos os itens marcados; `assets:build` exit 0; teste de silhueta dos 8 inimigos + 5 chefes aprovado.
-- [ ] **B-03-02** VFX finais: execuções dos 5 chefes, auras, telegrafias, explosões, nível de gore e toggle; partículas no orçamento. Deps: B-03-01. Resp: S1. Prio: P1.
-  - Asserts: bench com VFX máximo mantém `frameP99 ≤ 20 ms` em 1080p; toggle de gore testado por captura.
-- [ ] **B-03-03** Áudio final: 82 SFX, 10 músicas, 40 falas; mix revisado (sidechain, polifonia); créditos ElevenLabs registrados. Deps: A-05-02. Resp: Est + S2. Prio: P1.
-  - Asserts: `assets/src/audio/prompts.json` com todas as entradas `generated: true` e `plan` pago; `docs/audio/credits.md` com total de créditos usados.
-- [ ] **B-03-04** Calibração de juice (hit-stop, shake, knockback, números) por playtest; valores finais em `data/juice.json`. Deps: B-03-02. Resp: S2 + PO. Prio: P2.
-  - Asserts: arquivo existe e é a única fonte (lint extra: sem literais de hit-stop no código); playtest registra nota de "impacto" ≥ 4/5.
+- [ ] **B-03-02** VFX finais: execuções dos 5 chefes, auras, telegrafias, explosões, nível de gore e toggle; partículas no orçamento. Deps: B-03-01, B-01-02, P-04-05, P-05-06b. Resp: S1. Prio: P1.
+  - Asserts: bench com VFX máximo e carga round20 representativa (SDD 14 §1) mantém `frameP99 ≤ 20 ms` em 1080p; toggle de gore testado por captura.
+- [ ] **B-03-03** Áudio final: 82 SFX, 10 músicas, 40 falas; mix revisado (sidechain, polifonia); créditos ElevenLabs registrados. Deps: A-05-02, E-05-04. Resp: Est + S2. Prio: P1.
+  - Asserts: `bun run audio:generate --dry-run` lista 0 entradas a gerar (hash do prompt atual em todos os `.meta.json`); todo `.meta.json` com `plan` ≠ `free`; `docs/audio/credits.md` com total de créditos usados.
+- [ ] **B-03-04** Calibração de juice (hit-stop, shake, knockback, números) por playtest; valores finais no bloco `vfx` de `data/render.json`. Deps: B-03-02. Resp: S2 + PO. Prio: P2.
+  - Asserts: o bloco `vfx` de `data/render.json` é a única fonte (lint extra: sem literais de hit-stop no código); playtest registra nota de "impacto" ≥ 4/5.
+- [ ] **B-03-05** Pipeline de ícones de UI: 40 ícones de item, 12 de carta e 30 de nó do Ossuário, gerados em `tools/assets-gen` ou desenhados pelo PO, empacotados no `atlas_vfx_ui` pelo `assets:build` com entradas no manifest; a UI troca os placeholders pelos ícones. Deps: A-07-01, P-06-02. Resp: S1 + PO. Prio: P1.
+  - Asserts: `assets:build` exit 0 com 82 sprites de ícone no `atlas_vfx_ui`; teste: todo id de `data/items.json`, `data/cards.json` e `data/ossuary.json` tem ícone no manifest; captura de Loja, Level-up e Ossuário nos 4 alvos.
 
 ### B-04 Plataforma e distribuição
 
 - [ ] **B-04-01** Assinatura Windows: certificado OV (se o PO aprovar o custo) em `WIN_CERT_PFX`; `electron.yml` assina; caso contrário, ADR-0008 emendado com "não assinado na 1.0". Deps: P-07-02. Resp: PO + S2. Prio: P1.
   - Asserts: `signtool verify /pa release/*.exe` exit 0 (se assinado) ou emenda do ADR commitada.
 - [ ] **B-04-02** Steam Input/gamepad polido (glifos por controle, foco em todas as telas), Steam Deck não suportado documentado na página. Deps: A-07-02. Resp: S2. Prio: P1.
-  - Asserts: checklist manual com Xbox e DualSense (PO) em PROGRESS; nenhuma tela sem foco inicial (e2e com gamepad virtual via `gc.debug.gamepad`).
-- [ ] **B-04-03** Beta fechado na Steam (branch `beta`, ≥ 10 testers com keys), coleta de telemetria e crashes (relatório de `window.onerror` + `unhandledrejection` no JSONL). Deps: B-02-02, B-03-01. Resp: PO + Est. Prio: P0.
-  - Asserts: `docs/playtests/2027-03-beta.md` com ≥ 50 runs, crash-free ≥ 99,5%, lista de bugs com IDs; todos P0/P1 fechados antes do RC.
-- [ ] **B-04-04** Capacitor 8 scaffold (`apps/android`, `cap sync`, build debug) para medir performance real em device Galaxy A (sem publicar). Deps: A-01-01. Resp: S2. Prio: P2 (não bloqueia a 1.0).
+  - Asserts: checklist manual com Xbox e DualSense (PO) em PROGRESS; a API de debug ganha `gc.debug.gamepad` (só em build com `GC_DEBUG_API=1`); nenhuma tela sem foco inicial (e2e com gamepad virtual via `gc.debug.gamepad`).
+- [ ] **B-04-03** Beta fechado na Steam (branch `beta`, ≥ 10 testers com keys), coleta de telemetria e crashes (relatório de `window.onerror` + `unhandledrejection` no JSONL). Deps: B-02-02, B-03-01, A-06-01, A-06-04. Resp: PO + Est. Prio: P0.
+  - Asserts: `docs/playtests/2027-03-beta.md` com ≥ 50 runs, crash-free ≥ 99,5%, lista de bugs com IDs (copiados para `docs/PROGRESS.md` §Dívidas com tag `[bug P0]`/`[bug P1]`); todos P0/P1 fechados antes do RC.
+- [ ] **B-04-04** Capacitor 8 scaffold (`apps/android`, `cap sync`, build debug) para medir performance real em device Galaxy A (sem publicar). Deps: A-01-01, aprovação do PO das deps Capacitor (Bloqueios). Resp: S2. Prio: P2 (não bloqueia a 1.0).
   - Asserts: `bun run build:android` gera `app-debug.apk`; `reports/perf-android-<device>.json` com preset Baixo `fpsAvg ≥ 30` em 896×414 e 800×360.
 
 ### B-05 Localização, docs e qualidade
 
 - [ ] **B-05-01** pt-BR completo e revisado (UI, itens, cartas, nós, falas legendadas), `en` como fonte; ferramenta de paridade de chaves. Deps: A-07-01. Resp: Est. Prio: P1.
-  - Asserts: teste de paridade verde; captura das telas em pt-BR nos 4 alvos sem overflow (visual tests por idioma).
-- [ ] **B-05-02** Docs sincronizadas: GDD/Art Bible/SDD emendados com decisões da fase (valores finais), ADRs novos (billing Capacitor, telemetria), `README.md` com instruções completas. Deps: fase. Resp: Est + Orq. Prio: P1.
+  - Asserts: teste de paridade verde; captura das telas em pt-BR nos 4 alvos sem overflow (visual tests por idioma, baselines no template `{arg}-{platform}` do Playwright).
+- [ ] **B-05-02** Docs sincronizadas: GDD/Art Bible/SDD emendados com decisões da fase (valores finais), ADRs novos (billing Capacitor, telemetria) e os pendentes das fases anteriores (rollback manual do deploy Vercel, `toktx` no pipeline KTX2), `README.md` com instruções completas. Deps: fase. Resp: Est + Orq. Prio: P1.
   - Asserts: `bun run lint:md` exit 0; cada emenda referencia o ID da microtarefa; `docs/adrs/README.md` atualizado.
 - [ ] **B-05-03** Checklist de lançamento Steam (`docs/release/steam-launch-checklist.md`): build no branch `default`, página final, preço regional, content survey, depots, data de lançamento ≥ 7 dias antes para revisão. Deps: B-04-03. Resp: PO + Orq. Prio: P0.
   - Asserts: arquivo com todos os itens marcados e datas; build de release enviada para revisão da Valve com confirmação (captura).
 - [ ] **B-05-04** Releases `v0.7.0`, `v0.8.0`, `v0.9.0`. Deps: fase. Resp: Orq. Prio: P0.
-  - Asserts: `gh release list` no padrão vukem; CHANGELOG correspondente.
+  - Asserts: `gh release list` no padrão vukem; CHANGELOG correspondente; `release.yml` só publica depois do CI verde no commit da tag (espera de CI, 4cdd35a).
 
 ### Riscos da fase 4
 
