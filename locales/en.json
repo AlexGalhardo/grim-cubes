@@ -210,5 +210,7 @@
 	"options.shake": "Screen shake and hit pulse",
 	"options.language": "Language",
 	"options.close": "Close",
-	"options.open": "Options"
+	"options.open": "Options",
+	"options.speed": "Game speed",
+	"hud.speed": "Game speed {speed}x, tap to change"
 }

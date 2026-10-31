@@ -12,6 +12,7 @@ const view: OptionsViewModel = {
 	],
 	volume: { master: 100, music: 70, sfx: 100 },
 	screenShake: true,
+	gameSpeed: 1,
 	locale: "pt-BR",
 	locales: [
 		{ id: "pt-BR", name: "Português" },
@@ -23,6 +24,7 @@ const actions = (): OptionsActions => ({
 	setPreset: vi.fn(),
 	setVolume: vi.fn(),
 	setScreenShake: vi.fn(),
+	setGameSpeed: vi.fn(),
 	setLocale: vi.fn(),
 	close: vi.fn(),
 });
@@ -36,6 +38,8 @@ test("each control reports its change", () => {
 	expect(a.setVolume).toHaveBeenCalledWith("music", 30);
 	fireEvent.click(screen.getByTestId("options-shake"));
 	expect(a.setScreenShake).toHaveBeenCalledWith(false);
+	fireEvent.change(screen.getByTestId("options-speed"), { target: { value: "3" } });
+	expect(a.setGameSpeed).toHaveBeenCalledWith(3);
 	fireEvent.change(screen.getByTestId("options-locale"), { target: { value: "en" } });
 	expect(a.setLocale).toHaveBeenCalledWith("en");
 });

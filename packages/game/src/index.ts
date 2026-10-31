@@ -103,6 +103,8 @@ export type { EliteRoller, EliteStats } from "./rules/elite";
 export { createEliteRoller, eliteStats } from "./rules/elite";
 export type { FragmentsConfig, XpConfig } from "./rules/fragments";
 export { dropChance, harvestCount, xpForLevel } from "./rules/fragments";
+export type { GameSpeed } from "./rules/gameSpeed";
+export { GAME_SPEEDS, nextSpeed } from "./rules/gameSpeed";
 export { availableItems, isReached, lockedItemIds, unlockedSkins } from "./rules/milestones";
 export type { BuyResult, NodeState, OssuaryBonus } from "./rules/ossuary";
 export {

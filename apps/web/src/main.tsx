@@ -40,11 +40,13 @@ import {
 	elitesData,
 	enemiesData,
 	Fragment,
+	type GameSpeed,
 	Health,
 	heroData,
 	isUnlocked,
 	milestonesData,
 	movementSystem,
+	nextSpeed,
 	nodeState,
 	ossuaryData,
 	Position,
@@ -267,6 +269,7 @@ async function boot(): Promise<void> {
 		dash: null,
 		cardRerolls: 0,
 		options: null,
+		speed: meta.settings.gameSpeed,
 	});
 	// The handlers are function declarations further down; the screen only calls them after boot.
 	const optionsActions = {
@@ -276,6 +279,7 @@ async function boot(): Promise<void> {
 			void changeSettings((st) => (st.volume[bus] = percent));
 		},
 		setScreenShake: (on: boolean): void => void changeSettings((st) => (st.screenShake = on)),
+		setGameSpeed: (speed: number): void => setSpeed(speed),
 		setLocale: (id: string): void => setLocaleOption(id),
 		close: (): void => {
 			optionsOpen = false;
@@ -300,6 +304,7 @@ async function boot(): Promise<void> {
 				publishNow();
 			}}
 			optionsActions={optionsActions}
+			onCycleSpeed={() => setSpeed(nextSpeed(loop.speed))}
 			onRestart={() => {
 				difficultyOpen = true;
 				publishNow();
@@ -715,12 +720,15 @@ async function boot(): Promise<void> {
 	let difficultyOpen = false;
 	let optionsOpen = false;
 
+	const nextSpeedOf = (speed: number): GameSpeed => (speed === 3 ? 3 : speed === 2 ? 2 : 1);
+
 	function optionsView(): NonNullable<HudState["options"]> {
 		return {
 			preset: meta.settings.preset,
 			presets: presetsData.presets.map((p) => ({ id: p.id, name: p.name })),
 			volume: meta.settings.volume,
 			screenShake: meta.settings.screenShake,
+			gameSpeed: meta.settings.gameSpeed,
 			locale: meta.settings.locale,
 			locales: [
 				{ id: "pt-BR", name: "Português" },
@@ -743,6 +751,12 @@ async function boot(): Promise<void> {
 		)
 			.then(() => undefined)
 			.catch((error: unknown) => log.warn("settings change refused", error));
+	}
+
+	function setSpeed(speed: number): void {
+		const next = nextSpeedOf(speed);
+		loop.setSpeed(next);
+		void changeSettings((st) => (st.gameSpeed = next));
 	}
 
 	function setPresetOption(id: string): void {
@@ -945,6 +959,7 @@ async function boot(): Promise<void> {
 			ossuary: ossuaryOpen ? ossuaryView() : null,
 			difficulty: difficultyOpen ? difficultyView() : null,
 			options: optionsOpen ? optionsView() : null,
+			speed: loop.speed,
 			bossIntro: run.state === "BossIntro" ? t(`boss.${boss.defFor(run.round).id}`) : null,
 			dash: dash.unlocked
 				? {
@@ -993,6 +1008,7 @@ async function boot(): Promise<void> {
 			cur.ossuary !== null ||
 			cur.difficulty !== null ||
 			next.difficulty !== null ||
+			cur.speed !== next.speed ||
 			cur.options !== null ||
 			next.options !== null ||
 			next.ossuary !== null ||
@@ -1340,6 +1356,14 @@ async function boot(): Promise<void> {
 			},
 		};
 	}
+
+	loop.setSpeed(meta.settings.gameSpeed);
+	// TAB cycles the speed during play; inside a dialog it keeps moving the focus.
+	window.addEventListener("keydown", (event) => {
+		if (event.code !== "Tab" || event.repeat || document.querySelector('[role="dialog"]')) return;
+		event.preventDefault();
+		setSpeed(nextSpeed(loop.speed));
+	});
 
 	// SDD 02 section 1: a hidden tab pauses the simulation and resuming ignores the time spent away.
 	document.addEventListener("visibilitychange", () => {

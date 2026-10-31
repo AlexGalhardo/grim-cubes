@@ -1,4 +1,4 @@
-export const SAVE_SCHEMA_VERSION = 2;
+export const SAVE_SCHEMA_VERSION = 3;
 export const SAVE_APP = "grim-cubes";
 /** Upper bound on any counter read from a save; far above a real run, low enough to reject garbage. */
 const MAX_COUNTER = 1_000_000_000;
@@ -20,6 +20,8 @@ export interface Settings {
 	/** Off removes the camera shake and the hit pulse, like prefers-reduced-motion. */
 	screenShake: boolean;
 	locale: SettingsLocale;
+	/** Simulation speed for testing: 1, 2 or 3 steps of game time per real step. */
+	gameSpeed: 1 | 2 | 3;
 }
 
 export function createSettings(): Settings {
@@ -28,6 +30,7 @@ export function createSettings(): Settings {
 		volume: { master: 100, music: 70, sfx: 100 },
 		screenShake: true,
 		locale: "pt-BR",
+		gameSpeed: 1,
 	};
 }
 
@@ -128,6 +131,10 @@ function validateSettings(raw: unknown): Settings {
 		throw new SaveError("settings.preset must be a short id");
 	if (typeof raw.screenShake !== "boolean") throw new SaveError("settings.screenShake must be a boolean");
 	if (!LOCALES.includes(raw.locale as SettingsLocale)) throw new SaveError("settings.locale is unknown");
+	// Absent in schema 2 saves: normal speed.
+	const speed = raw.gameSpeed === undefined ? 1 : raw.gameSpeed;
+	if (speed !== 1 && speed !== 2 && speed !== 3)
+		throw new SaveError("settings.gameSpeed must be 1, 2 or 3");
 	return {
 		preset: raw.preset,
 		volume: {
@@ -137,6 +144,7 @@ function validateSettings(raw: unknown): Settings {
 		},
 		screenShake: raw.screenShake,
 		locale: raw.locale as SettingsLocale,
+		gameSpeed: speed,
 	};
 }
 
@@ -194,6 +202,15 @@ export function validateMeta(raw: unknown): MetaState {
  * Parses and verifies a save: JSON, envelope, schema version, checksum, then field validation.
  * Schema 1 saves load with default settings (the checksum rule above); later migrations would chain here.
  */
+function coveredBy(version: number, data: MetaState): unknown {
+	if (version < 2) return (({ settings: _settings, ...rest }) => rest)(data);
+	if (version < 3) {
+		const { gameSpeed: _speed, ...settings } = data.settings;
+		return { ...data, settings };
+	}
+	return data;
+}
+
 export async function parseSave(text: string): Promise<MetaState> {
 	if (text.length > MAX_SAVE_BYTES) throw new SaveError("save is too large");
 	let envelope: unknown;
@@ -211,8 +228,8 @@ export async function parseSave(text: string): Promise<MetaState> {
 		throw new SaveError("save was written by a newer version", "newer");
 	if (envelope.schemaVersion < 1) throw new SaveError("unsupported schemaVersion");
 	const data = validateMeta(envelope.data);
-	// A schema 1 checksum covers the data as it was then, without `settings` (migration 1 -> 2).
-	const covered = envelope.schemaVersion < 2 ? (({ settings: _settings, ...rest }) => rest)(data) : data;
+	// An older checksum covers the data as it was then: schema 1 without `settings`, schema 2 without `gameSpeed`.
+	const covered = coveredBy(envelope.schemaVersion, data);
 	if (envelope.checksum !== (await sha256(JSON.stringify(covered))))
 		throw new SaveError("checksum mismatch");
 	return data;

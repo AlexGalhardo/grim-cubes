@@ -44,6 +44,8 @@ export interface HudState {
 	ossuary: OssuaryViewModel | null;
 	/** The pre-run difficulty and seed screen; null while closed. */
 	difficulty: DifficultyViewModel | null;
+	/** Simulation speed, 1 to 3. */
+	speed: number;
 	/** The options screen; null while closed. */
 	options: OptionsViewModel | null;
 	/** Null until the Ossuary unlocks the dash. */
@@ -71,6 +73,8 @@ export interface AppProps {
 	/** Opens the options screen from the gear button; the screen itself talks through `optionsActions`. */
 	onOpenOptions?: (() => void) | undefined;
 	optionsActions?: OptionsActions | undefined;
+	/** Cycles the game speed 1x, 2x, 3x (the button beside Options, and the TAB key in the host). */
+	onCycleSpeed?: (() => void) | undefined;
 	/** Touch dash button held state. */
 	onDashHold?: ((down: boolean) => void) | undefined;
 	ossuaryActions?: (OssuaryActions & { open(): void }) | undefined;
@@ -91,6 +95,7 @@ export function App({
 	difficultyActions,
 	onOpenOptions,
 	optionsActions,
+	onCycleSpeed,
 	version,
 }: AppProps): JSX.Element {
 	const hud = useSyncExternalStore(store.subscribe, store.get);
@@ -125,15 +130,33 @@ export function App({
 				<Difficulty view={hud.difficulty} actions={difficultyActions} />
 			) : null}
 			{hud.ossuary && ossuaryActions ? <Ossuary view={hud.ossuary} actions={ossuaryActions} /> : null}
-			{onOpenOptions && !hud.options ? (
-				<button
-					type="button"
-					data-testid="options-open"
-					onClick={onOpenOptions}
-					className="pointer-events-auto absolute top-2 right-2 z-20 min-h-12 border-2 border-iron-dark bg-night-2 px-3 font-display text-sm text-bone hover:border-ember hover:text-ember-light focus-visible:outline-2 focus-visible:outline-ember"
+			{!hud.options && (onOpenOptions || onCycleSpeed) ? (
+				<div
+					className="pointer-events-none absolute top-2 right-2 z-20 flex gap-2"
+					data-testid="hud-corner"
 				>
-					{t("options.open")}
-				</button>
+					{onCycleSpeed ? (
+						<button
+							type="button"
+							data-testid="speed-toggle"
+							aria-label={t("hud.speed", { speed: hud.speed })}
+							onClick={onCycleSpeed}
+							className={`pointer-events-auto min-h-12 min-w-12 border-2 bg-night-2 px-2 font-display text-sm focus-visible:outline-2 focus-visible:outline-ember ${hud.speed === 1 ? "border-iron-dark text-bone-dark opacity-70" : "border-ember text-ember-light"} hover:border-ember hover:text-ember-light`}
+						>
+							{hud.speed}x
+						</button>
+					) : null}
+					{onOpenOptions ? (
+						<button
+							type="button"
+							data-testid="options-open"
+							onClick={onOpenOptions}
+							className="pointer-events-auto min-h-12 border-2 border-iron-dark bg-night-2 px-3 font-display text-sm text-bone hover:border-ember hover:text-ember-light focus-visible:outline-2 focus-visible:outline-ember"
+						>
+							{t("options.open")}
+						</button>
+					) : null}
+				</div>
 			) : null}
 			{hud.options && optionsActions ? <Options view={hud.options} actions={optionsActions} /> : null}
 			{hud.boss ? <BossBar boss={hud.boss} /> : null}

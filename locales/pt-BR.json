@@ -210,5 +210,7 @@
 	"options.shake": "Tremor de tela e pulso de dano",
 	"options.language": "Idioma",
 	"options.close": "Fechar",
-	"options.open": "Opções"
+	"options.open": "Opções",
+	"options.speed": "Velocidade do jogo",
+	"hud.speed": "Velocidade {speed}x, toque para mudar"
 }
