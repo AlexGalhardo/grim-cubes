@@ -132,6 +132,7 @@ import { createRoot } from "react-dom/client";
 import { bootArtReview } from "./artReview";
 import { createAudioEngine } from "./audio/audioEngine";
 import { createEventAudio } from "./audio/eventSounds";
+import { createMerchantVoice } from "./audio/merchantVoice";
 import { createWebAudioDeps, musicFor } from "./audio/webAudio";
 import { applyLocale, initLocale } from "./locale";
 import "./main.css";
@@ -469,7 +470,7 @@ async function boot(): Promise<void> {
 			}}
 			shopActions={{
 				buy: (index) => {
-					shop.buy(index);
+					merchantVoice.say(shop.buy(index) ? "buy" : "nomoney");
 					publishNow();
 				},
 				toggleLock: (index) => {
@@ -481,8 +482,10 @@ async function boot(): Promise<void> {
 					publishNow();
 				},
 				next: () => {
-					if (run.state === "Shop" && !(__IS_DEMO__ && run.round >= (bossesData[0]?.round ?? 10)))
+					if (run.state === "Shop" && !(__IS_DEMO__ && run.round >= (bossesData[0]?.round ?? 10))) {
 						run.closeShop();
+						merchantVoice.say("farewell");
+					}
 					publishNow();
 				},
 			}}
@@ -783,12 +786,25 @@ async function boot(): Promise<void> {
 		},
 		showCaption,
 	);
+	const merchantVoice = createMerchantVoice(audio, showCaption);
+	// While he waits the Merchant speaks up now and then: a remark, then a call to come over (every 12 s).
+	let waited = 0;
+	window.setInterval(() => {
+		if (run.state !== "MerchantWait") {
+			waited = 0;
+			return;
+		}
+		waited++;
+		if (waited % 12 === 8) merchantVoice.say("come");
+		else if (waited % 12 === 0) merchantVoice.say("wait");
+	}, 1000);
 	// The render port drains the buffer, so the audio listens on the way through.
 	const tappedEvents: EventBuffer = {
 		push: (type, a, b, c, entity) => events.push(type, a, b, c, entity),
 		consume: (visit) =>
 			events.consume((type, a, b, c, entity) => {
 				eventAudio(type, a, b, c, entity);
+				if (type === EventType.MerchantArrived) merchantVoice.say("arrive");
 				visit(type, a, b, c, entity);
 			}),
 		get size() {

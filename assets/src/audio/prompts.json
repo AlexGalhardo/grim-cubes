@@ -631,5 +631,165 @@
 		"durationSeconds": 4,
 		"voiceId": "nPczCjzI2devNBz1zQrb",
 		"model": "eleven_multilingual_v2"
+	},
+	{
+		"file": "voice_merchant_arrive_1",
+		"kind": "voice",
+		"prompt": "Fresh bones, fresh coin. Come, come.",
+		"durationSeconds": 4,
+		"voiceId": "pqHfZKP75CvOlQylNhV4",
+		"model": "eleven_multilingual_v2"
+	},
+	{
+		"file": "voice_merchant_arrive_2",
+		"kind": "voice",
+		"prompt": "Still breathing? Good. I sell to the living.",
+		"durationSeconds": 4,
+		"voiceId": "pqHfZKP75CvOlQylNhV4",
+		"model": "eleven_multilingual_v2"
+	},
+	{
+		"file": "voice_merchant_arrive_3",
+		"kind": "voice",
+		"prompt": "The dead pay badly. Let us do business.",
+		"durationSeconds": 4,
+		"voiceId": "pqHfZKP75CvOlQylNhV4",
+		"model": "eleven_multilingual_v2"
+	},
+	{
+		"file": "voice_merchant_wait_1",
+		"kind": "voice",
+		"prompt": "I have all night. You may not.",
+		"durationSeconds": 4,
+		"voiceId": "pqHfZKP75CvOlQylNhV4",
+		"model": "eleven_multilingual_v2"
+	},
+	{
+		"file": "voice_merchant_wait_2",
+		"kind": "voice",
+		"prompt": "My wares do not sell themselves.",
+		"durationSeconds": 4,
+		"voiceId": "pqHfZKP75CvOlQylNhV4",
+		"model": "eleven_multilingual_v2"
+	},
+	{
+		"file": "voice_merchant_wait_3",
+		"kind": "voice",
+		"prompt": "Take your time. Death certainly does.",
+		"durationSeconds": 4,
+		"voiceId": "pqHfZKP75CvOlQylNhV4",
+		"model": "eleven_multilingual_v2"
+	},
+	{
+		"file": "voice_merchant_wait_4",
+		"kind": "voice",
+		"prompt": "Every moment you linger, the grave grows hungrier.",
+		"durationSeconds": 4,
+		"voiceId": "pqHfZKP75CvOlQylNhV4",
+		"model": "eleven_multilingual_v2"
+	},
+	{
+		"file": "voice_merchant_come_1",
+		"kind": "voice",
+		"prompt": "Over here, Executioner. Mind the bones.",
+		"durationSeconds": 4,
+		"voiceId": "pqHfZKP75CvOlQylNhV4",
+		"model": "eleven_multilingual_v2"
+	},
+	{
+		"file": "voice_merchant_come_2",
+		"kind": "voice",
+		"prompt": "Come closer. I do not bite. Much.",
+		"durationSeconds": 4,
+		"voiceId": "pqHfZKP75CvOlQylNhV4",
+		"model": "eleven_multilingual_v2"
+	},
+	{
+		"file": "voice_merchant_come_3",
+		"kind": "voice",
+		"prompt": "You are walking away from the best prices in the grave.",
+		"durationSeconds": 4,
+		"voiceId": "pqHfZKP75CvOlQylNhV4",
+		"model": "eleven_multilingual_v2"
+	},
+	{
+		"file": "voice_merchant_buy_1",
+		"kind": "voice",
+		"prompt": "A fine choice. May it outlive you.",
+		"durationSeconds": 4,
+		"voiceId": "pqHfZKP75CvOlQylNhV4",
+		"model": "eleven_multilingual_v2"
+	},
+	{
+		"file": "voice_merchant_buy_2",
+		"kind": "voice",
+		"prompt": "Sold. No refunds, even in death.",
+		"durationSeconds": 4,
+		"voiceId": "pqHfZKP75CvOlQylNhV4",
+		"model": "eleven_multilingual_v2"
+	},
+	{
+		"file": "voice_merchant_buy_3",
+		"kind": "voice",
+		"prompt": "Pleasure doing business with the doomed.",
+		"durationSeconds": 4,
+		"voiceId": "pqHfZKP75CvOlQylNhV4",
+		"model": "eleven_multilingual_v2"
+	},
+	{
+		"file": "voice_merchant_buy_4",
+		"kind": "voice",
+		"prompt": "Coin well spent. Or so I tell everyone.",
+		"durationSeconds": 4,
+		"voiceId": "pqHfZKP75CvOlQylNhV4",
+		"model": "eleven_multilingual_v2"
+	},
+	{
+		"file": "voice_merchant_nomoney_1",
+		"kind": "voice",
+		"prompt": "Your purse is as empty as a skull.",
+		"durationSeconds": 4,
+		"voiceId": "pqHfZKP75CvOlQylNhV4",
+		"model": "eleven_multilingual_v2"
+	},
+	{
+		"file": "voice_merchant_nomoney_2",
+		"kind": "voice",
+		"prompt": "I take coin, not promises.",
+		"durationSeconds": 4,
+		"voiceId": "pqHfZKP75CvOlQylNhV4",
+		"model": "eleven_multilingual_v2"
+	},
+	{
+		"file": "voice_merchant_nomoney_3",
+		"kind": "voice",
+		"prompt": "Come back when you are richer. Or deader.",
+		"durationSeconds": 4,
+		"voiceId": "pqHfZKP75CvOlQylNhV4",
+		"model": "eleven_multilingual_v2"
+	},
+	{
+		"file": "voice_merchant_farewell_1",
+		"kind": "voice",
+		"prompt": "Go, then. Die gloriously.",
+		"durationSeconds": 4,
+		"voiceId": "pqHfZKP75CvOlQylNhV4",
+		"model": "eleven_multilingual_v2"
+	},
+	{
+		"file": "voice_merchant_farewell_2",
+		"kind": "voice",
+		"prompt": "Mind the dark. It minds you.",
+		"durationSeconds": 4,
+		"voiceId": "pqHfZKP75CvOlQylNhV4",
+		"model": "eleven_multilingual_v2"
+	},
+	{
+		"file": "voice_merchant_farewell_3",
+		"kind": "voice",
+		"prompt": "Until the next round, if you are still in one piece.",
+		"durationSeconds": 4,
+		"voiceId": "pqHfZKP75CvOlQylNhV4",
+		"model": "eleven_multilingual_v2"
 	}
 ]

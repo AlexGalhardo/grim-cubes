@@ -2,15 +2,15 @@
 	"audio": {
 		"sfx": 54,
 		"music": 9,
-		"voice": 15
+		"voice": 35
 	},
 	"tests": {
-		"packages/core": 54,
-		"packages/game": 296,
-		"packages/platform": 16,
-		"packages/render": 138,
-		"packages/ui": 48,
-		"apps": 16,
-		"tools": 121
+		"packages/core": 63,
+		"packages/game": 309,
+		"packages/platform": 18,
+		"packages/render": 151,
+		"packages/ui": 70,
+		"apps": 24,
+		"tools": 141
 	}
 }

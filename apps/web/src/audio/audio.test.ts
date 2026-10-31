@@ -13,6 +13,7 @@ import {
 	type SourceLike,
 } from "./audioEngine";
 import { captionKeyFor, createEventAudio, type SoundContext, soundFor } from "./eventSounds";
+import { createMerchantVoice } from "./merchantVoice";
 import { musicFor } from "./webAudio";
 
 afterEach(() => vi.useRealTimers());
@@ -370,4 +371,22 @@ test("decodedBytes reads an AudioBuffer and ignores anything else", () => {
 	expect(decodedBytes({ length: 100, numberOfChannels: 2 })).toBe(800);
 	expect(decodedBytes({})).toBe(0);
 	expect(decodedBytes(null)).toBe(0);
+});
+
+test("the merchant takes turns between the lines of a moment and captions each one", () => {
+	const played: string[] = [];
+	const captions: string[] = [];
+	const voice = createMerchantVoice({ play: (ids) => !!played.push(String(ids)) }, (key) =>
+		captions.push(key),
+	);
+	for (let i = 0; i < 4; i++) voice.say("arrive");
+	voice.say("farewell");
+	expect(played).toEqual([
+		"voice_merchant_arrive_1",
+		"voice_merchant_arrive_2",
+		"voice_merchant_arrive_3",
+		"voice_merchant_arrive_1",
+		"voice_merchant_farewell_1",
+	]);
+	expect(captions[1]).toBe("voice.merchant.arrive_2");
 });

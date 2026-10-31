@@ -21,7 +21,7 @@ Este documento descreve o áudio gerado para o jogo: direção sonora, desenho d
 | UI | `sfx_ui_*` | placas de ferro, trinco, moedas e madeira oca | 0,5 a 0,8 s |
 | Rounds | `sfx_round_*` | tambor de guerra no início, sino rachado no fim | 1,5 a 3 s |
 | Música | `mus_*` | menu lento e atmosférico; ondas tensas e percussivas; chefe épico com metal industrial e metais; uma faixa por bioma e uma para cada um dos chefes 4 e 5; tudo instrumental | 60 s (temas) e 150 s (biomas e chefes) |
-| Voz | `voice_<chefe>_*` | falas curtas de entrada, mudança de fase e morte dos 5 chefes | 1,6 a 2,6 s |
+| Voz | `voice_<chefe>_*` | falas curtas de entrada, mudança de fase e morte dos 5 chefes; 20 falas do Mercador | 1,6 a 2,6 s |
 
 ## 3. Assets
 
@@ -107,8 +107,30 @@ A duração é a medida com `ffprobe` nos arquivos gerados. Os prompts estão ex
 | `voice_forgemaster_entry` | `assets/src/audio/voice/voice_forgemaster_entry.mp3` | voice | 1.8 s | I will forge you into scrap. | Brian (grave) | `BossIntro` do Forjador |
 | `voice_forgemaster_phase` | `assets/src/audio/voice/voice_forgemaster_phase.mp3` | voice | 1.6 s | My armor is unbreakable! | Brian (grave) | `BossPhase` do Forjador (armadura 30) |
 | `voice_forgemaster_death` | `assets/src/audio/voice/voice_forgemaster_death.mp3` | voice | 1.9 s | The fire... goes out. | Brian (grave) | `BossDied` do Forjador |
+| `voice_merchant_arrive_1` | `assets/src/audio/voice/voice_merchant_arrive_1.mp3` | voice | 2.9 s | Fresh bones, fresh coin. Come, come. | Bill (velho, nítido) | evento `MerchantArrived` (o Mercador chega ao fim do round) |
+| `voice_merchant_arrive_2` | `assets/src/audio/voice/voice_merchant_arrive_2.mp3` | voice | 2.9 s | Still breathing? Good. I sell to the living. | Bill (velho, nítido) | evento `MerchantArrived` (o Mercador chega ao fim do round) |
+| `voice_merchant_arrive_3` | `assets/src/audio/voice/voice_merchant_arrive_3.mp3` | voice | 3.0 s | The dead pay badly. Let us do business. | Bill (velho, nítido) | evento `MerchantArrived` (o Mercador chega ao fim do round) |
+| `voice_merchant_wait_1` | `assets/src/audio/voice/voice_merchant_wait_1.mp3` | voice | 2.3 s | I have all night. You may not. | Bill (velho, nítido) | Mercador esperando: um comentário a cada 12 s (estado `MerchantWait`) |
+| `voice_merchant_wait_2` | `assets/src/audio/voice/voice_merchant_wait_2.mp3` | voice | 2.1 s | My wares do not sell themselves. | Bill (velho, nítido) | Mercador esperando: um comentário a cada 12 s (estado `MerchantWait`) |
+| `voice_merchant_wait_3` | `assets/src/audio/voice/voice_merchant_wait_3.mp3` | voice | 3.0 s | Take your time. Death certainly does. | Bill (velho, nítido) | Mercador esperando: um comentário a cada 12 s (estado `MerchantWait`) |
+| `voice_merchant_wait_4` | `assets/src/audio/voice/voice_merchant_wait_4.mp3` | voice | 3.1 s | Every moment you linger, the grave grows hungrier. | Bill (velho, nítido) | Mercador esperando: um comentário a cada 12 s (estado `MerchantWait`) |
+| `voice_merchant_come_1` | `assets/src/audio/voice/voice_merchant_come_1.mp3` | voice | 3.2 s | Over here, Executioner. Mind the bones. | Bill (velho, nítido) | Mercador esperando: chamada para o herói se aproximar (estado `MerchantWait`) |
+| `voice_merchant_come_2` | `assets/src/audio/voice/voice_merchant_come_2.mp3` | voice | 2.7 s | Come closer. I do not bite. Much. | Bill (velho, nítido) | Mercador esperando: chamada para o herói se aproximar (estado `MerchantWait`) |
+| `voice_merchant_come_3` | `assets/src/audio/voice/voice_merchant_come_3.mp3` | voice | 3.3 s | You are walking away from the best prices in the grave. | Bill (velho, nítido) | Mercador esperando: chamada para o herói se aproximar (estado `MerchantWait`) |
+| `voice_merchant_buy_1` | `assets/src/audio/voice/voice_merchant_buy_1.mp3` | voice | 3.1 s | A fine choice. May it outlive you. | Bill (velho, nítido) | compra feita na loja |
+| `voice_merchant_buy_2` | `assets/src/audio/voice/voice_merchant_buy_2.mp3` | voice | 3.0 s | Sold. No refunds, even in death. | Bill (velho, nítido) | compra feita na loja |
+| `voice_merchant_buy_3` | `assets/src/audio/voice/voice_merchant_buy_3.mp3` | voice | 2.3 s | Pleasure doing business with the doomed. | Bill (velho, nítido) | compra feita na loja |
+| `voice_merchant_buy_4` | `assets/src/audio/voice/voice_merchant_buy_4.mp3` | voice | 3.2 s | Coin well spent. Or so I tell everyone. | Bill (velho, nítido) | compra feita na loja |
+| `voice_merchant_nomoney_1` | `assets/src/audio/voice/voice_merchant_nomoney_1.mp3` | voice | 2.3 s | Your purse is as empty as a skull. | Bill (velho, nítido) | compra sem ouro suficiente |
+| `voice_merchant_nomoney_2` | `assets/src/audio/voice/voice_merchant_nomoney_2.mp3` | voice | 2.2 s | I take coin, not promises. | Bill (velho, nítido) | compra sem ouro suficiente |
+| `voice_merchant_nomoney_3` | `assets/src/audio/voice/voice_merchant_nomoney_3.mp3` | voice | 2.9 s | Come back when you are richer. Or deader. | Bill (velho, nítido) | compra sem ouro suficiente |
+| `voice_merchant_farewell_1` | `assets/src/audio/voice/voice_merchant_farewell_1.mp3` | voice | 2.3 s | Go, then. Die gloriously. | Bill (velho, nítido) | fechamento da loja ("Próximo round") |
+| `voice_merchant_farewell_2` | `assets/src/audio/voice/voice_merchant_farewell_2.mp3` | voice | 2.2 s | Mind the dark. It minds you. | Bill (velho, nítido) | fechamento da loja ("Próximo round") |
+| `voice_merchant_farewell_3` | `assets/src/audio/voice/voice_merchant_farewell_3.mp3` | voice | 3.4 s | Until the next round, if you are still in one piece. | Bill (velho, nítido) | fechamento da loja ("Próximo round") |
 
 Vozes (conta ElevenLabs, plano Creator): **Callum** (`N2lVS1w4EtoT3dr4eOWO`, rouca e inquietante) fala pela Matriarca do Pântano e pelo Caçador Alfa; **Brian** (`nPczCjzI2devNBz1zQrb`, grave e ressonante) fala pelo Coveiro, pelo Forjador e pela Rainha do Ninho. A escolha saiu da lista de vozes da conta, entre as que soavam graves e sombrias. Trocar a voz exige alterar o `voiceId` no `prompts.json` e regenerar com `--force`.
+
+O **Mercador de Ossos** usa **Bill** (`pqHfZKP75CvOlQylNhV4`, voz velha e nítida, humor seco): 20 falas em inglês (GDD §22.3, D24) em seis momentos, com `voice_merchant_<momento>_<n>` e legenda `voice.merchant.<momento>_<n>` nos dois locales: `arrive` (3), `wait` (4), `come` (3), `buy` (4), `nomoney` (3) e `farewell` (3). As linhas de cada momento se revezam, sem repetir a mesma duas vezes seguidas (`apps/web/src/audio/merchantVoice.ts`).
 
 Os temas `mus_menu`, `mus_round` e `mus_boss` têm 60 s; biomas e chefes têm 150 s. A API de música (`POST /v1/music`, `music_length_ms` de 3.000 a 600.000, modelo `music_v1`) não tem parâmetro de loop; o "seamless loop" é só pedido no prompt, então o ponto de emenda precisa ser conferido de ouvido antes de o motor de áudio usar a faixa em `loop`.
 
@@ -132,7 +154,8 @@ Para voltar a uma versão antiga, copie o par de arquivos de volta para `assets/
 - Primeira leva (39 arquivos: 24 SFX, 9 músicas, 6 falas): o script estimou 21.167 créditos; o saldo da conta foi de 31.917 para 45.105 de 124.333, ou seja, **13.188 créditos** reais (inclui a repetição de uma faixa que falhou com HTTP 429).
 - Regeneração instrumental (9 faixas de música, versões novas de `mus_*`): saldo de 47.712 para 62.559, ou seja, **14.847 créditos** reais (a estimativa do script para as 9 faixas é 16.200).
 - Segunda leva (39 arquivos: 30 SFX e 9 falas, com os ids que o motor de áudio pede): o script estimou 6.251 créditos; o saldo foi de 47.167 para 47.502, ou seja, **335 créditos** reais.
-- Total medido: cerca de **28.350 créditos** para os 78 arquivos mais a regeneração das músicas (as 9 faixas vocais arquivadas contam nos 13.188 da primeira leva). A estimativa do script é conservadora, sobretudo na música. O saldo é de uma conta compartilhada, então o delta pode incluir outro uso entre as leituras.
+- Falas do Mercador (20 arquivos, 746 caracteres): o script estimou 746 créditos (1 por caractere) e o saldo da conta não se moveu na leitura de `/v1/user/subscription` (62.572 antes e depois; o contador de TTS pode ser lançado com atraso).
+- Total medido: cerca de **28.350 créditos** para os 98 arquivos mais a regeneração das músicas (as 9 faixas vocais arquivadas contam nos 13.188 da primeira leva). A estimativa do script é conservadora, sobretudo na música. O saldo é de uma conta compartilhada, então o delta pode incluir outro uso entre as leituras.
 - Plano: Creator (`plan: creator` em todos os `.meta.json`), com licença comercial.
 
 ## 6. Como regenerar
@@ -150,4 +173,4 @@ Para voltar a uma versão antiga, copie o par de arquivos de volta para `assets/
 - O `enemyDeath` de `apps/web/src/main.tsx` só distingue `wail` e `husk`. Os ids `sfx_enemy_<id>_death` dos 8 tipos já existem, e o S2 precisa trocar o mapa por `sfx_enemy_${id}_death`.
 - As falas de `entry` existem para os 5 chefes, mas o `soundFor` só mapeia `phase` e `death`; a de `entry` toca no `BossIntro` de `main.tsx`.
 - O pós-processo (loudness −16/−14 LUFS, trim de silêncio, pitch dos chefes) não está implementado (SDD 08 §3).
-- Faltam SFX de passos, dash, armas extras, mortes por tipo e demais itens do GDD §22.1, e as falas do Mercador de Ossos (§22.3).
+- Faltam SFX de passos, armas extras e outros itens do GDD §22.1.

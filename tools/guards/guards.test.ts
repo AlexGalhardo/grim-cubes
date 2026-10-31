@@ -37,4 +37,20 @@ describe("regression guards (see README.md)", () => {
 		);
 		expect(missing).toEqual([]);
 	});
+
+	it("has a caption in both locales for every Merchant voice line", () => {
+		const prompts = JSON.parse(readFileSync(`${root}assets/src/audio/prompts.json`, "utf8")) as {
+			file: string;
+		}[];
+		const lines = prompts.map((p) => p.file).filter((f) => f.startsWith("voice_merchant_"));
+		expect(lines).toHaveLength(20);
+		for (const locale of ["en", "pt-BR"]) {
+			const keys = JSON.parse(readFileSync(`${root}locales/${locale}.json`, "utf8")) as Record<
+				string,
+				string
+			>;
+			const missing = lines.filter((f) => !keys[`voice.merchant.${f.slice("voice_merchant_".length)}`]);
+			expect(missing, locale).toEqual([]);
+		}
+	});
 });
