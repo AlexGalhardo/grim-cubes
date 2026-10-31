@@ -435,6 +435,7 @@ async function boot(): Promise<void> {
 				hero: heroRig,
 				merchant: merchantRig,
 				bosses: bossRigs,
+				heroTarget: () => targeting.target,
 				executionZoom: renderData.character.executionZoom,
 				executionSeconds: renderData.character.executionSeconds,
 			})

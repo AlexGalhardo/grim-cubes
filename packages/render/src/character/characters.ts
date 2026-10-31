@@ -5,6 +5,7 @@ import {
 	Facing,
 	findHero,
 	type GameWorld,
+	Health,
 	Position,
 	PrevPosition,
 	queryEnemies,
@@ -14,6 +15,7 @@ import { mixAuras } from "../scene/aura";
 import { PALETTE } from "../scene/palette";
 import type { GameScene } from "../scene/scene";
 import type { Character } from "./character";
+import { desiredYaw, turnTowards } from "./facing";
 
 export interface CharactersOptions {
 	hero: Character;
@@ -25,6 +27,8 @@ export interface CharactersOptions {
 	executionZoom: number;
 	/** Seconds the boss execution lasts (GDD 12.2: 1.5). */
 	executionSeconds: number;
+	/** Entity the hero is attacking (the session's targeting system), or -1; the rig turns to face it. */
+	heroTarget?: (() => number) | undefined;
 }
 
 export interface Characters {
@@ -49,6 +53,8 @@ const MERCHANT_OFFSET_Z = 0;
 const MERCHANT_SUBMERGE_SECONDS = 0.8;
 /** Seconds the camera takes to return to its radius after the boss execution. */
 const RETURN_SECONDS = 0.6;
+/** Time constant of the hero's turn towards its target or movement (about 0.08 s to cover most of the angle). */
+const HERO_TURN_SECONDS = 0.08;
 /** Ids in bosses.json of the rigs that get a special motion. */
 const NEST_QUEEN = "nest_queen";
 /** The airborne Nest Queen hovers this high (u), easing in at `FLY_RISE` u/s, bobbing a little. */
@@ -67,6 +73,8 @@ export function createCharacters(game: GameScene, options: CharactersOptions): C
 	let merchantState: "away" | "in" | "leaving" = "away";
 	let merchantLeft = 0;
 	let heroEntity = -1;
+	let heroYaw = 0;
+	let heroYawReady = false;
 	let bossEntity = -1;
 	/** The rig of the boss on screen; kept through its death so the execution plays on it. */
 	let activeBoss: Character | undefined;
@@ -116,7 +124,29 @@ export function createCharacters(game: GameScene, options: CharactersOptions): C
 		},
 		sync(world, alpha, dt, shopOpen): void {
 			heroEntity = findHero(world);
-			if (heroEntity >= 0) pose(hero, heroEntity, alpha);
+			if (heroEntity >= 0) {
+				pose(hero, heroEntity, alpha);
+				const target = options.heroTarget?.() ?? -1;
+				const aimed = target >= 0 && (Health.hp[target] ?? 0) > 0;
+				const want = desiredYaw({
+					x: Position.x[heroEntity] ?? 0,
+					z: Position.z[heroEntity] ?? 0,
+					target: aimed ? { x: Position.x[target] ?? 0, z: Position.z[target] ?? 0 } : undefined,
+					vx: Velocity.x[heroEntity] ?? 0,
+					vz: Velocity.z[heroEntity] ?? 0,
+				});
+				if (!heroYawReady) {
+					heroYaw = want ?? Facing.yaw[heroEntity] ?? 0;
+					heroYawReady = true;
+				} else if (want !== null) heroYaw = turnTowards(heroYaw, want, dt, HERO_TURN_SECONDS);
+				const px = PrevPosition.x[heroEntity] ?? 0;
+				const pz = PrevPosition.z[heroEntity] ?? 0;
+				hero.setPose(
+					px + ((Position.x[heroEntity] ?? 0) - px) * alpha,
+					pz + ((Position.z[heroEntity] ?? 0) - pz) * alpha,
+					heroYaw,
+				);
+			}
 			hero.update(dt);
 
 			const enemies = queryEnemies(world);
