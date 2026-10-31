@@ -1,4 +1,4 @@
-import { type SaveNotice, type Store, t, type VirtualStick } from "@gc/core";
+import { padButtonName, type SaveNotice, type Store, t, type VirtualStick } from "@gc/core";
 import { type CSSProperties, type JSX, useSyncExternalStore } from "react";
 import { Bar } from "./components/Bar/Bar";
 import { BossBar, BossIntro, type BossViewModel } from "./components/BossBar/BossBar";
@@ -27,6 +27,7 @@ import {
 import { Tip, type TipId } from "./components/Tip/Tip";
 import { VirtualJoystick } from "./components/VirtualJoystick/VirtualJoystick";
 import { effectiveUiScale, useViewportHeight } from "./hooks/useViewport";
+import { keyLabel } from "./keys";
 
 /** Snapshot the game publishes to the store at 12 Hz (SDD 07). */
 export interface HudState {
@@ -65,6 +66,10 @@ export interface HudState {
 	caption: string | null;
 	/** `KeyboardEvent.code` of the reroll key (Options remap). */
 	rerollKey: string;
+	/** The last input came from the keyboard or mouse, or from a gamepad: hints show the matching key or button. */
+	inputDevice: "keyboard" | "pad";
+	/** Gamepad button of the reroll (standard mapping index). */
+	padReroll: number;
 	/** Colour-blind mode on: rarities get shapes and a safer palette (`data-theme="cb"`). */
 	colorblind: boolean;
 	/** HUD scale in percent (90, 100, 125 or 150), applied through the `--ui-scale` variable on the root. */
@@ -135,6 +140,7 @@ export function App({
 }: AppProps): JSX.Element {
 	const hud = useSyncExternalStore(store.subscribe, store.get);
 	const height = useViewportHeight();
+	const rerollHint = hud.inputDevice === "pad" ? padButtonName(hud.padReroll) : keyLabel(hud.rerollKey);
 	const scale = effectiveUiScale(hud.uiScale, height) / 100;
 	// The HUD chrome (buttons, version, seal) is not drawn while a dialog is open: it would sit on top of the dialog
 	// and still take clicks.
@@ -170,6 +176,8 @@ export function App({
 					rerollsLeft={hud.cardRerolls}
 					onReroll={onRerollCards}
 					rerollKey={hud.rerollKey}
+					rerollHint={rerollHint}
+					rerollButton={hud.padReroll}
 				/>
 			) : null}
 			{hud.chest.length > 0 && onChooseChest ? (
@@ -182,6 +190,8 @@ export function App({
 					actions={shopActions}
 					portrait={shopPortrait}
 					rerollKey={hud.rerollKey}
+					rerollHint={rerollHint}
+					rerollButton={hud.padReroll}
 				/>
 			) : null}
 			{hud.menu && menuActions && !hud.difficulty && !hud.ossuary && !hud.options ? (

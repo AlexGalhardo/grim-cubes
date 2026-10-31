@@ -81,3 +81,26 @@ export function createPadNav(): PadNav {
 		},
 	};
 }
+
+/**
+ * Press edges of one extra button (the remapped reroll). Like `createPadNav`, a button already down on the first poll
+ * is only recorded: it fires nothing until released.
+ */
+export function createButtonEdge(): { poll(pad: PadLike | null | undefined, button: number): boolean } {
+	let primed = false;
+	let held = false;
+	return {
+		poll(pad, button): boolean {
+			if (!pad) {
+				primed = false;
+				held = false;
+				return false;
+			}
+			const down = isDown(pad, button);
+			const edge = primed && down && !held;
+			held = down;
+			primed = true;
+			return edge;
+		},
+	};
+}

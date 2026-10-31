@@ -21,6 +21,10 @@ export interface LevelUpProps {
 	onReroll?: (() => void) | undefined;
 	/** `KeyboardEvent.code` of the reroll key (Options remap); defaults to R. */
 	rerollKey?: string | undefined;
+	/** The key or button to show on the reroll button ("R", or "X" when the last input was the pad). */
+	rerollHint?: string | undefined;
+	/** Gamepad button of the reroll (standard mapping index). */
+	rerollButton?: number | undefined;
 }
 
 /** Level-up overlay (Art Bible 16.5 `LevelUpCard`): pick 1 of up to 3 cards with a click, a tap or keys 1-3. */
@@ -31,6 +35,8 @@ export function LevelUp({
 	rerollsLeft = 0,
 	onReroll,
 	rerollKey = "KeyR",
+	rerollHint = "R",
+	rerollButton,
 }: LevelUpProps): JSX.Element {
 	useEffect(() => {
 		const onKey = (e: KeyboardEvent): void => {
@@ -42,7 +48,10 @@ export function LevelUp({
 		return () => window.removeEventListener("keydown", onKey);
 	}, [cards, onChoose, onReroll, rerollKey]);
 
-	const nav = useDialogNav<HTMLDivElement>();
+	const nav = useDialogNav<HTMLDivElement>({
+		onReroll: rerollsLeft > 0 ? onReroll : undefined,
+		rerollButton,
+	});
 	const short = useShortScreen();
 	return (
 		<div
@@ -87,7 +96,7 @@ export function LevelUp({
 					onClick={onReroll}
 					className="min-h-12 border-2 border-iron-dark bg-night-2 px-4 font-display text-base text-bone hover:border-ember hover:text-ember-light focus-visible:outline-2 focus-visible:outline-ember"
 				>
-					{t("levelUp.reroll", { left: rerollsLeft })}
+					{t("levelUp.reroll", { left: rerollsLeft, key: rerollHint })}
 				</button>
 			) : null}
 		</div>

@@ -1,5 +1,5 @@
 import { type RefObject, useEffect, useRef } from "react";
-import { createPadNav, type PadLike } from "./padNav";
+import { createButtonEdge, createPadNav, type PadLike } from "./padNav";
 
 const FOCUSABLE =
 	'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
@@ -31,6 +31,10 @@ const ARROWS: Record<string, number> = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -
 export interface DialogNavOptions {
 	/** Esc and the pad's B button. Omit for a screen that cannot be dismissed. */
 	onCancel?: (() => void) | undefined;
+	/** The screen's reroll (level-up, shop): the remapped keyboard key is handled by the screen itself. */
+	onReroll?: (() => void) | undefined;
+	/** Gamepad button of the reroll (standard mapping index); 2 (X) by default. */
+	rerollButton?: number | undefined;
 	/** Injected in tests; defaults to the first connected `navigator.getGamepads()` entry. */
 	getPad?: (() => PadLike | null | undefined) | undefined;
 }
@@ -76,6 +80,7 @@ export function useDialogNav<T extends HTMLElement>(options: DialogNavOptions = 
 		root.addEventListener("keydown", onKey);
 
 		const pad = createPadNav();
+		const reroll = createButtonEdge();
 		const getPad = (): PadLike | null | undefined => {
 			if (latest.current.getPad) return latest.current.getPad();
 			const pads = typeof navigator.getGamepads === "function" ? navigator.getGamepads() : [];
@@ -88,7 +93,9 @@ export function useDialogNav<T extends HTMLElement>(options: DialogNavOptions = 
 			// Only the topmost screen listens, so a screen under another never reacts.
 			const dialogs = document.querySelectorAll('[role="dialog"]');
 			if (dialogs[dialogs.length - 1] !== root) return;
-			const action = pad.poll(getPad(), now);
+			const current = getPad();
+			if (reroll.poll(current, latest.current.rerollButton ?? 2)) latest.current.onReroll?.();
+			const action = pad.poll(current, now);
 			if (action === "next") moveFocus(root, 1);
 			else if (action === "prev") moveFocus(root, -1);
 			else if (action === "cancel") latest.current.onCancel?.();

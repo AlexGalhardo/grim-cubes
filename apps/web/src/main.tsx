@@ -310,6 +310,8 @@ async function boot(): Promise<void> {
 		speed: meta.settings.gameSpeed,
 		uiScale: meta.settings.uiScale,
 		rerollKey: meta.settings.keys.reroll,
+		inputDevice: "keyboard",
+		padReroll: meta.settings.pad.reroll,
 		colorblind: meta.settings.colorblind !== "off",
 		caption: null,
 		merchant: null,
@@ -490,6 +492,7 @@ async function boot(): Promise<void> {
 	);
 
 	const input = createInputState();
+	let lastDevice: "keyboard" | "pad" = "keyboard";
 	const sources = createInputSources({
 		target: window,
 		bindings: keyBindingsFor(meta.settings.keys),
@@ -1211,6 +1214,8 @@ async function boot(): Promise<void> {
 			speed: loop.speed,
 			uiScale: meta.settings.uiScale,
 			rerollKey: meta.settings.keys.reroll,
+			inputDevice: lastDevice,
+			padReroll: meta.settings.pad.reroll,
 			colorblind: meta.settings.colorblind !== "off",
 			caption: captionText,
 			merchant: merchantPrompt(),
@@ -1275,6 +1280,8 @@ async function boot(): Promise<void> {
 			cur.merchant?.secondsLeft !== next.merchant?.secondsLeft ||
 			(cur.merchant === null) !== (next.merchant === null) ||
 			cur.rerollKey !== next.rerollKey ||
+			cur.inputDevice !== next.inputDevice ||
+			cur.padReroll !== next.padReroll ||
 			cur.colorblind !== next.colorblind ||
 			cur.menu !== null ||
 			next.menu !== null ||
@@ -1829,7 +1836,10 @@ async function boot(): Promise<void> {
 				}),
 		};
 	}
+	for (const type of ["keydown", "pointerdown"])
+		window.addEventListener(type, () => (lastDevice = "keyboard"), true);
 	let wasDashing = false;
+	let wasSpeedButton = false;
 	render.engine.runRenderLoop(() => {
 		// Once per frame: getGamepads() allocates, and several steps may run per frame.
 		sources.poll(input);
@@ -1838,6 +1848,14 @@ async function boot(): Promise<void> {
 		if (input.dash && !wasDashing && run.state === "MerchantWait" && session.merchant.talk())
 			publishNow();
 		wasDashing = input.dash;
+		// The gamepad speed button (Back by default) cycles the speed like the key does, outside dialogs.
+		const speedButton = sources.padButton(meta.settings.pad.speed);
+		if (speedButton && !wasSpeedButton && !document.querySelector('[role="dialog"]')) {
+			setSpeed(nextSpeed(loop.speed));
+		}
+		wasSpeedButton = speedButton;
+		// The hints name the keyboard key or the pad button, whichever was used last.
+		if (sources.padActive()) lastDevice = "pad";
 		loop.frame(performance.now());
 	});
 	window.addEventListener("resize", () => render.engine.resize());
