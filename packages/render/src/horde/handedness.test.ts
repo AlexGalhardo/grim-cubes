@@ -66,52 +66,58 @@ const vatMeta: VatMeta = {
 };
 
 describe("horde placement with a glTF-loaded base mesh", () => {
-	it("puts the instance at the scene position despite the loader's mirrored __root__", async () => {
-		const { engine, dispose } = createNullEngine();
-		const game = createGameScene(engine);
-		const bytes = await glb();
-		const url = `data:model/gltf-binary;base64,${Buffer.from(bytes).toString("base64")}`;
-		const result = await ImportMeshAsync(url, game.scene, { pluginExtension: ".glb" });
-		const mesh = result.meshes[1] as Mesh;
-		mesh.computeWorldMatrix(true);
+	it.each([0.7, Math.PI / 2])(
+		"puts the instance at the scene position despite the mirrored __root__ (yaw %f)",
+		async (yaw) => {
+			const { engine, dispose } = createNullEngine();
+			const game = createGameScene(engine);
+			const bytes = await glb();
+			const url = `data:model/gltf-binary;base64,${Buffer.from(bytes).toString("base64")}`;
+			const result = await ImportMeshAsync(url, game.scene, { pluginExtension: ".glb" });
+			const mesh = result.meshes[1] as Mesh;
+			mesh.computeWorldMatrix(true);
 
-		const horde = createHordeRenderer(
-			[
-				{
-					mesh,
-					vat: createVat(
-						game.scene,
-						"loaded",
-						new Float32Array(vatMeta.width * vatMeta.height * 4).buffer,
-						vatMeta,
-					),
-					walkRefSpeed: 3,
-				},
-			],
-			{ capacity: 4, ghostCapacity: 1, deltaSeconds: () => 1 / 60 },
-		);
-		const world = createGameWorld();
-		const eid = spawnBody(world, 5, -3);
-		addComponent(world, eid, EnemyFaction);
-		EnemyType.id[eid] = 0;
-		const yaw = 0.7;
-		Facing.yaw[eid] = yaw;
-		horde.sync(world, 1);
+			const horde = createHordeRenderer(
+				[
+					{
+						mesh,
+						vat: createVat(
+							game.scene,
+							"loaded",
+							new Float32Array(vatMeta.width * vatMeta.height * 4).buffer,
+							vatMeta,
+						),
+						walkRefSpeed: 3,
+					},
+				],
+				{ capacity: 4, ghostCapacity: 1, deltaSeconds: () => 1 / 60 },
+			);
+			const world = createGameWorld();
+			const eid = spawnBody(world, 5, -3);
+			addComponent(world, eid, EnemyFaction);
+			EnemyType.id[eid] = 0;
+			Facing.yaw[eid] = yaw;
+			horde.sync(world, 1);
 
-		// Babylon thin instances render with instance * mesh world.
-		const instance = mesh.thinInstanceGetWorldMatrices()[0] ?? Matrix.Identity();
-		const world0 = instance.multiply(mesh.getWorldMatrix());
-		const origin = Vector3.TransformCoordinates(Vector3.Zero(), world0);
-		expect([origin.x, origin.y, origin.z].map((v) => Math.round(v * 1e6) / 1e6)).toEqual([5, 0, -3]);
+			// Babylon thin instances render with instance * mesh world.
+			const instance = mesh.thinInstanceGetWorldMatrices()[0] ?? Matrix.Identity();
+			const world0 = instance.multiply(mesh.getWorldMatrix());
+			const origin = Vector3.TransformCoordinates(Vector3.Zero(), world0);
+			expect([origin.x, origin.y, origin.z].map((v) => Math.round(v * 1e6) / 1e6)).toEqual([5, 0, -3]);
 
-		// Whole transform: the model is mirrored into the scene by the loader, then rotated by yaw and moved.
-		const expected = Matrix.Scaling(-1, 1, 1)
-			.multiply(Matrix.RotationY(yaw))
-			.multiply(Matrix.Translation(5, 0, -3));
-		world0.m.forEach((value, i) => {
-			expect(Math.abs(value - (expected.m[i] ?? 0))).toBeLessThan(1e-6);
-		});
-		Facing.yaw[eid] = 0;
-		dispose();
-	});
+			// Whole transform: the model is mirrored into the scene by the loader, then rotated by yaw and moved.
+			const expected = Matrix.Scaling(-1, 1, 1)
+				.multiply(Matrix.RotationY(yaw))
+				.multiply(Matrix.Translation(5, 0, -3));
+			world0.m.forEach((value, i) => {
+				expect(Math.abs(value - (expected.m[i] ?? 0))).toBeLessThan(1e-6);
+			});
+			// Yaw pi/2 turns the model's local +z onto world +x (Facing: 0 looks along +z, positive turns towards +x).
+			const forward = Vector3.TransformNormal(new Vector3(0, 0, 1), world0);
+			expect(forward.x).toBeCloseTo(Math.sin(yaw), 6);
+			expect(forward.z).toBeCloseTo(Math.cos(yaw), 6);
+			Facing.yaw[eid] = 0;
+			dispose();
+		},
+	);
 });

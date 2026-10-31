@@ -152,6 +152,23 @@ describe("horde renderer", () => {
 			dispose();
 		});
 
+		it("plays the attack clip once, whole, then holds its last frame while Attacking lasts", () => {
+			const { types, horde, world, dispose } = setup(1);
+			const eid = spawnEnemy(world, 0, 0);
+			Attacking.ticks[eid] = 30;
+			const frames: number[] = [];
+			for (let i = 0; i < 30; i++) {
+				horde.sync(world, 1);
+				const s = settings(types[0]?.mesh);
+				expect([s[0], s[1], s[3]]).toEqual([8, 10, 0]);
+				frames.push(Math.floor(s[2] ?? 0));
+			}
+			expect([...new Set(frames)]).toEqual([0, 1, 2]);
+			expect(frames).toEqual([...frames].sort((a, b) => a - b));
+			Attacking.ticks[eid] = 0;
+			dispose();
+		});
+
 		it("gives hit priority over attack, and attack over walk", () => {
 			const { types, horde, world, dispose } = setup(1);
 			const eid = spawnEnemy(world, 0, 0);
