@@ -108,6 +108,7 @@ export type { BiomeDef, ChunkGen, ChunkGenConfig, Range } from "./world/chunkGen
 export { createChunkGenerator, PROP_KIND } from "./world/chunkGen";
 export type { ChunkData, ChunkGenerator, ChunkStats, ChunkSystem, WorldConfig } from "./world/chunkSystem";
 export { createChunkSystem } from "./world/chunkSystem";
+export { hashWorld } from "./world/hash";
 export type { Origin, OriginShiftConfig } from "./world/originShift";
 export { applyOriginShift, createOrigin } from "./world/originShift";
 export { findHero, queryBodies, queryEnemies } from "./world/queries";
