@@ -1,5 +1,14 @@
 import { expect, test } from "vitest";
-import { createMetaState, parseSave, SAVE_SCHEMA_VERSION, SaveError, serializeSave } from "./save";
+import {
+	checksumOf,
+	createMetaState,
+	MAX_SAVE_BYTES,
+	parseSave,
+	SAVE_SCHEMA_VERSION,
+	SaveError,
+	serializeSave,
+	validateMeta,
+} from "./save";
 
 const meta = () => {
 	const m = createMetaState();
@@ -63,4 +72,38 @@ test("a save from another app or a newer schema is refused", async () => {
 	const base = JSON.parse(await serializeSave(meta(), "0.1.0")) as Record<string, unknown>;
 	await expect(parseSave(JSON.stringify({ ...base, app: "other" }))).rejects.toBeInstanceOf(SaveError);
 	await expect(parseSave(JSON.stringify({ ...base, schemaVersion: 2 }))).rejects.toThrow("newer version");
+});
+
+test("size, list and key limits protect the parser", async () => {
+	const base = JSON.parse(await serializeSave(meta(), "0.1.0")) as Record<string, unknown> & {
+		data: Record<string, unknown>;
+	};
+	const reject = async (patch: (d: Record<string, unknown>) => void): Promise<void> => {
+		const copy = structuredClone(base);
+		patch(copy.data);
+		await expect(parseSave(JSON.stringify(copy))).rejects.toBeInstanceOf(SaveError);
+	};
+	await reject((d) => {
+		d.unlocks = Array.from({ length: 257 }, (_, i) => `u${i}`);
+	});
+	await reject((d) => {
+		d.ossuary = Object.fromEntries(Array.from({ length: 257 }, (_, i) => [`n${i}`, true]));
+	});
+	for (const key of ["__proto__", "constructor", "prototype"]) {
+		const text = (await serializeSave(meta(), "0.1.0")).replace('"flesh_1":true', `"${key}":true`);
+		await expect(parseSave(text)).rejects.toBeInstanceOf(SaveError);
+	}
+	await expect(parseSave(`{"pad":"${"x".repeat(MAX_SAVE_BYTES)}"}`)).rejects.toThrow("too large");
+	const edge = structuredClone(base);
+	edge.data.unlocks = Array.from({ length: 256 }, (_, i) => `u${i}`);
+	edge.checksum = await checksumOf(validateMeta(edge.data));
+	expect((await parseSave(JSON.stringify(edge))).unlocks).toHaveLength(256);
+});
+
+test("a newer schema is reported with the newer code", async () => {
+	const base = JSON.parse(await serializeSave(meta(), "0.1.0")) as Record<string, unknown>;
+	await expect(parseSave(JSON.stringify({ ...base, schemaVersion: 9 }))).rejects.toMatchObject({
+		code: "newer",
+	});
+	await expect(parseSave("nope")).rejects.toMatchObject({ code: "invalid" });
 });

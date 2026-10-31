@@ -2,6 +2,10 @@ export const SAVE_SCHEMA_VERSION = 1;
 export const SAVE_APP = "grim-cubes";
 /** Upper bound on any counter read from a save; far above a real run, low enough to reject garbage. */
 const MAX_COUNTER = 1_000_000_000;
+/** A real save is a few KB; anything bigger is refused before it is parsed. */
+export const MAX_SAVE_BYTES = 64 * 1024;
+const MAX_LIST = 256;
+const FORBIDDEN_KEYS = new Set(["__proto__", "constructor", "prototype"]);
 
 export type Difficulty = "normal" | "grim" | "nightmare";
 export const DIFFICULTIES: readonly Difficulty[] = ["normal", "grim", "nightmare"];
@@ -38,10 +42,15 @@ export function createMetaState(): MetaState {
 	};
 }
 
+/** `newer`: written by a later version of the game, so it must be left untouched; `invalid`: unreadable or corrupt. */
+export type SaveErrorCode = "newer" | "invalid";
+
 export class SaveError extends Error {
-	constructor(message: string) {
+	readonly code: SaveErrorCode;
+	constructor(message: string, code: SaveErrorCode = "invalid") {
 		super(message);
 		this.name = "SaveError";
+		this.code = code;
 	}
 }
 
@@ -90,13 +99,20 @@ export function validateMeta(raw: unknown): MetaState {
 	if (!isRecord(records) || !isRecord(stats) || !isRecord(flags))
 		throw new SaveError("records, stats and flags are required");
 	const unlocks = raw.unlocks;
-	if (!Array.isArray(unlocks) || unlocks.some((u) => typeof u !== "string" || u.length > 64)) {
+	if (
+		!Array.isArray(unlocks) ||
+		unlocks.length > MAX_LIST ||
+		unlocks.some((u) => typeof u !== "string" || u.length > 64)
+	) {
 		throw new SaveError("unlocks must be a list of short strings");
 	}
 	const ossuary = raw.ossuary;
 	if (!isRecord(ossuary)) throw new SaveError("ossuary must be an object");
+	const entries = Object.entries(ossuary);
+	if (entries.length > MAX_LIST) throw new SaveError("ossuary has too many entries");
 	const nodes: Record<string, boolean> = {};
-	for (const [id, owned] of Object.entries(ossuary)) {
+	for (const [id, owned] of entries) {
+		if (FORBIDDEN_KEYS.has(id)) throw new SaveError("ossuary contains a reserved key");
 		if (typeof owned !== "boolean" || id.length > 64)
 			throw new SaveError("ossuary entries must be booleans");
 		nodes[id] = owned;
@@ -128,6 +144,7 @@ export function validateMeta(raw: unknown): MetaState {
  * Migrations from older versions would run here, in a chain, before validation (none exist yet).
  */
 export async function parseSave(text: string): Promise<MetaState> {
+	if (text.length > MAX_SAVE_BYTES) throw new SaveError("save is too large");
 	let envelope: unknown;
 	try {
 		envelope = JSON.parse(text);
@@ -140,7 +157,7 @@ export async function parseSave(text: string): Promise<MetaState> {
 		throw new SaveError("schemaVersion must be an integer");
 	}
 	if (envelope.schemaVersion > SAVE_SCHEMA_VERSION)
-		throw new SaveError("save was written by a newer version");
+		throw new SaveError("save was written by a newer version", "newer");
 	if (envelope.schemaVersion < 1) throw new SaveError("unsupported schemaVersion");
 	const data = validateMeta(envelope.data);
 	if (envelope.checksum !== (await checksumOf(data))) throw new SaveError("checksum mismatch");
