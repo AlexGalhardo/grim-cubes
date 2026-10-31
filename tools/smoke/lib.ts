@@ -26,6 +26,18 @@ export function errorsFrom(entries: ConsoleEntry[]): string[] {
 		.map((e) => (e.url === "" ? e.text : `${e.text} (${e.url})`));
 }
 
+/** The target URL with `?debug=1`: a GC_DEBUG_API build only installs `window.gc.debug` when that parameter is set. */
+export function withDebugParam(url: string): string {
+	const probe = new URL(url);
+	probe.searchParams.set("debug", "1");
+	return probe.toString();
+}
+
+/** A production build must not expose the debug API (`window.gc.debug`, only in builds with GC_DEBUG_API=1). */
+export function debugApiProblems(debugPresent: boolean): string[] {
+	return debugPresent ? ["debug API present in production"] : [];
+}
+
 export interface SmokeArgs {
 	url: string;
 	out: string;

@@ -1,7 +1,19 @@
 import { describe, expect, it } from "vitest";
-import { bypassHeaders, errorsFrom, parseArgs, sameOrigin } from "./lib";
+import { bypassHeaders, debugApiProblems, errorsFrom, parseArgs, sameOrigin, withDebugParam } from "./lib";
 
 describe("smoke lib", () => {
+	it("fails a production deployment that exposes the debug API", () => {
+		expect(debugApiProblems(false)).toEqual([]);
+		expect(debugApiProblems(true)).toEqual(["debug API present in production"]);
+	});
+
+	it("probes the debug API with ?debug=1, keeping the other parameters", () => {
+		expect(withDebugParam("https://grim-cubes.vercel.app/")).toBe(
+			"https://grim-cubes.vercel.app/?debug=1",
+		);
+		expect(withDebugParam("https://x.app/?seed=42")).toBe("https://x.app/?seed=42&debug=1");
+	});
+
 	it("sends the Vercel bypass headers only when the secret is set", () => {
 		expect(bypassHeaders({})).toEqual({});
 		expect(bypassHeaders({ VERCEL_AUTOMATION_BYPASS_SECRET: "" })).toEqual({});

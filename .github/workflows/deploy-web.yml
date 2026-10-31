@@ -25,12 +25,12 @@ jobs:
       image: mcr.microsoft.com/playwright:v1.64.1-noble
       options: --ipc=host
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       # The Playwright image has no unzip, which setup-bun needs; npm ships the same Bun binary.
       - run: npm install -g bun@${{ env.BUN_VERSION }}
-      - uses: actions/cache@v6
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.bun/install/cache
           key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
@@ -40,7 +40,7 @@ jobs:
           TARGET_URL: ${{ github.event.deployment_status.target_url }}
           VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
         run: bun run test:smoke -- --url "$TARGET_URL"
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: smoke

@@ -2,7 +2,15 @@ import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 // Namespace import: Biome cannot follow @playwright/test's `export *` re-export of `chromium`.
 import * as playwright from "@playwright/test";
-import { bypassHeaders, type ConsoleEntry, errorsFrom, parseArgs, sameOrigin } from "./lib";
+import {
+	bypassHeaders,
+	type ConsoleEntry,
+	debugApiProblems,
+	errorsFrom,
+	parseArgs,
+	sameOrigin,
+	withDebugParam,
+} from "./lib";
 
 const SWIFTSHADER_ARGS = [
 	"--use-gl=angle",
@@ -16,6 +24,7 @@ async function smoke(argv: string[]): Promise<number> {
 	const headers = bypassHeaders(process.env);
 	const entries: ConsoleEntry[] = [];
 	const pageErrors: string[] = [];
+	let debugPresent = false;
 
 	const browser = await playwright.chromium.launch({ args: SWIFTSHADER_ARGS });
 	try {
@@ -46,6 +55,10 @@ async function smoke(argv: string[]): Promise<number> {
 		await page.waitForFunction("window.gc?.ready === true", undefined, { timeout: args.timeoutMs });
 		mkdirSync(dirname(args.out), { recursive: true });
 		await page.screenshot({ path: args.out });
+		// Second load with ?debug=1: a build made with GC_DEBUG_API=1 only installs the debug API under that parameter.
+		await page.goto(withDebugParam(args.url), { waitUntil: "load", timeout: args.timeoutMs });
+		await page.waitForFunction("window.gc?.ready === true", undefined, { timeout: args.timeoutMs });
+		debugPresent = (await page.evaluate("window.gc?.debug !== undefined")) === true;
 	} catch (error) {
 		console.error(
 			`smoke: ${error instanceof Error ? (error.message.split("\n")[0] ?? "failed") : "failed"}`,
@@ -57,7 +70,9 @@ async function smoke(argv: string[]): Promise<number> {
 
 	const problems = [...errorsFrom(entries), ...pageErrors];
 	for (const problem of problems) console.error(`smoke: console error: ${problem}`);
-	if (problems.length > 0) return 1;
+	const debugProblems = debugApiProblems(debugPresent);
+	for (const problem of debugProblems) console.error(`smoke: ${problem}`);
+	if (problems.length > 0 || debugProblems.length > 0) return 1;
 	console.log(`smoke: OK ${args.url} (gc.ready, screenshot ${args.out}, 0 console errors)`);
 	return 0;
 }
