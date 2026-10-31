@@ -20,6 +20,8 @@ export type { IconProps, IconRef } from "./components/Icon/Icon";
 export { Icon } from "./components/Icon/Icon";
 export type { CardView, LevelUpProps } from "./components/LevelUp/LevelUp";
 export { LevelUp } from "./components/LevelUp/LevelUp";
+export type { MenuActions, MenuProps, MenuViewModel } from "./components/Menu/Menu";
+export { Menu } from "./components/Menu/Menu";
 export { Notice, noticeText } from "./components/Notice/Notice";
 export type {
 	OptionsActions,

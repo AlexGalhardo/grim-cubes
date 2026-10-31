@@ -29,6 +29,7 @@ const hud = (speed: number): HudState => ({
 	tip: null,
 	vignette: 0,
 	demoEnd: false,
+	menu: null,
 	speed,
 });
 
@@ -123,4 +124,45 @@ test("without demoEnd no demo screen and no seal outside the demo build", () => 
 	render(<App store={createStore(hud(1))} onRestart={vi.fn()} />);
 	expect(screen.queryByRole("dialog")).toBeNull();
 	expect(screen.queryByTestId("demo-seal")).toBeNull();
+});
+
+const menuView = {
+	records: [
+		{ id: "normal", name: "Normal", round: 12 },
+		{ id: "grim", name: "Sombrio", round: 0 },
+	],
+};
+const menuActions = () => ({ play: vi.fn(), ossuary: vi.fn(), options: vi.fn() });
+
+test("the title screen lists the records and its buttons call the actions", () => {
+	const actions = menuActions();
+	render(
+		<App store={createStore({ ...hud(1), menu: menuView })} menuActions={actions} version="0.4.0" demo />,
+	);
+	expect(screen.getByRole("dialog")).toBeTruthy();
+	expect(screen.getByTestId("menu-records").textContent).toContain("Round 12");
+	expect(screen.getByTestId("menu-records").textContent).toContain("Sombrio");
+	expect(screen.getByText("v0.4.0")).toBeTruthy();
+	fireEvent.click(screen.getByTestId("menu-play"));
+	fireEvent.click(screen.getByRole("button", { name: "Ossuário" }));
+	fireEvent.click(screen.getByRole("button", { name: "Opções" }));
+	expect(actions.play).toHaveBeenCalledTimes(1);
+	expect(actions.ossuary).toHaveBeenCalledTimes(1);
+	expect(actions.options).toHaveBeenCalledTimes(1);
+});
+
+test("the title screen steps aside for the difficulty screen", () => {
+	const difficulty = {
+		selected: "normal",
+		options: [{ id: "normal", name: "Normal", summary: "", locked: false, requirement: "" }],
+	};
+	render(
+		<App
+			store={createStore({ ...hud(1), menu: menuView, difficulty })}
+			menuActions={menuActions()}
+			difficultyActions={{ start: vi.fn(), cancel: vi.fn() }}
+		/>,
+	);
+	expect(screen.queryByTestId("menu-play")).toBeNull();
+	expect(screen.getAllByRole("dialog")).toHaveLength(1);
 });

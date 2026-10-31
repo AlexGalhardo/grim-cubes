@@ -10,6 +10,7 @@ import {
 	type DifficultyViewModel,
 } from "./components/Difficulty/Difficulty";
 import { type CardView, LevelUp } from "./components/LevelUp/LevelUp";
+import { Menu, type MenuActions, type MenuViewModel } from "./components/Menu/Menu";
 import { Notice } from "./components/Notice/Notice";
 import { Options, type OptionsActions, type OptionsViewModel } from "./components/Options/Options";
 import { Ossuary, type OssuaryActions, type OssuaryViewModel } from "./components/Ossuary/Ossuary";
@@ -51,6 +52,8 @@ export interface HudState {
 	ossuary: OssuaryViewModel | null;
 	/** The pre-run difficulty and seed screen; null while closed. */
 	difficulty: DifficultyViewModel | null;
+	/** The title screen; null once the player left it. */
+	menu: MenuViewModel | null;
 	/** The web demo is over (the Gravedigger fell): the DemoEnd screen shows and round 11 never starts. */
 	demoEnd: boolean;
 	/** Simulation speed, 1 to 3. */
@@ -86,6 +89,7 @@ export interface AppProps {
 	optionsActions?: OptionsActions | undefined;
 	/** Cycles the game speed 1x, 2x, 3x (the button beside Options, and the TAB key in the host). */
 	onCycleSpeed?: (() => void) | undefined;
+	menuActions?: MenuActions | undefined;
 	/** Touch dash button held state. */
 	onDashHold?: ((down: boolean) => void) | undefined;
 	ossuaryActions?: (OssuaryActions & { open(): void }) | undefined;
@@ -110,6 +114,7 @@ export function App({
 	onOpenOptions,
 	optionsActions,
 	onCycleSpeed,
+	menuActions,
 	demo,
 	version,
 }: AppProps): JSX.Element {
@@ -137,6 +142,9 @@ export function App({
 			) : null}
 			{hud.shop && shopActions ? (
 				<Shop view={hud.shop} stats={hud.stats} actions={shopActions} portrait={shopPortrait} />
+			) : null}
+			{hud.menu && menuActions && !hud.difficulty && !hud.ossuary && !hud.options ? (
+				<Menu view={hud.menu} actions={menuActions} demo={demo} />
 			) : null}
 			{hud.demoEnd && onRestart && !hud.difficulty && !hud.ossuary ? (
 				<DemoEnd onRestart={onRestart} onOssuary={ossuaryActions?.open} />

@@ -279,6 +279,7 @@ async function boot(): Promise<void> {
 		options: null,
 		speed: meta.settings.gameSpeed,
 		demoEnd: false,
+		menu: null,
 	});
 	// The handlers are function declarations further down; the screen only calls them after boot.
 	const optionsActions = {
@@ -319,6 +320,21 @@ async function boot(): Promise<void> {
 				publishNow();
 			}}
 			optionsActions={optionsActions}
+			menuActions={{
+				play: () => {
+					difficultyOpen = true;
+					publishNow();
+				},
+				ossuary: () => {
+					ossuaryOpen = true;
+					publishNow();
+				},
+				options: () => {
+					optionsOpen = true;
+					loop.pause();
+					publishNow();
+				},
+			}}
 			onCycleSpeed={() => setSpeed(nextSpeed(loop.speed))}
 			onRestart={() => {
 				difficultyOpen = true;
@@ -621,10 +637,10 @@ async function boot(): Promise<void> {
 	let musicKey = "";
 	let lastAudioState = "";
 	const updateAudioState = (): void => {
-		const key = `${run.state}|${difficultyOpen}|${biomeTrack}`;
+		const key = `${run.state}|${difficultyOpen || menuOpen}|${biomeTrack}`;
 		if (key === musicKey) return;
 		musicKey = key;
-		audio.setMusic(musicFor({ state: run.state, menu: difficultyOpen, biomeTrack }));
+		audio.setMusic(musicFor({ state: run.state, menu: difficultyOpen || menuOpen, biomeTrack }));
 		if (run.state === "BossIntro" && lastAudioState !== "BossIntro") {
 			const id = boss.defFor(run.round).id;
 			audio.play(`sfx_boss_${id}_entry`, { priority: "boss", maxVoices: 1 });
@@ -736,6 +752,20 @@ async function boot(): Promise<void> {
 	let ossuaryOpen = false;
 	let difficultyOpen = false;
 	let optionsOpen = false;
+	// The title screen shows on a plain load; links with a seed, difficulty, tutorial or a debug flag go straight in.
+	const menuOpen = !["seed", "difficulty", "tutorial", "debug", "bench", "tips", "preset"].some((key) =>
+		params.has(key),
+	);
+
+	function menuView(): NonNullable<HudState["menu"]> {
+		return {
+			records: roundsData.difficulties.map((def) => ({
+				id: def.id,
+				name: t(`difficultyName.${def.id}`),
+				round: meta.records[def.id as keyof typeof meta.records] ?? 0,
+			})),
+		};
+	}
 
 	const nextSpeedOf = (speed: number): GameSpeed => (speed === 3 ? 3 : speed === 2 ? 2 : 1);
 
@@ -980,6 +1010,7 @@ async function boot(): Promise<void> {
 			difficulty: difficultyOpen ? difficultyView() : null,
 			options: optionsOpen ? optionsView() : null,
 			speed: loop.speed,
+			menu: menuOpen ? menuView() : null,
 			demoEnd,
 			bossIntro: run.state === "BossIntro" ? t(`boss.${boss.defFor(run.round).id}`) : null,
 			dash: dash.unlocked
@@ -990,8 +1021,9 @@ async function boot(): Promise<void> {
 					}
 				: null,
 			vignette: Math.round(vfx.vignette * 20) / 20,
-			tip:
-				tutorialOn && !tutorial.done
+			tip: menuOpen
+				? null
+				: tutorialOn && !tutorial.done
 					? tutorial.update({
 							round: run.round,
 							state: run.state,
@@ -1032,6 +1064,8 @@ async function boot(): Promise<void> {
 			cur.difficulty !== null ||
 			next.difficulty !== null ||
 			cur.speed !== next.speed ||
+			cur.menu !== null ||
+			next.menu !== null ||
 			cur.demoEnd !== next.demoEnd ||
 			cur.options !== null ||
 			next.options !== null ||
@@ -1073,6 +1107,8 @@ async function boot(): Promise<void> {
 
 	const loop = createLoop({
 		simulate: () => {
+			// Behind the title screen the world stands still.
+			if (menuOpen) return;
 			if (bench) {
 				// Fixed horde around a stationary hero: no run flow, no level-ups, no shop (SDD 14 section 4).
 				behavior.run(world, hero);
