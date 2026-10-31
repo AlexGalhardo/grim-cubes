@@ -1402,6 +1402,8 @@ async function boot(): Promise<void> {
 				vfx.setPools(on ? preset.particlePool : 0, on ? preset.decalPool : 0);
 				vfx.setNumberScale(on ? 1 : 0);
 			},
+			/** Variant budget check: 0 draws no cosmetic variants, 30 is the default share. */
+			setVariants: (percent: number) => horde?.setVariantPercent(percent),
 			/** Game speed 1, 2 or 3 (perf margin check). */
 			setSpeed: (speed: number) => loop.setSpeed(speed),
 			/**
