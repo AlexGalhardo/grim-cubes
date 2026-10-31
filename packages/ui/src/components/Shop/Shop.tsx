@@ -1,0 +1,143 @@
+import { type JSX, useEffect } from "react";
+import { Button } from "../Button/Button";
+import { Panel } from "../Panel/Panel";
+
+export interface ShopSlotView {
+	kind: "item" | "weapon" | "upgrade";
+	id: string;
+	name: string;
+	lines: readonly string[];
+	price: number;
+	tier: number;
+	locked: boolean;
+	sold: boolean;
+	affordable: boolean;
+}
+
+export interface ShopViewModel {
+	slots: readonly ShopSlotView[];
+	rerollPrice: number;
+	gold: number;
+}
+
+export interface StatLineView {
+	label: string;
+	value: string;
+}
+
+export interface ShopActions {
+	buy(index: number): void;
+	toggleLock(index: number): void;
+	reroll(): void;
+	next(): void;
+}
+
+export interface ShopProps {
+	view: ShopViewModel;
+	stats: readonly StatLineView[];
+	actions: ShopActions;
+}
+
+const TIER_BORDER: Readonly<Record<number, string>> = {
+	1: "border-rarity-1",
+	2: "border-rarity-2",
+	3: "border-rarity-3",
+	4: "border-rarity-4",
+};
+const KIND_LABEL = { item: "", weapon: "Arma", upgrade: "Upgrade" } as const;
+
+/** Between-rounds shop (GDD 17): 4 offers, lock, reroll, hero stats, next round. Keys 1-4 buy, R rerolls, Enter continues. */
+export function Shop({ view, stats, actions }: ShopProps): JSX.Element {
+	useEffect(() => {
+		const onKey = (e: KeyboardEvent): void => {
+			const index = Number(e.key) - 1;
+			if (Number.isInteger(index) && index >= 0 && index < view.slots.length) actions.buy(index);
+			else if (e.key === "r" || e.key === "R") actions.reroll();
+			else if (e.key === "Enter") actions.next();
+		};
+		window.addEventListener("keydown", onKey);
+		return () => window.removeEventListener("keydown", onKey);
+	}, [view.slots.length, actions]);
+
+	return (
+		<div
+			role="dialog"
+			aria-modal="true"
+			aria-labelledby="shop-title"
+			className="pointer-events-auto absolute inset-0 z-20 flex overflow-y-auto bg-night/80 p-2 mobile-l:p-4"
+		>
+			<div className="m-auto w-full max-w-5xl">
+				<Panel title="Mercador de Ossos" riveted>
+					<h1 id="shop-title" className="sr-only">
+						Loja
+					</h1>
+					<div className="mb-3 text-currency" data-testid="shop-gold">
+						{view.gold} fragmentos
+					</div>
+					<div className="flex flex-col gap-3 desktop:flex-row">
+						<div className="grid flex-1 grid-cols-2 gap-2 mobile-l:gap-3 desktop:grid-cols-4">
+							{view.slots.map((slot, i) => (
+								<div
+									key={`${slot.kind}-${slot.id}-${i}`}
+									data-testid={`shop-slot-${i}`}
+									className={`flex flex-col gap-2 border-2 bg-night-2 p-3 ${TIER_BORDER[slot.tier] ?? "border-iron-dark"} ${slot.sold ? "opacity-40" : ""}`}
+								>
+									<span className="font-display text-xs text-bone-dark">
+										{i + 1} {KIND_LABEL[slot.kind]}
+									</span>
+									<span className="font-display text-base">{slot.name}</span>
+									<ul className="flex-1 font-body text-sm text-bone-dark">
+										{slot.lines.map((line) => (
+											<li key={line}>{line}</li>
+										))}
+									</ul>
+									<div className="flex items-center justify-between gap-2">
+										<button
+											type="button"
+											data-testid={`shop-buy-${i}`}
+											disabled={slot.sold}
+											onClick={() => actions.buy(i)}
+											className={`h-10 flex-1 border-2 border-iron-dark bg-iron px-2 font-display text-base shadow-plate transition-colors duration-fast hover:border-ember focus-visible:outline-2 focus-visible:outline-ember focus-visible:outline-offset-2 disabled:opacity-50 pointer-coarse:min-h-12 ${slot.affordable ? "text-currency" : "text-danger"}`}
+										>
+											{slot.sold ? "Vendido" : slot.price}
+										</button>
+										<button
+											type="button"
+											data-testid={`shop-lock-${i}`}
+											disabled={slot.sold}
+											aria-pressed={slot.locked}
+											aria-label={slot.locked ? "Destravar" : "Travar"}
+											onClick={() => actions.toggleLock(i)}
+											className={`h-10 w-10 border-2 font-display text-base transition-colors duration-fast pointer-coarse:min-h-12 pointer-coarse:min-w-12 ${slot.locked ? "border-ember text-ember-light" : "border-iron-dark text-bone-dark"}`}
+										>
+											{slot.locked ? "■" : "□"}
+										</button>
+									</div>
+								</div>
+							))}
+						</div>
+						<dl
+							className="hidden w-full grid-cols-2 gap-x-3 gap-y-1 font-body text-sm mobile-l:grid desktop:w-56"
+							aria-label="Atributos"
+						>
+							{stats.map((line) => (
+								<div key={line.label} className="contents">
+									<dt className="text-bone-dark">{line.label}</dt>
+									<dd className="text-right">{line.value}</dd>
+								</div>
+							))}
+						</dl>
+					</div>
+					<div className="mt-4 flex flex-wrap justify-end gap-3">
+						<Button onClick={actions.reroll} disabled={view.gold < view.rerollPrice}>
+							Rolar de novo ({view.rerollPrice})
+						</Button>
+						<Button size="lg" onClick={actions.next}>
+							Próximo round
+						</Button>
+					</div>
+				</Panel>
+			</div>
+		</div>
+	);
+}

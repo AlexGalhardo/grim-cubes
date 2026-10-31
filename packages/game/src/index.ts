@@ -8,6 +8,7 @@ export {
 	roundsData,
 	toBiomeDefs,
 	toEnemyDefs,
+	toShopWeapons,
 	weaponsData,
 	worldData,
 } from "./data";

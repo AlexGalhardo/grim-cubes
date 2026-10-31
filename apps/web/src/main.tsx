@@ -22,21 +22,25 @@ import {
 	createProjectileSystem,
 	createRunSystem,
 	createSeparationSystem,
+	createShopSystem,
 	createSpawnSystem,
 	createStatsSystem,
 	createTargetingSystem,
 	createWeaponSystem,
 	damageConfigFromHero,
+	describeStats,
 	enemiesData,
 	Health,
 	heroData,
 	inputSystem,
+	itemsData,
 	movementSystem,
 	Position,
 	roundsData,
 	spawnHero,
 	toBiomeDefs,
 	toEnemyDefs,
+	toShopWeapons,
 	weaponsData,
 	worldData,
 	xpForLevel,
@@ -60,6 +64,7 @@ import "./main.css";
 const log = createLogger("boot");
 const HUD_HZ = 12;
 const NO_CARDS: readonly CardView[] = [];
+const NO_STATS: HudState["stats"] = [];
 
 function runSeed(): number {
 	const param = new URLSearchParams(location.search).get("seed");
@@ -184,6 +189,17 @@ async function boot(): Promise<void> {
 	});
 	const pickup = createPickupSystem({ fragments, xp, progress, stats: stats.stats });
 	const levelUp = createLevelUpSystem({ progress, run, cards: cardsData, rng: rng.cards, stats, events });
+	const shop = createShopSystem({
+		config: roundsData.shop,
+		tiers: roundsData.tierChance,
+		catalog: { items: itemsData, weapons: toShopWeapons(weaponsData) },
+		weaponDefs: weaponsData,
+		rng: rng.shop,
+		progress,
+		stats,
+		weapon,
+		round: () => run.round,
+	});
 
 	const chunkGen = createChunkGenerator(seed, toBiomeDefs(biomesData), {
 		chunkSize: worldData.chunkSize,
@@ -200,9 +216,33 @@ async function boot(): Promise<void> {
 		xpNeeded: xpForLevel(xp, 1),
 		gold: 0,
 		cards: NO_CARDS,
+		shop: null,
+		stats: [],
 	});
 	createRoot(uiRoot).render(
-		<App store={hud} stick={stick} onChooseCard={(index) => levelUp.choose(index)} />,
+		<App
+			store={hud}
+			stick={stick}
+			onChooseCard={(index) => levelUp.choose(index)}
+			shopActions={{
+				buy: (index) => {
+					shop.buy(index);
+					publishNow();
+				},
+				toggleLock: (index) => {
+					shop.toggleLock(index);
+					publishNow();
+				},
+				reroll: () => {
+					shop.reroll();
+					publishNow();
+				},
+				next: () => {
+					if (run.state === "Shop") run.closeShop();
+					publishNow();
+				},
+			}}
+		/>,
 	);
 
 	const input = createInputState();
@@ -264,6 +304,54 @@ async function boot(): Promise<void> {
 	let lastOffer: readonly CardView[] = NO_CARDS;
 	let lastOfferSource: unknown = null;
 	let lastHud = Number.NEGATIVE_INFINITY;
+	let inShop = false;
+	let lastShopJson = "";
+	let lastShop: HudState["shop"] = null;
+
+	function publishNow(): void {
+		const offer = levelUp.offer;
+		if (offer !== lastOfferSource) {
+			lastOfferSource = offer;
+			lastOffer = offer ? offer.map((c) => ({ id: c.id, name: c.name, double: c.double })) : NO_CARDS;
+		}
+		let shopView: HudState["shop"] = null;
+		if (run.state === "Shop") {
+			const view = shop.view();
+			const json = JSON.stringify(view);
+			if (json !== lastShopJson) {
+				lastShopJson = json;
+				lastShop = view;
+			}
+			shopView = lastShop;
+		} else {
+			lastShopJson = "";
+		}
+		const next: HudState = {
+			hp: Math.max(0, Math.ceil(Health.hp[hero] ?? 0)),
+			maxHp: Math.ceil(Health.max[hero] ?? 0),
+			round: run.round,
+			level: progress.level,
+			xp: Math.floor(progress.xp),
+			xpNeeded: xpForLevel(xp, progress.level),
+			gold: Math.floor(progress.gold),
+			cards: lastOffer,
+			shop: shopView,
+			stats: shopView ? describeStats(stats.stats) : NO_STATS,
+		};
+		const cur = hud.get();
+		if (
+			cur.hp !== next.hp ||
+			cur.maxHp !== next.maxHp ||
+			cur.round !== next.round ||
+			cur.level !== next.level ||
+			cur.xp !== next.xp ||
+			cur.gold !== next.gold ||
+			cur.cards !== next.cards ||
+			cur.shop !== next.shop
+		) {
+			hud.publish(next);
+		}
+	}
 
 	const loop = createLoop({
 		simulate: () => {
@@ -285,8 +373,8 @@ async function boot(): Promise<void> {
 				levelUp.run();
 				if ((Health.hp[hero] ?? 0) <= 0) run.heroDied();
 			}
-			// No shop screen yet (P-05-04): skip straight to the next round.
-			if (run.state === "Shop") run.closeShop();
+			if (run.state === "Shop" && !inShop) shop.open();
+			inShop = run.state === "Shop";
 			// No results screen yet: a finished run starts over.
 			if (run.state === "Results") location.reload();
 		},
@@ -304,35 +392,7 @@ async function boot(): Promise<void> {
 		publish: (now) => {
 			if (now - lastHud < 1000 / HUD_HZ) return;
 			lastHud = now;
-			const offer = levelUp.offer;
-			if (offer !== lastOfferSource) {
-				lastOfferSource = offer;
-				lastOffer = offer
-					? offer.map((c) => ({ id: c.id, name: c.name, double: c.double }))
-					: NO_CARDS;
-			}
-			const next: HudState = {
-				hp: Math.max(0, Math.ceil(Health.hp[hero] ?? 0)),
-				maxHp: Math.ceil(Health.max[hero] ?? 0),
-				round: run.round,
-				level: progress.level,
-				xp: Math.floor(progress.xp),
-				xpNeeded: xpForLevel(xp, progress.level),
-				gold: Math.floor(progress.gold),
-				cards: lastOffer,
-			};
-			const cur = hud.get();
-			if (
-				cur.hp !== next.hp ||
-				cur.maxHp !== next.maxHp ||
-				cur.round !== next.round ||
-				cur.level !== next.level ||
-				cur.xp !== next.xp ||
-				cur.gold !== next.gold ||
-				cur.cards !== next.cards
-			) {
-				hud.publish(next);
-			}
+			publishNow();
 		},
 	});
 
@@ -341,6 +401,10 @@ async function boot(): Promise<void> {
 			hero: () => ({ x: Position.x[hero] ?? 0, z: Position.z[hero] ?? 0 }),
 			state: () => ({ run: run.state, round: run.round, level: progress.level }),
 			grantXp: (amount: number) => addFragmentValue(progress, fragments, xp, amount),
+			grantGold: (amount: number) => {
+				progress.gold += amount;
+			},
+			endRound: () => run.forceEnd(world),
 		};
 	}
 

@@ -6,6 +6,7 @@ import itemsJson from "../../../../data/items.json";
 import roundsJson from "../../../../data/rounds.json";
 import weaponsJson from "../../../../data/weapons.json";
 import worldJson from "../../../../data/world.json";
+import type { ShopWeapon } from "../rules/shop";
 import { BehaviorKind } from "../systems/behavior";
 import type { EnemyDef } from "../systems/spawn";
 import type { BiomeDef } from "../world/chunkGen";
@@ -83,5 +84,16 @@ export function toBiomeDefs(biomes: readonly BiomeData[]): BiomeDef[] {
 					},
 				}
 			: {}),
+	}));
+}
+
+/** Weapons as the shop sees them; entries without prices cannot be offered and are priced out. */
+export function toShopWeapons(weapons: readonly WeaponData[]): ShopWeapon[] {
+	return weapons.map((w) => ({
+		id: w.id,
+		name: w.name,
+		price: w.price ?? 0,
+		upgradePrices: w.upgradePrices ?? [],
+		unlockRound: w.unlockRound ?? 1,
 	}));
 }

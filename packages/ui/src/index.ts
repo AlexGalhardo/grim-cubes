@@ -8,4 +8,12 @@ export type { CardView, LevelUpProps } from "./components/LevelUp/LevelUp";
 export { LevelUp } from "./components/LevelUp/LevelUp";
 export type { PanelProps } from "./components/Panel/Panel";
 export { Panel } from "./components/Panel/Panel";
+export type {
+	ShopActions,
+	ShopProps,
+	ShopSlotView,
+	ShopViewModel,
+	StatLineView,
+} from "./components/Shop/Shop";
+export { Shop } from "./components/Shop/Shop";
 export { VirtualJoystick } from "./components/VirtualJoystick/VirtualJoystick";

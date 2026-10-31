@@ -30,6 +30,7 @@ export interface WeaponDef {
 	attackSpeedBonusPerTier: number;
 	rangeBonusPerTier: number;
 	price?: number;
+	unlockRound?: number;
 	upgradePrices?: readonly number[];
 }
 

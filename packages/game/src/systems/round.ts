@@ -54,6 +54,8 @@ export interface RunSystem {
 	readonly bag: Bag;
 	newRun(): void;
 	closeShop(): void;
+	/** Ends the current combat round now (used by the debug API and tests); no-op outside a round. */
+	forceEnd(world: GameWorld): void;
 	pause(): void;
 	resume(): void;
 	bossDied(): void;
@@ -154,6 +156,9 @@ export function createRunSystem(deps: RunSystemDeps): RunSystem {
 			if (state !== "Shop") return;
 			round++;
 			startIntro();
+		},
+		forceEnd(world: GameWorld): void {
+			if (state === "Round" || state === "BossRound") endCombat(world);
 		},
 		pause(): void {
 			if (state !== "Round" && state !== "BossRound") return;
