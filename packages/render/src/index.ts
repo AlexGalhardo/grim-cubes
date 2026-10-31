@@ -6,6 +6,8 @@ export type {
 	LoadedEnemy,
 } from "./assets/gameAssets";
 export { importModelMesh, loadGameAssets, loadManifest } from "./assets/gameAssets";
+export type { BenchRecorder, BenchResult } from "./bench/recorder";
+export { createBenchRecorder, percentile } from "./bench/recorder";
 export type { RenderEngine } from "./engine";
 export { createEngine, createNullEngine, EngineUnavailableError } from "./engine";
 export type { HordeOptions, HordeRenderer, HordeType } from "./horde/hordeRenderer";
