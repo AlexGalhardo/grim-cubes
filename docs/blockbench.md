@@ -107,3 +107,17 @@ gerador (`tools/assets-gen`) para os placeholders que ainda não foram refinados
 - O servidor MCP só aceita conexões locais; não troque o endereço para `0.0.0.0`.
 - O plugin roda dentro do Blockbench com acesso ao disco; só a versão fixada acima, conferida pelo SHA-256.
 - O servidor headless `bbmodel` (via `npx github:...`) não é usado: puxaria código sem versão fixa.
+
+## 9. Diagnóstico
+
+Teste do servidor (no terminal, não no console do Blockbench); a resposta precisa trazer `serverInfo`:
+
+```sh
+curl -s -m 5 -X POST http://127.0.0.1:3000/bb-mcp -H "Content-Type: application/json" -H "Accept: application/json, text/event-stream" -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"probe","version":"0"}}}'
+```
+
+| Sintoma | Causa vista em 2026-10-31 | Correção |
+| --- | --- | --- |
+| Console mostra `[MCP] Server listening…`, a porta aceita a conexão, mas o `curl` volta 0 bytes e nada aparece no console | `mcp.js` carregado de outra build (não o asset da release fixada; o SHA-256 não bate) | Desinstalar o plugin e carregar o arquivo da release v1.10.1 conferido pelo SHA-256 da §2 |
+| `curl` sem `-m` trava o terminal | O GET abre um stream SSE que não termina | Sempre usar `-m 5` e POST com `initialize` |
+| "Unexpected number" no console do Blockbench | O `curl` foi colado no DevTools, que só aceita JavaScript | Rodar o `curl` no terminal |
