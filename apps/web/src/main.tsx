@@ -84,12 +84,14 @@ import {
 	createProjectileRenderer,
 	createRenderPort,
 	createVfx,
+	hardwareInfo,
 	importModelMesh,
 	loadCharacter,
 	loadGameAssets,
 	PALETTE,
 	PLACEHOLDER_PROPS,
 	type PropTypeDef,
+	pickAutoPreset,
 } from "@gc/render";
 import { App, type CardView, type HudState, type IconRef } from "@gc/ui";
 import { query } from "bitecs";
@@ -420,11 +422,19 @@ async function boot(): Promise<void> {
 		resume: () => loop.resume(),
 		now: () => performance.now(),
 	});
-	// Video preset (SDD 14 section 5): `?preset=` in debug builds, else Low on touch devices and the default elsewhere.
+	// Video preset (SDD 14 section 5): `?preset=` in debug builds, else the hardware rule table (R-01-03).
+	const forced = __DEBUG_API__ ? params.get("preset") : null;
+	const hardware = hardwareInfo(
+		platform.mobile,
+		navigator as { hardwareConcurrency?: number; deviceMemory?: number },
+		render.engine.getGlInfo().renderer,
+	);
+	const autoId = pickAutoPreset(presetsData.auto, hardware);
 	const preset =
-		presetsData.presets.find((p) => p.id === (__DEBUG_API__ ? params.get("preset") : null)) ??
-		presetsData.presets.find((p) => p.id === (platform.mobile ? "low" : presetsData.default)) ??
+		presetsData.presets.find((p) => p.id === forced) ??
+		presetsData.presets.find((p) => p.id === autoId) ??
 		presetsData.presets[0];
+	log.info("preset", { id: preset?.id, reason: forced ? "query" : "auto", hardware });
 	if (!preset) throw new Error("data/presets.json has no preset");
 	let applied = applyPreset(game, render.engine, preset);
 	spawn.setCap(preset.enemyCap);

@@ -124,6 +124,15 @@ export interface HardwareInfo {
 	renderer?: string | undefined;
 }
 
+/** Maps the navigator facts the auto preset reads; `deviceMemory` is Chromium-only and stays undefined elsewhere. */
+export function hardwareInfo(
+	mobile: boolean,
+	nav: { hardwareConcurrency?: number; deviceMemory?: number },
+	renderer?: string,
+): HardwareInfo {
+	return { mobile, cores: nav.hardwareConcurrency, memoryGb: nav.deviceMemory, renderer };
+}
+
 /** Picks the first auto-preset rule that holds for `hardware`, else the fallback. A bound on a fact the browser hides never matches. */
 export function pickAutoPreset(auto: AutoPresetData, hardware: HardwareInfo): string {
 	for (const rule of auto.rules) {
