@@ -44,6 +44,7 @@ import {
 	Health,
 	heroData,
 	isUnlocked,
+	KnockbackResist,
 	milestonesData,
 	movementSystem,
 	nextSpeed,
@@ -1204,9 +1205,12 @@ async function boot(): Promise<void> {
 		},
 	});
 
+	let faceDummy = -1;
 	if (__DEBUG_API__ && new URLSearchParams(location.search).has("debug")) {
 		window.gc.debug = {
 			hero: () => ({ x: Position.x[hero] ?? 0, z: Position.z[hero] ?? 0 }),
+			/** Yaw the hero rig is drawn with (radians, 0 looks along +z), or null without the skeleton rig. */
+			heroYaw: () => characters?.heroYaw ?? null,
 			state: () => ({ run: run.state, round: run.round, level: progress.level }),
 			grantXp: (amount: number) => addFragmentValue(progress, fragments, xp, amount),
 			grantGold: (amount: number) => {
@@ -1217,15 +1221,30 @@ async function boot(): Promise<void> {
 			spawnEnemy: (typeIndex: number, x: number, z: number) =>
 				spawn.spawnEnemy(world, typeIndex, (Position.x[hero] ?? 0) + x, (Position.z[hero] ?? 0) + z),
 			/**
-			 * Hero-facing capture: one motionless, tough enemy 3 u to the right of the hero and a closer camera. Walk left
+			 * Hero-facing capture: one motionless, tough enemy 1.2 u to the right (inside the sword range) of the hero and a closer camera. Walk left
 			 * (key A) and the rig must keep looking at it.
 			 */
 			faceTest: () => {
-				const e = spawn.spawnEnemy(world, 0, (Position.x[hero] ?? 0) + 3, Position.z[hero] ?? 0);
+				// Alone with the dummy: no more spawns and the round's enemies die, so it is the only possible target.
+				spawn.setCap(0);
+				for (const other of queryEnemies(world)) Health.hp[other] = 0;
+				const e = spawn.spawnEnemy(world, 0, (Position.x[hero] ?? 0) + 1.2, Position.z[hero] ?? 0);
 				Health.hp[e] = Health.max[e] = 1e6;
 				Speed.value[e] = 0;
+				KnockbackResist.value[e] = 1;
 				game.camera.radius = 9;
+				faceDummy = e;
 			},
+			/** State of the `faceTest` dummy: where it is, whether it lives and whether it is the current target. */
+			faceDummy: () =>
+				faceDummy < 0
+					? null
+					: {
+							x: Position.x[faceDummy] ?? 0,
+							z: Position.z[faceDummy] ?? 0,
+							hp: Health.hp[faceDummy] ?? 0,
+							targeted: targeting.target === faceDummy,
+						},
 			/** Applies a video preset live (shadows, scale, enemy cap); pool sizes apply on the next launch. */
 			setPreset: (id: string) => {
 				const next = presetsData.presets.find((p) => p.id === id);
