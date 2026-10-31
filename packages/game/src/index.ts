@@ -5,6 +5,7 @@ export {
 	enemiesData,
 	heroData,
 	roundsData,
+	toBiomeDefs,
 	toEnemyDefs,
 	weaponsData,
 	worldData,

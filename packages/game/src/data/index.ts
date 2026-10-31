@@ -7,6 +7,7 @@ import weaponsJson from "../../../../data/weapons.json";
 import worldJson from "../../../../data/world.json";
 import { BehaviorKind } from "../systems/behavior";
 import type { EnemyDef } from "../systems/spawn";
+import type { BiomeDef } from "../world/chunkGen";
 import type { BiomeData, CardsData, EnemyData, HeroData, RoundsData, WeaponData, WorldData } from "./types";
 
 /**
@@ -44,3 +45,22 @@ export function toEnemyDefs(enemies: readonly EnemyData[]): EnemyDef[] {
 }
 
 export type { BiomeData, CardsData, EnemyData, HeroData, RoundsData, WeaponData, WorldData } from "./types";
+
+/** Maps `biomes.json` to the chunk generator's defs (count ranges become tuples). */
+export function toBiomeDefs(biomes: readonly BiomeData[]): BiomeDef[] {
+	const range = (r: number[] | undefined): readonly [number, number] => [r?.[0] ?? 0, r?.[1] ?? 0];
+	return biomes.map((b) => ({
+		id: b.id,
+		minDistance: b.minDistance,
+		...(b.props && b.propCounts
+			? {
+					props: b.props,
+					propCounts: {
+						blocking: range(b.propCounts.blocking),
+						decor: range(b.propCounts.decor),
+						breakable: range(b.propCounts.breakable),
+					},
+				}
+			: {}),
+	}));
+}

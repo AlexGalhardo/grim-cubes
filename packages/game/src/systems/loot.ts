@@ -24,6 +24,7 @@ export function createProgress(): Progress {
 	return { gold: 0, xp: 0, level: 1, pendingLevelUps: 0 };
 }
 
+// shortcut: cap de 65.535 por pilha (u16); revisar se a economia passar disso.
 const MAX_PILE_VALUE = 0xffff;
 
 export function addFragmentValue(
