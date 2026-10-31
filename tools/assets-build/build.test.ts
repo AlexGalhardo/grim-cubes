@@ -200,6 +200,16 @@ describe("buildAssets", () => {
 		expect(manifest.entries.husk).toBeUndefined();
 	});
 
+	test("every model entry names the atlas its UVs point into, tiles with the props", async () => {
+		await writeModel("husk", { category: "enemies" }, 1);
+		await writeModel("prop_a", { category: "props" }, 2);
+		await writeModel("tile_a", { category: "tiles" }, 3);
+		const manifest = await build();
+		expect(manifest.entries.husk?.atlas).toBe("atlas_characters");
+		expect(manifest.entries.prop_a?.atlas).toBe("atlas_props");
+		expect(manifest.entries.tile_a?.atlas).toBe("atlas_props");
+	});
+
 	test("an _e.png next to a _d.png makes an emissive atlas with the same placements; without one nothing changes", async () => {
 		await writeModel("husk", { category: "enemies" }, 1);
 		await writeModel("wail", { category: "enemies" }, 2);

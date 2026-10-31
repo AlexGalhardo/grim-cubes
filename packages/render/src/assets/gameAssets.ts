@@ -20,6 +20,8 @@ export interface AssetEntry {
 	height?: number;
 	/** Model only: the enemy type this cosmetic variant replaces for part of the horde (`models/variants/`). */
 	variantOf?: string;
+	/** Model only: the atlas entry its UVs point into (props and tiles use `atlas_props`). */
+	atlas?: "atlas_characters" | "atlas_props";
 	/** Icon only: pixel rectangle inside the atlas this entry's `url` names (`atlas_vfx_ui`). */
 	rect?: { x: number; y: number; w: number; h: number };
 	meta?: string;

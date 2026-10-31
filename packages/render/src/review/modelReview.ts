@@ -20,6 +20,11 @@ export interface ModelReviewOptions {
 	silhouette?: boolean;
 }
 
+/** The atlas a model's UVs point into: the manifest says (props and tiles share `atlas_props`). */
+export function reviewAtlasId(entry: { atlas?: string }): string {
+	return entry.atlas ?? "atlas_characters";
+}
+
 /** Fixed three-quarter view from the model's front (+Z): the same shot for every model. */
 const REVIEW_CAMERA = { alpha: Math.PI / 2 - 0.6, beta: 1.15, fov: 0.5 } as const;
 
@@ -56,12 +61,7 @@ export async function startModelReview(
 		material.disableLighting = true;
 		material.emissiveColor = Color3.Black();
 	} else {
-		const atlas =
-			manifest.entries[
-				mesh.getTotalVertices() > 0 && options.id.startsWith("prop_")
-					? "atlas_props"
-					: "atlas_characters"
-			];
+		const atlas = manifest.entries[reviewAtlasId(entry)];
 		if (atlas) {
 			material.diffuseTexture = new Texture(
 				`${options.baseUrl}${atlas.url}`,

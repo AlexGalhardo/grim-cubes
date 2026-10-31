@@ -40,6 +40,8 @@ export interface ManifestEntry {
 	ktx2?: false | { url: string; hash: string; bytes: number };
 	/** Model only: the enemy type this cosmetic variant replaces for part of the horde (`models/variants/`). */
 	variantOf?: string;
+	/** Model only: the atlas its UVs were remapped into (props and tiles share `atlas_props`). */
+	atlas?: AtlasName;
 	/** Icon only: pixel rectangle inside `atlas_vfx_ui` (this entry's `url` is that atlas). */
 	rect?: { x: number; y: number; w: number; h: number };
 }
@@ -389,6 +391,7 @@ export async function buildAssets(options: BuildOptions): Promise<Manifest> {
 			bytes: glb.length,
 			kind: "model",
 			...(item.variantOf ? { variantOf: item.variantOf } : {}),
+			atlas: item.atlas,
 			group: groupOf(item.input.category, item.input.name),
 		};
 	}
