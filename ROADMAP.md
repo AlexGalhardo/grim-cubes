@@ -428,33 +428,33 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
 
 **Objetivo.** Congelar conteúdo, estabilizar, certificar e lançar a 1.0 na Steam com a demo web atualizada. Nenhuma feature nova; só correções, performance, docs e operação de lançamento.
 
-**Critério de entrada.** Saída da BETA; `v0.9.0`; zero bugs P0/P1; checklist de lançamento preenchido; build enviada para revisão da Valve.
+**Critério de entrada.** Saída da BETA; `v0.9.0`; zero bugs P0/P1 (nenhuma entrada aberta com `[bug P0]`/`[bug P1]` em `docs/PROGRESS.md` §Dívidas); checklist de lançamento preenchido; build enviada para revisão da Valve (B-05-03).
 
-**Critério de saída.** `v1.0.0` publicada (GitHub Release no padrão vukem, Steam `default`, Vercel produção); revisão da Valve aprovada; pós-lançamento: crash-free ≥ 99,5% nas primeiras 1.000 sessões; hotfix `1.0.x` em ≤ 48 h se necessário; retrospectiva em `docs/retro/1.0.md`.
+**Critério de saída.** `v1.0.0` publicada (GitHub Release no padrão vukem, Steam `default`, Vercel produção); revisão da Valve aprovada; pós-lançamento: crash-free ≥ 99,5% nas primeiras 1.000 sessões com telemetria aceita (opt-in, GDD §26.2; sessões sem opt-in não entram na conta); hotfix `1.0.x` em ≤ 48 h se necessário; retrospectiva em `docs/retro/1.0.md`.
 
 ### R-01 Congelamento e estabilização
 
-- [ ] **R-01-01** Branch `release/1.0` a partir de `main`; `1.0.0-rc.1` publicada como pré-release; só `fix:`/`docs:`/`chore:` entram. Deps: B-05-04. Resp: Orq. Prio: P0.
-  - Asserts: `gh release view v1.0.0-rc.1 --json isPrerelease` = `true`; `tools/commitlint` em modo RC rejeita `feat:` na branch (teste demonstrado).
-- [ ] **R-01-02** Soak test: 10 runs automáticas de 60 rounds (política greedy com render, `?bench=soak`) em desktop sem vazamento (heap Δ < 20 MB) e sem erro de console. Deps: R-01-01. Resp: Est. Prio: P0.
-  - Asserts: `reports/soak-1.0.json` com `heapDeltaMB < 20`, `errors = 0`, `fpsAvg ≥ 60` em 1080p.
-- [ ] **R-01-03** Bench final nos 4 alvos + preset automático inicial por hardware (`navigator.hardwareConcurrency`, `deviceMemory`, WebGL renderer) com tabela em `data/presets.json`. Deps: R-01-02. Resp: S1. Prio: P0.
-  - Asserts: `reports/perf-final-{desktop-1080,desktop-1440,mobile-l,mobile-s}.json` dentro das metas de SDD 14 §1; preset auto escolhe "Baixo" em Android (teste com user agent/`deviceMemory` mockados).
-- [ ] **R-01-04** Correção de todos os bugs P2 triviais restantes ou adiamento documentado em `docs/PROGRESS.md`. Deps: R-01-01. Resp: S1 + S2 + Esp. Prio: P1.
-  - Asserts: `gh issue list --label P2 --state open` vazio ou cada issue com label `post-1.0` e comentário de justificativa.
-- [ ] **R-01-05** Auditoria do Especialista: revisão completa de segurança (secrets, Electron `contextIsolation`, CSP no `index.html`, telemetria sem PII), licenças (fontes OFL, CC0, ElevenLabs pago) e conformidade com Art Bible §13 "O que evitar" (IP). Deps: R-01-01. Resp: Esp. Prio: P0.
-  - Asserts: `docs/release/audit-1.0.md` com itens verificados, comandos usados (`bun tools/secrets-scan --all`, `bunx biome ci`, inventário de assets por licença) e zero pendências P0.
+- [ ] **R-01-01** Branch `release/1.0` a partir de `main`; `1.0.0-rc.1` publicada como pré-release; só `fix:`/`docs:`/`chore:` entram. Faz parte da task: (a) bump de rc para a próxima major em `tools/release` (`release major --rc`; hoje `rc` a partir de versão estável abre o rc do próximo patch, `0.9.0 → 0.9.1-rc.1`); (b) modo RC no `tools/commitlint`, com o CI passando o nome da branch e `release/*` rejeitando `feat:`. Deps: B-05-04, E-04-03. Resp: Orq (+ Est nas ferramentas). Prio: P0.
+  - Asserts: teste em `tools/release`: `0.9.0` com `major --rc` → `1.0.0-rc.1`, e `major` a partir de `1.0.0-rc.N` → `1.0.0`; `gh release view v1.0.0-rc.1 --json isPrerelease` = `true`; teste do `tools/commitlint` em modo RC rejeitando `feat:` numa branch `release/*` e aceitando `fix:`.
+- [ ] **R-01-02** Soak test em build com `GC_DEBUG_API=1` (o bench só existe atrás de `__DEBUG_API__`): modo `?bench=soak` novo, com a política greedy movida de `tools/sim` para `packages/game` (a mesma política no Node e no browser), em desktop, sem vazamento (heap Δ < 20 MB) e sem erro de console. Duração definida: 10 runs de 60 rounds com tempo acelerado (passos de simulação em lote, render a cada frame) para vazamento e erros, mais 2 h em tempo real só para medir fps. Hardware de referência do SDD 14 §1 (desktop com iGPU classe Iris Xe / Ryzen 5), na máquina do PO; o CI (SwiftShader) não mede fps. Deps: R-01-01, P-07-04. Resp: Est. Prio: P0.
+  - Asserts: `reports/soak-1.0.json` com `gpu` (renderer WebGL), `runs = 10`, `rounds = 60` por run, `heapDeltaMB < 20` (`performance.memory`, só Chromium), `errors = 0`; `reports/soak-1.0-fps.json` com 2 h em tempo real e `fpsAvg ≥ 60` em 1080p.
+- [ ] **R-01-03** Bench final nos 4 alvos + preset automático inicial por hardware (`navigator.hardwareConcurrency`, `deviceMemory`, WebGL renderer) com tabela em `data/presets.json` (schema em `data/schema/`, entrada no `data-check` e loader tipado). `deviceMemory` só existe no Chromium: sem ele, o preset sai só de núcleos e renderer. Na 1.0, "mobile" é a demo web no Chrome mobile; device Android real fica para a M-01-04. Deps: R-01-02, P-03-05 (cull de render por frustum), carga round20 representativa (SDD 14 §1). Resp: S1. Prio: P0.
+  - Asserts: `reports/perf-final-{desktop-1080,desktop-1440,mobile-l,mobile-s}.json` com a GPU registrada e dentro das metas de SDD 14 §1; preset auto escolhe "Baixo" em Android (teste com user agent/`deviceMemory` mockados) e tem fallback testado sem `deviceMemory`; `data-check` valida `presets.json`.
+- [ ] **R-01-04** Correção de todos os bugs P2 triviais restantes ou adiamento documentado. Os bugs ficam em `docs/PROGRESS.md` §Dívidas com tag `[bug P2]` (mesma regra dos P0/P1 da Fase 4). Deps: R-01-01. Resp: S1 + S2 + Esp. Prio: P1.
+  - Asserts: nenhuma entrada `[bug P2]` aberta em `docs/PROGRESS.md` §Dívidas, salvo as marcadas `post-1.0` com justificativa.
+- [ ] **R-01-05** Auditoria do Especialista: revisão completa de segurança (secrets, Electron `contextIsolation`, CSP, telemetria sem PII), licenças (fontes OFL, CC0, ElevenLabs pago, SBOM) e conformidade com Art Bible §13 "O que evitar" (IP). A CSP vai no `vercel.json` (headers) e no Electron, permitindo o que o Babylon usa (`wasm-unsafe-eval`, `blob:` para os workers do transcoder KTX2). Deps: R-01-01, P-07-02, A-06-04, B-05-02 (ADR de telemetria). Resp: Esp. Prio: P0.
+  - Asserts: `docs/release/audit-1.0.md` com itens verificados e comandos usados: `git ls-files -z | xargs -0 bun tools/secrets-scan` (o CLI só aceita caminhos), `bunx biome ci`, SBOM de `tools/sbom`, inventário de assets por licença e todo `.meta.json` de áudio com `plan` ≠ `free`; e2e sem violação de CSP no console (web e Electron); zero pendências P0.
 
 ### R-02 Lançamento
 
-- [ ] **R-02-01** `v1.0.0`: `bun run release major` na branch de release, merge em `main`, GitHub Release (assets `.exe` NSIS + portable, `checksums.txt`, SBOM, atestação se configurada), tag. Deps: R-01-05, R-01-03. Resp: Orq + PO (aprovação). Prio: P0.
+- [ ] **R-02-01** `v1.0.0`: `bun run release major` na branch de release, merge em `main`, GitHub Release (assets `.exe` NSIS + portable, `checksums.txt`, SBOM, atestação se configurada), tag. O `.exe` sai do `electron.yml` criado na P-07-02. Deps: R-01-05, R-01-03, P-07-02. Resp: Orq + PO (aprovação). Prio: P0.
   - Asserts: `gh release view v1.0.0 --json name,tagName,isPrerelease,assets` → nome = tag, não pré-release, ≥ 4 assets; corpo = seção `## [1.0.0]` do CHANGELOG; `sha256sum -c checksums.txt` exit 0.
-- [ ] **R-02-02** Steam: build 1.0 no branch `default` via `steam-upload`, demo atualizada, data/hora de lançamento, desconto de lançamento 10% por 14 dias configurado. Deps: R-02-01, B-05-03. Resp: PO + S2. Prio: P0.
-  - Asserts: jogo comprável na Steam no horário planejado (captura da página com preço e desconto); demo mostra "jogo completo disponível".
-- [ ] **R-02-03** Web: deploy de produção da demo 1.0 com botão "Comprar na Steam" ativo; smoke verde; `README.md` e página da Vercel com link da Steam. Deps: R-02-01. Resp: S2. Prio: P0.
-  - Asserts: smoke pós-deploy exit 0; e2e `DemoEnd` abre a URL da Steam (`target=_blank`, URL contém `store.steampowered.com/app/<id>`).
-- [ ] **R-02-04** Monitoramento pós-lançamento (7 dias): telemetria agregada (crash-free, round mediano, conversão demo→wishlist/compra pela Steam), reviews, triagem diária; hotfix `1.0.1` se crash-free < 99,5% ou bug bloqueante. Deps: R-02-02. Resp: Orq + Est + PO. Prio: P0.
-  - Asserts: `docs/release/launch-report-1.0.md` com os números dos 7 dias; se houve hotfix, `v1.0.x` no padrão vukem em ≤ 48 h do reporte.
+- [ ] **R-02-02** Steam: build 1.0 no branch `default` via `steam-upload`, demo atualizada, data/hora de lançamento, desconto de lançamento 10% por 14 dias configurado. O upload usa o `steam-upload` da A-06-01. Deps: R-02-01, B-05-03, A-06-01, E-05-03. Resp: PO + S2. Prio: P0.
+  - Asserts: jogo comprável na Steam no horário planejado (captura da página com preço e desconto); demo mostra "jogo completo disponível" (chave de i18n da A-07-01, em `en` e `pt-BR`).
+- [ ] **R-02-03** Web: deploy de produção da demo 1.0 com botão "Comprar na Steam" ativo; smoke verde; `README.md` e página da Vercel com link da Steam. Deps: R-02-01, P-07-01 (`DemoEnd`), E-05-03 (App ID real), A-07-01. Resp: S2. Prio: P0.
+  - Asserts: smoke pós-deploy exit 0; e2e `DemoEnd` abre a URL da Steam (`target=_blank`, URL contém `store.steampowered.com/app/<id>`); procedimento de rollback manual da Vercel documentado (ADR da B-05-02).
+- [ ] **R-02-04** Monitoramento pós-lançamento (7 dias): telemetria agregada só das sessões com opt-in (crash-free, round mediano), conversão demo→wishlist/compra pelos links UTM do Steamworks (não pela telemetria), reviews, triagem diária; hotfix `1.0.1` se crash-free < 99,5% ou bug bloqueante. Deps: R-02-02, A-06-04 (endpoint `api/telemetry`). Resp: Orq + Est + PO. Prio: P0.
+  - Asserts: `docs/release/launch-report-1.0.md` com os números dos 7 dias e o número de sessões com opt-in; se houve hotfix, `v1.0.x` no padrão vukem em ≤ 48 h do reporte.
 - [ ] **R-02-05** Retrospectiva e planejamento da 1.1 (Android): `docs/retro/1.0.md` (o que funcionou, o que não, métricas vs alvos do GDD §26) e abertura das microtarefas `M-*`. Deps: R-02-04. Resp: Orq + PO. Prio: P1.
   - Asserts: arquivo existe com tabela "alvo × real" para cada métrica de GDD §26.1; ROADMAP atualizado com datas reais.
 
@@ -465,6 +465,8 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
 | Revisão da Valve atrasa | média | médio | submeter ≥ 7 dias antes (B-05-03); data de lançamento com folga de 1 semana |
 | Bug bloqueante no dia 1 | média | alto | soak test, beta fechado, hotfix em 48 h, branch de release pronta |
 | Reviews negativas por performance em máquinas fracas | média | médio | preset automático (R-01-03), requisitos mínimos claros na página |
+| Steamworks atrasado (E-05-03) trava R-02-02 | alta | alto | PO abre a conta antes da ALPHA; App IDs registrados em `docs/legal/accounts.md` |
+| Ferramenta de release ou commitlint sem suporte a RC | média | médio | R-01-01 inclui `release major --rc` e o modo RC do commitlint, com testes |
 
 ---
 
@@ -472,22 +474,24 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
 
 **Objetivo.** Publicar no Google Play o app único "grátis até o round 10 + compra única" (D27, D29), com performance em metas nos 2 alvos mobile e closed test cumprido.
 
-**Critério de entrada.** `v1.0.0` lançada e estável (crash-free ≥ 99,5% por 14 dias); conta Google Play (US$ 25) criada; decisão de biblioteca de billing em ADR.
+**Critério de entrada.** `v1.0.0` lançada e estável (crash-free ≥ 99,5% por 14 dias); conta Google Play (US$ 25) criada; decisão de biblioteca de billing em ADR (B-05-02); aprovação do PO das deps novas: Capacitor (`@capacitor/core`, `@capacitor/cli`, `@capacitor/android` e os plugins do SDD 10 §3, ver Bloqueios em `docs/PROGRESS.md`) e a biblioteca de billing escolhida.
 
 **Critério de saída.** App em produção no Google Play; IARC classificado; compra `full_version` funcionando (teste com conta de licença); `bench` em metas em device real; `v1.1.0`.
 
-- [ ] **M-01-01** Conta Google Play, app criado, `PLAY_SERVICE_ACCOUNT_JSON`, keystore em secret, IARC preenchido (M/18). Deps: R-02-05. Resp: PO. Prio: P0.
-  - Asserts: `docs/legal/accounts.md` atualizado; `gh secret list --env android` lista os 3 secrets; classificação IARC visível no console (captura).
-- [ ] **M-01-02** Capacitor 8.6.0 completo (SDD 10 §3): plugins `app`, `haptics`, `screen-orientation`, `filesystem`, `status-bar`; landscape; safe areas; storage adapter; AAB release assinado. Deps: B-04-04, M-01-01. Resp: S2. Prio: P0.
-  - Asserts: `bun run build:android` gera `app-release.aab`; `bundletool` instala em device; orientação travada em landscape (ou overlay "gire" em telas grandes Android 16+); save persiste entre reinícios.
-- [ ] **M-01-03** Play Billing: produto `full_version` (US$ 9,99), fluxo de compra, `queryPurchases` no boot, restauração; ADR da biblioteca escolhida. Deps: M-01-02. Resp: S2. Prio: P0.
-  - Asserts: compra com conta de teste de licença desbloqueia o round 11 (vídeo); reinstalar o app restaura a compra; sem internet o app abre em modo demo com aviso.
-- [ ] **M-01-04** Performance e UX mobile finais: preset Baixo default, KTX2, cap 60, joystick/dash/pausa, HUD com safe areas, capturas nos 2 alvos. Deps: M-01-02. Resp: S1 + S2. Prio: P0.
-  - Asserts: `reports/perf-android-<device>.json` com `fpsAvg ≥ 30`, `frameP99 ≤ 40 ms` em 896×414 e 800×360; memória JS ≤ 180 MB; visual tests mobile verdes.
-- [ ] **M-01-05** Closed test: ≥ 12 testers por 14 dias contínuos; bugs triados; `android.yml` com upload para a faixa interna/fechada. Deps: M-01-03, M-01-04. Resp: PO + Est. Prio: P0.
-  - Asserts: console do Play mostra o requisito cumprido (captura); `docs/playtests/2027-06-android.md` com ≥ 12 testers e crash-free ≥ 99%.
-- [ ] **M-01-06** Produção no Google Play, página com capturas mobile, `v1.1.0` (GitHub Release com `.aab`), demo web com botão Google Play ativo. Deps: M-01-05. Resp: PO + Orq. Prio: P0.
-  - Asserts: app listado em produção (URL `play.google.com/store/apps/details?id=com.alexgalhardo.grimcubes` responde 200); `gh release view v1.1.0` com asset `.aab`; e2e `DemoEnd` abre a URL do Play.
+- [ ] **M-01-01** Conta Google Play, app criado, secrets do ambiente `android` (`PLAY_SERVICE_ACCOUNT_JSON`, `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`), Play App Signing ativo (a keystore do repositório é só a chave de upload), IARC preenchido (M/18), formulário Data safety e URL da política de privacidade (telemetria opt-in, sem dados pessoais). Deps: R-02-05. Resp: PO. Prio: P0.
+  - Asserts: `docs/legal/accounts.md` atualizado; `gh secret list --env android` lista os 5 secrets; Play App Signing ativo, Data safety enviado e classificação IARC visíveis no console (capturas); política de privacidade publicada numa URL que responde 200.
+- [ ] **M-01-02** Capacitor completo, última 8.x estável na data com versão exata (SDD 10 §3): plugins `app`, `haptics`, `screen-orientation`, `filesystem`, `status-bar`; landscape; edge-to-edge com safe areas; botão voltar (`@capacitor/app` `backButton`) e app em segundo plano (`appStateChange`) pausam a run; adaptador de storage sobre `@capacitor/filesystem` com a semântica do SDD 06 (`updateMeta` sob lock, `.bak`, `readOnly`); `android.yml` criado (build e upload); AAB release assinado. Deps: B-04-04, M-01-01. Resp: S2. Prio: P0.
+  - Asserts: `bun run build:android` gera `app-release.aab`; `targetSdk` igual ao exigido pelo Play na data do envio; AAB alinhado para páginas de 16 KB (`zipalign -P 16 -c` exit 0 nas libs nativas); `bundletool` instala em device; orientação travada em landscape (ou overlay "gire" em telas grandes Android 16+); voltar e segundo plano pausam (teste manual em device registrado); os testes de save do SDD 06 (fuzz e corrida) rodam contra o adaptador e passam; save persiste entre reinícios.
+- [ ] **M-01-02b** Demo como flag de runtime para o app único Android: `flags.fullVersion` na `platform` decide o limite do round 10, em vez do `__IS_DEMO__` de compilação (que continua no build web-demo). Deps: M-01-02. Resp: S2. Prio: P0.
+  - Asserts: teste: com `fullVersion = false` a run para no Coveiro e abre a `DemoEnd`; com `true` segue para o round 11; o mesmo AAB cobre os dois casos; o build web-demo continua usando `__IS_DEMO__` sem regressão (e2e da demo verde).
+- [ ] **M-01-03** Play Billing: produto `full_version` (US$ 9,99), fluxo de compra, `queryPurchases` no boot, restauração; ADR da biblioteca escolhida; a biblioteca usa a versão da Play Billing Library aceita pelo Play na data do envio; o último entitlement verificado fica guardado localmente. Deps: M-01-02, M-01-02b. Resp: S2. Prio: P0.
+  - Asserts: compra com conta de teste de licença desbloqueia o round 11 (vídeo); reinstalar o app restaura a compra; sem internet, quem já comprou abre na versão completa pelo entitlement guardado e quem nunca comprou abre em modo demo com aviso; ADR registra a versão da PBL.
+- [ ] **M-01-04** Performance e UX mobile finais: preset Baixo default, KTX2, cap 60, joystick/dash/pausa, HUD com safe areas, haptics com toggle nas opções, capturas nos 2 alvos. Deps: M-01-02, B-05-02 (ADR do `toktx` para o KTX2), A-07-02 (opções). Resp: S1 + S2. Prio: P0.
+  - Asserts: `reports/perf-android-<device>.json` com `fpsAvg ≥ 30`, `frameP99 ≤ 40 ms` em 896×414 e 800×360; memória JS ≤ 180 MB e memória de GPU ≤ 160 MB (SDD 14 §1); visual tests mobile verdes.
+- [ ] **M-01-05** Closed test: ≥ 12 testers por 14 dias contínuos; bugs triados; `android.yml` (criado na M-01-02) com upload para a faixa interna/fechada. Deps: M-01-03, M-01-04. Resp: PO + Est. Prio: P0.
+  - Asserts: console do Play mostra o requisito cumprido (captura); `docs/playtests/2027-06-android.md` com ≥ 12 testers e crash-free ≥ 99%; `android.yml` verde no upload.
+- [ ] **M-01-06** Produção no Google Play, página com capturas mobile, `v1.1.0` (GitHub Release com `.aab`), demo web com botão Google Play ativo. `versionCode = MAJOR×10000 + MINOR×100 + PATCH` (1.1.0 → 10100). Deps: M-01-05, P-07-01 (`DemoEnd`). Resp: PO + Orq. Prio: P0.
+  - Asserts: app listado em produção (URL `play.google.com/store/apps/details?id=com.alexgalhardo.grimcubes` responde 200); `gh release view v1.1.0` com asset `.aab`; teste da regra do `versionCode` (cresce a cada release, 1.1.0 = 10100); e2e `DemoEnd` abre a URL do Play.
 
 ---
 
