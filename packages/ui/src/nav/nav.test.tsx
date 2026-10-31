@@ -13,8 +13,58 @@ const pad = (pressed: number[] = [], axes: number[] = [0, 0]): PadLike => ({
 	buttons: Array.from({ length: 16 }, (_, i) => ({ pressed: pressed.includes(i) })),
 });
 
+test("buttons and a direction already held on the first poll fire nothing until released", () => {
+	const a = createPadNav();
+	expect(a.poll(pad([0]), 0)).toBeNull();
+	expect(a.poll(pad([0]), 16)).toBeNull();
+	expect(a.poll(pad(), 32)).toBeNull();
+	expect(a.poll(pad([0]), 48)).toBe("confirm");
+
+	const b = createPadNav();
+	expect(b.poll(pad([1]), 0)).toBeNull();
+	expect(b.poll(pad(), 16)).toBeNull();
+	expect(b.poll(pad([1]), 32)).toBe("cancel");
+
+	const d = createPadNav();
+	expect(d.poll(pad([13]), 0)).toBeNull();
+	// Still held: no move and no repeat, however long.
+	expect(d.poll(pad([13]), 1000)).toBeNull();
+	expect(d.poll(pad([13]), 2000)).toBeNull();
+	// Another direction counts as a new press.
+	expect(d.poll(pad([12]), 2100)).toBe("prev");
+	expect(d.poll(pad(), 2200)).toBeNull();
+	expect(d.poll(pad([13]), 2300)).toBe("next");
+
+	const stick = createPadNav();
+	expect(stick.poll(pad([], [0, 0.9]), 0)).toBeNull();
+	expect(stick.poll(pad([], [0, 0.9]), 900)).toBeNull();
+});
+
+test("a screen that opens with A held does not click the focused control", () => {
+	const frames: FrameRequestCallback[] = [];
+	vi.stubGlobal("requestAnimationFrame", (cb: FrameRequestCallback) => frames.push(cb));
+	vi.stubGlobal("cancelAnimationFrame", () => undefined);
+	let state = pad([0, 13]);
+	const clicked = vi.fn();
+	render(<Screen getPad={() => state} />);
+	screen.getByRole("button", { name: "one" }).addEventListener("click", clicked);
+	const tick = (now: number): void => {
+		for (const cb of frames.splice(0)) cb(now);
+	};
+	tick(0);
+	tick(16);
+	expect(clicked).not.toHaveBeenCalled();
+	expect(document.activeElement).toBe(screen.getByRole("button", { name: "one" }));
+	state = pad();
+	tick(32);
+	state = pad([0]);
+	tick(48);
+	expect(clicked).toHaveBeenCalledTimes(1);
+});
+
 test("A and B fire on the press edge only", () => {
 	const nav = createPadNav();
+	expect(nav.poll(pad(), -16)).toBeNull();
 	expect(nav.poll(pad([0]), 0)).toBe("confirm");
 	expect(nav.poll(pad([0]), 16)).toBeNull();
 	expect(nav.poll(pad(), 32)).toBeNull();
@@ -24,6 +74,7 @@ test("A and B fire on the press edge only", () => {
 
 test("a held direction moves once, waits, then repeats", () => {
 	const nav = createPadNav();
+	expect(nav.poll(pad(), -16)).toBeNull();
 	expect(nav.poll(pad([13]), 0)).toBe("next");
 	expect(nav.poll(pad([13]), 100)).toBeNull();
 	expect(nav.poll(pad([13]), 400)).toBe("next");
@@ -102,6 +153,7 @@ test("on a gamepad, the D-pad moves focus, A clicks and B cancels", () => {
 		const next = frames.splice(0);
 		for (const cb of next) cb(now);
 	};
+	tick(-16);
 	state = pad([13]);
 	tick(0);
 	expect(document.activeElement).toBe(screen.getByRole("button", { name: "two" }));
