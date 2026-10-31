@@ -3,6 +3,12 @@ export const STORAGE_KEYS = [
 	"save.bak",
 	"save.corrupt",
 	"save.corrupt.old",
+	"slot1",
+	"slot1.bak",
+	"slot2",
+	"slot2.bak",
+	"slot3",
+	"slot3.bak",
 	"options",
 	"telemetry",
 ] as const;

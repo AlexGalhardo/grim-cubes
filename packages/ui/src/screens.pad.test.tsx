@@ -11,6 +11,7 @@ import { Options } from "./components/Options/Options";
 import { Ossuary } from "./components/Ossuary/Ossuary";
 import { Results } from "./components/Results/Results";
 import { Shop } from "./components/Shop/Shop";
+import { Slots } from "./components/Slots/Slots";
 import { controlsOf, createPadHarness, walkWithDpad } from "./nav/padHarness";
 
 let harness: ReturnType<typeof createPadHarness> | null = null;
@@ -63,10 +64,52 @@ test("the focus ring is drawn on every control that takes focus (theme rule)", (
 test("the title menu is navigable with the D-pad", () => {
 	assertPadNavigable(
 		<Menu
-			view={{ records: [{ id: "normal", name: "Normal", round: 3 }] }}
-			actions={{ play: vi.fn(), ossuary: vi.fn(), options: vi.fn() }}
+			view={{ records: [{ id: "normal", name: "Normal", round: 3 }], continue: null }}
+			actions={{ resume: vi.fn(), play: vi.fn(), ossuary: vi.fn(), options: vi.fn() }}
 		/>,
 		3,
+	);
+});
+
+test("the title menu with Continuar is navigable with the D-pad", () => {
+	assertPadNavigable(
+		<Menu
+			view={{ records: [], continue: { slotName: "Slot 1", runRound: null } }}
+			actions={{ resume: vi.fn(), play: vi.fn(), ossuary: vi.fn(), options: vi.fn() }}
+		/>,
+		4,
+	);
+});
+
+test("the slot screen is navigable with the D-pad, and A answers the question", () => {
+	const choose = vi.fn();
+	assertPadNavigable(
+		<Slots
+			view={{
+				slots: [
+					{
+						slot: 1,
+						name: "Slot 1",
+						state: "used",
+						lastPlayed: "",
+						bestRound: 3,
+						souls: 9,
+						runRound: null,
+					},
+					{
+						slot: 2,
+						name: "Slot 2",
+						state: "empty",
+						lastPlayed: "",
+						bestRound: 0,
+						souls: 0,
+						runRound: null,
+					},
+				],
+			}}
+			actions={{ choose, erase: vi.fn(), cancel: vi.fn() }}
+		/>,
+		4,
 	);
 });
 

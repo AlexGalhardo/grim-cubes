@@ -6,6 +6,13 @@ export interface Rng {
 }
 
 /** Order is part of the determinism contract: the streamId is the index. Append only, never reorder. */
+/** A generator whose position can be saved and put back, so a resumed run draws the same numbers (SDD 06). */
+export interface StatefulRng extends Rng {
+	/** The whole generator state: one 32-bit integer. */
+	state(): number;
+	setState(value: number): void;
+}
+
 export const RNG_STREAMS = [
 	"spawn",
 	"shop",
@@ -20,9 +27,9 @@ export const RNG_STREAMS = [
 ] as const;
 
 export type StreamName = (typeof RNG_STREAMS)[number];
-export type RngStreams = Readonly<Record<StreamName, Rng>>;
+export type RngStreams = Readonly<Record<StreamName, StatefulRng>>;
 
-export function mulberry32(seed: number): Rng {
+export function mulberry32(seed: number): StatefulRng {
 	let a = seed | 0;
 	const next = (): number => {
 		a = (a + 0x6d2b79f5) | 0;
@@ -35,6 +42,10 @@ export function mulberry32(seed: number): Rng {
 		int: (n) => Math.floor(next() * n),
 		float: (min, max) => min + next() * (max - min),
 		chance: (p) => next() < p,
+		state: () => a,
+		setState: (value) => {
+			a = value | 0;
+		},
 	};
 }
 
@@ -103,7 +114,7 @@ export function hash32x3(a: number, b: number, c: number): number {
 }
 
 export function createStreams(seedRun: number): RngStreams {
-	const streams = {} as Record<StreamName, Rng>;
+	const streams = {} as Record<StreamName, StatefulRng>;
 	RNG_STREAMS.forEach((name, id) => {
 		streams[name] = mulberry32(hash32(seedRun, id));
 	});

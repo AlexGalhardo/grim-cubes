@@ -1,4 +1,6 @@
-export const SAVE_SCHEMA_VERSION = 9;
+export const SAVE_SCHEMA_VERSION = 10;
+/** Complete profiles a player can keep side by side (GDD 21.4); slot numbers are 1 to `SLOT_COUNT`. */
+export const SLOT_COUNT = 3;
 export const SAVE_APP = "grim-cubes";
 /** Upper bound on any counter read from a save; far above a real run, low enough to reject garbage. */
 const MAX_COUNTER = 1_000_000_000;
@@ -12,6 +14,7 @@ export const DIFFICULTIES: readonly Difficulty[] = ["normal", "grim", "nightmare
 
 import { createKeyMap, KEY_ACTIONS, type KeyMap, validKeyMap } from "./keys";
 import { createPadMap, PAD_ACTIONS, type PadMap, validPadMap } from "./pad";
+import { RNG_STREAMS } from "./rng";
 
 export const LOCALES = ["pt-BR", "en"] as const;
 export type SettingsLocale = (typeof LOCALES)[number];
@@ -49,6 +52,8 @@ export interface Settings {
 	pad: PadMap;
 	/** Captions for the boss voice lines (on by default). */
 	subtitles: boolean;
+	/** Slot (1 to `SLOT_COUNT`) the player used last, or 0 for none: "Continuar" opens it. */
+	lastSlot: number;
 }
 
 export function createSettings(): Settings {
@@ -68,11 +73,45 @@ export function createSettings(): Settings {
 		keys: createKeyMap(),
 		pad: createPadMap(),
 		subtitles: true,
+		lastSlot: 0,
 	};
 }
 
-/** Account-level progress that survives runs (SDD 06 section 2). */
-export interface MetaState {
+/**
+ * The run in progress, saved when a round is about to start (GDD 21.4). Enemies are not part of it: the round begins
+ * clean. Everything the session needs to be rebuilt at that point, nothing derived.
+ */
+export interface RunCheckpoint {
+	seed: number;
+	difficulty: Difficulty;
+	/** The round that is about to start. */
+	round: number;
+	gold: number;
+	xp: number;
+	level: number;
+	hp: number;
+	weapon: { id: string; tier: number; paid: number };
+	/** Items owned, by id. */
+	owned: Record<string, number>;
+	/** Modifiers picked during the run (cards, items, chests), after the Ossuary ones. */
+	modifiers: { stat: string; op: string; value: number }[];
+	cardRerollsLeft: number;
+	revivesSpent: number;
+	/** Fragment value left from the last round, released as the next enemies spawn. */
+	bag: number;
+	/** State of every RNG stream, in `RNG_STREAMS` order. */
+	rng: number[];
+	/** Where the hero stood: the world origin shift and the position relative to it. */
+	origin: { x: number; z: number };
+	position: { x: number; z: number };
+	kills: number;
+	damageDealt: number;
+	elitesKilled: number;
+	bossRounds: number[];
+}
+
+/** Account progress of one slot (SDD 06 section 2); the settings live outside it. */
+export interface Profile {
 	souls: number;
 	/** Best round reached per difficulty. */
 	records: Record<Difficulty, number>;
@@ -81,6 +120,12 @@ export interface MetaState {
 	/** Ossuary nodes bought, by node id. */
 	ossuary: Record<string, boolean>;
 	flags: { isDemo: boolean; fullVersion: boolean };
+	/** The run in progress, or null. */
+	run: RunCheckpoint | null;
+}
+
+/** What the game works with: the open slot plus the settings shared by all slots. */
+export interface MetaState extends Profile {
 	settings: Settings;
 }
 
@@ -90,7 +135,7 @@ export interface SaveEnvelope {
 	app: string;
 	appVersion: string;
 	checksum: string;
-	data: MetaState;
+	data: unknown;
 }
 
 export function createMetaState(): MetaState {
@@ -101,6 +146,7 @@ export function createMetaState(): MetaState {
 		unlocks: [],
 		ossuary: {},
 		flags: { isDemo: false, fullVersion: false },
+		run: null,
 		settings: createSettings(),
 	};
 }
@@ -123,15 +169,15 @@ async function sha256(text: string): Promise<string> {
 }
 
 /** Corruption check only, not anti-cheat: the checksum covers the serialized `data`. */
-export const checksumOf = (data: MetaState): Promise<string> => sha256(JSON.stringify(data));
+export const checksumOf = (data: unknown): Promise<string> => sha256(JSON.stringify(data));
 
-export async function serializeSave(
-	meta: MetaState,
-	appVersion: string,
-	now: Date = new Date(),
-): Promise<string> {
-	// Normalising first keeps key order identical to what parseSave rebuilds, so the checksum round-trips.
-	const data = validateMeta(meta);
+/** The slot part of the account: everything but the settings. */
+export function profileOf(meta: Profile): Profile {
+	const { settings: _settings, ...profile } = meta as MetaState;
+	return profile;
+}
+
+async function envelopeText(data: unknown, appVersion: string, now: Date): Promise<string> {
 	const envelope: SaveEnvelope = {
 		schemaVersion: SAVE_SCHEMA_VERSION,
 		savedAt: now.toISOString(),
@@ -141,6 +187,25 @@ export async function serializeSave(
 		data,
 	};
 	return JSON.stringify(envelope);
+}
+
+/** Text of one slot file (schema 10): the profile only, so the settings never depend on a slot. */
+export async function serializeSave(
+	meta: Profile,
+	appVersion: string,
+	now: Date = new Date(),
+): Promise<string> {
+	// Normalising first keeps key order identical to what parseSave rebuilds, so the checksum round-trips.
+	return envelopeText(validateProfile(meta), appVersion, now);
+}
+
+/** Text of the global file (`save`, schema 10): the settings shared by every slot. */
+export async function serializeGlobal(
+	settings: Settings,
+	appVersion: string,
+	now: Date = new Date(),
+): Promise<string> {
+	return envelopeText({ settings: validateSettings(settings) }, appVersion, now);
 }
 
 const isRecord = (v: unknown): v is Record<string, unknown> =>
@@ -190,7 +255,7 @@ function percent(value: unknown, label: string): number {
 }
 
 /** A save written before schema 2 has no settings: it gets the defaults. */
-function validateSettings(raw: unknown): Settings {
+export function validateSettings(raw: unknown): Settings {
 	if (raw === undefined) return createSettings();
 	if (!isRecord(raw) || !isRecord(raw.volume)) throw new SaveError("settings must be an object");
 	if (typeof raw.preset !== "string" || !/^[a-z][a-z0-9_]{0,31}$/.test(raw.preset))
@@ -230,6 +295,10 @@ function validateSettings(raw: unknown): Settings {
 	const pad = validatePad(raw.pad);
 	const subtitles = raw.subtitles === undefined ? true : raw.subtitles;
 	if (typeof subtitles !== "boolean") throw new SaveError("settings.subtitles must be a boolean");
+	// Absent before schema 10: no slot used yet.
+	const lastSlot = raw.lastSlot === undefined ? 0 : raw.lastSlot;
+	if (typeof lastSlot !== "number" || !Number.isInteger(lastSlot) || lastSlot < 0 || lastSlot > SLOT_COUNT)
+		throw new SaveError(`settings.lastSlot must be an integer between 0 and ${SLOT_COUNT}`);
 	return {
 		preset: raw.preset,
 		volume: {
@@ -250,11 +319,94 @@ function validateSettings(raw: unknown): Settings {
 		keys,
 		pad,
 		subtitles,
+		lastSlot,
+	};
+}
+
+const MAX_MODIFIERS = 512;
+const RNG_STATE_COUNT = RNG_STREAMS.length;
+
+const shortText = (value: unknown, label: string): string => {
+	if (typeof value !== "string" || value.length === 0 || value.length > 64)
+		throw new SaveError(`${label} must be a short string`);
+	return value;
+};
+
+function finite(value: unknown, label: string, max = MAX_COUNTER): number {
+	if (typeof value !== "number" || !Number.isFinite(value) || Math.abs(value) > max)
+		throw new SaveError(`${label} must be a finite number`);
+	return value;
+}
+
+function validateCheckpoint(raw: unknown): RunCheckpoint | null {
+	if (raw === undefined || raw === null) return null;
+	if (!isRecord(raw)) throw new SaveError("run must be an object");
+	const { weapon, owned, modifiers, rng, origin, position, bossRounds } = raw;
+	if (!isRecord(weapon) || !isRecord(owned) || !isRecord(origin) || !isRecord(position))
+		throw new SaveError("run is incomplete");
+	if (!DIFFICULTIES.includes(raw.difficulty as Difficulty))
+		throw new SaveError("run.difficulty is unknown");
+	if (!Array.isArray(modifiers) || modifiers.length > MAX_MODIFIERS)
+		throw new SaveError("run.modifiers must be a short list");
+	if (!Array.isArray(rng) || rng.length !== RNG_STATE_COUNT)
+		throw new SaveError("run.rng must hold one state per stream");
+	if (!Array.isArray(bossRounds) || bossRounds.length > MAX_LIST)
+		throw new SaveError("run.bossRounds must be a short list");
+	const items = Object.entries(owned);
+	if (items.length > MAX_LIST) throw new SaveError("run.owned has too many entries");
+	const ownedClean: Record<string, number> = {};
+	for (const [id, count] of items) {
+		if (FORBIDDEN_KEYS.has(id)) throw new SaveError("run.owned contains a reserved key");
+		ownedClean[shortText(id, "run.owned id")] = counter(count, "run.owned count");
+	}
+	const round = counter(raw.round, "run.round");
+	if (round < 1) throw new SaveError("run.round must start at 1");
+	return {
+		seed: counter(raw.seed, "run.seed") % 4294967296,
+		difficulty: raw.difficulty as Difficulty,
+		round,
+		gold: counter(raw.gold, "run.gold"),
+		xp: counter(raw.xp, "run.xp"),
+		level: Math.max(1, counter(raw.level, "run.level")),
+		hp: finite(raw.hp, "run.hp", 1_000_000),
+		weapon: {
+			id: shortText(weapon.id, "run.weapon.id"),
+			tier: counter(weapon.tier, "run.weapon.tier"),
+			paid: counter(weapon.paid, "run.weapon.paid"),
+		},
+		owned: ownedClean,
+		modifiers: modifiers.map((m: unknown) => {
+			if (!isRecord(m)) throw new SaveError("run.modifiers entries must be objects");
+			return {
+				stat: shortText(m.stat, "modifier.stat"),
+				op: shortText(m.op, "modifier.op"),
+				value: finite(m.value, "modifier.value", 1_000_000),
+			};
+		}),
+		cardRerollsLeft: counter(raw.cardRerollsLeft, "run.cardRerollsLeft"),
+		revivesSpent: counter(raw.revivesSpent, "run.revivesSpent"),
+		bag: counter(raw.bag, "run.bag"),
+		rng: rng.map((state: unknown) => {
+			if (typeof state !== "number" || !Number.isInteger(state) || Math.abs(state) > 2 ** 32)
+				throw new SaveError("run.rng entries must be 32-bit integers");
+			return state;
+		}),
+		origin: { x: finite(origin.x, "run.origin.x"), z: finite(origin.z, "run.origin.z") },
+		position: { x: finite(position.x, "run.position.x"), z: finite(position.z, "run.position.z") },
+		kills: counter(raw.kills, "run.kills"),
+		damageDealt: finite(raw.damageDealt, "run.damageDealt"),
+		elitesKilled: counter(raw.elitesKilled, "run.elitesKilled"),
+		bossRounds: bossRounds.map((r: unknown) => counter(r, "run.bossRounds entry")),
 	};
 }
 
 /** Validates untrusted save data field by field and returns a clean copy; unknown keys are dropped. */
 export function validateMeta(raw: unknown): MetaState {
+	return { ...validateProfile(raw), settings: validateSettings(isRecord(raw) ? raw.settings : undefined) };
+}
+
+/** `validateMeta` without the settings: what one slot file holds. */
+export function validateProfile(raw: unknown): Profile {
 	if (!isRecord(raw)) throw new SaveError("data must be an object");
 	const records = raw.records;
 	const stats = raw.stats;
@@ -299,7 +451,7 @@ export function validateMeta(raw: unknown): MetaState {
 		unlocks: [...unlocks] as string[],
 		ossuary: nodes,
 		flags: { isDemo: flags.isDemo, fullVersion: flags.fullVersion },
-		settings: validateSettings(raw.settings),
+		run: validateCheckpoint(raw.run),
 	};
 }
 
@@ -370,26 +522,49 @@ const SETTINGS_KEYS: Readonly<Record<number, readonly (keyof Settings)[]>> = {
 		"pad",
 		"subtitles",
 	],
+	9: [
+		"preset",
+		"volume",
+		"screenShake",
+		"locale",
+		"gameSpeed",
+		"telemetry",
+		"brightness",
+		"contrast",
+		"colorblind",
+		"flashReduction",
+		"uiScale",
+		"gore",
+		"keys",
+		"pad",
+		"subtitles",
+	],
 };
 
-/** The data as an older schema's checksum saw it: only the settings keys that schema knew. */
+/**
+ * The data as an older schema's checksum saw it (schemas 1 to 9 stored the whole account in one file): no
+ * checkpoint, only the settings keys that schema knew, and no `lastSlot`.
+ */
 function coveredBy(version: number, data: MetaState): unknown {
-	if (version < 2) return (({ settings: _settings, ...rest }) => rest)(data);
-	if (version >= 9) return data;
+	const { run: _run, settings: full, ...profile } = data;
+	if (version < 2) return profile;
 	const keys = SETTINGS_KEYS[version];
-	const settings: Record<string, unknown> = {};
 	if (!keys) throw new RangeError(`no settings key list for schema ${version}`);
-	for (const key of keys) settings[key] = data.settings[key];
+	const settings: Record<string, unknown> = {};
+	for (const key of keys) settings[key] = full[key];
 	// Schemas 7 and 8 stored only the dash and pause buttons (9 added reroll and speed).
-	if ("pad" in settings) settings.pad = { dash: data.settings.pad.dash, pause: data.settings.pad.pause };
-	return { ...data, settings };
+	if ("pad" in settings && version < 9) settings.pad = { dash: full.pad.dash, pause: full.pad.pause };
+	return { ...profile, settings };
 }
 
-/**
- * Parses and verifies a save: JSON, envelope, schema version, checksum, then field validation.
- * Older schemas load with the defaults of the settings they lacked (see `coveredBy`); later migrations would chain here.
- */
-export async function parseSave(text: string): Promise<MetaState> {
+interface Envelope {
+	schemaVersion: number;
+	checksum: unknown;
+	data: unknown;
+}
+
+/** JSON, envelope shape, app, size and schema range: what every save file shares. */
+function openEnvelope(text: string): Envelope {
 	if (text.length > MAX_SAVE_BYTES) throw new SaveError("save is too large");
 	let envelope: unknown;
 	try {
@@ -405,10 +580,47 @@ export async function parseSave(text: string): Promise<MetaState> {
 	if (envelope.schemaVersion > SAVE_SCHEMA_VERSION)
 		throw new SaveError("save was written by a newer version", "newer");
 	if (envelope.schemaVersion < 1) throw new SaveError("unsupported schemaVersion");
-	const data = validateMeta(envelope.data);
-	// An older checksum covers the data as it was then: schema 1 without `settings`, schema 2 without `gameSpeed`, schema 3 without `telemetry`.
-	const covered = coveredBy(envelope.schemaVersion, data);
+	return { schemaVersion: envelope.schemaVersion, checksum: envelope.checksum, data: envelope.data };
+}
+
+async function verified(envelope: Envelope, covered: unknown): Promise<void> {
 	if (envelope.checksum !== (await sha256(JSON.stringify(covered))))
 		throw new SaveError("checksum mismatch");
+}
+
+/**
+ * Parses a slot file: JSON, envelope, schema version, checksum, then field validation. A schema 10 file holds the
+ * profile only, so its `settings` are the defaults (the caller overlays the global ones). A file from schemas 1 to 9
+ * is the old single save: the whole account, settings included, loaded with the defaults of what it lacked (see
+ * `coveredBy`); `legacySchema` tells which kind it was.
+ */
+export async function parseSave(text: string): Promise<MetaState> {
+	const envelope = openEnvelope(text);
+	if (envelope.schemaVersion >= 10) {
+		const profile = validateProfile(envelope.data);
+		await verified(envelope, profile);
+		return { ...profile, settings: createSettings() };
+	}
+	const data = validateMeta(envelope.data);
+	await verified(envelope, coveredBy(envelope.schemaVersion, data));
 	return data;
+}
+
+/** True when `text` is a schema 1 to 9 file, the single save from before the slots. Unreadable text is false. */
+export function isLegacySave(text: string): boolean {
+	try {
+		return openEnvelope(text).schemaVersion < 10;
+	} catch {
+		return false;
+	}
+}
+
+/** Parses the global file (`save`, schema 10): the settings shared by the slots. */
+export async function parseGlobal(text: string): Promise<Settings> {
+	const envelope = openEnvelope(text);
+	if (envelope.schemaVersion < 10 || !isRecord(envelope.data))
+		throw new SaveError("not a global settings file");
+	const settings = validateSettings(envelope.data.settings);
+	await verified(envelope, { settings });
+	return settings;
 }

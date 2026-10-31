@@ -8,9 +8,14 @@ import { Panel } from "../Panel/Panel";
 export interface MenuViewModel {
 	/** Best round per difficulty, in the order they unlock. 0 means none yet. */
 	records: readonly { id: string; name: string; round: number }[];
+	/** Present when a slot was used before: "Continuar" opens it. `runRound` is the saved run's round, if any. */
+	continue: { slotName: string; runRound: number | null } | null;
 }
 
 export interface MenuActions {
+	/** Resumes the saved run of the last slot, or goes to the difficulty screen when it has none. */
+	resume(): void;
+	/** "Novo jogo": the slot choice. */
 	play(): void;
 	ossuary(): void;
 	options(): void;
@@ -26,9 +31,9 @@ export interface MenuProps {
 
 /** The title screen: shown once when the game opens, before the difficulty choice (GDD 17). */
 export function Menu({ view, actions, version, demo }: MenuProps): JSX.Element {
-	const play = useRef<HTMLButtonElement>(null);
+	const first = useRef<HTMLButtonElement>(null);
 	useEffect(() => {
-		play.current?.focus();
+		first.current?.focus();
 	}, []);
 	const nav = useDialogNav<HTMLDivElement>();
 	// Short landscape phones: buttons only, under the logo, so the art's title stays readable.
@@ -56,12 +61,31 @@ export function Menu({ view, actions, version, demo }: MenuProps): JSX.Element {
 						{t("menu.title")}
 					</h1>
 					<div className="flex flex-col gap-2">
+						{view.continue ? (
+							<button
+								ref={first}
+								type="button"
+								data-testid="menu-continue"
+								onClick={actions.resume}
+								className="flex min-h-12 flex-col items-center justify-center border-2 border-ember bg-iron px-4 font-display text-lg text-ember-light shadow-plate hover:text-bone focus-visible:outline-2 focus-visible:outline-ember focus-visible:outline-offset-2"
+							>
+								{t("menu.continue")}
+								<span className="font-body text-xs text-bone-dark">
+									{view.continue.runRound !== null
+										? t("menu.continueRun", {
+												slot: view.continue.slotName,
+												round: view.continue.runRound,
+											})
+										: view.continue.slotName}
+								</span>
+							</button>
+						) : null}
 						<button
-							ref={play}
+							ref={view.continue ? undefined : first}
 							type="button"
 							data-testid="menu-play"
 							onClick={actions.play}
-							className="min-h-12 border-2 border-ember bg-iron px-4 font-display text-lg text-ember-light shadow-plate hover:text-bone focus-visible:outline-2 focus-visible:outline-ember focus-visible:outline-offset-2"
+							className={`min-h-12 border-2 px-4 font-display text-lg shadow-plate hover:text-bone focus-visible:outline-2 focus-visible:outline-ember focus-visible:outline-offset-2 ${view.continue ? "border-iron-dark bg-iron text-bone" : "border-ember bg-iron text-ember-light"}`}
 						>
 							{t("menu.play")}
 						</button>

@@ -24,6 +24,7 @@ import {
 	type ShopViewModel,
 	type StatLineView,
 } from "./components/Shop/Shop";
+import { Slots, type SlotsActions, type SlotsViewModel } from "./components/Slots/Slots";
 import { Tip, type TipId } from "./components/Tip/Tip";
 import { VirtualJoystick } from "./components/VirtualJoystick/VirtualJoystick";
 import { effectiveUiScale, useViewportHeight } from "./hooks/useViewport";
@@ -56,6 +57,8 @@ export interface HudState {
 	ossuary: OssuaryViewModel | null;
 	/** The pre-run difficulty and seed screen; null while closed. */
 	difficulty: DifficultyViewModel | null;
+	/** The save slot choice before a new game; null while closed. */
+	slots: SlotsViewModel | null;
 	/** The title screen; null once the player left it. */
 	menu: MenuViewModel | null;
 	/** The web demo is over (the Gravedigger fell): the DemoEnd screen shows and round 11 never starts. */
@@ -106,6 +109,7 @@ export interface AppProps {
 	shopPortrait?: PortraitFactory | undefined;
 	onRestart?: (() => void) | undefined;
 	difficultyActions?: DifficultyActions | undefined;
+	slotsActions?: SlotsActions | undefined;
 	/** Opens the options screen from the gear button; the screen itself talks through `optionsActions`. */
 	onOpenOptions?: (() => void) | undefined;
 	optionsActions?: OptionsActions | undefined;
@@ -134,6 +138,7 @@ export function App({
 	ossuaryActions,
 	onDashHold,
 	difficultyActions,
+	slotsActions,
 	onOpenOptions,
 	optionsActions,
 	onCycleSpeed,
@@ -156,6 +161,7 @@ export function App({
 		hud.shop !== null ||
 		hud.results !== null ||
 		hud.difficulty !== null ||
+		hud.slots !== null ||
 		hud.ossuary !== null ||
 		hud.options !== null ||
 		hud.menu !== null ||
@@ -200,7 +206,7 @@ export function App({
 					rerollButton={hud.padReroll}
 				/>
 			) : null}
-			{hud.menu && menuActions && !hud.difficulty && !hud.ossuary && !hud.options ? (
+			{hud.menu && menuActions && !hud.difficulty && !hud.slots && !hud.ossuary && !hud.options ? (
 				<Menu view={hud.menu} actions={menuActions} version={version} demo={demo} />
 			) : null}
 			{hud.demoEnd && onRestart && !hud.difficulty && !hud.ossuary ? (
@@ -209,6 +215,7 @@ export function App({
 			{hud.results && onRestart && !hud.demoEnd && !hud.difficulty && !hud.ossuary ? (
 				<Results view={hud.results} onRestart={onRestart} onOssuary={ossuaryActions?.open} />
 			) : null}
+			{hud.slots && slotsActions ? <Slots view={hud.slots} actions={slotsActions} /> : null}
 			{hud.difficulty && difficultyActions ? (
 				<Difficulty view={hud.difficulty} actions={difficultyActions} />
 			) : null}

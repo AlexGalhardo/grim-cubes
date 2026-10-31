@@ -18,12 +18,14 @@ export {
 	padStyleFromId,
 	validPadMap,
 } from "./pad";
-export type { Rng, RngStreams, StreamName } from "./rng";
+export type { Rng, RngStreams, StatefulRng, StreamName } from "./rng";
 export { createStreams, hash32, hash32x3, mulberry32, murmur3x86_32, RNG_STREAMS } from "./rng";
 export type {
 	ColorblindSetting,
 	Difficulty,
 	MetaState,
+	Profile,
+	RunCheckpoint,
 	SaveEnvelope,
 	SaveErrorCode,
 	Settings,
@@ -38,23 +40,43 @@ export {
 	DIFFICULTIES,
 	LOCALES,
 	MAX_SAVE_BYTES,
+	parseGlobal,
 	parseSave,
+	profileOf,
 	SAVE_APP,
 	SAVE_SCHEMA_VERSION,
 	SaveError,
+	SLOT_COUNT,
+	serializeGlobal,
 	serializeSave,
 	UI_SCALES,
 	validateMeta,
+	validateProfile,
 } from "./save";
-export type { LoadedMeta, RunResult, SaveIO, SaveNotice } from "./saveStore";
+export type {
+	LoadedGlobal,
+	LoadedMeta,
+	LoadedSlot,
+	RunResult,
+	SaveIO,
+	SaveNotice,
+	SlotSummary,
+} from "./saveStore";
 export {
 	applyRun,
+	eraseSlot,
+	isEmptyProfile,
+	loadGlobal,
 	loadMeta,
+	loadSlot,
 	persistRun,
+	readSlots,
 	SAVE_BACKUP_KEY,
 	SAVE_CORRUPT_KEY,
 	SAVE_CORRUPT_PREVIOUS_KEY,
 	SAVE_KEY,
+	slotBackupKey,
+	slotKey,
 	updateMeta,
 } from "./saveStore";
 export type { SpatialHash, SpatialHashOptions } from "./spatial";
