@@ -718,10 +718,12 @@ Valores iniciais (**proposta**; calibrar por playtest; todos com toggle onde ind
 | Tempo para matar chefe N (build mediano) | 60–120 s, sem enrage ≥ 3 |
 | Ouro por round / preço médio de item | 1,2–1,8 |
 | Level-ups por round (rounds 5–20) | 1–2 |
+| Fração de runs vivas no horizonte (bot greedy) | ≤ 45% (provisório; ver decisão abaixo) |
 | Dispersão do round de morte entre seeds | intervalo interquartil (P75 − P25): ≤ 10 rounds para jogadores reais (alvo de produto); ≤ 25 provisório para o bot greedy do simulador (desvio padrão só informativo) |
 
 - **Decisão do Orq em 2026-10-31, revisável pelo PO**: a dispersão passou de "desvio ≤ 4" para IQR ≤ 10, e o round de morte conta os sobreviventes no horizonte (censura à direita). Motivo: um bot greedy e estatísticas lineares dão uma distribuição bimodal (atrição nos rounds 5–8 e sobreviventes), na qual o desvio das runs que morreram não mede nada.
 - **IQR provisório (decisão do Orq em 2026-10-31, revisável pelo PO)**: o bot greedy não consegue IQR ≤ 10 com p50 em 18–26 (medido em oito rodadas de 16–24 runs: IQR 21–28); o limite do simulador é **IQR ≤ 25, provisório até os playtests da B-04**. O alvo de produto continua ≤ 10 para jogadores reais.
+- **Fração de runs vivas no horizonte (decisão do Orq em 2026-10-31, revisável pelo PO)**: o `--check` do simulador também exige que no máximo **45%** das runs estejam vivas no horizonte (`alive-fraction-at-horizon`). Motivo: sobreviventes contam como o horizonte, então perto de 50% de vivos o p50 salta de ~24 para ~30 com ajustes pequenos (medido: 128×35 com a mesma `data/`, seed 1 deu p50 23,5 com 38% vivos e seed 1001 deu p50 30 com 47%). O alvo mantém o p50 longe desse penhasco. O CI (`balance.yml`) roda dois conjuntos de 64 runs × 35 rounds, seeds 1 e 1001.
 - **Fluxo**: toda mudança em `data/*.json` roda o simulador no CI e publica o relatório; desvio dos alvos bloqueia o merge (assert no ROADMAP).
 - **Playtest humano**: a partir do PROTÓTIPO, 3 sessões por semana com telemetria (§26).
 
