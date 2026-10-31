@@ -24,6 +24,7 @@
 		"test": "vitest run",
 		"test:e2e": "playwright test",
 		"test:smoke": "bun tools/smoke/run.ts",
+		"test:perf": "playwright test --config tools/perf/playwright.config.ts",
 		"sim": "bun tools/sim/index.ts",
 		"assets:gen": "bun tools/assets-gen/index.ts",
 		"assets:build": "bun tools/assets-build/index.ts",
