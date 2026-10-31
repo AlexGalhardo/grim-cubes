@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **render:** Emissive glow from `_e.png` masks, near-white enemy damage numbers, per-boss executions, bleed and thorns VFX, stealth shimmer, egg cracks, decal fade, biome prop dust, merged damage numbers, consumable rings
 - **art:** Second passes on the Alpha Hunter and the Nest Queen, longer Wail and Leech legs, foot-locked walk cycles, attack anticipation, ember eyes for the hero
 - **tools:** Emissive mask and B-03-01 checklist generators in `assets-gen`
+- **art:** Cosmetic Husk and Wail variants (iron pot helmet, blood-crusted Wail) on about 30% of each horde type, picked by entity id without touching the simulation
 - **render:** Thorns VFX driven by the `ThornsHit` event, preset particle and decal pools applied live, emissive atlases skipped on the low presets
 
 ### Changed
@@ -26,6 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **art:** Animation tracks mirrored by re-saving Blockbench 5.0 files (death, Husk arms, Breeder, Hunter, Leech and Watcher walks) restored
+- **render:** The model review route picks the atlas from the manifest, so tiles are no longer black
 - **game:** `knockback` and `enemy_speed` now take effect; regeneration is continuous for fractional points
 - **ui:** A held gamepad button or direction no longer triggers the first control of a screen that opens
 - **render:** The hero portrait light, the white quad under the hero and a per-frame allocation in the character sync
