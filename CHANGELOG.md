@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **render:** Emissive glow from `_e.png` masks, near-white enemy damage numbers, per-boss executions, bleed and thorns VFX, stealth shimmer, egg cracks, decal fade, biome prop dust, merged damage numbers, consumable rings
 - **art:** Second passes on the Alpha Hunter and the Nest Queen, longer Wail and Leech legs, foot-locked walk cycles, attack anticipation, ember eyes for the hero
 - **tools:** Emissive mask and B-03-01 checklist generators in `assets-gen`
+- **render:** Thorns VFX driven by the `ThornsHit` event, preset particle and decal pools applied live, emissive atlases skipped on the low presets
 
 ### Changed
 
