@@ -1,5 +1,6 @@
 import { t } from "@gc/core";
 import { type JSX, useEffect, useRef } from "react";
+import { useDialogNav } from "../../nav/useDialogNav";
 import { Button } from "../Button/Button";
 import { Panel } from "../Panel/Panel";
 
@@ -26,8 +27,10 @@ export function Menu({ view, actions, demo }: MenuProps): JSX.Element {
 	useEffect(() => {
 		play.current?.focus();
 	}, []);
+	const nav = useDialogNav<HTMLDivElement>();
 	return (
 		<div
+			ref={nav}
 			role="dialog"
 			aria-modal="true"
 			aria-labelledby="menu-title"

@@ -1,5 +1,6 @@
 import { t } from "@gc/core";
 import type { JSX } from "react";
+import { useDialogNav } from "../../nav/useDialogNav";
 import { Button } from "../Button/Button";
 import { Panel } from "../Panel/Panel";
 
@@ -10,8 +11,10 @@ export interface DemoEndProps {
 
 /** End of the web demo: the Gravedigger is down and round 11 never starts (P-07-01). */
 export function DemoEnd({ onRestart, onOssuary }: DemoEndProps): JSX.Element {
+	const nav = useDialogNav<HTMLDivElement>();
 	return (
 		<div
+			ref={nav}
 			role="dialog"
 			aria-modal="true"
 			aria-labelledby="demo-end-title"
