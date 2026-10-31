@@ -51,6 +51,9 @@ const EXECUTION_CUBES = 12;
 const BLEED_DRIPS_PER_SECOND = 6;
 const BLEED_DRIPS_PER_FRAME = 16;
 const THORN_SPIKES = 5;
+const PROPS_PER_BIOME = 10;
+/** A blood drip that lands leaves a decal this big (u). */
+const MICRO_DECAL_SIZE = 0.25;
 /** Art Bible section 9: the boss comes apart into 12 to 20 large pieces. */
 const EXECUTION_PIECES = 16;
 const PIECE_SIZE_MULT = 4;
@@ -81,6 +84,8 @@ export interface Vfx {
 	shift(dx: number, dz: number): void;
 	/** false = reduced gore: no decals, no blood, grey cubes on death (GDD §23, Art Bible §9). */
 	setGore(full: boolean): void;
+	/** Size multiplier of the damage numbers (0.7 on the small landscape screens). */
+	setNumberScale(scale: number): void;
 	/**
 	 * Status looks read from the world: blood drips from bleeding enemies (`Bleed`) and iron spikes fly where a
 	 * spiked boot hurt an enemy (`ThornsCooldown` just set). Call once per rendered frame with the frame time.
@@ -116,8 +121,8 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 	let gore = true;
 
 	const decals = createDecalPool(game.scene, config.decalPool);
-	const particles = createParticlePool(game.scene, config.particlePool, config.gravity, (x, z) => {
-		if (gore) addDecal(x, z);
+	const particles = createParticlePool(game.scene, config.particlePool, config.gravity, (x, z, micro) => {
+		if (gore) addDecal(x, z, micro ? MICRO_DECAL_SIZE : undefined);
 	});
 	const numbers = createDamageNumbers(game.scene, {
 		pool: config.damageNumberPool,
@@ -156,12 +161,12 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 	const count = (range: readonly number[]): number =>
 		(range[0] ?? 0) + rng.int((range[1] ?? 0) - (range[0] ?? 0) + 1);
 
-	function addDecal(x: number, z: number): void {
+	function addDecal(x: number, z: number, size?: number): void {
 		const color = rng.chance(config.bloodLightShare) ? bloodLight : blood;
 		decals.add(
 			x,
 			z,
-			between(config.decalSizeRange),
+			size ?? between(config.decalSizeRange),
 			rng.next() * Math.PI * 2,
 			color[0],
 			color[1],
@@ -176,7 +181,7 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 		colors: readonly Rgb[],
 		speed: number,
 		lift: number,
-		landsAsDecal: boolean,
+		landsAsDecal: boolean | "micro",
 		sizeMult = 1,
 	): void {
 		for (let i = 0; i < cubes; i++) {
@@ -195,7 +200,9 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 				color[1],
 				color[2],
 				config.particleLifeSeconds,
-				landsAsDecal && rng.chance(config.decalFromLandingChance),
+				landsAsDecal === "micro"
+					? "micro"
+					: landsAsDecal && rng.chance(config.decalFromLandingChance),
 			);
 		}
 	}
@@ -217,6 +224,12 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 		nest_queen: [rgb(PALETTE.bloodLight), rgb(PALETTE.bone), rgb(PALETTE.boneDark), emberLight],
 	};
 	const spikeColors: readonly Rgb[] = [rgb(PALETTE.ironLight), rgb(PALETTE.iron), rgb(PALETTE.emberLight)];
+	const biomeDust: readonly (readonly Rgb[])[] = [
+		[rgb(PALETTE.boneDark), rgb(PALETTE.rust)],
+		[rgb(PALETTE.mud), rgb(PALETTE.sludge), rgb(PALETTE.boneDark)],
+		[rgb(PALETTE.ironDark), rgb(PALETTE.iron), rgb(PALETTE.ember)],
+		[rgb(PALETTE.flesh), rgb(PALETTE.ironLight), rgb(PALETTE.bloodLight)],
+	];
 	const propDust: readonly Rgb[] = [rgb(PALETTE.boneDark), rgb(PALETTE.rust)];
 
 	return {
@@ -249,7 +262,15 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 			for (let i = 0; i < bleeding.length && drips < BLEED_DRIPS_PER_FRAME; i++) {
 				const e = bleeding[i] ?? 0;
 				if ((Bleed.ticks[e] ?? 0) <= 0 || !rng.chance(dt * BLEED_DRIPS_PER_SECOND)) continue;
-				burst(Position.x[e] ?? 0, Position.z[e] ?? 0, 1, bloodColors(), 0.6, 1.5, gore);
+				burst(
+					Position.x[e] ?? 0,
+					Position.z[e] ?? 0,
+					1,
+					bloodColors(),
+					0.6,
+					1.5,
+					gore ? "micro" : false,
+				);
 				drips++;
 			}
 			const justHit = Math.max(1, Math.round(heroData.combat.contactCooldownSeconds / STEP)) - 1;
@@ -269,6 +290,9 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 				);
 			}
 		},
+		setNumberScale(scale): void {
+			numbers.setScale(scale);
+		},
 		setGore(full): void {
 			gore = full;
 			if (!full) decals.clear();
@@ -277,7 +301,7 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 			if (type === EventType.Damaged) {
 				const x = Position.x[entity] ?? 0;
 				const z = Position.z[entity] ?? 0;
-				numbers.spawn(a, x, z, b === 1);
+				numbers.spawn(a, x, z, b === 1, entity);
 				burst(x, z, count(config.bloodCubesPerHit), bloodColors(), 4, 5, gore);
 				if (b === 1 && !options.flashReduced?.()) options.onHitStop?.(config.hitStopCritMs);
 			} else if (type === EventType.PlayerHit) {
@@ -363,7 +387,16 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 				zones.pool(a, b, c, typeof mud === "number" ? mud : 8);
 			} else if (type === EventType.PropBroken) {
 				// Crates, urns, eggs: a puff of bone and rust cubes; c is the prop index (the renderer hides the instance).
-				burst(a, b, count(config.explosionCubes), propDust, 3, 5, false);
+				// Props are listed ten per biome in props.json; the event carries the prop type id.
+				burst(
+					a,
+					b,
+					count(config.explosionCubes),
+					biomeDust[Math.floor(entity / PROPS_PER_BIOME)] ?? propDust,
+					3,
+					5,
+					false,
+				);
 			} else if (type === EventType.ConsumablePicked) {
 				const hero = game.hero.position;
 				burst(hero.x, hero.z, PICKUP_CUBES, a === 1 ? bloodLightOnly : explosionColors, 2, 6, false);

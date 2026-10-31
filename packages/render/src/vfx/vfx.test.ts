@@ -711,3 +711,48 @@ describe("bleed and thorns looks", () => {
 		dispose();
 	});
 });
+
+describe("damage numbers and drips", () => {
+	it("adds up hits on the same enemy within 100 ms and keeps later ones apart", () => {
+		const { vfx, world, dispose } = setup();
+		const e = spawnBody(world, 2, 3);
+		vfx.onEvent(EventType.Damaged, 10, 0, 0, e);
+		vfx.update(0.05);
+		vfx.onEvent(EventType.Damaged, 7, 0, 0, e);
+		expect(vfx.numbers.live).toBe(1);
+		vfx.update(0.2);
+		vfx.onEvent(EventType.Damaged, 5, 0, 0, e);
+		expect(vfx.numbers.live).toBe(2);
+		dispose();
+	});
+
+	it("leaves a micro decal where a blood drip lands", () => {
+		const { vfx, world, dispose } = setup();
+		const e = spawnBody(world, 0, 0);
+		addComponent(world, e, Bleed);
+		Bleed.ticks[e] = 1000;
+		for (let i = 0; i < 90; i++) {
+			vfx.syncStatus(world, 1 / 30);
+			vfx.update(1 / 30);
+		}
+		expect(vfx.decals.live).toBeGreaterThan(0);
+		dispose();
+	});
+
+	it("scales the numbers down without breaking the pool", () => {
+		const { vfx, world, dispose } = setup();
+		vfx.setNumberScale(0.7);
+		const e = spawnBody(world, 2, 3);
+		vfx.onEvent(EventType.Damaged, 10, 0, 0, e);
+		vfx.update(0.1);
+		expect(vfx.numbers.live).toBe(1);
+		dispose();
+	});
+
+	it("breaks a prop into the dust of its biome", () => {
+		const { vfx, dispose } = setup();
+		for (const prop of [0, 10, 20, 30]) vfx.onEvent(EventType.PropBroken, 1, 1, 0, prop);
+		expect(vfx.particles.stats.peak).toBeGreaterThan(20);
+		dispose();
+	});
+});

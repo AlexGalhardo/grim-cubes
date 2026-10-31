@@ -127,6 +127,9 @@ import "./main.css";
 
 const log = createLogger("boot");
 const HUD_HZ = 12;
+/** Screens this wide or narrower draw damage numbers at 0.7x. */
+const SMALL_SCREEN_WIDTH = 900;
+const SMALL_NUMBER_SCALE = 0.7;
 /** Ground footprint radius of an unscaled enemy, the base of the elite aura ring. */
 const ELITE_AURA_RADIUS = 0.6;
 /** Live projectiles the round20 bench keeps in the pool (SDD 14 section 1: 200). */
@@ -555,6 +558,11 @@ async function boot(): Promise<void> {
 		heroHealth: () => (Health.hp[hero] ?? 0) / Math.max(1, Health.max[hero] ?? 1),
 		isBoss: (entity) => (Boss.id[entity] ?? 0) > 0 || (Elite.modifier[entity] ?? 0) > 0,
 	});
+	// The small landscape targets (896x414, 800x360) draw the damage numbers smaller.
+	const fitNumbers = (): void =>
+		vfx.setNumberScale(window.innerWidth <= SMALL_SCREEN_WIDTH ? SMALL_NUMBER_SCALE : 1);
+	fitNumbers();
+	window.addEventListener("resize", fitNumbers);
 	const projectileView = createProjectileRenderer(
 		game,
 		projectiles.capacity,

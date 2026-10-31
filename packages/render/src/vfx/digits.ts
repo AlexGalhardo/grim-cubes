@@ -24,10 +24,14 @@ const GLYPH_W = 3;
 const GLYPH_H = 5;
 const CELL = GLYPH_W + 1;
 const MAX_DIGITS = 6;
+/** Hits on the same owner closer together than this add up into one number. */
+const MERGE_SECONDS = 0.1;
 
 export interface DamageNumbers {
 	/** Shows `value` above (x, z); crit numbers are larger and use `critColor`. */
-	spawn(value: number, x: number, z: number, crit: boolean): void;
+	spawn(value: number, x: number, z: number, crit: boolean, owner?: number): void;
+	/** Size multiplier of every number (small screens draw them smaller). */
+	setScale(scale: number): void;
 	update(dtSeconds: number): void;
 	shift(dx: number, dz: number): void;
 	clear(): void;
@@ -97,6 +101,8 @@ export function createDamageNumbers(scene: Scene, config: DamageNumbersConfig): 
 	const crit = new Uint8Array(config.pool);
 	let live = 0;
 	let dropped = 0;
+	const owner = new Int32Array(config.pool).fill(-1);
+	let sizeScale = 1;
 	const counts = new Int32Array(10);
 	const cosE = Math.cos(config.elevation);
 	const sinE = Math.sin(config.elevation);
@@ -108,6 +114,7 @@ export function createDamageNumbers(scene: Scene, config: DamageNumbersConfig): 
 		age[i] = age[last] ?? 0;
 		value[i] = value[last] ?? 0;
 		crit[i] = crit[last] ?? 0;
+		owner[i] = owner[last] ?? -1;
 	}
 
 	return {
@@ -117,7 +124,18 @@ export function createDamageNumbers(scene: Scene, config: DamageNumbersConfig): 
 		get dropped(): number {
 			return dropped;
 		},
-		spawn(amount, px, pz, isCrit): void {
+		setScale(scale): void {
+			sizeScale = scale;
+		},
+		spawn(amount, px, pz, isCrit, who = -1): void {
+			if (who >= 0) {
+				for (let k = 0; k < live; k++) {
+					if (owner[k] !== who || (age[k] ?? 0) > MERGE_SECONDS) continue;
+					value[k] = (value[k] ?? 0) + Math.max(0, Math.round(amount));
+					if (isCrit) crit[k] = 1;
+					return;
+				}
+			}
 			if (live >= config.pool) {
 				dropped++;
 				return;
@@ -128,6 +146,7 @@ export function createDamageNumbers(scene: Scene, config: DamageNumbersConfig): 
 			age[i] = 0;
 			value[i] = Math.max(0, Math.round(amount));
 			crit[i] = isCrit ? 1 : 0;
+			owner[i] = who;
 		},
 		update(dt): void {
 			counts.fill(0);
@@ -138,7 +157,7 @@ export function createDamageNumbers(scene: Scene, config: DamageNumbersConfig): 
 					continue;
 				}
 				const t = (age[i] ?? 0) / config.lifeSeconds;
-				const scale = (crit[i] ? 1.3 : 1) * config.height;
+				const scale = (crit[i] ? 1.3 : 1) * config.height * sizeScale;
 				const width = scale * (GLYPH_W / GLYPH_H);
 				const color = crit[i] ? config.critColor : config.color;
 				// Digits are peeled off the integer right to left: no strings, so nothing is allocated per frame.
