@@ -18,4 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **docs:** Align `CHANGELOG.md` with Keep a Changelog 1.1.0 and the vukem item format ([f14a65b](https://github.com/AlexGalhardo/grim-cubes/commit/f14a65b1190ab9e540e01daf8008bf31ee2be14b))
 - **docs:** Add `docs/legal/third-party.md` referenced by `LICENSE`
 
+### Changed
+
+- **roadmap:** Apply phase 1 review fixes: add E-03-06 (ECS base), break the E-03-02/E-02-06 cycle, pin `@babylonjs/inspector` and approved dev deps in E-02-01, async WebGL2 `createEngine` with golden-value asserts in E-03-01
+- **docs:** Add command table to `AGENTS.md` (E-01-05)
+
 [Unreleased]: https://github.com/AlexGalhardo/grim-cubes/compare/2775e6e...HEAD

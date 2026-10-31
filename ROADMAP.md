@@ -51,16 +51,16 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
   - Asserts: todos os arquivos existem na raiz; `README.md` passa em `bunx markdownlint-cli2 README.md` (exit 0); `.gitattributes` contém `eol=lf`.
 - [x] **E-01-03** `CHANGELOG.md` no formato Keep a Changelog 1.1.0 / padrão vukem com seção `[Unreleased]` e rodapé de links (SDD 13 §3). Deps: E-01-01. Resp: Est. Prio: P0.
   - Asserts: primeira linha `# Changelog`; contém `## [Unreleased]`; contém o link `[Unreleased]: https://github.com/AlexGalhardo/grim-cubes/compare/`; markdownlint exit 0.
-- [ ] **E-01-04** `docs/PROGRESS.md` (estado compartilhado: tarefa atual por agente, últimas 20 microtarefas concluídas, bloqueios, próximos passos) criado com o template de `prompt-workers.md`. Deps: E-01-01. Resp: Orq. Prio: P0.
+- [x] **E-01-04** `docs/PROGRESS.md` (estado compartilhado: tarefa atual por agente, últimas 20 microtarefas concluídas, bloqueios, próximos passos) criado com o template de `prompt-workers.md`. Deps: E-01-01. Resp: Orq. Prio: P0.
   - Asserts: arquivo existe com as seções `## Agentes`, `## Concluídas`, `## Bloqueios`, `## Próximos`; markdownlint exit 0.
-- [ ] **E-01-05** `CLAUDE.md` e `AGENTS.md` do projeto (instruções de sessão, skills obrigatórias: caveman, karpathy-guidelines, graphify, ponytail; comandos; convenções; links). Deps: E-01-01. Resp: Orq. Prio: P0.
+- [x] **E-01-05** `CLAUDE.md` e `AGENTS.md` do projeto (instruções de sessão, skills obrigatórias: caveman, karpathy-guidelines, graphify, ponytail; comandos; convenções; links). Deps: E-01-01. Resp: Orq. Prio: P0.
   - Asserts: ambos existem na raiz; contêm a string `karpathy-guidelines`, `graphify`, `caveman`, `ponytail`; contêm a tabela de comandos `bun run dev|lint|typecheck|test|build`; markdownlint exit 0.
 - [ ] **E-01-06** Proteção da branch `main` no GitHub (PR obrigatório, CI obrigatório, sem force-push, histórico linear) e Dependabot (`.github/dependabot.yml` para `npm` e `github-actions`, semanal, `versioning-strategy: increase`). Deps: E-01-01, E-04-01. Resp: PO (configuração no GitHub) + S2 (arquivo). Prio: P1.
   - Asserts: `gh api repos/AlexGalhardo/grim-cubes/branches/main/protection --jq .required_status_checks.contexts` inclui `ci`; `.github/dependabot.yml` existe com `interval: weekly`.
 
 ### E-02 Toolchain
 
-- [ ] **E-02-01** `package.json` raiz com workspaces (`apps/*`, `packages/*`), `packageManager: bun@1.4.4`, `engines`, scripts do SDD 10 §4 (ainda que alguns apontem para stubs), e `bun.lock`. Dependências exatas (ADR-0002): `@babylonjs/core` 9.33.1, `@babylonjs/loaders` 9.33.1, `react` 19.3.1, `react-dom` 19.3.1, `bitecs` 0.4.0, `simplex-noise` 4.0.3; dev: `vite` 8.3.5, `@vitejs/plugin-react` 6.1.2, `tailwindcss` 4.3.3, `@tailwindcss/vite` 4.3.3, `typescript` 7.0.2, `@biomejs/biome` 2.6.4, `vitest` 5.0.5, `@vitest/coverage-istanbul` 5.0.5, `@playwright/test` 1.64.1, `markdownlint-cli2` 0.24.0, `lefthook` 2.2.2, `@types/bun` 1.4.4, `jsdom` (versão estável atual), `@testing-library/react` (versão estável atual). Deps: E-01-01. Resp: S2. Prio: P0.
+- [ ] **E-02-01** `package.json` raiz com workspaces (`apps/*`, `packages/*`), `packageManager: bun@1.4.4`, `engines`, scripts do SDD 10 §4 (ainda que alguns apontem para stubs), e `bun.lock`. Dependências exatas (ADR-0002): `@babylonjs/core` 9.33.1, `@babylonjs/loaders` 9.33.1, `react` 19.3.1, `react-dom` 19.3.1, `bitecs` 0.4.0, `simplex-noise` 4.0.3; dev: `vite` 8.3.5, `@vitejs/plugin-react` 6.1.2, `tailwindcss` 4.3.3, `@tailwindcss/vite` 4.3.3, `typescript` 7.0.2, `@biomejs/biome` 2.6.4, `vitest` 5.0.5, `@vitest/coverage-istanbul` 5.0.5, `@playwright/test` 1.64.1, `markdownlint-cli2` 0.24.0, `lefthook` 2.2.2, `@types/bun` 1.4.4, `@babylonjs/inspector` 9.33.1, `jsdom`, `@testing-library/react`, `@gltf-transform/core`, `fake-indexeddb`, `axe-core` (as cinco últimas: última estável no dia da instalação, fixada exata e registrada no HANDOFF). Deps: E-01-01. Resp: S2. Prio: P0.
   - Asserts: `bun install --frozen-lockfile` exit 0; `grep -E '"\^|"~' package.json` não encontra nada (exit 1); `bun pm ls` lista as versões acima exatamente; `@babylonjs/inspector` só em devDependencies.
 - [ ] **E-02-02** `tsconfig.json` base (TS 7: `strict`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `module: esnext`, `moduleResolution: bundler`, `types` explícitos, `paths` `@gc/*`) + `tsconfig` por pacote com `references`. Deps: E-02-01. Resp: S2. Prio: P0.
   - Asserts: `bun run typecheck` (`tsc -b`) exit 0 com os stubs; `tsc --showConfig` mostra `"strict": true` e `"noUncheckedIndexedAccess": true`.
@@ -71,7 +71,7 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
 - [ ] **E-02-05** Vitest config (Node por padrão, jsdom em `packages/ui`, cobertura istanbul com thresholds iniciais 0 e meta documentada), um teste de exemplo por pacote. Deps: E-02-01. Resp: Est. Prio: P0.
   - Asserts: `bun run test` exit 0 com ≥ 5 testes; `bunx vitest run --coverage` gera `coverage/coverage-summary.json`.
 - [ ] **E-02-06** Playwright config (4 projetos de viewport D31, flags SwiftShader, `webServer` com `vite preview`) + 1 teste e2e que abre a página e verifica que o `<canvas>` existe e que `window.gc.ready === true`. Deps: E-02-04, E-03-02. Resp: Est. Prio: P0.
-  - Asserts: `bunx playwright test` exit 0 nos 4 projetos; `playwright-report/index.html` gerado; no teste, `gl.getParameter(gl.RENDERER)` logado contém `SwiftShader` ou `ANGLE` (prova de WebGL headless).
+  - Asserts: `bunx playwright test` exit 0 nos 4 projetos; capturas `tests/visual/__screenshots__/boot-<alvo>.png` nos 4 alvos commitadas (`maxDiffPixelRatio` documentado); `playwright-report/index.html` gerado; no teste, `gl.getParameter(gl.RENDERER)` logado contém `SwiftShader` ou `ANGLE` (prova de WebGL headless).
 - [ ] **E-02-07** lefthook (`lefthook.yml` do SDD 11 §4) + `tools/commitlint` + `tools/secrets-scan` + `tools/lint-extra` (hex em TSX, `console.log`, `^` em versões). Deps: E-02-01. Resp: S2. Prio: P0.
   - Asserts: `bunx lefthook install` exit 0; commit com mensagem `bad message` é rejeitado (exit ≠ 0) e `feat(core): add logger` aceito; arquivo staged contendo `ELEVENLABS_API_KEY=sk_test` bloqueia o commit; `bun tools/lint-extra/index.ts` exit 0 no repositório.
 - [ ] **E-02-08** markdownlint (`.markdownlint-cli2.jsonc` já existente) integrado ao script `lint:md` e ao hook. Deps: E-02-07. Resp: Est. Prio: P1.
@@ -79,16 +79,18 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
 
 ### E-03 Esqueleto de código
 
-- [ ] **E-03-01** Pacotes `core`, `game`, `render`, `ui`, `platform` com `package.json`, `src/index.ts` e um módulo real cada: `core/logger`, `core/rng` (`mulberry32`, `hash32`), `core/store`, `game/loop` (passo fixo), `render/engine` (cria `Engine`/`WebGPUEngine`), `ui/App`, `platform/detect`. Deps: E-02-02. Resp: S1 (core, render) + S2 (game, ui, platform). Prio: P0.
-  - Asserts: `bun run typecheck` exit 0; testes unitários: `mulberry32(42)` gera sequência fixa documentada no teste; `hash32(1,2,3)` determinístico; `store.publish` notifica assinantes 1 vez; loop com `dt = 1` executa exatamente 5 passos (clamp) — todos verdes.
+- [ ] **E-03-01** Pacotes `core`, `game`, `render`, `ui`, `platform` com `package.json`, `src/index.ts` e um módulo real cada: `core/logger`, `core/rng` (`mulberry32`, `hash32`), `core/store`, `game/loop` (passo fixo), `render/engine` (`createEngine(canvas): Promise<Engine>` com WebGL2; `NullEngine` para testes; o ramo `WebGPUEngine` opt-in do ADR-0014 fica para a ALPHA), `ui/App`, `platform/detect`. Contratos de `packages/*/src/index.ts` combinados entre S1 e S2 antes de implementar (PROGRESS). Deps: E-02-02. Resp: S1 (core, render) + S2 (game, ui, platform). Prio: P0.
+  - Asserts: `bun run typecheck` exit 0; testes unitários: os 5 primeiros valores de `mulberry32(42)` batem com a implementação de referência pública (valores de ouro no teste); `hash32(1,2,3)` e `hash32(7,-1,-1)` com valores de ouro (i32 negativo); `store.publish` notifica assinantes 1 vez; loop com `dt = 1 s` executa exatamente `MAX_STEPS` = 5 passos e registra `slowFrame` — todos verdes; render importa `@babylonjs/core` só por subcaminho (sem o barrel).
 - [ ] **E-03-02** Cena mínima: `Engine` WebGL2, câmera conforme ADR-0017 (valores do GDD §5), luz direcional + hemisférica, chão 16×16 u, 1 cubo "herói" movido por WASD/stick/joystick virtual, HUD React com HP/round fictícios lido do store a 12 Hz, `window.gc.ready = true` ao fim do boot. Deps: E-03-01. Resp: S1. Prio: P0.
-  - Asserts: e2e E-02-06 passa; captura `tests/visual/__screenshots__/boot-<alvo>.png` nos 4 alvos commitada; no desktop-1080 `engine.getFps()` médio ≥ 120 em máquina do PO (registrado em `docs/PROGRESS.md`); `scene.getActiveMeshes().length` ≤ 5.
+  - Asserts: `window.gc.ready === true` verificado por script Playwright local (o e2e definitivo, com as capturas `tests/visual/__screenshots__/boot-<alvo>.png` nos 4 alvos, é entregue em E-02-06); fps no desktop-1080 medido por `SceneInstrumentation` em 30 s após 5 s de warm-up, média ≥ 120 com vsync desligado, na máquina do PO (CPU/GPU registradas em `docs/PROGRESS.md`); `scene.getActiveMeshes().length` ≤ 5.
 - [ ] **E-03-03** Tailwind v4 `theme.css` com todos os tokens do Art Bible §16.9 e componentes `Panel`, `Button`, `Bar` do design system. Deps: E-03-01. Resp: S2. Prio: P0.
   - Asserts: `packages/ui/src/theme.css` contém `--color-night: #14121c` e `--breakpoint-desktop-xl: 2048px`; testes de componente (3) verdes; `bun tools/lint-extra/index.ts` não encontra hex em `.tsx`.
 - [ ] **E-03-04** `data/` com JSON Schema e arquivos iniciais (`enemies.json` com os 8 tipos, `weapons.json` com 5 armas, `rounds.json`, `biomes.json`, `elites.json`, `items.json` com 40 itens, `cards.json`, `ossuary.json`, `bosses.json` com o Coveiro) copiados do GDD, e `tools/data-check`. Deps: E-02-01. Resp: Est. Prio: P0.
   - Asserts: `bun run data:check` exit 0; teste negativo: id duplicado em `items.json` faz o check falhar; `jq length data/items.json` = 40; `jq length data/enemies.json` = 8.
 - [ ] **E-03-05** `packages/platform` com adaptadores `web` (storage IndexedDB) e stubs `electron`/`capacitor` que lançam `NotImplemented`. Deps: E-03-01. Resp: S2. Prio: P1.
   - Asserts: teste de storage web em jsdom com `fake-indexeddb` (dev dep, versão estável; aprovação do PO) faz round-trip de `save`; stubs cobertos por teste de "lança erro".
+- [ ] **E-03-06** ECS base em `packages/game/src/ecs/`: world bitecs, `components.ts` (`Position`, `PrevPosition`, `Velocity`, `Radius`, `Health`, tags de facção) e `events.ts` (ring buffer de eventos consumido por `render` via `consumeEvents`), conforme SDD 02 §2; contrato `render.sync(world, alpha)` combinado com S1. Deps: E-03-01. Resp: S2. Prio: P0.
+  - Asserts: testes de criação/remoção de entidade e de reciclagem de ids; ring buffer não aloca após o warm-up (teste com contador) e descarta o mais antigo ao encher; `render` não importa nada que escreva em componentes (regra do Biome ou teste de import).
 
 ### E-04 CI/CD e deploy
 
@@ -146,12 +148,12 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
   - Asserts: `scene.getActiveMeshes().length` ≤ 12 com 49 chunks; draw calls ≤ 60 sem inimigos (via `SceneInstrumentation` logado em `?debug=1`); captura visual `world-cemetery-<alvo>.png` nos 4 alvos.
 - [ ] **P-01-04** Origin shifting a cada 1.024 u com teste de continuidade. Deps: P-01-02. Resp: S1. Prio: P0.
   - Asserts: teste: andar 5.000 u e verificar `|Δ(hero − prop)| < 0,01 u` em todos os shifts; nenhum "salto" visível em vídeo de 10 s anexado ao PR.
-- [ ] **P-01-05** Colisão herói/inimigo vs props bloqueantes (spatial hash estático) e steering de desvio dos inimigos. Deps: P-01-02, P-03-01. Resp: S1. Prio: P0.
+- [ ] **P-01-05** Colisão herói/inimigo vs props bloqueantes (spatial hash estático) e steering de desvio dos inimigos. Deps: P-01-02, P-03-01, E-03-06. Resp: S1. Prio: P0.
   - Asserts: teste: herói contra lápide não atravessa (`dist ≥ r_prop + r_hero − 0,01`); 100 inimigos perseguindo através de um campo de 20 props chegam ao herói em ≤ 15 s simulados (nenhum preso).
 
 ### P-02 Herói, câmera e input
 
-- [ ] **P-02-01** Herói com stats base (GDD §7.1), movimento sem inércia, `PrevPosition` e interpolação no render; câmera ADR-0017 seguindo com lerp 8/s. Deps: E-03-02. Resp: S1. Prio: P0.
+- [ ] **P-02-01** Herói com stats base (GDD §7.1), movimento sem inércia, `PrevPosition` e interpolação no render; câmera ADR-0017 seguindo com lerp 8/s. Deps: E-03-02, E-03-06. Resp: S1. Prio: P0.
   - Asserts: teste: velocidade medida = 6 u/s ± 1%; captura em 1080p mostra o herói no centro ±5% da tela; área visível ≈ 28 × 16 u (medida por picking dos cantos em `?debug=1`, logada).
 - [ ] **P-02-02** Input unificado (`InputState`): teclado, gamepad (polling, dead zone), joystick virtual (mobile) e remap básico. Deps: E-03-02. Resp: S2. Prio: P0.
   - Asserts: testes unitários do mapeamento; e2e mobile-l: `touchscreen` arrasta o joystick e o herói se move ≥ 3 u em 1 s; gamepad testado manualmente pelo PO (registro em PROGRESS).
@@ -160,7 +162,7 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
 
 ### P-03 Horda
 
-- [ ] **P-03-01** Spatial hash dinâmico (célula 2 u, `queryCircle` sem alocação) + `separationSystem`. Deps: E-03-01. Resp: S1. Prio: P0.
+- [ ] **P-03-01** Spatial hash dinâmico (célula 2 u, `queryCircle` sem alocação) + `separationSystem`. Deps: E-03-01, E-03-06. Resp: S1. Prio: P0.
   - Asserts: teste: 600 entidades aleatórias, `queryCircle` devolve o mesmo conjunto que a busca ingênua (100 consultas); custo de rebuild + 600 consultas < 1 ms em Node (p50 de 100 execuções).
 - [ ] **P-03-02** `spawnSystem` com `rounds.json` (total, intervalo, rajada, cap 100, anel 22–30 u com viés de 60%). Deps: P-03-01. Resp: S2. Prio: P0.
   - Asserts: integração: round 10 gera exatamente `20 + 12 × 10 = 140` spawns com herói parado e sem arma; simultâneos nunca > 100 (assert por passo).

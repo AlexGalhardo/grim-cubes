@@ -8,6 +8,22 @@ Instruções para qualquer agente de código (Claude Code, Codex, Cursor, etc.) 
 2. Leia `docs/PROGRESS.md`, depois a fase atual em `ROADMAP.md`, depois `prompt-workers.md` se for implementar com agentes.
 3. Verifique o ambiente: `bun install --frozen-lockfile`, `bun run typecheck`, `bun run lint`, `bun run test`.
 
+## Comandos
+
+| Comando | Função |
+| --- | --- |
+| `bun run dev` | Vite dev server (web) |
+| `bun run build` | `data:check` + `assets:build` + build web-demo |
+| `bun run typecheck` | `tsc -b` |
+| `bun run lint` | `biome ci .` |
+| `bun run lint:md` | markdownlint-cli2 |
+| `bun run test` | Vitest (unit + integration) |
+| `bun run test:e2e` | Playwright (4 viewports) |
+| `bun run sim` | simulador de balanceamento |
+| `bun run release <patch\|minor\|major\|rc>` | release no padrão vukem |
+
+Lista completa em `CLAUDE.md`; até a fase ESTRUTURA concluir E-02, alguns scripts são stubs.
+
 ## Mapa do repositório
 
 | Caminho | Conteúdo |
