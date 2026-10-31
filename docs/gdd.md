@@ -228,7 +228,9 @@ dano_recebido = dano_inimigo × 100 / (100 + armadura × 6,66)   # baseline Brot
 - Armadura negativa é permitida (itens com maldição): aumenta dano recebido de forma simétrica e limitada, `dano_recebido = dano_inimigo × (2 − 100 / (100 + |armadura| × 6,66))` (×1,40 em −10, nunca ×2). A forma literal acima diverge em armadura ≈ −15 (decisão do Orq em 2026-10-31, revisável pelo PO).
 - Esquiva: rolagem por hit, cap 60%.
 - I-frames do herói após hit: 0,3 s.
-- Knockback: toda arma tem valor em u; aplicado ao inimigo por 0,1 s. Chefes: ×0,1; elites ×0,5.
+- Knockback: toda arma tem valor em u; aplicado ao inimigo por 0,1 s. Chefes: ×0,1; elites ×0,5. O stat `knockback` multiplica o empurrão de todo acerto do herói por (1 + valor).
+- Regeneração: o herói vivo cura `regen(p) = 0,2 × min(p, 1) + 0,09 × max(0, p − 1)` HP/s, com `p` = pontos de `hp_regen` (fracionários valem, ex.: 0,5 → 0,1 HP/s; 1,5 → 0,245 HP/s), aplicada a cada passo e nunca acima do HP máximo. Decisão do Orq em 2026-10-31: fórmula contínua para a carta de +0,5; com pontos inteiros dá o mesmo que a regra do Brotato.
+- `enemy_speed`: multiplica por (1 + valor) a velocidade de movimento dos inimigos comuns e das elites. Não afeta chefes, por decisão do Orq em 2026-10-31: o ritmo dos padrões do chefe faz parte do design.
 
 ### 8.3 Números de dano e feedback
 
@@ -387,7 +389,7 @@ Decisão D15: baseline Brotato, reduzido a 12 stats primários com caps explíci
 | ID | Stat | Unidade | Efeito por ponto | Cap | Notas |
 | --- | --- | --- | --- | --- | --- |
 | `max_hp` | HP máximo | HP | +1 HP | — | base 100 |
-| `hp_regen` | Regeneração | pontos | 1º ponto 0,2 HP/s; cada ponto extra +0,09 HP/s | — | baseline Brotato |
+| `hp_regen` | Regeneração | pontos | `0,2 × min(p, 1) + 0,09 × max(0, p − 1)` HP/s (§8.2; contínua, aceita frações) | — | baseline Brotato |
 | `life_steal` | Roubo de vida | % | +1% do dano causado vira cura | 10 HP/s | 1 trigger a cada 0,1 s |
 | `damage` | Dano | % | +1% dano | — | multiplicador global |
 | `attack_speed` | Velocidade de ataque | % | +1% | 12 ataques/s | rendimentos decrescentes acima de +100% |
@@ -499,7 +501,7 @@ Com ~32 fragmentos no round 1 e ~140 no round 10, espera-se nível ~4 no round 3
 
 ### 16.2 Cartas
 
-Pool de cartas de stat (peso igual): +5 HP máx, +4% dano, +5% velocidade de ataque, +3 armadura, +4% velocidade, +3% crítico, +3% esquiva, +0,5 regen, +2% roubo de vida, +4 sorte, +1 colheita, +0,3 u alcance. A partir do nível 10, cartas "duplas" com 10% de chance (dois bônus menores: 2 cartas diferentes do pool, cada uma a 50% do valor; decisão do Orq de 2026-10-31). Reroll de cartas: não existe na 1.0 (simplicidade); nó do Ossuário pode dar 1 reroll por run.
+Pool de cartas de stat (peso igual): +5 HP máx, +4% dano, +5% velocidade de ataque, +3 armadura, +4% velocidade, +3% crítico, +3% esquiva, +0,5 regen (0,1 HP/s sozinha, pela fórmula contínua de §8.2), +2% roubo de vida, +4 sorte, +1 colheita, +0,3 u alcance. A partir do nível 10, cartas "duplas" com 10% de chance (dois bônus menores: 2 cartas diferentes do pool, cada uma a 50% do valor; decisão do Orq de 2026-10-31). Reroll de cartas: não existe na 1.0 (simplicidade); nó do Ossuário pode dar 1 reroll por run.
 
 ## 17. Loja
 
