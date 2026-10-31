@@ -63,7 +63,6 @@ import { createSpawnSystem } from "./systems/spawn";
 import { createStatsSystem } from "./systems/stats";
 import { createTargetingSystem } from "./systems/targeting";
 import { createWeaponSystem } from "./systems/weapon";
-import { createBiomeMap } from "./world/biome";
 import { createChunkGenerator } from "./world/chunkGen";
 import { createChunkSystem } from "./world/chunkSystem";
 import { cullDistantEnemies } from "./world/cull";
@@ -348,11 +347,8 @@ function build(options: GameSessionOptions) {
 		maxPropsPerChunk: worldData.maxPropsPerChunk,
 	});
 	const chunks = createChunkSystem(worldData, chunkGen.generate);
-	// Rings by distance (A-02-01). `biomeMap.at(absX, absZ)` is what picks the enemy pool and the render atmosphere.
-	const biomeMap = createBiomeMap(
-		biomesData,
-		biomesData.flatMap((biome, index) => (biome.props ? [index] : [])),
-	);
+	// Rings by distance (A-02-01): the one map the chunk generator and the atmosphere share (the spawner joins it with the per-biome pools).
+	const biomeMap = chunkGen.biomeMap;
 	const propCollision = createPropCollision(chunks, {
 		chunkSize: worldData.chunkSize,
 		avoidLookahead: worldData.propAvoidLookahead,

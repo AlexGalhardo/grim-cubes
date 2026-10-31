@@ -1,6 +1,6 @@
 import { hash32x3 } from "@gc/core";
 import { createNoise2D } from "simplex-noise";
-import { createBiomeMap } from "./biome";
+import { type BiomeMap, createBiomeMap } from "./biome";
 import type { ChunkData, ChunkGenerator } from "./chunkSystem";
 
 export const PROP_KIND = { blocking: 0, decor: 1, breakable: 2 } as const;
@@ -26,6 +26,8 @@ export interface ChunkGen {
 	readonly propTypes: readonly string[];
 	/** Index of the biome used for a chunk (distance from the spawn to the chunk centre). */
 	biomeIndex(cx: number, cz: number): number;
+	/** The rings-by-distance map the generator picks chunk biomes from; the spawner and the atmosphere share it. */
+	readonly biomeMap: BiomeMap;
 }
 
 const GRID = 4;
@@ -249,5 +251,10 @@ export function createChunkGenerator(
 		}
 	};
 
-	return { generate, propTypes, biomeIndex: (cx, cz) => defined[biomeIndex(cx, cz)]?.index ?? 0 };
+	return {
+		generate,
+		propTypes,
+		biomeMap: map,
+		biomeIndex: (cx, cz) => defined[biomeIndex(cx, cz)]?.index ?? 0,
+	};
 }
