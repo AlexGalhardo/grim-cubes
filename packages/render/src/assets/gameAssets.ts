@@ -18,6 +18,8 @@ export interface AssetEntry {
 	/** Atlas only: size in pixels. */
 	width?: number;
 	height?: number;
+	/** Model only: the enemy type this cosmetic variant replaces for part of the horde (`models/variants/`). */
+	variantOf?: string;
 	/** Icon only: pixel rectangle inside the atlas this entry's `url` names (`atlas_vfx_ui`). */
 	rect?: { x: number; y: number; w: number; h: number };
 	meta?: string;
@@ -60,10 +62,18 @@ export interface LoadedEnemy {
 	vat: LoadedVat;
 }
 
+/** A cosmetic look of an enemy type (`models/variants/<base>_NN`): same stats, its own mesh and VAT. */
+export interface LoadedVariant extends LoadedEnemy {
+	/** Id of the base enemy type (an `enemyIds` entry). */
+	base: string;
+}
+
 export interface GameAssets {
 	manifest: AssetManifest;
 	/** One entry per `enemyIds` (same order: the horde indexes types by EnemyType id). Enemies without assets reuse the first available model and VAT. */
 	enemies: LoadedEnemy[];
+	/** Variants of the loaded enemy types; the horde draws a share of each type with them. */
+	variants: LoadedVariant[];
 	props: Map<string, Mesh>;
 	/** The shared character atlas material, for models loaded outside the horde (hero, Merchant, bosses, weapons). */
 	characterMaterial: StandardMaterial | null;
@@ -201,6 +211,20 @@ export async function loadGameAssets(scene: Scene, options: GameAssetsOptions): 
 		for (const loaded of results) if (loaded) enemies.push(loaded);
 	})();
 
+	const variants: LoadedVariant[] = [];
+	const loadVariants = Promise.all(
+		Object.entries(manifest.entries).map(async ([id, model]) => {
+			const vat = entry(`vat_${id}`);
+			if (!model.variantOf || !vat?.meta || !options.enemyIds.includes(model.variantOf)) return;
+			const [mesh, loadedVat] = await Promise.all([
+				importModelMesh(scene, url(model.url)),
+				loadVat(scene, id, url(vat.url), url(vat.meta), fetchFn),
+			]);
+			if (characterMaterial) mesh.material = characterMaterial;
+			variants.push({ id, base: model.variantOf, mesh, vat: loadedVat });
+		}),
+	);
+
 	const props = new Map<string, Mesh>();
 	const loadProps = Promise.all(
 		options.propIds.map(async (id) => {
@@ -212,6 +236,7 @@ export async function loadGameAssets(scene: Scene, options: GameAssetsOptions): 
 		}),
 	);
 
-	await Promise.all([loadEnemies, loadProps]);
-	return { manifest, enemies, props, characterMaterial };
+	await Promise.all([loadEnemies, loadVariants, loadProps]);
+	variants.sort((a, b) => (a.id < b.id ? -1 : 1));
+	return { manifest, enemies, variants, props, characterMaterial };
 }

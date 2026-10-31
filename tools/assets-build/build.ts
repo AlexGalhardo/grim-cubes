@@ -38,6 +38,8 @@ export interface ManifestEntry {
 	height?: number;
 	/** Atlas only: the KTX2 ETC1S sibling for GPUs that sample it, or false when `toktx` was not run (SDD 09). */
 	ktx2?: false | { url: string; hash: string; bytes: number };
+	/** Model only: the enemy type this cosmetic variant replaces for part of the horde (`models/variants/`). */
+	variantOf?: string;
 	/** Icon only: pixel rectangle inside `atlas_vfx_ui` (this entry's `url` is that atlas). */
 	rect?: { x: number; y: number; w: number; h: number };
 }
@@ -63,6 +65,7 @@ interface Loaded {
 	/** `<name>_e.png` next to the diffuse one (eyes, furnaces, lanterns), same size, or null. */
 	emissive: PNG | null;
 	atlas: AtlasName;
+	variantOf: string | undefined;
 }
 
 /** Categories whose models are skinned (every group a bone); the rest are merged static meshes. */
@@ -74,8 +77,16 @@ function digest(bytes: Uint8Array): string {
 	return createHash("sha256").update(bytes).digest("hex").slice(0, 8);
 }
 
-function listModels(srcDir: string): { category: Category; name: string; path: string }[] {
-	const found: { category: Category; name: string; path: string }[] = [];
+interface ModelFile {
+	category: Category;
+	name: string;
+	path: string;
+	/** `models/variants/<base>_NN`: a cosmetic variant of enemy type `<base>` (Art Bible 10.2). */
+	variantOf?: string;
+}
+
+function listModels(srcDir: string): ModelFile[] {
+	const found: ModelFile[] = [];
 	for (const category of CATEGORIES) {
 		const dir = join(srcDir, "models", category);
 		if (!existsSync(dir)) continue;
@@ -89,6 +100,18 @@ function listModels(srcDir: string): { category: Category; name: string; path: s
 				found.push({ category, name: file.slice(0, -4), path: join(dir, file) });
 			}
 		}
+	}
+	// Variants are enemies by category and take the size class of their base type.
+	const variants = join(srcDir, "models", "variants");
+	for (const file of existsSync(variants) ? readdirSync(variants).sort() : []) {
+		const match = /^(.+)_[0-9]{2}\.bbmodel$/.exec(file);
+		if (match?.[1])
+			found.push({
+				category: "enemies",
+				name: file.slice(0, -8),
+				path: join(variants, file),
+				variantOf: match[1],
+			});
 	}
 	return found;
 }
@@ -110,7 +133,7 @@ function readSizeClasses(dataDir: string | undefined): Map<string, SizeClass> {
 }
 
 async function load(
-	item: { category: Category; name: string; path: string },
+	item: ModelFile,
 	sizeClasses: ReadonlyMap<string, SizeClass>,
 	requireClass: boolean,
 ): Promise<Loaded> {
@@ -125,15 +148,15 @@ async function load(
 		if (
 			requireClass &&
 			(item.category === "enemies" || item.category === "props") &&
-			!sizeClasses.has(item.name)
+			!sizeClasses.has(item.variantOf ?? item.name)
 		) {
 			throw new RuleError(
 				"bbmodel-size-class",
 				item.name,
-				`no sizeClass for ${item.category} "${item.name}" in data/`,
+				`no sizeClass for ${item.category} "${item.variantOf ?? item.name}" in data/`,
 			);
 		}
-		validateBbmodel(item.name, item.category, model, sizeClasses.get(item.name));
+		validateBbmodel(item.name, item.category, model, sizeClasses.get(item.variantOf ?? item.name));
 		document = bbmodelToDocument(item.name, item.category, model);
 		rigidSkin(item.name, document, { skin: SKINNED.includes(item.category) });
 		extensionsUsed = ["KHR_materials_unlit"];
@@ -159,7 +182,7 @@ async function load(
 			`_e.png is ${emissive.width}x${emissive.height}, the diffuse is ${texture.width}x${texture.height}`,
 		);
 	}
-	return { input, texture, emissive, atlas: ATLAS_OF[item.category] };
+	return { input, texture, emissive, atlas: ATLAS_OF[item.category], variantOf: item.variantOf };
 }
 
 function blackLike(texture: PNG): PNG {
@@ -365,6 +388,7 @@ export async function buildAssets(options: BuildOptions): Promise<Manifest> {
 			hash,
 			bytes: glb.length,
 			kind: "model",
+			...(item.variantOf ? { variantOf: item.variantOf } : {}),
 			group: groupOf(item.input.category, item.input.name),
 		};
 	}

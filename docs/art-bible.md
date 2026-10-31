@@ -244,6 +244,7 @@ Decisão D23: gore alto estilizado, toggle para reduzir.
 ### 10.2 Nomenclatura (obrigatória)
 
 - Arquivos: `snake_case`, ASCII, sem espaços: `enemy_husk.bbmodel`, `boss_gravedigger.glb`, `prop_tombstone_01.bbmodel`, `vfx_blood_splat_03.png`, `sfx_sword_hit_02.mp3`, `mus_biome_swamp.mp3`, `vo_merchant_greet_01.mp3`.
+- Variantes cosméticas de inimigo: `assets/src/models/variants/<base>_NN.bbmodel` (+ `_d.png`, `_e.png`), por exemplo `husk_02`, `wail_02`. O build as trata como categoria `enemies` com o `sizeClass` do tipo `<base>` (sem entrada própria em `data/enemies.json`), gera glb e VAT próprios e marca a entrada do manifest com `variantOf`. Cerca de 30% das instâncias do tipo usam a variante, escolhida por um hash estável da entidade; stats e comportamento são os do tipo base (aprovado pelo PO em 2026-10-31).
 - Prefixos: `hero_`, `enemy_`, `elite_` (só materiais/auras), `boss_`, `npc_`, `prop_`, `tile_`, `weapon_`, `item_` (ícones), `vfx_`, `ui_`, `sfx_`, `mus_`, `vo_`.
 - Variantes numéricas com 2 dígitos: `_01`.
 - Texturas: mesmo nome do modelo + sufixo `_d` (difusa) e `_e` (emissiva).
