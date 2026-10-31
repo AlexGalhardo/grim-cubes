@@ -1,7 +1,7 @@
 import { createSpatialHash, mulberry32 } from "@gc/core";
 import { addComponent, hasComponent } from "bitecs";
 import { expect, test } from "vitest";
-import { bossesData, enemiesData, heroData, roundsData, toEnemyDefs } from "../data";
+import { bossesData, enemiesData, heroData, roundsData, toEnemyDefs, weaponsData } from "../data";
 import type { BossData } from "../data/types";
 import {
 	Boss,
@@ -10,18 +10,22 @@ import {
 	Health,
 	IgnoresProps,
 	Position,
+	Projectile,
 	Radius,
 	Stealth,
 	Velocity,
 } from "../ecs/components";
 import { createEventBuffer, EventType } from "../ecs/events";
+import { createProjectilePool } from "../ecs/projectile";
 import { createGameWorld, spawnBody } from "../ecs/world";
 import { computeStats, createPlayerStats } from "../rules/stats";
 import { bossMaxHp, createBossSystem } from "./boss";
 import { createDamageSystem } from "./damage";
 import { movementSystem } from "./movement";
+import { createProjectileSystem } from "./projectile";
 import { createSpawnSystem } from "./spawn";
 import { createTargetingSystem } from "./targeting";
+import { createWeaponSystem } from "./weapon";
 
 const ids = enemiesData.map((e) => e.id);
 const husk = ids.indexOf("husk");
@@ -104,7 +108,7 @@ function setup(def: BossData, round: number, heroX = 0) {
 	};
 	const count = (type: number): number => seen.filter((s) => s.type === type).length;
 	const first = (type: number): Seen | undefined => seen.find((s) => s.type === type);
-	return { world, hero, boss, e, spawn, step, seen, count, first, events };
+	return { world, hero, boss, e, spawn, step, seen, count, first, events, damage, stats };
 }
 
 /** Runs until `done()` or `seconds` pass; returns the step it stopped on (-1 on timeout). */
@@ -301,4 +305,76 @@ test("fly_bomb: at half HP the queen takes off, then drops a salvo that explodes
 	expect(Health.hp[hero]).toBeLessThan(before);
 	runUntil(step, () => count(EventType.Exploded) === 4, 3);
 	expect(count(EventType.Exploded)).toBe(4);
+});
+
+test("eggs: a sword swing and a projectile both break an egg, and the boss announces it", () => {
+	for (const mode of ["sword", "projectile"] as const) {
+		const ctx = setup(only("nest_queen", "eggs"), 50, 20);
+		const { world, hero, boss, step, count, seen, damage, events, stats } = ctx;
+		runUntil(step, () => count(EventType.BossEggLaid) === 3);
+		const egg = seen.find((s) => s.type === EventType.BossEggLaid)?.entity ?? -1;
+		Health.hp[egg] = 5;
+		stats.damage = 3;
+		const hash = createSpatialHash();
+		const pool = createProjectilePool(world, events, 4);
+		const targeting = createTargetingSystem({ priorityDistanceMult: 0.8, retargetEvery: 1 }, hash);
+		const weapon = createWeaponSystem({
+			weapon: weaponsData.find((w) => w.id === "sword") as (typeof weaponsData)[number],
+			tier: 0,
+			stats,
+			attackSpeedCap: 12,
+			queue: damage.queue,
+			events,
+			targeting,
+			enemies: hash,
+			rng: mulberry32(5),
+			projectiles: pool,
+		});
+		const projectiles = createProjectileSystem({
+			pool,
+			queue: damage.queue,
+			enemies: hash,
+			maxEnemyRadius: 1,
+			hero,
+			events,
+		});
+		const ex = Position.x[egg] ?? 0;
+		const ez = Position.z[egg] ?? 0;
+		if (mode === "sword") {
+			Position.x[hero] = ex + 0.8;
+			Position.z[hero] = ez;
+		} else {
+			Position.x[hero] = ex - 6;
+			Position.z[hero] = ez;
+			pool.acquire({
+				x: ex - 6,
+				z: ez,
+				vx: 28,
+				vz: 0,
+				damage: 50,
+				critChance: 0,
+				knockback: 0,
+				pierce: 0,
+				lifeSteps: 60,
+				radius: 0.15,
+				explosionRadius: 0,
+				selfFraction: 0,
+			});
+		}
+		for (let i = 0; i < 60 && count(EventType.BossEggBroken) === 0; i++) {
+			hash.clear();
+			boss.insertInto(hash);
+			if (mode === "sword") {
+				targeting.run(world, hero, weapon.range);
+				weapon.run(world, hero);
+			} else {
+				for (let p = 0; p < 4; p++)
+					if ((Projectile.life[p] ?? 0) > 0) Position.x[p] = (Position.x[p] ?? 0) + 28 / 60;
+				projectiles.run(world);
+			}
+			step();
+		}
+		expect(count(EventType.BossEggBroken), mode).toBe(1);
+		expect(hasComponent(world, egg, Egg), mode).toBe(false);
+	}
 });
