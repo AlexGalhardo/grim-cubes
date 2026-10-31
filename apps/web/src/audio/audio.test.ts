@@ -13,6 +13,7 @@ import {
 	type SourceLike,
 } from "./audioEngine";
 import { captionKeyFor, createEventAudio, type SoundContext, soundFor } from "./eventSounds";
+import { createMerchantVoice } from "./merchantVoice";
 import { musicFor } from "./webAudio";
 
 afterEach(() => vi.useRealTimers());
@@ -376,4 +377,22 @@ test("the spiked boots hit has a sound, at most two voices at once", () => {
 	const sound = soundFor(EventType.ThornsHit, 3, 4, 0.5, 8, ctx);
 	expect(sound?.ids).toBe("sfx_enemy_hit_01");
 	expect(sound?.options?.maxVoices).toBe(2);
+});
+
+test("the merchant takes turns between the lines of a moment and captions each one", () => {
+	const played: string[] = [];
+	const captions: string[] = [];
+	const voice = createMerchantVoice({ play: (ids) => !!played.push(String(ids)) }, (key) =>
+		captions.push(key),
+	);
+	for (let i = 0; i < 4; i++) voice.say("arrive");
+	voice.say("farewell");
+	expect(played).toEqual([
+		"voice_merchant_arrive_1",
+		"voice_merchant_arrive_2",
+		"voice_merchant_arrive_3",
+		"voice_merchant_arrive_1",
+		"voice_merchant_farewell_1",
+	]);
+	expect(captions[1]).toBe("voice.merchant.arrive_2");
 });
