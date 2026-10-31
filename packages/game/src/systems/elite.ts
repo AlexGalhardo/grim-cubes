@@ -116,6 +116,7 @@ export function createEliteSystem(deps: EliteSystemDeps): EliteSystem {
 				config.reward.chest.tier,
 				config.reward.chest.offered,
 				config.reward.chest.picks,
+				true,
 			);
 			events.push(EventType.ChestDropped, x, z, 0, 0);
 		},

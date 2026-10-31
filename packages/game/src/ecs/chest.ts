@@ -9,6 +9,7 @@ export function dropChest(
 	tier: number,
 	choices = 2,
 	picks = 1,
+	heals = false,
 ): number {
 	const e = spawn(world);
 	addComponent(world, e, Chest);
@@ -19,5 +20,6 @@ export function dropChest(
 	Chest.tier[e] = tier;
 	Chest.choices[e] = choices;
 	Chest.picks[e] = picks;
+	Chest.heals[e] = heals ? 1 : 0;
 	return e;
 }

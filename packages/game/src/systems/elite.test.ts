@@ -176,7 +176,7 @@ test("opening a chest heals 25 HP, pauses the run and offers 2 distinct tier 4 i
 	dropChest(world, 10, 0, 4, 2, 1);
 	chest.run(world, hero);
 	expect(chest.offer).toBeNull();
-	dropChest(world, 1, 0, 4, 2, 1);
+	dropChest(world, 1, 0, 4, 2, 1, true);
 	chest.run(world, hero);
 	expect(run.state).toBe("Paused");
 	expect(chest.offer).toHaveLength(2);
@@ -248,4 +248,28 @@ test("chest offers never include items whose effect is not implemented", () => {
 		chest.run(world, hero);
 		for (const offer of chest.offer ?? []) expect(alpha.has(offer.id)).toBe(false);
 	}
+});
+
+test("a chest that does not heal (the boss chest) leaves the HP alone", () => {
+	const world = createGameWorld();
+	const hero = spawnBody(world, 0, 0);
+	Health.hp[hero] = 50;
+	Health.max[hero] = 100;
+	const run = { state: "Round", pause: () => undefined, resume: () => undefined };
+	const chest = createChestSystem({
+		reward: elitesData.reward,
+		items: itemsData,
+		rng: mulberry32(8),
+		run: run as unknown as RunSystem,
+		stats: createStatsSystem(heroData, createPlayerStats()),
+		owned: new Map<string, number>(),
+		onItemTaken: () => undefined,
+		events: createEventBuffer(8),
+		blocked: () => false,
+		pickupRadius: () => 2.5,
+	});
+	dropChest(world, 1, 0, 4, 3, 2);
+	chest.run(world, hero);
+	expect(chest.offer).toHaveLength(3);
+	expect(Health.hp[hero]).toBe(50);
 });

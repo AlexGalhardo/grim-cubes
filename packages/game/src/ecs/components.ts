@@ -81,4 +81,5 @@ export const Attacking = { ticks: u8() };
 
 /** A reward chest on the floor; opening it offers items of at least this tier. */
 /** `choices` items are offered and the hero keeps `picks` of them. */
-export const Chest = { tier: u8(), choices: u8(), picks: u8() };
+/** `heals`: 1 when opening it restores HP (elite chests; the boss chest does not, GDD 12.2). */
+export const Chest = { tier: u8(), choices: u8(), picks: u8(), heals: u8() };
