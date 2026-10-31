@@ -27,8 +27,8 @@ export async function openFrozenAtIntro(page: Page, path: string): Promise<void>
 	// run ends on the same frame.
 	const gameTime = (): Promise<number> => page.evaluate(() => performance.now());
 	expect(await gameTime(), "ready before the intro ends").toBeLessThan(1800);
-	while ((await gameTime()) < 1800) {
-		await page.clock.runFor(Math.min(200, 1800 - (await gameTime())));
+	for (let now = await gameTime(); now < 1800; now = await gameTime()) {
+		await page.clock.runFor(Math.min(200, 1800 - now));
 		await page.waitForTimeout(150);
 	}
 	// Let slow loads (cold server) finish in real time, then render one more frame (1.816 s, still in the intro).
