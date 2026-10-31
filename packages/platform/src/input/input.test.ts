@@ -134,3 +134,25 @@ test("the input sources apply a new gamepad remap at once", () => {
 	sources.poll(s);
 	expect(s.dash).toBe(true);
 });
+
+test("the helpers read the pads of the last poll: a button, and any activity", () => {
+	const buttons = Array.from({ length: 16 }, () => ({ pressed: false }));
+	const axes = [0, 0];
+	const sources = createInputSources({ target: new EventTarget(), getGamepads: () => [{ axes, buttons }] });
+	const s = createInputState();
+	sources.poll(s);
+	expect(sources.padButton(8)).toBe(false);
+	expect(sources.padActive()).toBe(false);
+	buttons[8] = { pressed: true };
+	sources.poll(s);
+	expect(sources.padButton(8)).toBe(true);
+	expect(sources.padButton(2)).toBe(false);
+	expect(sources.padActive()).toBe(true);
+	buttons[8] = { pressed: false };
+	axes[0] = 0.9;
+	sources.poll(s);
+	expect(sources.padActive()).toBe(true);
+	axes[0] = 0.1;
+	sources.poll(s);
+	expect(sources.padActive()).toBe(false);
+});

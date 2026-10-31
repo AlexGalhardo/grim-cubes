@@ -17,7 +17,7 @@
 	"shop.lock": "Travar",
 	"shop.unlock": "Destravar",
 	"shop.stats": "Atributos",
-	"shop.reroll": "Trocar itens ({price})",
+	"shop.reroll": "Trocar itens ({price}) [{key}]",
 	"shop.next": "Próximo round",
 	"results.panel": "Fim da run",
 	"results.title": "Resultados",
@@ -189,7 +189,7 @@
 	"branch.gold": "Ouro",
 	"branch.ruin": "Ruína",
 	"skin.iron_executioner": "Carrasco de Ferro Negro",
-	"levelUp.reroll": "Trocar cartas ({left}) [R]",
+	"levelUp.reroll": "Trocar cartas ({left}) [{key}]",
 	"tip.move": "Mova-se com WASD ou arraste o joystick.",
 	"tip.fragments": "Pegue os fragmentos: dão ouro e XP.",
 	"tip.shop": "Compre com ouro, trave o que quiser guardar e comece o próximo round.",
@@ -277,5 +277,7 @@
 	"merchant.go": "Vá até o Mercador",
 	"merchant.talk": "Fale com o Mercador [Enter]",
 	"merchant.arrow": "Direção do Mercador",
-	"merchant.countdown": "Loja em {seconds} s"
+	"merchant.countdown": "Loja em {seconds} s",
+	"options.pad.reroll": "Reroll (botão do controle)",
+	"options.pad.speed": "Velocidade do jogo (botão do controle)"
 }

@@ -33,6 +33,8 @@ const hud = (speed: number): HudState => ({
 	demoEnd: false,
 	uiScale: 100,
 	rerollKey: "KeyR",
+	inputDevice: "keyboard",
+	padReroll: 2,
 	caption: null,
 	merchant: null,
 	colorblind: false,
@@ -352,4 +354,34 @@ test("the Merchant prompt counts down and the screen reader hears it only every 
 	expect(screen.getByTestId("merchant-announce").getAttribute("aria-live")).toBe("polite");
 	expect(screen.getByTestId("merchant-countdown").getAttribute("aria-hidden")).toBe("true");
 	expect([20, 19, 16, 15, 14, 1, 0].map(announcedSeconds)).toEqual([20, 20, 20, 15, 15, 5, 0]);
+});
+
+test("the reroll hint names the keyboard key, or the pad button once the pad was used last", () => {
+	const cards = [{ id: "a", name: "A", double: false }];
+	render(
+		<App
+			store={createStore({ ...hud(1), cards, cardRerolls: 1 })}
+			onChooseCard={vi.fn()}
+			onRerollCards={vi.fn()}
+		/>,
+	);
+	expect(screen.getByTestId("levelup-reroll").textContent).toContain("[R]");
+	cleanup();
+	render(
+		<App
+			store={createStore({ ...hud(1), cards, cardRerolls: 1, inputDevice: "pad" })}
+			onChooseCard={vi.fn()}
+			onRerollCards={vi.fn()}
+		/>,
+	);
+	expect(screen.getByTestId("levelup-reroll").textContent).toContain("[X]");
+	cleanup();
+	render(
+		<App
+			store={createStore({ ...hud(1), cards, cardRerolls: 1, rerollKey: "KeyT" })}
+			onChooseCard={vi.fn()}
+			onRerollCards={vi.fn()}
+		/>,
+	);
+	expect(screen.getByTestId("levelup-reroll").textContent).toContain("[T]");
 });

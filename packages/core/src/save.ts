@@ -1,4 +1,4 @@
-export const SAVE_SCHEMA_VERSION = 8;
+export const SAVE_SCHEMA_VERSION = 9;
 export const SAVE_APP = "grim-cubes";
 /** Upper bound on any counter read from a save; far above a real run, low enough to reject garbage. */
 const MAX_COUNTER = 1_000_000_000;
@@ -173,7 +173,8 @@ function validatePad(raw: unknown): PadMap {
 	if (!isRecord(raw)) throw new SaveError("settings.pad must be an object");
 	const pad = createPadMap();
 	for (const action of PAD_ACTIONS) {
-		const button = raw[action];
+		// Reroll and speed are absent in schema 7 and 8 saves: their default buttons.
+		const button = raw[action] === undefined ? pad[action] : raw[action];
 		if (typeof button !== "number") throw new SaveError(`settings.pad.${action} must be a button number`);
 		pad[action] = button;
 	}
@@ -357,10 +358,13 @@ const SETTINGS_KEYS: Readonly<Record<number, readonly (keyof Settings)[]>> = {
 /** The data as an older schema's checksum saw it: only the settings keys that schema knew. */
 function coveredBy(version: number, data: MetaState): unknown {
 	if (version < 2) return (({ settings: _settings, ...rest }) => rest)(data);
+	if (version >= 9) return data;
 	const keys = SETTINGS_KEYS[version];
-	if (!keys) return data;
 	const settings: Record<string, unknown> = {};
-	for (const key of keys) settings[key] = data.settings[key];
+	for (const key of keys ?? (Object.keys(data.settings) as (keyof Settings)[]))
+		settings[key] = data.settings[key];
+	// Schemas 7 and 8 stored only the dash and pause buttons (9 added reroll and speed).
+	if ("pad" in settings) settings.pad = { dash: data.settings.pad.dash, pause: data.settings.pad.pause };
 	return { ...data, settings };
 }
 

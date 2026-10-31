@@ -17,6 +17,10 @@ export interface InputSources {
 	readonly keyboard: KeyboardSource;
 	/** Applies a new gamepad button remap at once. */
 	setPadBindings(bindings: PadBindings): void;
+	/** True while `button` (standard mapping index) is down on any connected gamepad. */
+	padButton(button: number): boolean;
+	/** True while any gamepad button is down or a stick is pushed: the player is using the pad. */
+	padActive(): boolean;
 	dispose(): void;
 }
 
@@ -25,11 +29,28 @@ export function createInputSources(options: InputSourcesOptions): InputSources {
 	const key = createInputState();
 	const pad = createInputState();
 	let padBindings = options.padBindings;
+	// `getGamepads()` allocates: read it once per `poll` and let the helpers below use that snapshot.
+	let pads: ArrayLike<GamepadLike | null> | undefined;
 
 	return {
 		keyboard,
 		setPadBindings(next): void {
 			padBindings = next;
+		},
+		padButton(button): boolean {
+			for (let i = 0; pads && i < pads.length; i++) {
+				if (pads[i]?.buttons[button]?.pressed === true) return true;
+			}
+			return false;
+		},
+		padActive(): boolean {
+			for (let i = 0; pads && i < pads.length; i++) {
+				const connected = pads[i];
+				if (!connected) continue;
+				if (connected.buttons.some((b) => b.pressed)) return true;
+				if (Math.hypot(connected.axes[0] ?? 0, connected.axes[1] ?? 0) > 0.5) return true;
+			}
+			return false;
 		},
 		poll(state: InputState): void {
 			keyboard.poll(key);
@@ -38,7 +59,7 @@ export function createInputSources(options: InputSourcesOptions): InputSources {
 			let dash = key.dash;
 			let pause = key.pause;
 
-			const pads = options.getGamepads?.();
+			pads = options.getGamepads?.();
 			for (let i = 0; pads && i < pads.length; i++) {
 				const connected = pads[i];
 				if (!connected) continue;

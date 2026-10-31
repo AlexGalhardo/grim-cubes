@@ -1,6 +1,6 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
-import { createPadNav, type PadLike } from "./padNav";
+import { createButtonEdge, createPadNav, type PadLike } from "./padNav";
 import { useDialogNav } from "./useDialogNav";
 
 afterEach(() => {
@@ -163,4 +163,63 @@ test("on a gamepad, the D-pad moves focus, A clicks and B cancels", () => {
 	state = pad([1]);
 	tick(200);
 	expect(onCancel).toHaveBeenCalledTimes(1);
+});
+
+test("the extra button fires on its press edge only, and not when it was held as the screen opened", () => {
+	const edge = createButtonEdge();
+	expect(edge.poll(pad([2]), 2)).toBe(false);
+	expect(edge.poll(pad([2]), 2)).toBe(false);
+	expect(edge.poll(pad(), 2)).toBe(false);
+	expect(edge.poll(pad([2]), 2)).toBe(true);
+	expect(edge.poll(pad([2]), 2)).toBe(false);
+	expect(edge.poll(pad([3]), 2)).toBe(false);
+	expect(edge.poll(null, 2)).toBe(false);
+});
+
+function Rerollable({
+	onReroll,
+	button,
+	getPad,
+}: {
+	onReroll: () => void;
+	button?: number;
+	getPad: () => PadLike | null;
+}) {
+	const ref = useDialogNav<HTMLDivElement>({ onReroll, rerollButton: button, getPad });
+	return (
+		<div ref={ref} role="dialog">
+			<button type="button">one</button>
+		</div>
+	);
+}
+
+test("a dialog rerolls on the pad button, X by default and the remapped one when given", () => {
+	const frames: FrameRequestCallback[] = [];
+	vi.stubGlobal("requestAnimationFrame", (cb: FrameRequestCallback) => frames.push(cb));
+	vi.stubGlobal("cancelAnimationFrame", () => undefined);
+	let state = pad();
+	const onReroll = vi.fn();
+	const tick = (): void => {
+		for (const cb of frames.splice(0)) cb(0);
+	};
+	const first = render(<Rerollable onReroll={onReroll} getPad={() => state} />);
+	tick();
+	state = pad([2]);
+	tick();
+	expect(onReroll).toHaveBeenCalledTimes(1);
+	state = pad([5]);
+	tick();
+	expect(onReroll).toHaveBeenCalledTimes(1);
+	first.unmount();
+
+	const remapped = vi.fn();
+	state = pad();
+	render(<Rerollable onReroll={remapped} button={5} getPad={() => state} />);
+	tick();
+	state = pad([2]);
+	tick();
+	expect(remapped).not.toHaveBeenCalled();
+	state = pad([5]);
+	tick();
+	expect(remapped).toHaveBeenCalledTimes(1);
 });

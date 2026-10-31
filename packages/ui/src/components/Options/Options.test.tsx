@@ -200,3 +200,9 @@ test("the subtitles toggle reports its change and starts on", () => {
 	fireEvent.click(toggle);
 	expect(a.setSubtitles).toHaveBeenCalledWith(false);
 });
+
+test("the pad rows list reroll and speed with their default buttons", () => {
+	render(<Options view={view} actions={actions()} />);
+	expect(screen.getByTestId("options-pad-reroll").textContent).toBe("X");
+	expect(screen.getByTestId("options-pad-speed").textContent).toBe("Back");
+});

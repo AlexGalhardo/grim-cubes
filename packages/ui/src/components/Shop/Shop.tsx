@@ -48,6 +48,10 @@ export interface ShopProps {
 	portrait?: PortraitFactory | undefined;
 	/** `KeyboardEvent.code` of the reroll key (Options remap); defaults to R. */
 	rerollKey?: string | undefined;
+	/** The key or button to show on the reroll button ("R", or "X" when the last input was the pad). */
+	rerollHint?: string | undefined;
+	/** Gamepad button of the reroll (standard mapping index). */
+	rerollButton?: number | undefined;
 }
 
 const PORTRAIT_PX = 160;
@@ -66,7 +70,15 @@ const kindLabel = (kind: ShopSlotView["kind"]): string =>
 	kind === "weapon" ? t("shop.kindWeapon") : kind === "upgrade" ? t("shop.kindUpgrade") : "";
 
 /** Between-rounds shop (GDD 17): 4 offers, lock, reroll, hero stats, next round. Keys 1-4 buy, R rerolls, Enter continues. */
-export function Shop({ view, stats, actions, portrait, rerollKey = "KeyR" }: ShopProps): JSX.Element {
+export function Shop({
+	view,
+	stats,
+	actions,
+	portrait,
+	rerollKey = "KeyR",
+	rerollHint = "R",
+	rerollButton,
+}: ShopProps): JSX.Element {
 	const portraitCanvas = useRef<HTMLCanvasElement>(null);
 	useEffect(() => {
 		const canvas = portraitCanvas.current;
@@ -87,13 +99,13 @@ export function Shop({ view, stats, actions, portrait, rerollKey = "KeyR" }: Sho
 		return () => window.removeEventListener("keydown", onKey);
 	}, [view.slots.length, actions, rerollKey]);
 
-	const nav = useDialogNav<HTMLDivElement>();
+	const nav = useDialogNav<HTMLDivElement>({ onReroll: actions.reroll, rerollButton });
 	const short = useShortScreen();
 	// The reroll and next buttons: below the offers, or beside the gold on a short screen where a row is precious.
 	const footer = (
 		<>
 			<Button onClick={actions.reroll} disabled={view.gold < view.rerollPrice}>
-				{t("shop.reroll", { price: view.rerollPrice })}
+				{t("shop.reroll", { price: view.rerollPrice, key: rerollHint })}
 			</Button>
 			<Button size={short ? "md" : "lg"} onClick={actions.next}>
 				{t("shop.next")}

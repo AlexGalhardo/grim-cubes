@@ -17,7 +17,7 @@
 	"shop.lock": "Lock",
 	"shop.unlock": "Unlock",
 	"shop.stats": "Stats",
-	"shop.reroll": "Reroll ({price})",
+	"shop.reroll": "Reroll ({price}) [{key}]",
 	"shop.next": "Next round",
 	"results.panel": "End of run",
 	"results.title": "Results",
@@ -189,7 +189,7 @@
 	"branch.gold": "Gold",
 	"branch.ruin": "Ruin",
 	"skin.iron_executioner": "Black Iron Executioner",
-	"levelUp.reroll": "Reroll cards ({left}) [R]",
+	"levelUp.reroll": "Reroll cards ({left}) [{key}]",
 	"tip.move": "Move with WASD or drag the joystick.",
 	"tip.fragments": "Pick up the fragments: they give gold and XP.",
 	"tip.shop": "Buy with gold, lock what you want to keep and start the next round.",
@@ -277,5 +277,7 @@
 	"merchant.go": "Head to the Merchant",
 	"merchant.talk": "Talk to the Merchant [Enter]",
 	"merchant.arrow": "Merchant direction",
-	"merchant.countdown": "Shop in {seconds} s"
+	"merchant.countdown": "Shop in {seconds} s",
+	"options.pad.reroll": "Reroll (gamepad button)",
+	"options.pad.speed": "Game speed (gamepad button)"
 }
