@@ -22,3 +22,11 @@ nsis:
 portable:
   artifactName: GrimCubes-${version}-portable.${ext}
 publish: null
+# Hardening of the Electron binary itself (the page already has no Node): no ELECTRON_RUN_AS_NODE, no NODE_OPTIONS and
+# no --inspect, and the app only loads from the asar, whose integrity is checked at start.
+electronFuses:
+  runAsNode: false
+  enableNodeOptionsEnvironmentVariable: false
+  enableNodeCliInspectArguments: false
+  enableEmbeddedAsarIntegrityValidation: true
+  onlyLoadAppFromAsar: true

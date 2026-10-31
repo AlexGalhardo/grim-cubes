@@ -17,3 +17,8 @@ test("a path that climbs out of dist is refused", () => {
 	expect(resolveAppPath("/assets/../../secret.txt", root)).toBeNull();
 	expect(resolveAppPath("/%2e%2e/secret.txt", root)).toBeNull();
 });
+
+test("a malformed percent escape is refused instead of throwing", () => {
+	expect(resolveAppPath("/assets/%E0%A4%A", root)).toBeNull();
+	expect(resolveAppPath("/%", root)).toBeNull();
+});

@@ -107,3 +107,15 @@ jobs:
           GH_REPO: ${{ github.repository }}
           TAG: ${{ github.ref_name }}
         run: gh release upload "$TAG" "release/GrimCubes-Setup-${TAG#v}.exe" "release/GrimCubes-${TAG#v}-portable.exe" --clobber
+
+      - name: Add the executables to checksums.txt
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          version="${TAG#v}"
+          gh release download "$TAG" --pattern checksums.txt --dir . --clobber
+          (cd release && sha256sum "GrimCubes-Setup-${version}.exe" "GrimCubes-${version}-portable.exe") >> checksums.txt
+          gh release upload "$TAG" checksums.txt --clobber

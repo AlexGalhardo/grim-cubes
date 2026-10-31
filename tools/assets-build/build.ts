@@ -210,6 +210,8 @@ function buildIconAtlas(options: BuildOptions, entries: Record<string, ManifestE
 	if (!existsSync(root)) return;
 	const sprites: Sprite[] = [];
 	for (const kind of readdirSync(root).sort()) {
+		// `app` holds the executable and favicon icons, not in-game UI icons.
+		if (kind === "app") continue;
 		for (const file of readdirSync(join(root, kind)).sort()) {
 			if (!file.endsWith(".png")) continue;
 			const png = PNG.sync.read(readFileSync(join(root, kind, file)));
