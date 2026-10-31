@@ -22,7 +22,7 @@ Versão 1.1.0 — 2026-10-31 (revisada no fim da sessão que publicou a v0.1.0; 
 | `docs/gdd.md` | regras do jogo, números, telas, demo, métricas | antes de qualquer tarefa de gameplay/UI |
 | `docs/art-bible.md` | regras visuais, paleta, escala, Blockbench, design system (§16), alvos de tela (§17) | antes de qualquer tarefa de arte/UI/VFX |
 | `docs/sdd/README.md` + `docs/sdd/NN-*.md` | arquitetura e design técnico por subsistema | antes de implementar o subsistema |
-| `docs/adrs/README.md` | decisões (20) com alternativas; não contrarie um ADR sem abrir outro | ao propor mudança estrutural |
+| `docs/adrs/README.md` | decisões (24) com alternativas; não contrarie um ADR sem abrir outro | ao propor mudança estrutural |
 | `docs/brainstorming.md` | decisões do PO (D01–D33) e itens adiados | para entender o "porquê" |
 | `docs/web-search.md` | pesquisa com fontes (versões, lojas, técnicas) | ao duvidar de versão, política ou técnica |
 | `CHANGELOG.md` | Keep a Changelog, padrão vukem | ao concluir qualquer tarefa |

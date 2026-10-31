@@ -1,6 +1,6 @@
 # ADR-0019 — Stack de testes: Vitest, Playwright com SwiftShader, Playwright também para o smoke, simulador de balanceamento no CI
 
-Status: aceito. Data: 2026-10-31.
+Status: aceito; emendado pelo ADR-0024 (e2e fora do CI, decisão do PO). Data: 2026-10-31.
 
 ## Contexto
 

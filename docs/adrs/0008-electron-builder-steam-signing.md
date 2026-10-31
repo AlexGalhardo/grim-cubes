@@ -1,6 +1,6 @@
 # ADR-0008 — Desktop via Electron 45 + electron-builder; overlay e assinatura
 
-Status: aceito. Data: 2026-10-31.
+Status: aceito; a implementação do shell está no ADR-0021. Data: 2026-10-31.
 
 ## Contexto
 

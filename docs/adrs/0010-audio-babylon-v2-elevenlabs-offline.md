@@ -1,6 +1,6 @@
 # ADR-0010 — Áudio: Babylon Audio Engine v2; ElevenLabs via fetch em script de build
 
-Status: aceito. Data: 2026-10-31.
+Status: aceito; a parte de runtime (Audio Engine v2) foi substituída pelo ADR-0022 em 2026-10-31. Data: 2026-10-31.
 
 ## Contexto
 
