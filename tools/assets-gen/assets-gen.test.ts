@@ -17,6 +17,8 @@ const HEIGHTS: Record<string, readonly [number, number]> = {
 	husk: [1.6, 1.9],
 	wail: [0.8, 1.0],
 	gravedigger: [4, 6],
+	alpha_hunter: [4, 6],
+	nest_queen: [4, 6],
 	bone_merchant: [2.2, 2.5],
 	prop_tombstone_01: [1, 1.5],
 	prop_tombstone_02: [1, 1.5],
@@ -36,6 +38,8 @@ const WIDTHS: Record<string, readonly [number, number]> = {
 	husk: [0.7, 1.0],
 	wail: [0.5, 0.7],
 	gravedigger: [3, 4],
+	alpha_hunter: [3, 4],
+	nest_queen: [3, 4],
 	bone_merchant: [0.9, 1.1],
 };
 
@@ -48,14 +52,14 @@ describe("assets-gen catalog", () => {
 		rmSync(root, { recursive: true, force: true });
 	});
 
-	it("contains the roster: hero, 8 enemies, 3 bosses, merchant, 40 props (10 per biome), 16 tiles, 5 weapons", () => {
+	it("contains the roster: hero, 8 enemies, 5 bosses, merchant, 40 props (10 per biome), 16 tiles, 5 weapons", () => {
 		const byCategory = new Map<string, number>();
 		for (const { category } of buildCatalog())
 			byCategory.set(category, (byCategory.get(category) ?? 0) + 1);
 		expect(Object.fromEntries(byCategory)).toEqual({
 			hero: 1,
 			enemies: 8,
-			bosses: 3,
+			bosses: 5,
 			npc: 1,
 			props: 40,
 			weapons: 5,
