@@ -275,7 +275,7 @@
 	"options.subtitles": "Legendas das falas dos chefes",
 	"tip.merchant": "Ande até o Mercador para abrir a loja.",
 	"merchant.go": "Vá até o Mercador",
-	"merchant.talk": "Fale com o Mercador [Enter]",
+	"merchant.talk": "Fale com o Mercador [{key}]",
 	"merchant.arrow": "Direção do Mercador",
 	"merchant.countdown": "Loja em {seconds} s",
 	"options.pad.reroll": "Reroll (botão do controle)",

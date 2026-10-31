@@ -20,7 +20,9 @@ import {
 	type MetaState,
 	type PadAction,
 	type PadCheck,
+	type PadStyle,
 	padBindingsFor,
+	padStyleFromId,
 	persistRun,
 	type RunResult,
 	type SaveIO,
@@ -312,6 +314,8 @@ async function boot(): Promise<void> {
 		rerollKey: meta.settings.keys.reroll,
 		inputDevice: "keyboard",
 		padReroll: meta.settings.pad.reroll,
+		padDash: meta.settings.pad.dash,
+		padStyle: "generic",
 		colorblind: meta.settings.colorblind !== "off",
 		caption: null,
 		merchant: null,
@@ -493,6 +497,7 @@ async function boot(): Promise<void> {
 
 	const input = createInputState();
 	let lastDevice: "keyboard" | "pad" = "keyboard";
+	let padStyle: PadStyle = "generic";
 	const sources = createInputSources({
 		target: window,
 		bindings: keyBindingsFor(meta.settings.keys),
@@ -976,6 +981,7 @@ async function boot(): Promise<void> {
 			gore: meta.settings.gore,
 			keys: meta.settings.keys,
 			pad: meta.settings.pad,
+			padStyle,
 			subtitles: meta.settings.subtitles,
 			locale: meta.settings.locale,
 			locales: [
@@ -1216,6 +1222,8 @@ async function boot(): Promise<void> {
 			rerollKey: meta.settings.keys.reroll,
 			inputDevice: lastDevice,
 			padReroll: meta.settings.pad.reroll,
+			padDash: meta.settings.pad.dash,
+			padStyle,
 			colorblind: meta.settings.colorblind !== "off",
 			caption: captionText,
 			merchant: merchantPrompt(),
@@ -1282,6 +1290,8 @@ async function boot(): Promise<void> {
 			cur.rerollKey !== next.rerollKey ||
 			cur.inputDevice !== next.inputDevice ||
 			cur.padReroll !== next.padReroll ||
+			cur.padDash !== next.padDash ||
+			cur.padStyle !== next.padStyle ||
 			cur.colorblind !== next.colorblind ||
 			cur.menu !== null ||
 			next.menu !== null ||
@@ -1855,7 +1865,10 @@ async function boot(): Promise<void> {
 		}
 		wasSpeedButton = speedButton;
 		// The hints name the keyboard key or the pad button, whichever was used last.
-		if (sources.padActive()) lastDevice = "pad";
+		if (sources.padActive()) {
+			lastDevice = "pad";
+			padStyle = padStyleFromId(sources.padId());
+		}
 		loop.frame(performance.now());
 	});
 	window.addEventListener("resize", () => render.engine.resize());

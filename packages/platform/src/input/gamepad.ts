@@ -2,6 +2,8 @@ import { clampUnit, createPadMap, type InputState, padBindingsFor } from "@gc/co
 
 /** The slice of the Gamepad API that mapping reads. */
 export interface GamepadLike {
+	/** `Gamepad.id`: the controller's name and, in Chrome, its USB vendor and product. */
+	id?: string;
 	axes: readonly number[];
 	buttons: readonly { pressed: boolean }[];
 }

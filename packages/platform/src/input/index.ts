@@ -21,6 +21,8 @@ export interface InputSources {
 	padButton(button: number): boolean;
 	/** True while any gamepad button is down or a stick is pushed: the player is using the pad. */
 	padActive(): boolean;
+	/** `Gamepad.id` of the first connected pad of the last poll, or null. */
+	padId(): string | null;
 	dispose(): void;
 }
 
@@ -42,6 +44,13 @@ export function createInputSources(options: InputSourcesOptions): InputSources {
 				if (pads[i]?.buttons[button]?.pressed === true) return true;
 			}
 			return false;
+		},
+		padId(): string | null {
+			for (let i = 0; pads && i < pads.length; i++) {
+				const id = pads[i]?.id;
+				if (id) return id;
+			}
+			return null;
 		},
 		padActive(): boolean {
 			for (let i = 0; pads && i < pads.length; i++) {

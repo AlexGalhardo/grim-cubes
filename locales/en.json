@@ -275,7 +275,7 @@
 	"options.subtitles": "Boss subtitles",
 	"tip.merchant": "Walk to the Merchant to open the shop.",
 	"merchant.go": "Head to the Merchant",
-	"merchant.talk": "Talk to the Merchant [Enter]",
+	"merchant.talk": "Talk to the Merchant [{key}]",
 	"merchant.arrow": "Merchant direction",
 	"merchant.countdown": "Shop in {seconds} s",
 	"options.pad.reroll": "Reroll (gamepad button)",

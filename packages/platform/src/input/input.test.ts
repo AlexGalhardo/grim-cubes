@@ -156,3 +156,22 @@ test("the helpers read the pads of the last poll: a button, and any activity", (
 	sources.poll(s);
 	expect(sources.padActive()).toBe(false);
 });
+
+test("the pad id comes from the last poll's first connected pad", () => {
+	const buttons = Array.from({ length: 16 }, () => ({ pressed: false }));
+	const pads = [
+		null,
+		{
+			id: "DualSense Wireless Controller (STANDARD GAMEPAD Vendor: 054c Product: 0ce6)",
+			axes: [0, 0],
+			buttons,
+		},
+	];
+	const sources = createInputSources({ target: new EventTarget(), getGamepads: () => pads });
+	expect(sources.padId()).toBeNull();
+	sources.poll(createInputState());
+	expect(sources.padId()).toContain("DualSense");
+	pads.length = 0;
+	sources.poll(createInputState());
+	expect(sources.padId()).toBeNull();
+});
