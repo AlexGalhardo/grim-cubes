@@ -36,10 +36,10 @@ function ctx(round: number, seed = 1, over: Partial<GenerateContext> = {}): Gene
 const tier = (n: number) => tiers.find((t) => t.tier === n) as (typeof tiers)[number];
 const isWeaponLike = (s: ShopSlot): boolean => s.kind !== "item";
 
-test("price formula: a 20 base item costs 23 in round 1 and 50 in round 10", () => {
-	expect(shopPrice(config, 20, 1)).toBe(23);
-	expect(shopPrice(config, 20, 10)).toBe(50);
-	expect(shopPrice(config, 20, 10, -0.1)).toBe(45);
+test("price formula: a 20 base item costs 24 in round 1 and 60 in round 10", () => {
+	expect(shopPrice(config, 20, 1)).toBe(24);
+	expect(shopPrice(config, 20, 10)).toBe(60);
+	expect(shopPrice(config, 20, 10, -0.1)).toBe(54);
 	expect(shopPrice(config, 1, 1, -0.9)).toBe(1);
 });
 

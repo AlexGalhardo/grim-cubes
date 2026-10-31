@@ -135,7 +135,7 @@
 		"guaranteedItems": 3,
 		"guaranteeUntilRound": 2,
 		"sellFraction": 0.5,
-		"priceBaseRoundFactor": 0.1,
+		"priceBaseRoundFactor": 0.15,
 		"rerollIncFactor": 0.4,
 		"rerollFirstFactor": 0.75
 	},
