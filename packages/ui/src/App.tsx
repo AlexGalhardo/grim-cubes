@@ -18,13 +18,7 @@ import { Options, type OptionsActions, type OptionsViewModel } from "./component
 import { Ossuary, type OssuaryActions, type OssuaryViewModel } from "./components/Ossuary/Ossuary";
 import { type PauseActions, PauseMenu, type PauseViewModel } from "./components/PauseMenu/PauseMenu";
 import { Results, type ResultsViewModel } from "./components/Results/Results";
-import {
-	type PortraitFactory,
-	Shop,
-	type ShopActions,
-	type ShopViewModel,
-	type StatLineView,
-} from "./components/Shop/Shop";
+import { Shop, type ShopActions, type ShopViewModel, type StatLineView } from "./components/Shop/Shop";
 import { Slots, type SlotsActions, type SlotsViewModel } from "./components/Slots/Slots";
 import { Tip, type TipId } from "./components/Tip/Tip";
 import { VirtualJoystick } from "./components/VirtualJoystick/VirtualJoystick";
@@ -108,8 +102,6 @@ export interface AppProps {
 	onRerollCards?: (() => void) | undefined;
 	onChooseChest?: ((index: number) => void) | undefined;
 	shopActions?: ShopActions | undefined;
-	/** Draws the animated Merchant into the Shop's portrait canvas. */
-	shopPortrait?: PortraitFactory | undefined;
 	onRestart?: (() => void) | undefined;
 	difficultyActions?: DifficultyActions | undefined;
 	slotsActions?: SlotsActions | undefined;
@@ -139,7 +131,6 @@ export function App({
 	onRerollCards,
 	onChooseChest,
 	shopActions,
-	shopPortrait,
 	onRestart,
 	ossuaryActions,
 	onDashHold,
@@ -209,7 +200,6 @@ export function App({
 					view={hud.shop}
 					stats={hud.stats}
 					actions={shopActions}
-					portrait={shopPortrait}
 					rerollKey={hud.rerollKey}
 					rerollHint={rerollHint}
 					rerollButton={hud.padReroll}

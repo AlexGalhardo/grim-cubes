@@ -1,5 +1,5 @@
 import { t } from "@gc/core";
-import { type JSX, type ReactNode, useEffect, useRef, useState } from "react";
+import { type JSX, type ReactNode, useEffect, useState } from "react";
 import { useShortScreen } from "../../hooks/useViewport";
 import { useDialogNav } from "../../nav/useDialogNav";
 import { Icon, type IconRef } from "../Icon/Icon";
@@ -73,14 +73,10 @@ export interface ShopActions {
 	next(): void;
 }
 
-/** Animated Merchant portrait: the app draws the rig into the canvas between `start` and `stop`. */
-export type PortraitFactory = (canvas: HTMLCanvasElement) => { start(): void; stop(): void };
-
 export interface ShopProps {
 	view: ShopViewModel;
 	stats: readonly StatLineView[];
 	actions: ShopActions;
-	portrait?: PortraitFactory | undefined;
 	/** `KeyboardEvent.code` of the reroll key (Options remap); defaults to R. */
 	rerollKey?: string | undefined;
 	/** The key or button to show on the reroll button ("R", or "X" when the last input was the pad). */
@@ -89,10 +85,9 @@ export interface ShopProps {
 	rerollButton?: number | undefined;
 }
 
-const PORTRAIT_PX = 160;
 /** The items grid shows two rows of 8 even when the hero owns fewer, like an inventory. */
 const EMPTY_ITEM_SLOTS = 16;
-/** Same threshold as the `desktop` breakpoint of theme.css, where the portrait is shown; below it the pass is skipped. */
+/** Same threshold as the `desktop` breakpoint of theme.css, where the offer icons grow. */
 const DESKTOP_QUERY = "(min-width: 1024px)";
 const isDesktopWidth = (): boolean =>
 	typeof window.matchMedia !== "function" || window.matchMedia(DESKTOP_QUERY).matches;
@@ -166,20 +161,10 @@ export function Shop({
 	view,
 	stats,
 	actions,
-	portrait,
 	rerollKey = "KeyR",
 	rerollHint = "R",
 	rerollButton,
 }: ShopProps): JSX.Element {
-	const portraitCanvas = useRef<HTMLCanvasElement>(null);
-	useEffect(() => {
-		const canvas = portraitCanvas.current;
-		if (!portrait || !canvas || !isDesktopWidth()) return;
-		const running = portrait(canvas);
-		running.start();
-		return () => running.stop();
-	}, [portrait]);
-
 	useEffect(() => {
 		const onKey = (e: KeyboardEvent): void => {
 			const index = Number(e.key) - 1;
@@ -220,7 +205,7 @@ export function Shop({
 						<div className="flex gap-3" data-testid="shop-hero">
 							<div
 								aria-hidden="true"
-								className={`hidden shrink-0 border-2 border-rust bg-night bg-[url(/favicon.png)] bg-cover [image-rendering:pixelated] mobile-l:block ${short ? "size-14" : "size-24 desktop:size-28"}`}
+								className={`hidden shrink-0 border-2 border-rust bg-night bg-[url(/portraits/hero.webp)] bg-cover mobile-l:block ${short ? "size-14" : "size-24 desktop:size-28"}`}
 							/>
 							<div className="flex min-w-0 flex-1 flex-col gap-1">
 								<div
@@ -359,20 +344,11 @@ export function Shop({
 					className={`${PLATE} order-first flex flex-col mobile-l:order-none ${short ? "gap-1 p-1.5" : "gap-3 p-3"}`}
 				>
 					<div className="flex gap-3">
-						{portrait ? (
-							<div
-								aria-hidden="true"
-								className="pointer-events-none hidden size-28 shrink-0 border-2 border-rust bg-night desktop:block"
-							>
-								<canvas
-									ref={portraitCanvas}
-									width={PORTRAIT_PX}
-									height={PORTRAIT_PX}
-									data-testid="shop-portrait"
-									className="size-full"
-								/>
-							</div>
-						) : null}
+						<div
+							aria-hidden="true"
+							data-testid="shop-portrait"
+							className={`hidden shrink-0 border-2 border-rust bg-night bg-[url(/portraits/merchant.webp)] bg-cover mobile-l:block ${short ? "size-14" : "size-24 desktop:size-28"}`}
+						/>
 						<div className="min-w-0">
 							<h2
 								className={`font-display text-bone uppercase ${short ? "text-base" : "text-2xl"}`}
