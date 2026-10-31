@@ -172,7 +172,7 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
   - Asserts: testes: Carcaça a 10 u alcança o herói parado em ≤ 3 s simulados; herói cercado por 10 Carcaças recebe no máximo 1 hit por 0,3 s (i-frames).
 - [ ] **P-03-04** Render da horda: 1 mesh por tipo + thin instances + VAT (`BakedVertexAnimationManager`) com clipes idle/walk/attack/hit/death (2º buffer por instância `bakedVertexAnimationSettingsInstanced`, `alwaysSelectAsActiveMesh = true`); buffers reutilizados; `thinInstanceBufferUpdated` 1×/frame por buffer (matriz + VAT). Deps: P-06-03, P-03-03, P-03-06. Resp: S1. Prio: P0.
   - Asserts: `bench=horde100` (100 inimigos animados, sem projéteis; protocolo P-03-06) em 1080p na máquina do PO: fps médio ≥ 60, `frameP99 ≤ 20 ms`, draw calls ≤ 120, heap estável (Δ < 5 MB em 60 s); resultado em `reports/perf-desktop-1080.json`.
-- [ ] **P-03-05** Culling: remoção de inimigos > 40 u (sem drop) e exclusão de instâncias fora do frustum ampliado. Deps: P-03-04. Resp: S1. Prio: P1.
+- [x] **P-03-05** Culling: remoção de inimigos > 40 u (sem drop) e exclusão de instâncias fora do frustum ampliado. Deps: P-03-04. Resp: S1. Prio: P1.
   - Asserts: teste: inimigo a 45 u é removido no passo seguinte; `thinInstanceCount` ≤ inimigos visíveis + 10%.
 - [x] **P-03-06** Harness de bench (`tools/perf/bench.spec.ts`, cenários `?bench=horde100|round20`, seed fixa): 5 s de warm-up + 30 s de medição; métricas do SDD 14 §4 via `SceneInstrumentation`; `frameP99` por `performance.now()` em `onEndFrameObservable`. Deps: P-03-03, E-02-06. Resp: S1. Prio: P0.
   - Asserts: gera `reports/perf-<alvo>.json` com 6 chaves; duas execuções no SwiftShader com `drawCalls` e `activeMeshes` idênticos.
