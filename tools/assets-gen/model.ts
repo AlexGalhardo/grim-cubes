@@ -71,11 +71,21 @@ export function generate(def: ModelDef): GeneratedModel {
 	const png = new PNG({ width: def.texture, height: def.texture });
 	png.data.fill(0);
 	colors.forEach((color, ci) => {
-		ramp(color).forEach((rgb, tone) => {
+		const tones = ramp(color);
+		tones.forEach((rgb, tone) => {
 			const [ox, oy] = swatchOrigin(ci * 3 + tone, def.texture);
 			for (let y = 0; y < SWATCH; y++) {
-				for (let x = 0; x < SWATCH; x++)
-					png.data.set([rgb[0], rgb[1], rgb[2], 255], ((oy + y) * def.texture + ox + x) * 4);
+				for (let x = 0; x < SWATCH; x++) {
+					// 1 px painted AO reusing the ramp (no new colours): dark base row on side faces, soft rim on top faces.
+					const baseRow = tone === TONE.mid && y === SWATCH - 1;
+					const topRim =
+						tone === TONE.light && (x === 0 || y === 0 || x === SWATCH - 1 || y === SWATCH - 1);
+					const rgbOut = baseRow ? tones[TONE.dark] : topRim ? tones[TONE.mid] : rgb;
+					png.data.set(
+						[rgbOut[0], rgbOut[1], rgbOut[2], 255],
+						((oy + y) * def.texture + ox + x) * 4,
+					);
+				}
 			}
 		});
 	});

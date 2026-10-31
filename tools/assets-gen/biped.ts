@@ -21,6 +21,10 @@ export interface BipedSpec {
 	armLen: number;
 	/** Forward lean of the body group in degrees (multiples of 22.5). */
 	hunch?: number;
+	/** Z offsets in pixels: hind legs, forelegs (the arms) and head, for quadrupeds with a long torso. */
+	legZ?: number;
+	armZ?: number;
+	headZ?: number;
 	socket: "weapon_socket" | "hit_socket";
 	colors: { legs: TokenName; torso: TokenName; head: TokenName; arms: TokenName };
 	extraGroups?: readonly GroupDef[];
@@ -270,19 +274,22 @@ export function biped(spec: BipedSpec): ModelDef {
 	const { legH, legW, legD, hipX, torsoH, torsoW, torsoD, headW, headH, headD, armW, armLen } = spec;
 	const shoulderY = legH + torsoH - 4;
 	const armX = torsoW / 2 + armW / 2;
+	const legZ = spec.legZ ?? 0;
+	const armZ = spec.armZ ?? 0;
+	const headZ = spec.headZ ?? 0;
 	const groups: GroupDef[] = [
 		{ name: "root", parent: null, origin: [0, 0, 0] },
-		{ name: "leg_l", parent: "root", origin: [-hipX, legH, 0] },
-		{ name: "leg_r", parent: "root", origin: [hipX, legH, 0] },
+		{ name: "leg_l", parent: "root", origin: [-hipX, legH, legZ] },
+		{ name: "leg_r", parent: "root", origin: [hipX, legH, legZ] },
 		{
 			name: "body",
 			parent: "root",
 			origin: [0, legH, 0],
 			...(spec.hunch ? { rotation: [spec.hunch, 0, 0] as [number, number, number] } : {}),
 		},
-		{ name: "head", parent: "body", origin: [0, legH + torsoH, 0] },
-		{ name: "arm_l", parent: "body", origin: [-armX, shoulderY, 0] },
-		{ name: "arm_r", parent: "body", origin: [armX, shoulderY, 0] },
+		{ name: "head", parent: "body", origin: [0, legH + torsoH, headZ] },
+		{ name: "arm_l", parent: "body", origin: [-armX, shoulderY, armZ] },
+		{ name: "arm_r", parent: "body", origin: [armX, shoulderY, armZ] },
 		spec.socket === "weapon_socket"
 			? { name: "weapon_socket", parent: "arm_r", origin: [armX, shoulderY - armLen, armW / 2 + 2] }
 			: { name: "hit_socket", parent: "body", origin: [0, legH + torsoH * 0.6, torsoD / 2 + 1] },
@@ -291,14 +298,14 @@ export function biped(spec: BipedSpec): ModelDef {
 	const parts: PartDef[] = [
 		{
 			group: "leg_l",
-			from: [-hipX - legW / 2, 0, -legD / 2],
-			to: [-hipX + legW / 2, legH, legD / 2],
+			from: [-hipX - legW / 2, 0, legZ - legD / 2],
+			to: [-hipX + legW / 2, legH, legZ + legD / 2],
 			color: spec.colors.legs,
 		},
 		{
 			group: "leg_r",
-			from: [hipX - legW / 2, 0, -legD / 2],
-			to: [hipX + legW / 2, legH, legD / 2],
+			from: [hipX - legW / 2, 0, legZ - legD / 2],
+			to: [hipX + legW / 2, legH, legZ + legD / 2],
 			color: spec.colors.legs,
 		},
 		{
@@ -309,20 +316,20 @@ export function biped(spec: BipedSpec): ModelDef {
 		},
 		{
 			group: "head",
-			from: [-headW / 2, legH + torsoH, -headD / 2],
-			to: [headW / 2, legH + torsoH + headH, headD / 2],
+			from: [-headW / 2, legH + torsoH, headZ - headD / 2],
+			to: [headW / 2, legH + torsoH + headH, headZ + headD / 2],
 			color: spec.colors.head,
 		},
 		{
 			group: "arm_l",
-			from: [-armX - armW / 2, shoulderY - armLen, -armW / 2],
-			to: [-armX + armW / 2, shoulderY, armW / 2],
+			from: [-armX - armW / 2, shoulderY - armLen, armZ - armW / 2],
+			to: [-armX + armW / 2, shoulderY, armZ + armW / 2],
 			color: spec.colors.arms,
 		},
 		{
 			group: "arm_r",
-			from: [armX - armW / 2, shoulderY - armLen, -armW / 2],
-			to: [armX + armW / 2, shoulderY, armW / 2],
+			from: [armX - armW / 2, shoulderY - armLen, armZ - armW / 2],
+			to: [armX + armW / 2, shoulderY, armZ + armW / 2],
 			color: spec.colors.arms,
 		},
 		...(spec.extraParts ?? []),
