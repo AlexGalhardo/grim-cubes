@@ -58,6 +58,8 @@ export interface RunSystem {
 	closeShop(): void;
 	/** Ends the current combat round now (used by the debug API and tests); no-op outside a round. */
 	forceEnd(world: GameWorld): void;
+	/** Jumps the round counter (debug API and tests); the next shop close starts round `n + 1`. */
+	setRound(n: number): void;
 	pause(): void;
 	resume(): void;
 	bossDied(): void;
@@ -159,6 +161,9 @@ export function createRunSystem(deps: RunSystemDeps): RunSystem {
 			if (state !== "Shop") return;
 			round++;
 			startIntro();
+		},
+		setRound(n: number): void {
+			round = n;
 		},
 		forceEnd(world: GameWorld): void {
 			if (state === "Round" || state === "BossRound") endCombat(world);
