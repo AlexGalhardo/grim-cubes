@@ -1,5 +1,14 @@
 import type { Mesh } from "@babylonjs/core/Meshes/mesh";
-import { type GameWorld, HitFlash, Position, PrevPosition, queryEnemies } from "@gc/game";
+import {
+	Attacking,
+	EnemyType,
+	Facing,
+	type GameWorld,
+	HitFlash,
+	Position,
+	PrevPosition,
+	queryEnemies,
+} from "@gc/game";
 import "@babylonjs/core/Meshes/thinInstanceMesh";
 import type { LoadedVat } from "../vat/loader";
 
@@ -17,8 +26,6 @@ export interface HordeOptions {
 	capacity: number;
 	/** Simultaneous death animations per type (corpses outlive the entity). */
 	ghostCapacity: number;
-	/** Maps an entity to its index in the `types` array (EnemyType component, S2). */
-	enemyType(eid: number): number;
 	/** Seconds since the previous call; defaults to the engine delta. */
 	deltaSeconds(): number;
 }
@@ -37,6 +44,7 @@ const SETTINGS_KIND = "bakedVertexAnimationSettingsInstanced";
 const STATE_NONE = 0;
 const STATE_WALK = 1;
 const STATE_HIT = 2;
+const STATE_ATTACK = 3;
 const MAX_ENTITIES = 4096;
 
 /** Shader frame phase: choose `offset` so the clip is at its first frame at clock `time` (see Babylon bakedVertexAnimation). */
@@ -78,6 +86,7 @@ export function createHordeRenderer(types: readonly HordeType[], options: HordeO
 	const ghostActive = new Uint8Array(ghostSlots);
 	const ghostX = new Float32Array(ghostSlots);
 	const ghostZ = new Float32Array(ghostSlots);
+	const ghostYaw = new Float32Array(ghostSlots);
 	const ghostStart = new Float32Array(ghostSlots);
 	const ghostOffset = new Float32Array(ghostSlots);
 	let ghostCount = 0;
@@ -90,13 +99,20 @@ export function createHordeRenderer(types: readonly HordeType[], options: HordeO
 		return { from: range.from, to: range.to, fps: vat.meta.fps };
 	}
 
-	function write(t: number, n: number, x: number, z: number, clip: string, off: number): void {
+	function write(t: number, n: number, x: number, z: number, yaw: number, clip: string, off: number): void {
 		const m = matrices[t];
 		const s = settings[t];
 		const type = types[t];
 		if (!m || !s || !type) return;
 		const range = type.vat.meta.clips[clip];
 		if (!range) return;
+		// Rotation about Y: Facing.yaw 0 looks along +z, positive yaw turns towards +x.
+		const c = Math.cos(yaw);
+		const s2 = Math.sin(yaw);
+		m[n * 16] = c;
+		m[n * 16 + 2] = -s2;
+		m[n * 16 + 8] = s2;
+		m[n * 16 + 10] = c;
 		m[n * 16 + 12] = x;
 		m[n * 16 + 14] = z;
 		s[n * 4] = range.from;
@@ -105,14 +121,17 @@ export function createHordeRenderer(types: readonly HordeType[], options: HordeO
 		s[n * 4 + 3] = type.vat.meta.fps;
 	}
 
+	const clipName = (st: number): string =>
+		st === STATE_HIT ? "hit" : st === STATE_ATTACK ? "attack" : "walk";
+
 	function enter(eid: number, t: number, next: number): void {
 		const type = types[t];
 		if (!type) return;
-		const clip = next === STATE_HIT ? clipOf(t, "hit") : clipOf(t, "walk");
+		const clip = clipOf(t, clipName(next));
 		const frames = clip.to - clip.from + 1;
 		state[eid] = next;
 		offset[eid] =
-			next === STATE_HIT
+			next !== STATE_WALK
 				? startOffset(type.vat.manager.time, clip.fps, frames)
 				: // Walkers desynchronise by entity so a horde does not march in lockstep.
 					(eid * 7) % frames;
@@ -127,12 +146,18 @@ export function createHordeRenderer(types: readonly HordeType[], options: HordeO
 			const enemies = queryEnemies(world);
 			for (let k = 0; k < enemies.length; k++) {
 				const eid = enemies[k] ?? 0;
-				const t = options.enemyType(eid);
+				const t = EnemyType.id[eid] ?? 0;
 				const n = counts[t] ?? capacity;
 				if (n >= capacity) continue;
 				counts[t] = n + 1;
 				seen[eid] = 1;
-				const next = (HitFlash.ticks[eid] ?? 0) > 0 ? STATE_HIT : STATE_WALK;
+				// Priority: hit > attack > walk.
+				const next =
+					(HitFlash.ticks[eid] ?? 0) > 0
+						? STATE_HIT
+						: (Attacking.ticks[eid] ?? 0) > 0
+							? STATE_ATTACK
+							: STATE_WALK;
 				if (state[eid] !== next) enter(eid, t, next);
 				const px = PrevPosition.x[eid] ?? 0;
 				const pz = PrevPosition.z[eid] ?? 0;
@@ -141,7 +166,8 @@ export function createHordeRenderer(types: readonly HordeType[], options: HordeO
 					n,
 					px + ((Position.x[eid] ?? 0) - px) * alpha,
 					pz + ((Position.z[eid] ?? 0) - pz) * alpha,
-					next === STATE_HIT ? "hit" : "walk",
+					Facing.yaw[eid] ?? 0,
+					clipName(next),
 					offset[eid] ?? 0,
 				);
 			}
@@ -158,7 +184,15 @@ export function createHordeRenderer(types: readonly HordeType[], options: HordeO
 					}
 					const n = counts[t] ?? 0;
 					counts[t] = n + 1;
-					write(t, n, ghostX[slot] ?? 0, ghostZ[slot] ?? 0, "death", ghostOffset[slot] ?? 0);
+					write(
+						t,
+						n,
+						ghostX[slot] ?? 0,
+						ghostZ[slot] ?? 0,
+						ghostYaw[slot] ?? 0,
+						"death",
+						ghostOffset[slot] ?? 0,
+					);
 				}
 			}
 			stats.ghosts = ghostCount;
@@ -177,7 +211,7 @@ export function createHordeRenderer(types: readonly HordeType[], options: HordeO
 		onDied(eid): void {
 			if (!seen[eid]) return;
 			seen[eid] = 0;
-			const t = options.enemyType(eid);
+			const t = EnemyType.id[eid] ?? 0;
 			state[eid] = STATE_NONE;
 			const type = types[t];
 			if (!type) return;
@@ -189,6 +223,7 @@ export function createHordeRenderer(types: readonly HordeType[], options: HordeO
 				ghostCount++;
 				ghostX[slot] = Position.x[eid] ?? 0;
 				ghostZ[slot] = Position.z[eid] ?? 0;
+				ghostYaw[slot] = Facing.yaw[eid] ?? 0;
 				ghostStart[slot] = clock;
 				ghostOffset[slot] = startOffset(type.vat.manager.time, clip.fps, clip.to - clip.from + 1);
 				return;

@@ -2,10 +2,13 @@ import { VertexBuffer } from "@babylonjs/core/Buffers/buffer";
 import { CreateBox } from "@babylonjs/core/Meshes/Builders/boxBuilder";
 import type { Mesh } from "@babylonjs/core/Meshes/mesh";
 import {
+	Attacking,
 	createEventBuffer,
 	createGameWorld,
 	EnemyFaction,
+	EnemyType,
 	EventType,
+	Facing,
 	HitFlash,
 	Position,
 	PrevPosition,
@@ -34,9 +37,6 @@ const meta: VatMeta = {
 	},
 };
 
-/** Temporary stand-in for the S2 `EnemyType` component. */
-const EnemyTypeStub = new Uint8Array(4096);
-
 function skinnedBox(name: string, scene: Parameters<typeof CreateBox>[2]): Mesh {
 	const mesh = CreateBox(name, { size: 1 }, scene);
 	const count = mesh.getTotalVertices();
@@ -57,7 +57,6 @@ function setup(typeCount = 2, capacity = 120) {
 	const horde = createHordeRenderer(types, {
 		capacity,
 		ghostCapacity: 8,
-		enemyType: (eid) => EnemyTypeStub[eid] ?? 0,
 		deltaSeconds: () => 1 / 60,
 	});
 	const world = createGameWorld();
@@ -67,7 +66,7 @@ function setup(typeCount = 2, capacity = 120) {
 function spawnEnemy(world: ReturnType<typeof createGameWorld>, x: number, z: number, type = 0): number {
 	const eid = spawnBody(world, x, z);
 	addComponent(world, eid, EnemyFaction);
-	EnemyTypeStub[eid] = type;
+	EnemyType.id[eid] = type;
 	return eid;
 }
 
@@ -120,6 +119,32 @@ describe("horde renderer", () => {
 		HitFlash.ticks[eid] = 0;
 		horde.sync(world, 0.5);
 		expect(settings()).toEqual([2, 7]);
+		Attacking.ticks[eid] = 4;
+		horde.sync(world, 0.5);
+		expect(settings()).toEqual([8, 10]);
+		HitFlash.ticks[eid] = 2;
+		horde.sync(world, 0.5);
+		expect(settings()).toEqual([11, 12]);
+		HitFlash.ticks[eid] = 0;
+		Attacking.ticks[eid] = 0;
+		horde.sync(world, 0.5);
+		expect(settings()).toEqual([2, 7]);
+		dispose();
+	});
+
+	it("rotates each instance about Y by Facing.yaw", () => {
+		const { types, horde, world, dispose } = setup(1);
+		const eid = spawnEnemy(world, 1, 2);
+		Facing.yaw[eid] = Math.PI / 2;
+		horde.sync(world, 1);
+		const m = types[0]?.mesh.thinInstanceGetWorldMatrices()[0]?.m;
+		// +z (yaw 0) turns to +x: the row for z maps to (sin, 0, cos).
+		expect(m?.[8]).toBeCloseTo(1, 6);
+		expect(m?.[10]).toBeCloseTo(0, 6);
+		expect(m?.[0]).toBeCloseTo(0, 6);
+		expect(m?.[2]).toBeCloseTo(-1, 6);
+		expect([m?.[12], m?.[14]]).toEqual([1, 2]);
+		Facing.yaw[eid] = 0;
 		dispose();
 	});
 
