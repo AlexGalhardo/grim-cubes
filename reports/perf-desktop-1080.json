@@ -1,0 +1,43 @@
+{
+	"renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+	"horde100": {
+		"seed": 42,
+		"warmupMs": 5000,
+		"measureMs": 30000,
+		"enemies": 100,
+		"frames": 561,
+		"seconds": 30.018599999994038,
+		"fpsAvg": 18.68841318382974,
+		"fpsP1": 9.460737937292382,
+		"frameP99": 105.70000000298023,
+		"frameMsAvg": 53.485918003581,
+		"drawCalls": 10,
+		"drawCallsAvg": 10,
+		"activeMeshes": 18,
+		"heapMB": {
+			"start": 29.754638671875,
+			"end": 29.754638671875,
+			"delta": 0
+		}
+	},
+	"round20": {
+		"seed": 42,
+		"warmupMs": 5000,
+		"measureMs": 30000,
+		"enemies": 29,
+		"frames": 569,
+		"seconds": 30.00109999999404,
+		"fpsAvg": 18.965971247724685,
+		"fpsP1": 8.841732978965064,
+		"frameP99": 113.1000000089407,
+		"frameMsAvg": 52.7231985940246,
+		"drawCalls": 10,
+		"drawCallsAvg": 10,
+		"activeMeshes": 18,
+		"heapMB": {
+			"start": 28.03802490234375,
+			"end": 28.03802490234375,
+			"delta": 0
+		}
+	}
+}
