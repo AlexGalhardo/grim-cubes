@@ -20,8 +20,8 @@ export interface DifficultyViewModel {
 }
 
 export interface DifficultyActions {
-	/** `seedText` is what the player typed; empty means a random seed. */
-	start(difficultyId: string, seedText: string): void;
+	/** `seedText` is what the player typed (empty means a random seed); `tutorial` asks for the 20 s tutorial. */
+	start(difficultyId: string, seedText: string, tutorial: boolean): void;
 	cancel(): void;
 }
 
@@ -34,6 +34,7 @@ export interface DifficultyProps {
 export function Difficulty({ view, actions }: DifficultyProps): JSX.Element {
 	const [selected, setSelected] = useState(view.selected);
 	const [seed, setSeed] = useState("");
+	const [tutorial, setTutorial] = useState(false);
 	return (
 		<div
 			role="dialog"
@@ -78,9 +79,18 @@ export function Difficulty({ view, actions }: DifficultyProps): JSX.Element {
 							className="min-h-12 border-2 border-mist bg-night-2 px-2 text-bone focus:border-ember"
 						/>
 					</label>
+					<label className="mt-3 flex min-h-12 items-center gap-2 font-body text-sm text-bone-dark">
+						<input
+							type="checkbox"
+							data-testid="difficulty-tutorial"
+							checked={tutorial}
+							onChange={(event) => setTutorial(event.target.checked)}
+						/>
+						{t("difficulty.tutorial")}
+					</label>
 					<div className="mt-4 flex flex-wrap justify-between gap-3">
 						<Button onClick={actions.cancel}>{t("difficulty.back")}</Button>
-						<Button size="lg" onClick={() => actions.start(selected, seed)}>
+						<Button size="lg" onClick={() => actions.start(selected, seed, tutorial)}>
 							{t("difficulty.start")}
 						</Button>
 					</div>

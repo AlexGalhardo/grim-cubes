@@ -192,5 +192,9 @@
 	"levelUp.reroll": "Rolar cartas de novo ({left}) [R]",
 	"tip.move": "Mova-se com WASD ou arraste o joystick.",
 	"tip.fragments": "Pegue os fragmentos: dão ouro e XP.",
-	"tip.shop": "Compre com ouro, trave o que quiser guardar e comece o próximo round."
+	"tip.shop": "Compre com ouro, trave o que quiser guardar e comece o próximo round.",
+	"difficulty.tutorial": "Tutorial de 20 s",
+	"tip.tutorialMove": "Tutorial: mova-se (WASD ou joystick).",
+	"tip.tutorialKill": "Tutorial: a arma ataca sozinha; deixe um inimigo morrer.",
+	"tip.tutorialCollect": "Tutorial: pegue o fragmento que ele soltou."
 }

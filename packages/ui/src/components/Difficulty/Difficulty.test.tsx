@@ -32,14 +32,22 @@ test("start passes the picked difficulty and the typed seed", () => {
 	fireEvent.click(screen.getByTestId("difficulty-grim"));
 	fireEvent.change(screen.getByTestId("difficulty-seed"), { target: { value: "coveiro" } });
 	fireEvent.click(screen.getByRole("button", { name: "Começar" }));
-	expect(start).toHaveBeenCalledWith("grim", "coveiro");
+	expect(start).toHaveBeenCalledWith("grim", "coveiro", false);
 });
 
 test("start without a seed passes an empty text and cancel closes", () => {
 	const actions = { start: vi.fn(), cancel: vi.fn() };
 	render(<Difficulty view={view} actions={actions} />);
 	fireEvent.click(screen.getByRole("button", { name: "Começar" }));
-	expect(actions.start).toHaveBeenCalledWith("normal", "");
+	expect(actions.start).toHaveBeenCalledWith("normal", "", false);
 	fireEvent.click(screen.getByRole("button", { name: "Voltar" }));
 	expect(actions.cancel).toHaveBeenCalledTimes(1);
+});
+
+test("the tutorial checkbox is passed to start", () => {
+	const start = vi.fn();
+	render(<Difficulty view={view} actions={{ start, cancel: vi.fn() }} />);
+	fireEvent.click(screen.getByTestId("difficulty-tutorial"));
+	fireEvent.click(screen.getByRole("button", { name: "Começar" }));
+	expect(start).toHaveBeenCalledWith("normal", "", true);
 });

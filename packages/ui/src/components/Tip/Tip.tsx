@@ -1,12 +1,15 @@
 import { t } from "@gc/core";
 import type { JSX } from "react";
 
-export type TipId = "move" | "fragments" | "shop";
+export type TipId = "move" | "fragments" | "shop" | "tutorialMove" | "tutorialKill" | "tutorialCollect";
 
 const KEY: Readonly<Record<TipId, string>> = {
 	move: "tip.move",
 	fragments: "tip.fragments",
 	shop: "tip.shop",
+	tutorialMove: "tip.tutorialMove",
+	tutorialKill: "tip.tutorialKill",
+	tutorialCollect: "tip.tutorialCollect",
 };
 
 /** One contextual hint of the first round (A-07-01); sits low so it never covers the play area or a dialog. */

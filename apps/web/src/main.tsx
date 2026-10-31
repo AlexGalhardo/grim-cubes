@@ -25,6 +25,7 @@ import {
 	createGameSession,
 	createLoop,
 	createTips,
+	createTutorial,
 	cullDistantEnemies,
 	describeEffect,
 	describeModifier,
@@ -217,6 +218,8 @@ async function boot(): Promise<void> {
 	// Round 1 tips are for the first runs of a player; seeded, debug and bench runs (tests, replays) skip them
 	// unless `?tips=1` asks for them.
 	const tips = createTips();
+	const tutorial = createTutorial();
+	const tutorialOn = new URLSearchParams(location.search).get("tutorial") === "1";
 	const tipsEnabled = (): boolean => {
 		const params = new URLSearchParams(location.search);
 		if (params.has("tips")) return params.get("tips") === "1";
@@ -265,10 +268,12 @@ async function boot(): Promise<void> {
 					difficultyOpen = false;
 					publishNow();
 				},
-				start: (id, seedText) => {
+				start: (id, seedText, tutorial) => {
 					// Other parameters (debug, bench) survive; only the seed and difficulty are replaced.
 					const next = new URLSearchParams(location.search);
 					next.delete("seed");
+					next.delete("tutorial");
+					if (tutorial) next.set("tutorial", "1");
 					next.set("difficulty", chooseDifficulty(roundsData.difficulties, id, meta.records));
 					const typed = parseSeed(seedText);
 					if (typed !== null) next.set("seed", String(typed));
@@ -720,16 +725,27 @@ async function boot(): Promise<void> {
 					}
 				: null,
 			vignette: Math.round(vfx.vignette * 20) / 20,
-			tip: tips.update({
-				round: run.round,
-				state: run.state,
-				heroX: Position.x[hero] ?? 0,
-				heroZ: Position.z[hero] ?? 0,
-				piles: query(world, [Fragment]).length,
-				gold: progress.gold,
-				nowMs: performance.now(),
-				enabled: tipsEnabled(),
-			}),
+			tip: tutorialOn
+				? tutorial.update({
+						round: run.round,
+						state: run.state,
+						heroX: Position.x[hero] ?? 0,
+						heroZ: Position.z[hero] ?? 0,
+						kills: runStats.kills,
+						gold: progress.gold,
+						nowMs: performance.now(),
+						enabled: true,
+					})
+				: tips.update({
+						round: run.round,
+						state: run.state,
+						heroX: Position.x[hero] ?? 0,
+						heroZ: Position.z[hero] ?? 0,
+						piles: query(world, [Fragment]).length,
+						gold: progress.gold,
+						nowMs: performance.now(),
+						enabled: tipsEnabled(),
+					}),
 		};
 		const cur = hud.get();
 		if (
