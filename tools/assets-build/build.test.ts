@@ -110,7 +110,10 @@ async function writeModel(name: string, o: FixtureOptions = {}, seed = 0): Promi
 	writeFileSync(join(dir, `${name}.glb`), packGlb(json));
 	const texture = o.texture ?? "ok";
 	if (texture !== "none")
-		writeFileSync(join(dir, `${name}_d.png`), PNG.sync.write(texturePng(texture, seed)));
+		writeFileSync(
+			join(dir, `${name}_d.png`),
+			PNG.sync.write(texturePng(texture, seed), { filterType: 0 }),
+		);
 }
 
 const build = (): ReturnType<typeof buildAssets> =>
