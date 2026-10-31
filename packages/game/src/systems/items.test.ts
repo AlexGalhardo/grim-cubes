@@ -251,3 +251,14 @@ test("soul_jar adds its fraction of souls", () => {
 	expect(effects.soulGain).toBeCloseTo(0.5);
 	expect(itemsData.filter((i) => i.status === "alpha")).toHaveLength(4);
 });
+
+test("an owned item with an unknown effect id fails loudly unless it is marked alpha", () => {
+	const bogus = { id: "bogus", effects: [{ id: "does_not_exist", params: {} }] };
+	expect(() => computeEffects([bogus], owning("bogus"), createItemEffects())).toThrow(RangeError);
+	expect(() =>
+		computeEffects([{ ...bogus, status: "alpha" }], owning("bogus"), createItemEffects()),
+	).not.toThrow();
+	expect(() =>
+		computeEffects(itemsData, owning(...itemsData.map((i) => i.id)), createItemEffects()),
+	).not.toThrow();
+});

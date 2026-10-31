@@ -123,7 +123,8 @@ export function computeEffects(
 					}
 					break;
 				default:
-					break;
+					// An id nobody implemented would silently do nothing; mark the item `status: "alpha"` instead.
+					throw new RangeError(`unknown effect "${effect.id}" on item "${item.id}"`);
 			}
 		}
 	}
