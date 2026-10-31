@@ -11,7 +11,7 @@ test("boots, renders on software GL and matches the baseline", async ({ page }, 
 		if (message.type() === "error") problems.push(message.text());
 	});
 
-	await page.goto("/");
+	await page.goto("/?seed=1");
 	await expect(page.locator("canvas#game")).toBeVisible();
 	await page.waitForFunction(() => (window as unknown as GcWindow).gc?.ready === true);
 
