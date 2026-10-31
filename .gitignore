@@ -23,3 +23,13 @@ Thumbs.db
 .idea/
 .vscode/*
 !.vscode/extensions.json
+
+# Release / platform builds
+release/
+apps/android/android/app/build/
+apps/android/android/.gradle/
+apps/android/android/local.properties
+*.keystore
+*.jks
+*.pfx
+*.tsbuildinfo
