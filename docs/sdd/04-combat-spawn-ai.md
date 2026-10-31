@@ -68,12 +68,14 @@ Máquina de estados por tipo, em `enemies.json` campo `behavior` (nomes do data,
 | --- | --- | --- | --- |
 | `chase` (`husk`) | Chase | `Velocity = normalize(hero − pos) × speed` | implementado |
 | `zigzag` (`wail`) | Chase | chase + seno perpendicular (`amplitude` 1,5 u, `periodSeconds` 0,8 s, de `behaviorParams`); fase defasada por entidade | implementado |
-| `push` (`drowned`) | Chase | chase lento; knockback recebido ×0,3 | provisório até A-02-02a (hoje chase) |
-| `latch_drain` (`leech`) | Chase → Latched | ao tocar, gruda: segue o herói a `speed × 1,2`, `drainHpPerSecond` 1; solta ao ser atingido | provisório até A-02-02a (hoje chase) |
-| `armored` (`forged`) | Chase | chase; armadura de `behaviorParams.armor` (10) vai para `Armor` | armadura aplicada; IA = chase |
-| `ranged_static` (`watcher`) | Idle | fixo; se o herói está a < `projectileRange` (10 u), atira projétil lento (8 u/s) a cada 2 s | provisório até A-02-02a (hoje chase) |
-| `charge` (`hunter`) | Chase → Windup(0,5 s) → Charge(0,6 s, 3× speed) → Recover(1 s) | investida a cada `chargeIntervalSeconds` (3 s) quando a < 8 u; telegrafia via evento | provisório até A-02-02a (hoje chase) |
-| `spawner` (`breeder`) | Chase | lento; a cada `spawnIntervalSeconds` (4 s) cria `spawnCount` `spawnEnemy` (`wail`) adjacente (conta no cap) | provisório até A-02-02a (hoje chase) |
+| `push` (`drowned`) | Chase | chase lento; knockback recebido × `knockbackTakenMult` (0,3), aplicado como `KnockbackResist` = 0,7 no `damageSystem` | implementado |
+| `latch_drain` (`leech`) | Chase → Latched (`Behavior.state` 1) | ao tocar, gruda: segue o herói a `speed × speedMult` (1,2) e drena `drainHpPerSecond` (1) direto em `Health.hp` do herói, por passo (sem armadura nem i-frames: é vazamento, não golpe); solta quando perde HP (`PrevHealth`). O dano de contato normal continua com o cooldown | implementado |
+| `armored` (`forged`) | Chase | chase; armadura de `behaviorParams.armor` (10) vai para `Armor` | implementado (IA = chase) |
+| `ranged_static` (`watcher`) | Idle | parado; se o herói está a < `projectileRange` (10 u), atira a cada `intervalSeconds` (2 s) um projétil de `projectileSpeed` 8 u/s e raio 0,25 com dano = `ContactDamage`. `EnemyShotPool` + `enemyShotSystem` (vida = alcance/velocidade; acerta o herói pelo raio; o `movementSystem` move); evento `EnemyShotFired` | implementado (render do projétil inimigo pendente, P-04-06) |
+| `charge` (`hunter`) | Chase → Windup(`windupSeconds` 0,5) → Rush(`chargeSeconds` 0,6, `speedMult` 3) → Recover(`recoverSeconds` 1) | investida a cada `chargeIntervalSeconds` (3 s) quando a < `triggerDistance` (8 u); direção travada no windup (`Facing.yaw`); evento `EnemyTelegraph` | implementado |
+| `spawner` (`breeder`) | Chase | lento; a cada `spawnIntervalSeconds` (4 s) cria `spawnCount` `spawnEnemy` (`wail`) ao redor (conta no cap: só cria enquanto os vivos < cap) | implementado |
+
+Os timers de `ranged_static` e `spawner` usam `Behavior.aux`; o PROTÓTIPO ainda não spawna os tipos 3–8 (o pool do anel 0 é `husk`/`wail`; os outros entram com a A-02-01/A-02-02b).
 
 Contato com o herói: dano de `ContactDamage` com cooldown por inimigo (`contactCooldownSeconds` 0,5 s) e `Attacking.ticks` = `attackAnimationSeconds` para o clipe de ataque.
 
