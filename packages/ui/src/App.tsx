@@ -2,6 +2,7 @@ import type { Store, VirtualStick } from "@gc/core";
 import { type JSX, useSyncExternalStore } from "react";
 import { Bar } from "./components/Bar/Bar";
 import { type CardView, LevelUp } from "./components/LevelUp/LevelUp";
+import { Results, type ResultsViewModel } from "./components/Results/Results";
 import { Shop, type ShopActions, type ShopViewModel, type StatLineView } from "./components/Shop/Shop";
 import { VirtualJoystick } from "./components/VirtualJoystick/VirtualJoystick";
 
@@ -20,6 +21,8 @@ export interface HudState {
 	shop: ShopViewModel | null;
 	/** Hero stats shown beside the shop offers. */
 	stats: readonly StatLineView[];
+	/** The end-of-run screen; null while playing. */
+	results: ResultsViewModel | null;
 }
 
 export interface AppProps {
@@ -28,9 +31,10 @@ export interface AppProps {
 	stick?: VirtualStick | undefined;
 	onChooseCard?: ((index: number) => void) | undefined;
 	shopActions?: ShopActions | undefined;
+	onRestart?: (() => void) | undefined;
 }
 
-export function App({ store, stick, onChooseCard, shopActions }: AppProps): JSX.Element {
+export function App({ store, stick, onChooseCard, shopActions, onRestart }: AppProps): JSX.Element {
 	const hud = useSyncExternalStore(store.subscribe, store.get);
 	return (
 		<div className="pointer-events-none absolute inset-0 p-4 font-display text-bone [text-shadow:1px_1px_0_var(--color-night)]">
@@ -47,6 +51,7 @@ export function App({ store, stick, onChooseCard, shopActions }: AppProps): JSX.
 			{hud.shop && shopActions ? (
 				<Shop view={hud.shop} stats={hud.stats} actions={shopActions} />
 			) : null}
+			{hud.results && onRestart ? <Results view={hud.results} onRestart={onRestart} /> : null}
 			{stick ? <VirtualJoystick stick={stick} /> : null}
 		</div>
 	);

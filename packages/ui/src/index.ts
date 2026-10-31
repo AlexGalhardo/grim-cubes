@@ -8,6 +8,8 @@ export type { CardView, LevelUpProps } from "./components/LevelUp/LevelUp";
 export { LevelUp } from "./components/LevelUp/LevelUp";
 export type { PanelProps } from "./components/Panel/Panel";
 export { Panel } from "./components/Panel/Panel";
+export type { ResultsProps, ResultsViewModel } from "./components/Results/Results";
+export { Results } from "./components/Results/Results";
 export type {
 	ShopActions,
 	ShopProps,
