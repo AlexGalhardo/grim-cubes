@@ -81,6 +81,8 @@ export function createDamageNumbers(scene: Scene, config: DamageNumbersConfig): 
 	material.diffuseTexture = texture;
 	material.useAlphaFromDiffuseTexture = true;
 	material.disableLighting = true;
+	// Unlit: the colour is emissive white times the glyph texture times the instance colour; without it the digits render black.
+	material.emissiveColor = Color3.White();
 	material.specularColor = Color3.Black();
 	material.backFaceCulling = false;
 
