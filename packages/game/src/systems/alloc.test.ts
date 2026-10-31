@@ -78,7 +78,11 @@ test("behaviorSystem allocates nothing per step once warm", () => {
 		stats: { armor: 0, dodge: 0, critMult: 2, lifeSteal: 0 },
 	});
 	const system = createBehaviorSystem(
-		{ zigzag: { amplitude: 1.5, periodSeconds: 0.8 }, contactCooldownSeconds: 0.5 },
+		{
+			zigzag: { amplitude: 1.5, periodSeconds: 0.8 },
+			contactCooldownSeconds: 0.5,
+			attackAnimationSeconds: 0.4,
+		},
 		damage.queue,
 	);
 	void BehaviorKind;

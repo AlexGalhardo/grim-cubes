@@ -1,5 +1,6 @@
 export {
 	Armor,
+	Attacking,
 	Behavior,
 	Boss,
 	ContactCooldown,
@@ -7,6 +8,7 @@ export {
 	Elite,
 	EnemyFaction,
 	EnemyType,
+	Facing,
 	Fragment,
 	Health,
 	HitFlash,

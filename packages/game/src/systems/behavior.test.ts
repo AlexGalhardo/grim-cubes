@@ -3,6 +3,7 @@ import { mulberry32 } from "@gc/core";
 import { addComponent } from "bitecs";
 import { expect, test } from "vitest";
 import {
+	Attacking,
 	Behavior,
 	ContactCooldown,
 	ContactDamage,
@@ -44,6 +45,7 @@ function setup() {
 		{
 			zigzag: { amplitude: 1.5, periodSeconds: 0.8 },
 			contactCooldownSeconds: hero.combat.contactCooldownSeconds,
+			attackAnimationSeconds: 0.4,
 		},
 		damage.queue,
 	);
@@ -136,4 +138,13 @@ test("zigzag reaches the hero and moves sideways", () => {
 	}
 	expect(reached).toBe(true);
 	expect(maxLateral).toBeGreaterThan(0.2);
+});
+
+test("contact starts the attack animation, which then counts down", () => {
+	const ctx = setup();
+	const husk = enemy(ctx.world, 0.9, 0, BehaviorKind.Chase, 0);
+	ctx.behavior.run(ctx.world, ctx.h);
+	expect(Attacking.ticks[husk]).toBe(Math.round(0.4 / STEP));
+	for (let i = 0; i < 30; i++) ctx.behavior.run(ctx.world, ctx.h);
+	expect(Attacking.ticks[husk]).toBe(0);
 });

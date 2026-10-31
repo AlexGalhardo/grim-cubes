@@ -59,3 +59,8 @@ export const Projectile = {
 	pierce: u8(),
 	life: u16(),
 };
+
+/** Yaw in radians, `atan2(vx, vz)`: 0 faces +z. Written by movementSystem, read by render. */
+export const Facing = { yaw: f32() };
+/** Steps left in the attack animation; set by behaviorSystem on contact, read by render for the clip. */
+export const Attacking = { ticks: u8() };

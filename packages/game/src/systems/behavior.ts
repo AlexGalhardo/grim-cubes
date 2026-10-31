@@ -1,4 +1,5 @@
 import {
+	Attacking,
 	Behavior,
 	ContactCooldown,
 	ContactDamage,
@@ -19,6 +20,8 @@ export interface BehaviorConfig {
 	zigzag: { amplitude: number; periodSeconds: number };
 	/** `combat.contactCooldownSeconds` in `data/hero.json`. */
 	contactCooldownSeconds: number;
+	/** `ai.attackAnimationSeconds` in `data/rounds.json`. */
+	attackAnimationSeconds: number;
 }
 
 export interface BehaviorSystem {
@@ -31,6 +34,7 @@ export function createBehaviorSystem(config: BehaviorConfig, queue: DamageQueue)
 	const periodSteps = Math.max(1, Math.round(config.zigzag.periodSeconds / STEP));
 	const omega = (2 * Math.PI) / (periodSteps * STEP);
 	const cooldownSteps = Math.round(config.contactCooldownSeconds / STEP);
+	const attackSteps = Math.round(config.attackAnimationSeconds / STEP);
 
 	return {
 		run(world: GameWorld, hero: number): void {
@@ -61,12 +65,15 @@ export function createBehaviorSystem(config: BehaviorConfig, queue: DamageQueue)
 				Velocity.x[e] = vx;
 				Velocity.z[e] = vz;
 
+				const attacking = Attacking.ticks[e] ?? 0;
+				if (attacking > 0) Attacking.ticks[e] = attacking - 1;
 				const cooldown = ContactCooldown.ticks[e] ?? 0;
 				if (cooldown > 0) {
 					ContactCooldown.ticks[e] = cooldown - 1;
 				} else if (dist <= (Radius.r[e] ?? 0) + heroRadius) {
 					queue.push(hero, ContactDamage.value[e] ?? 0, e, 0, 0, 0);
 					ContactCooldown.ticks[e] = cooldownSteps;
+					Attacking.ticks[e] = attackSteps;
 				}
 			}
 		},

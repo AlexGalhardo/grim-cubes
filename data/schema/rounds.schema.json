@@ -154,9 +154,14 @@
 		},
 		"ai": {
 			"type": "object",
-			"required": ["separationWeight"],
+			"required": ["separationWeight", "attackAnimationSeconds"],
 			"additionalProperties": false,
 			"properties": {
+				"attackAnimationSeconds": {
+					"type": "number",
+					"minimum": 0,
+					"description": "How long the attack clip plays after an enemy hits the hero."
+				},
 				"separationWeight": {
 					"type": "number",
 					"minimum": 0,

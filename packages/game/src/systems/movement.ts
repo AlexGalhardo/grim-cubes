@@ -1,4 +1,4 @@
-import { Position, PrevPosition, Velocity } from "../ecs/components";
+import { Facing, Position, PrevPosition, Velocity } from "../ecs/components";
 import { createQueryCache, type GameWorld } from "../ecs/world";
 import { STEP } from "../loop";
 
@@ -16,7 +16,10 @@ export function movementSystem(world: GameWorld): void {
 		const z = Position.z[e] ?? 0;
 		PrevPosition.x[e] = x;
 		PrevPosition.z[e] = z;
-		Position.x[e] = x + (Velocity.x[e] ?? 0) * STEP;
-		Position.z[e] = z + (Velocity.z[e] ?? 0) * STEP;
+		const vx = Velocity.x[e] ?? 0;
+		const vz = Velocity.z[e] ?? 0;
+		Position.x[e] = x + vx * STEP;
+		Position.z[e] = z + vz * STEP;
+		if (vx !== 0 || vz !== 0) Facing.yaw[e] = Math.atan2(vx, vz);
 	}
 }

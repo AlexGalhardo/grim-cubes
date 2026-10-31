@@ -33,7 +33,8 @@
 		"freeWeaponUpgrades": 1
 	},
 	"ai": {
-		"separationWeight": 0.6
+		"separationWeight": 0.6,
+		"attackAnimationSeconds": 0.4
 	},
 	"spawn": {
 		"totalBase": 20,

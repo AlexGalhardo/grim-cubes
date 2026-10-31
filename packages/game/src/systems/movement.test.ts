@@ -1,7 +1,7 @@
 import { createInputState } from "@gc/core";
 import { addComponent } from "bitecs";
 import { expect, test } from "vitest";
-import { PlayerFaction, Position, PrevPosition, Speed, Velocity } from "../ecs/components";
+import { Facing, PlayerFaction, Position, PrevPosition, Speed, Velocity } from "../ecs/components";
 import { createGameWorld, spawnBody } from "../ecs/world";
 import { inputSystem } from "./input";
 import { movementSystem } from "./movement";
@@ -40,4 +40,21 @@ test("no input stops the hero", () => {
 	Velocity.x[eid] = 5;
 	inputSystem(world, eid, input);
 	expect(Velocity.x[eid]).toBe(0);
+});
+
+test("movement updates Facing from the velocity direction and keeps it when stopped", () => {
+	const { world, eid, input } = hero();
+	input.moveX = 1;
+	inputSystem(world, eid, input);
+	movementSystem(world);
+	expect(Facing.yaw[eid]).toBeCloseTo(Math.PI / 2);
+	input.moveX = 0;
+	input.moveZ = -1;
+	inputSystem(world, eid, input);
+	movementSystem(world);
+	expect(Math.abs(Facing.yaw[eid] ?? 0)).toBeCloseTo(Math.PI);
+	input.moveZ = 0;
+	inputSystem(world, eid, input);
+	movementSystem(world);
+	expect(Math.abs(Facing.yaw[eid] ?? 0)).toBeCloseTo(Math.PI);
 });
