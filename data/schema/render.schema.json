@@ -4,7 +4,7 @@
 	"title": "Render constants (GDD section 5, ADR-0017)",
 	"type": "object",
 	"additionalProperties": false,
-	"required": ["camera"],
+	"required": ["camera", "propFade"],
 	"properties": {
 		"camera": {
 			"type": "object",
@@ -41,6 +41,39 @@
 					"type": "number",
 					"exclusiveMinimum": 0,
 					"description": "Exponential follow rate per second of the camera target (lerp 8/s)."
+				}
+			}
+		},
+		"propFade": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": ["minHeight", "alpha", "ratePerSecond", "heroHalfWidth", "heroHeight"],
+			"properties": {
+				"minHeight": {
+					"type": "number",
+					"minimum": 0,
+					"description": "Props taller than this (units) may fade."
+				},
+				"alpha": {
+					"type": "number",
+					"minimum": 0,
+					"maximum": 1,
+					"description": "Opacity of a prop that hides the hero."
+				},
+				"ratePerSecond": {
+					"type": "number",
+					"exclusiveMinimum": 0,
+					"description": "Exponential fade rate per second."
+				},
+				"heroHalfWidth": {
+					"type": "number",
+					"minimum": 0,
+					"description": "Lateral clearance, in units, added to a prop's radius when testing the line of sight."
+				},
+				"heroHeight": {
+					"type": "number",
+					"exclusiveMinimum": 0,
+					"description": "Height of the hero's centre the camera looks at, in units."
 				}
 			}
 		}

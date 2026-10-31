@@ -6,7 +6,7 @@
 	"minItems": 1,
 	"items": {
 		"type": "object",
-		"required": ["id", "sizeClass", "kind", "radius"],
+		"required": ["id", "sizeClass", "kind", "radius", "height"],
 		"additionalProperties": false,
 		"properties": {
 			"id": {
@@ -23,6 +23,11 @@
 				"type": "number",
 				"minimum": 0,
 				"description": "Collision circle radius in units; only blocking props collide."
+			},
+			"height": {
+				"type": "number",
+				"exclusiveMinimum": 0,
+				"description": "Model height in units; props taller than render.json propFade.minHeight fade when they hide the hero."
 			}
 		}
 	}

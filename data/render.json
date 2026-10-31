@@ -6,5 +6,12 @@
 		"radius": 38,
 		"radiusMobile": 34,
 		"followRate": 8
+	},
+	"propFade": {
+		"minHeight": 2,
+		"alpha": 0.25,
+		"ratePerSecond": 10,
+		"heroHalfWidth": 0.6,
+		"heroHeight": 1
 	}
 }
