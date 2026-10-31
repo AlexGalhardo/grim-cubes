@@ -121,3 +121,14 @@ curl -s -m 5 -X POST http://127.0.0.1:3000/bb-mcp -H "Content-Type: application/
 | Console mostra `[MCP] Server listening…`, a porta aceita a conexão, mas o `curl` volta 0 bytes e nada aparece no console | `mcp.js` carregado de outra build (não o asset da release fixada; o SHA-256 não bate) | Desinstalar o plugin e carregar o arquivo da release v1.10.1 conferido pelo SHA-256 da §2 |
 | `curl` sem `-m` trava o terminal | O GET abre um stream SSE que não termina | Sempre usar `-m 5` e POST com `initialize` |
 | "Unexpected number" no console do Blockbench | O `curl` foi colado no DevTools, que só aceita JavaScript | Rodar o `curl` no terminal |
+
+## 10. Armadilhas do Blockbench 5.2.2
+
+Achados de 2026-10-31 ao refinar herói, armas e Carcaça. O `.bbmodel` exportado pelo Blockbench não entra no `assets:build` sem estes cuidados.
+
+1. **Chave do animador = uuid do grupo.** O `assets-build` casa cada animador com o grupo pela chave de `animations[].animators`. Ao carregar um modelo e criar keyframes, o Blockbench pode gravar o animador com um uuid aleatório; o clipe então fica sem alvo e o oráculo do VAT falha com `missing animation group <clipe>`. Antes de gravar, reescreva as chaves com o uuid do grupo de mesmo nome e remova animadores vazios (o `getBoneAnimator` cria um por grupo consultado).
+2. **Sinal das rotações x e y.** O Blockbench exibe as rotações de animação (canais `rotation`, eixos x e y) com o sinal invertido em relação ao arquivo, ao carregar, e grava o valor exibido sem reinverter. Quem carrega e regrava sem corrigir espelha todos os clipes (o `death` cai para trás). Regra: no editor, os valores são os do brief com o sinal trocado; ao gravar, negue x e y de todas as chaves `rotation` (z e `position` não mudam). O arquivo gravado segue a convenção do brief (inclinação para a frente = positivo).
+3. **Trilha em todos os clipes.** O Babylon, no teste do oráculo, deixa a pose final de um clipe valendo no clipe seguinte quando este não anima o osso. Um osso com pose fora do repouso em um clipe (ex.: `arm_r` estendido na Carcaça) precisa ter trilha em todos os clipes do modelo, senão o erro do VAT passa de 1e-5.
+4. **Formato 5.0.** O Blockbench 5.2.2 exporta `format_version` 5.0 (grupos fora do outliner). O `assets-build` lê o 5.0 direto; o herói ficou em 4.10 porque o teste `bbmodel5.test.ts` o usa como fixture.
+5. **Carregar um `.bbmodel` do disco.** `Codecs.project.load(json, { path })` abre o modelo sem textura; a textura entra com `texture.fromPath('<nome>_d.png')`. Textura pintada no canvas do Blockbench é gravada com `canvas.toDataURL('image/png')` em `<nome>_d.png`.
+6. **Validar antes de gravar no checkout.** Salve o modelo no repositório só quando estiver completo e validado, e registre-o em `authored.json` no mesmo passo.

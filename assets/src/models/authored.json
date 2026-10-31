@@ -7,6 +7,8 @@
 		"weapons/weapon_mg",
 		"weapons/weapon_pistol",
 		"weapons/weapon_smg",
-		"weapons/weapon_sword"
+		"weapons/weapon_sword",
+		"enemies/wail",
+		"enemies/hunter"
 	]
 }
