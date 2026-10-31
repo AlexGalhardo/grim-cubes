@@ -4,13 +4,15 @@ Decisões: D19 (Electron + electron-builder), D28 (web = demo), D29 (Android 1.1
 
 ## 1. Web (Vite 8)
 
-- `apps/web/vite.config.ts`: plugins `@vitejs/plugin-react` e `@tailwindcss/vite`; `build.target: "es2022"`; `assetsInclude: ["**/*.glb", "**/*.ktx2"]`; `build.rolldownOptions.output.manualChunks` separando `babylon` (core), `react`, `game`; `define` com `__APP_VERSION__` (do `package.json`), `__BUILD_TARGET__` (`"web" | "electron" | "android"`) e `__DEBUG_API__` (verdadeiro só com `GC_DEBUG_API=1`; o build de e2e liga, o de release não).
-- Modos: `vite build --mode web-demo` (define `__IS_DEMO__ = true`), `--mode electron`, `--mode android`. Flags de demo vêm do build, não de runtime (ADR-0012).
-- Assets grandes em `public/assets` com hash no nome (gerado pelo pipeline), servidos com `Cache-Control: public, max-age=31536000, immutable`.
-- `vercel.json`: `rewrites` SPA (`/(.*)` → `/index.html`) e `headers` de cache para `/assets/*`; sem COOP/COEP (não há SharedArrayBuffer).
-- Vercel: projeto `grim-cubes-demo`, deploy de preview por PR e produção em `main` (tag). Plano Hobby enquanto for só demo não comercial `[confirmar fair use antes da página Steam]`; Pro se a Vercel considerar promoção de produto pago como uso comercial.
+- `apps/web/vite.config.ts`: `root` = `apps/web`; plugins `@vitejs/plugin-react` e `@tailwindcss/vite`; `publicDir: "../../public"` (o `public/assets` gerado pelo `assets:build` é servido em `/assets` e copiado para o `dist`); `assetsInclude: ["**/*.glb", "**/*.ktx2"]`; `build.outDir: "../../dist"`; `build.rolldownOptions.output.manualChunks` separando `babylon` e `react` (o chunk `game` e `build.target: "es2022"` ainda não estão no config; hoje vale o target padrão do Vite 8); `server.port` 5173 com `strictPort`; `define` com `__APP_VERSION__` (do `package.json`), `__BUILD_TARGET__` (`"web" | "electron" | "android"`, `"web"` em `dev`), `__IS_DEMO__` e `__DEBUG_API__` (verdadeiro só com `GC_DEBUG_API=1`; o build de e2e e o de bench ligam, o de release não).
+- Modos: `vite build --mode web-demo` (define `__IS_DEMO__ = true`), `--mode electron`, `--mode android`. Flags de demo vêm do build, não de runtime (ADR-0012). Só o `web-demo` é usado hoje; `electron` e `android` são provisórios até P-07-02 e M-01-02.
+- Assets grandes em `public/assets` com hash no nome (gerado pelo pipeline, não versionado), servidos com `Cache-Control: public, max-age=31536000, immutable`.
+- `vercel.json`: `installCommand` `bun install --frozen-lockfile`, `buildCommand` `bun run build`, `outputDirectory` `dist`, `rewrites` SPA para tudo que não é `/assets/` (`/((?!assets/).*)` → `/index.html`) e `headers` de cache para `/assets/*`; sem COOP/COEP (não há SharedArrayBuffer).
+- Vercel: projeto `grim-cubes-demo`, deploy de preview por PR e produção em `main` pela integração GitHub da Vercel (sem workflow de deploy próprio); o `deploy-web.yml` só roda o smoke depois do deploy de produção (SDD 12). Plano Hobby enquanto for só demo não comercial `[confirmar fair use antes da página Steam]`; Pro se a Vercel considerar promoção de produto pago como uso comercial.
 
 ## 2. Electron (Steam, Windows 11)
+
+Nada desta seção existe ainda: não há `apps/electron` e `bun run build:electron` é um stub que sai com erro (`tools/build-electron`). Tudo provisório até P-07-02.
 
 - `apps/electron/main.ts`: `BrowserWindow` fullscreen por padrão (opção janela), `webPreferences: { contextIsolation: true, nodeIntegration: false, preload }`; carrega `dist/index.html` (`file://`) com `protocol.handle("app", …)` para caminhos absolutos.
 - Flags de GPU: nenhum por padrão; `--in-process-gpu` e `--disable-direct-composition` só se o overlay Steam exigir (teste no PROTÓTIPO; ADR-0008). Se instável: overlay desligado e documentado.
@@ -23,7 +25,9 @@ Decisões: D19 (Electron + electron-builder), D28 (web = demo), D29 (Android 1.1
 
 ## 3. Android (Capacitor 8) — versão 1.1
 
-- `apps/android/capacitor.config.ts`: `appId: com.alexgalhardo.grimcubes`, `webDir: ../web/dist`, `android: { allowMixedContent: false, backgroundColor: "#14121C" }`, `server: undefined` (assets locais).
+Nada desta seção existe ainda: não há `apps/android` e `bun run build:android` é um stub (`tools/build-android`). Tudo provisório até B-04-04 (scaffold de medição) e M-01-02 (versão completa).
+
+- `apps/android/capacitor.config.ts`: `appId: com.alexgalhardo.grimcubes`, `webDir: ../../dist` (o Vite gera o `dist` na raiz), `android: { allowMixedContent: false, backgroundColor: "#14121C" }`, `server: undefined` (assets locais).
 - Plugins: `@capacitor/app`, `@capacitor/haptics`, `@capacitor/screen-orientation` (lock landscape), `@capacitor/filesystem` (save), `@capacitor/status-bar` (immersive). Billing: `@capacitor-community/in-app-purchases` ou `@revenuecat/purchases-capacitor` `[decidir em ADR na fase BETA, após checar manutenção]`.
 - `AndroidManifest.xml`: `android:screenOrientation="sensorLandscape"`, `configChanges` com `density|orientation|screenSize|keyboardHidden`, `hardwareAccelerated="true"`.
 - Gradle: AGP 8.13.0, Gradle 8.14.3, Kotlin 2.2.20, `minSdk 24`, `compileSdk 36`, `targetSdk 36`; AAB assinado com keystore em secret.
@@ -36,16 +40,18 @@ Decisões: D19 (Electron + electron-builder), D28 (web = demo), D29 (Android 1.1
 | Script | Comando |
 | --- | --- |
 | `dev` | `vite --config apps/web/vite.config.ts` |
-| `build` | `bun run data:check && bun run assets:build && vite build --mode web-demo` |
-| `build:electron` | ver §2 |
-| `build:android` | `vite build --mode android && cap sync android && cd apps/android && ./gradlew bundleRelease` |
+| `build` | `bun run data:check && bun run assets:build && vite build --config apps/web/vite.config.ts --mode web-demo` |
+| `build:electron` | `bun tools/build-electron/index.ts` (stub; a cadeia do §2 é provisória até P-07-02) |
+| `build:android` | `bun tools/build-android/index.ts` (stub; `vite build --mode android && cap sync android && cd apps/android && ./gradlew bundleRelease` é provisório até M-01-02) |
 | `typecheck` | `bun check -b` |
 | `lint` | `biome ci .` |
 | `lint:md` | `markdownlint-cli2 "**/*.md"` |
 | `test` | `vitest run` |
 | `test:e2e` | `playwright test` |
 | `test:smoke` | `bun tools/smoke/run.ts` (Playwright) |
-| `sim` | `bun tools/sim/index.ts` |
+| `test:perf` | `playwright test --config tools/perf/playwright.config.ts` (bench do SDD 14 §4; exige build com `GC_DEBUG_API=1`) |
+| `sim` | `bun tools/sim/index.ts` (stub; provisório até P-07-04) |
+| `assets:gen` | `bun tools/assets-gen/index.ts` (gera os `.bbmodel` e `_d.png` placeholder) |
 | `assets:build` | `bun tools/assets-build/index.ts` |
 | `audio:generate` | `bun tools/audio-generate/index.ts` |
 | `data:check` | `bun tools/data-check/index.ts` |

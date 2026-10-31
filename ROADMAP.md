@@ -104,6 +104,8 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
   - Asserts: `bun run test:smoke -- --url <preview>` exit 0 e gera `reports/smoke.png`; workflow roda após deploy de produção e está verde.
 - [x] **E-04-05** `codeql.yml` semanal e por PR. Deps: E-04-01. Resp: Est. Prio: P2.
   - Asserts: workflow presente e verde na primeira execução.
+- [ ] **E-04-06** `tools/changelog-check` (SDD 13 §3): job no CI que falha o PR com commit `feat`/`fix` sem tocar `CHANGELOG.md` `[Unreleased]`; rótulo `skip-changelog` para exceções. Deps: E-04-01. Resp: Est. Prio: P2.
+  - Asserts: PR de teste com `feat:` sem CHANGELOG falha o check; com a linha em `[Unreleased]` passa; self-test com fixtures.
 
 ### E-05 Pesquisa, contas e tarefas manuais do PO
 

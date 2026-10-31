@@ -112,6 +112,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **docs:** SDD 14 §4 bench metrics as implemented; GDD §18.2 souls use the round where the run ended
 - **docs:** Amend SDD 03/06/07/09/14 to the implemented world, save, UI, asset pipeline and performance code; add P-04-06 (projectile and fragment rendering)
 - **roadmap:** Fix phase 3 (ALPHA) deps and asserts; split A-02-02 into A-02-02a (behaviors) and A-02-02b (models/VAT)
+- **docs:** Amend SDD 08/10/11/12/13 to the implemented audio tooling, build, tests, CI and release; add E-04-06 (changelog check)
 - **docs:** Fix the GDD §18.2 souls example to match the formula
 - **ci:** Add CI (lint, typecheck, unit, integration, build-web, e2e gated) and CodeQL workflows (#1) ([da8923e](https://github.com/AlexGalhardo/grim-cubes/commit/da8923ee65069ec95a017f53a20937718c27413b))
 
