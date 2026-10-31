@@ -42,6 +42,7 @@ function walk(distance: number, steps = Math.ceil(distance / SPEED)): Run {
 	const chunks = createChunkSystem(config, () => {});
 	let shifts = 0;
 	let maxRelative = 0;
+	let maxGenerated = 0;
 	for (let step = 0; step < steps; step++) {
 		PrevPosition.x[hero] = Position.x[hero] ?? 0;
 		Position.x[hero] = (Position.x[hero] ?? 0) + SPEED;
@@ -80,8 +81,10 @@ function walk(distance: number, steps = Math.ceil(distance / SPEED)): Run {
 
 		const generatedBefore = chunks.stats.generated;
 		chunks.update(origin.x + (Position.x[hero] ?? 0), origin.z + (Position.z[hero] ?? 0));
-		expect(chunks.stats.generated - generatedBefore).toBeLessThanOrEqual(config.chunksPerStep);
+		maxGenerated = Math.max(maxGenerated, chunks.stats.generated - generatedBefore);
 	}
+	// Asserted once: a per-step expect() over 50k steps made this test slow enough to time out under CPU load.
+	expect(maxGenerated).toBeLessThanOrEqual(config.chunksPerStep);
 	return { shifts, finalOrigin: origin.x, finalHeroX: Position.x[hero] ?? 0, maxRelative };
 }
 
