@@ -109,6 +109,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **game:** Shop upgrades priced by the round formula, free starting weapon, no repeated or alpha items ([6ca102d](https://github.com/AlexGalhardo/grim-cubes/commit/6ca102d77cd6307920300858ca0e9085bac94f7e))
 - **game:** Reject unimplemented effect ids ([c7401d0](https://github.com/AlexGalhardo/grim-cubes/commit/c7401d0a009032415377e2aefbca53e3fab9d6ce))
 - **e2e:** Add elite chest and save-safety e2e ([8c356ff](https://github.com/AlexGalhardo/grim-cubes/commit/8c356ffc40d66b5e1b8e5f01d61bfb34d90b2475))
+- **render:** Combat VFX: blood and explosion particles, FIFO decals, damage numbers, hit-stop and hit flash (`data/render.json` `vfx`) ([8fd0b64](https://github.com/AlexGalhardo/grim-cubes/commit/8fd0b64adcb7ca2653803a132a6bd547b5150bee))
+- **render:** Draw projectiles and fragment piles with thin instances; combat e2e captures ([e10d4c6](https://github.com/AlexGalhardo/grim-cubes/commit/e10d4c66466415c6a9245e33b79e96eaddf947f8))
+- **perf:** Bench round20 holds 100 enemies and ~200 projectiles and reports their means ([9cf486e](https://github.com/AlexGalhardo/grim-cubes/commit/9cf486ebe1347c07b7cf8ea84f2785329323a97d))
+- **web:** Start the run again outside the bench scenarios ([053485e](https://github.com/AlexGalhardo/grim-cubes/commit/053485effecc059d463f4a8431d1a23e11f82680))
 - **docs:** SDD 14 §4 bench metrics as implemented; GDD §18.2 souls use the round where the run ended
 - **docs:** Amend SDD 03/06/07/09/14 to the implemented world, save, UI, asset pipeline and performance code; add P-04-06 (projectile and fragment rendering)
 - **roadmap:** Fix phase 3 (ALPHA) deps and asserts; split A-02-02 into A-02-02a (behaviors) and A-02-02b (models/VAT)
