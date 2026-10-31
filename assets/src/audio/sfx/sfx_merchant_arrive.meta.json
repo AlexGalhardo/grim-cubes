@@ -1,0 +1,9 @@
+{
+	"prompt": "rusty chains dragging across stone and a cracked bone bell ringing twice, a bone merchant arriving, dry eerie tone, medium distance, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 1.8,
+	"generatedAt": "2026-10-31T20:15:28.821Z",
+	"plan": "creator",
+	"hash": "9a0fac4e38d6708589873f574e1a2a1e6a5e17401bb1b7bf9b3e5c00553e2cef",
+	"promptInfluence": 0.5
+}

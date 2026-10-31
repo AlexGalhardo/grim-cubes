@@ -127,6 +127,7 @@ A duração é a medida com `ffprobe` nos arquivos gerados. Os prompts estão ex
 | `voice_merchant_farewell_1` | `assets/src/audio/voice/voice_merchant_farewell_1.mp3` | voice | 2.3 s | Go, then. Die gloriously. | Bill (velho, nítido) | fechamento da loja ("Próximo round") |
 | `voice_merchant_farewell_2` | `assets/src/audio/voice/voice_merchant_farewell_2.mp3` | voice | 2.2 s | Mind the dark. It minds you. | Bill (velho, nítido) | fechamento da loja ("Próximo round") |
 | `voice_merchant_farewell_3` | `assets/src/audio/voice/voice_merchant_farewell_3.mp3` | voice | 3.4 s | Until the next round, if you are still in one piece. | Bill (velho, nítido) | fechamento da loja ("Próximo round") |
+| `sfx_merchant_arrive` | `assets/src/audio/sfx/sfx_merchant_arrive.mp3` | sfx | 1.8 s | rusty chains dragging across stone and a cracked bone bell ringing twice, a bone merchant arriving, dry eerie tone, medium distance, no music, game sound effect | — | evento `MerchantArrived` (o Mercador chega: correntes e sino de osso) |
 
 Vozes (conta ElevenLabs, plano Creator): **Callum** (`N2lVS1w4EtoT3dr4eOWO`, rouca e inquietante) fala pela Matriarca do Pântano e pelo Caçador Alfa; **Brian** (`nPczCjzI2devNBz1zQrb`, grave e ressonante) fala pelo Coveiro, pelo Forjador e pela Rainha do Ninho. A escolha saiu da lista de vozes da conta, entre as que soavam graves e sombrias. Trocar a voz exige alterar o `voiceId` no `prompts.json` e regenerar com `--force`.
 
@@ -155,6 +156,7 @@ Para voltar a uma versão antiga, copie o par de arquivos de volta para `assets/
 - Regeneração instrumental (9 faixas de música, versões novas de `mus_*`): saldo de 47.712 para 62.559, ou seja, **14.847 créditos** reais (a estimativa do script para as 9 faixas é 16.200).
 - Segunda leva (39 arquivos: 30 SFX e 9 falas, com os ids que o motor de áudio pede): o script estimou 6.251 créditos; o saldo foi de 47.167 para 47.502, ou seja, **335 créditos** reais.
 - Falas do Mercador (20 arquivos, 746 caracteres): o script estimou 746 créditos (1 por caractere) e o saldo da conta não se moveu na leitura de `/v1/user/subscription` (62.572 antes e depois; o contador de TTS pode ser lançado com atraso).
+- SFX `sfx_merchant_arrive` (1 arquivo): 200 créditos estimados pelo script, gerado em separado.
 - Total medido: cerca de **28.350 créditos** para os 98 arquivos mais a regeneração das músicas (as 9 faixas vocais arquivadas contam nos 13.188 da primeira leva). A estimativa do script é conservadora, sobretudo na música. O saldo é de uma conta compartilhada, então o delta pode incluir outro uso entre as leituras.
 - Plano: Creator (`plan: creator` em todos os `.meta.json`), com licença comercial.
 

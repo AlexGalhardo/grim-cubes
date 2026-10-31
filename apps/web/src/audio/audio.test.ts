@@ -268,6 +268,7 @@ test("events map to sound ids", () => {
 	expect(soundFor(EventType.RoundStarted, 1, 0, 0, 0, ctx)?.ids).toBe("sfx_round_start_drum");
 	expect(soundFor(EventType.BossTelegraph, 1, 0, 1, 9, ctx)?.ids).toBe("sfx_boss_telegraph");
 	expect(soundFor(EventType.Exploded, 0, 0, 3, 4, ctx)?.ids).toBe("sfx_explosion_01");
+	expect(soundFor(EventType.MerchantArrived, 3, 4, 20, 0, ctx)?.ids).toBe("sfx_merchant_arrive");
 });
 
 test("deaths depend on who died, and quiet events map to nothing", () => {
