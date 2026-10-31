@@ -991,27 +991,29 @@ async function boot(): Promise<void> {
 					}
 				: null,
 			vignette: Math.round(vfx.vignette * 20) / 20,
-			tip: tutorialOn
-				? tutorial.update({
-						round: run.round,
-						state: run.state,
-						heroX: Position.x[hero] ?? 0,
-						heroZ: Position.z[hero] ?? 0,
-						kills: runStats.kills,
-						gold: progress.gold,
-						nowMs: performance.now(),
-						enabled: true,
-					})
-				: tips.update({
-						round: run.round,
-						state: run.state,
-						heroX: Position.x[hero] ?? 0,
-						heroZ: Position.z[hero] ?? 0,
-						piles: query(world, [Fragment]).length,
-						gold: progress.gold,
-						nowMs: performance.now(),
-						enabled: tipsEnabled(),
-					}),
+			tip:
+				tutorialOn && !tutorial.done
+					? tutorial.update({
+							round: run.round,
+							state: run.state,
+							heroX: Position.x[hero] ?? 0,
+							heroZ: Position.z[hero] ?? 0,
+							kills: runStats.kills,
+							gold: progress.gold,
+							nowMs: performance.now(),
+							enabled: true,
+						})
+					: tips.update({
+							round: run.round,
+							state: run.state,
+							heroX: Position.x[hero] ?? 0,
+							heroZ: Position.z[hero] ?? 0,
+							piles: query(world, [Fragment]).length,
+							gold: progress.gold,
+							nowMs: performance.now(),
+							// After the tutorial the round 1 tips follow, whatever the run count.
+							enabled: tutorial.done || tipsEnabled(),
+						}),
 		};
 		const cur = hud.get();
 		if (
@@ -1177,7 +1179,6 @@ async function boot(): Promise<void> {
 			/** One enemy of the given type index at (x, z) relative to the hero (A-02-02b capture). */
 			spawnEnemy: (typeIndex: number, x: number, z: number) =>
 				spawn.spawnEnemy(world, typeIndex, (Position.x[hero] ?? 0) + x, (Position.z[hero] ?? 0) + z),
-			/** One enemy of every type in a row 5 u in front of the hero: the horde, VAT included, in a single frame. */
 			/** Applies a video preset live (shadows, scale, enemy cap); pool sizes apply on the next launch. */
 			setPreset: (id: string) => {
 				const next = presetsData.presets.find((p) => p.id === id);
@@ -1192,6 +1193,7 @@ async function boot(): Promise<void> {
 				enemyCap: spawn.cap,
 				hardwareScalingLevel: render.engine.getHardwareScalingLevel(),
 			}),
+			/** One enemy of every type in a row 5 u in front of the hero: the horde, VAT included, in a single frame. */
 			spawnLineup: () => {
 				const count = enemyIds.length;
 				const spacing = 2.2;
@@ -1355,10 +1357,15 @@ async function boot(): Promise<void> {
 				run.setRound(9);
 				run.forceEnd(world);
 				if (run.state === "Shop") run.closeShop();
+				// A previous freeze() leaves the loop paused: frame() would not advance it.
+				loop.resume();
 				let now = performance.now();
 				for (let i = 0; i < 1200 && !(run.state === "BossRound" && boss.view() !== null); i++) {
 					now += STEP * 1000;
 					loop.frame(now);
+				}
+				if (run.state !== "BossRound" || boss.view() === null) {
+					throw new Error(`toBossFrame did not reach the boss round (state ${run.state})`);
 				}
 				run.pause();
 				loop.pause();
