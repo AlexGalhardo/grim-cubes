@@ -173,3 +173,18 @@ test("a full queue counts drops instead of growing", () => {
 	expect(system.queue.size).toBe(1024);
 	expect(system.queue.dropped).toBe(6);
 });
+
+test("a hero that is already dead takes no further hits: one Died event and the first killer stays", () => {
+	const { world, heroEid, system, events } = setup();
+	Health.hp[heroEid] = 1;
+	system.queue.push(heroEid, 5, 7, 0, 0, 0);
+	system.run(world);
+	Invulnerable.ticks[heroEid] = 0;
+	system.queue.push(heroEid, 5, 9, 0, 0, 0);
+	system.run(world);
+	let died = 0;
+	events.consume((type, _a, _b, _c, e) => {
+		if (type === EventType.Died && e === heroEid) died++;
+	});
+	expect(died).toBe(1);
+});

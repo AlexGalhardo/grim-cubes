@@ -9,6 +9,7 @@ export interface GamepadLike {
 export const DEAD_ZONE = 0.2;
 
 const BUTTON_DASH = 0;
+const BUTTON_DASH_ALT = 5;
 const BUTTON_START = 9;
 const BUTTON_DPAD_UP = 12;
 const BUTTON_DPAD_DOWN = 13;
@@ -47,6 +48,6 @@ export function readGamepad(pad: GamepadLike, out: InputState, deadZone = DEAD_Z
 		out.moveZ = (pressed(pad, BUTTON_DPAD_UP) ? 1 : 0) - (pressed(pad, BUTTON_DPAD_DOWN) ? 1 : 0);
 		clampUnit(out);
 	}
-	out.dash = pressed(pad, BUTTON_DASH);
+	out.dash = pressed(pad, BUTTON_DASH) || pressed(pad, BUTTON_DASH_ALT);
 	out.pause = pressed(pad, BUTTON_START);
 }

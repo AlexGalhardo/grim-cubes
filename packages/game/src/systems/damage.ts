@@ -126,6 +126,8 @@ export function createDamageSystem(deps: DamageSystemDeps): DamageSystem {
 	}
 
 	function hitHero(world: GameWorld, i: number): void {
+		// A dead hero takes no more hits: a second Died event or killer would overwrite the real ones.
+		if ((Health.hp[hero] ?? 0) <= 0) return;
 		if ((Invulnerable.ticks[hero] ?? 0) > 0) return;
 		if (rng.dodge.next() < effectiveDodge(stats.dodge, config.dodgeCap)) {
 			events.push(EventType.Dodged, 0, 0, 0, hero);

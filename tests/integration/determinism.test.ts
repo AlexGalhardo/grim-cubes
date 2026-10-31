@@ -1,8 +1,11 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { STEP } from "../../packages/game/src/index";
 import { loadSimData, runSim, type SimData } from "../../tools/sim/lib";
 
 const data: SimData = loadSimData();
+
+// Full 3,600-step simulations by design; the default 5 s trips when other processes saturate the CPU.
+vi.setConfig({ testTimeout: 20_000 });
 const STEPS = 3600;
 const run = (seed: number, maxSteps = STEPS) =>
 	runSim(data, { seed, rounds: 50, difficulty: "normal", maxSteps });

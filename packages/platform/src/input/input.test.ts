@@ -89,3 +89,13 @@ test("merged sources: the strongest movement wins and buttons are OR-ed", () => 
 	expect([s.moveX, s.moveZ]).toEqual([0, 1]);
 	sources.dispose();
 });
+
+test("dash is on Space, either Shift and gamepad buttons 0 and 5 (GDD 5)", () => {
+	for (const code of DEFAULT_BINDINGS.dash) expect(["Space", "ShiftLeft", "ShiftRight"]).toContain(code);
+	expect(DEFAULT_BINDINGS.dash).toHaveLength(3);
+	const s = createInputState();
+	const buttons = Array.from({ length: 16 }, () => ({ pressed: false }));
+	buttons[5] = { pressed: true };
+	readGamepad({ axes: [0, 0], buttons }, s);
+	expect(s.dash).toBe(true);
+});

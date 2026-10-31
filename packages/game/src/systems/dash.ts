@@ -26,7 +26,6 @@ export interface DashSystem {
 	readonly maxCharges: number;
 	/** 0..1 progress of the charge being recharged; 1 when all charges are ready. */
 	readonly recharge: number;
-	reset(): void;
 }
 
 /** Shortest cooldown the reduction can reach, so stacked reductions never make the dash free. */
@@ -38,7 +37,8 @@ const MIN_COOLDOWN_SECONDS = 0.5;
  */
 export function createDashSystem(config: DashConfig, options: DashOptions): DashSystem {
 	const dashTicks = Math.max(1, Math.round(config.durationSeconds / STEP));
-	const iFrameTicks = Math.round(config.iFramesSeconds / STEP);
+	// +1: damageSystem decrements the counter in the same step the dash starts, which would cost one tick.
+	const iFrameTicks = Math.round(config.iFramesSeconds / STEP) + 1;
 	const speed = config.distance / (dashTicks * STEP);
 	const cooldownTicks = Math.round(
 		Math.max(MIN_COOLDOWN_SECONDS, config.cooldownSeconds - options.cooldownReductionSeconds) / STEP,
@@ -96,12 +96,6 @@ export function createDashSystem(config: DashConfig, options: DashOptions): Dash
 		},
 		get recharge(): number {
 			return charges === maxCharges ? 1 : rechargeTicks / cooldownTicks;
-		},
-		reset(): void {
-			charges = maxCharges;
-			rechargeTicks = 0;
-			remaining = 0;
-			wasDown = false;
 		},
 	};
 }

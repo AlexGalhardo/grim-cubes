@@ -52,8 +52,8 @@ test("a dash moves 4 u in 0.15 s on top of normal movement and gives 0.2 s of i-
 		step();
 		if ((Invulnerable.ticks[hero] ?? 0) > 0) invulnerableSteps++;
 	}
-	// The step that starts the dash is counted after its own decrement, so one tick of the 12 is already gone.
-	expect(invulnerableSteps / 60).toBeCloseTo(heroData.dash.iFramesSeconds, 1);
+	// 0.2 s = exactly 12 steps in which a hit would be refused, counting the step that starts the dash.
+	expect(invulnerableSteps).toBe(12);
 });
 
 test("the dash has a 3 s cooldown, holding the key does not repeat it", () => {
@@ -95,4 +95,17 @@ test("standing still, the dash goes where the hero faces", () => {
 	input.dash = false;
 	for (let i = 0; i < 12; i++) step();
 	expect(Math.hypot(Position.x[hero] ?? 0, Position.z[hero] ?? 0)).toBeCloseTo(heroData.dash.distance, 1);
+});
+
+test("stacked cooldown reductions stop at the 0.5 s floor", () => {
+	const { input, step, dash } = setup({ unlocked: true, charges: 1, cooldownReductionSeconds: 10 });
+	input.moveX = 1;
+	input.dash = true;
+	step();
+	input.dash = false;
+	expect(dash.charges).toBe(0);
+	for (let i = 0; i < 29; i++) step();
+	expect(dash.charges).toBe(0);
+	step();
+	expect(dash.charges).toBe(1);
 });
