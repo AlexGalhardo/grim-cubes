@@ -18,6 +18,8 @@ test("the eight enemy types are drawn by the horde renderer", async ({ page }, t
 		() => (window as unknown as DebugWindow).gc?.debug?.spawnLineup !== undefined,
 	);
 	test.skip(!hasDebug, "build without GC_DEBUG_API");
+	// The chunk ring around the hero fills over the first steps; the lineup looks for a row without props in it.
+	await page.clock.runFor(300);
 	await page.evaluate(() => {
 		const debug = (window as unknown as DebugWindow).gc?.debug;
 		debug?.spawnLineup();

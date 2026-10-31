@@ -843,31 +843,47 @@ async function boot(): Promise<void> {
 			spawnLineup: () => {
 				const count = enemyIds.length;
 				const spacing = 2.2;
-				const free = (row: number): boolean => {
-					for (let type = 0; type < count; type++) {
-						const x = (Position.x[hero] ?? 0) + (type - (count - 1) / 2) * spacing;
-						// 3.2 u around each slot clears the prop and the tall props that would hide it from the camera.
-						if (session.propCollision.overlaps(origin, x, (Position.z[hero] ?? 0) + row, 3.2))
-							return false;
+				const perRow = 4;
+				const heroX = Position.x[hero] ?? 0;
+				const heroZ = Position.z[hero] ?? 0;
+				// A slot is usable when no prop is on it or just south of it (the camera looks north: a tall prop hides what
+				// stands behind it).
+				const slotFree = (x: number, z: number): boolean =>
+					!session.propCollision.overlaps(origin, x, z, 1.8) &&
+					!session.propCollision.overlaps(origin, x, z - 2.5, 1.8);
+				const placed: number[] = [];
+				for (let first = 0; first < count; first += perRow) {
+					const size = Math.min(perRow, count - first);
+					let best: { x: number; z: number } | null = null;
+					for (let z = 4; z <= 12 && !best; z += 1) {
+						for (let x = -9; x <= 9 && !best; x += 1) {
+							let ok = true;
+							for (let i = 0; i < size && ok; i++) {
+								const slotX = x + i * spacing;
+								ok = slotFree(heroX + slotX, heroZ + z);
+								// Not on top of a slot already placed.
+								for (let k = 0; k < placed.length && ok; k += 2) {
+									ok =
+										Math.abs((placed[k] ?? 0) - slotX) >= spacing ||
+										Math.abs((placed[k + 1] ?? 0) - z) >= 1.5;
+								}
+							}
+							if (ok) best = { x, z };
+						}
 					}
-					return true;
-				};
-				// The first row 4 to 20 u ahead with no prop near any slot; the nearest row if every one is crowded.
-				let row = 5;
-				for (let candidate = 4; candidate <= 20; candidate += 1) {
-					if (free(candidate)) {
-						row = candidate;
-						break;
+					// Crowded everywhere: fall back to a plain row 5 u ahead.
+					const origin0 = best ?? { x: -((size - 1) * spacing) / 2, z: 5 + first };
+					for (let i = 0; i < size; i++) {
+						spawn.spawnEnemy(
+							world,
+							first + i,
+							heroX + origin0.x + i * spacing,
+							heroZ + origin0.z,
+						);
+						placed.push(origin0.x + i * spacing, origin0.z);
 					}
 				}
-				for (let type = 0; type < count; type++) {
-					spawn.spawnEnemy(
-						world,
-						type,
-						(Position.x[hero] ?? 0) + (type - (count - 1) / 2) * spacing,
-						(Position.z[hero] ?? 0) + row,
-					);
-				}
+				return placed;
 			},
 			spawnElite: (modifier?: number) => {
 				elite.spawnNow(world, (Position.x[hero] ?? 0) + 1.5, Position.z[hero] ?? 0, modifier);
