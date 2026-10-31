@@ -952,6 +952,7 @@ async function boot(): Promise<void> {
 		return {
 			angle: Math.round(angle / step) * step,
 			near: session.merchant.distance() <= session.merchant.config.talkRadius,
+			secondsLeft: Math.ceil(run.ticksLeft * STEP),
 		};
 	}
 
@@ -1270,6 +1271,7 @@ async function boot(): Promise<void> {
 			cur.caption !== next.caption ||
 			cur.merchant?.angle !== next.merchant?.angle ||
 			cur.merchant?.near !== next.merchant?.near ||
+			cur.merchant?.secondsLeft !== next.merchant?.secondsLeft ||
 			(cur.merchant === null) !== (next.merchant === null) ||
 			cur.rerollKey !== next.rerollKey ||
 			cur.colorblind !== next.colorblind ||
@@ -1822,10 +1824,15 @@ async function boot(): Promise<void> {
 				}),
 		};
 	}
+	let wasDashing = false;
 	render.engine.runRenderLoop(() => {
 		// Once per frame: getGamepads() allocates, and several steps may run per frame.
 		sources.poll(input);
 		if (touchDash) input.dash = true;
+		// While the Merchant waits the dash action (A on the pad, by default) talks to him: there is nothing to dash from.
+		if (input.dash && !wasDashing && run.state === "MerchantWait" && session.merchant.talk())
+			publishNow();
+		wasDashing = input.dash;
 		loop.frame(performance.now());
 	});
 	window.addEventListener("resize", () => render.engine.resize());

@@ -6,6 +6,8 @@ export interface MerchantPromptView {
 	angle: number;
 	/** Close enough to talk: the prompt becomes the action. */
 	near: boolean;
+	/** Seconds before the shop opens by itself. */
+	secondsLeft: number;
 }
 
 export interface MerchantPromptProps {
@@ -14,6 +16,9 @@ export interface MerchantPromptProps {
 }
 
 /** While the Merchant waits (A-05-01): an arrow toward him, and the talk action once the hero is close. */
+/** The screen reader hears the countdown every 5 s (20, 15, 10, 5), not every second. */
+export const announcedSeconds = (seconds: number): number => Math.max(0, Math.ceil(seconds / 5) * 5);
+
 export function MerchantPrompt({ view, onTalk }: MerchantPromptProps): JSX.Element {
 	return (
 		<button
@@ -33,7 +38,19 @@ export function MerchantPrompt({ view, onTalk }: MerchantPromptProps): JSX.Eleme
 			>
 				{"\u2191"}
 			</span>
-			{view.near ? t("merchant.talk") : t("merchant.go")}
+			<span className="flex flex-col items-start">
+				<span>{view.near ? t("merchant.talk") : t("merchant.go")}</span>
+				<span
+					aria-hidden="true"
+					data-testid="merchant-countdown"
+					className="font-body text-xs text-bone-dark"
+				>
+					{t("merchant.countdown", { seconds: view.secondsLeft })}
+				</span>
+			</span>
+			<span role="status" aria-live="polite" className="sr-only" data-testid="merchant-announce">
+				{t("merchant.countdown", { seconds: announcedSeconds(view.secondsLeft) })}
+			</span>
 		</button>
 	);
 }

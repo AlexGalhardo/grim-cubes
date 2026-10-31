@@ -276,5 +276,6 @@
 	"tip.merchant": "Ande até o Mercador para abrir a loja.",
 	"merchant.go": "Vá até o Mercador",
 	"merchant.talk": "Fale com o Mercador [Enter]",
-	"merchant.arrow": "Direção do Mercador"
+	"merchant.arrow": "Direção do Mercador",
+	"merchant.countdown": "Loja em {seconds} s"
 }
