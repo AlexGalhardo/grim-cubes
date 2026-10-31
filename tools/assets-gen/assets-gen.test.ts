@@ -29,6 +29,15 @@ const HEIGHTS: Record<string, readonly [number, number]> = {
 	prop_bonepile_01: [1, 1.5],
 };
 
+/** Art Bible §5.1 widths in units (full x extent): [min, max]; the props and weapons have no width in the table. */
+const WIDTHS: Record<string, readonly [number, number]> = {
+	hero: [0.8, 1.0],
+	husk: [0.7, 1.0],
+	wail: [0.5, 0.7],
+	gravedigger: [3, 4],
+	bone_merchant: [0.9, 1.1],
+};
+
 describe("assets-gen catalog", () => {
 	let root: string;
 	beforeEach(() => {
@@ -60,6 +69,16 @@ describe("assets-gen catalog", () => {
 			const top = Math.max(...generated.bbmodel.elements.map((e) => Math.max(e.from[1], e.to[1])));
 			const height = top / PIXELS_PER_UNIT[category];
 			expect([name, height >= range[0] && height <= range[1]]).toEqual([name, true]);
+		}
+	});
+
+	it("stands inside the Art Bible §5.1 width ranges", () => {
+		for (const { name, category, generated } of buildCatalog()) {
+			const range = WIDTHS[name];
+			if (!range) continue;
+			const xs = generated.bbmodel.elements.flatMap((e) => [e.from[0], e.to[0]]);
+			const width = (Math.max(...xs) - Math.min(...xs)) / PIXELS_PER_UNIT[category];
+			expect([name, width >= range[0] && width <= range[1]]).toEqual([name, true]);
 		}
 	});
 
