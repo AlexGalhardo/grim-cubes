@@ -171,15 +171,15 @@ const menuView = {
 };
 const menuActions = () => ({ resume: vi.fn(), play: vi.fn(), ossuary: vi.fn(), options: vi.fn() });
 
-test("the title screen lists the records and its buttons call the actions", () => {
+test("the title screen is just a column of plate buttons and a small build label", () => {
 	const actions = menuActions();
 	render(
 		<App store={createStore({ ...hud(1), menu: menuView })} menuActions={actions} version="0.4.0" demo />,
 	);
 	expect(screen.getByRole("dialog")).toBeTruthy();
-	expect(screen.getByTestId("menu-records").textContent).toContain("Round 12");
-	expect(screen.getByTestId("menu-records").textContent).toContain("Sombrio");
-	expect(screen.getByText("v0.4.0")).toBeTruthy();
+	expect(screen.queryByTestId("menu-records")).toBeNull();
+	expect(screen.getByTestId("menu-play").className).toContain("btn-plate-primary");
+	expect(screen.getByTestId("menu-version").textContent).toBe("v0.4.0");
 	fireEvent.click(screen.getByTestId("menu-play"));
 	fireEvent.click(screen.getByRole("button", { name: "Ossuário" }));
 	fireEvent.click(screen.getByRole("button", { name: "Opções" }));

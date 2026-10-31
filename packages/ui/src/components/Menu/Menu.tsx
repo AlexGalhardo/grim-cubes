@@ -3,7 +3,6 @@ import { type JSX, useEffect, useRef } from "react";
 import { useShortScreen } from "../../hooks/useViewport";
 import { useDialogNav } from "../../nav/useDialogNav";
 import { Button } from "../Button/Button";
-import { Panel } from "../Panel/Panel";
 
 export interface MenuViewModel {
 	/** Best round per difficulty, in the order they unlock. 0 means none yet. */
@@ -38,6 +37,8 @@ export function Menu({ view, actions, version, demo }: MenuProps): JSX.Element {
 	const nav = useDialogNav<HTMLDivElement>();
 	// Short landscape phones: buttons only, under the logo, so the art's title stays readable.
 	const short = useShortScreen();
+	// Room for four buttons (Continue and New game join Play, Ossuary and Options) on a 360 px screen.
+	const buttonSize = short ? "md" : "lg";
 	return (
 		<div
 			ref={nav}
@@ -54,72 +55,59 @@ export function Menu({ view, actions, version, demo }: MenuProps): JSX.Element {
 			/>
 			<div
 				data-testid="menu-panel"
-				className={`relative w-full ${short ? "mt-auto max-w-52" : "my-auto max-w-60 mobile-l:ml-[3%] mobile-l:max-w-xs desktop-xl:max-w-sm"}`}
+				className={`relative flex w-full flex-col ${short ? "mt-auto max-w-52 gap-2 pb-5" : "gap-3 my-auto max-w-60 mobile-l:ml-[3%] mobile-l:max-w-xs desktop-xl:max-w-sm"}`}
 			>
-				<Panel title={demo ? t("demo.badge") : short ? undefined : t("menu.panel")} riveted>
-					<h1 id="menu-title" className="sr-only">
-						{t("menu.title")}
-					</h1>
-					<div className="flex flex-col gap-2">
-						{view.continue ? (
-							<button
-								ref={first}
-								type="button"
-								data-testid="menu-continue"
-								onClick={actions.resume}
-								className="flex min-h-12 flex-col items-center justify-center border-2 border-ember bg-iron px-4 font-display text-lg text-ember-light shadow-plate hover:text-bone focus-visible:outline-2 focus-visible:outline-ember focus-visible:outline-offset-2"
-							>
-								{t("menu.continue")}
-								<span className="font-body text-xs text-bone-dark">
-									{view.continue.runRound !== null
-										? t("menu.continueRun", {
-												slot: view.continue.slotName,
-												round: view.continue.runRound,
-											})
-										: view.continue.slotName}
-								</span>
-							</button>
-						) : null}
-						<button
-							ref={view.continue ? undefined : first}
-							type="button"
-							data-testid="menu-play"
-							onClick={actions.play}
-							className={`min-h-12 border-2 px-4 font-display text-lg shadow-plate hover:text-bone focus-visible:outline-2 focus-visible:outline-ember focus-visible:outline-offset-2 ${view.continue ? "border-iron-dark bg-iron text-bone" : "border-ember bg-iron text-ember-light"}`}
-						>
-							{t("menu.play")}
-						</button>
-						<Button size="lg" onClick={actions.ossuary}>
-							{t("menu.ossuary")}
-						</Button>
-						<Button size="lg" onClick={actions.options}>
-							{t("menu.options")}
-						</Button>
-					</div>
-					{short ? null : (
-						<div className="mt-4 font-body text-sm text-bone-dark" data-testid="menu-records">
-							<div className="font-display text-base text-bone">{t("menu.records")}</div>
-							<ul className="mt-1">
-								{view.records.map((record) => (
-									<li key={record.id} className="flex justify-between">
-										<span>{record.name}</span>
-										<span>
-											{record.round > 0
-												? t("menu.recordRound", { round: record.round })
-												: t("menu.noRecord")}
-										</span>
-									</li>
-								))}
-							</ul>
-						</div>
-					)}
-					{version ? (
-						<div className="mt-3 text-right text-xs opacity-70" data-testid="menu-version">
-							v{version}
-						</div>
-					) : null}
-				</Panel>
+				<h1 id="menu-title" className="sr-only">
+					{t("menu.title")}
+				</h1>
+				{demo ? (
+					<div className="text-center font-display text-sm text-ember-light">{t("demo.badge")}</div>
+				) : null}
+				{view.continue ? (
+					<Button
+						size={buttonSize}
+						variant="primary"
+						testId="menu-continue"
+						buttonRef={first}
+						onClick={actions.resume}
+					>
+						<span className="flex flex-col items-center leading-tight">
+							{t("menu.continue")}
+							<span className="font-body text-xs opacity-80">
+								{view.continue.runRound !== null
+									? t("menu.continueRun", {
+											slot: view.continue.slotName,
+											round: view.continue.runRound,
+										})
+									: view.continue.slotName}
+							</span>
+						</span>
+					</Button>
+				) : null}
+				<Button
+					size={buttonSize}
+					variant={view.continue ? "plate" : "primary"}
+					testId="menu-play"
+					{...(view.continue ? {} : { buttonRef: first })}
+					onClick={actions.play}
+				>
+					{t("menu.play")}
+				</Button>
+				<Button size={buttonSize} onClick={actions.ossuary}>
+					{t("menu.ossuary")}
+				</Button>
+				<Button size={buttonSize} onClick={actions.options}>
+					{t("menu.options")}
+				</Button>
 			</div>
+			{version ? (
+				<div
+					className="pointer-events-none fixed bottom-1 left-2 text-xs opacity-70"
+					data-testid="menu-version"
+				>
+					v{version}
+				</div>
+			) : null}
 		</div>
 	);
 }
