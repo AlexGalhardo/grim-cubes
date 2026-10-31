@@ -37,6 +37,7 @@ it("turns the hero to its target while walking away, then follows the movement o
 	};
 	run(60);
 	expect(yaw()).toBeCloseTo(Math.PI / 2, 1);
+	expect(characters.heroYaw).toBeCloseTo(yaw(), 5);
 	Health.hp[enemy] = 0;
 	run(60);
 	expect(yaw()).toBeCloseTo(-Math.PI / 2, 1);

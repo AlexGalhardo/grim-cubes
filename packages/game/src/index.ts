@@ -60,6 +60,7 @@ export {
 	HitFlash,
 	Invulnerable,
 	Knockback,
+	KnockbackResist,
 	MAX_ENTITIES,
 	PlayerFaction,
 	Position,

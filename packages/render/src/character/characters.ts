@@ -36,6 +36,8 @@ export interface Characters {
 	sync(world: GameWorld, alpha: number, dt: number, shopOpen: boolean): void;
 	onEvent(type: number, a: number, b: number, c: number, entity: number): void;
 	readonly executing: boolean;
+	/** The yaw the hero rig is drawn with, in radians (0 looks along +z). */
+	readonly heroYaw: number;
 	/**
 	 * Elite modifiers the current boss carries (A-03-03), by `aura` token: the boss rig takes their mixed colour. Call
 	 * every frame with the same array while nothing changes; it only re-tints when the auras change.
@@ -118,6 +120,9 @@ export function createCharacters(game: GameScene, options: CharactersOptions): C
 		},
 		revive(): void {
 			hero.clearFinal();
+		},
+		get heroYaw(): number {
+			return heroYaw;
 		},
 		get executing(): boolean {
 			return executionLeft > 0;
