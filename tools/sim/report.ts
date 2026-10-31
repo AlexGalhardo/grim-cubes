@@ -122,6 +122,13 @@ const within = (value: number | null, lo: number, hi: number): boolean =>
  */
 export const IQR_LIMIT = 25;
 
+/**
+ * Share of runs still alive at the horizon (GDD 25, decision of 2026-10-31). Survivors count as the horizon, so with
+ * about half of the runs alive the median jumps from ~24 to ~30 for small changes: keeping this under the limit keeps
+ * the p50 away from that cliff.
+ */
+export const ALIVE_LIMIT = 0.45;
+
 /** GDD 25 targets for Normal. A check is skipped when the runs were too short to judge it. */
 export function checkTargets(metrics: Metrics, roundsRequested: number): Check[] {
 	const checks: Check[] = [];
@@ -139,6 +146,14 @@ export function checkTargets(metrics: Metrics, roundsRequested: number): Check[]
 		value: metrics.deathRound.iqr,
 		ok: Number.isFinite(metrics.deathRound.iqr) && metrics.deathRound.iqr <= IQR_LIMIT,
 		skipped: !longEnough,
+	});
+	const alive = metrics.runs > 0 ? metrics.survivors / metrics.runs : null;
+	checks.push({
+		id: "alive-fraction-at-horizon",
+		target: `<= ${ALIVE_LIMIT}`,
+		value: alive,
+		ok: alive !== null && alive <= ALIVE_LIMIT,
+		skipped: !longEnough || alive === null,
 	});
 	for (const [id, entry] of Object.entries(metrics.bosses)) {
 		const [lo, hi] = id === "gravedigger" ? [45, 90] : [60, 120];

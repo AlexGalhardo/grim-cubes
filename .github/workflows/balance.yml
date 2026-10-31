@@ -1,8 +1,10 @@
 name: Balance
 
 # GDD 25: every change to data/*.json runs the simulator and publishes the report; a missed target (`--check`) fails
-# the job. 64 runs of 35 rounds (seeds 1..64, deterministic: the verdict only changes with code or data; ~35 s); survivors count as the horizon (censored) and the death-round
-# spread limit is the provisional IQR <= 25 of the greedy bot.
+# the job. Two seed sets of 64 runs x 35 rounds (seeds 1..64 and 1001..1064, deterministic: the verdict only changes
+# with code or data; ~3 min); survivors count as the horizon (censored), the death-round spread limit is the
+# provisional IQR <= 25 of the greedy bot and at most 45% of the runs may be alive at the horizon (decision of the
+# Orq, 2026-10-31: a second seed set exposes a p50 that sits on the censoring cliff).
 on:
   push:
     branches: [main, wip/orq-merge]
@@ -48,15 +50,21 @@ jobs:
           path: ~/.bun/install/cache
           key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
       - run: bun install --frozen-lockfile
-      - run: bun run sim --runs 64 --rounds 35 --check --out reports/sim-ci.json
-      - run: |
+      - run: bun run sim --runs 64 --rounds 35 --seed 1 --check --out reports/sim-ci.json
+      - if: always()
+        run: bun run sim --runs 64 --rounds 35 --seed 1001 --check --out reports/sim-ci-1001.json
+      - if: always()
+        run: |
           echo '### Balance report' >> "$GITHUB_STEP_SUMMARY"
-          echo '```json' >> "$GITHUB_STEP_SUMMARY"
-          bun -e 'const r = await Bun.file("reports/sim-ci.json").json(); console.log(JSON.stringify(r.checks ?? r.metrics, null, 2))' >> "$GITHUB_STEP_SUMMARY"
-          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          for f in sim-ci sim-ci-1001; do
+            echo "#### $f" >> "$GITHUB_STEP_SUMMARY"
+            echo '```json' >> "$GITHUB_STEP_SUMMARY"
+            bun -e "const r = await Bun.file('reports/$f.json').json(); console.log(JSON.stringify(r.checks ?? r.metrics, null, 2))" >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+          done
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: sim-report
-          path: reports/sim-ci.json
+          path: reports/sim-ci*.json
           if-no-files-found: error
