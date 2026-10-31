@@ -538,7 +538,7 @@ Decisão D12: ouro (run) e almas (persistente).
 Ganhas durante a run e creditadas ao morrer (ou ao abandonar a run, sem bônus de morte).
 
 ```text
-almas_run = 5 × rounds_completados
+almas_run = 5 × round_em_que_a_run_terminou
           + 25 × elites_mortas
           + (100 + 10 × N) por chefe morto no round N
           + bônus de dificuldade (Grim ×1,5; Nightmare ×2,0)
