@@ -9,6 +9,16 @@ export interface FacingInput {
 }
 
 const TWO_PI = Math.PI * 2;
+/** Beyond this angle (rad) between the facing and the velocity the hero is backing away (110 degrees). */
+export const BACKPEDAL_ANGLE = (110 * Math.PI) / 180;
+
+/** True when the hero travels more than `BACKPEDAL_ANGLE` away from where it looks. */
+export function isBackpedaling(yaw: number, vx: number, vz: number): boolean {
+	const speed = Math.hypot(vx, vz);
+	if (speed <= STILL) return false;
+	return (vx * Math.sin(yaw) + vz * Math.cos(yaw)) / speed < Math.cos(BACKPEDAL_ANGLE);
+}
+
 /** Below this speed (u/s) the hero counts as standing still and keeps its last yaw. */
 const STILL = 0.05;
 

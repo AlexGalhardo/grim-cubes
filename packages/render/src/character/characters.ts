@@ -15,7 +15,7 @@ import { mixAuras } from "../scene/aura";
 import { PALETTE } from "../scene/palette";
 import type { GameScene } from "../scene/scene";
 import type { Character } from "./character";
-import { desiredYaw, turnTowards } from "./facing";
+import { desiredYaw, isBackpedaling, turnTowards } from "./facing";
 
 export interface CharactersOptions {
 	hero: Character;
@@ -141,6 +141,10 @@ export function createCharacters(game: GameScene, options: CharactersOptions): C
 				} else if (want !== null) heroYaw = turnTowards(heroYaw, want, dt, HERO_TURN_SECONDS);
 				const px = PrevPosition.x[heroEntity] ?? 0;
 				const pz = PrevPosition.z[heroEntity] ?? 0;
+				hero.setSpeed(
+					Math.hypot(Velocity.x[heroEntity] ?? 0, Velocity.z[heroEntity] ?? 0),
+					isBackpedaling(heroYaw, Velocity.x[heroEntity] ?? 0, Velocity.z[heroEntity] ?? 0),
+				);
 				hero.setPose(
 					px + ((Position.x[heroEntity] ?? 0) - px) * alpha,
 					pz + ((Position.z[heroEntity] ?? 0) - pz) * alpha,

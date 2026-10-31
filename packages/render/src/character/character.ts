@@ -26,7 +26,7 @@ export interface Character {
 	readonly holder: TransformNode;
 	setPose(x: number, z: number, yaw: number): void;
 	/** Idle or locomotion by speed; the move clip runs at `|v| / refSpeed`. Ignored while a one-shot clip plays. */
-	setSpeed(speed: number): void;
+	setSpeed(speed: number, reverse?: boolean): void;
 	/** Plays a clip once over the current pose, then goes back to idle/locomotion. */
 	playOnce(clip: string): boolean;
 	/** Leaves a final clip (a revive): back to idle or locomotion. */
@@ -144,13 +144,15 @@ export async function loadCharacter(
 			holder.position.set(x, lift, z);
 			holder.rotation.y = yaw;
 		},
-		setSpeed(speed): void {
+		setSpeed(speed, reverse = false): void {
 			const moving = speed > STILL;
 			locomotion = moving ? options.move : options.idle;
 			if (!oneShot && !finalClip) start(locomotion, true);
 			// After `start`: it restarts the group at speed 1.
 			const move = groups.get(options.move);
-			if (move) move.speedRatio = moving ? speed / options.refSpeed : 1;
+			// A negative ratio plays the run clip backwards: the legs move the way the hero travels when it faces away.
+			if (move)
+				move.speedRatio = (moving ? speed / options.refSpeed : 1) * (reverse && moving ? -1 : 1);
 		},
 		playOnce(clip): boolean {
 			if (finalClip) return false;
