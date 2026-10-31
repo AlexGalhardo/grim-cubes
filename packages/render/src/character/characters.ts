@@ -15,7 +15,7 @@ import { mixAuras } from "../scene/aura";
 import { PALETTE } from "../scene/palette";
 import type { GameScene } from "../scene/scene";
 import type { Character } from "./character";
-import { desiredYaw, isBackpedaling, turnTowards } from "./facing";
+import { desiredYaw, type FacingInput, isBackpedaling, turnTowards } from "./facing";
 
 export interface CharactersOptions {
 	hero: Character;
@@ -76,6 +76,9 @@ export function createCharacters(game: GameScene, options: CharactersOptions): C
 	let merchantLeft = 0;
 	let heroEntity = -1;
 	let heroYaw = 0;
+	// Scratch objects reused every frame: nothing is allocated in `sync`.
+	const facing: FacingInput = { x: 0, z: 0, target: undefined, vx: 0, vz: 0 };
+	const aim = { x: 0, z: 0 };
 	let heroYawReady = false;
 	let bossEntity = -1;
 	/** The rig of the boss on screen; kept through its death so the execution plays on it. */
@@ -133,13 +136,14 @@ export function createCharacters(game: GameScene, options: CharactersOptions): C
 				pose(hero, heroEntity, alpha);
 				const target = options.heroTarget?.() ?? -1;
 				const aimed = target >= 0 && (Health.hp[target] ?? 0) > 0;
-				const want = desiredYaw({
-					x: Position.x[heroEntity] ?? 0,
-					z: Position.z[heroEntity] ?? 0,
-					target: aimed ? { x: Position.x[target] ?? 0, z: Position.z[target] ?? 0 } : undefined,
-					vx: Velocity.x[heroEntity] ?? 0,
-					vz: Velocity.z[heroEntity] ?? 0,
-				});
+				facing.x = Position.x[heroEntity] ?? 0;
+				facing.z = Position.z[heroEntity] ?? 0;
+				facing.vx = Velocity.x[heroEntity] ?? 0;
+				facing.vz = Velocity.z[heroEntity] ?? 0;
+				aim.x = Position.x[target] ?? 0;
+				aim.z = Position.z[target] ?? 0;
+				facing.target = aimed ? aim : undefined;
+				const want = desiredYaw(facing);
 				if (!heroYawReady) {
 					heroYaw = want ?? Facing.yaw[heroEntity] ?? 0;
 					heroYawReady = true;

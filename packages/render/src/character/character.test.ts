@@ -165,12 +165,14 @@ describe("character rig", () => {
 		expect(texture?.getSize().width).toBe(64);
 		expect(texture?.renderList?.length).toBeGreaterThan(0);
 		expect(game.scene.activeCamera).toBe(game.camera);
+		expect(game.scene.getLightByName("portrait")?.includedOnlyMeshes.length).toBeGreaterThan(0);
 		game.scene.render();
 		expect(size()).toEqual(before);
 		portrait.stop();
 		expect(portrait.running).toBe(false);
 		expect(game.scene.customRenderTargets.some((t) => t.name === "portrait")).toBe(false);
 		expect(game.scene.getCameraByName("portrait")).toBeNull();
+		expect(game.scene.getLightByName("portrait")).toBeNull();
 		expect(size()).toEqual(before);
 		dispose();
 	});

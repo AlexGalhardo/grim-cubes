@@ -1,6 +1,7 @@
 import { FreeCamera } from "@babylonjs/core/Cameras/freeCamera";
+import { DirectionalLight } from "@babylonjs/core/Lights/directionalLight";
 import { RenderTargetTexture } from "@babylonjs/core/Materials/Textures/renderTargetTexture";
-import { Color4 } from "@babylonjs/core/Maths/math.color";
+import { Color3, Color4 } from "@babylonjs/core/Maths/math.color";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { PALETTE } from "../scene/palette";
 import type { GameScene } from "../scene/scene";
@@ -21,6 +22,9 @@ const LOOK_HEIGHT = 1.4;
 const FIELD_OF_VIEW = 0.6;
 /** The texture renders and is copied once every this many frames. */
 const REFRESH_EVERY = 2;
+/** A light that only the rig sees, from the camera's side and a little above: the Merchant's palette is very dark. */
+const LIGHT_INTENSITY = 1.6;
+const LIGHT_DROP = 0.4;
 const BYTES_PER_PIXEL = 4;
 
 /**
@@ -32,6 +36,7 @@ const BYTES_PER_PIXEL = 4;
 export function createPortrait(game: GameScene, canvas: HTMLCanvasElement, rig: Character): Portrait {
 	const { scene } = game;
 	let camera: FreeCamera | undefined;
+	let light: DirectionalLight | undefined;
 	let target: RenderTargetTexture | undefined;
 	let observer: ReturnType<typeof scene.onBeforeRenderObservable.add> = null;
 	let copying = false;
@@ -47,6 +52,7 @@ export function createPortrait(game: GameScene, canvas: HTMLCanvasElement, rig: 
 			at.z + Math.cos(yaw) * CAMERA_DISTANCE,
 		);
 		camera.setTarget(new Vector3(at.x, at.y + LOOK_HEIGHT, at.z));
+		light?.direction.set(-Math.sin(yaw), -LIGHT_DROP, -Math.cos(yaw));
 	}
 
 	function copy(): void {
@@ -81,12 +87,18 @@ export function createPortrait(game: GameScene, canvas: HTMLCanvasElement, rig: 
 			if (target) return;
 			camera = new FreeCamera("portrait", Vector3.Zero(), scene, false);
 			camera.fov = FIELD_OF_VIEW;
+			const meshes = rig.holder.getChildMeshes().filter((mesh) => mesh.getTotalVertices() > 0);
+			light = new DirectionalLight("portrait", Vector3.Down(), scene);
+			light.intensity = LIGHT_INTENSITY;
+			light.diffuse = Color3.FromHexString(PALETTE.bone);
+			light.specular = Color3.Black();
+			light.includedOnlyMeshes = meshes;
 			follow();
 			const texture = new RenderTargetTexture("portrait", canvas.width, scene, {
 				generateDepthBuffer: true,
 			});
 			texture.activeCamera = camera;
-			texture.renderList = rig.holder.getChildMeshes().filter((mesh) => mesh.getTotalVertices() > 0);
+			texture.renderList = meshes;
 			texture.clearColor = Color4.FromHexString(`${PALETTE.night}FF`);
 			texture.refreshRate = REFRESH_EVERY;
 			texture.onAfterRenderObservable.add(copy);
@@ -104,6 +116,8 @@ export function createPortrait(game: GameScene, canvas: HTMLCanvasElement, rig: 
 			target = undefined;
 			camera?.dispose();
 			camera = undefined;
+			light?.dispose();
+			light = undefined;
 		},
 	};
 }
