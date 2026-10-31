@@ -5,9 +5,11 @@ import {
 	createMetaState,
 	createSettings,
 	MAX_SAVE_BYTES,
+	parseGlobal,
 	parseSave,
 	SAVE_SCHEMA_VERSION,
 	SaveError,
+	serializeGlobal,
 	serializeSave,
 	validateMeta,
 	validateProfile,
@@ -23,11 +25,11 @@ const meta = () => {
 	return m;
 };
 
-test("a save round-trips and uses schemaVersion 11", async () => {
+test("a save round-trips and uses schemaVersion 12", async () => {
 	const text = await serializeSave(meta(), "0.1.0", new Date("2026-10-31T12:00:00Z"));
 	const envelope = JSON.parse(text) as { schemaVersion: number; app: string; savedAt: string };
-	expect(envelope.schemaVersion).toBe(11);
-	expect(SAVE_SCHEMA_VERSION).toBe(11);
+	expect(envelope.schemaVersion).toBe(12);
+	expect(SAVE_SCHEMA_VERSION).toBe(12);
 	expect(envelope.app).toBe("grim-cubes");
 	expect(envelope.savedAt).toBe("2026-10-31T12:00:00.000Z");
 	expect(await parseSave(text)).toEqual(meta());
@@ -74,7 +76,7 @@ test("untrusted fields are validated", async () => {
 test("a save from another app or a newer schema is refused", async () => {
 	const base = JSON.parse(await serializeSave(meta(), "0.1.0")) as Record<string, unknown>;
 	await expect(parseSave(JSON.stringify({ ...base, app: "other" }))).rejects.toBeInstanceOf(SaveError);
-	await expect(parseSave(JSON.stringify({ ...base, schemaVersion: 12 }))).rejects.toThrow("newer version");
+	await expect(parseSave(JSON.stringify({ ...base, schemaVersion: 13 }))).rejects.toThrow("newer version");
 });
 
 test("size, list and key limits protect the parser", async () => {
@@ -243,6 +245,8 @@ test("saves from schemas 1 to 9 load with the defaults of every setting they lac
 		expect(loaded.settings.pad, `v${version}`).toEqual({ dash: 0, pause: 9, reroll: 2, speed: 8 });
 		expect(loaded.settings.subtitles, `v${version}`).toBe(true);
 		expect(loaded.settings.lastSlot, `v${version}`).toBe(0);
+		expect(loaded.settings.hpBarHero, `v${version}`).toBe(true);
+		expect(loaded.settings.hpBarEnemies, `v${version}`).toBe(true);
 		expect(loaded.run, `v${version}`).toBeNull();
 	}
 	expect((await parseSave(await legacySave(1))).settings).toEqual(createSettings());
@@ -410,4 +414,27 @@ test("settings.lastSlot accepts 0 to 3 and refuses anything else", () => {
 			SaveError,
 		);
 	}
+});
+
+test("a global file from schema 10 or 11 (no health bar toggles) still verifies and turns both bars on", async () => {
+	const { hpBarHero: _h, hpBarEnemies: _e, ...older } = createSettings();
+	const data = { settings: older };
+	for (const schemaVersion of [10, 11]) {
+		const text = JSON.stringify({
+			schemaVersion,
+			savedAt: "2026-10-31T10:00:00.000Z",
+			app: "grim-cubes",
+			appVersion: "0.1.0",
+			checksum: await checksumOf(data),
+			data,
+		});
+		const settings = await parseGlobal(text);
+		expect(settings.hpBarHero).toBe(true);
+		expect(settings.hpBarEnemies).toBe(true);
+	}
+	const off = { ...createSettings(), hpBarEnemies: false };
+	expect((await parseGlobal(await serializeGlobal(off, "0.1.0"))).hpBarEnemies).toBe(false);
+	await expect(
+		serializeGlobal({ ...createSettings(), hpBarHero: 1 as unknown as boolean }, "0.1.0"),
+	).rejects.toBeInstanceOf(SaveError);
 });

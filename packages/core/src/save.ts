@@ -1,4 +1,4 @@
-export const SAVE_SCHEMA_VERSION = 11;
+export const SAVE_SCHEMA_VERSION = 12;
 /** Complete profiles a player can keep side by side (GDD 21.4); slot numbers are 1 to `SLOT_COUNT`. */
 export const SLOT_COUNT = 3;
 export const SAVE_APP = "grim-cubes";
@@ -54,6 +54,10 @@ export interface Settings {
 	subtitles: boolean;
 	/** Slot (1 to `SLOT_COUNT`) the player used last, or 0 for none: "Continuar" opens it. */
 	lastSlot: number;
+	/** Health bar over the hero (on by default). */
+	hpBarHero: boolean;
+	/** Health bars over the enemies (on by default). */
+	hpBarEnemies: boolean;
 }
 
 export function createSettings(): Settings {
@@ -74,6 +78,8 @@ export function createSettings(): Settings {
 		pad: createPadMap(),
 		subtitles: true,
 		lastSlot: 0,
+		hpBarHero: true,
+		hpBarEnemies: true,
 	};
 }
 
@@ -296,6 +302,11 @@ export function validateSettings(raw: unknown): Settings {
 	const subtitles = raw.subtitles === undefined ? true : raw.subtitles;
 	if (typeof subtitles !== "boolean") throw new SaveError("settings.subtitles must be a boolean");
 	// Absent before schema 10: no slot used yet.
+	// Absent before schema 12: both health bars on.
+	const hpBarHero = raw.hpBarHero === undefined ? true : raw.hpBarHero;
+	const hpBarEnemies = raw.hpBarEnemies === undefined ? true : raw.hpBarEnemies;
+	if (typeof hpBarHero !== "boolean" || typeof hpBarEnemies !== "boolean")
+		throw new SaveError("settings.hpBarHero and settings.hpBarEnemies must be booleans");
 	const lastSlot = raw.lastSlot === undefined ? 0 : raw.lastSlot;
 	if (typeof lastSlot !== "number" || !Number.isInteger(lastSlot) || lastSlot < 0 || lastSlot > SLOT_COUNT)
 		throw new SaveError(`settings.lastSlot must be an integer between 0 and ${SLOT_COUNT}`);
@@ -320,6 +331,8 @@ export function validateSettings(raw: unknown): Settings {
 		pad,
 		subtitles,
 		lastSlot,
+		hpBarHero,
+		hpBarEnemies,
 	};
 }
 
@@ -637,6 +650,8 @@ export async function parseGlobal(text: string): Promise<Settings> {
 	if (envelope.schemaVersion < 10 || !isRecord(envelope.data))
 		throw new SaveError("not a global settings file");
 	const settings = validateSettings(envelope.data.settings);
-	await verified(envelope, { settings });
+	// Files before schema 12 did not have the health bar toggles in their checksum.
+	const { hpBarHero: _hero, hpBarEnemies: _enemies, ...older } = settings;
+	await verified(envelope, { settings: envelope.schemaVersion < 12 ? older : settings });
 	return settings;
 }

@@ -420,6 +420,13 @@ async function boot(): Promise<void> {
 			void changeSettings((st) => Object.assign(st.pad, createPadMap()));
 			sources.setPadBindings(padBindingsFor(meta.settings.pad));
 		},
+		setHpBars: (part: "hero" | "enemies", on: boolean): void => {
+			void changeSettings((st) => {
+				if (part === "hero") st.hpBarHero = on;
+				else st.hpBarEnemies = on;
+			});
+			applyHpBars();
+		},
 		setSubtitles: (on: boolean): void => {
 			void changeSettings((st) => (st.subtitles = on));
 			if (!on) captionText = null;
@@ -432,6 +439,9 @@ async function boot(): Promise<void> {
 			publishNow();
 		},
 	};
+	// The UI mounts before the rest of the boot declares the state its handlers use (`optionsOpen`, `loop`...): a click
+	// on the gear, the speed or the pause button before `booted` would read a variable still in its dead zone.
+	let booted = false;
 	// The Merchant rig loads after the UI mounts; the factory resolves it on use and draws nothing until it exists.
 	createRoot(uiRoot).render(
 		<App
@@ -446,6 +456,7 @@ async function boot(): Promise<void> {
 				touchDash = down;
 			}}
 			onOpenOptions={() => {
+				if (!booted) return;
 				optionsOpen = true;
 				loop.pause();
 				publishNow();
@@ -472,7 +483,9 @@ async function boot(): Promise<void> {
 					publishNow();
 				},
 			}}
-			onCycleSpeed={() => setSpeed(nextSpeed(loop.speed))}
+			onCycleSpeed={() => {
+				if (booted) setSpeed(nextSpeed(loop.speed));
+			}}
 			onMerchantTalk={() => {
 				session.merchant.talk();
 				publishNow();
@@ -481,7 +494,13 @@ async function boot(): Promise<void> {
 				difficultyOpen = true;
 				publishNow();
 			}}
-			onPause={platform.mobile ? openPause : undefined}
+			onPause={
+				platform.mobile
+					? () => {
+							if (booted) openPause();
+						}
+					: undefined
+			}
 			pauseActions={{
 				resume: closePause,
 				options: () => {
@@ -1215,6 +1234,7 @@ async function boot(): Promise<void> {
 			pad: meta.settings.pad,
 			padStyle,
 			subtitles: meta.settings.subtitles,
+			hpBars: { hero: meta.settings.hpBarHero, enemies: meta.settings.hpBarEnemies },
 			locale: meta.settings.locale,
 			locales: [
 				{ id: "pt-BR", name: "Português" },
@@ -1238,6 +1258,11 @@ async function boot(): Promise<void> {
 		)
 			.then(() => undefined)
 			.catch((error: unknown) => log.warn("settings change refused", error));
+	}
+
+	/** Tells the render which health bars to draw; the saved choice applies at boot too. */
+	function applyHpBars(): void {
+		// shortcut: the render has no health bar switch yet (S1 exposes `setHpBars`); wire it here when it lands.
 	}
 
 	function setSpeed(speed: number): void {
@@ -2162,6 +2187,7 @@ async function boot(): Promise<void> {
 	}
 	for (const type of ["keydown", "pointerdown"])
 		window.addEventListener(type, () => (lastDevice = "keyboard"), true);
+	booted = true;
 	let wasDashing = false;
 	let wasPause = false;
 	let wasSpeedButton = false;

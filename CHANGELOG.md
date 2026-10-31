@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **ui:** Options toggles for the hero and enemy health bars, on by default and saved with the global settings (save schema 12); the render switch is still to be wired
+- **fix:** Clicking Options, speed or pause before the game finished loading no longer throws `Cannot access 'optionsOpen' before initialization`
 - **game:** An Easy difficulty (enemy HP and damage x0.75, souls x0.75) with its own best round (save schema 11); Easy, Normal and Hard (`grim`) are open from the start and Nightmare unlocks at round 20 on Hard
 - **ui:** Main menu over the painted key art (`public/menu/menu-1.webp`), with the buttons on its dark left side
 - **ui:** ARPG shop from the PO mockup: hero panel (painted portrait, level, XP, HP, round, gold, souls), weapon, an inventory grid of owned items with counts, all stats in two columns with a before → after preview of the hovered offer, and the Merchant's portrait and a line above four offers in two columns
