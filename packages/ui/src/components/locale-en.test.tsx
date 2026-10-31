@@ -15,9 +15,9 @@ afterEach(() => {
 
 const NOTICES = {
 	newer: "newer version of the game",
-	recovered: "previous backup was restored",
-	corrupt: "Could not read the save or the backup",
-	unavailable: "Browser storage did not respond",
+	recovered: "the backup was restored",
+	corrupt: "Save and backup unreadable",
+	unavailable: "The browser blocked saving",
 } as const;
 
 test.each(Object.entries(NOTICES))("Notice %s renders in English", (notice, fragment) => {
