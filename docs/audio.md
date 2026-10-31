@@ -31,7 +31,7 @@ A duração é a medida com `ffprobe` nos arquivos gerados. Os prompts estão ex
 | --- | --- | --- | --- | --- | --- | --- |
 | `sfx_player_hit` | `assets/src/audio/sfx/sfx_player_hit.mp3` | sfx | 0.6 s | heavy iron armor taking a blunt hit, dull metal clang with a wet grunt of impact, heavy dry tone, close, no music, game sound effect | — | evento `PlayerHit` (herói levou dano); dispara o sidechain da música |
 | `sfx_player_death` | `assets/src/audio/sfx/sfx_player_death.mp3` | sfx | 1.5 s | armored executioner collapsing, rusted plate armor crashing to stone ground, low exhale, heavy dry tone, close, no music, game sound effect | — | estado `Dying` (hp do herói <= 0) |
-| `sfx_player_levelup` | `assets/src/audio/sfx/sfx_player_levelup.mp3` | sfx | 1.2 s | deep tolling iron bell with a short dark choir swell, cold metal, heavy tone, medium distance, no music melody, game sound effect | — | evento `LevelUp` |
+| `sfx_player_levelup` | `assets/src/audio/sfx/sfx_player_levelup.mp3` | sfx | 1.2 s | deep tolling iron bell with a long cold metallic resonance, ringing overtones, no voices, no choir, no singing, heavy dry tone, close, no music, game sound effect | — | evento `LevelUp` |
 | `sfx_pickup_fragment_01` | `assets/src/audio/sfx/sfx_pickup_fragment_01.mp3` | sfx | 0.5 s | small bone fragment snapping and clinking into a pouch, dry bone and tiny metal, dry tone, close, no music, game sound effect | — | coleta de `Fragment` pelo herói |
 | `sfx_sword_swing_01` | `assets/src/audio/sfx/sfx_sword_swing_01.mp3` | sfx | 0.5 s | rusted broadsword swinging through air, heavy iron blade whoosh, dry tone, close, no music, game sound effect | — | evento `Swung` (espada) |
 | `sfx_sword_hit_01` | `assets/src/audio/sfx/sfx_sword_hit_01.mp3` | sfx | 0.5 s | rusted sword slicing into a skeleton, crunch of bone and dull metal scrape, heavy dry tone, close, no music, game sound effect | — | `Damaged` por golpe de espada (variação 1) |
@@ -114,7 +114,7 @@ Os temas `mus_menu`, `mus_round` e `mus_boss` têm 60 s; biomas e chefes têm 15
 
 ## 4. Arquivo (versões anteriores)
 
-As nove músicas da primeira leva tinham coral (os prompts pediam "choir"), e o PO pediu só instrumental e ambiência. Elas foram arquivadas, sem apagar, em `assets/audio-archive/music/<id>_v1_vocal.mp3` com o `<id>_v1_vocal.meta.json` ao lado. A pasta fica fora de `assets/src/audio/`, que é a única que o `assets:build` copia para o jogo.
+As nove músicas da primeira leva (e o SFX de level-up) tinham coral (os prompts pediam "choir"), e o PO pediu só instrumental e ambiência. Elas foram arquivadas, sem apagar, em `assets/audio-archive/music/<id>_v1_vocal.mp3` com o `<id>_v1_vocal.meta.json` ao lado. A pasta fica fora de `assets/src/audio/`, que é a única que o `assets:build` copia para o jogo.
 
 | Arquivado | Motivo |
 | --- | --- |
@@ -123,6 +123,7 @@ As nove músicas da primeira leva tinham coral (os prompts pediam "choir"), e o 
 | `mus_boss_v1_vocal` | prompt pedia "massive wordless choir" |
 | `mus_biome_cemetery_v1_vocal`, `mus_biome_swamp_v1_vocal`, `mus_biome_forge_v1_vocal`, `mus_biome_nest_v1_vocal` | prompts pediam "ominous low choir" |
 | `mus_boss_alpha_hunter_v1_vocal`, `mus_boss_nest_queen_v1_vocal` | a Rainha pedia "shrieking choir swells"; o Caçador foi arquivado na dúvida |
+| `sfx_player_levelup_v1_choir` (em `assets/audio-archive/sfx/`) | prompt pedia "short dark choir swell"; o PO quer o jogo sem voz cantada, e a versão nova é só sino e ressonância |
 
 Para voltar a uma versão antiga, copie o par de arquivos de volta para `assets/src/audio/music/` com o id original e ajuste o `prompts.json` (o hash do `meta.json` decide se o `audio-generate` a considera atual).
 
