@@ -46,8 +46,11 @@ import {
 	createChunkRenderer,
 	createEngine,
 	createGameScene,
+	createHordeRenderer,
 	createRenderPort,
+	loadGameAssets,
 	PLACEHOLDER_PROPS,
+	type PropTypeDef,
 } from "@gc/render";
 import { App, type CardView, type HudState } from "@gc/ui";
 import { createRoot } from "react-dom/client";
@@ -205,10 +208,39 @@ async function boot(): Promise<void> {
 
 	const render = await createEngine(canvas);
 	const game = createGameScene(render.engine, platform.mobile);
-	const port = createRenderPort(game);
-	const propTypes = chunkGen.propTypes.map(
-		(name) => PLACEHOLDER_PROPS.find((p) => name.startsWith(p.name)) ?? PLACEHOLDER_PROPS[0],
-	);
+	// Models, VATs and atlases come from `assets:build`. Without them (dev server before the first build) the game
+	// keeps the placeholder boxes and the horde simply does not render.
+	const assets = await loadGameAssets(game.scene, {
+		baseUrl: "/assets/",
+		enemyIds,
+		propIds: chunkGen.propTypes,
+	}).catch((error: unknown) => {
+		log.warn("assets unavailable, using placeholders", error);
+		return null;
+	});
+	const horde =
+		assets && assets.enemies.length > 0
+			? createHordeRenderer(
+					assets.enemies.map((enemy, index) => ({
+						mesh: enemy.mesh,
+						vat: enemy.vat,
+						walkRefSpeed: enemiesData[index]?.walkRefSpeed ?? 1,
+					})),
+					{
+						capacity: roundsData.spawn.maxSimultaneous + worldData.hordeRenderSlack,
+						ghostCapacity: worldData.hordeRenderSlack,
+						deltaSeconds: () => render.engine.getDeltaTime() / 1000,
+					},
+				)
+			: undefined;
+	const port = createRenderPort(game, horde);
+	const propTypes: PropTypeDef[] = [];
+	for (const name of chunkGen.propTypes) {
+		const placeholder = PLACEHOLDER_PROPS.find((p) => name.startsWith(p.name)) ?? PLACEHOLDER_PROPS[0];
+		if (!placeholder) continue;
+		const mesh = assets?.props.get(name);
+		propTypes.push({ ...placeholder, name, ...(mesh ? { mesh } : {}) });
+	}
 	const chunkRenderer = createChunkRenderer(
 		game,
 		chunks,
@@ -217,7 +249,7 @@ async function boot(): Promise<void> {
 			maxPropsPerChunk: worldData.maxPropsPerChunk,
 			loadRadius: worldData.loadRadius,
 		},
-		propTypes.filter((p) => p !== undefined),
+		propTypes,
 	);
 
 	const fighting = (): boolean => run.state === "Round" || run.state === "BossRound";

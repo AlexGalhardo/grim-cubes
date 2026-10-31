@@ -46,6 +46,9 @@ export interface EnemyData {
 	damageBase: number;
 	damagePerRound: number;
 	speed: number;
+	sizeClass: string;
+	/** Speed (u/s) at which the walk clip was authored. */
+	walkRefSpeed: number;
 	behavior: string;
 	behaviorParams: Record<string, number | string>;
 	fragments: number;

@@ -1,6 +1,7 @@
 import { Constants } from "@babylonjs/core/Engines/constants";
 import { RawTexture } from "@babylonjs/core/Materials/Textures/rawTexture";
 import { Color3 } from "@babylonjs/core/Maths/math.color";
+import type { Mesh } from "@babylonjs/core/Meshes/mesh";
 import type { Scene } from "@babylonjs/core/scene";
 import { PALETTE } from "../scene/palette";
 
@@ -10,6 +11,11 @@ export const TERRAIN_TILE = 32;
 
 export interface PropTypeDef {
 	name: string;
+	/**
+	 * A glTF-loaded base mesh (parented to the loader's `__root__`). When set it replaces the placeholder box, and
+	 * instance x is conjugated for the root mirror (coords.ts).
+	 */
+	mesh?: Mesh;
 	/** Box size in world units. */
 	size: readonly [number, number, number];
 	/** PALETTE token name. */

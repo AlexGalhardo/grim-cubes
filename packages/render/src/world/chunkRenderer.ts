@@ -103,19 +103,20 @@ export function createChunkRenderer(
 	const propMeshes: Mesh[] = [];
 	const propBuffers: Float32Array[] = [];
 	const propCounts = new Int32Array(propTypes.length);
+	const mirrored = new Uint8Array(propTypes.length);
 	propTypes.forEach((def, t) => {
-		const mesh = CreateBox(
-			def.name,
-			{ width: def.size[0], height: def.size[1], depth: def.size[2] },
-			scene,
-		);
-		mesh.material = flatMaterial(scene, def.name, PALETTE[def.color]);
+		// A loader-parented mesh sits at the model origin (feet on the ground); a placeholder box is centred.
+		const mesh =
+			def.mesh ??
+			CreateBox(def.name, { width: def.size[0], height: def.size[1], depth: def.size[2] }, scene);
+		if (!def.mesh) mesh.material = flatMaterial(scene, def.name, PALETTE[def.color]);
+		mirrored[t] = config.loaderMirrored || def.mesh ? 1 : 0;
 		mesh.alwaysSelectAsActiveMesh = true;
 		const buffer = new Float32Array(capacity * 16);
 		for (let i = 0; i < capacity; i++) {
 			const o = i * 16;
 			buffer[o] = buffer[o + 5] = buffer[o + 10] = buffer[o + 15] = 1;
-			buffer[o + 13] = def.size[1] / 2;
+			buffer[o + 13] = def.mesh ? 0 : def.size[1] / 2;
 		}
 		mesh.thinInstanceSetBuffer("matrix", buffer, 16, false);
 		mesh.thinInstanceCount = 0;
@@ -203,7 +204,7 @@ export function createChunkRenderer(
 				const n = propCounts[t] ?? 0;
 				propCounts[t] = n + 1;
 				const x = baseX + (chunk.propX[p] ?? 0);
-				buffer[n * 16 + 12] = config.loaderMirrored ? toLoaderLocalX(x) : x;
+				buffer[n * 16 + 12] = mirrored[t] ? toLoaderLocalX(x) : x;
 				buffer[n * 16 + 14] = baseZ + (chunk.propZ[p] ?? 0);
 			}
 		}

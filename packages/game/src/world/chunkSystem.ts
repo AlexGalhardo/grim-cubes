@@ -6,6 +6,8 @@ export interface WorldConfig {
 	poolSize: number;
 	/** Hero distance from the render origin (per axis) that triggers an origin shift. */
 	originShiftThreshold: number;
+	/** Extra render capacity per enemy type on top of the spawn cap; also the death-ghost capacity. */
+	hordeRenderSlack: number;
 	/** Capacity of each ChunkData prop list; the generator must never exceed it. */
 	maxPropsPerChunk: number;
 }

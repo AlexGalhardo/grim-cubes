@@ -1,3 +1,11 @@
+export type {
+	AssetEntry,
+	AssetManifest,
+	GameAssets,
+	GameAssetsOptions,
+	LoadedEnemy,
+} from "./assets/gameAssets";
+export { importModelMesh, loadGameAssets, loadManifest } from "./assets/gameAssets";
 export type { RenderEngine } from "./engine";
 export { createEngine, createNullEngine, EngineUnavailableError } from "./engine";
 export type { HordeOptions, HordeRenderer, HordeType } from "./horde/hordeRenderer";
