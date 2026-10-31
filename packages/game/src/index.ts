@@ -85,7 +85,7 @@ export {
 	knockbackScale,
 } from "./rules/damage";
 export type { StatLine } from "./rules/describe";
-export { describeModifier, describeStats } from "./rules/describe";
+export { describeEffect, describeModifier, describeStats } from "./rules/describe";
 export type { AuraEffect, EffectSource, EffectsExtra, ItemEffects } from "./rules/effects";
 export { computeEffects, createItemEffects } from "./rules/effects";
 export type { EliteRoller, EliteStats } from "./rules/elite";
@@ -93,7 +93,15 @@ export { createEliteRoller, eliteStats } from "./rules/elite";
 export type { FragmentsConfig, XpConfig } from "./rules/fragments";
 export { dropChance, harvestCount, xpForLevel } from "./rules/fragments";
 export type { BuyResult, NodeState, OssuaryBonus } from "./rules/ossuary";
-export { applyOssuary, buyNode, findNode, nodeState, resetOssuary, totalCost } from "./rules/ossuary";
+export {
+	applyOssuary,
+	buyNode,
+	findNode,
+	nodeState,
+	refundValue,
+	resetOssuary,
+	totalCost,
+} from "./rules/ossuary";
 export type { RunStats } from "./rules/runstats";
 export { createRunStats } from "./rules/runstats";
 export type {

@@ -4,6 +4,7 @@ import { Bar } from "./components/Bar/Bar";
 import { BossBar, BossIntro, type BossViewModel } from "./components/BossBar/BossBar";
 import { type CardView, LevelUp } from "./components/LevelUp/LevelUp";
 import { Notice } from "./components/Notice/Notice";
+import { Ossuary, type OssuaryActions, type OssuaryViewModel } from "./components/Ossuary/Ossuary";
 import { Results, type ResultsViewModel } from "./components/Results/Results";
 import { Shop, type ShopActions, type ShopViewModel, type StatLineView } from "./components/Shop/Shop";
 import { VirtualJoystick } from "./components/VirtualJoystick/VirtualJoystick";
@@ -31,6 +32,8 @@ export interface HudState {
 	notice: SaveNotice | null;
 	/** The boss HP bar while a boss fight runs; null otherwise. */
 	boss: BossViewModel | null;
+	/** The permanent tree; null while closed. */
+	ossuary: OssuaryViewModel | null;
 	/** Boss name during the 3 s intro; null otherwise. */
 	bossIntro: string | null;
 }
@@ -43,6 +46,7 @@ export interface AppProps {
 	onChooseChest?: ((index: number) => void) | undefined;
 	shopActions?: ShopActions | undefined;
 	onRestart?: (() => void) | undefined;
+	ossuaryActions?: (OssuaryActions & { open(): void }) | undefined;
 }
 
 export function App({
@@ -52,6 +56,7 @@ export function App({
 	onChooseChest,
 	shopActions,
 	onRestart,
+	ossuaryActions,
 }: AppProps): JSX.Element {
 	const hud = useSyncExternalStore(store.subscribe, store.get);
 	return (
@@ -72,7 +77,10 @@ export function App({
 			{hud.shop && shopActions ? (
 				<Shop view={hud.shop} stats={hud.stats} actions={shopActions} />
 			) : null}
-			{hud.results && onRestart ? <Results view={hud.results} onRestart={onRestart} /> : null}
+			{hud.results && onRestart ? (
+				<Results view={hud.results} onRestart={onRestart} onOssuary={ossuaryActions?.open} />
+			) : null}
+			{hud.ossuary && ossuaryActions ? <Ossuary view={hud.ossuary} actions={ossuaryActions} /> : null}
 			{hud.boss ? <BossBar boss={hud.boss} /> : null}
 			{hud.bossIntro ? <BossIntro name={hud.bossIntro} /> : null}
 			{hud.notice ? <Notice notice={hud.notice} /> : null}

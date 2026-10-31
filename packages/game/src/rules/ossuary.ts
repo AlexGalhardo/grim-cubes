@@ -148,3 +148,12 @@ export function applyOssuary(data: OssuaryData, meta: MetaState): OssuaryBonus {
 	}
 	return bonus;
 }
+
+/** What `resetOssuary` would give back right now. */
+export function refundValue(data: OssuaryData, meta: MetaState): number {
+	let total = 0;
+	for (const branch of data.branches) {
+		for (const node of branch.nodes) if (owns(meta, node.id)) total += node.cost;
+	}
+	return total;
+}

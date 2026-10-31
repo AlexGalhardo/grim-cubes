@@ -10,16 +10,19 @@ import {
 	persistRun,
 	type RunResult,
 	type SaveIO,
+	updateMeta,
 } from "@gc/core";
 import {
 	addFragmentValue,
 	applyHarvest,
 	applyOriginShift,
+	applyOssuary,
 	applyRoundEndBonus,
 	Boss,
 	behaviorConfigFromData,
 	biomesData,
 	bossesData,
+	buyNode,
 	cardsData,
 	createAuraSystem,
 	createBehaviorSystem,
@@ -53,6 +56,7 @@ import {
 	createTargetingSystem,
 	createWeaponSystem,
 	damageConfigFromHero,
+	describeEffect,
 	describeModifier,
 	describeStats,
 	dropFragment,
@@ -64,11 +68,15 @@ import {
 	inputSystem,
 	itemsData,
 	movementSystem,
+	nodeState,
+	ossuaryData,
 	Position,
 	PrevPosition,
 	propsData,
 	queryEnemies,
+	refundValue,
 	renderData,
+	resetOssuary,
 	roundsData,
 	soulsForRun,
 	spawnHero,
@@ -160,17 +168,29 @@ async function boot(): Promise<void> {
 	if (loaded.notice) log.warn("save problem", loaded.notice);
 	const { fragments, xp } = roundsData;
 
+	// Permanent Ossuary nodes shape the run before it starts (GDD 19).
+	const ossuaryBonus = applyOssuary(ossuaryData, meta);
+	const runHeroData = {
+		...heroData,
+		base: { ...heroData.base, critMult: ossuaryBonus.critMult ?? heroData.base.critMult },
+	};
+	progress.gold += ossuaryBonus.startGold;
+
 	const hero = spawnHero(world, {
 		speed: heroData.base.speed,
 		maxHp: heroData.base.maxHp,
 		radius: heroData.base.radius,
 	});
-	const stats = createStatsSystem(heroData, createPlayerStats());
-	stats.stats.dirty = true;
+	const stats = createStatsSystem(runHeroData, createPlayerStats());
+	stats.add(ossuaryBonus.modifiers);
 	stats.run(hero);
 
 	const owned = new Map<string, number>();
-	const itemEffects = createEffectsSystem(itemsData, owned);
+	const itemEffects = createEffectsSystem(itemsData, owned, {
+		fragmentGain: ossuaryBonus.fragmentGain,
+		soulGain: ossuaryBonus.soulGain,
+		weakReviveHpFraction: ossuaryBonus.weakReviveHpFraction,
+	});
 
 	const startingWeapon = weaponsData.find((w) => w.id === heroData.startingWeapon);
 	if (!startingWeapon) throw new Error(`Unknown starting weapon ${heroData.startingWeapon}`);
@@ -381,6 +401,7 @@ async function boot(): Promise<void> {
 		notice: loaded.notice,
 		boss: null,
 		bossIntro: null,
+		ossuary: null,
 	});
 	createRoot(uiRoot).render(
 		<App
@@ -389,6 +410,18 @@ async function boot(): Promise<void> {
 			onChooseCard={(index) => levelUp.choose(index)}
 			onChooseChest={(index) => chest.choose(index)}
 			onRestart={() => location.reload()}
+			ossuaryActions={{
+				open: () => {
+					ossuaryOpen = true;
+					publishNow();
+				},
+				close: () => {
+					ossuaryOpen = false;
+					publishNow();
+				},
+				buy: (id) => changeOssuary((m) => buyAndThrow(m, id)),
+				reset: () => changeOssuary((m) => void resetOssuary(ossuaryData, m)),
+			}}
 			shopActions={{
 				buy: (index) => {
 					shop.buy(index);
@@ -567,6 +600,45 @@ async function boot(): Promise<void> {
 		publishNow();
 	}
 
+	let ossuaryOpen = false;
+
+	function buyAndThrow(m: MetaState, id: string): void {
+		const result = buyNode(ossuaryData, m, id, __IS_DEMO__);
+		if (!result.ok) throw new Error(`ossuary: ${result.reason}`);
+	}
+
+	/** Applies a tree change to the stored save under the lock, then mirrors it in memory. */
+	function changeOssuary(mutate: (m: MetaState) => void): void {
+		if (loaded.readOnly) return;
+		updateMeta(saveIO, mutate, __APP_VERSION__)
+			.then((merged) => {
+				Object.assign(meta, merged);
+				publishNow();
+			})
+			.catch((error: unknown) => log.warn("ossuary change refused", error));
+	}
+
+	function ossuaryView(): NonNullable<HudState["ossuary"]> {
+		return {
+			souls: meta.souls,
+			refund: refundValue(ossuaryData, meta),
+			branches: ossuaryData.branches.map((branch) => ({
+				id: branch.id,
+				name: branch.name,
+				nodes: branch.nodes.map((node) => ({
+					id: node.id,
+					lines: [
+						...node.modifiers.map(describeModifier),
+						...node.effects.map((e) => describeEffect(e.id, e.params)),
+					],
+					cost: node.cost,
+					state: nodeState(ossuaryData, meta, node, __IS_DEMO__),
+					affordable: meta.souls >= node.cost,
+				})),
+			})),
+		};
+	}
+
 	function publishNow(): void {
 		const offer = levelUp.offer;
 		if (offer !== lastOfferSource) {
@@ -623,6 +695,7 @@ async function boot(): Promise<void> {
 			results,
 			notice: loaded.notice,
 			boss: bossView,
+			ossuary: ossuaryOpen ? ossuaryView() : null,
 			bossIntro: run.state === "BossIntro" ? bossName : null,
 		};
 		const cur = hud.get();
@@ -636,6 +709,8 @@ async function boot(): Promise<void> {
 			cur.cards !== next.cards ||
 			cur.chest !== next.chest ||
 			cur.boss !== next.boss ||
+			cur.ossuary !== null ||
+			next.ossuary !== null ||
 			cur.bossIntro !== next.bossIntro ||
 			cur.shop !== next.shop ||
 			cur.results !== next.results
@@ -852,6 +927,16 @@ async function boot(): Promise<void> {
 			/** Stops the simulation and the horde clock so the frame can be captured. */
 			freeze: () => run.pause(),
 			saveNotice: () => loaded.notice,
+			heroMaxHp: () => Health.max[hero] ?? 0,
+			openOssuary: () => {
+				ossuaryOpen = true;
+				publishNow();
+			},
+			grantSouls: (amount: number) => {
+				changeOssuary((m) => {
+					m.souls += amount;
+				});
+			},
 		};
 	}
 

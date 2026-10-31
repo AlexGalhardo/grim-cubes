@@ -22,6 +22,8 @@ export interface ResultsViewModel {
 export interface ResultsProps {
 	view: ResultsViewModel;
 	onRestart: () => void;
+	/** Opens the Ossuary so the souls just earned can be spent before the next run. */
+	onOssuary?: (() => void) | undefined;
 }
 
 const COUNT_STEPS = 20;
@@ -42,7 +44,7 @@ function useCountUp(target: number): number {
 	return shown;
 }
 
-export function Results({ view, onRestart }: ResultsProps): JSX.Element {
+export function Results({ view, onRestart, onOssuary }: ResultsProps): JSX.Element {
 	const souls = useCountUp(view.souls);
 	useEffect(() => {
 		const onKey = (e: KeyboardEvent): void => {
@@ -98,7 +100,8 @@ export function Results({ view, onRestart }: ResultsProps): JSX.Element {
 						Almas: <span data-testid="results-souls">{souls}</span>
 						<span className="text-bone-dark"> (total {view.totalSouls})</span>
 					</p>
-					<div className="flex justify-end">
+					<div className="flex flex-wrap justify-end gap-3">
+						{onOssuary ? <Button onClick={onOssuary}>Ossuário</Button> : null}
 						<Button size="lg" onClick={onRestart}>
 							Jogar de novo
 						</Button>

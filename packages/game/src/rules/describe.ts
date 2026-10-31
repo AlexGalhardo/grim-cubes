@@ -17,6 +17,7 @@ const LABELS: Readonly<Record<string, { label: string; percent: boolean }>> = {
 	speed: { label: "velocidade", percent: true },
 	luck: { label: "sorte", percent: false },
 	harvest: { label: "colheita", percent: false },
+	free_rerolls: { label: "rerolls grátis", percent: false },
 	pickup_range: { label: "raio de pickup", percent: true },
 	xp_gain: { label: "XP", percent: true },
 	shop_price: { label: "preços na loja", percent: true },
@@ -56,4 +57,25 @@ export function describeStats(stats: PlayerStats): StatLine[] {
 		{ label: "Sorte", value: trim(stats.luck) },
 		{ label: "Colheita", value: trim(stats.harvest) },
 	];
+}
+
+const pct = (n: number): string => `${trim(n * 100)}%`;
+
+/** pt-BR descriptions of the special effects on Ossuary nodes, until the i18n pipeline exists. */
+const EFFECT_TEXT: Readonly<Record<string, (p: Record<string, number | string | boolean>) => string>> = {
+	weak_phylactery: (p) => `Filactério fraco: revive 1× com ${pct(Number(p.hpFraction ?? 0))} de HP`,
+	crit_mult_set: (p) => `Multiplicador crítico ×${trim(Number(p.value ?? 0))}`,
+	dash_unlock: () => "Desbloqueia o dash",
+	dash_cooldown_reduction: (p) => `Dash: recarga −${trim(Number(p.seconds ?? 0))} s`,
+	dash_charges: (p) => `${trim(Number(p.value ?? 0))} cargas de dash`,
+	fragment_gain: (p) => `+${pct(Number(p.fraction ?? 0))} fragmentos`,
+	start_gold: (p) => `Começa a run com ${trim(Number(p.value ?? 0))} de ouro`,
+	soul_gain: (p) => `+${pct(Number(p.fraction ?? 0))} almas`,
+	guaranteed_uncommon_shop_item: () => "A loja começa com 1 item Incomum garantido",
+	card_rerolls: (p) => `${trim(Number(p.count ?? 0))} reroll de cartas por run`,
+	extra_legendary_pool: (p) => `Pool Lendário +${trim(Number(p.count ?? 0))} itens exclusivos`,
+};
+
+export function describeEffect(id: string, params: Record<string, number | string | boolean> = {}): string {
+	return EFFECT_TEXT[id]?.(params) ?? id;
 }

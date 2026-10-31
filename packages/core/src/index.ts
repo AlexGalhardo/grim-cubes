@@ -27,6 +27,7 @@ export {
 	SAVE_CORRUPT_KEY,
 	SAVE_CORRUPT_PREVIOUS_KEY,
 	SAVE_KEY,
+	updateMeta,
 } from "./saveStore";
 export type { SpatialHash, SpatialHashOptions } from "./spatial";
 export { createSpatialHash } from "./spatial";
