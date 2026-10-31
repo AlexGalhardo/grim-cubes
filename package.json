@@ -7,7 +7,7 @@
 	"packageManager": "bun@1.4.4",
 	"engines": {
 		"bun": ">=1.4.4",
-		"node": ">=22"
+		"node": ">=22.12"
 	},
 	"workspaces": [
 		"apps/*",
@@ -18,7 +18,7 @@
 		"build": "bun run data:check && bun run assets:build && vite build --mode web-demo",
 		"build:electron": "bun tools/build-electron/index.ts",
 		"build:android": "bun tools/build-android/index.ts",
-		"typecheck": "tsc -b",
+		"typecheck": "bun check -b",
 		"lint": "biome ci .",
 		"lint:md": "markdownlint-cli2 \"**/*.md\"",
 		"test": "vitest run",
