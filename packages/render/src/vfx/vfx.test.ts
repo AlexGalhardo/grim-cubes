@@ -12,13 +12,10 @@ import {
 	Egg,
 	Elite,
 	EventType,
-	heroData,
 	Position,
 	Radius,
 	renderData,
-	STEP,
 	spawnBody,
-	ThornsCooldown,
 } from "@gc/game";
 import { addComponent, removeEntity } from "bitecs";
 import { describe, expect, it } from "vitest";
@@ -700,16 +697,11 @@ describe("bleed and thorns looks", () => {
 		dispose();
 	});
 
-	it("throws spikes on the step a spiked boot hurt an enemy, not while it cools down", () => {
+	it("throws spikes from the hero towards the enemy a ThornsHit names", () => {
 		const { vfx, world, dispose } = setup();
-		const e = spawnBody(world, 1, 0);
-		addComponent(world, e, ThornsCooldown);
-		ThornsCooldown.ticks[e] = 10;
-		vfx.syncStatus(world, 1 / 60);
-		expect(vfx.particles.stats.peak).toBe(0);
-		ThornsCooldown.ticks[e] = Math.round(heroData.combat.contactCooldownSeconds / STEP);
-		vfx.syncStatus(world, 1 / 60);
-		expect(vfx.particles.stats.peak).toBe(5);
+		const e = spawnBody(world, 3, 0);
+		vfx.onEvent(EventType.ThornsHit, 3, 0, 3, e);
+		expect(vfx.particles.stats.peak).toBe(6);
 		dispose();
 	});
 });

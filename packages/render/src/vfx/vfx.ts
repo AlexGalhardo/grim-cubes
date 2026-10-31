@@ -13,11 +13,8 @@ import {
 	MAX_ENTITIES,
 	Position,
 	queryBleeding,
-	queryThorned,
 	renderData,
 	roundsData,
-	STEP,
-	ThornsCooldown,
 } from "@gc/game";
 import { CAMERA } from "../scene/camera";
 import { PALETTE } from "../scene/palette";
@@ -50,7 +47,7 @@ const EXECUTION_CUBES = 12;
 /** Blood drips per second per bleeding enemy, and the cap on drips emitted in one frame. */
 const BLEED_DRIPS_PER_SECOND = 6;
 const BLEED_DRIPS_PER_FRAME = 16;
-const THORN_SPIKES = 5;
+const THORN_SPIKES = 6;
 const PROPS_PER_BIOME = 10;
 /** A blood drip that lands leaves a decal this big (u). */
 const MICRO_DECAL_SIZE = 0.25;
@@ -87,8 +84,7 @@ export interface Vfx {
 	/** Size multiplier of the damage numbers (0.7 on the small landscape screens). */
 	setNumberScale(scale: number): void;
 	/**
-	 * Status looks read from the world: blood drips from bleeding enemies (`Bleed`) and iron spikes fly where a
-	 * spiked boot hurt an enemy (`ThornsCooldown` just set). Call once per rendered frame with the frame time.
+	 * Status looks read from the world: blood drips from bleeding enemies (`Bleed`). Call once per rendered frame with the frame time.
 	 */
 	syncStatus(world: GameWorld, dtSeconds: number): void;
 	readonly gore: boolean;
@@ -274,22 +270,6 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 				);
 				drips++;
 			}
-			const justHit = Math.max(1, Math.round(heroData.combat.contactCooldownSeconds / STEP)) - 1;
-			const thorned = queryThorned(world);
-			for (let i = 0; i < thorned.length; i++) {
-				const e = thorned[i] ?? 0;
-				if ((ThornsCooldown.ticks[e] ?? 0) < justHit) continue;
-				const hero = game.hero.position;
-				burst(
-					((Position.x[e] ?? 0) + hero.x) / 2,
-					((Position.z[e] ?? 0) + hero.z) / 2,
-					THORN_SPIKES,
-					spikeColors,
-					4,
-					4,
-					false,
-				);
-			}
 		},
 		setNumberScale(scale): void {
 			numbers.setScale(scale);
@@ -407,6 +387,31 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 			} else if (type === EventType.BossScream) {
 				zones.ring(a, b, c, SCREAM_SECONDS);
 				shake(config.shakeExplosion);
+			} else if (type === EventType.ThornsHit) {
+				// The spikes leave the hero's feet towards the enemy: direction = enemy - hero.
+				const hero = game.hero.position;
+				const dx = a - hero.x;
+				const dz = b - hero.z;
+				const base = Math.atan2(dz, dx);
+				const speed = Math.min(14, Math.max(4, c * 4));
+				for (let i = 0; i < THORN_SPIKES; i++) {
+					const angle = base + (rng.next() - 0.5) * 0.5;
+					const color = spikeColors[rng.int(spikeColors.length)] ?? spikeColors[0] ?? emberLight;
+					particles.add(
+						hero.x,
+						0.15 + rng.next() * 0.2,
+						hero.z,
+						Math.cos(angle) * speed,
+						1 + rng.next() * 1.5,
+						Math.sin(angle) * speed,
+						0.12 + rng.next() * 0.08,
+						color[0],
+						color[1],
+						color[2],
+						config.particleLifeSeconds * 0.5,
+						false,
+					);
+				}
 			} else if (type === EventType.BossBomb) {
 				const bomb = bossesData
 					.flatMap((boss) => boss.patterns)

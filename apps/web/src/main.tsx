@@ -68,7 +68,6 @@ import {
 	Speed,
 	STEP,
 	soulsForRun,
-	ThornsCooldown,
 	unlockedSkins,
 	weaponsData,
 	worldData,
@@ -1303,7 +1302,7 @@ async function boot(): Promise<void> {
 			/** Game speed 1, 2 or 3 (perf margin check). */
 			setSpeed: (speed: number) => loop.setSpeed(speed),
 			/**
-			 * Effect captures. "bleed": three bleeding enemies; "thorns": three enemies hit by spiked boots every 200 ms;
+			 * Effect captures. "bleed": three bleeding enemies; "thorns": a ThornsHit on each of three enemies every 200 ms;
 			 * "boss:<index>": a motionless boss of that bosses.json index that is executed after 0.6 s.
 			 */
 			fx: (kind: string) => {
@@ -1330,8 +1329,16 @@ async function boot(): Promise<void> {
 					} else {
 						const timer = setInterval(() => {
 							for (const e of list) {
-								addComponent(world, e, ThornsCooldown);
-								ThornsCooldown.ticks[e] = 30;
+								events.push(
+									EventType.ThornsHit,
+									Position.x[e] ?? 0,
+									Position.z[e] ?? 0,
+									Math.hypot(
+										(Position.x[e] ?? 0) - (Position.x[hero] ?? 0),
+										(Position.z[e] ?? 0) - (Position.z[hero] ?? 0),
+									),
+									e,
+								);
 							}
 						}, 200);
 						setTimeout(() => clearInterval(timer), 3000);
