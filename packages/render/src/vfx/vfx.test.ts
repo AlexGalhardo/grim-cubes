@@ -376,20 +376,24 @@ describe("hit allocation", () => {
 });
 
 describe("boss and enemy telegraphs", () => {
-	it("draws the charge as a line from afar and the shovel as an arc next to the hero, then clears them", () => {
+	it("draws the charge as a line and the shovel as an arc by the pattern the event names, then clears them", () => {
 		const { game, vfx, world, dispose } = setup();
 		const boss = spawnBody(world, 0, 10);
-		game.hero.position.set(0, 0, 0);
-		vfx.onEvent(EventType.BossTelegraph, 0, -1, 1, boss);
-		game.hero.position.set(0, 0, 8);
+		Boss.id[boss] = 1;
 		const second = spawnBody(world, 0, 10);
+		Boss.id[second] = 1;
+		vfx.onEvent(EventType.BossPattern, 0, 0, 0, boss);
+		vfx.onEvent(EventType.BossTelegraph, 0, -1, 1, boss);
+		vfx.onEvent(EventType.BossPattern, 1, 0, 0, second);
 		vfx.onEvent(EventType.BossTelegraph, 0, -1, 0.6, second);
 		vfx.update(0.1);
+		expect(vfx.telegraph.live).toBe(2);
 		expect((game.scene.getMeshByName("vfx_telegraph_line") as Mesh | null)?.thinInstanceCount).toBe(1);
 		expect((game.scene.getMeshByName("vfx_telegraph_arc") as Mesh | null)?.thinInstanceCount).toBe(1);
 		vfx.update(2);
 		expect(vfx.telegraph.live).toBe(0);
-		expect((game.scene.getMeshByName("vfx_telegraph_line") as Mesh | null)?.thinInstanceCount).toBe(0);
+		Boss.id[boss] = 0;
+		Boss.id[second] = 0;
 		dispose();
 	});
 

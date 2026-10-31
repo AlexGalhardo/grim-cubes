@@ -1,6 +1,15 @@
 import { Color3 } from "@babylonjs/core/Maths/math.color";
 import { mulberry32 } from "@gc/core";
-import { EventType, Position, renderData } from "@gc/game";
+import {
+	Boss,
+	bossesData,
+	EnemyType,
+	EventType,
+	enemiesData,
+	MAX_ENTITIES,
+	Position,
+	renderData,
+} from "@gc/game";
 import { CAMERA } from "../scene/camera";
 import { PALETTE } from "../scene/palette";
 import type { GameScene } from "../scene/scene";
@@ -16,15 +25,8 @@ const rgb = (hex: string): Rgb => {
 	return [c.r, c.g, c.b];
 };
 
-/** Hero distance below which a BossTelegraph is the shovel arc (its maxDistance is 3.5, the charge needs 5). */
-const ARC_OR_LINE_DISTANCE = 4.25;
-const BOSS_ARC_RANGE = 3;
-/** Charge reach: speed 2.4 x speedMult 4 x 0.6 s in bosses.json, rounded up. */
-const BOSS_LINE_LENGTH = 6;
-const BOSS_LINE_WIDTH = 2.4;
-/** Hunter charge reach: 6.5 x 3 x 0.6 s in enemies.json, rounded up. */
-const HUNTER_LINE_LENGTH = 12;
-const HUNTER_LINE_WIDTH = 1;
+/** Extra reach of a charge line past its travel distance, so the hit lands inside the drawn warning. */
+const LINE_PAD = 0.5;
 const SUMMON_CUBES = 14;
 /** GDD section 23: the boss execution lasts 1.5 s. */
 const EXECUTION_SECONDS = 1.5;
@@ -94,6 +96,8 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 	});
 
 	const telegraph = createTelegraph(game);
+	/** Pattern index of the last BossPattern event per entity. */
+	const patternOf = new Uint8Array(MAX_ENTITIES);
 	// Execution of a boss (BossDied): a few bursts spread over EXECUTION_SECONDS while the death clip plays.
 	let pulse = 0;
 	let shakeAmplitude = 0;
@@ -220,18 +224,36 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 					shake(config.shakeBossDeath);
 				}
 			} else if (type === EventType.BossTelegraph) {
-				// The event carries no pattern id: the shovel (maxDistance 3.5) only starts next to the hero, the charge
-				// (minDistance 5) only from afar.
-				const dx = Position.x[entity] ?? 0;
-				const dz = Position.z[entity] ?? 0;
-				const hero = game.hero.position;
-				if (Math.hypot(hero.x - dx, hero.z - dz) < ARC_OR_LINE_DISTANCE) {
-					telegraph.arc(entity, a, b, c, BOSS_ARC_RANGE);
-				} else {
-					telegraph.line(entity, a, b, c, BOSS_LINE_LENGTH, BOSS_LINE_WIDTH);
+				// BossPattern always comes first and names the pattern; sizes come from bosses.json.
+				const boss = bossesData[(Boss.id[entity] ?? 1) - 1];
+				const pattern = boss?.patterns[patternOf[entity] ?? 0];
+				const params = pattern?.params;
+				const num = (key: string, fallback: number): number => {
+					const value = params?.[key];
+					return typeof value === "number" ? value : fallback;
+				};
+				if (pattern?.id === "shovel_arc") {
+					telegraph.arc(entity, a, b, c, num("range", 3));
+				} else if (pattern?.id === "line_charge") {
+					const reach =
+						(boss?.speed ?? 0) * num("speedMult", 1) * num("chargeSeconds", 0.6) + LINE_PAD;
+					telegraph.line(entity, a, b, c, reach, (boss?.radius ?? 1) * 2);
 				}
+			} else if (type === EventType.BossPattern) {
+				patternOf[entity] = a;
 			} else if (type === EventType.EnemyTelegraph) {
-				telegraph.line(entity, a, b, c, HUNTER_LINE_LENGTH, HUNTER_LINE_WIDTH);
+				const enemy = enemiesData[EnemyType.id[entity] ?? 0];
+				const charge = enemy?.behaviorParams;
+				const speedMult = Number(charge?.speedMult ?? 1);
+				const seconds = Number(charge?.chargeSeconds ?? 0.5);
+				telegraph.line(
+					entity,
+					a,
+					b,
+					c,
+					(enemy?.speed ?? 0) * speedMult * seconds + LINE_PAD,
+					(enemy?.radius ?? 0.5) * 2,
+				);
 			} else if (type === EventType.BossSummon) {
 				burst(a, b, SUMMON_CUBES, explosionColors, 4, 6, false);
 			} else if (type === EventType.BossDied) {

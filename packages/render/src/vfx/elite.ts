@@ -89,8 +89,6 @@ export function createEliteView(game: GameScene): EliteView {
 						best = i;
 					}
 				}
-				// Until the event carries a position (0, 0) the oldest chest goes.
-				if (a === 0 && b === 0 && chests > 0) best = 0;
 				if (best >= 0) {
 					chests--;
 					chestX[best] = chestX[chests] ?? 0;
