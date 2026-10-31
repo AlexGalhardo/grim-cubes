@@ -94,6 +94,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **web:** Pause the loop while the tab is hidden ([470dffc](https://github.com/AlexGalhardo/grim-cubes/commit/470dffc712d96565c443dcde5c8f6165327fa00e))
 - **perf:** Add the bench recorder, `horde100`/`round20` scenarios and Playwright bench harness (`test:perf`) ([2ec32bf](https://github.com/AlexGalhardo/grim-cubes/commit/2ec32bf8208bc35610034fd47f5aa8fb2bcfd289))
 - **game:** Add item special effects (8 of 13 implemented, 5 marked alpha) ([363ad89](https://github.com/AlexGalhardo/grim-cubes/commit/363ad89d013065ca8b2d277e63592eaf9730db67))
+- **world:** Add blocking-prop collision (static grid per chunk, push-out, avoidance steering) for hero and enemies ([cbbdaef](https://github.com/AlexGalhardo/grim-cubes/commit/cbbdaef263102506c897641ea23ee7b87e7a2c52))
 - **ci:** Add CI (lint, typecheck, unit, integration, build-web, e2e gated) and CodeQL workflows (#1) ([da8923e](https://github.com/AlexGalhardo/grim-cubes/commit/da8923ee65069ec95a017f53a20937718c27413b))
 
 ### Changed

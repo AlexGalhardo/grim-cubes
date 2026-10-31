@@ -148,7 +148,7 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
   - Asserts: `scene.getActiveMeshes().length` ≤ 12 com 49–81 chunks (chão = 1 mesh); draw calls ≤ 60 sem inimigos (via `SceneInstrumentation` logado em `?debug=1`); captura visual `world-cemetery-<alvo>.png` nos 4 alvos.
 - [ ] **P-01-04** Origin shifting (SDD 03 §1): `Position`/`PrevPosition` relativos à origem; `applyOriginShift` em `game/world` quando |hero| > 1.024 u (`data/world.json`); delta múltiplo de 16; evento `OriginShifted {dx, dz}`; render desloca câmera e reescreve buffers de chão/props. Deps: P-01-02. Resp: S1. Prio: P0.
   - Asserts: teste: andar 5.000 u e verificar `|Δ(hero − prop)| < 0,01 u` em todos os shifts; |Δ alvo da câmera| < 0,01 u no passo do shift (teste NullEngine); vídeo de 10 s pelo PO (manual).
-- [ ] **P-01-05** Colisão herói/inimigo vs props bloqueantes (spatial hash estático) e steering de desvio dos inimigos. Deps: P-01-02, P-03-01, P-03-03, E-03-06. Resp: S1. Prio: P0.
+- [x] **P-01-05** Colisão herói/inimigo vs props bloqueantes (spatial hash estático) e steering de desvio dos inimigos. Deps: P-01-02, P-03-01, P-03-03, E-03-06. Resp: S1. Prio: P0.
   - Asserts: teste: herói contra lápide não atravessa (`dist ≥ r_prop + r_hero − 0,01`); 100 inimigos perseguindo através de um campo de 20 props (fixture determinística `tests/fixtures/prop-field-20.json`, seed 42) chegam ao herói em ≤ 15 s simulados (nenhum preso).
 
 ### P-02 Herói, câmera e input
