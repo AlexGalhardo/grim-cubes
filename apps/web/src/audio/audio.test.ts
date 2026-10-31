@@ -6,6 +6,7 @@ import {
 	type AudioDeps,
 	type ContextLike,
 	createAudioEngine,
+	decodedBytes,
 	type GainLike,
 	type MediaLike,
 	type NodeLike,
@@ -43,12 +44,17 @@ function fakeGain(): FakeGain {
 type FakeSource = SourceLike & { started: boolean };
 type FakeMedia = MediaLike & { id: string };
 
-function setup(files: readonly string[] = [], musicFiles: readonly string[] = []) {
+function setup(
+	files: readonly string[] = [],
+	musicFiles: readonly string[] = [],
+	extra: Partial<AudioDeps> & { decoded?: object } = {},
+) {
 	const gains: FakeGain[] = [];
 	const sources: FakeSource[] = [];
 	const medias: FakeMedia[] = [];
 	const clock = { now: 0 };
 	const warnings: string[] = [];
+	const loads: string[] = [];
 	let roll = 0.5;
 	const context: ContextLike = {
 		get currentTime() {
@@ -79,11 +85,14 @@ function setup(files: readonly string[] = [], musicFiles: readonly string[] = []
 			return source;
 		},
 		createMediaElementSource: () => ({ connect: () => undefined, disconnect: () => undefined }),
-		decodeAudioData: async () => ({}),
+		decodeAudioData: async () => extra.decoded ?? {},
 	};
 	const deps: AudioDeps = {
 		createContext: () => context,
-		loadBytes: async (id) => (files.includes(id) ? new ArrayBuffer(8) : null),
+		loadBytes: async (id) => {
+			loads.push(id);
+			return files.includes(id) ? new ArrayBuffer(8) : null;
+		},
 		createMedia: (id) => {
 			const media: FakeMedia = {
 				id,
@@ -99,8 +108,10 @@ function setup(files: readonly string[] = [], musicFiles: readonly string[] = []
 		},
 		random: () => roll,
 		warn: (message, id) => warnings.push(`${message}: ${id}`),
+		...(extra.cacheBytes !== undefined ? { cacheBytes: extra.cacheBytes } : {}),
 	};
 	return {
+		loads,
 		engine: createAudioEngine(deps),
 		sources,
 		medias,
@@ -312,4 +323,51 @@ test("the event audio reports the caption of a boss voice, with or without the f
 	visit(EventType.Swung, 1, 0, 2, 1);
 	expect(played).toEqual(["voice_gravedigger_death", "voice_gravedigger_phase", "sfx_sword_swing_01"]);
 	expect(captions).toEqual(["voice.gravedigger.death", "voice.gravedigger.phase"]);
+});
+
+test("rarely heard sounds share a decoded-audio budget and the least recently played is dropped", async () => {
+	// Each decoded buffer is 1000 frames x 2 channels x 4 bytes = 8000 bytes; the budget holds two.
+	const { engine, loads, clock } = setup(["voice_a", "voice_b", "voice_c"], [], {
+		decoded: { length: 1000, numberOfChannels: 2 },
+		cacheBytes: 16000,
+	});
+	await engine.unlock();
+	const play = async (id: string): Promise<void> => {
+		clock.now += 1;
+		engine.beginFrame();
+		engine.play(id);
+		await flush();
+	};
+	await play("voice_a");
+	await play("voice_b");
+	await play("voice_a");
+	await play("voice_c");
+	expect(loads).toEqual(["voice_a", "voice_b", "voice_c"]);
+	await play("voice_a");
+	await play("voice_b");
+	expect(loads).toEqual(["voice_a", "voice_b", "voice_c", "voice_b"]);
+});
+
+test("frequent combat effects stay decoded however much else is played", async () => {
+	const { engine, loads, clock } = setup(["sfx_sword_hit_01", "voice_a", "voice_b", "voice_c"], [], {
+		decoded: { length: 1000, numberOfChannels: 2 },
+		cacheBytes: 8000,
+	});
+	await engine.unlock();
+	const play = async (id: string): Promise<void> => {
+		clock.now += 1;
+		engine.beginFrame();
+		engine.play(id);
+		await flush();
+	};
+	await play("sfx_sword_hit_01");
+	for (const id of ["voice_a", "voice_b", "voice_c"]) await play(id);
+	await play("sfx_sword_hit_01");
+	expect(loads.filter((id) => id === "sfx_sword_hit_01")).toHaveLength(1);
+});
+
+test("decodedBytes reads an AudioBuffer and ignores anything else", () => {
+	expect(decodedBytes({ length: 100, numberOfChannels: 2 })).toBe(800);
+	expect(decodedBytes({})).toBe(0);
+	expect(decodedBytes(null)).toBe(0);
 });
