@@ -545,7 +545,7 @@ almas_run = 5 × rounds_completados
           + itens (soul_jar +50%)
 ```
 
-Exemplos (Normal): morrer no round 12 com 1 elite e 1 chefe ≈ 60 + 25 + 200 = 285 almas. Run até o 30 com 3 chefes e 5 elites ≈ 150 + 125 + 630 = 905.
+Exemplos (Normal): morrer no round 12 com 1 elite e 1 chefe ≈ 60 + 25 + 200 = 285 almas. Run até o 30 com 3 chefes e 5 elites ≈ 150 + 125 + 900 (200 + 300 + 400) = 1.175 (exemplo corrigido em 2026-10-31 para bater com a fórmula).
 
 ## 19. Meta-árvore (Ossuário)
 

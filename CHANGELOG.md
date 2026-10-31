@@ -95,6 +95,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **perf:** Add the bench recorder, `horde100`/`round20` scenarios and Playwright bench harness (`test:perf`) ([2ec32bf](https://github.com/AlexGalhardo/grim-cubes/commit/2ec32bf8208bc35610034fd47f5aa8fb2bcfd289))
 - **game:** Add item special effects (8 of 13 implemented, 5 marked alpha) ([363ad89](https://github.com/AlexGalhardo/grim-cubes/commit/363ad89d013065ca8b2d277e63592eaf9730db67))
 - **world:** Add blocking-prop collision (static grid per chunk, push-out, avoidance steering) for hero and enemies ([cbbdaef](https://github.com/AlexGalhardo/grim-cubes/commit/cbbdaef263102506c897641ea23ee7b87e7a2c52))
+- **render:** Camera from `data/render.json` with exponential follow (8/s) preserving alpha/beta/radius; trapezoid test against GDD §5 ([a0c44b5](https://github.com/AlexGalhardo/grim-cubes/commit/a0c44b5866472288e6a377bb30235a58234bfb21))
+- **core:** Add validated save format with SHA-256 checksum and `MetaState` ([7bb9e63](https://github.com/AlexGalhardo/grim-cubes/commit/7bb9e6337dab46e8a707a489335c8fbb1229a9f4))
+- **game:** Add souls formula, run tallies and `soul_gain` ([6741882](https://github.com/AlexGalhardo/grim-cubes/commit/674188215dc9d9f87156ad62a89329b3189c99ff))
+- **ui:** Add Results screen with souls count-up ([e129165](https://github.com/AlexGalhardo/grim-cubes/commit/e1291658064ac8b1b32cdc07e1519a69d6449e33))
+- **web:** Settle runs into the account, persist the save in IndexedDB and show Results ([ee5c32c](https://github.com/AlexGalhardo/grim-cubes/commit/ee5c32c460326f794430784af84e19e336894462))
+- **e2e:** Add results e2e covering souls, record and persistence across reload ([b3c0267](https://github.com/AlexGalhardo/grim-cubes/commit/b3c0267ac9cc542277981e8932b320bf49b643b8))
+- **docs:** Fix the GDD §18.2 souls example to match the formula
 - **ci:** Add CI (lint, typecheck, unit, integration, build-web, e2e gated) and CodeQL workflows (#1) ([da8923e](https://github.com/AlexGalhardo/grim-cubes/commit/da8923ee65069ec95a017f53a20937718c27413b))
 
 ### Changed

@@ -153,7 +153,7 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
 
 ### P-02 Herói, câmera e input
 
-- [ ] **P-02-01** Herói com stats base (GDD §7.1), movimento sem inércia, `PrevPosition` e interpolação no render; câmera ADR-0017 (elevação 55°, beta 0,611 rad, D1) seguindo com lerp 8/s (`setTarget(v, false, false, true)` para preservar alpha/beta/raio); valores de câmera em `data/render.json`. Deps: E-03-02, E-03-06. Resp: S1. Prio: P0.
+- [x] **P-02-01** Herói com stats base (GDD §7.1), movimento sem inércia, `PrevPosition` e interpolação no render; câmera ADR-0017 (elevação 55°, beta 0,611 rad, D1) seguindo com lerp 8/s (`setTarget(v, false, false, true)` para preservar alpha/beta/raio); valores de câmera em `data/render.json`. Deps: E-03-02, E-03-06. Resp: S1. Prio: P0.
   - Asserts: teste: velocidade medida = 6 u/s ± 1%; captura em 1080p mostra o herói no centro ±5% da tela; trapézio visível no chão (picking dos 4 cantos em `?debug=1`, logado) bate com GDD §5 (profundidade 25,6 u, larguras 30,3/35,9/44,2 u) com ±3%.
 - [ ] **P-02-02** Input unificado (`InputState`): teclado, gamepad (polling, dead zone), joystick virtual (mobile) e remap básico. Deps: E-03-02. Resp: S2. Prio: P0.
   - Asserts: testes unitários do mapeamento; e2e mobile-l: `touchscreen` arrasta o joystick e o herói se move ≥ 3 u em 1 s; gamepad testado manualmente pelo PO (registro em PROGRESS).
@@ -204,7 +204,7 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
   - Asserts (e2e com build `GC_DEBUG_API=1`): teste: em 10.000 rounds simulados a taxa fica entre 19% e 21% e nunca há 6 rounds comuns seguidos sem elite; round 1 nunca tem elite; e2e: elite aparece via cheat `spawnElite` e o baú abre com 2 opções.
 - [ ] **P-05-07** O Coveiro (`bosses.json`): padrões `charge`, `swing_arc`, `summon`; telegrafia (decal + evento); enrage a cada 60 s; barra de chefe; intro 3 s; execução; baú de chefe; almas; horda a 30%. Deps: P-05-06, P-04-05. Resp: S1 (padrões/render) + S2 (bossSystem). Prio: P0.
   - Asserts (e2e com build `GC_DEBUG_API=1`): teste: HP 1.200 no round 10 Normal; enrage stacks = 2 após 120 s; `summon` aos 50% cria 6 Carcaças; integração: política greedy com build mediano mata o Coveiro em [45, 90] s; e2e: `bossIntro` → barra visível → morte → `Results`.
-- [ ] **P-05-08** Morte do herói, tela `Results` (round, kills, dano, causa, build, almas com contagem, seed), `MetaState` com almas e recorde, save (SDD 06) no adaptador web. Deps: P-05-07, E-03-05. Resp: S2. Prio: P0.
+- [x] **P-05-08** Morte do herói, tela `Results` (round, kills, dano, causa, build, almas com contagem, seed), `MetaState` com almas e recorde, save (SDD 06) no adaptador web. Deps: P-05-07, E-03-05. Resp: S2. Prio: P0.
   - Asserts: teste: morrer no round 12 com 1 elite e 1 chefe → 285 almas (Normal); save round-trip e `schemaVersion` = 1; e2e: recarregar a página mantém almas e recorde; capturas nos 4 alvos.
 
 ### P-06 Arte e áudio placeholder
