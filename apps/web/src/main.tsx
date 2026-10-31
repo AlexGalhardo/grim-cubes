@@ -52,7 +52,6 @@ async function boot(): Promise<void> {
 	let lastHud = Number.NEGATIVE_INFINITY;
 	const loop = createLoop({
 		simulate: () => {
-			sources.poll(input);
 			inputSystem(world, hero, input);
 			movementSystem(world);
 		},
@@ -74,7 +73,11 @@ async function boot(): Promise<void> {
 		window.gc.debug = { hero: () => ({ x: Position.x[hero] ?? 0, z: Position.z[hero] ?? 0 }) };
 	}
 
-	render.engine.runRenderLoop(() => loop.frame(performance.now()));
+	render.engine.runRenderLoop(() => {
+		// Once per frame: getGamepads() allocates, and several steps may run per frame.
+		sources.poll(input);
+		loop.frame(performance.now());
+	});
 	window.addEventListener("resize", () => render.engine.resize());
 	game.scene.executeWhenReady(() => {
 		window.gc.ready = true;

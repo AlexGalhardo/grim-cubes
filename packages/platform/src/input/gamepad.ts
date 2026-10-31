@@ -30,22 +30,23 @@ export function applyDeadZone(x: number, y: number, deadZone: number, out: { x: 
 
 const scratch = { x: 0, y: 0 };
 
+const pressed = (pad: GamepadLike, i: number): boolean => pad.buttons[i]?.pressed === true;
+
 /** Reads the left stick and D-pad into `out`. Stick up (axis y = -1) becomes +z. */
 export function readGamepad(pad: GamepadLike, out: InputState, deadZone = DEAD_ZONE): void {
 	applyDeadZone(pad.axes[0] ?? 0, pad.axes[1] ?? 0, deadZone, scratch);
 	out.moveX = scratch.x;
 	out.moveZ = 0 - scratch.y;
-	const pressed = (i: number): boolean => pad.buttons[i]?.pressed === true;
 	const dpad =
-		pressed(BUTTON_DPAD_LEFT) ||
-		pressed(BUTTON_DPAD_RIGHT) ||
-		pressed(BUTTON_DPAD_UP) ||
-		pressed(BUTTON_DPAD_DOWN);
+		pressed(pad, BUTTON_DPAD_LEFT) ||
+		pressed(pad, BUTTON_DPAD_RIGHT) ||
+		pressed(pad, BUTTON_DPAD_UP) ||
+		pressed(pad, BUTTON_DPAD_DOWN);
 	if (dpad) {
-		out.moveX = (pressed(BUTTON_DPAD_RIGHT) ? 1 : 0) - (pressed(BUTTON_DPAD_LEFT) ? 1 : 0);
-		out.moveZ = (pressed(BUTTON_DPAD_UP) ? 1 : 0) - (pressed(BUTTON_DPAD_DOWN) ? 1 : 0);
+		out.moveX = (pressed(pad, BUTTON_DPAD_RIGHT) ? 1 : 0) - (pressed(pad, BUTTON_DPAD_LEFT) ? 1 : 0);
+		out.moveZ = (pressed(pad, BUTTON_DPAD_UP) ? 1 : 0) - (pressed(pad, BUTTON_DPAD_DOWN) ? 1 : 0);
 		clampUnit(out);
 	}
-	out.dash = pressed(BUTTON_DASH);
-	out.pause = pressed(BUTTON_START);
+	out.dash = pressed(pad, BUTTON_DASH);
+	out.pause = pressed(pad, BUTTON_START);
 }
