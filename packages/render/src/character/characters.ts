@@ -57,6 +57,10 @@ const MERCHANT_SUBMERGE_SECONDS = 0.8;
 const RETURN_SECONDS = 0.6;
 /** Time constant of the hero's turn towards its target or movement (about 0.08 s to cover most of the angle). */
 const HERO_TURN_SECONDS = 0.08;
+/** A stealthed boss shimmers for this long every `STEALTH_PERIOD` seconds so its 0.15 opacity stays readable. */
+const STEALTH_PERIOD = 0.5;
+const STEALTH_SHIMMER = 0.12;
+const STEALTH_SHIMMER_ALPHA = 0.45;
 /** Ids in bosses.json of the rigs that get a special motion. */
 const NEST_QUEEN = "nest_queen";
 /** The airborne Nest Queen hovers this high (u), easing in at `FLY_RISE` u/s, bobbing a little. */
@@ -91,6 +95,9 @@ export function createCharacters(game: GameScene, options: CharactersOptions): C
 	let flying = false;
 	let flyLift = 0;
 	let flyClock = 0;
+	let stealthAlpha = 1;
+	let stealthClock = 0;
+	let stealthDrawn = -1;
 	let leapTotal = 0;
 	let leapLeft = 0;
 
@@ -195,6 +202,15 @@ export function createCharacters(game: GameScene, options: CharactersOptions): C
 						lift += LEAP_HEIGHT * 4 * t * (1 - t);
 					}
 					activeBoss.setLift(lift);
+					if (stealthAlpha < 1) {
+						stealthClock += dt;
+						const shimmer = stealthClock % STEALTH_PERIOD < STEALTH_SHIMMER;
+						const drawn = shimmer ? STEALTH_SHIMMER_ALPHA : stealthAlpha;
+						if (drawn !== stealthDrawn) {
+							stealthDrawn = drawn;
+							activeBoss.setAlpha(drawn);
+						}
+					}
 				}
 			} else if (executionLeft <= 0 && activeBoss) {
 				activeBoss.setVisible(false);
@@ -264,11 +280,15 @@ export function createCharacters(game: GameScene, options: CharactersOptions): C
 				activeBoss.setTint(PALETTE.ironLight);
 			} else if (type === EventType.BossStealth && activeBoss) {
 				// a = 1 vanished (b = the opacity to draw with), 0 revealed.
-				activeBoss.setAlpha(a === 1 ? _b : 1);
+				stealthAlpha = a === 1 ? _b : 1;
+				stealthClock = 0;
+				stealthDrawn = -1;
+				activeBoss.setAlpha(stealthAlpha);
 			} else if (type === EventType.BossLeap && activeBoss) {
 				leapTotal = Math.max(c, 0.1);
 				leapLeft = leapTotal;
 			} else if (type === EventType.BossDied && activeBoss) {
+				stealthAlpha = 1;
 				activeBoss.setAlpha(1);
 				activeBoss.setLift(0);
 				flying = false;

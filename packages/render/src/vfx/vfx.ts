@@ -217,6 +217,7 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 		nest_queen: [rgb(PALETTE.bloodLight), rgb(PALETTE.bone), rgb(PALETTE.boneDark), emberLight],
 	};
 	const spikeColors: readonly Rgb[] = [rgb(PALETTE.ironLight), rgb(PALETTE.iron), rgb(PALETTE.emberLight)];
+	const fleshBurst: readonly Rgb[] = [rgb(PALETTE.flesh), rgb(PALETTE.bloodLight), rgb(PALETTE.bone)];
 	const propDust: readonly Rgb[] = [rgb(PALETTE.boneDark), rgb(PALETTE.rust)];
 
 	return {
@@ -381,7 +382,7 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 			} else if (type === EventType.BossEggLaid) {
 				burst(a, b, EGG_CUBES, propDust, 2, 3, false);
 			} else if (type === EventType.BossEggBroken) {
-				burst(a, b, count(config.explosionCubes), propDust, 3, 5, false);
+				burst(a, b, count(config.explosionCubes), fleshBurst, 3, 5, false);
 			} else if (type === EventType.BossEggHatched) {
 				burst(a, b, count(config.explosionCubes), bloodLightOnly, 3, 5, false);
 				shake(config.shakeExplosion * 0.5);

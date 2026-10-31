@@ -11,9 +11,15 @@ export interface DecalPool {
 	clear(): void;
 	readonly live: number;
 	readonly capacity: number;
+	/** Opacity of a slot (tests and captures). */
+	alphaAt(slot: number): number;
 	/** Decals ever overwritten before reaching the end of their life. */
 	readonly recycled: number;
 }
+
+/** The oldest share of a full pool fades out instead of vanishing when it is overwritten. */
+const FADE_SHARE = 0.1;
+const DECAL_ALPHA = 0.75;
 
 /** Floor decals as thin instances of one quad: one draw call however many there are. */
 export function createDecalPool(scene: Scene, capacity: number): DecalPool {
@@ -31,7 +37,19 @@ export function createDecalPool(scene: Scene, capacity: number): DecalPool {
 	let live = 0;
 	let recycled = 0;
 
+	/** A full pool fades its oldest 10%: slot `head` is the next to be overwritten, so its alpha is the lowest. */
+	function fadeOldest(): void {
+		const colors = set.colors;
+		if (!colors || live < capacity) return;
+		const fading = Math.max(1, Math.round(capacity * FADE_SHARE));
+		for (let k = 0; k < fading; k++) {
+			const slot = (head + k) % capacity;
+			colors[slot * 4 + 3] = DECAL_ALPHA * ((k + 1) / (fading + 1));
+		}
+	}
+
 	function publish(): void {
+		fadeOldest();
 		set.commit(live);
 	}
 
@@ -43,6 +61,7 @@ export function createDecalPool(scene: Scene, capacity: number): DecalPool {
 		get recycled(): number {
 			return recycled;
 		},
+		alphaAt: (slot) => set.colors?.[slot * 4 + 3] ?? 0,
 		add(x, z, size, yaw, r, g, b): void {
 			if (capacity === 0) return;
 			if (live === capacity) recycled++;
@@ -57,7 +76,7 @@ export function createDecalPool(scene: Scene, capacity: number): DecalPool {
 				colors[i * 4] = r;
 				colors[i * 4 + 1] = g;
 				colors[i * 4 + 2] = b;
-				colors[i * 4 + 3] = 0.75;
+				colors[i * 4 + 3] = DECAL_ALPHA;
 			}
 			publish();
 		},

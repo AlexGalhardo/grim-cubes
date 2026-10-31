@@ -92,6 +92,24 @@ describe("boss rigs", () => {
 		dispose();
 	});
 
+	it("shimmers a stealthed boss for a moment every half second", () => {
+		const { world, rigs, characters, boss, indexOf, dispose } = setup();
+		boss("alpha_hunter");
+		characters.sync(world, 1, 0.016, false);
+		const rig = rigs[indexOf("alpha_hunter")];
+		characters.onEvent(EventType.BossStealth, 1, 0.15, 3, 0);
+		const seen = new Set<number>();
+		for (let i = 0; i < 90; i++) {
+			characters.sync(world, 1, 1 / 60, false);
+			seen.add(rig?.alpha ?? 0);
+		}
+		expect([...seen].sort()).toEqual([0.15, 0.45]);
+		characters.onEvent(EventType.BossStealth, 0, 1, 0, 0);
+		characters.sync(world, 1, 1 / 60, false);
+		expect(rig?.alpha).toBe(1);
+		dispose();
+	});
+
 	it("arcs the leap up and back down over its airtime", () => {
 		const { world, rigs, characters, boss, indexOf, dispose } = setup();
 		boss("alpha_hunter");
