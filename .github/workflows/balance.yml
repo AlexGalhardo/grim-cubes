@@ -1,0 +1,43 @@
+name: Balance
+
+# GDD 25: every change to data/*.json runs the simulator and publishes the report. The GDD targets are listed in the
+# job log; they do not fail the job yet (`--check` is off) because rounds 1-30 are still being tuned (A-02-03).
+on:
+  pull_request:
+    paths:
+      - "data/**"
+      - "tools/sim/**"
+      - "packages/game/**"
+  workflow_dispatch:
+
+concurrency:
+  group: balance-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  BUN_VERSION: "1.4.4"
+
+jobs:
+  balance:
+    name: balance
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+      - run: bun install --frozen-lockfile
+      - run: bun run sim --runs 200 --rounds 10 --out reports/sim-ci.json
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: sim-report
+          path: reports/sim-ci.json
