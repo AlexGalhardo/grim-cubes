@@ -227,7 +227,7 @@ Decisão D23: gore alto estilizado, toggle para reduzir.
 ### 10.1 Fluxo
 
 1. Modelar/texturizar/animar no Blockbench → salvar `assets/src/<categoria>/<nome>.bbmodel` (fonte, versionado).
-2. `bun run assets:build` converte `.bbmodel` → glTF (skin rígido: cada grupo animado vira osso com peso 1, P-06-07); não há export manual de glTF (D5, 2026-10-31). Os `.bbmodel` dos placeholders são gerados por script (`tools/assets-gen`); o PO refina no Blockbench e salva por cima.
+2. `bun run assets:build` converte `.bbmodel` → glTF (skin rígido: cada grupo animado vira osso com peso 1, P-06-07); não há export manual de glTF (D5, 2026-10-31). Os `.bbmodel` dos placeholders são gerados por script (`tools/assets-gen`); o refino é feito no Blockbench, à mão ou pelo agente Art via MCP (`docs/blockbench.md`), e o modelo refinado entra em `assets/src/models/authored.json` para o gerador não sobrescrevê-lo.
 3. `bun run assets:build`:
    - valida orçamento (elementos, tamanho de textura, nomes de grupos/sockets) e falha o build se violar;
    - empacota texturas em atlas por categoria e reescreve UVs;

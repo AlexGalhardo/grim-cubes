@@ -35,6 +35,12 @@ Roguelite de sobrevivência em ondas, 3D voxel grimdark, Babylon.js 9 + TypeScri
 
 Até a fase ESTRUTURA concluir E-02, alguns scripts são stubs.
 
+## Arte no Blockbench
+
+- Assets visuais (herói, armas, inimigos, chefes, NPC, props, tiles) são refinados no Blockbench aberto, pelo MCP `blockbench` (`.mcp.json`); instalação, versão fixada e fluxo em `docs/blockbench.md`.
+- Use a skill `blockbench-art` e o agente `blockbench-artist` (papel Art). Sem conexão com o Blockbench, não editar `.bbmodel` à mão como substituto.
+- Modelo refinado vai para `assets/src/models/authored.json` no mesmo commit, para o `assets:gen` não sobrescrever.
+
 ## Convenções
 
 - Código, identificadores, nomes de arquivos, commits (Conventional Commits) e logs em inglês; documentação em português.

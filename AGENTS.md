@@ -40,6 +40,13 @@ Lista completa em `CLAUDE.md`; até a fase ESTRUTURA concluir E-02, alguns scrip
 | `prompt-concept-arts.md` | prompts de concept art |
 | `apps/`, `packages/`, `data/`, `assets/`, `tools/`, `tests/` | código (ver `docs/sdd/01-architecture.md`) |
 
+## Arte no Blockbench (MCP)
+
+- O Blockbench desktop conversa com o Claude Code pelo plugin MCP fixado em `docs/blockbench.md` (servidor `blockbench` no `.mcp.json`, `http://localhost:3000/bb-mcp`, só com o Blockbench aberto).
+- Modelos refinados à mão entram em `assets/src/models/authored.json`; `bun run assets:gen` não os sobrescreve.
+- Fluxo: skill `.claude/skills/blockbench-art/SKILL.md`; agente `.claude/agents/blockbench-artist.md` (papel Art em `prompt-workers.md` §2).
+- Todo asset passa em `bun run assets:build`, nos testes de `tools/assets-gen`, `tools/assets-build` e `tools/bake-vat`, e no checklist do Art Bible §14.
+
 ## Regras resumidas
 
 - Inglês no código, commits e identificadores; português na documentação.

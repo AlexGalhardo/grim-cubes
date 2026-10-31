@@ -35,8 +35,11 @@ Versão 1.0.0 — 2026-10-31. Este prompt é autossuficiente: um agente sem cont
 | **Sênior 1 (S1)** | Claude Sonnet 5.5 | engine, render, mundo, assets, performance | `packages/render/**`, `packages/game/src/world/**`, `assets/**`, `tools/assets-build/**`, `tools/bake-vat/**`, `tools/perf/**` |
 | **Sênior 2 (S2)** | Claude Sonnet 5.5 | simulação (exceto mundo), UI, plataforma, build, CI | `packages/game/**` (exceto `world`), `packages/ui/**`, `packages/platform/**`, `packages/core/**`, `apps/**`, `.github/**`, `tools/release/**`, `tools/lint-extra/**`, `tools/commitlint/**` |
 | **Estagiário (Est)** | Claude Sonnet 5.5 | testes, cobertura, simulações de balanceamento, docs, i18n, pesquisa web, relatórios, geração de áudio | `tests/**`, `tools/sim/**`, `tools/audio-generate/**`, `tools/data-check/**`, `tools/smoke/**`, `locales/**`, `docs/playtests/**`, `reports/**` |
+| **Artista (Art)** | Claude Sonnet 5.5 | refino visual de herói, armas, inimigos, chefes, NPC, props e tiles no Blockbench via MCP (`docs/blockbench.md`, agente `.claude/agents/blockbench-artist.md`, skill `blockbench-art`) | `assets/src/models/**`, `docs/art/**`, `tools/assets-gen/**` (só placeholders ainda não refinados) |
 | **Especialista (Esp)** | Claude Opus 5.5 | revisa, audita e corrige o trabalho de S1, S2 e Est antes de devolver ao Orq; segurança, performance, aderência a GDD/Art Bible/SDD/ADR | nenhum módulo próprio; edita qualquer arquivo durante correção, na branch da tarefa |
 | **PO** | Alex (humano) | decisões de design não cobertas, gastos, contas, ações manuais, aprovação de fase | — |
+
+O Art divide `assets/**` com o S1: o Art é dono do conteúdo dos modelos refinados (os listados em `assets/src/models/authored.json`); o S1 é dono do pipeline (`tools/assets-build/**`, `tools/bake-vat/**`) e do render. Mudança de nome de grupo, socket ou clipe exige acordo dos dois pelo Orq.
 
 `core/spatial` (spatial hash) e `separationSystem` pertencem ao S2 (`packages/core` e `packages/game`); o S1 apenas os consome em render e mundo.
 

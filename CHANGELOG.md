@@ -145,6 +145,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **ui:** Build version label (`vX.Y.Z`) at the bottom-left of the menu and the HUD; hidden in visual captures through `tests/e2e/screenshot.css`
 
+- **art:** Blockbench MCP integration (`.mcp.json`, plugin pinned to v1.10.1 by SHA-256), `docs/blockbench.md`, the `blockbench-art` skill and the `blockbench-artist` agent (Art role)
+- **tools:** `assets:gen` skips models listed in `assets/src/models/authored.json`
+
 ### Changed
 
 - **roadmap:** Apply phase 1 review fixes: add E-03-06 (ECS base), break the E-03-02/E-02-06 cycle, pin `@babylonjs/inspector` and approved dev deps in E-02-01, async WebGL2 `createEngine` with golden-value asserts in E-03-01
