@@ -52,11 +52,16 @@ describe("render port", () => {
 			addComponent(world, hero, PlayerFaction);
 			const ground = game.scene.getMeshByName("ground");
 
+			// 0.5 u per step covers 5000 u in 10k steps. Errors are accumulated and asserted once: two expect() calls
+			// per step over 50k steps took ~400 ms alone and timed out when other agents saturated the CPU.
+			const stepSize = 0.5;
 			let shifts = 0;
 			let previousAbs = 0;
-			for (let step = 0; step < Math.ceil(5000 / 0.1); step++) {
+			let worstCamera = 0;
+			let worstGround = 0;
+			for (let step = 0; step < 5000 / stepSize; step++) {
 				PrevPosition.x[hero] = Position.x[hero] ?? 0;
-				Position.x[hero] = (Position.x[hero] ?? 0) + 0.1;
+				Position.x[hero] = (Position.x[hero] ?? 0) + stepSize;
 				if (applyOriginShift(world, origin, hero, events, config)) shifts++;
 				if (consumeFirst) {
 					port.consumeEvents(events);
@@ -66,10 +71,12 @@ describe("render port", () => {
 					port.consumeEvents(events);
 				}
 				const abs = origin.x + game.camera.target.x;
-				expect(Math.abs(abs - previousAbs - 0.1)).toBeLessThan(0.01);
-				expect(Math.abs(origin.x + (ground?.position.x ?? 0))).toBeLessThan(0.01);
+				worstCamera = Math.max(worstCamera, Math.abs(abs - previousAbs - stepSize));
+				worstGround = Math.max(worstGround, Math.abs(origin.x + (ground?.position.x ?? 0)));
 				previousAbs = abs;
 			}
+			expect(worstCamera).toBeLessThan(0.01);
+			expect(worstGround).toBeLessThan(0.01);
 			expect(shifts).toBeGreaterThanOrEqual(4);
 			game.dispose();
 			dispose();
