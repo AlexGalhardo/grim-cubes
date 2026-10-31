@@ -46,6 +46,8 @@ export interface GameAssetsOptions {
 	 * Without it atlases stay PNG even when the manifest lists KTX2.
 	 */
 	ktx2DecoderUrl?: string;
+	/** Load the emissive atlases (`atlas_*_e`, ~16 MB of GPU each as 2048 px PNG); false for the lowest presets. Default true. */
+	emissive?: boolean;
 	/** Told once which format the atlases were loaded in ("ktx2" or "png"). */
 	onTextureFormat?: (format: AtlasFormat) => void;
 	/** Called for every enemy that has no model or VAT in the manifest and is drawn with a stand-in. */
@@ -98,14 +100,20 @@ async function enableKtx2(decoderUrl: string): Promise<void> {
 	};
 }
 
+/** Emissive texture gain: the ember pixels of the `_e.png` masks read as glowing under the dark night lighting. */
+const EMISSIVE_LEVEL = 2;
+
 /** Flat, unlit-looking material sampling an atlas with NEAREST and no mipmaps (Art Bible §4, ADR-0014). */
 function atlasMaterial(scene: Scene, name: string, url: string, glowUrl?: string): StandardMaterial {
 	const material = new StandardMaterial(name, scene);
 	const texture = new Texture(url, scene, true, false, Texture.NEAREST_SAMPLINGMODE);
 	material.diffuseTexture = texture;
 	// Eyes, furnaces and lanterns (`_e.png`, same UVs as the diffuse atlas) glow through the emissive texture.
-	if (glowUrl)
-		material.emissiveTexture = new Texture(glowUrl, scene, true, false, Texture.NEAREST_SAMPLINGMODE);
+	if (glowUrl) {
+		const glow = new Texture(glowUrl, scene, true, false, Texture.NEAREST_SAMPLINGMODE);
+		glow.level = EMISSIVE_LEVEL;
+		material.emissiveTexture = glow;
+	}
 	material.specularColor = Color3.Black();
 	return material;
 }
@@ -157,7 +165,7 @@ export async function loadGameAssets(scene: Scene, options: GameAssetsOptions): 
 	options.onTextureFormat?.(format);
 	/** The emissive atlas ships as PNG only; absent from the manifest when no model has an `_e.png`. */
 	const glowOf = (id: string): string | undefined => {
-		const glow = entry(id);
+		const glow = options.emissive === false ? undefined : entry(id);
 		return glow ? url(glow.url) : undefined;
 	};
 	const characterMaterial = characters

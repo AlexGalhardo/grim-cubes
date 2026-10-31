@@ -128,6 +128,8 @@ import "./main.css";
 
 const log = createLogger("boot");
 const HUD_HZ = 12;
+/** Presets that skip the emissive atlases. */
+const LOW_PRESETS: readonly string[] = ["minimum", "low"];
 /** Screens this wide or narrower draw damage numbers at 0.7x. */
 const SMALL_SCREEN_WIDTH = 900;
 const SMALL_NUMBER_SCALE = 0.7;
@@ -445,6 +447,27 @@ async function boot(): Promise<void> {
 	const game = createGameScene(render.engine, platform.mobile);
 	// Accessibility look (Options screen): the Options wiring calls its setters; the VFX read `flashReduced`.
 	const vision = createVision(game);
+	// Video preset (SDD 14 section 5): `?preset=` in debug builds, else the hardware rule table (R-01-03).
+	const forced = __DEBUG_API__ ? params.get("preset") : null;
+	const hardware = hardwareInfo(
+		platform.mobile,
+		navigator as { hardwareConcurrency?: number; deviceMemory?: number },
+		render.engine.getGlInfo().renderer,
+	);
+	const pinned = __DEBUG_API__ && (bench !== null || params.has("debug"));
+	const autoId = choosePresetId(
+		forced,
+		pinned,
+		pickAutoPreset(presetsData.auto, hardware),
+		presetsData.default,
+	);
+	/** "auto" (or an id that no longer exists) resolves through the hardware table. */
+	const presetFor = (id: string): (typeof presetsData.presets)[number] | undefined =>
+		presetsData.presets.find((p) => p.id === id) ??
+		presetsData.presets.find((p) => p.id === autoId) ??
+		presetsData.presets[0];
+	// A query or a pinned bench/debug run wins over the saved Options choice, so measurements stay comparable.
+	const preset = presetFor(forced || pinned ? autoId : meta.settings.preset);
 	// Models, VATs and atlases come from `assets:build`. Without them (dev server before the first build) the game
 	// keeps the placeholder boxes and the horde simply does not render.
 	const assets = await loadGameAssets(game.scene, {
@@ -452,6 +475,8 @@ async function boot(): Promise<void> {
 		enemyIds,
 		propIds: chunkGen.propTypes,
 		warn: (message) => log.warn(message),
+		// The emissive atlases cost ~16 MB of GPU each: the two lowest presets go without them (SDD 14).
+		emissive: !LOW_PRESETS.includes(preset?.id ?? ""),
 	}).catch((error: unknown) => {
 		log.warn("assets unavailable, using placeholders", error);
 		return null;
@@ -541,27 +566,6 @@ async function boot(): Promise<void> {
 		resume: () => loop.resume(),
 		now: () => performance.now(),
 	});
-	// Video preset (SDD 14 section 5): `?preset=` in debug builds, else the hardware rule table (R-01-03).
-	const forced = __DEBUG_API__ ? params.get("preset") : null;
-	const hardware = hardwareInfo(
-		platform.mobile,
-		navigator as { hardwareConcurrency?: number; deviceMemory?: number },
-		render.engine.getGlInfo().renderer,
-	);
-	const pinned = __DEBUG_API__ && (bench !== null || params.has("debug"));
-	const autoId = choosePresetId(
-		forced,
-		pinned,
-		pickAutoPreset(presetsData.auto, hardware),
-		presetsData.default,
-	);
-	/** "auto" (or an id that no longer exists) resolves through the hardware table. */
-	const presetFor = (id: string): (typeof presetsData.presets)[number] | undefined =>
-		presetsData.presets.find((p) => p.id === id) ??
-		presetsData.presets.find((p) => p.id === autoId) ??
-		presetsData.presets[0];
-	// A query or a pinned bench/debug run wins over the saved Options choice, so measurements stay comparable.
-	const preset = presetFor(forced || pinned ? autoId : meta.settings.preset);
 	log.info("preset", {
 		id: preset?.id,
 		reason: forced ? "query" : pinned ? "default" : meta.settings.preset === "auto" ? "auto" : "options",
@@ -1306,6 +1310,11 @@ async function boot(): Promise<void> {
 				progress.gold += amount;
 			},
 			endRound: () => run.forceEnd(world),
+			/** VFX budget check (P-04-05): off = no particles, no decals, no damage numbers. */
+			setVfx: (on: boolean) => {
+				vfx.setPools(on ? preset.particlePool : 0, on ? preset.decalPool : 0);
+				vfx.setNumberScale(on ? 1 : 0);
+			},
 			/** Game speed 1, 2 or 3 (perf margin check). */
 			setSpeed: (speed: number) => loop.setSpeed(speed),
 			/**
