@@ -14,6 +14,7 @@ interface FixtureOptions {
 	meshes?: number;
 	materials?: number;
 	unlit?: boolean;
+	extraExtension?: string;
 	metallic?: number;
 	clips?: readonly string[];
 	uvs?: number[];
@@ -100,6 +101,7 @@ async function writeModel(name: string, o: FixtureOptions = {}, seed = 0): Promi
 		json.json.extensionsUsed = ["KHR_materials_unlit"];
 		for (const m of json.json.materials ?? []) m.extensions = { KHR_materials_unlit: {} };
 	}
+	if (o.extraExtension) json.json.extensionsUsed = [...(json.json.extensionsUsed ?? []), o.extraExtension];
 	if (o.materials && o.materials > 1)
 		json.json.materials = [...(json.json.materials ?? []), { name: "extra" }];
 	const dir = join(src, "models", category);
@@ -165,6 +167,7 @@ describe("buildAssets", () => {
 	});
 
 	test.each<[string, FixtureOptions]>([
+		["unknown-extension", { extraExtension: "KHR_texture_transform" }],
 		["single-mesh", { meshes: 2 }],
 		["single-material", { materials: 2 }],
 		["unlit-or-no-metallic", { unlit: false, metallic: 1 }],

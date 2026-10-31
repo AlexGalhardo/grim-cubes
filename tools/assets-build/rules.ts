@@ -24,6 +24,7 @@ export const REQUIRED_CLIPS: Readonly<Record<Category, readonly string[]>> = {
 	weapons: [],
 };
 
+const ALLOWED_EXTENSION = "KHR_materials_unlit";
 export const MAX_TEXTURE_COLORS = 12;
 export const TEXTURE_MULTIPLE = 32;
 
@@ -51,6 +52,15 @@ function fail(rule: string, asset: string, detail: string): never {
 }
 
 function validateGltf(m: ModelInput): void {
+	for (const extension of m.extensionsUsed) {
+		if (extension !== ALLOWED_EXTENSION) {
+			fail(
+				"unknown-extension",
+				m.name,
+				`${extension} would be dropped silently; only ${ALLOWED_EXTENSION} is supported`,
+			);
+		}
+	}
 	const root = m.document.getRoot();
 	const meshes = root.listMeshes();
 	if (meshes.length !== 1) fail("single-mesh", m.name, `expected 1 mesh, found ${meshes.length}`);
@@ -58,7 +68,7 @@ function validateGltf(m: ModelInput): void {
 	if (materials.length !== 1)
 		fail("single-material", m.name, `expected 1 material, found ${materials.length}`);
 	const material = materials[0];
-	const unlit = m.extensionsUsed.includes("KHR_materials_unlit");
+	const unlit = m.extensionsUsed.includes(ALLOWED_EXTENSION);
 	if (!unlit && (material?.getMetallicFactor() !== 0 || material.getMetallicRoughnessTexture() !== null)) {
 		fail(
 			"unlit-or-no-metallic",

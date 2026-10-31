@@ -35,7 +35,9 @@ function contains(a: Rect, b: Rect): boolean {
 
 /** MaxRects, best-short-side-fit. Input is sorted by (height desc, name) so the result is reproducible. */
 export function packSprites(atlasName: string, sprites: readonly Sprite[]): Placement[] {
-	const sorted = [...sprites].sort((a, b) => b.png.height - a.png.height || a.name.localeCompare(b.name));
+	const sorted = [...sprites].sort(
+		(a, b) => b.png.height - a.png.height || (a.name < b.name ? -1 : a.name > b.name ? 1 : 0),
+	);
 	let free: Rect[] = [{ x: 0, y: 0, w: ATLAS_SIZE, h: ATLAS_SIZE }];
 	const placements: Placement[] = [];
 	for (const sprite of sorted) {
