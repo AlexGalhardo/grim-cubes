@@ -1,0 +1,9 @@
+{
+	"prompt": "small bone-tipped bolt spat from a rusted turret, a short dry hiss and a wet snap, heavy dry tone, medium distance, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 0.5,
+	"generatedAt": "2026-10-31T20:59:45.981Z",
+	"plan": "creator",
+	"hash": "b5c2132cd049b7240ee255ffc1a6e3e2d13f0c85faecf7098a4b7c55baebfe86",
+	"promptInfluence": 0.5
+}

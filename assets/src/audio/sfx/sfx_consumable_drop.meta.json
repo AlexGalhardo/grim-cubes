@@ -1,0 +1,9 @@
+{
+	"prompt": "small glass vial and a bone charm dropping onto stone, a short bright clink and a soft thud, heavy dry tone, medium distance, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 0.6,
+	"generatedAt": "2026-10-31T20:59:44.375Z",
+	"plan": "creator",
+	"hash": "3cee56e122e445df88743a8cc0f2780fabde27ec9c3247cc0f617bcc5003093e",
+	"promptInfluence": 0.5
+}

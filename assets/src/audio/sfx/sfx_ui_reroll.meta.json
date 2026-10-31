@@ -1,0 +1,9 @@
+{
+	"prompt": "wooden bones rattling and tumbling in a leather cup, quick dry clatter, heavy dry tone, medium distance, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 0.7,
+	"generatedAt": "2026-10-31T20:59:48.156Z",
+	"plan": "creator",
+	"hash": "fe8c0f85759edbbd7d45477b657d6c6740cd71555c47ddcb5af2aa6dbd70d728",
+	"promptInfluence": 0.5
+}

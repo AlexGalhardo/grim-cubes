@@ -1,0 +1,9 @@
+{
+	"prompt": "colossal monster collapsing, a deep final roar breaking into a heavy crash and rolling rubble, heavy dry tone, medium distance, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 3,
+	"generatedAt": "2026-10-31T20:59:50.053Z",
+	"plan": "creator",
+	"hash": "541cc67f71ca5733205e4694cd18ce70b9ae0cec84c736900d8c309b693c0182",
+	"promptInfluence": 0.5
+}

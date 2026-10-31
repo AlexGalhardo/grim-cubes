@@ -98,6 +98,19 @@ const DEFAULT_VOICES = 6;
 const CROSSFADE_SECONDS = 1.5;
 /** -3 dB for 200 ms when the hero is hit (SDD 08 section 2). */
 const DUCK_GAIN = 0.708;
+/** -6 dB under a voice line (boss and Merchant): held for the length of the line, then released over `VOICE_RELEASE`. */
+const VOICE_DUCK_GAIN = 0.5;
+const VOICE_ATTACK = 0.1;
+const VOICE_RELEASE = 0.4;
+
+/**
+ * Sound polyphony per group (SDD 14: <= 24 simultaneous voices). The group comes from the id: `voice_*` lines never
+ * pile up, UI clicks stay few, everything else shares the rest.
+ */
+export const GROUP_VOICES = { voice: 2, ui: 4, sfx: 24 } as const;
+export type SoundGroup = keyof typeof GROUP_VOICES;
+export const groupOf = (id: string): SoundGroup =>
+	id.startsWith("voice_") ? "voice" : id.startsWith("sfx_ui_") ? "ui" : "sfx";
 const DUCK_SECONDS = 0.2;
 
 const LOW_PRIORITY: ReadonlySet<Priority> = new Set(["ui", "enemy"]);
@@ -168,6 +181,8 @@ export function createAudioEngine(deps: AudioDeps): AudioEngine {
 	const lastStart = new Map<string, number>();
 	const voices = new Set<Voice>();
 	const perId = new Map<string, number>();
+	const perGroup: Record<SoundGroup, number> = { voice: 0, ui: 0, sfx: 0 };
+	let voiceDuckUntil = 0;
 	let unlocked = false;
 	let newThisFrame = 0;
 
@@ -199,6 +214,19 @@ export function createAudioEngine(deps: AudioDeps): AudioEngine {
 		return pending;
 	}
 
+	/** Dips the music under a voice line for as long as it lasts (sidechain), then brings it back. */
+	function duckForVoice(buffer: unknown): void {
+		const now = ctx.currentTime;
+		const length = (buffer as { duration?: unknown }).duration;
+		const seconds = typeof length === "number" && length > 0 ? length : 3;
+		voiceDuckUntil = now + VOICE_ATTACK + seconds + VOICE_RELEASE;
+		duckGain.gain.cancelScheduledValues(now);
+		duckGain.gain.setValueAtTime(duckGain.gain.value, now);
+		duckGain.gain.linearRampToValueAtTime(VOICE_DUCK_GAIN, now + VOICE_ATTACK);
+		duckGain.gain.setValueAtTime(VOICE_DUCK_GAIN, now + VOICE_ATTACK + seconds);
+		duckGain.gain.linearRampToValueAtTime(1, voiceDuckUntil);
+	}
+
 	function start(id: string, buffer: unknown, options: PlayOptions): void {
 		const source = ctx.createBufferSource();
 		source.buffer = buffer;
@@ -206,10 +234,14 @@ export function createAudioEngine(deps: AudioDeps): AudioEngine {
 		source.playbackRate.value = 1 + (deps.random() * 2 - 1) * spread;
 		source.connect(sfxBus);
 		const voice: Voice = { id };
+		const group = groupOf(id);
 		voices.add(voice);
 		perId.set(id, (perId.get(id) ?? 0) + 1);
+		perGroup[group]++;
+		if (group === "voice") duckForVoice(buffer);
 		source.onended = () => {
 			voices.delete(voice);
+			perGroup[group] = Math.max(0, perGroup[group] - 1);
 			perId.set(id, Math.max(0, (perId.get(id) ?? 1) - 1));
 			source.disconnect();
 		};
@@ -307,6 +339,7 @@ export function createAudioEngine(deps: AudioDeps): AudioEngine {
 			const now = ctx.currentTime;
 			if (now - (lastStart.get(id) ?? Number.NEGATIVE_INFINITY) < THROTTLE_SECONDS) return false;
 			if ((perId.get(id) ?? 0) >= (options.maxVoices ?? DEFAULT_VOICES)) return false;
+			if (perGroup[groupOf(id)] >= GROUP_VOICES[groupOf(id)]) return false;
 			if (missing.has(id)) return false;
 			lastStart.set(id, now);
 			newThisFrame++;
@@ -326,6 +359,8 @@ export function createAudioEngine(deps: AudioDeps): AudioEngine {
 		},
 		duck(): void {
 			const now = ctx.currentTime;
+			// A voice line already holds the music lower than a hit would.
+			if (now < voiceDuckUntil) return;
 			duckGain.gain.cancelScheduledValues(now);
 			duckGain.gain.setValueAtTime(DUCK_GAIN, now);
 			duckGain.gain.linearRampToValueAtTime(1, now + DUCK_SECONDS);

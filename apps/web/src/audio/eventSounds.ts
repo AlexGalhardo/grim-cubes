@@ -105,6 +105,14 @@ export function soundFor(
 			return { ids: "sfx_boss_bomb", options: BOSS };
 		case EventType.MerchantArrived:
 			return { ids: "sfx_merchant_arrive", options: ELITE };
+		case EventType.ConsumableDropped:
+			return { ids: "sfx_consumable_drop", options: HIT };
+		case EventType.EliteEscaped:
+			return { ids: "sfx_elite_escape", options: ELITE };
+		case EventType.EnemyShotFired:
+			return { ids: "sfx_enemy_shot", options: HIT };
+		case EventType.EnemyTelegraph:
+			return { ids: "sfx_enemy_charge", options: HIT };
 		case EventType.DashStarted:
 			return { ids: "sfx_dash", options: HERO };
 		case EventType.PropBroken:
@@ -143,5 +151,7 @@ export function createEventAudio(
 		const caption = typeof sound.ids === "string" ? captionKeyFor(sound.ids) : null;
 		if (caption) onCaption?.(caption);
 		if (type === EventType.PlayerHit) engine.duck();
+		// The boss also falls with a sound of its own, under its last words.
+		if (type === EventType.BossDied) engine.play("sfx_boss_death", BOSS);
 	};
 }

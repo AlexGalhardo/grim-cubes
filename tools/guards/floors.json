@@ -1,16 +1,16 @@
 {
 	"audio": {
-		"sfx": 54,
+		"sfx": 62,
 		"music": 9,
 		"voice": 35
 	},
 	"tests": {
-		"packages/core": 63,
+		"packages/core": 66,
 		"packages/game": 309,
-		"packages/platform": 18,
-		"packages/render": 151,
-		"packages/ui": 70,
-		"apps": 24,
-		"tools": 141
+		"packages/platform": 26,
+		"packages/render": 154,
+		"packages/ui": 93,
+		"apps": 36,
+		"tools": 161
 	}
 }

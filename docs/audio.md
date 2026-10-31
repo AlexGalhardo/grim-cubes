@@ -128,6 +128,13 @@ A duração é a medida com `ffprobe` nos arquivos gerados. Os prompts estão ex
 | `voice_merchant_farewell_2` | `assets/src/audio/voice/voice_merchant_farewell_2.mp3` | voice | 2.2 s | Mind the dark. It minds you. | Bill (velho, nítido) | fechamento da loja ("Próximo round") |
 | `voice_merchant_farewell_3` | `assets/src/audio/voice/voice_merchant_farewell_3.mp3` | voice | 3.4 s | Until the next round, if you are still in one piece. | Bill (velho, nítido) | fechamento da loja ("Próximo round") |
 | `sfx_merchant_arrive` | `assets/src/audio/sfx/sfx_merchant_arrive.mp3` | sfx | 1.8 s | rusty chains dragging across stone and a cracked bone bell ringing twice, a bone merchant arriving, dry eerie tone, medium distance, no music, game sound effect | — | evento `MerchantArrived` (o Mercador chega: correntes e sino de osso) |
+| `sfx_consumable_drop` | `assets/src/audio/sfx/sfx_consumable_drop.mp3` | sfx | 0.6 s | small glass vial and a bone charm dropping onto stone, a short bright clink and a soft thud, heavy dry tone, medium distance, no music, game sound effect | — | evento `ConsumableDropped` (frasco ou ímã cai) |
+| `sfx_elite_escape` | `assets/src/audio/sfx/sfx_elite_escape.mp3` | sfx | 1.5 s | powerful monster retreating, a low snarl fading into distant heavy footsteps and a closing cave echo, heavy dry tone, medium distance, no music, game sound effect | — | evento `EliteEscaped` (a elite fugiu no fim do round) |
+| `sfx_enemy_shot` | `assets/src/audio/sfx/sfx_enemy_shot.mp3` | sfx | 0.5 s | small bone-tipped bolt spat from a rusted turret, a short dry hiss and a wet snap, heavy dry tone, medium distance, no music, game sound effect | — | evento `EnemyShotFired` (tiro do Vigia) |
+| `sfx_enemy_charge` | `assets/src/audio/sfx/sfx_enemy_charge.mp3` | sfx | 0.8 s | fast predator winding up to charge, a rising guttural growl with claws scraping on stone, heavy dry tone, medium distance, no music, game sound effect | — | evento `EnemyTelegraph` (o Caçador prepara a investida) |
+| `sfx_ui_reroll` | `assets/src/audio/sfx/sfx_ui_reroll.mp3` | sfx | 0.7 s | wooden bones rattling and tumbling in a leather cup, quick dry clatter, heavy dry tone, medium distance, no music, game sound effect | — | loja: rolar de novo (reroll) |
+| `sfx_ui_lock` | `assets/src/audio/sfx/sfx_ui_lock.mp3` | sfx | 0.5 s | heavy iron padlock snapping shut, a sharp metal click, heavy dry tone, medium distance, no music, game sound effect | — | loja: travar ou destravar uma oferta |
+| `sfx_boss_death` | `assets/src/audio/sfx/sfx_boss_death.mp3` | sfx | 3.0 s | colossal monster collapsing, a deep final roar breaking into a heavy crash and rolling rubble, heavy dry tone, medium distance, no music, game sound effect | — | evento `BossDied`, junto da fala `voice_<chefe>_death` |
 
 Vozes (conta ElevenLabs, plano Creator): **Callum** (`N2lVS1w4EtoT3dr4eOWO`, rouca e inquietante) fala pela Matriarca do Pântano e pelo Caçador Alfa; **Brian** (`nPczCjzI2devNBz1zQrb`, grave e ressonante) fala pelo Coveiro, pelo Forjador e pela Rainha do Ninho. A escolha saiu da lista de vozes da conta, entre as que soavam graves e sombrias. Trocar a voz exige alterar o `voiceId` no `prompts.json` e regenerar com `--force`.
 
@@ -157,6 +164,7 @@ Para voltar a uma versão antiga, copie o par de arquivos de volta para `assets/
 - Segunda leva (39 arquivos: 30 SFX e 9 falas, com os ids que o motor de áudio pede): o script estimou 6.251 créditos; o saldo foi de 47.167 para 47.502, ou seja, **335 créditos** reais.
 - Falas do Mercador (20 arquivos, 746 caracteres): o script estimou 746 créditos (1 por caractere) e o saldo da conta não se moveu na leitura de `/v1/user/subscription` (62.572 antes e depois; o contador de TTS pode ser lançado com atraso).
 - SFX `sfx_merchant_arrive` (1 arquivo): 200 créditos estimados pelo script, gerado em separado.
+- SFX da B-03-03 (7 arquivos): 1.400 créditos estimados pelo script (ver §8).
 - Total medido: cerca de **28.350 créditos** para os 98 arquivos mais a regeneração das músicas (as 9 faixas vocais arquivadas contam nos 13.188 da primeira leva). A estimativa do script é conservadora, sobretudo na música. O saldo é de uma conta compartilhada, então o delta pode incluir outro uso entre as leituras.
 - Plano: Creator (`plan: creator` em todos os `.meta.json`), com licença comercial.
 
@@ -176,3 +184,27 @@ Para voltar a uma versão antiga, copie o par de arquivos de volta para `assets/
 - As falas de `entry` existem para os 5 chefes, mas o `soundFor` só mapeia `phase` e `death`; a de `entry` toca no `BossIntro` de `main.tsx`.
 - O pós-processo (loudness −16/−14 LUFS, trim de silêncio, pitch dos chefes) não está implementado (SDD 08 §3).
 - Faltam SFX de passos, armas extras e outros itens do GDD §22.1.
+
+## 8. Cobertura e metas (B-03-03, 2026-10-31)
+
+Levantamento contra as metas do ROADMAP (82 SFX, 10 músicas, 40 falas), com o que existe hoje (106 arquivos):
+
+| Tipo | Meta | Hoje | Proposta de meta para o jogo atual | Falta |
+| --- | --- | --- | --- | --- |
+| SFX | 82 | 62 | **70** | passos (2 superfícies), loops de SMG e metralhadora, 4 loops ambientes de bioma |
+| Músicas | 10 | 9 | **12** | faixas próprias dos chefes 1 a 3 (hoje usam o `mus_boss` genérico) |
+| Falas | 40 | 35 | **40** | 1 fala de fúria (`enrage`) por chefe, 5 no total |
+
+- **Por que 70 e não 82**: a lista de §22.1 do GDD conta 30 sons de chefe (6 por chefe) e 16 de inimigos por tipo. O jogo cobre cada chefe com entrada, telegrafia, padrão, fúria e morte pelos sons genéricos de evento (`sfx_boss_*`), então 6 por chefe seria redundante. Os 8 que faltam para 70 são sons de mundo, não de evento.
+- **Por que 12 músicas**: o GDD §22.2 pede uma faixa por chefe; os chefes 4 e 5 têm, os chefes 1 a 3 não.
+- **Custo estimado do que falta** (referência do consumo real medido nas músicas: cerca de 2.000 créditos por faixa de 150 s; SFX em dezenas de créditos; fala em 1 crédito por caractere): 3 músicas de chefe cerca de 6.000; 8 SFX cerca de 200 a 1.600; 5 falas cerca de 200. Total até cerca de 8.000 créditos, acima do teto de 5.000 desta rodada, então ficaram para depois.
+- **Gerado nesta rodada** (só o que cobre eventos do jogo hoje sem som): 7 SFX (`sfx_consumable_drop`, `sfx_elite_escape`, `sfx_enemy_shot`, `sfx_enemy_charge`, `sfx_ui_reroll`, `sfx_ui_lock`, `sfx_boss_death`), estimados em 1.400 créditos pelo script. O saldo lido na conta (62.919 antes e depois) não registra SFX, então o custo real fica por estimativa.
+- **Ligados ao jogo**: `sfx_ui_buy` e `sfx_ui_no_gold` já existiam sem uso e passaram a tocar na compra (loja e Ossuário) e no reroll sem ouro. `sfx_enemy_spawn_01` e `sfx_boss_gravedigger_charge` continuam sem uso (spawn é barulhento demais; a telegrafia do Coveiro usa o `sfx_boss_telegraph` genérico).
+- **Todo evento do jogo agora tem som**, exceto os que não devem ter: `BossPattern`, `OriginShifted` e `PoolExhausted`.
+
+## 9. Mix (revisão de 2026-10-31)
+
+- **Sidechain da música em falas de voz**: quando uma fala `voice_*` (chefes e Mercador) começa, a música cai para 0,5 (−6 dB) em 0,1 s, fica assim pelo tamanho da fala e volta a 1 em 0,4 s. Um golpe no herói (−3 dB por 200 ms) não levanta a música enquanto uma fala a segura. Antes, só o golpe no herói baixava a música.
+- **Polifonia por grupo** (`GROUP_VOICES` em `audioEngine.ts`, o grupo vem do prefixo do id): `voice_*` até 2 ao mesmo tempo, `sfx_ui_*` até 4 e os demais efeitos até 24 (SDD 14). Vale além do limite por som (`maxVoices`) e do orçamento de 12 sons novos por frame.
+- **Buses**: continuam `master`, `music` e `sfx`; o GDD fala de `voice` e `ui`, mas dividir o bus exigiria rotear cada fonte e ainda não há tela de volume para eles. A polifonia por grupo resolve o que importava (fala não se empilha, UI não cobre o combate).
+- **Não medido**: o loudness real (−16 / −14 LUFS) das faixas, que depende do pós-processo de `ffmpeg` ainda não implementado (SDD 08 §3), e o ponto de emenda dos loops.
