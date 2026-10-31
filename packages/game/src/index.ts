@@ -77,6 +77,8 @@ export type { AuraEffect, EffectSource, ItemEffects } from "./rules/effects";
 export { computeEffects, createItemEffects } from "./rules/effects";
 export type { FragmentsConfig, XpConfig } from "./rules/fragments";
 export { dropChance, harvestCount, xpForLevel } from "./rules/fragments";
+export type { RunStats } from "./rules/runstats";
+export { createRunStats } from "./rules/runstats";
 export type {
 	GenerateContext,
 	ShopCatalog,
@@ -87,6 +89,8 @@ export type {
 	TierChance,
 } from "./rules/shop";
 export { generateShop, rerollPrice, rollTier, sellValue, shopPrice, tierChance } from "./rules/shop";
+export type { RunSummary, SoulsConfig } from "./rules/souls";
+export { soulsForRun } from "./rules/souls";
 export type { HeroStatsData, Modifier, PlayerStats, StatCaps } from "./rules/stats";
 export { computeStats, createPlayerStats, STAT_FIELDS } from "./rules/stats";
 export type { BehaviorConfig, BehaviorSystem } from "./systems/behavior";

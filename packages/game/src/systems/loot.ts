@@ -1,5 +1,5 @@
-import { removeEntity } from "bitecs";
-import { EnemyFaction, EnemyType, Fragment, Health, Position, Radius } from "../ecs/components";
+import { hasComponent, removeEntity } from "bitecs";
+import { Boss, Elite, EnemyFaction, EnemyType, Fragment, Health, Position, Radius } from "../ecs/components";
 import { dropFragment } from "../ecs/fragments";
 import { createQueryCache, type GameWorld } from "../ecs/world";
 import { STEP } from "../loop";
@@ -11,6 +11,7 @@ import {
 	type XpConfig,
 	xpForLevel,
 } from "../rules/fragments";
+import type { RunStats } from "../rules/runstats";
 
 /** Run-wide currency and experience. The UI reads it through the store snapshot. */
 export interface Progress {
@@ -71,6 +72,8 @@ export interface DeathSystemDeps {
 	round: () => number;
 	/** Item effects (`double_fragment_chance`); optional. */
 	effects?: ItemEffects | undefined;
+	/** Run tallies (kills, elites, bosses); optional. */
+	runStats?: RunStats | undefined;
 }
 
 export interface DeathSystem {
@@ -85,7 +88,7 @@ const pileList = createQueryCache([Fragment, Position]);
  * round's drop chance, then are recycled. Over the pile cap the drop merges into the nearest pile, value kept.
  */
 export function createDeathSystem(deps: DeathSystemDeps): DeathSystem {
-	const { fragments, fragmentsPerType, rng, round, effects } = deps;
+	const { fragments, fragmentsPerType, rng, round, effects, runStats } = deps;
 	const dead = new Uint16Array(4096);
 
 	function drop(world: GameWorld, x: number, z: number, value: number): void {
@@ -123,6 +126,11 @@ export function createDeathSystem(deps: DeathSystemDeps): DeathSystem {
 				const value = effects && rng.chance(effects.doubleFragmentChance) ? base * 2 : base;
 				if (value > 0 && rng.chance(chance))
 					drop(world, Position.x[e] ?? 0, Position.z[e] ?? 0, value);
+				if (runStats) {
+					runStats.kills++;
+					if (hasComponent(world, e, Elite)) runStats.elitesKilled++;
+					if (hasComponent(world, e, Boss)) runStats.bossRounds.push(round());
+				}
 				removeEntity(world, e);
 			}
 		},

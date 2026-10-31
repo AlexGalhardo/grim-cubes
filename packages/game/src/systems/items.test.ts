@@ -244,3 +244,10 @@ test("phylactery revives the hero once with the configured HP and then stays spe
 	expect(fx.tryRevive(hero)).toBe(false);
 	void Position;
 });
+
+test("soul_jar adds its fraction of souls", () => {
+	const effects = createItemEffects();
+	computeEffects(itemsData, owning("soul_jar"), effects);
+	expect(effects.soulGain).toBeCloseTo(0.5);
+	expect(itemsData.filter((i) => i.status === "alpha")).toHaveLength(4);
+});

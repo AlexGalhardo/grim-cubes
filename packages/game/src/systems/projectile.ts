@@ -51,7 +51,7 @@ export function createProjectileSystem(deps: ProjectileSystemDeps): ProjectileSy
 		const self = Projectile.selfFraction[p] ?? 0;
 		const heroDist = Math.hypot((Position.x[hero] ?? 0) - x, (Position.z[hero] ?? 0) - z);
 		if (self > 0 && heroDist <= radius + (Radius.r[hero] ?? 0)) {
-			queue.push(hero, damage * self, 0, 0, 0, 0);
+			queue.push(hero, damage * self, hero, 0, 0, 0);
 		}
 	}
 

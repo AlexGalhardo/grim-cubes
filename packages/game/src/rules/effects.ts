@@ -26,6 +26,8 @@ export interface ItemEffects {
 	damagePerMissingHpPercent: number;
 	/** Extra fragment value credited on pickup (`gilded_skull`). */
 	fragmentGain: number;
+	/** Extra souls fraction at the end of a run (`soul_jar`). */
+	soulGain: number;
 	/** Fraction of the round's fragments added again at round end (`tithe_box`). */
 	endOfRoundFragmentBonus: number;
 	/** Revives left this run and the HP fraction restored (`phylactery`). */
@@ -41,6 +43,7 @@ export function createItemEffects(): ItemEffects {
 		extraPierce: 0,
 		damagePerMissingHpPercent: 0,
 		fragmentGain: 0,
+		soulGain: 0,
 		endOfRoundFragmentBonus: 0,
 		revives: 0,
 		reviveHpFraction: 0,
@@ -69,6 +72,7 @@ export function computeEffects(
 	out.extraPierce = 0;
 	out.damagePerMissingHpPercent = 0;
 	out.fragmentGain = 0;
+	out.soulGain = 0;
 	out.endOfRoundFragmentBonus = 0;
 	out.reviveHpFraction = 0;
 	out.auras.length = 0;
@@ -97,6 +101,9 @@ export function computeEffects(
 					break;
 				case "fragment_gain":
 					out.fragmentGain += num(p, "fraction") * count;
+					break;
+				case "soul_gain":
+					out.soulGain += num(p, "fraction") * count;
 					break;
 				case "end_of_round_fragment_bonus":
 					out.endOfRoundFragmentBonus += num(p, "fraction") * count;

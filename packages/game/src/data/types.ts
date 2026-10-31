@@ -68,13 +68,14 @@ export type WeaponData = WeaponDef & { id: string; name: string };
 export interface RoundsData {
 	flow: RunConfig["flow"];
 	duration: RunConfig["duration"];
-	boss: RunConfig["boss"];
+	boss: RunConfig["boss"] & { soulsBase: number; soulsPerRound: number };
 	ai: { separationWeight: number; attackAnimationSeconds: number };
 	spawn: SpawnConfig;
 	biomeMix: Record<string, Record<string, number>>;
 	fragments: FragmentsConfig;
 	xp: XpConfig;
 	shop: ShopConfig;
+	souls: { perRound: number; perElite: number };
 	tierChance: TierChance[];
 }
 

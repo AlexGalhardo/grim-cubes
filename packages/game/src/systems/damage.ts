@@ -1,5 +1,15 @@
 import { hasComponent } from "bitecs";
-import { Armor, Boss, Elite, Health, HitFlash, Invulnerable, Knockback } from "../ecs/components";
+import {
+	Armor,
+	Boss,
+	Elite,
+	EnemyFaction,
+	EnemyType,
+	Health,
+	HitFlash,
+	Invulnerable,
+	Knockback,
+} from "../ecs/components";
 import { type EventBuffer, EventType } from "../ecs/events";
 import type { GameWorld } from "../ecs/world";
 import { STEP } from "../loop";
@@ -11,6 +21,7 @@ import {
 	knockbackScale,
 } from "../rules/damage";
 import type { ItemEffects } from "../rules/effects";
+import type { RunStats } from "../rules/runstats";
 
 export const DAMAGE_QUEUE_CAPACITY = 1024;
 
@@ -52,6 +63,8 @@ export interface DamageSystemDeps {
 	stats: HeroCombatStats;
 	/** Item effects; optional so systems can run without items. */
 	effects?: ItemEffects | undefined;
+	/** Run tallies (damage dealt, killer); optional. */
+	runStats?: RunStats | undefined;
 }
 
 export interface DamageSystem {
@@ -60,10 +73,11 @@ export interface DamageSystem {
 }
 
 export function createDamageSystem(deps: DamageSystemDeps): DamageSystem {
-	const { config, rng, events, hero, stats, effects } = deps;
+	const { config, rng, events, hero, stats, effects, runStats } = deps;
 	const target = new Uint16Array(DAMAGE_QUEUE_CAPACITY);
 	const amount = new Float32Array(DAMAGE_QUEUE_CAPACITY);
 	const critChance = new Float32Array(DAMAGE_QUEUE_CAPACITY);
+	const source = new Uint16Array(DAMAGE_QUEUE_CAPACITY);
 	const kbX = new Float32Array(DAMAGE_QUEUE_CAPACITY);
 	const kbZ = new Float32Array(DAMAGE_QUEUE_CAPACITY);
 	let size = 0;
@@ -74,12 +88,13 @@ export function createDamageSystem(deps: DamageSystemDeps): DamageSystem {
 	const lifeSteal = createLifeStealLimiter(config, STEP);
 
 	const queue: DamageQueue = {
-		push(t, a, _source, c, x, z): boolean {
+		push(t, a, s, c, x, z): boolean {
 			if (size === DAMAGE_QUEUE_CAPACITY) {
 				dropped++;
 				return false;
 			}
 			target[size] = t;
+			source[size] = s;
 			amount[size] = a;
 			critChance[size] = c;
 			kbX[size] = x;
@@ -95,7 +110,14 @@ export function createDamageSystem(deps: DamageSystemDeps): DamageSystem {
 		},
 	};
 
-	function hitHero(i: number): void {
+	function recordKiller(world: GameWorld, by: number): void {
+		if (!runStats) return;
+		if (by === hero) runStats.killer = { kind: "self", type: -1 };
+		else if (by > 0 && hasComponent(world, by, EnemyFaction))
+			runStats.killer = { kind: "enemy", type: EnemyType.id[by] ?? -1 };
+	}
+
+	function hitHero(world: GameWorld, i: number): void {
 		if ((Invulnerable.ticks[hero] ?? 0) > 0) return;
 		if (rng.dodge.next() < effectiveDodge(stats.dodge, config.dodgeCap)) {
 			events.push(EventType.Dodged, 0, 0, 0, hero);
@@ -105,6 +127,7 @@ export function createDamageSystem(deps: DamageSystemDeps): DamageSystem {
 		Health.hp[hero] = (Health.hp[hero] ?? 0) - taken;
 		Invulnerable.ticks[hero] = iFrameTicks;
 		events.push(EventType.PlayerHit, taken, 0, 0, hero);
+		if (runStats && (Health.hp[hero] ?? 0) <= 0) recordKiller(world, source[i] ?? 0);
 		if ((Health.hp[hero] ?? 0) <= 0) events.push(EventType.Died, 0, 0, 0, hero);
 	}
 
@@ -118,6 +141,7 @@ export function createDamageSystem(deps: DamageSystemDeps): DamageSystem {
 			(isBoss ? (stats.bossDamage ?? 0) : 0) + (isElite ? (effects?.bonusDamageVsElites ?? 0) : 0);
 		const dealt = raw * (1 + bonus) * armorMultiplier(Armor.value[eid] ?? 0, config.armorConstant);
 		Health.hp[eid] = (Health.hp[eid] ?? 0) - dealt;
+		if (runStats) runStats.damageDealt += dealt;
 		HitFlash.ticks[eid] = 2;
 
 		const scale = knockbackScale(config, hasComponent(world, eid, Boss), hasComponent(world, eid, Elite));
@@ -138,7 +162,7 @@ export function createDamageSystem(deps: DamageSystemDeps): DamageSystem {
 
 			for (let i = 0; i < size; i++) {
 				const eid = target[i] ?? 0;
-				if (eid === hero) hitHero(i);
+				if (eid === hero) hitHero(world, i);
 				else hitEnemy(world, i, eid);
 			}
 			size = 0;
