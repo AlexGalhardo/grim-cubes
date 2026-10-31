@@ -12,15 +12,22 @@ Decisões: D19 (Electron + electron-builder), D28 (web = demo), D29 (Android 1.1
 
 ## 2. Electron (Steam, Windows 11)
 
-Nada desta seção existe ainda: não há `apps/electron` e `bun run build:electron` é um stub que sai com erro (`tools/build-electron`). Tudo provisório até P-07-02.
+Implementado em P-07-02 sem Steam (não há App ID; o `steamworks.js` e o preload de achievements descritos abaixo continuam futuros). Electron 45.2.1 e electron-builder 26.18.0, versões exatas em `devDependencies`.
 
-- `apps/electron/main.ts`: `BrowserWindow` fullscreen por padrão (opção janela), `webPreferences: { contextIsolation: true, nodeIntegration: false, preload }`; carrega `dist/index.html` (`file://`) com `protocol.handle("app", …)` para caminhos absolutos.
-- Flags de GPU: nenhum por padrão; `--in-process-gpu` e `--disable-direct-composition` só se o overlay Steam exigir (teste no PROTÓTIPO; ADR-0008). Se instável: overlay desligado e documentado.
+- `apps/electron/src/main.ts`: `BrowserWindow` em tela cheia (F11 ou Alt+Enter alternam), `webPreferences: { contextIsolation: true, nodeIntegration: false, sandbox: true }`, `app.enableSandbox()`, menu removido, DevTools só fora do build empacotado, instância única, permissões do navegador sempre negadas. O jogo carrega por um esquema próprio, `app://game/`, registrado como privilegiado (`standard`, `secure`, `supportFetchAPI`, `stream`): o build usa URLs absolutas (`/assets/...`), que `file://` não serve. `protocol.handle` mapeia o caminho para `dist/` (`paths.ts` recusa `..` e `%2e%2e`) e acrescenta a mesma CSP do `vercel.json` e `nosniff` a cada resposta. `will-navigate` bloqueia tudo que não seja `app://game/` e `setWindowOpenHandler` nega toda janela nova.
+- `apps/electron/src/preload.ts`: expõe só `window.gcDesktop = { platform, steam: false }` por `contextBridge`.
+- O main e o preload são empacotados por `bun build --target=node --format=cjs --external=electron` em `apps/electron/dist/` (sem `tsc` de emissão; o typecheck do projeto `apps/electron` continua em `bun check -b`). O `main` do `package.json` aponta para `apps/electron/dist/main.cjs`.
+- `electron-builder.yml`: `appId: com.alexgalhardo.grimcubes`, alvos `nsis` (não one-click, escolhe a pasta) e `portable` em x64, `asar: true`, `files` só `dist/**`, `apps/electron/dist/**` e `package.json` (sem `node_modules`: o Vite já embute as bibliotecas), `publish: null`. Nomes: `GrimCubes-Setup-<versão>.exe` e `GrimCubes-<versão>-portable.exe`, em `release/` (no `.gitignore`).
+- Sem assinatura: `CSC_IDENTITY_AUTO_DISCOVERY=false`. O certificado é do PO (B-04-01); até lá o SmartScreen avisa na primeira execução. O ícone do executável é o padrão do Electron até existir um `.ico`.
+- Release: o job `desktop` do `release.yml` (windows-latest, depois do job `release`, que só roda com o CI verde) executa `bun run build:electron` na tag `v*` e anexa os dois `.exe` com `gh release upload --clobber`.
+- Flags de GPU: nenhum por padrão (ver a nota do overlay Steam abaixo).
+
+- Overlay Steam (futuro): `--in-process-gpu` e `--disable-direct-composition` só se o overlay Steam exigir (teste no PROTÓTIPO; ADR-0008). Se instável: overlay desligado e documentado.
 - `steamworks.js` 0.4.0 no main: `init(appId)`, `electronEnableSteamOverlay()`, achievements (`achievement.activate`), `cloud` não usado (Auto-Cloud). Preload expõe `window.gc.steam = { unlockAchievement(id), isDemo(), getLanguage() }` via `contextBridge`.
 - Achievements 1.0 (10): primeira morte; round 10; matar o Coveiro; round 20; round 30; 1.000 kills; 10.000 kills; comprar 1 ramo inteiro do Ossuário; matar uma elite Explosiva sem tomar dano; vencer em Grim.
-- `electron-builder.yml`: `appId: com.alexgalhardo.grimcubes`, `win.target: [nsis, portable]`, `nsis.oneClick: false`, `artifactName: grim-cubes_${version}_windows_x64.${ext}`, `files` só `dist/**` e `apps/electron/dist/**`, `asar: true`, `extraResources` para redistribuíveis do Steamworks (`steam_api64.dll`).
+- Com o Steam (futuro): `extraResources` do `electron-builder.yml` levam o `steam_api64.dll`.
 - Assinatura: `win.sign` com certificado OV (arquivo `.pfx` em secret do CI) quando existir; sem certificado, build não assinado (SmartScreen aceito na fase BETA; ADR-0008).
-- Build: `bun run build:electron` = `vite build --mode electron` + `tsc -p apps/electron` + `electron-builder --win`. Saída em `release/`.
+- Build: `bun run build:electron` (`tools/build-electron`) = `data:check` + `assets:build` + `vite build --mode electron` + `bun build` do main e do preload + `electron-builder --win nsis portable --x64`. Saída em `release/`.
 - Steam: dois App IDs (jogo e demo); depots `windows`; upload via `steamcmd` em workflow manual (`steam-deploy`), com `STEAM_BUILD_ACCOUNT` e `STEAM_CONFIG_VDF` em secrets. Branch `beta` para testers, `default` para release.
 
 ## 3. Android (Capacitor 8) — versão 1.1
@@ -41,7 +48,7 @@ Nada desta seção existe ainda: não há `apps/android` e `bun run build:androi
 | --- | --- |
 | `dev` | `vite --config apps/web/vite.config.ts` |
 | `build` | `bun run data:check && bun run assets:build && vite build --config apps/web/vite.config.ts --mode web-demo` |
-| `build:electron` | `bun tools/build-electron/index.ts` (stub; a cadeia do §2 é provisória até P-07-02) |
+| `build:electron` | `bun tools/build-electron/index.ts` (a cadeia do §2) |
 | `build:android` | `bun tools/build-android/index.ts` (stub; `vite build --mode android && cap sync android && cd apps/android && ./gradlew bundleRelease` é provisório até M-01-02) |
 | `typecheck` | `bun check -b` |
 | `lint` | `biome ci .` |
