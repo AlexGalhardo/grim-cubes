@@ -1,5 +1,5 @@
 import type { SpatialHash } from "@gc/core";
-import { hasComponent, removeComponent } from "bitecs";
+import { removeComponent } from "bitecs";
 import {
 	Bleed,
 	EnemyFaction,
@@ -10,6 +10,7 @@ import {
 	ThornsCooldown,
 } from "../ecs/components";
 import { type EventBuffer, EventType } from "../ecs/events";
+import { isHittable } from "../ecs/hittable";
 import { createQueryCache, type GameWorld } from "../ecs/world";
 import { STEP } from "../loop";
 import {
@@ -88,7 +89,7 @@ export function createAuraSystem(deps: AuraSystemDeps): AuraSystem {
 				const n = enemies.queryCircle(hx, hz, aura.radius + 1, near);
 				for (let i = 0; i < n; i++) {
 					const e = near[i] ?? 0;
-					if ((Health.hp[e] ?? 0) <= 0 || !hasComponent(world, e, EnemyFaction)) continue;
+					if ((Health.hp[e] ?? 0) <= 0 || !isHittable(world, e)) continue;
 					const dist = Math.hypot((Position.x[e] ?? 0) - hx, (Position.z[e] ?? 0) - hz);
 					if (dist <= aura.radius + (Radius.r[e] ?? 0)) queue.push(e, perStep, 0, 0, 0, 0);
 				}
@@ -170,7 +171,7 @@ export function createThornsSystem(deps: ThornsSystemDeps): AuraSystem {
 			const n = effects.contactDamage > 0 ? enemies.queryCircle(hx, hz, reach + 3, near) : 0;
 			for (let i = 0; i < n; i++) {
 				const e = near[i] ?? 0;
-				if (!hasComponent(world, e, EnemyFaction) || (Health.hp[e] ?? 0) <= 0) continue;
+				if (!isHittable(world, e) || (Health.hp[e] ?? 0) <= 0) continue;
 				if ((ThornsCooldown.ticks[e] ?? 0) > 0) continue;
 				const dist = Math.hypot((Position.x[e] ?? 0) - hx, (Position.z[e] ?? 0) - hz);
 				if (dist > reach + (Radius.r[e] ?? 0)) continue;
@@ -216,7 +217,7 @@ export function createKillEffectsSystem(deps: KillEffectsDeps): KillEffectsSyste
 		const n = enemies.queryCircle(x, z, radius + 1, near);
 		for (let i = 0; i < n; i++) {
 			const e = near[i] ?? 0;
-			if (e === skip || (Health.hp[e] ?? 0) <= 0 || !hasComponent(world, e, EnemyFaction)) continue;
+			if (e === skip || (Health.hp[e] ?? 0) <= 0 || !isHittable(world, e)) continue;
 			const dist = Math.hypot((Position.x[e] ?? 0) - x, (Position.z[e] ?? 0) - z);
 			if (dist <= radius + (Radius.r[e] ?? 0)) queue.push(e, damage, hero, 0, 0, 0);
 		}
