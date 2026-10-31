@@ -1,6 +1,7 @@
 {
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
+		"types": ["vite/client"],
 		"outDir": "../../node_modules/.tsc/web",
 		"tsBuildInfoFile": "../../node_modules/.tsc/web/.tsbuildinfo",
 		"rootDir": "src"

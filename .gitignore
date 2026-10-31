@@ -33,3 +33,6 @@ apps/android/android/local.properties
 *.jks
 *.pfx
 *.tsbuildinfo
+
+# Concept arts são referência local do PO (repositório público); só o índice é versionado.
+references/concept-arts/*.png
