@@ -1,6 +1,7 @@
 import { defineConfig } from "@playwright/test";
 
-const PORT = 4173;
+// Worktrees share this machine: set GC_E2E_PORT to avoid reusing another worktree's preview server.
+const PORT = Number(process.env.GC_E2E_PORT ?? 4173);
 
 // Software GL so the same pixels render on CI (no GPU) and on dev machines (SDD 11 §2).
 const swiftShaderArgs = [
