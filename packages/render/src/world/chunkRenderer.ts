@@ -6,6 +6,7 @@ import { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData";
 import type { ChunkSystem } from "@gc/game";
 import "@babylonjs/core/Meshes/thinInstanceMesh";
+import { toLoaderLocalX } from "../coords";
 import { PALETTE } from "../scene/palette";
 import { flatMaterial, type GameScene } from "../scene/scene";
 import { createPlaceholderTerrain, type PropTypeDef, TERRAIN_TILE, TERRAIN_VARIANTS } from "./placeholder";
@@ -15,6 +16,11 @@ export interface ChunkRendererConfig {
 	maxPropsPerChunk: number;
 	/** Chebyshev radius around the hero chunk whose props are instanced; farther loaded chunks stay invisible. */
 	loadRadius: number;
+	/**
+	 * True when the prop base meshes come from the glTF loader (`.glb` props): their `__root__` mirrors X, so the
+	 * instance x is conjugated with toLoaderLocalX. Placeholder boxes built in code leave it false.
+	 */
+	loaderMirrored?: boolean;
 }
 
 export interface ChunkRenderer {
@@ -196,7 +202,8 @@ export function createChunkRenderer(
 				if (!buffer) continue;
 				const n = propCounts[t] ?? 0;
 				propCounts[t] = n + 1;
-				buffer[n * 16 + 12] = baseX + (chunk.propX[p] ?? 0);
+				const x = baseX + (chunk.propX[p] ?? 0);
+				buffer[n * 16 + 12] = config.loaderMirrored ? toLoaderLocalX(x) : x;
 				buffer[n * 16 + 14] = baseZ + (chunk.propZ[p] ?? 0);
 			}
 		}

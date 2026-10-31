@@ -24,11 +24,11 @@ const stubGenerate = (cx: number, cz: number, out: ChunkData): void => {
 	}
 };
 
-function setup() {
+function setup(loaderMirrored = false) {
 	const { engine, dispose } = createNullEngine();
 	const game = createGameScene(engine);
 	const chunks = createChunkSystem(config, stubGenerate);
-	const renderer = createChunkRenderer(game, chunks, config, PLACEHOLDER_PROPS);
+	const renderer = createChunkRenderer(game, chunks, { ...config, loaderMirrored }, PLACEHOLDER_PROPS);
 	const step = (heroX: number, heroZ: number, originX = 0, originZ = 0): void => {
 		chunks.update(heroX, heroZ);
 		renderer.update(originX, originZ, heroX, heroZ);
@@ -108,6 +108,26 @@ describe("chunk renderer", () => {
 			expect(sum).toBeCloseTo(expectedPropSum(chunks, type, 1024), 2);
 		}
 		dispose();
+	});
+
+	it("conjugates prop x for loader-parented meshes (the __root__ mirror)", () => {
+		const plain = setup(false);
+		const mirrored = setup(true);
+		for (let i = 0; i < 40; i++) {
+			plain.step(1100, 20, 1024, 0);
+			mirrored.step(1100, 20, 1024, 0);
+		}
+		for (let type = 0; type < PLACEHOLDER_PROPS.length; type++) {
+			const a = plain.renderer.instances(type);
+			const b = mirrored.renderer.instances(type);
+			expect(b.count).toBe(a.count);
+			for (let n = 0; n < a.count; n++) {
+				expect(b.buffer[n * 16 + 12]).toBeCloseTo(-(a.buffer[n * 16 + 12] ?? 0), 6);
+				expect(b.buffer[n * 16 + 14]).toBe(a.buffer[n * 16 + 14]);
+			}
+		}
+		plain.dispose();
+		mirrored.dispose();
 	});
 
 	it("allocates nothing per step once warm, also while crossing chunk borders", () => {
