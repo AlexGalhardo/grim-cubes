@@ -1,4 +1,4 @@
-import type { DynamicScaleConfig, VideoPreset } from "@gc/game";
+import type { DynamicScaleConfig, PresetsData, VideoPreset } from "@gc/game";
 import type { GameScene } from "./scene";
 
 /** What a preset changed on the render side, for the HUD, the debug API and the caller that owns the pools. */
@@ -44,6 +44,8 @@ export interface DynamicScaler {
 	/** Turns the scaler on or off (presets without `dynamicScale` leave the level where `applyPreset` put it). */
 	setEnabled(enabled: boolean): void;
 }
+
+type AutoPresetData = PresetsData["auto"];
 
 const WINDOW = 120;
 
@@ -110,4 +112,35 @@ export function createDynamicScaler(
 			}
 		},
 	};
+}
+
+/** What the browser tells us about the machine (R-01-03). Fields it does not expose stay undefined. */
+export interface HardwareInfo {
+	mobile: boolean;
+	cores?: number | undefined;
+	/** `navigator.deviceMemory` in GB; Chromium only. */
+	memoryGb?: number | undefined;
+	/** The unmasked WebGL renderer string. */
+	renderer?: string | undefined;
+}
+
+/** Picks the first auto-preset rule that holds for `hardware`, else the fallback. A bound on a fact the browser hides never matches. */
+export function pickAutoPreset(auto: AutoPresetData, hardware: HardwareInfo): string {
+	for (const rule of auto.rules) {
+		if (rule.mobile !== undefined && rule.mobile !== hardware.mobile) continue;
+		const { cores, memoryGb, renderer } = hardware;
+		if (rule.maxCores !== undefined && (cores === undefined || cores > rule.maxCores)) continue;
+		if (rule.minCores !== undefined && (cores === undefined || cores < rule.minCores)) continue;
+		if (rule.maxMemoryGb !== undefined && (memoryGb === undefined || memoryGb > rule.maxMemoryGb))
+			continue;
+		if (rule.minMemoryGb !== undefined && (memoryGb === undefined || memoryGb < rule.minMemoryGb))
+			continue;
+		if (
+			rule.rendererMatches !== undefined &&
+			!(renderer && new RegExp(rule.rendererMatches, "i").test(renderer))
+		)
+			continue;
+		return rule.preset;
+	}
+	return auto.fallback;
 }

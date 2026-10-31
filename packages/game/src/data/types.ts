@@ -352,7 +352,23 @@ export interface DynamicScaleConfig {
 	step: number;
 }
 
+/**
+ * One rule of the automatic preset (R-01-03). Every field present must hold; the first matching rule wins. Hardware
+ * facts that the browser does not expose (`deviceMemory` is Chromium only) never match a memory bound.
+ */
+export interface AutoPresetRule {
+	preset: string;
+	mobile?: boolean;
+	maxCores?: number;
+	minCores?: number;
+	maxMemoryGb?: number;
+	minMemoryGb?: number;
+	/** Case-insensitive regular expression tested against the WebGL renderer string. */
+	rendererMatches?: string;
+}
+
 export interface PresetsData {
+	auto: { fallback: string; rules: AutoPresetRule[] };
 	default: string;
 	dynamicScale: DynamicScaleConfig;
 	presets: VideoPreset[];

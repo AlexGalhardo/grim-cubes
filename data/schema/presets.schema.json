@@ -4,9 +4,34 @@
 	"title": "Video presets (SDD 14 section 5)",
 	"type": "object",
 	"additionalProperties": false,
-	"required": ["default", "dynamicScale", "presets"],
+	"required": ["default", "dynamicScale", "auto", "presets"],
 	"properties": {
 		"default": { "$ref": "common.schema.json#/$defs/id" },
+		"auto": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": ["fallback", "rules"],
+			"properties": {
+				"fallback": { "$ref": "common.schema.json#/$defs/id" },
+				"rules": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"additionalProperties": false,
+						"required": ["preset"],
+						"properties": {
+							"preset": { "$ref": "common.schema.json#/$defs/id" },
+							"mobile": { "type": "boolean" },
+							"maxCores": { "type": "integer", "minimum": 1 },
+							"minCores": { "type": "integer", "minimum": 1 },
+							"maxMemoryGb": { "type": "number", "exclusiveMinimum": 0 },
+							"minMemoryGb": { "type": "number", "exclusiveMinimum": 0 },
+							"rendererMatches": { "type": "string", "minLength": 1 }
+						}
+					}
+				}
+			}
+		},
 		"dynamicScale": {
 			"type": "object",
 			"additionalProperties": false,

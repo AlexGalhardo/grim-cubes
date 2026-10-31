@@ -64,5 +64,39 @@
 			"renderScale": 0.75,
 			"dynamicScale": true
 		}
-	]
+	],
+	"auto": {
+		"fallback": "high",
+		"rules": [
+			{
+				"preset": "minimum",
+				"rendererMatches": "swiftshader|llvmpipe|software|microsoft basic"
+			},
+			{
+				"preset": "minimum",
+				"mobile": true,
+				"maxMemoryGb": 2
+			},
+			{
+				"preset": "low",
+				"mobile": true
+			},
+			{
+				"preset": "low",
+				"maxCores": 2
+			},
+			{
+				"preset": "medium",
+				"maxCores": 4
+			},
+			{
+				"preset": "medium",
+				"maxMemoryGb": 4
+			},
+			{
+				"preset": "high",
+				"maxCores": 16
+			}
+		]
+	}
 }

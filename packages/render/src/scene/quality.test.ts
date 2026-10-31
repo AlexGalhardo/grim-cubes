@@ -1,7 +1,7 @@
 import { presetsData } from "@gc/game";
 import { describe, expect, it } from "vitest";
 import { createNullEngine } from "../engine";
-import { applyPreset, createDynamicScaler, type QualityEngine } from "./quality";
+import { applyPreset, createDynamicScaler, pickAutoPreset, type QualityEngine } from "./quality";
 import { createGameScene } from "./scene";
 
 function fakeEngine(): QualityEngine & { levels: number[] } {
@@ -81,5 +81,33 @@ describe("dynamic scaler", () => {
 		scaler.setEnabled(false);
 		for (let i = 0; i < 2000; i++) scaler.frame(80);
 		expect(scaler.level).toBe(1);
+	});
+});
+
+describe("automatic preset", () => {
+	const auto = presetsData.auto;
+	const pick = (hw: Parameters<typeof pickAutoPreset>[1]): string => pickAutoPreset(auto, hw);
+
+	it("chooses Low on Android and Minimum on a software renderer or a 2 GB phone", () => {
+		expect(pick({ mobile: true, cores: 8, memoryGb: 4, renderer: "Adreno (TM) 640" })).toBe("low");
+		expect(pick({ mobile: true, cores: 8, memoryGb: 2 })).toBe("minimum");
+		expect(pick({ mobile: false, cores: 16, renderer: "ANGLE (Google, SwiftShader Device)" })).toBe(
+			"minimum",
+		);
+	});
+
+	it("falls back without deviceMemory: cores and renderer alone decide", () => {
+		expect(pick({ mobile: false, cores: 2 })).toBe("low");
+		expect(pick({ mobile: false, cores: 4 })).toBe("medium");
+		expect(pick({ mobile: false, cores: 8 })).toBe("high");
+		expect(pick({ mobile: true })).toBe("low");
+		expect(pick({ mobile: false })).toBe(auto.fallback);
+	});
+
+	it("uses memory when the browser exposes it and always names a preset that exists", () => {
+		expect(pick({ mobile: false, cores: 8, memoryGb: 4 })).toBe("medium");
+		for (const rule of auto.rules)
+			expect(presetsData.presets.some((p) => p.id === rule.preset)).toBe(true);
+		expect(presetsData.presets.some((p) => p.id === auto.fallback)).toBe(true);
 	});
 });
