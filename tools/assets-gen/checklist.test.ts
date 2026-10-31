@@ -15,9 +15,16 @@ describe("art bible §14 checklist", () => {
 		}
 	});
 
+	it("marks audio and the static models' groups and clips as not applicable", () => {
+		const prop = rows.find((r) => r.category === "props");
+		expect(prop?.items[6]).toBeNull();
+		expect(prop?.items[7]).toBeNull();
+		expect(rows.every((r) => r.items[11] === null)).toBe(true);
+	});
+
 	it("passes the hero on the statically checkable items and renders a markdown row for it", () => {
 		const hero = rows.find((r) => r.name === "hero");
-		expect(hero?.items.slice(0, 10).every(Boolean)).toBe(true);
+		expect(hero?.items.slice(0, 10).every((v) => v === true)).toBe(true);
 		expect(renderChecklist(rows, "2026-10-31")).toContain("| `hero/hero` |");
 	});
 });

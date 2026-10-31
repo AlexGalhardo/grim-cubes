@@ -33,8 +33,8 @@ export interface ChecklistRow {
 	name: string;
 	elements: number;
 	budget: number;
-	/** Items 1 to 12, in order. */
-	items: boolean[];
+	/** Items 1 to 12, in order; `null` is not applicable. */
+	items: (boolean | null)[];
 }
 
 const SHADOW_HUES = new Set(["2B2340", "3F3A52", "14121C"]);
@@ -117,6 +117,7 @@ export function buildChecklist(
 			const rotations = model.elements.flatMap((e) => e.rotation ?? []);
 			const emissive = [...hex].some((h) => EMISSIVE.has(h)) || EMISSIVE_BY_NAME.has(name);
 			const prefix = PREFIX[category];
+			const staticModel = category === "props" || category === "tiles" || category === "weapons";
 			const items = [
 				/^[a-z0-9_]+$/.test(name) && hasTex && (!prefix || name.startsWith(prefix)),
 				model.elements.every((e) => e.type === "cube" || e.type === "quad") &&
@@ -130,12 +131,12 @@ export function buildChecklist(
 					!hex.has("000000"),
 				[...hex].some((h) => SHADOW_HUES.has(h)),
 				category === "tiles" || existsSync(join(reviewDir, "silhouettes", `${category}-side.png`)),
-				character ? required.every((g) => groups.has(g)) : groups.has("root"),
-				REQUIRED_CLIPS[category].every((c) => clips.has(c)),
+				staticModel ? null : character ? required.every((g) => groups.has(g)) : groups.has("root"),
+				staticModel ? null : REQUIRED_CLIPS[category].every((c) => clips.has(c)),
 				!emissive || existsSync(join(dir, `${name}_e.png`)),
 				buildOk,
 				false,
-				true,
+				null,
 			];
 			rows.push({ category, name, elements: model.elements.length, budget, items });
 		}
@@ -144,11 +145,11 @@ export function buildChecklist(
 }
 
 export function renderChecklist(rows: readonly ChecklistRow[], date: string): string {
-	const tick = (v: boolean): string => (v ? "✔" : "✘");
+	const tick = (v: boolean | null): string => (v === null ? "n/a" : v ? "✔" : "✘");
 	const head = [
 		"# B-03-01: checklist do Art Bible §14",
 		"",
-		`Gerado em ${date} por \`tools/assets-gen/checklist.ts\` sobre os ${rows.length} modelos de \`assets/src/models/\`. Uma linha por modelo; ✔ cumpre, ✘ não cumpre.`,
+		`Gerado em ${date} por \`tools/assets-gen/checklist.ts\` sobre os ${rows.length} modelos de \`assets/src/models/\`. Uma linha por modelo; ✔ cumpre, ✘ não cumpre, n/a não se aplica (grupos e clipes de modelos estáticos; áudio).`,
 		"",
 		"## Itens",
 		"",
@@ -163,7 +164,7 @@ export function renderChecklist(rows: readonly ChecklistRow[], date: string): st
 		(r) =>
 			`| \`${r.category}/${r.name}\` | ${r.elements}/${r.budget} | ${r.items.map(tick).join(" | ")} |`,
 	);
-	const totals = CHECKLIST_ITEMS.map((_, i) => rows.filter((r) => !r.items[i]).length);
+	const totals = CHECKLIST_ITEMS.map((_, i) => rows.filter((r) => r.items[i] === false).length);
 	return `${[...head, ...body, "", "## Total de ✘ por item", "", totals.map((t, i) => `item ${i + 1}: ${t}`).join(", ")].join("\n")}\n`;
 }
 
@@ -175,6 +176,6 @@ if (import.meta.main) {
 		renderChecklist(rows, new Date().toISOString().slice(0, 10)),
 	);
 	console.log(
-		`checklist: ${rows.length} models, ${rows.filter((r) => r.items.slice(0, 10).every(Boolean)).length} pass items 1-10`,
+		`checklist: ${rows.length} models, ${rows.filter((r) => r.items.slice(0, 10).every((v) => v !== false)).length} pass items 1-10`,
 	);
 }
