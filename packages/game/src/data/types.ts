@@ -264,3 +264,23 @@ export interface OssuaryData {
 	/** The demo sells only nodes with `index <= demoMaxNodeIndex` (GDD 19.2). */
 	demoMaxNodeIndex: number;
 }
+
+/** `data/milestones.json` (GDD 20). */
+export interface MilestoneData {
+	id: string;
+	/** `record` is the best round reached on any difficulty. */
+	requires: { stat: string; value: number };
+	unlocksItem?: string | undefined;
+	unlocksSkin?: string | undefined;
+}
+
+export interface SkinData {
+	id: string;
+	name: string;
+	tint: string;
+}
+
+export interface MilestonesData {
+	milestones: MilestoneData[];
+	skins: SkinData[];
+}

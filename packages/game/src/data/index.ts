@@ -5,6 +5,7 @@ import elitesJson from "../../../../data/elites.json";
 import enemiesJson from "../../../../data/enemies.json";
 import heroJson from "../../../../data/hero.json";
 import itemsJson from "../../../../data/items.json";
+import milestonesJson from "../../../../data/milestones.json";
 import ossuaryJson from "../../../../data/ossuary.json";
 import propsJson from "../../../../data/props.json";
 import renderJson from "../../../../data/render.json";
@@ -23,6 +24,7 @@ import type {
 	EnemyData,
 	HeroData,
 	ItemData,
+	MilestonesData,
 	OssuaryData,
 	PropData,
 	RenderData,
@@ -43,6 +45,7 @@ export const worldData: WorldData = worldJson;
 export const biomesData: readonly BiomeData[] = biomesJson;
 export const cardsData: CardsData = cardsJson;
 export const ossuaryData: OssuaryData = ossuaryJson;
+export const milestonesData: MilestonesData = milestonesJson;
 export const bossesData: readonly BossData[] = bossesJson;
 export const elitesData: ElitesData = elitesJson;
 export const itemsData: readonly ItemData[] = itemsJson;

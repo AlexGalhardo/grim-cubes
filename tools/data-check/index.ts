@@ -224,6 +224,19 @@ export function checkIntegrity(data: DataSet): string[] {
 		}
 	}
 
+	const milestones = data["milestones.json"];
+	if (isObject(milestones)) {
+		const list = asArray(milestones.milestones);
+		checkUniqueIds("milestones.json", list, errors);
+		const skinIds = checkUniqueIds("milestones.json skins", asArray(milestones.skins), errors);
+		for (const m of list) {
+			if (typeof m.unlocksItem === "string" && !itemIds.has(m.unlocksItem))
+				errors.push(`milestones.json: ${idOf(m)} unlocks unknown item "${m.unlocksItem}"`);
+			if (typeof m.unlocksSkin === "string" && !skinIds.has(m.unlocksSkin))
+				errors.push(`milestones.json: ${idOf(m)} unlocks unknown skin "${m.unlocksSkin}"`);
+		}
+	}
+
 	return errors;
 }
 
@@ -273,6 +286,7 @@ const EXPECTED_FILES = [
 	"items",
 	"cards",
 	"ossuary",
+	"milestones",
 	"rounds",
 	"biomes",
 	"hero",

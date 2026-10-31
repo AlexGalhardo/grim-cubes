@@ -22,6 +22,7 @@ export {
 	enemiesData,
 	heroData,
 	itemsData,
+	milestonesData,
 	ossuaryData,
 	propsData,
 	renderData,
@@ -94,6 +95,7 @@ export type { EliteRoller, EliteStats } from "./rules/elite";
 export { createEliteRoller, eliteStats } from "./rules/elite";
 export type { FragmentsConfig, XpConfig } from "./rules/fragments";
 export { dropChance, harvestCount, xpForLevel } from "./rules/fragments";
+export { availableItems, isReached, lockedItemIds, unlockedSkins } from "./rules/milestones";
 export type { BuyResult, NodeState, OssuaryBonus } from "./rules/ossuary";
 export {
 	applyOssuary,

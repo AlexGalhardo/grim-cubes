@@ -18,6 +18,7 @@ import {
 	applyOriginShift,
 	applyOssuary,
 	applyRoundEndBonus,
+	availableItems,
 	Boss,
 	behaviorConfigFromData,
 	biomesData,
@@ -72,6 +73,7 @@ import {
 	inputSystem,
 	isUnlocked,
 	itemsData,
+	milestonesData,
 	movementSystem,
 	nodeState,
 	ossuaryData,
@@ -89,6 +91,7 @@ import {
 	toBiomeDefs,
 	toEnemyDefs,
 	toShopWeapons,
+	unlockedSkins,
 	weaponsData,
 	worldData,
 	xpForLevel,
@@ -221,6 +224,9 @@ async function boot(): Promise<void> {
 	stats.run(hero);
 
 	const owned = new Map<string, number>();
+	// Milestone-gated items (GDD 20) stay out of shops and chests until the account reaches them; the run starts with
+	// the pool the saved stats allow.
+	const poolItems = availableItems(itemsData, milestonesData, meta);
 	const dash = createDashSystem(heroData.dash, {
 		unlocked: ossuaryBonus.dashUnlocked,
 		charges: ossuaryBonus.dashCharges,
@@ -390,7 +396,7 @@ async function boot(): Promise<void> {
 	const levelUp = createLevelUpSystem({ progress, run, cards: cardsData, rng: rng.cards, stats, events });
 	const chest = createChestSystem({
 		reward: elitesData.reward,
-		items: itemsData,
+		items: poolItems,
 		rng: rng.loot,
 		run,
 		stats,
@@ -403,7 +409,7 @@ async function boot(): Promise<void> {
 	const shop = createShopSystem({
 		config: roundsData.shop,
 		tiers: roundsData.tierChance,
-		catalog: { items: itemsData, weapons: toShopWeapons(weaponsData) },
+		catalog: { items: poolItems, weapons: toShopWeapons(weaponsData) },
 		weaponDefs: weaponsData,
 		rng: rng.shop,
 		progress,
@@ -581,6 +587,8 @@ async function boot(): Promise<void> {
 		vfx,
 		elite: eliteView,
 	});
+	const skin = unlockedSkins(milestonesData, meta).at(-1);
+	if (skin) game.setHeroTint(skin.tint);
 	const propTypes: PropTypeDef[] = [];
 	for (const name of chunkGen.propTypes) {
 		const placeholder = PLACEHOLDER_PROPS.find((p) => name.startsWith(p.name)) ?? PLACEHOLDER_PROPS[0];

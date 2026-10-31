@@ -22,6 +22,8 @@ export interface GameScene {
 	/** The hero cube; its position is what the camera and the prop fade look at. */
 	readonly hero: Mesh;
 	setHeroPosition(x: number, z: number): void;
+	/** Cosmetic skin: recolors the hero cube (GDD 20, round 50 skin). */
+	setHeroTint(hex: string): void;
 	/** The world origin moved by (dx, dz): static geometry shifts by the opposite amount. */
 	shiftWorld(dx: number, dz: number): void;
 	dispose(): void;
@@ -73,6 +75,13 @@ export function createGameScene(engine: Engine | NullEngine, mobile = false): Ga
 			ground.position.x -= dx;
 			ground.position.z -= dz;
 			ground.freezeWorldMatrix();
+		},
+		setHeroTint(hex) {
+			const material = hero.material;
+			if (!(material instanceof StandardMaterial)) return;
+			material.unfreeze();
+			material.diffuseColor = Color3.FromHexString(hex);
+			material.freeze();
 		},
 		setHeroPosition(x, z) {
 			hero.position.x = x;

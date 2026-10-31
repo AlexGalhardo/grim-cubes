@@ -1,0 +1,43 @@
+{
+	"type": "object",
+	"required": ["milestones", "skins"],
+	"additionalProperties": false,
+	"properties": {
+		"milestones": {
+			"type": "array",
+			"minItems": 1,
+			"items": {
+				"type": "object",
+				"required": ["id", "requires"],
+				"additionalProperties": false,
+				"properties": {
+					"id": { "$ref": "common.schema.json#/$defs/id" },
+					"requires": {
+						"type": "object",
+						"required": ["stat", "value"],
+						"additionalProperties": false,
+						"properties": {
+							"stat": { "enum": ["kills", "bossKills", "elitesKilled", "runs", "record"] },
+							"value": { "type": "integer", "minimum": 1 }
+						}
+					},
+					"unlocksItem": { "$ref": "common.schema.json#/$defs/id" },
+					"unlocksSkin": { "$ref": "common.schema.json#/$defs/id" }
+				}
+			}
+		},
+		"skins": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"required": ["id", "name", "tint"],
+				"additionalProperties": false,
+				"properties": {
+					"id": { "$ref": "common.schema.json#/$defs/id" },
+					"name": { "type": "string", "minLength": 1 },
+					"tint": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" }
+				}
+			}
+		}
+	}
+}

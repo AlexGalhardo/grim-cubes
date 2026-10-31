@@ -1,0 +1,25 @@
+{
+	"milestones": [
+		{
+			"id": "kills_1000",
+			"requires": { "stat": "kills", "value": 1000 },
+			"unlocksItem": "cube_of_wrath"
+		},
+		{
+			"id": "kills_10000",
+			"requires": { "stat": "kills", "value": 10000 },
+			"unlocksItem": "warlord_banner"
+		},
+		{
+			"id": "bosses_5",
+			"requires": { "stat": "bossKills", "value": 5 },
+			"unlocksItem": "executioner_mark"
+		},
+		{
+			"id": "round_50",
+			"requires": { "stat": "record", "value": 50 },
+			"unlocksSkin": "iron_executioner"
+		}
+	],
+	"skins": [{ "id": "iron_executioner", "name": "Carrasco de Ferro Negro", "tint": "#2b2a33" }]
+}
