@@ -12,6 +12,7 @@ import {
 	EventType,
 	Facing,
 	HitFlash,
+	PlayerFaction,
 	Position,
 	PrevPosition,
 	spawnBody,
@@ -362,6 +363,35 @@ describe("boss look", () => {
 		horde.sync(world, 1);
 		expect(Array.from(colors().slice(0, 3)).map((v) => Number(v.toFixed(2)))).toEqual([1.7, 0.5, 0.5]);
 		expect(mesh.thinInstanceGetWorldMatrices()[0]?.m[5]).toBeCloseTo(2.2, 5);
+		dispose();
+	});
+});
+
+describe("render culling", () => {
+	it("leaves enemies beyond the cull radius out of the instance buffers", () => {
+		const { engine, dispose } = createNullEngine();
+		const game = createGameScene(engine);
+		const mesh = skinnedBox("cull_enemy", game.scene);
+		const vat = createVat(
+			game.scene,
+			"cull_enemy",
+			new Float32Array(meta.width * meta.height * 4).buffer,
+			meta,
+		);
+		const horde = createHordeRenderer([{ mesh, vat, walkRefSpeed: 3 }], {
+			capacity: 100,
+			ghostCapacity: 2,
+			deltaSeconds: () => 1 / 60,
+			cullRadius: 30,
+		});
+		const world = createGameWorld();
+		const hero = spawnBody(world, 0, 0);
+		addComponent(world, hero, PlayerFaction);
+		const visible = 60;
+		for (let i = 0; i < 100; i++) spawnEnemy(world, i < visible ? 10 : 35, 0);
+		horde.sync(world, 1);
+		expect(mesh.thinInstanceCount).toBeLessThanOrEqual(visible * 1.1);
+		expect(mesh.thinInstanceCount).toBeGreaterThanOrEqual(visible);
 		dispose();
 	});
 });

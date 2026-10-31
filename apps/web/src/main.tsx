@@ -58,6 +58,7 @@ import {
 	createStatsSystem,
 	createTargetingSystem,
 	createWeaponSystem,
+	cullDistantEnemies,
 	damageConfigFromHero,
 	describeEffect,
 	describeModifier,
@@ -552,6 +553,7 @@ async function boot(): Promise<void> {
 							run.state === "Paused" ? 0 : render.engine.getDeltaTime() / 1000,
 						flashBrightness: renderData.vfx.flashBrightness,
 						hitSquash: renderData.vfx.hitSquash,
+						cullRadius: worldData.renderCullRadius,
 						boss: {
 							scale: renderData.vfx.bossScale,
 							enrageTint: renderData.vfx.bossEnrageTint as [number, number, number],
@@ -885,6 +887,12 @@ async function boot(): Promise<void> {
 				behavior.run(world, hero);
 				separation.run(world);
 				movementSystem(world);
+				cullDistantEnemies(
+					world,
+					Position.x[hero] ?? 0,
+					Position.z[hero] ?? 0,
+					worldData.cullDistance,
+				);
 				applyOriginShift(world, origin, hero, events, worldData);
 				chunks.update(origin.x + (Position.x[hero] ?? 0), origin.z + (Position.z[hero] ?? 0));
 				spawn.run(world, hero);
@@ -918,6 +926,12 @@ async function boot(): Promise<void> {
 				propCollision.steer(world, origin);
 				separation.run(world);
 				movementSystem(world);
+				cullDistantEnemies(
+					world,
+					Position.x[hero] ?? 0,
+					Position.z[hero] ?? 0,
+					worldData.cullDistance,
+				);
 				propCollision.resolve(world, origin, hero);
 				propCollision.resolveEnemies(world, origin);
 				applyOriginShift(world, origin, hero, events, worldData);

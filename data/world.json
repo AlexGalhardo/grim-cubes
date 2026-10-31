@@ -8,6 +8,8 @@
 	"maxPropsPerChunk": 32,
 	"hordeRenderSlack": 20,
 	"propAvoidLookahead": 2,
+	"cullDistance": 40,
+	"renderCullRadius": 30,
 	"propSteerGain": 1.5,
 	"propSteerMargin": 0.1
 }

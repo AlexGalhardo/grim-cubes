@@ -6,6 +6,7 @@ import {
 	Elite,
 	EnemyType,
 	Facing,
+	findHero,
 	type GameWorld,
 	HitFlash,
 	Position,
@@ -44,6 +45,8 @@ export interface HordeOptions {
 	 * Elite look: instance scale for entities with `Elite` and a tint per modifier (`Elite.modifier` is 1-based, so
 	 * `tints[modifier - 1]`). Needs the colour buffer, so it enables it like `flashBrightness`.
 	 */
+	/** Enemies farther than this (u) from the hero are left out of the instance buffers (P-03-05). */
+	cullRadius?: number;
 	/** Vertical scale of an enemy in its hit clip (a squash that reads as a knockback shove); 1 = none. */
 	hitSquash?: number;
 	boss?: { scale: number; enrageTint: readonly [number, number, number] };
@@ -182,8 +185,20 @@ export function createHordeRenderer(types: readonly HordeType[], options: HordeO
 			for (const type of types) type.vat.manager.time += dt;
 			counts.fill(0);
 			const enemies = queryEnemies(world);
+			const hero = findHero(world);
+			const cullSq =
+				hero >= 0 && options.cullRadius !== undefined
+					? options.cullRadius ** 2
+					: Number.POSITIVE_INFINITY;
+			const heroX = Position.x[hero] ?? 0;
+			const heroZ = Position.z[hero] ?? 0;
 			for (let k = 0; k < enemies.length; k++) {
 				const eid = enemies[k] ?? 0;
+				if (cullSq !== Number.POSITIVE_INFINITY) {
+					const dx = (Position.x[eid] ?? 0) - heroX;
+					const dz = (Position.z[eid] ?? 0) - heroZ;
+					if (dx * dx + dz * dz > cullSq) continue;
+				}
 				const t = EnemyType.id[eid] ?? 0;
 				const n = counts[t] ?? capacity;
 				if (n >= capacity) continue;

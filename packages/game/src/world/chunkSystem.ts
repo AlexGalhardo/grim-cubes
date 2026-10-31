@@ -10,6 +10,10 @@ export interface WorldConfig {
 	hordeRenderSlack: number;
 	/** Distance ahead at which enemies start steering around a blocking prop. */
 	propAvoidLookahead: number;
+	/** Enemies beyond this distance (u) from the hero are removed. */
+	cullDistance: number;
+	/** Enemies beyond this distance (u) are not drawn. */
+	renderCullRadius: number;
 	/** How hard a prop dead ahead bends an enemy's heading. */
 	propSteerGain: number;
 	/** Extra clearance kept around props when steering. */
