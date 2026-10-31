@@ -13,5 +13,28 @@
 		"ratePerSecond": 10,
 		"heroHalfWidth": 0.6,
 		"heroHeight": 1
+	},
+	"vfx": {
+		"particlePool": 600,
+		"decalPool": 200,
+		"damageNumberPool": 32,
+		"bloodCubesPerHit": [3, 6],
+		"bloodCubesPerDeath": [8, 14],
+		"explosionCubes": [6, 10],
+		"reducedDeathCubes": 4,
+		"cubeSizeRange": [0.08, 0.15],
+		"particleLifeSeconds": 0.8,
+		"gravity": 18,
+		"bloodLightShare": 0.2,
+		"decalSizeRange": [0.6, 1.2],
+		"decalFromLandingChance": 0.25,
+		"hitStopCritMs": 30,
+		"hitStopBossDeathMs": 80,
+		"flashBrightness": 3,
+		"flashSeconds": 0.034,
+		"damageNumberLifeSeconds": 0.6,
+		"damageNumberRise": 1.2,
+		"damageNumberHeight": 0.42,
+		"projectileSize": 0.2
 	}
 }

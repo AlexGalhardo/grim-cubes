@@ -4,7 +4,7 @@
 	"title": "Render constants (GDD section 5, ADR-0017)",
 	"type": "object",
 	"additionalProperties": false,
-	"required": ["camera", "propFade"],
+	"required": ["camera", "propFade", "vfx"],
 	"properties": {
 		"camera": {
 			"type": "object",
@@ -75,6 +75,97 @@
 					"exclusiveMinimum": 0,
 					"description": "Height of the hero's centre the camera looks at, in units."
 				}
+			}
+		},
+		"vfx": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": [
+				"particlePool",
+				"decalPool",
+				"damageNumberPool",
+				"bloodCubesPerHit",
+				"bloodCubesPerDeath",
+				"explosionCubes",
+				"reducedDeathCubes",
+				"cubeSizeRange",
+				"particleLifeSeconds",
+				"gravity",
+				"bloodLightShare",
+				"decalSizeRange",
+				"decalFromLandingChance",
+				"hitStopCritMs",
+				"hitStopBossDeathMs",
+				"flashBrightness",
+				"flashSeconds",
+				"damageNumberLifeSeconds",
+				"damageNumberRise",
+				"damageNumberHeight",
+				"projectileSize"
+			],
+			"properties": {
+				"particlePool": {
+					"type": "integer",
+					"minimum": 1,
+					"description": "Fixed cube particle pool (Art Bible 5.4: 600 desktop)."
+				},
+				"decalPool": {
+					"type": "integer",
+					"minimum": 0,
+					"description": "Blood decal pool, FIFO (200 desktop)."
+				},
+				"damageNumberPool": { "type": "integer", "minimum": 1 },
+				"bloodCubesPerHit": {
+					"type": "array",
+					"minItems": 2,
+					"maxItems": 2,
+					"items": { "type": "integer", "minimum": 0 }
+				},
+				"bloodCubesPerDeath": {
+					"type": "array",
+					"minItems": 2,
+					"maxItems": 2,
+					"items": { "type": "integer", "minimum": 0 }
+				},
+				"explosionCubes": {
+					"type": "array",
+					"minItems": 2,
+					"maxItems": 2,
+					"items": { "type": "integer", "minimum": 0 }
+				},
+				"reducedDeathCubes": {
+					"type": "integer",
+					"minimum": 0,
+					"description": "Grey cubes of a death with reduced gore."
+				},
+				"cubeSizeRange": {
+					"type": "array",
+					"minItems": 2,
+					"maxItems": 2,
+					"items": { "type": "number", "exclusiveMinimum": 0 }
+				},
+				"particleLifeSeconds": { "type": "number", "exclusiveMinimum": 0 },
+				"gravity": { "type": "number", "minimum": 0 },
+				"bloodLightShare": { "type": "number", "minimum": 0, "maximum": 1 },
+				"decalSizeRange": {
+					"type": "array",
+					"minItems": 2,
+					"maxItems": 2,
+					"items": { "type": "number", "exclusiveMinimum": 0 }
+				},
+				"decalFromLandingChance": { "type": "number", "minimum": 0, "maximum": 1 },
+				"hitStopCritMs": { "type": "number", "minimum": 0 },
+				"hitStopBossDeathMs": { "type": "number", "minimum": 0 },
+				"flashBrightness": {
+					"type": "number",
+					"minimum": 1,
+					"description": "Instance colour multiplier of a hit enemy; above 1 it burns towards white."
+				},
+				"flashSeconds": { "type": "number", "exclusiveMinimum": 0 },
+				"damageNumberLifeSeconds": { "type": "number", "exclusiveMinimum": 0 },
+				"damageNumberRise": { "type": "number", "minimum": 0 },
+				"damageNumberHeight": { "type": "number", "exclusiveMinimum": 0 },
+				"projectileSize": { "type": "number", "exclusiveMinimum": 0 }
 			}
 		}
 	}
