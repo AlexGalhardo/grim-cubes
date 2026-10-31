@@ -51,6 +51,9 @@ describe("bakeVat against the Babylon skeleton, per enemy type", () => {
 
 		let maxError = 0;
 		let frames = 0;
+		// The comparison proves nothing on a still rig: the walk clip must differ between its frames.
+		let walkMoved = false;
+		let firstWalk: Float32Array | null = null;
 		for (const [clipName, range] of Object.entries(baked.meta.clips)) {
 			const group = container.animationGroups.find((g) => g.name === clipName);
 			const fps = group?.targetedAnimations[0]?.animation.framePerSecond;
@@ -66,6 +69,12 @@ describe("bakeVat against the Babylon skeleton, per enemy type", () => {
 				for (let i = 0; i < baked.meta.boneCount * 16; i++) {
 					maxError = Math.max(maxError, Math.abs((babylon[i] ?? 0) - (baked.data[row + i] ?? 0)));
 				}
+				if (clipName === "walk") {
+					const rowData = baked.data.slice(row, row + baked.meta.boneCount * 16);
+					if (!firstWalk) firstWalk = rowData;
+					else if (rowData.some((v, i) => Math.abs(v - (firstWalk?.[i] ?? 0)) > 1e-3))
+						walkMoved = true;
+				}
 				group.stop();
 				frames++;
 			}
@@ -73,6 +82,7 @@ describe("bakeVat against the Babylon skeleton, per enemy type", () => {
 		expect(Object.keys(baked.meta.clips).sort()).toEqual(["attack", "death", "hit", "idle", "walk"]);
 		expect(frames).toBeGreaterThan(10);
 		expect(maxError).toBeLessThan(1e-5);
+		expect(walkMoved).toBe(true);
 		scene.dispose();
 		engine.dispose();
 	});
