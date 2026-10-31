@@ -50,7 +50,7 @@ Nada desta seção existe ainda: não há `apps/android` e `bun run build:androi
 | `test:e2e` | `playwright test` |
 | `test:smoke` | `bun tools/smoke/run.ts` (Playwright) |
 | `test:perf` | `playwright test --config tools/perf/playwright.config.ts` (bench do SDD 14 §4; exige build com `GC_DEBUG_API=1`) |
-| `sim` | `bun tools/sim/index.ts` (stub; provisório até P-07-04) |
+| `sim` | `bun tools/sim/index.ts` |
 | `assets:gen` | `bun tools/assets-gen/index.ts` (gera os `.bbmodel` e `_d.png` placeholder) |
 | `assets:build` | `bun tools/assets-build/index.ts` |
 | `audio:generate` | `bun tools/audio-generate/index.ts` |

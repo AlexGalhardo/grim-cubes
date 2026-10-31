@@ -59,9 +59,10 @@ Estado `ShopState { slots: Slot[4], rerollCount, locked: boolean[4], gold }`.
 
 ## 6. Simulador de balanceamento (`tools/sim`)
 
-- `bun run sim --runs 500 --difficulty normal --policy greedy --seed 1` roda `game` em Node sem render: usa o mesmo `simulate` e uma política de jogador (`policy/greedy.ts`: move em direção oposta ao centroide dos inimigos próximos; compra pelo maior `score = Σ valor_stat × peso / preço`; carta de maior peso faltante).
-- Saída `reports/sim-<data>.json` + resumo Markdown: distribuição de round de morte (p10/p50/p90), DPS por round, ouro/round, tempo de kill por chefe, level por round.
-- Asserts (GDD §25): p50 de morte em [18, 26]; Coveiro em [45, 90] s; chefes seguintes em [60, 120] s; ouro/preço em [1,2, 1,8]; level-ups/round em [1, 2] nos rounds 5–20; desvio padrão ≤ 4 rounds. Falha = CI vermelho (job `balance`).
+- `bun run sim [--runs N] [--seed S] [--rounds R] [--difficulty normal] [--weapon sword] [--ossuary flesh_1,steel_1] [--jobs J] [--out arquivo.json] [--check]` roda `game` em Node sem render, com o mesmo `simulate` e a política `greedy-kite` (`tools/sim/lib.ts`: foge dos inimigos próximos atirando/atacando, compra pelo maior valor de stat por preço, carta de maior valor). A run `i` usa a seed `S + i`; as runs se dividem em worker threads (`--jobs`, padrão até 8). Flags desconhecidas falham.
+- Saída: `reports/sim-<data>-seed<S>-runs<N>.json` (ignorado pelo git; relatórios de fechamento commitados usam outro nome, ex.: `reports/balance-a0203-final.json`) e um resumo no terminal: distribuição do round de morte (p50, IQR, quantas ficaram vivas), tempo de kill e pilhas de fúria por chefe, ouro/preço e level-ups por round.
+- `tools/sim/tune.ts` roda a simulação em memória com overrides temporários dos dados (HP e dano dos inimigos, HP e padrões dos chefes, grupos de `rounds.json`) para experimentar sem editar `data/*.json`; nada é gravado, e os números vencedores são copiados à mão para o JSON.
+- Alvos (`tools/sim/report.ts`, GDD §25, Normal; um alvo é pulado quando as runs são curtas demais para julgá-lo): p50 de morte em [18, 26]; IQR de morte ≤ 25; tempo de kill por chefe na faixa do chefe (Coveiro [45, 90] s, demais [60, 120] s); pilhas de fúria < 3; ouro/preço em [1,2, 1,8]; level-ups/round em [1, 2] nos rounds 5–20. Com `--check`, alvo falho encerra com código 3; o job `balance` do CI roda 64 runs determinísticas.
 - Velocidade alvo: ≥ 10.000 rounds/min em Node (sem render, sem VFX).
 
 ## 7. Testes
