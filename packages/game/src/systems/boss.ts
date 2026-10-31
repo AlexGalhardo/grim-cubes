@@ -224,7 +224,9 @@ export function createBossSystem(deps: BossSystemDeps): BossSystem {
 				Armor.value[entity] = (Armor.value[entity] ?? 0) + (modifier.armorAdd ?? 0);
 			}
 			baseContact =
-				(rounds.contactDamageBase + rounds.contactDamagePerRound * bossRound) * difficulty();
+				(rounds.contactDamageBase + rounds.contactDamagePerRound * bossRound) *
+				difficulty() *
+				(def.contactDamageMult ?? 1);
 			applyEnrage();
 			active = null;
 			cooldown = cooldownSteps;

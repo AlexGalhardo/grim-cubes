@@ -129,7 +129,8 @@ export function runSim(options: SimOptions): SimReport {
 		meta,
 		...(options.weapon !== undefined && { weapon: options.weapon }),
 	});
-	const { world, hero, events, progress, run, shop, levelUp, chest, weapon, boss, poolItems } = session;
+	const { world, hero, events, progress, run, shop, levelUp, chest, weapon, boss, poolItems, origin } =
+		session;
 
 	const input = createInputState();
 	const bosses: BossFight[] = [];
@@ -201,6 +202,16 @@ export function runSim(options: SimOptions): SimReport {
 	function steer(): void {
 		const hx = Position.x[hero] ?? 0;
 		const hz = Position.z[hero] ?? 0;
+		// The bot roams outwards as the run goes on (20 u + 8 u per round): ring 1 starts at 120 u, so a median run
+		// meets the Swamp from round ~13, the Forge from ~30. Beyond that radius it walks back towards the centre.
+		const fromCentreX = origin.x + hx;
+		const fromCentreZ = origin.z + hz;
+		const fromCentre = Math.hypot(fromCentreX, fromCentreZ);
+		if (fromCentre > 20 + 8 * run.round) {
+			input.moveX = -fromCentreX / fromCentre;
+			input.moveZ = -fromCentreZ / fromCentre;
+			return;
+		}
 		let best = Number.POSITIVE_INFINITY;
 		let dx = 0;
 		let dz = 0;

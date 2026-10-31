@@ -23,6 +23,7 @@
 			"radius": { "type": "number", "minimum": 0.1 },
 			"speed": { "type": "number", "minimum": 0 },
 			"patternCooldownSeconds": { "type": "number", "minimum": 0 },
+			"contactDamageMult": { "type": "number", "minimum": 0 },
 			"archetype": {
 				"$ref": "common.schema.json#/$defs/id"
 			},

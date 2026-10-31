@@ -254,6 +254,8 @@ export interface BossData {
 	radius?: number;
 	speed?: number;
 	patternCooldownSeconds?: number;
+	/** Multiplies the shared boss contact damage (rounds.json boss); balance lever per boss. Default 1. */
+	contactDamageMult?: number;
 	archetype: string;
 	delivery: string;
 	patterns: BossPatternData[];
