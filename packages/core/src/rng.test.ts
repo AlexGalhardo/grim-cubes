@@ -28,7 +28,18 @@ describe("mulberry32", () => {
 const bytes = (text: string): Uint8Array => new TextEncoder().encode(text);
 
 describe("murmur3x86_32", () => {
-	// Public vectors (Wikipedia / SMHasher / widely reproduced test lists).
+	// Cross-checked against murmurhash3_32_gc (Gary Court) and the SMHasher verification value below.
+	test("matches the SMHasher verification value 0xB0F57EE3", () => {
+		const key = new Uint8Array(256);
+		const hashes = new Uint8Array(256 * 4);
+		const view = new DataView(hashes.buffer);
+		for (let i = 0; i < 256; i++) {
+			key[i] = i;
+			view.setUint32(i * 4, murmur3x86_32(key.subarray(0, i), 256 - i), true);
+		}
+		expect(murmur3x86_32(hashes, 0)).toBe(0xb0f57ee3);
+	});
+
 	test.each([
 		["", 0, 0x00000000],
 		["", 1, 0x514e28b7],

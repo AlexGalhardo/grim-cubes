@@ -16,7 +16,7 @@
 		"declaration": true,
 		"emitDeclarationOnly": true,
 		"skipLibCheck": true,
-		"types": ["bun", "vitest/globals"],
+		"types": ["bun"],
 		"paths": { "@gc/*": ["./packages/*/src/index.ts"] }
 	}
 }

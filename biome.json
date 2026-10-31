@@ -52,7 +52,15 @@
 							"options": {
 								"patterns": [
 									{
-										"group": ["@gc/render", "@gc/ui", "@gc/platform", "@babylonjs/*"],
+										"group": [
+											"@gc/render",
+											"@gc/ui",
+											"@gc/platform",
+											"@babylonjs/**",
+											"**/render/**",
+											"**/ui/**",
+											"**/platform/**"
+										],
 										"message": "game depends only on core (SDD 01 §2); Babylon belongs to render."
 									}
 								]
@@ -77,7 +85,11 @@
 											"@gc/render",
 											"@gc/ui",
 											"@gc/platform",
-											"@babylonjs/*"
+											"@babylonjs/**",
+											"**/game/**",
+											"**/render/**",
+											"**/ui/**",
+											"**/platform/**"
 										],
 										"message": "core depends on nothing else (SDD 01 §2)."
 									}
@@ -98,8 +110,39 @@
 							"options": {
 								"patterns": [
 									{
-										"group": ["@gc/game", "@gc/render", "@gc/platform", "@babylonjs/*"],
+										"group": [
+											"@gc/game",
+											"@gc/render",
+											"@gc/platform",
+											"@babylonjs/**",
+											"**/render/**",
+											"**/platform/**"
+										],
 										"message": "ui reads only the store from core (SDD 01 §2)."
+									}
+								]
+							}
+						}
+					}
+				}
+			}
+		},
+		{
+			"includes": ["packages/render/**"],
+			"linter": {
+				"rules": {
+					"style": {
+						"noRestrictedImports": {
+							"level": "error",
+							"options": {
+								"patterns": [
+									{
+										"group": ["@gc/ui", "@gc/platform", "**/ui/**", "**/platform/**"],
+										"message": "render depends only on core and game (SDD 01 §2)."
+									},
+									{
+										"group": ["@babylonjs/core"],
+										"message": "Import Babylon by subpath (e.g. @babylonjs/core/Engines/engine), never the barrel."
 									}
 								]
 							}

@@ -23,7 +23,7 @@ Um único código TypeScript roda em três alvos (navegador, Electron, Android W
 └──────────────────────────────────────────────────────────────┘
 ```
 
-Regra de dependência (obrigatória, verificada por regra de lint `noRestrictedImports` do Biome): `core` não importa nada do projeto; `game` importa só `core`; `render` importa `core` e `game`; `ui` importa `core`, `game` (tipos e store) e nunca `render`; `platform` importa tudo e é o único lugar com `window.electron`, `Capacitor` ou `steamworks`.
+Regra de dependência (obrigatória, verificada por regra de lint `noRestrictedImports` do Biome): `core` não importa nada do projeto; `game` importa só `core`; `render` importa `core` e `game`; `ui` importa só `core` (o store vive em `core/store`; tipos de estado de HUD são publicados pelo store) e nunca `game`, `render` ou `platform`; `platform` importa tudo e é o único lugar com `window.electron`, `Capacitor` ou `steamworks`. Padrões do Biome: `@babylonjs/**` (inclui subcaminhos) e caminhos relativos `**/<pacote>/**`, além dos nomes `@gc/*`; o barrel `@babylonjs/core` é proibido em todo o repositório.
 
 ## 3. Estrutura de pastas
 
