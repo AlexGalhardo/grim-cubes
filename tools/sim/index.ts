@@ -97,6 +97,7 @@ async function main(argv: string[]): Promise<number> {
 						roundReached: r.roundReached,
 						kills: r.kills,
 						worldHash: r.worldHash,
+						itemsOwned: r.itemsOwned,
 					})),
 				};
 	writeFileSync(out, `${JSON.stringify(payload, null, "\t")}\n`);
