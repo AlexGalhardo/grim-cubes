@@ -1,6 +1,6 @@
 import { createInputState, createMetaState } from "@gc/core";
 import { query } from "bitecs";
-import { expect, test } from "vitest";
+import { expect, test, vi } from "vitest";
 import { consumablesData, roundsData } from "../data";
 import { Breakable, Consumable, Fragment, Health, Position, PrevPosition, Radius } from "../ecs/components";
 import { EventType } from "../ecs/events";
@@ -180,4 +180,100 @@ test("an elite's death can drop a consumable with the elite chance from the data
 	} finally {
 		consumablesData.dropChance.elite = original;
 	}
+});
+
+test("a projectile breaks an urn it flies into", () => {
+	const session = loaded();
+	const e = urns(session)[0] as number;
+	const x = Position.x[e] ?? 0;
+	const z = Position.z[e] ?? 0;
+	Health.hp[e] = 1;
+	const p = session.projectiles.acquire({
+		x: x - 0.5,
+		z,
+		vx: 20,
+		vz: 0,
+		damage: 10,
+		critChance: 0,
+		knockback: 0,
+		pierce: 0,
+		lifeSteps: 30,
+		radius: 0.3,
+		explosionRadius: 0,
+		selfFraction: 0,
+	});
+	expect(p).toBeGreaterThanOrEqual(0);
+	broken(session);
+	let breaks = 0;
+	for (let i = 0; i < 10 && breaks === 0; i++) {
+		session.separation.run(session.world);
+		session.breakables.insertInto(session.separation.hash);
+		session.projectileSystem.run(session.world);
+		session.damage.run(session.world);
+		session.breakables.run();
+		breaks += broken(session).length;
+	}
+	expect(breaks).toBe(1);
+});
+
+test("an enemy that walks into an urn is pushed out of it and does not cross it", () => {
+	const session = loaded();
+	const e = urns(session)[0] as number;
+	const x = Position.x[e] ?? 0;
+	const z = Position.z[e] ?? 0;
+	const r = Radius.r[e] ?? 0;
+	const enemy = session.spawn.spawnEnemy(session.world, 0, x + r * 0.3, z);
+	Health.hp[enemy] = Health.max[enemy] = 1e6;
+	const enemyRadius = Radius.r[enemy] ?? 0;
+	for (let i = 0; i < 20; i++) {
+		session.propCollision.resolveEnemies(session.world, session.origin);
+		session.separation.run(session.world);
+	}
+	const gap = Math.hypot((Position.x[enemy] ?? 0) - x, (Position.z[enemy] ?? 0) - z);
+	expect(gap).toBeGreaterThanOrEqual(r + enemyRadius - 0.05);
+	expect(Health.hp[e]).toBeGreaterThan(0);
+});
+
+test("the breakable system allocates nothing per step once warm", () => {
+	const session = loaded();
+	const step = (): void => {
+		session.breakables.populate();
+		session.breakables.insertInto(session.separation.hash);
+		session.breakables.run();
+		session.breakables.collect(session.hero);
+	};
+	step();
+	const spies = [
+		vi.spyOn(Array.prototype, "filter"),
+		vi.spyOn(Array.prototype, "map"),
+		vi.spyOn(Array.prototype, "slice"),
+		vi.spyOn(globalThis, "Array"),
+		vi.spyOn(globalThis, "Float32Array"),
+		vi.spyOn(globalThis, "Map"),
+		vi.spyOn(globalThis, "Set"),
+	];
+	for (let i = 0; i < 100; i++) step();
+	const calls = spies.reduce((sum, spy) => sum + spy.mock.calls.length, 0);
+	for (const spy of spies) spy.mockRestore();
+	expect(calls).toBe(0);
+});
+
+test("killing elites drops consumables at about the elite chance from the data", () => {
+	const session = loaded(11);
+	const kills = 60;
+	let dropped = 0;
+	session.events.consume(() => undefined);
+	for (let i = 0; i < kills; i++) {
+		const elite = session.elite.spawnNow(session.world, 8, 8, 0);
+		session.damage.queue.push(elite, 1e9, 0, 0, 0, 0);
+		session.damage.run(session.world);
+		session.death.run(session.world);
+		session.events.consume((type) => {
+			if (type === EventType.ConsumableDropped) dropped++;
+		});
+	}
+	const chance = consumablesData.dropChance.elite;
+	expect(chance).toBeGreaterThan(0);
+	expect(dropped).toBeGreaterThan(kills * chance * 0.5);
+	expect(dropped).toBeLessThan(kills * chance * 1.5);
 });
