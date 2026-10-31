@@ -35,6 +35,9 @@ export interface ParticlePool {
 	shift(dx: number, dz: number): void;
 	clear(): void;
 	readonly capacity: number;
+	/** Particles allowed alive now (<= capacity): a preset change shrinks or grows it live. */
+	readonly limit: number;
+	setLimit(limit: number): void;
 	readonly stats: Readonly<ParticlePoolStats>;
 }
 
@@ -68,6 +71,7 @@ export function createParticlePool(
 	const landed = new Uint8Array(capacity);
 	const decalOnLand = new Uint8Array(capacity);
 	let live = 0;
+	let limit = capacity;
 	const stats: ParticlePoolStats = { live: 0, peak: 0, dropped: 0 };
 
 	function remove(i: number): void {
@@ -92,9 +96,18 @@ export function createParticlePool(
 
 	return {
 		capacity,
+		get limit(): number {
+			return limit;
+		},
+		setLimit(next): void {
+			limit = Math.max(0, Math.min(capacity, Math.round(next)));
+			// Particles beyond the new limit are cut short; the dense array keeps the first `limit`.
+			live = Math.min(live, limit);
+			stats.live = live;
+		},
 		stats,
 		add(x, y, z, dx, dy, dz, s, r, g, b, lifeSeconds, landsAsDecal): boolean {
-			if (live >= capacity) {
+			if (live >= limit) {
 				stats.dropped++;
 				return false;
 			}
