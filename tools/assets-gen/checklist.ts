@@ -12,7 +12,7 @@ import {
 import { CATEGORIES, type Category, REQUIRED_CLIPS } from "../assets-build/rules";
 import { baseModelName } from "./emissive";
 
-/** Art Bible §14 checklist for every `.bbmodel` in `assets/src/models` (B-03-01); item 11 needs the in-game capture, so it is always open. */
+/** Art Bible §14 checklist for every `.bbmodel` in `assets/src/models` (B-03-01); item 11 is met when `docs/art/review/ingame/<name>.png` exists (the `?art=<id>` capture, kept only after a visual review). */
 
 export const CHECKLIST_ITEMS = [
 	"Nome de arquivo segue §10.2 (snake_case ASCII, prefixo `prop_`/`tile_`/`weapon_`, sufixo `_d`; a categoria dos demais vem da pasta)",
@@ -160,7 +160,7 @@ export function buildChecklist(
 			staticModel ? null : REQUIRED_CLIPS[category].every((c) => clips.has(c)),
 			!emissive || existsSync(join(dir, `${name}_e.png`)),
 			buildOk,
-			false,
+			existsSync(join(reviewDir, "ingame", `${name}.png`)),
 			null,
 		];
 		rows.push({ category, folder, name, elements: model.elements.length, budget, items });

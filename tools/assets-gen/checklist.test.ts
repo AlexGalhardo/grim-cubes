@@ -7,11 +7,10 @@ const ROOT = fileURLToPath(new URL("../../", import.meta.url));
 describe("art bible §14 checklist", () => {
 	const rows = buildChecklist(`${ROOT}assets/src`, `${ROOT}data`, `${ROOT}docs/art/review`);
 
-	it("covers every model with one answer per item and leaves the in-game capture open", () => {
+	it("covers every model with one answer per item", () => {
 		expect(rows.length).toBeGreaterThan(70);
 		for (const row of rows) {
 			expect(row.items).toHaveLength(CHECKLIST_ITEMS.length);
-			expect(row.items[10]).toBe(false);
 		}
 	});
 
