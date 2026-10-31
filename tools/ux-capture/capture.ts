@@ -183,7 +183,9 @@ async function main(): Promise<number> {
 		console.log(cuts.length === 0 ? "nothing leaves the screen or scrolls" : cuts.join("\n"));
 		return 0;
 	} finally {
-		server.kill();
+		// `bunx` starts the preview as a child: on Windows killing the parent leaves the server (and its port) behind.
+		if (process.platform === "win32") Bun.spawnSync(["taskkill", "/PID", String(server.pid), "/T", "/F"]);
+		else server.kill();
 	}
 }
 
