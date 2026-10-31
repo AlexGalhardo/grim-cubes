@@ -83,6 +83,8 @@ export interface Vfx {
 	setGore(full: boolean): void;
 	/** Size multiplier of the damage numbers (0.7 on the small landscape screens). */
 	setNumberScale(scale: number): void;
+	/** Applies a preset's pool sizes live (the pools are allocated for the largest preset). */
+	setPools(particles: number, decals: number): void;
 	/**
 	 * Status looks read from the world: blood drips from bleeding enemies (`Bleed`). Call once per rendered frame with the frame time.
 	 */
@@ -270,6 +272,10 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 				);
 				drips++;
 			}
+		},
+		setPools(particleLimit, decalLimit): void {
+			particles.setLimit(particleLimit);
+			decals.setLimit(decalLimit);
 		},
 		setNumberScale(scale): void {
 			numbers.setScale(scale);

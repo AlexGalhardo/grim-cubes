@@ -768,3 +768,22 @@ describe("flash-reduced execution", () => {
 		}
 	});
 });
+
+describe("live pool limits", () => {
+	it("setPools shrinks and grows the particle and decal pools without reallocating", () => {
+		const { vfx, world, dispose } = setup();
+		const capacity = vfx.particles.capacity;
+		const e = spawnBody(world, 0, 0);
+		for (let i = 0; i < 30; i++) vfx.onEvent(EventType.Damaged, 5, 0, 0, e);
+		vfx.setPools(10, 4);
+		expect(vfx.particles.limit).toBe(10);
+		expect(vfx.particles.stats.live).toBeLessThanOrEqual(10);
+		for (let i = 0; i < 30; i++) vfx.onEvent(EventType.Damaged, 5, 0, 0, e);
+		expect(vfx.particles.stats.live).toBeLessThanOrEqual(10);
+		expect(vfx.decals.limit).toBe(4);
+		vfx.setPools(capacity * 2, capacity * 2);
+		expect(vfx.particles.limit).toBe(capacity);
+		expect(vfx.decals.limit).toBe(vfx.decals.capacity);
+		dispose();
+	});
+});

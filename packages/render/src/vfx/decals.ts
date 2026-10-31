@@ -11,6 +11,9 @@ export interface DecalPool {
 	clear(): void;
 	readonly live: number;
 	readonly capacity: number;
+	/** Decals the pool keeps now (<= capacity): a preset change shrinks or grows it live. */
+	readonly limit: number;
+	setLimit(limit: number): void;
 	/** Opacity of a slot (tests and captures). */
 	alphaAt(slot: number): number;
 	/** Decals ever overwritten before reaching the end of their life. */
@@ -34,16 +37,17 @@ export function createDecalPool(scene: Scene, capacity: number): DecalPool {
 	const xs = new Float32Array(Math.max(1, capacity));
 	const zs = new Float32Array(Math.max(1, capacity));
 	let head = 0;
+	let limit = capacity;
 	let live = 0;
 	let recycled = 0;
 
 	/** A full pool fades its oldest 10%: slot `head` is the next to be overwritten, so its alpha is the lowest. */
 	function fadeOldest(): void {
 		const colors = set.colors;
-		if (!colors || live < capacity) return;
-		const fading = Math.max(1, Math.round(capacity * FADE_SHARE));
+		if (!colors || live < limit) return;
+		const fading = Math.max(1, Math.round(limit * FADE_SHARE));
 		for (let k = 0; k < fading; k++) {
-			const slot = (head + k) % capacity;
+			const slot = (head + k) % limit;
 			colors[slot * 4 + 3] = DECAL_ALPHA * ((k + 1) / (fading + 1));
 		}
 	}
@@ -61,13 +65,23 @@ export function createDecalPool(scene: Scene, capacity: number): DecalPool {
 		get recycled(): number {
 			return recycled;
 		},
+		get limit(): number {
+			return limit;
+		},
+		setLimit(next): void {
+			limit = Math.max(0, Math.min(capacity, Math.round(next)));
+			// Slots 0..limit-1 stay valid; the ring restarts from the first one.
+			live = Math.min(live, limit);
+			head = 0;
+			publish();
+		},
 		alphaAt: (slot) => set.colors?.[slot * 4 + 3] ?? 0,
 		add(x, z, size, yaw, r, g, b): void {
-			if (capacity === 0) return;
-			if (live === capacity) recycled++;
+			if (limit === 0) return;
+			if (live === limit) recycled++;
 			const i = head;
-			head = (head + 1) % capacity;
-			live = Math.min(capacity, live + 1);
+			head = (head + 1) % limit;
+			live = Math.min(limit, live + 1);
 			xs[i] = x;
 			zs[i] = z;
 			writeTransform(set.matrices, i, x, 0.02, z, size, yaw);

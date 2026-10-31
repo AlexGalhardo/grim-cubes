@@ -576,7 +576,12 @@ async function boot(): Promise<void> {
 		: null;
 	const vfx = createVfx(game, {
 		// The pools are sized once, at creation: a preset change applies them on the next launch.
-		config: { ...renderData.vfx, decalPool: preset.decalPool, particlePool: preset.particlePool },
+		// Allocated for the largest preset so a change in Options applies live (`vfx.setPools`).
+		config: {
+			...renderData.vfx,
+			decalPool: Math.max(...presetsData.presets.map((p) => p.decalPool)),
+			particlePool: Math.max(...presetsData.presets.map((p) => p.particlePool)),
+		},
 		onHitStop: (ms) => hitStop.request(ms),
 		flashReduced: () => vision.flashReduced,
 		// Elites get the long hit-stop of a boss kill too (GDD section 23).
@@ -596,6 +601,7 @@ async function boot(): Promise<void> {
 		vfx.setNumberScale(window.innerWidth <= SMALL_SCREEN_WIDTH ? SMALL_NUMBER_SCALE : 1);
 	fitNumbers();
 	window.addEventListener("resize", fitNumbers);
+	vfx.setPools(preset.particlePool, preset.decalPool);
 	const projectileView = createProjectileRenderer(
 		game,
 		projectiles.capacity,
@@ -893,6 +899,7 @@ async function boot(): Promise<void> {
 		void changeSettings((s) => (s.preset = id));
 		applied = applyPreset(game, render.engine, next);
 		spawn.setCap(next.enemyCap);
+		vfx.setPools(next.particlePool, next.decalPool);
 	}
 
 	/** The catalog is picked at boot, so a language change reloads (`?lang=` is dropped so the saved one wins). */
@@ -1394,12 +1401,13 @@ async function boot(): Promise<void> {
 							hp: Health.hp[faceDummy] ?? 0,
 							targeted: targeting.target === faceDummy,
 						},
-			/** Applies a video preset live (shadows, scale, enemy cap); pool sizes apply on the next launch. */
+			/** Applies a video preset live (shadows, scale, enemy cap, particle and decal pools). */
 			setPreset: (id: string) => {
 				const next = presetsData.presets.find((p) => p.id === id);
 				if (!next) return null;
 				applied = applyPreset(game, render.engine, next);
 				spawn.setCap(next.enemyCap);
+				vfx.setPools(next.particlePool, next.decalPool);
 				return applied.id;
 			},
 			preset: () => ({
