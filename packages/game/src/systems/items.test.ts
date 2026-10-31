@@ -10,7 +10,13 @@ import { createGameWorld, spawnBody } from "../ecs/world";
 import { computeEffects, createItemEffects } from "../rules/effects";
 import { computeStats, createPlayerStats, STAT_FIELDS } from "../rules/stats";
 import { createDamageSystem } from "./damage";
-import { createAuraSystem, createEffectsSystem } from "./effects";
+import {
+	createAuraSystem,
+	createBleedSystem,
+	createEffectsSystem,
+	createKillEffectsSystem,
+	createThornsSystem,
+} from "./effects";
 import { applyRoundEndBonus, createDeathSystem, createPickupSystem, createProgress } from "./loot";
 import { createTargetingSystem } from "./targeting";
 import { createWeaponSystem } from "./weapon";
@@ -249,7 +255,6 @@ test("soul_jar adds its fraction of souls", () => {
 	const effects = createItemEffects();
 	computeEffects(itemsData, owning("soul_jar"), effects);
 	expect(effects.soulGain).toBeCloseTo(0.5);
-	expect(itemsData.filter((i) => i.status === "alpha")).toHaveLength(4);
 });
 
 test("an owned item with an unknown effect id fails loudly unless it is marked alpha", () => {
@@ -281,4 +286,104 @@ test("ossuary bonuses add to the item effects and the weak phylactery yields to 
 	expect(both.effects.reviveHpFraction).toBeCloseTo(0.3);
 	expect(both.effects.soulGain).toBeCloseTo(0.75);
 	expect(both.effects.fragmentGain).toBeCloseTo(0.1);
+});
+
+test("bone_saw makes a critical hit bleed for 20% of its damage over 2 s, and a plain hit does not", () => {
+	const { world, enemy, damage, fx } = fighters(owning("bone_saw"));
+	const bleeding = enemy(5, 0);
+	const plain = enemy(6, 0);
+	damage.queue.push(bleeding, 10, 0, 1, 0, 0);
+	damage.queue.push(plain, 10, 0, 0, 0, 0);
+	damage.run(world);
+	const afterHit = [Health.hp[bleeding] ?? 0, Health.hp[plain] ?? 0];
+	const bleed = createBleedSystem({ queue: damage.queue });
+	for (let i = 0; i < 150; i++) {
+		bleed.run(world);
+		damage.run(world);
+	}
+	// Crit x2 = 20 dealt, 20% of it = 4, spread over 120 steps and then over.
+	expect((afterHit[0] ?? 0) - (Health.hp[bleeding] ?? 0)).toBeCloseTo(4, 3);
+	expect(Health.hp[plain]).toBe(afterHit[1]);
+	expect(fx.effects.bleedSeconds).toBe(2);
+});
+
+test("spiked_boots hurts an enemy that touches the hero once per contact cooldown", () => {
+	const { world, hero, hash, enemy, fx, damage } = fighters(owning("spiked_boots"));
+	const touching = enemy(0.2, 0);
+	const away = enemy(4, 0);
+	const thorns = createThornsSystem({
+		effects: fx.effects,
+		queue: damage.queue,
+		enemies: hash,
+		cooldownSeconds: 0.5,
+	});
+	for (let i = 0; i < 60; i++) {
+		thorns.run(world, hero);
+		damage.run(world);
+	}
+	// 10 damage at steps 0 and 30 (cooldown 0.5 s) within one second: 2 hits.
+	expect(100 - (Health.hp[touching] ?? 0)).toBeCloseTo(20);
+	expect(Health.hp[away]).toBe(100);
+});
+
+test("doom_sigil explodes on a kill with its chance, hurting neighbours but not the dead", () => {
+	const { world, hero, hash, enemy, fx, damage, events } = fighters(owning("doom_sigil"));
+	const dead = enemy(6, 0);
+	const near = enemy(7, 0);
+	const far = enemy(12, 0);
+	const kills = createKillEffectsSystem({
+		effects: fx.effects,
+		queue: damage.queue,
+		enemies: hash,
+		events,
+		rng: { chance: (p) => p >= 0.1 },
+		round: () => 4,
+		hero,
+	});
+	Health.hp[dead] = 0;
+	kills.onKill(world, dead, 6, 0);
+	damage.run(world);
+	// 30 + 3 * 4 = 42.
+	expect(100 - (Health.hp[near] ?? 0)).toBeCloseTo(42);
+	expect(Health.hp[far]).toBe(100);
+	const noLuck = createKillEffectsSystem({
+		effects: fx.effects,
+		queue: damage.queue,
+		enemies: hash,
+		events,
+		rng: { chance: () => false },
+		round: () => 4,
+		hero,
+	});
+	const before = Health.hp[near];
+	noLuck.onKill(world, dead, 6, 0);
+	damage.run(world);
+	expect(Health.hp[near]).toBe(before);
+});
+
+test("cube_of_wrath sends a wave around the hero every 50 kills", () => {
+	const { world, hero, hash, enemy, fx, damage, events } = fighters(owning("cube_of_wrath"));
+	const inside = enemy(4, 0);
+	const outside = enemy(9, 0);
+	const kills = createKillEffectsSystem({
+		effects: fx.effects,
+		queue: damage.queue,
+		enemies: hash,
+		events,
+		rng: { chance: () => false },
+		round: () => 2,
+		hero,
+	});
+	for (let i = 0; i < 49; i++) kills.onKill(world, 0, 20, 0);
+	damage.run(world);
+	expect(Health.hp[inside]).toBe(100);
+	kills.onKill(world, 0, 20, 0);
+	damage.run(world);
+	// 50 + 5 * 2 = 60 inside radius 6 around the hero, nothing outside.
+	expect(100 - (Health.hp[inside] ?? 0)).toBeCloseTo(60);
+	expect(Health.hp[outside]).toBe(100);
+});
+
+test("no item is left marked alpha", () => {
+	expect(itemsData.filter((i) => i.status === "alpha")).toEqual([]);
 });

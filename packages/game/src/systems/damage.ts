@@ -1,6 +1,7 @@
-import { hasComponent } from "bitecs";
+import { addComponent, hasComponent } from "bitecs";
 import {
 	Armor,
+	Bleed,
 	Boss,
 	Elite,
 	EnemyFaction,
@@ -154,6 +155,16 @@ export function createDamageSystem(deps: DamageSystemDeps): DamageSystem {
 		Health.hp[eid] = (Health.hp[eid] ?? 0) - dealt;
 		if (runStats) runStats.damageDealt += dealt;
 		HitFlash.ticks[eid] = 2;
+		if (crit && effects && effects.bleedFraction > 0) {
+			// A fresh crit restarts the bleed with the larger of the two remaining amounts.
+			const ticks = Math.max(1, Math.round(effects.bleedSeconds / STEP));
+			const perStep = (dealt * effects.bleedFraction) / ticks;
+			addComponent(world, eid, Bleed);
+			if (perStep * ticks >= (Bleed.perStep[eid] ?? 0) * (Bleed.ticks[eid] ?? 0)) {
+				Bleed.perStep[eid] = perStep;
+				Bleed.ticks[eid] = ticks;
+			}
+		}
 
 		const scale = knockbackScale(config, hasComponent(world, eid, Boss), hasComponent(world, eid, Elite));
 		const resist = 1 - (KnockbackResist.value[eid] ?? 0);

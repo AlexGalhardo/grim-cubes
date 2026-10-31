@@ -16,6 +16,7 @@ export const RNG_STREAMS = [
 	"dodge",
 	"world",
 	"combat",
+	"effects",
 ] as const;
 
 export type StreamName = (typeof RNG_STREAMS)[number];

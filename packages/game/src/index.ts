@@ -135,7 +135,13 @@ export { createDamageSystem, DAMAGE_QUEUE_CAPACITY } from "./systems/damage";
 export type { DashConfig, DashOptions, DashSystem } from "./systems/dash";
 export { createDashSystem } from "./systems/dash";
 export type { AuraSystem, AuraSystemDeps, EffectsSystem } from "./systems/effects";
-export { createAuraSystem, createEffectsSystem } from "./systems/effects";
+export {
+	createAuraSystem,
+	createBleedSystem,
+	createEffectsSystem,
+	createKillEffectsSystem,
+	createThornsSystem,
+} from "./systems/effects";
 export type { EliteSystem, EliteSystemDeps } from "./systems/elite";
 export { createEliteSystem } from "./systems/elite";
 export type { EnemyShotSystem } from "./systems/enemyShot";

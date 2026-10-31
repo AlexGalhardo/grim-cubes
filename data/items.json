@@ -424,8 +424,7 @@
 					"durationSeconds": 2
 				}
 			}
-		],
-		"status": "alpha"
+		]
 	},
 	{
 		"id": "tithe_box",
@@ -455,8 +454,7 @@
 					"damage": 10
 				}
 			}
-		],
-		"status": "alpha"
+		]
 	},
 	{
 		"id": "hellfire_round",
@@ -551,8 +549,7 @@
 					"damagePerRound": 3
 				}
 			}
-		],
-		"status": "alpha"
+		]
 	},
 	{
 		"id": "phylactery",
@@ -625,8 +622,7 @@
 					"damagePerRound": 5
 				}
 			}
-		],
-		"status": "alpha"
+		]
 	},
 	{
 		"id": "soul_jar",

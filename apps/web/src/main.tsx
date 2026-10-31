@@ -28,6 +28,7 @@ import {
 	chooseDifficulty,
 	createAuraSystem,
 	createBehaviorSystem,
+	createBleedSystem,
 	createBossSystem,
 	createChestSystem,
 	createChunkGenerator,
@@ -41,6 +42,7 @@ import {
 	createEnemyShotSystem,
 	createEventBuffer,
 	createGameWorld,
+	createKillEffectsSystem,
 	createLevelUpSystem,
 	createLoop,
 	createOrigin,
@@ -57,6 +59,7 @@ import {
 	createSpawnSystem,
 	createStatsSystem,
 	createTargetingSystem,
+	createThornsSystem,
 	createWeaponSystem,
 	cullDistantEnemies,
 	damageConfigFromHero,
@@ -380,6 +383,7 @@ async function boot(): Promise<void> {
 		onDeath: (w, e, x, z) => {
 			elite.handleDeath(w, e, x, z);
 			boss.handleDeath(w, e, x, z);
+			killEffects.onKill(w, e, x, z);
 		},
 	});
 	const pickup = createPickupSystem({
@@ -394,6 +398,23 @@ async function boot(): Promise<void> {
 		queue: damage.queue,
 		enemies: separation.hash,
 		round: () => run.round,
+	});
+	const bleed = createBleedSystem({ queue: damage.queue });
+	const thorns = createThornsSystem({
+		effects: itemEffects.effects,
+		queue: damage.queue,
+		enemies: separation.hash,
+		cooldownSeconds: heroData.combat.contactCooldownSeconds,
+	});
+	// Declared after `death` only for readability: the death hook calls it once the loop runs.
+	const killEffects = createKillEffectsSystem({
+		effects: itemEffects.effects,
+		queue: damage.queue,
+		enemies: separation.hash,
+		events,
+		rng: rng.effects,
+		round: () => run.round,
+		hero,
 	});
 	const levelUp = createLevelUpSystem({
 		progress,
@@ -956,6 +977,8 @@ async function boot(): Promise<void> {
 				projectileSystem.run(world);
 				enemyShotSystem.run(world, hero);
 				aura.run(world, hero);
+				thorns.run(world, hero);
+				bleed.run(world);
 				damage.run(world);
 				death.run(world);
 				pickup.run(world, hero);

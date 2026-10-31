@@ -5,6 +5,21 @@ export interface EffectSource {
 	effects: readonly { id: string; params: Record<string, number | boolean> }[];
 }
 
+export interface ExplosionEffect {
+	chance: number;
+	radius: number;
+	damageBase: number;
+	damagePerRound: number;
+}
+
+export interface ShockwaveEffect {
+	/** Kills between two waves. */
+	kills: number;
+	radius: number;
+	damageBase: number;
+	damagePerRound: number;
+}
+
 export interface AuraEffect {
 	radius: number;
 	damageBase: number;
@@ -34,6 +49,15 @@ export interface ItemEffects {
 	revives: number;
 	reviveHpFraction: number;
 	auras: AuraEffect[];
+	/** Fraction of a critical hit's damage that bleeds on over `bleedSeconds` (`bone_saw`). */
+	bleedFraction: number;
+	bleedSeconds: number;
+	/** Damage an enemy takes each time it touches the hero (`spiked_boots`). */
+	contactDamage: number;
+	/** Chance-on-kill explosions (`doom_sigil`), one entry per owned copy. */
+	explosions: ExplosionEffect[];
+	/** Every-N-kills waves around the hero (`cube_of_wrath`), one entry per owned copy. */
+	shockwaves: ShockwaveEffect[];
 }
 
 export function createItemEffects(): ItemEffects {
@@ -48,6 +72,11 @@ export function createItemEffects(): ItemEffects {
 		revives: 0,
 		reviveHpFraction: 0,
 		auras: [],
+		bleedFraction: 0,
+		bleedSeconds: 0,
+		contactDamage: 0,
+		explosions: [],
+		shockwaves: [],
 	};
 }
 
@@ -85,6 +114,11 @@ export function computeEffects(
 	out.endOfRoundFragmentBonus = 0;
 	out.reviveHpFraction = 0;
 	out.auras.length = 0;
+	out.bleedFraction = 0;
+	out.bleedSeconds = 0;
+	out.contactDamage = 0;
+	out.explosions.length = 0;
+	out.shockwaves.length = 0;
 	let revives = 0;
 
 	for (const item of items) {
@@ -125,6 +159,33 @@ export function computeEffects(
 				case "proximity_aura_damage":
 					for (let i = 0; i < count; i++) {
 						out.auras.push({
+							radius: num(p, "radius"),
+							damageBase: num(p, "damageBase"),
+							damagePerRound: num(p, "damagePerRound"),
+						});
+					}
+					break;
+				case "bleed_on_crit":
+					out.bleedFraction += num(p, "damageFraction") * count;
+					out.bleedSeconds = Math.max(out.bleedSeconds, num(p, "durationSeconds"));
+					break;
+				case "contact_damage":
+					out.contactDamage += num(p, "damage") * count;
+					break;
+				case "on_kill_explode":
+					for (let i = 0; i < count; i++) {
+						out.explosions.push({
+							chance: num(p, "chance"),
+							radius: num(p, "radius"),
+							damageBase: num(p, "damageBase"),
+							damagePerRound: num(p, "damagePerRound"),
+						});
+					}
+					break;
+				case "shockwave_every_kills":
+					for (let i = 0; i < count; i++) {
+						out.shockwaves.push({
+							kills: num(p, "kills"),
 							radius: num(p, "radius"),
 							damageBase: num(p, "damageBase"),
 							damagePerRound: num(p, "damagePerRound"),

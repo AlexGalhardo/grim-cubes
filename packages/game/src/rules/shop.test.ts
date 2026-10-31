@@ -146,12 +146,14 @@ test("upgrade prices follow the shop formula, so round 10 costs more than round 
 });
 
 test("no item repeats within one shop, locked slots included, and alpha items are never sold", () => {
-	const alpha = new Set(itemsData.filter((i) => i.status === "alpha").map((i) => i.id));
-	expect(alpha.size).toBeGreaterThan(0);
+	// No real item is alpha any more, so a synthetic one stands in for an effect that is not implemented yet.
+	const stub = { id: "stub_alpha", name: "Stub", tier: 4, price: 100, modifiers: [], status: "alpha" };
+	const catalog = { items: [...items, stub], weapons };
+	const alpha = new Set([stub.id]);
 	for (let seed = 1; seed <= 1000; seed++) {
-		const first = generateShop(ctx(8, seed));
+		const first = generateShop(ctx(8, seed, { catalog }));
 		const locked = first.map((s, i) => ({ ...s, locked: i === 0 }));
-		const second = generateShop(ctx(9, seed + 1), locked);
+		const second = generateShop(ctx(9, seed + 1, { catalog }), locked);
 		for (const shop of [first, second]) {
 			const ids = shop.filter((s) => s.kind === "item").map((s) => s.id);
 			expect(new Set(ids).size).toBe(ids.length);

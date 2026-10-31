@@ -29,6 +29,10 @@ export const EnemyFaction = {};
 
 export const Armor = { value: f32() };
 export const Invulnerable = { ticks: u8() };
+/** `bone_saw`: damage per step still to be dealt to an enemy, and the steps left. */
+export const Bleed = { perStep: f32(), ticks: u16() };
+/** `spiked_boots`: steps before the same enemy can be hurt by the hero's contact again. */
+export const ThornsCooldown = { ticks: u8() };
 export const HitFlash = { ticks: u8() };
 /** x, z: total displacement in u to apply over `ticks` steps (movementSystem). */
 export const Knockback = { x: f32(), z: f32(), ticks: u8() };
