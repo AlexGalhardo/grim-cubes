@@ -2,6 +2,7 @@ import { ImportMeshAsync } from "@babylonjs/core/Loading/sceneLoader";
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { Texture } from "@babylonjs/core/Materials/Textures/texture";
 import { Color3 } from "@babylonjs/core/Maths/math.color";
+import type { AbstractMesh } from "@babylonjs/core/Meshes/abstractMesh";
 import type { Mesh } from "@babylonjs/core/Meshes/mesh";
 import type { Scene } from "@babylonjs/core/scene";
 import { type LoadedVat, loadVat } from "../vat/loader";
@@ -106,6 +107,11 @@ function atlasMaterial(scene: Scene, name: string, url: string): StandardMateria
 	return material;
 }
 
+/** The loader's geometry-less `__root__` meshes would each count as an active mesh (SDD 14 section 2 budget). */
+export function hideEmptyMeshes(meshes: readonly AbstractMesh[]): void {
+	for (const mesh of meshes) if (mesh.getTotalVertices() === 0) mesh.isVisible = false;
+}
+
 /**
  * Imports a glb and returns its geometry mesh, still parented to the loader's `__root__` (that node carries the
  * handedness mirror, see coords.ts). The glTF animations are dropped: motion comes from the VAT. The skeleton stays
@@ -116,6 +122,7 @@ export async function importModelMesh(scene: Scene, url: string): Promise<Mesh> 
 	await import("@babylonjs/loaders/glTF");
 	const result = await ImportMeshAsync(url, scene, { pluginExtension: ".glb" });
 	for (const group of result.animationGroups) group.dispose();
+	hideEmptyMeshes(result.meshes);
 	const mesh = result.meshes.find((m) => m.getTotalVertices() > 0) as Mesh | undefined;
 	if (!mesh) throw new Error(`No geometry in ${url}`);
 	return mesh;
