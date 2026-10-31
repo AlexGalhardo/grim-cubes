@@ -1,11 +1,13 @@
 // Registered up front: loading the glTF plugin on first use counts against the test timeout under CPU load.
 import "@babylonjs/loaders/glTF";
+import { CreateBox } from "@babylonjs/core/Meshes/Builders/boxBuilder";
+import { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { Scene } from "@babylonjs/core/scene";
 import { Document, NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
 import { createNullEngine } from "../engine";
 import type { VatMeta } from "../vat/loader";
-import { type AssetManifest, loadGameAssets } from "./gameAssets";
+import { type AssetManifest, hideEmptyMeshes, loadGameAssets, loadManifest } from "./gameAssets";
 
 async function glbDataUrl(): Promise<string> {
 	const doc = new Document();
@@ -101,6 +103,26 @@ describe("loadGameAssets", () => {
 			}),
 		).rejects.toThrow("404");
 		scene.dispose();
+		dispose();
+	});
+});
+
+describe("loadManifest and hideEmptyMeshes", () => {
+	it("reads the manifest and rejects a failed download", async () => {
+		const manifest = { entries: {} } as unknown as AssetManifest;
+		const ok = async () => new Response(JSON.stringify(manifest), { status: 200 });
+		expect(await loadManifest("/assets/", ok)).toEqual(manifest);
+		const missing = async () => new Response("", { status: 404 });
+		await expect(loadManifest("/assets/", missing)).rejects.toThrow("Asset fetch failed: 404");
+	});
+
+	it("hides only the meshes without geometry", () => {
+		const { engine, dispose } = createNullEngine();
+		const scene = new Scene(engine);
+		const empty = new Mesh("__root__", scene);
+		const solid = CreateBox("solid", { size: 1 }, scene);
+		hideEmptyMeshes([empty, solid]);
+		expect([empty.isVisible, solid.isVisible]).toEqual([false, true]);
 		dispose();
 	});
 });
