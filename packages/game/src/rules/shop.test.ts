@@ -107,7 +107,9 @@ test("upgrade offers need room to grow and carry the upgrade price of the curren
 		for (const slot of generateShop(ctx(2, seed))) {
 			if (slot.kind === "upgrade") {
 				upgrades++;
-				expect(slot.price).toBe(weapons.find((w) => w.id === "sword")?.upgradePrices[0]);
+				expect(slot.price).toBe(
+					shopPrice(config, weapons.find((w) => w.id === "sword")?.upgradePrices[0] ?? 0, 2),
+				);
 			}
 		}
 		const maxed = generateShop(ctx(2, seed, { currentWeapon: { id: "sword", tier: 3, maxTier: 3 } }));
@@ -127,4 +129,33 @@ test("locked slots survive a refresh and unlocked ones are redrawn", () => {
 test("selling the old weapon returns half of what was paid", () => {
 	expect(sellValue(config, 30)).toBe(15);
 	expect(sellValue(config, 45 + 45)).toBe(45);
+});
+
+test("upgrade prices follow the shop formula, so round 10 costs more than round 2", () => {
+	const base = weapons.find((w) => w.id === "sword")?.upgradePrices[0] ?? 0;
+	let seen = 0;
+	for (let seed = 1; seed <= 300 && seen < 3; seed++) {
+		for (const slot of generateShop(ctx(10, seed))) {
+			if (slot.kind !== "upgrade") continue;
+			seen++;
+			expect(slot.price).toBe(shopPrice(config, base, 10));
+			expect(slot.price).toBeGreaterThan(base);
+		}
+	}
+	expect(seen).toBeGreaterThan(0);
+});
+
+test("no item repeats within one shop, locked slots included, and alpha items are never sold", () => {
+	const alpha = new Set(itemsData.filter((i) => i.status === "alpha").map((i) => i.id));
+	expect(alpha.size).toBeGreaterThan(0);
+	for (let seed = 1; seed <= 1000; seed++) {
+		const first = generateShop(ctx(8, seed));
+		const locked = first.map((s, i) => ({ ...s, locked: i === 0 }));
+		const second = generateShop(ctx(9, seed + 1), locked);
+		for (const shop of [first, second]) {
+			const ids = shop.filter((s) => s.kind === "item").map((s) => s.id);
+			expect(new Set(ids).size).toBe(ids.length);
+			for (const id of ids) expect(alpha.has(id)).toBe(false);
+		}
+	}
 });

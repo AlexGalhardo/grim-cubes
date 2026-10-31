@@ -162,3 +162,19 @@ test("free rerolls cost nothing and do not escalate the paid price", () => {
 	expect(progress.gold).toBe(100);
 	expect(shop.rerollPrice).toBe(11);
 });
+
+test("selling the starting weapon returns nothing", () => {
+	for (let seed = 1; seed < 200; seed++) {
+		const s = setup(2, seed);
+		s.shop.open();
+		const index = firstOf(s.shop.slots, "weapon");
+		if (index < 0) continue;
+		const slot = s.shop.slots[index] as ShopSlot;
+		expect(s.shop.paid).toBe(0);
+		s.progress.gold = 500;
+		expect(s.shop.buy(index)).toBe(true);
+		expect(s.progress.gold).toBe(500 - slot.price);
+		return;
+	}
+	throw new Error("no weapon offer in 200 seeds");
+});

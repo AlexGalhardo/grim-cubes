@@ -29,6 +29,8 @@ export interface ShopItem {
 	tier: number;
 	price: number;
 	modifiers: readonly Modifier[];
+	/** "alpha": the special effect is not implemented yet, so the item is not sold. */
+	status?: string | undefined;
 }
 
 export interface ShopWeapon {
@@ -104,18 +106,23 @@ export interface GenerateContext {
 	currentWeapon: { id: string; tier: number; maxTier: number };
 }
 
-function pickItem(ctx: GenerateContext): ShopItem {
+function pickItem(ctx: GenerateContext, used: ReadonlySet<string>): ShopItem {
 	const { catalog, rng } = ctx;
+	const sellable = catalog.items.filter((i) => i.status !== "alpha");
+	const fresh = sellable.filter((i) => !used.has(i.id));
+	// Every sellable item is already on offer only in absurdly small catalogues; repeat rather than fail.
+	const source = fresh.length > 0 ? fresh : sellable;
 	let tier = rollTier(rng, ctx.tiers, ctx.round, ctx.luck);
 	for (; tier >= 1; tier--) {
-		const pool = catalog.items.filter((i) => i.tier === tier);
+		const pool = source.filter((i) => i.tier === tier);
 		if (pool.length > 0) return pool[rng.int(pool.length)] as ShopItem;
 	}
-	return catalog.items[rng.int(catalog.items.length)] as ShopItem;
+	return source[rng.int(source.length)] as ShopItem;
 }
 
-function itemSlot(ctx: GenerateContext): ShopSlot {
-	const item = pickItem(ctx);
+function itemSlot(ctx: GenerateContext, used: Set<string>): ShopSlot {
+	const item = pickItem(ctx, used);
+	used.add(item.id);
 	return {
 		kind: "item",
 		id: item.id,
@@ -125,7 +132,7 @@ function itemSlot(ctx: GenerateContext): ShopSlot {
 	};
 }
 
-function weaponSlot(ctx: GenerateContext): ShopSlot {
+function weaponSlot(ctx: GenerateContext, used: Set<string>): ShopSlot {
 	const { catalog, rng, currentWeapon } = ctx;
 	const current = catalog.weapons.find((w) => w.id === currentWeapon.id);
 	const canUpgrade = current !== undefined && currentWeapon.tier < currentWeapon.maxTier;
@@ -133,13 +140,18 @@ function weaponSlot(ctx: GenerateContext): ShopSlot {
 		return {
 			kind: "upgrade",
 			id: current.id,
-			price: current.upgradePrices[currentWeapon.tier] ?? 0,
+			price: shopPrice(
+				ctx.config,
+				current.upgradePrices[currentWeapon.tier] ?? 0,
+				ctx.round,
+				ctx.shopPrice,
+			),
 			locked: false,
 			sold: false,
 		};
 	}
 	const pool = catalog.weapons.filter((w) => w.unlockRound <= ctx.round && w.id !== currentWeapon.id);
-	if (pool.length === 0) return itemSlot(ctx);
+	if (pool.length === 0) return itemSlot(ctx, used);
 	const weapon = pool[rng.int(pool.length)] as ShopWeapon;
 	return {
 		kind: "weapon",
@@ -161,6 +173,8 @@ export function generateShop(ctx: GenerateContext, keep: readonly (ShopSlot | nu
 		const kept = keep[i];
 		slots.push(kept?.locked ? kept : null);
 	}
+	// Items already on screen (locked slots included) are not offered twice in one visit.
+	const used = new Set(slots.flatMap((s) => (s?.kind === "item" ? [s.id] : [])));
 	const open = slots.flatMap((s, i) => (s === null ? [i] : []));
 	const wants = new Map<number, "weapon" | "item">();
 	if (ctx.round <= config.guaranteeUntilRound) {
@@ -172,7 +186,7 @@ export function generateShop(ctx: GenerateContext, keep: readonly (ShopSlot | nu
 	} else {
 		for (const i of open) wants.set(i, rng.chance(config.weaponChance) ? "weapon" : "item");
 	}
-	for (const i of open) slots[i] = wants.get(i) === "weapon" ? weaponSlot(ctx) : itemSlot(ctx);
+	for (const i of open) slots[i] = wants.get(i) === "weapon" ? weaponSlot(ctx, used) : itemSlot(ctx, used);
 	return slots as ShopSlot[];
 }
 

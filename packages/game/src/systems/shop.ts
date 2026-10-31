@@ -72,7 +72,8 @@ export function createShopSystem(deps: ShopSystemDeps): ShopSystem {
 	const owned = deps.owned ?? new Map<string, number>();
 	let slots: ShopSlot[] = [];
 	let rerolls = 0;
-	let paid = weapon.weapon.price ?? 0;
+	// The starting weapon was free, so selling it returns nothing.
+	let paid = 0;
 
 	const context = (): GenerateContext => ({
 		config,
