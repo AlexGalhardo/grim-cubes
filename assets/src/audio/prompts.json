@@ -198,5 +198,101 @@
 		"durationSeconds": 150,
 		"loop": true,
 		"model": "music_v1"
+	},
+	{
+		"file": "sfx_boss_alpha_hunter_entry",
+		"kind": "sfx",
+		"prompt": "towering alien hunter decloaking with a crackle of static, wet clicking mandibles and a low predatory snarl, heavy dry tone, medium distance, no music, game sound effect",
+		"durationSeconds": 3.0,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_boss_alpha_hunter_leap",
+		"kind": "sfx",
+		"prompt": "huge predator leaping through the air then slamming into the ground, heavy impact with cracking stone and a guttural roar, heavy dry tone, medium distance, no music, game sound effect",
+		"durationSeconds": 1.5,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_boss_nest_queen_entry",
+		"kind": "sfx",
+		"prompt": "colossal biomechanical queen rising with a shriek, wet chitin scraping, deep resonant hiss and dripping ichor, heavy dry tone, medium distance, no music, game sound effect",
+		"durationSeconds": 3.0,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_boss_nest_queen_sweep",
+		"kind": "sfx",
+		"prompt": "massive barbed tail whipping across the ground, fast whoosh and a crunching impact on bone and metal, heavy dry tone, medium distance, no music, game sound effect",
+		"durationSeconds": 1.2,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "mus_boss_alpha_hunter",
+		"kind": "music",
+		"prompt": "relentless heavy metal boss music, 140 BPM, stalking low guitar riffs, tribal war drums, tense high string stabs, predator hunt mood, grimdark, no cheerful synthesizers, seamless loop",
+		"durationSeconds": 150,
+		"loop": true,
+		"model": "music_v1"
+	},
+	{
+		"file": "mus_boss_nest_queen",
+		"kind": "music",
+		"prompt": "crushing heavy metal boss music, 135 BPM, detuned low guitars, industrial grinding percussion, shrieking choir swells, biomechanical hive horror mood, grimdark, no cheerful synthesizers, seamless loop",
+		"durationSeconds": 150,
+		"loop": true,
+		"model": "music_v1"
+	},
+	{
+		"file": "vo_boss_alpha_hunter_entry",
+		"kind": "voice",
+		"prompt": "You cannot see me. You can only die.",
+		"durationSeconds": 4,
+		"voiceId": "PENDING_PO_VOICE_ID",
+		"model": "eleven_multilingual_v2"
+	},
+	{
+		"file": "vo_boss_alpha_hunter_phase",
+		"kind": "voice",
+		"prompt": "The hunt begins in earnest.",
+		"durationSeconds": 4,
+		"voiceId": "PENDING_PO_VOICE_ID",
+		"model": "eleven_multilingual_v2"
+	},
+	{
+		"file": "vo_boss_alpha_hunter_death",
+		"kind": "voice",
+		"prompt": "A worthy prey... after all.",
+		"durationSeconds": 4,
+		"voiceId": "PENDING_PO_VOICE_ID",
+		"model": "eleven_multilingual_v2"
+	},
+	{
+		"file": "vo_boss_nest_queen_entry",
+		"kind": "voice",
+		"prompt": "My children hunger. Feed them.",
+		"durationSeconds": 4,
+		"voiceId": "PENDING_PO_VOICE_ID",
+		"model": "eleven_multilingual_v2"
+	},
+	{
+		"file": "vo_boss_nest_queen_phase",
+		"kind": "voice",
+		"prompt": "Rise, my brood. Rise!",
+		"durationSeconds": 4,
+		"voiceId": "PENDING_PO_VOICE_ID",
+		"model": "eleven_multilingual_v2"
+	},
+	{
+		"file": "vo_boss_nest_queen_death",
+		"kind": "voice",
+		"prompt": "The hive... will remember.",
+		"durationSeconds": 4,
+		"voiceId": "PENDING_PO_VOICE_ID",
+		"model": "eleven_multilingual_v2"
 	}
 ]
