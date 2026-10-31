@@ -9,6 +9,7 @@ import {
 } from "@gc/game";
 import type { HordeRenderer } from "./horde/hordeRenderer";
 import type { GameScene } from "./scene/scene";
+import type { Vfx } from "./vfx/vfx";
 
 export interface RenderPortOptions {
 	/**
@@ -20,6 +21,8 @@ export interface RenderPortOptions {
 	followRate?: number;
 	/** Seconds since the previous sync; defaults to the engine delta, capped at 0.1 s. */
 	deltaSeconds?: () => number;
+	/** Combat juice fed from the same event stream (blood, decals, damage numbers). */
+	vfx?: Vfx;
 }
 
 /**
@@ -32,7 +35,7 @@ export function createRenderPort(
 	options: RenderPortOptions = {},
 ): RenderPort {
 	const target = game.camera.target;
-	const { origin } = options;
+	const { origin, vfx } = options;
 	const followRate = options.followRate ?? Number.POSITIVE_INFINITY;
 	const engine = game.scene.getEngine();
 	const deltaSeconds = options.deltaSeconds ?? ((): number => Math.min(0.1, engine.getDeltaTime() / 1000));
@@ -41,11 +44,13 @@ export function createRenderPort(
 	let snapped = false;
 
 	// Created once: consumeEvents runs every frame and must not allocate.
-	const onEvent = (type: number, a: number, b: number, _c: number, entity: number): void => {
+	const onEvent = (type: number, a: number, b: number, c: number, entity: number): void => {
+		vfx?.onEvent(type, a, b, c, entity);
 		if (type === EventType.Died) horde?.onDied(entity);
 		if (type === EventType.OriginShifted) {
 			game.shiftWorld(a, b);
 			horde?.shift(a, b);
+			vfx?.shift(a, b);
 		}
 	};
 	return {

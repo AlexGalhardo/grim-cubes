@@ -13,6 +13,16 @@ export const PALETTE = {
 	mist: "#3F3A52",
 	/** --color-bone: placeholder hero cube. */
 	bone: "#D9C9A3",
+	/** --color-blood and --color-blood-light: gore (Art Bible §9). */
+	blood: "#5E0E14",
+	bloodLight: "#8E1A1F",
+	/** --color-ember and --color-ember-light: fire, explosions, projectiles. */
+	ember: "#E07A2A",
+	emberLight: "#F5B04A",
+	/** --color-iron-dark: blood colour with reduced gore. */
+	ironDark: "#2E3136",
+	/** --color-iron: reduced-gore death cubes. */
+	iron: "#5A5F66",
 	/** Directional "dead sun" colour (Art Bible §4); not a UI token. */
 	sun: "#C9B8A8",
 } as const;

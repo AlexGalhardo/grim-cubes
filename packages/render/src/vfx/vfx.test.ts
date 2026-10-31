@@ -1,0 +1,236 @@
+import type { Mesh } from "@babylonjs/core/Meshes/mesh";
+import {
+	Boss,
+	createEventBuffer,
+	createGameWorld,
+	createProjectilePool,
+	EventType,
+	Position,
+	renderData,
+	spawnBody,
+} from "@gc/game";
+import { describe, expect, it } from "vitest";
+import { createNullEngine } from "../engine";
+import { createGameScene } from "../scene/scene";
+import { createHitStop } from "./hitStop";
+import { createProjectileRenderer } from "./projectiles";
+import { createVfx } from "./vfx";
+
+const config = renderData.vfx;
+
+function setup(options: Parameters<typeof createVfx>[1] = {}) {
+	const { engine, dispose } = createNullEngine();
+	const game = createGameScene(engine);
+	const vfx = createVfx(game, options);
+	const world = createGameWorld();
+	return { game, vfx, world, dispose };
+}
+
+describe("vfx events", () => {
+	it("a hit throws 3-6 blood cubes and shows a damage number", () => {
+		const { vfx, world, dispose } = setup();
+		const e = spawnBody(world, 2, 3);
+		vfx.onEvent(EventType.Damaged, 125, 0, 0, e);
+		expect(vfx.particles.stats.live).toBeGreaterThanOrEqual(config.bloodCubesPerHit[0] ?? 0);
+		expect(vfx.particles.stats.live).toBeLessThanOrEqual(config.bloodCubesPerHit[1] ?? 0);
+		expect(vfx.numbers.live).toBe(1);
+		dispose();
+	});
+
+	it("a death throws 8-14 cubes and leaves a decal; a purged one does nothing", () => {
+		const { vfx, world, dispose } = setup();
+		const e = spawnBody(world, 2, 3);
+		vfx.onEvent(EventType.Died, 0, 1, 0, e);
+		expect(vfx.particles.stats.live).toBe(0);
+		vfx.onEvent(EventType.Died, 0, 0, 0, e);
+		expect(vfx.particles.stats.live).toBeGreaterThanOrEqual(config.bloodCubesPerDeath[0] ?? 0);
+		expect(vfx.particles.stats.live).toBeLessThanOrEqual(config.bloodCubesPerDeath[1] ?? 0);
+		expect(vfx.decals.live).toBe(1);
+		dispose();
+	});
+
+	it("an explosion throws 6-10 ember cubes", () => {
+		const { vfx, dispose } = setup();
+		vfx.onEvent(EventType.Exploded, 1, 1, 2, 0);
+		expect(vfx.particles.stats.live).toBeGreaterThanOrEqual(config.explosionCubes[0] ?? 0);
+		expect(vfx.particles.stats.live).toBeLessThanOrEqual(config.explosionCubes[1] ?? 0);
+		dispose();
+	});
+
+	it("asks for a 30 ms hit-stop on a critical hit and 80 ms when a boss dies", () => {
+		const stops: number[] = [];
+		const { vfx, world, dispose } = setup({
+			onHitStop: (ms) => stops.push(ms),
+			isBoss: (entity) => (Boss.id[entity] ?? 0) > 0,
+		});
+		const e = spawnBody(world, 0, 0);
+		vfx.onEvent(EventType.Damaged, 10, 0, 0, e);
+		expect(stops).toEqual([]);
+		vfx.onEvent(EventType.Damaged, 20, 1, 0, e);
+		Boss.id[e] = 1;
+		vfx.onEvent(EventType.Died, 0, 0, 0, e);
+		Boss.id[e] = 0;
+		expect(stops).toEqual([config.hitStopCritMs, config.hitStopBossDeathMs]);
+		dispose();
+	});
+});
+
+describe("pools", () => {
+	it("never exceed their capacity: the particle pool drops, the decal pool recycles FIFO", () => {
+		const { vfx, world, dispose } = setup();
+		const e = spawnBody(world, 0, 0);
+		for (let i = 0; i < 400; i++) {
+			Position.x[e] = i * 0.1;
+			vfx.onEvent(EventType.Died, 0, 0, 0, e);
+			if (i % 10 === 0) vfx.update(1 / 60);
+		}
+		expect(vfx.particles.stats.peak).toBeLessThanOrEqual(config.particlePool);
+		expect(vfx.particles.stats.live).toBeLessThanOrEqual(config.particlePool);
+		expect(vfx.particles.stats.dropped).toBeGreaterThan(0);
+		expect(vfx.decals.live).toBe(config.decalPool);
+		expect(vfx.decals.recycled).toBeGreaterThanOrEqual(400 - config.decalPool);
+		dispose();
+	});
+
+	it("particles fall, land and expire after their life", () => {
+		const { vfx, world, dispose } = setup();
+		const e = spawnBody(world, 0, 0);
+		vfx.onEvent(EventType.Died, 0, 0, 0, e);
+		for (let i = 0; i < Math.ceil(config.particleLifeSeconds * 60) + 5; i++) vfx.update(1 / 60);
+		expect(vfx.particles.stats.live).toBe(0);
+		dispose();
+	});
+
+	it("reduced gore: no decals, no blood, grey cubes on death, and existing decals are cleared", () => {
+		const { vfx, world, dispose } = setup();
+		const e = spawnBody(world, 0, 0);
+		vfx.onEvent(EventType.Died, 0, 0, 0, e);
+		expect(vfx.decals.live).toBe(1);
+		vfx.setGore(false);
+		expect(vfx.decals.live).toBe(0);
+		expect(vfx.gore).toBe(false);
+		for (let i = 0; i < 100; i++) vfx.update(1 / 60);
+		vfx.onEvent(EventType.Died, 0, 0, 0, e);
+		expect(vfx.particles.stats.live).toBe(config.reducedDeathCubes);
+		for (let i = 0; i < 100; i++) vfx.update(1 / 60);
+		expect(vfx.decals.live).toBe(0);
+		dispose();
+	});
+
+	it("shifts everything with the origin", () => {
+		const { vfx, world, dispose } = setup();
+		const e = spawnBody(world, 20, 0);
+		vfx.onEvent(EventType.Died, 0, 0, 0, e);
+		vfx.shift(16, 0);
+		vfx.update(1 / 60);
+		expect(vfx.decals.live).toBe(1);
+		dispose();
+	});
+});
+
+describe("damage numbers", () => {
+	it("draw one digit instance per digit, spread over the ten digit meshes", () => {
+		const { game, vfx, world, dispose } = setup();
+		const e = spawnBody(world, 0, 0);
+		vfx.onEvent(EventType.Damaged, 1205, 0, 0, e);
+		vfx.update(0.1);
+		const counts = ["1", "2", "0", "5"].map(
+			(d) => (game.scene.getMeshByName(`vfx_digit_${d}`) as Mesh | null)?.thinInstanceCount,
+		);
+		expect(counts).toEqual([1, 1, 1, 1]);
+		for (let i = 0; i < 60; i++) vfx.update(0.1);
+		expect(vfx.numbers.live).toBe(0);
+		dispose();
+	});
+});
+
+describe("projectile renderer", () => {
+	it("instances only the live slots of the projectile pool", () => {
+		const { engine, dispose } = createNullEngine();
+		const game = createGameScene(engine);
+		const world = createGameWorld();
+		const pool = createProjectilePool(world, createEventBuffer(), 8);
+		const view = createProjectileRenderer(game, 8, config.projectileSize);
+		view.sync(world, 1);
+		expect(view.live).toBe(0);
+		const spec = {
+			x: 1,
+			z: 2,
+			vx: 0,
+			vz: 10,
+			damage: 5,
+			critChance: 0,
+			knockback: 0,
+			pierce: 0,
+			lifeSteps: 60,
+			radius: 0.1,
+			explosionRadius: 0,
+			selfFraction: 0,
+		};
+		for (let i = 0; i < 3; i++) pool.acquire(spec);
+		view.sync(world, 0.5);
+		expect(view.live).toBe(3);
+		expect((game.scene.getMeshByName("vfx_projectiles") as Mesh | null)?.thinInstanceCount).toBe(3);
+		dispose();
+	});
+});
+
+describe("hit-stop", () => {
+	it("pauses once, extends instead of stacking, and resumes when the time is up", () => {
+		let now = 0;
+		const calls: string[] = [];
+		const stop = createHitStop({
+			pause: () => calls.push("pause"),
+			resume: () => calls.push("resume"),
+			now: () => now,
+		});
+		stop.request(30);
+		now = 10;
+		stop.request(30);
+		expect(calls).toEqual(["pause"]);
+		now = 39;
+		stop.update();
+		expect(stop.active).toBe(true);
+		now = 41;
+		stop.update();
+		expect(calls).toEqual(["pause", "resume"]);
+		expect(stop.active).toBe(false);
+	});
+});
+
+describe("allocation", () => {
+	it("update allocates no arrays or strings with particles and numbers alive", () => {
+		const { vfx, world, dispose } = setup();
+		const e = spawnBody(world, 0, 0);
+		const burst = (): void => {
+			vfx.onEvent(EventType.Damaged, 987, 1, 0, e);
+			vfx.onEvent(EventType.Died, 0, 0, 0, e);
+		};
+		for (let i = 0; i < 20; i++) {
+			burst();
+			vfx.update(1 / 60);
+		}
+		let calls = 0;
+		const proto = Array.prototype as unknown as Record<string, (...args: unknown[]) => unknown>;
+		const originals = new Map<string, (...args: unknown[]) => unknown>();
+		for (const name of ["filter", "map", "slice", "concat", "join"]) {
+			const original = proto[name];
+			if (!original) continue;
+			originals.set(name, original);
+			proto[name] = function (this: unknown, ...args: unknown[]): unknown {
+				calls++;
+				return original.apply(this, args);
+			};
+		}
+		try {
+			for (let i = 0; i < 300; i++) {
+				if (i % 10 === 0) burst();
+				vfx.update(1 / 60);
+			}
+		} finally {
+			for (const [name, original] of originals) proto[name] = original;
+		}
+		expect(calls).toBe(0);
+		dispose();
+	});
+});

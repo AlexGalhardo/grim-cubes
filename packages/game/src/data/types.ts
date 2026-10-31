@@ -89,6 +89,29 @@ export interface RenderData {
 		radiusMobile: number;
 		followRate: number;
 	};
+	vfx: {
+		particlePool: number;
+		decalPool: number;
+		damageNumberPool: number;
+		bloodCubesPerHit: number[];
+		bloodCubesPerDeath: number[];
+		explosionCubes: number[];
+		reducedDeathCubes: number;
+		cubeSizeRange: number[];
+		particleLifeSeconds: number;
+		gravity: number;
+		bloodLightShare: number;
+		decalSizeRange: number[];
+		decalFromLandingChance: number;
+		hitStopCritMs: number;
+		hitStopBossDeathMs: number;
+		flashBrightness: number;
+		flashSeconds: number;
+		damageNumberLifeSeconds: number;
+		damageNumberRise: number;
+		damageNumberHeight: number;
+		projectileSize: number;
+	};
 	propFade: {
 		minHeight: number;
 		alpha: number;

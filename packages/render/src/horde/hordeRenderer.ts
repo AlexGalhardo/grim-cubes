@@ -1,3 +1,4 @@
+import { Material } from "@babylonjs/core/Materials/material";
 import type { Mesh } from "@babylonjs/core/Meshes/mesh";
 import {
 	Attacking,
@@ -32,6 +33,11 @@ export interface HordeOptions {
 	ghostCapacity: number;
 	/** Seconds since the previous call; defaults to the engine delta. */
 	deltaSeconds(): number;
+	/**
+	 * Instance colour multiplier of an enemy that was just hit (GDD §23: a white flash). Above 1 the texture burns
+	 * towards white. Omit to leave the colour buffer out.
+	 */
+	flashBrightness?: number;
 }
 
 export interface HordeRenderer {
@@ -62,6 +68,8 @@ export function createHordeRenderer(types: readonly HordeType[], options: HordeO
 	const total = capacity + ghostCapacity;
 	const matrices: Float32Array[] = [];
 	const settings: Float32Array[] = [];
+	const flashColors: Float32Array[] = [];
+	const flashCompiled = new Uint8Array(types.length);
 	const counts = new Int32Array(types.length);
 	// Clip table per type: [from, to] for walk, hit, attack, death; resolved once so sync never looks up strings.
 	const clipRange = new Float32Array(types.length * CLIP_NAMES.length * 2);
@@ -74,6 +82,11 @@ export function createHordeRenderer(types: readonly HordeType[], options: HordeO
 		type.mesh.alwaysSelectAsActiveMesh = true;
 		type.mesh.thinInstanceSetBuffer("matrix", m, 16, false);
 		type.mesh.thinInstanceSetBuffer(SETTINGS_KIND, s, 4, false);
+		if (options.flashBrightness !== undefined) {
+			const colors = new Float32Array(total * 4).fill(1);
+			type.mesh.thinInstanceSetBuffer("color", colors, 4, false);
+			flashColors[t] = colors;
+		}
 		type.mesh.thinInstanceCount = 0;
 		matrices[t] = m;
 		settings[t] = s;
@@ -186,6 +199,12 @@ export function createHordeRenderer(types: readonly HordeType[], options: HordeO
 				const pz = PrevPosition.z[eid] ?? 0;
 				const x = px + ((Position.x[eid] ?? 0) - px) * alpha;
 				const z = pz + ((Position.z[eid] ?? 0) - pz) * alpha;
+				const brightness = options.flashBrightness;
+				const colors = flashColors[t];
+				if (colors && brightness !== undefined) {
+					const level = (HitFlash.ticks[eid] ?? 0) > 0 ? brightness : 1;
+					colors[n * 4] = colors[n * 4 + 1] = colors[n * 4 + 2] = level;
+				}
 				const yaw = Facing.yaw[eid] ?? 0;
 				if (next === STATE_WALK) {
 					const speed =
@@ -229,6 +248,14 @@ export function createHordeRenderer(types: readonly HordeType[], options: HordeO
 				mesh.thinInstanceCount = counts[t] ?? 0;
 				mesh.thinInstanceBufferUpdated("matrix");
 				mesh.thinInstanceBufferUpdated(SETTINGS_KIND);
+				if (flashColors[t]) {
+					mesh.thinInstanceBufferUpdated("color");
+					// INSTANCESCOLOR is only defined once the mesh has thin instances at compile time.
+					if (!flashCompiled[t] && (counts[t] ?? 0) > 0) {
+						flashCompiled[t] = 1;
+						mesh.material?.markAsDirty(Material.AttributesDirtyFlag);
+					}
+				}
 				stats.matrixUpdates++;
 				stats.settingsUpdates++;
 			}

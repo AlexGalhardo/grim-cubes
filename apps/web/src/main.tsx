@@ -14,6 +14,7 @@ import {
 	applyHarvest,
 	applyOriginShift,
 	applyRoundEndBonus,
+	Boss,
 	biomesData,
 	cardsData,
 	createAuraSystem,
@@ -77,8 +78,11 @@ import {
 	createChunkRenderer,
 	createEngine,
 	createGameScene,
+	createHitStop,
 	createHordeRenderer,
+	createProjectileRenderer,
 	createRenderPort,
+	createVfx,
 	loadGameAssets,
 	PLACEHOLDER_PROPS,
 	type PropTypeDef,
@@ -393,10 +397,26 @@ async function boot(): Promise<void> {
 						// Frozen while paused (level-up) so the frame is stable for screenshots and the horde does not keep animating.
 						deltaSeconds: () =>
 							run.state === "Paused" ? 0 : render.engine.getDeltaTime() / 1000,
+						flashBrightness: renderData.vfx.flashBrightness,
 					},
 				)
 			: undefined;
-	const port = createRenderPort(game, horde, { origin, followRate: CAMERA.followRate });
+	// Hit-stop pauses the simulation, not the rendering, so the freeze frame still shows the burst.
+	const hitStop = createHitStop({
+		pause: () => loop.pause(),
+		resume: () => loop.resume(),
+		now: () => performance.now(),
+	});
+	const vfx = createVfx(game, {
+		onHitStop: (ms) => hitStop.request(ms),
+		isBoss: (entity) => (Boss.id[entity] ?? 0) > 0,
+	});
+	const projectileView = createProjectileRenderer(
+		game,
+		projectiles.capacity,
+		renderData.vfx.projectileSize,
+	);
+	const port = createRenderPort(game, horde, { origin, followRate: CAMERA.followRate, vfx });
 	const propTypes: PropTypeDef[] = [];
 	for (const name of chunkGen.propTypes) {
 		const placeholder = PLACEHOLDER_PROPS.find((p) => name.startsWith(p.name)) ?? PLACEHOLDER_PROPS[0];
@@ -608,6 +628,10 @@ async function boot(): Promise<void> {
 				origin.x + (Position.x[hero] ?? 0),
 				origin.z + (Position.z[hero] ?? 0),
 			);
+			// VFX stop with the world while paused (level-up) so a captured frame is stable.
+			vfx.update(run.state === "Paused" ? 0 : Math.min(0.1, render.engine.getDeltaTime() / 1000));
+			projectileView.sync(world, alpha);
+			hitStop.update();
 			const camera = game.camera;
 			chunkRenderer.updateFade(
 				{
@@ -674,6 +698,18 @@ async function boot(): Promise<void> {
 				Position.z[hero] = PrevPosition.z[hero] = z;
 			},
 			minPropAlpha: () => chunkRenderer.minAlpha(),
+			setGore: (full: boolean) => vfx.setGore(full),
+			vfx: () => ({
+				particles: { ...vfx.particles.stats, capacity: vfx.particles.capacity },
+				decals: {
+					live: vfx.decals.live,
+					capacity: vfx.decals.capacity,
+					recycled: vfx.decals.recycled,
+				},
+				numbers: { live: vfx.numbers.live, dropped: vfx.numbers.dropped },
+				projectiles: { live: projectileView.live, capacity: projectileView.capacity },
+				hitStopActive: hitStop.active,
+			}),
 			/** Stops the simulation and the horde clock so the frame can be captured. */
 			freeze: () => run.pause(),
 			saveNotice: () => loaded.notice,

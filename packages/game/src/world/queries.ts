@@ -1,8 +1,9 @@
-import { EnemyFaction, PlayerFaction, Position, PrevPosition } from "../ecs/components";
+import { EnemyFaction, PlayerFaction, Position, PrevPosition, Projectile } from "../ecs/components";
 import { createQueryCache, type GameWorld } from "../ecs/world";
 
 const heroList = createQueryCache([PlayerFaction, Position]);
 const bodyList = createQueryCache([Position, PrevPosition]);
+const projectileList = createQueryCache([Projectile, Position, PrevPosition]);
 const enemyList = createQueryCache([EnemyFaction, Position, PrevPosition]);
 
 /** First entity tagged PlayerFaction, or -1. */
@@ -18,4 +19,9 @@ export function queryBodies(world: GameWorld): readonly number[] {
 /** Live enemies with a body. Same ownership rules as `queryBodies`. */
 export function queryEnemies(world: GameWorld): readonly number[] {
 	return enemyList(world);
+}
+
+/** Every projectile slot of the pool, live or not; renderers skip those with `Projectile.life === 0`. */
+export function queryProjectiles(world: GameWorld): readonly number[] {
+	return projectileList(world);
 }
