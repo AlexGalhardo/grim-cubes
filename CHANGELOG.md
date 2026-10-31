@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **render:** Warn along every direction of the Forgemaster chain shot (A-03-02) ([c6de4dd](https://github.com/AlexGalhardo/grim-cubes/commit/c6de4dd2625f50bca1d1aacf88aafa64b44b7b75))
 - **render:** The Merchant stands 4 u from the hero while the shop is open (A-05-01) ([ab57279](https://github.com/AlexGalhardo/grim-cubes/commit/ab57279795a31ef32513c82052fbd3239b8d15a9))
 - **ui:** Atlas icons on shop items, level-up cards, chest offers and ossuary nodes (B-03-05) ([e67c3c9](https://github.com/AlexGalhardo/grim-cubes/commit/e67c3c9fa1e4bca545ce15bf827cdea889295308))
+- **game:** Alpha Hunter (round 40: `stealth`, `leap`, `thermal_vision`) and Nest Queen (round 50: `eggs`, `sweep`, `fly_bomb`) simulation, with the `Stealth`, `IgnoresProps` and `Egg` components and events 34–40; provisional HP 60,000 and 65,000; the roster draws from round 60 (B-01-01, B-01-02) ([5aeaf3d](https://github.com/AlexGalhardo/grim-cubes/commit/5aeaf3df09849e1866ea2e72c525078cd8558814))
 - **game:** Elites drop consumables with the chance in `data/consumables.json` (A-02-04) ([c1252b2](https://github.com/AlexGalhardo/grim-cubes/commit/c1252b29b66feb627bf9d990315e3e1bdd59108d))
 
 ### Changed
