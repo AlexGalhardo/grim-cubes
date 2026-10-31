@@ -1,6 +1,8 @@
 export type {
 	BiomeData,
 	CardsData,
+	EliteModifierData,
+	ElitesData,
 	EnemyData,
 	HeroData,
 	PropData,
@@ -12,6 +14,7 @@ export type {
 export {
 	biomesData,
 	cardsData,
+	elitesData,
 	enemiesData,
 	heroData,
 	itemsData,
@@ -24,11 +27,13 @@ export {
 	weaponsData,
 	worldData,
 } from "./data";
+export { dropChest } from "./ecs/chest";
 export {
 	Armor,
 	Attacking,
 	Behavior,
 	Boss,
+	Chest,
 	ContactCooldown,
 	ContactDamage,
 	Elite,
@@ -75,6 +80,8 @@ export type { StatLine } from "./rules/describe";
 export { describeModifier, describeStats } from "./rules/describe";
 export type { AuraEffect, EffectSource, ItemEffects } from "./rules/effects";
 export { computeEffects, createItemEffects } from "./rules/effects";
+export type { EliteRoller, EliteStats } from "./rules/elite";
+export { createEliteRoller, eliteStats } from "./rules/elite";
 export type { FragmentsConfig, XpConfig } from "./rules/fragments";
 export { dropChance, harvestCount, xpForLevel } from "./rules/fragments";
 export type { RunStats } from "./rules/runstats";
@@ -95,10 +102,14 @@ export type { HeroStatsData, Modifier, PlayerStats, StatCaps } from "./rules/sta
 export { computeStats, createPlayerStats, STAT_FIELDS } from "./rules/stats";
 export type { BehaviorConfig, BehaviorSystem } from "./systems/behavior";
 export { BehaviorKind, createBehaviorSystem } from "./systems/behavior";
+export type { ChestOffer, ChestSystem, ChestSystemDeps } from "./systems/chest";
+export { createChestSystem } from "./systems/chest";
 export type { DamageQueue, DamageSystem, DamageSystemDeps, HeroCombatStats } from "./systems/damage";
 export { createDamageSystem, DAMAGE_QUEUE_CAPACITY } from "./systems/damage";
 export type { AuraSystem, AuraSystemDeps, EffectsSystem } from "./systems/effects";
 export { createAuraSystem, createEffectsSystem } from "./systems/effects";
+export type { EliteSystem, EliteSystemDeps } from "./systems/elite";
+export { createEliteSystem } from "./systems/elite";
 export { inputSystem } from "./systems/input";
 export type { LevelUpDeps, LevelUpSystem } from "./systems/levelup";
 export { createLevelUpSystem } from "./systems/levelup";

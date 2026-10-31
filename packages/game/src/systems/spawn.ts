@@ -75,6 +75,8 @@ export interface SpawnSystemDeps {
 
 export interface SpawnSystem {
 	startRound(round: number, options: SpawnRoundOptions): void;
+	/** Creates one extra enemy at (x, z) outside the round budget (elites, summons). */
+	spawnEnemy(world: GameWorld, typeIndex: number, x: number, z: number): number;
 	run(world: GameWorld, hero: number): void;
 	readonly remaining: number;
 	readonly spawned: number;
@@ -165,21 +167,15 @@ export function createSpawnSystem(deps: SpawnSystemDeps): SpawnSystem {
 		return true;
 	}
 
-	function create(world: GameWorld, typeIndex: number, hero: number): void {
+	/** Builds an enemy entity at (x, z) without touching the round counters. */
+	function build(world: GameWorld, typeIndex: number, x: number, z: number): number {
 		const def = enemies[typeIndex];
 		if (def === undefined) throw new RangeError(`unknown enemy type ${typeIndex}`);
-		place(
-			Position.x[hero] ?? 0,
-			Position.z[hero] ?? 0,
-			Velocity.x[hero] ?? 0,
-			Velocity.z[hero] ?? 0,
-			spot,
-		);
 		const e = spawn(world);
 		for (let i = 0; i < ENEMY_COMPONENTS.length; i++)
 			addComponent(world, e, ENEMY_COMPONENTS[i] as object);
-		Position.x[e] = PrevPosition.x[e] = spot.x;
-		Position.z[e] = PrevPosition.z[e] = spot.z;
+		Position.x[e] = PrevPosition.x[e] = x;
+		Position.z[e] = PrevPosition.z[e] = z;
 		Velocity.x[e] = 0;
 		Velocity.z[e] = 0;
 		Radius.r[e] = def.radius;
@@ -193,6 +189,18 @@ export function createSpawnSystem(deps: SpawnSystemDeps): SpawnSystem {
 		Behavior.state[e] = 0;
 		Behavior.timer[e] = 0;
 		ContactCooldown.ticks[e] = 0;
+		return e;
+	}
+
+	function create(world: GameWorld, typeIndex: number, hero: number): void {
+		place(
+			Position.x[hero] ?? 0,
+			Position.z[hero] ?? 0,
+			Velocity.x[hero] ?? 0,
+			Velocity.z[hero] ?? 0,
+			spot,
+		);
+		build(world, typeIndex, spot.x, spot.z);
 		spawned++;
 		onSpawn?.(world, spot.x, spot.z);
 	}
@@ -211,6 +219,9 @@ export function createSpawnSystem(deps: SpawnSystemDeps): SpawnSystem {
 			timer = intervalSteps;
 			pool = options.pool;
 			poolTotal = pool.reduce((sum, p) => sum + p.weight, 0);
+		},
+		spawnEnemy(world: GameWorld, typeIndex: number, x: number, z: number): number {
+			return build(world, typeIndex, x, z);
 		},
 		run(world: GameWorld, hero: number): void {
 			if (remaining === 0) return;

@@ -68,3 +68,6 @@ export const Projectile = {
 export const Facing = { yaw: f32() };
 /** Steps left in the attack animation; set by behaviorSystem on contact, read by render for the clip. */
 export const Attacking = { ticks: u8() };
+
+/** A reward chest on the floor; opening it offers items of at least this tier. */
+export const Chest = { tier: u8() };

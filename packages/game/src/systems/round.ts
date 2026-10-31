@@ -39,6 +39,8 @@ export interface RunSystemDeps {
 	difficultyMult: number;
 	/** Called once at the end of every round, after enemies and floor piles were handled (e.g. harvest). */
 	onRoundEnd?: (round: number) => void;
+	/** Called when combat begins (after the intro), with whether it is a boss round. */
+	onRoundStart?: (round: number, boss: boolean) => void;
 }
 
 /** Fragments left on the floor at round end; released one per spawn in the next round, never lost. */
@@ -79,7 +81,7 @@ export function roundDurationSeconds(config: RunConfig, round: number): number {
 const toSteps = (seconds: number): number => Math.max(1, Math.round(seconds / STEP));
 
 export function createRunSystem(deps: RunSystemDeps): RunSystem {
-	const { config, spawn, events, poolFor, difficultyMult, onRoundEnd } = deps;
+	const { config, spawn, events, poolFor, difficultyMult, onRoundEnd, onRoundStart } = deps;
 	const bag: Bag = { value: 0 };
 	const enemies = createQueryCache([EnemyFaction]);
 	const fragments = createQueryCache([Fragment]);
@@ -104,6 +106,7 @@ export function createRunSystem(deps: RunSystemDeps): RunSystem {
 			intervalScale: boss ? config.boss.hordeIntervalMult : 1,
 		});
 		events.push(EventType.RoundStarted, round, 0, 0, 0);
+		onRoundStart?.(round, boss);
 		if (boss) enter("BossRound");
 		else enter("Round", roundDurationSeconds(config, round));
 	}

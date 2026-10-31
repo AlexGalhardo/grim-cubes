@@ -21,6 +21,14 @@ export const EventType = {
 	PoolExhausted: 10,
 	/** a, b = centre x, z; c = radius. A projectile detonated. */
 	Exploded: 12,
+	/** a, b = x, z of the arrival; the elite enters in 2 s (warning sound, edge marker). */
+	EliteIncoming: 13,
+	/** a, b = x, z; c = modifier id (1-based, `Elite.modifier`); entity = the elite. */
+	EliteSpawned: 14,
+	/** a, b = x, z. An elite chest dropped. */
+	ChestDropped: 15,
+	/** An elite chest was opened and the offer is on screen. */
+	ChestOpened: 16,
 	/** a = new level. The run paused and a card offer is waiting. */
 	LevelUp: 11,
 } as const;

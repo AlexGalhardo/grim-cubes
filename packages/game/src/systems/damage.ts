@@ -65,6 +65,8 @@ export interface DamageSystemDeps {
 	effects?: ItemEffects | undefined;
 	/** Run tallies (damage dealt, killer); optional. */
 	runStats?: RunStats | undefined;
+	/** Called when the hero takes a hit that passed dodge and i-frames (`source` is 0 for non-enemy sources). */
+	onHeroHit?: ((source: number, taken: number) => void) | undefined;
 }
 
 export interface DamageSystem {
@@ -73,7 +75,7 @@ export interface DamageSystem {
 }
 
 export function createDamageSystem(deps: DamageSystemDeps): DamageSystem {
-	const { config, rng, events, hero, stats, effects, runStats } = deps;
+	const { config, rng, events, hero, stats, effects, runStats, onHeroHit } = deps;
 	const target = new Uint16Array(DAMAGE_QUEUE_CAPACITY);
 	const amount = new Float32Array(DAMAGE_QUEUE_CAPACITY);
 	const critChance = new Float32Array(DAMAGE_QUEUE_CAPACITY);
@@ -127,6 +129,7 @@ export function createDamageSystem(deps: DamageSystemDeps): DamageSystem {
 		Health.hp[hero] = (Health.hp[hero] ?? 0) - taken;
 		Invulnerable.ticks[hero] = iFrameTicks;
 		events.push(EventType.PlayerHit, taken, 0, 0, hero);
+		onHeroHit?.(source[i] ?? 0, taken);
 		if (runStats && (Health.hp[hero] ?? 0) <= 0) recordKiller(world, source[i] ?? 0);
 		if ((Health.hp[hero] ?? 0) <= 0) events.push(EventType.Died, 0, 0, 0, hero);
 	}

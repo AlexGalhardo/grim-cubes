@@ -74,6 +74,8 @@ export interface DeathSystemDeps {
 	effects?: ItemEffects | undefined;
 	/** Run tallies (kills, elites, bosses); optional. */
 	runStats?: RunStats | undefined;
+	/** Called for every enemy that dies, before it is recycled (elite rewards, death explosions). */
+	onDeath?: ((world: GameWorld, enemy: number, x: number, z: number) => void) | undefined;
 }
 
 export interface DeathSystem {
@@ -88,7 +90,7 @@ const pileList = createQueryCache([Fragment, Position]);
  * round's drop chance, then are recycled. Over the pile cap the drop merges into the nearest pile, value kept.
  */
 export function createDeathSystem(deps: DeathSystemDeps): DeathSystem {
-	const { fragments, fragmentsPerType, rng, round, effects, runStats } = deps;
+	const { fragments, fragmentsPerType, rng, round, effects, runStats, onDeath } = deps;
 	const dead = new Uint16Array(4096);
 
 	function drop(world: GameWorld, x: number, z: number, value: number): void {
@@ -126,6 +128,7 @@ export function createDeathSystem(deps: DeathSystemDeps): DeathSystem {
 				const value = effects && rng.chance(effects.doubleFragmentChance) ? base * 2 : base;
 				if (value > 0 && rng.chance(chance))
 					drop(world, Position.x[e] ?? 0, Position.z[e] ?? 0, value);
+				onDeath?.(world, e, Position.x[e] ?? 0, Position.z[e] ?? 0);
 				if (runStats) {
 					runStats.kills++;
 					if (hasComponent(world, e, Elite)) runStats.elitesKilled++;

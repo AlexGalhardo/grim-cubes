@@ -150,3 +150,26 @@ export interface ItemData {
 	effects: ItemEffect[];
 	status?: string;
 }
+
+export interface EliteModifierData {
+	id: string;
+	name: string;
+	hpMult: number;
+	aura: string;
+	armorAdd?: number;
+	speedMult?: number;
+	lifestealOfDamage?: number;
+	onDeathExplosion?: { radius: number; damageBase: number; damagePerRound: number };
+}
+
+/** `data/elites.json`. */
+export interface ElitesData {
+	chance: number;
+	pityRounds: number;
+	minRound: number;
+	excludeBossRounds: boolean;
+	scale: number;
+	entryDelaySeconds: number;
+	reward: { chest: { tier: number; offered: number; picks: number }; souls: number; healHp: number };
+	modifiers: EliteModifierData[];
+}
