@@ -10,7 +10,7 @@ assets/src/
 ├── vfx/<name>.png (sprite sheets)
 ├── ui/{icons,frames,fonts}/
 └── audio/{sfx,music,voice}/<name>.mp3 + <name>.meta.json + prompts.json
-public/assets/            (gerado por tools/assets-build; commitado)
+public/assets/            (gerado por tools/assets-build; NÃO versionado: o pipeline é determinístico e `bun run build` o regenera, inclusive na Vercel — decisão do Orq de 2026-10-31)
 ├── atlas_characters.png | .ktx2
 ├── atlas_props.png | .ktx2
 ├── atlas_vfx_ui.png

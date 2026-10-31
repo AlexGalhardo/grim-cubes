@@ -480,7 +480,7 @@ Decisão D10: fragmentos dão XP e ouro ao mesmo tempo. Ao subir de nível, o jo
 ### 16.1 Curva de XP (proposta, inspirada em VS)
 
 ```text
-xp_para_nivel(L) = 10 + 8 × (L - 1)   # nível 2 = 10, nível 10 = 82, nível 20 = 162
+xp_para_proximo(L) = 10 + 8 × (L - 1)   # XP para passar do nível L para L+1: 1→2 = 10, 10→11 = 82, 20→21 = 162
 xp_por_fragmento = 1 (×(1 + xp_gain/100))
 ```
 
