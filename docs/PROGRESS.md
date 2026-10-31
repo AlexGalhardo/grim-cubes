@@ -1,6 +1,6 @@
 # PROGRESS
 
-Atualizado: 2026-10-31 (fuso do PO) | Versão: 0.2.0 (publicada, tag `v0.2.0` em f504443; `main` 0127843; a v0.2.1 sai com o rebalanceamento f763a6b) | Fase: 2 — PROTÓTIPO (ALPHA e BETA adiantadas em paralelo) | Sessão: #2
+Atualizado: 2026-10-31 (fuso do PO) | Versão: 0.3.0 (publicada, tag `v0.3.0` em 453554a; `main` 59d5a42) | Fase: 2 — PROTÓTIPO (ALPHA e BETA adiantadas em paralelo) | Sessão: #2
 
 Meta do PO (2026-10-31): implementar o ROADMAP até o fim sem interrupções; tarefas `Resp: PO` ficam em Bloqueios e os agentes seguem com o resto. Hooks lefthook instalados em `.git` (valem para todos os worktrees).
 
@@ -8,49 +8,66 @@ Meta do PO (2026-10-31): implementar o ROADMAP até o fim sem interrupções; ta
 
 | Agente | Tarefa atual | Branch | Estado | Desde | Lock |
 | --- | --- | --- | --- | --- | --- |
-| Orq | integra as branches na `main`; v0.2.1 com o rebalanceamento do regen | main | em andamento | — | — |
-| S1 | fila de polimento de VFX da auditoria (espinhos por evento, furtividade, ovos, fade de decals, poeira por bioma, números de dano, consumíveis) e o cast do `vision.ts` | — | implementando | — | — |
-| S2 | P1 do `padNav` (botão segurado ao abrir diálogo), `vision` na tela `Options` com save, fuses do Electron, evento `ThornsHit`, P3 do Electron e do `release.yml` | — | implementando | — | — |
-| Est | guards (`tools/guards`, na `main`) → próximo `[ ]` de Resp Est sem dependência do PO | — | implementando | — | — |
-| Art | refino do Mercador de Ossos (retrato) e checklist B-03-01 | — (checkout da `main`) | implementando | — | `assets/src/models/npc/**` |
-| Esp | auditoria de ad9736c..0127843 e este PROGRESS → standby | main (sem git) | em standby | — | `docs/PROGRESS.md` |
+| Orq | integra as branches na `main`; distribui as correções da auditoria | main | em andamento | — | — |
+| S1 | HUD `inert` sob diálogos, teto da escala a 150% em 800×360, layout do level-up e da loja, modo de captura em jogo para o item 11 da B-03-01; render do `emerge`/`submerge` do Mercador (A-05-01) | — | implementando | — | — |
+| S2 | layout de telas baixas (level-up, loja, HUD `inert`, teto de escala, rótulo de versão) | — | em andamento | — | — |
+| Est | próximo `[ ]` de Resp Est sem dependência do PO | — | implementando | — | — |
+| Art | lista do §14 da Art Bible por prioridade (Caçador Alfa distinto do Caçador, contraste com o chão do bioma, tiles que marcam a grade, props e armas) e o registro do padrão 5 glifos + nível do Ossuário | — (checkout da `main`) | implementando | — | `assets/src/models/**` |
+| Esp | reconciliação do ROADMAP e este PROGRESS → standby | main (sem git) | em standby | — | `ROADMAP.md`, `docs/PROGRESS.md` |
 
 As linhas refletem as últimas mensagens do Orq; o Orq confirma ao integrar.
 
-Estado (2026-10-31): a **v0.2.0** está publicada (GitHub Release `v0.2.0`, f504443), com o build Windows (instalador NSIS e portable, sem assinatura) anexado pelo job `desktop` do `release.yml`. Desde a v0.1.0 entraram: chefes 4 e 5 (simulação e render), roster até o round 60+, motor de áudio com 78 arquivos ElevenLabs (plano Creator), tela de título, `Options`, `DemoEnd` e selo DEMO, velocidade 1x/2x/3x (vale em todos os builds, recordes contam), tutorial e dicas, ícones na UI, preset de vídeo automático, telemetria opt-in (só log local; save schema 4), navegação por teclado e gamepad nos diálogos, regen de vida pela fórmula do GDD, Electron 45 com sandbox e protocolo `app://`, e os modelos refinados no Blockbench via MCP. A v0.2.0 saiu com o `balance.yml` vermelho (p50 31 depois da correção do regen); o f763a6b rebalanceou o `hp_regen` só em dados e o check voltou a passar (p50 24,5 local); entra na v0.2.1. **O e2e (Playwright) segue fora do CI por decisão do PO**: specs e baselines ficam no repositório e só rodam quando o Orq pedir.
+Estado (2026-10-31): a **v0.3.0** está publicada (GitHub Release `v0.3.0`, 453554a), com SBOM, checksums (agora com os .exe) e o build Windows (instalador e portable, sem assinatura). Desde a v0.2.0 entraram: correção e rebalanceamento do regen (fórmula contínua), fuses e endurecimento do Electron, ícone do app e favicon, acessibilidade completa nas `Options` (brilho, contraste, daltônico com `data-theme="cb"` e formas por raridade, flashes, escala, gore, remap de teclas e do gamepad, legendas das falas de chefe; save schema 8), navegação de diálogos sem disparo acidental do botão A, `ThornsHit` com espinhos no render, polimento de VFX, atlas emissivo, atlas dimensionados (80 MB → 5 MB de GPU), LRU de áudio, variantes de inimigos, ícones desenhados à mão, Mercador que espera o herói e abre a loja no contato, e os modelos refinados com captura de revisão. **O e2e (Playwright) segue fora do CI por decisão do PO.**
 
-Dívida operacional: com vários agentes rodando testes ao mesmo tempo, a CPU satura e o `pre-push` pode estourar timeout (a suíte isolada passa). Janela de push (um agente por vez) e timeout de 20 s nos testes de simulação e determinismo; não contornar o hook. Cherry-pick de base antiga já apagou correções duas vezes (59eb086, restaurado em fdddb95 e 78ae69b): o Esp roda a cada auditoria um script que procura linhas adicionadas que sumiram do HEAD.
+Dívida operacional: com vários agentes rodando testes ao mesmo tempo, a CPU satura e o `pre-push` pode estourar timeout (a suíte isolada passa). Janela de push (um agente por vez) e timeouts maiores nos testes pesados; não contornar o hook. Cherry-pick de base antiga já apagou correções duas vezes (59eb086, restaurado em fdddb95 e 78ae69b): o Esp roda a cada auditoria um script que procura linhas adicionadas que sumiram do HEAD.
 
 Vercel: deploy de produção Ready; a URL responde 302 (proteção SSO mantida, decisão B). O `vercel.json` traz CSP, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy` e COOP, revalida o `manifest.json` e serve `/assets/audio/`. Sem variáveis de ambiente no projeto, então `GC_DEBUG_API` fica desligado em produção.
 
 ## Concluídas (últimas 20)
 
-Fonte: IDs dos rodapés `Refs: ROADMAP#` de eb12bc2 a 0127843, do commit mais recente para o mais antigo; até 3 commits por ID. O estado de cada tarefa é o checkbox do ROADMAP (`[~]` = parcial, ver a linha de Estado do item).
+Fonte: IDs dos rodapés `Refs: ROADMAP#` de eb12bc2 a 59d5a42, do commit mais recente para o mais antigo; até 3 commits por ID. O estado de cada tarefa é o checkbox do ROADMAP (`[~]` = parcial, ver a linha de Estado do item).
 
 | ID | Data | Resp | Commit | Observação |
 | --- | --- | --- | --- | --- |
-| B-03-01 | 2026-10-31 | Art | 0127843, ec02764, cd275ce | ícone do app, Sanguessuga mais fina, máscaras `_e.png` e checklist B-03-01 |
-| B-03-02 | 2026-10-31 | S1 | e1e1795, 9516bef, c59c7d9 | ganchos de debug `fx` e `setSpeed` para capturas e margem a 3x |
-| A-02-03 | 2026-10-31 | Orq + Est | f763a6b, f745697, 53e14e4 | rebalanceamento do `hp_regen` depois da correção do regen |
-| B-02-01 | 2026-10-31 | S1 | ad9736c | gotas de sangramento e espinhos no acerto de Espinhos |
-| P-07-02 | 2026-10-31 | S2 | 21a8fff | shell Electron 45, instalador e portable Windows |
-| A-07-03 | 2026-10-31 | Est | 0860494, b31bace, 52570e4 | testes de render e guards de arquivos, áudio e contagem de testes |
-| R-01-03 | 2026-10-31 | S1 | f4c63ef, 5c47c81, cbfeff4 | benches 1080/1440 depois das correções de instâncias e retrato |
-| P-05-02 | 2026-10-31 | S2 | 126c910 | `hp_regen` aplicado ao herói a cada passo |
-| A-06-04 | 2026-10-31 | S2 | 14e32b8, 9a6507e | telemetria opt-in com lista fechada de eventos e save schema 4 |
-| A-07-02 | 2026-10-31 | S2 | ac6b394 | navegação por teclado e gamepad nos diálogos, foco visível |
-| A-02-01 | 2026-10-31 | S1 | fffaa8d, e06898d, 1ffed8f | herói virado para o alvo sem alocar por frame |
+| B-03-01 | 2026-10-31 | Art | 59d5a42, 7eabdf8, aba0763 | folha numerada de silhuetas e cores para o PO; capturas de revisão; ícones à mão (`[~]`) |
+| A-05-01 | 2026-10-31 | S2 + S1 | bffce18, e32c04f, 6048e8b | Mercador espera o herói e abre a loja no contato; render pendente (`[~]`) |
+| A-07-02 | 2026-10-31 | S2 | baaf846, 020ba69, a6a8b9c | remap de teclas e gamepad, formas por raridade, axe-core, captura de UX a 150% |
+| A-01-02 | 2026-10-31 | S1 | cef29b3, f6a1a56 | orçamento de memória fechado sem KTX2: atlas dimensionados e LRU de áudio (`[~]`) |
+| A-02-02b | 2026-10-31 | S1 | 878ff7b, 22f8418 | variantes de inimigos e medição no SDD 14 |
+| B-02-01 | 2026-10-31 | S2 | d173f1d, 7be0265, ad9736c | `data-check` amarrado aos handlers de efeito |
+| B-05-01 | 2026-10-31 | Est + S2 | 4a34efc, b324d83, 9bca4f3 | legendas das falas de chefe (save schema 8) e revisão do pt-BR e do `en` |
+| P-04-05 | 2026-10-31 | S1 | 6033d1d, a393cff, 8d68a74 | pools do preset ao vivo, emissivo fora dos presets baixos, bench VFX ligado × desligado |
+| A-02-03 | 2026-10-31 | Est + Orq | c8aff28, f763a6b, f745697 | rebalanceamento depois da auditoria de stats |
+| A-02-01 | 2026-10-31 | S1 | ce636e1, fffaa8d, e06898d | atlas emissivo a partir dos `_e.png` |
+| B-03-02 | 2026-10-31 | S1 | 1162c51, a0af935, f635613 | polimento de VFX da auditoria |
+| P-07-02 | 2026-10-31 | S2 | 5bc7bef, dd087bf, 21a8fff | fuses, ícone do exe, favicon e endurecimento do shell |
+| B-05-02 | 2026-10-31 | Esp + Orq | f0b2a61, 2eb98fe, 4507229 | ADRs 0021–0024 e README (`[~]`) |
+| P-05-02 | 2026-10-31 | S2 | 26dafd0, 126c910 | regen contínuo |
+| A-07-03 | 2026-10-31 | Est | 0860494, b31bace, 52570e4 | testes de render e guards |
+| R-01-03 | 2026-10-31 | S1 | f4c63ef, 5c47c81, cbfeff4 | benches 1080/1440 |
+| A-06-04 | 2026-10-31 | S2 | 14e32b8, 9a6507e | telemetria opt-in local (`[~]`) |
 | B-01-03 | 2026-10-31 | S2 + Est | 96de426, 2d8b076 | roster completo 60+ |
-| B-05-02 | 2026-10-31 | Est + Orq | 2eb98fe, 4507229, 18b8c2f | divergências de GDD e Art Bible corrigidas |
-| A-05-01 | 2026-10-31 | S1 + S2 | e32c04f, 6048e8b, d117eb2 | retrato do Mercador por render target |
-| A-04-04 | 2026-10-31 | S2 | e5f2a6d | tela de título com recordes e `mus_menu` |
-| P-06-04 | 2026-10-31 | S2 | 6c6e5a9, 217f11b, 5c3d3cc | motor de áudio, sons por evento e música |
-| A-05-02 | 2026-10-31 | Est + S2 | 36aac16, a496f6f, cff9fe1 | áudio definitivo regenerado, versões antigas em `assets/audio-archive` |
-| B-01-02 | 2026-10-31 | S1 + S2 | 78ae69b, fdddb95, 59eb086 | Rainha do Ninho; correções restauradas depois do cherry-pick |
-| P-07-01 | 2026-10-31 | S2 | b4c7a6c | `DemoEnd`, selo DEMO e fim da demo após o Coveiro |
-| A-01-01 | 2026-10-31 | S1 + S2 | 7795aff, 65eb4aa, 233fcb7 | `Options`, preset aplicado e velocidade 1x/2x/3x |
+| A-04-04 | 2026-10-31 | S2 | e5f2a6d | tela de título com recordes |
+| P-06-04 | 2026-10-31 | S2 | 6c6e5a9, 217f11b, 5c3d3cc | motor de áudio e sons por evento (`[~]`) |
 
 ## Bloqueios (precisam do PO)
+
+### Decisões pendentes
+
+1. **Steamworks (E-05-03, US$ 100).** Bloqueia A-06 e a demo na Steam. Recomendação do Orq: abrir a conta já; a aprovação leva até 21 dias e a demo é em 2027-01-24.
+2. **`toktx` no CI (A-01-02).** O orçamento de memória do Android fechou sem KTX2 (texturas ≈ 5 MB contra 160 MB). Recomendação do Orq (revista em 2026-10-31 com a medição nova): B) adiar KTX2 para a 1.1 e emendar o assert da A-01-02 para o orçamento medido; KTX2 passa a ser só ganho de tempo de carga.
+3. **Capacitor 8 (B-04-04, M-01-*).** Recomendação do Orq: A) aprovar na abertura da fase BETA, versões estáveis exatas.
+4. **Secret `VERCEL_AUTOMATION_BYPASS_SECRET` (E-04-02, E-04-04).** Recomendação do Orq: criar o secret agora, para o smoke de produção rodar; a proteção SSO continua até a demo.
+5. **Job de perf no CI (A-01-03).** Recomendação: A) só em `workflow_dispatch` e em PR com rótulo `perf`, sem pesar no CI de cada push.
+6. **Bench com GPU real e relatório Android (E-03-02, P-03-04, P-07-05, A-01-01, B-03-02).** Recomendação: o PO roda `BENCH_GPU=1 bun run test:perf` e o Chrome mobile uma vez por release.
+7. **Endpoint e armazenamento da telemetria (A-06-04).** Recomendação: Vercel Function com Blob, decidido antes do Next Fest; até lá a telemetria fica só no log local (ADR-0023).
+8. **Proteção da `main` (E-01-06).** Recomendação: A) manter sem proteção enquanto os agentes integram direto (`prompt-workers.md` §6).
+9. **Assinatura do build Windows (B-04-01).** Recomendação: B) distribuir pela Steam, que não mostra o SmartScreen, e decidir o certificado antes da 1.0.
+10. **Nome do item "Grim Pact".** Recomendação: "Grim Bargain", para não confundir com a dificuldade Grim.
+11. **Regen de vida.** Recomendação do Orq: manter os valores atuais (itens +0,5 e carta +0,25) até o playtest e decidir depois dele.
+12. **Ações manuais do PO.** Aprovar as silhuetas pela folha numerada (59d5a42); vídeos (P-01-04, P-04-05, A-03-01); teste do gamepad (P-02-02); uma run completa no executável Windows (P-07-02); domínios (E-05-02).
+
+### Registro
 
 - [x] 2026-10-31 — Dependências de dev `@gltf-transform/core`, `fake-indexeddb`, `axe-core`, `jsdom`, `@testing-library/react`: **aprovadas** (versão estável atual, exata, ao instalar em E-02-01).
 - [x] 2026-10-31 — Worktrees permanentes `../grim-cubes-s1|s2|est` e execução paralela de S1, S2 e Est: **aprovados** (autorização durável; ver `prompt-workers.md` §6).
@@ -83,12 +100,11 @@ Fonte: IDs dos rodapés `Refs: ROADMAP#` de eb12bc2 a 0127843, do commit mais re
 
 ## Próximos
 
-1. v0.2.1: rebalanceamento do regen (f763a6b) com o `balance.yml` verde.
-2. S2: P1 do `padNav` (A do controle segurado ao abrir um diálogo clica sozinho), `vision` (brilho, contraste, daltonismo, flashes) na `Options` com save schema 5, fuses do Electron, evento `ThornsHit`, P3 do Electron (`decodeURIComponent`, `setPermissionCheckHandler`, `will-redirect`) e checksums dos .exe no release; ícone do app no `electron-builder.yml` e favicon na web.
-3. S1: máscaras `_e.png` no `assets-build` (`emissiveTexture`, Art Bible §7), fila de VFX da auditoria, cast do `vision.ts`.
-4. Art: commitar `tools/assets-gen/checklist.ts` e o teste (hoje fora do git) e marcar o item 12 do checklist como "não se aplica"; seguir o refino do Mercador.
-5. Est: próximo `[ ]` de Resp Est; recalibrar no sim se a carta de `+0,5 regen` mudar.
-6. PO: ver Bloqueios.
+1. S1: HUD `inert` e teto de escala a 150% (800×360), layout do level-up e da loja, modo de captura em jogo para fechar o item 11 da B-03-01 com câmera padrão e chão de bioma; render do `emerge`/`submerge` do Mercador.
+2. Art: lista do §14 por prioridade (Caçador Alfa, contraste com o chão, tiles com grade visível, props e armas); registrar na Art Bible o padrão 5 glifos + nível do Ossuário.
+3. Est: as 20 falas `vo_merchant_*` (A-05-01) e o próximo `[ ]` de Resp Est.
+4. Orq: v0.4.0 quando a B-03-01 e a A-05-01 fecharem.
+5. PO: as decisões numeradas em Bloqueios.
 
 ## Dívidas e observações
 
@@ -97,7 +113,6 @@ Fonte: IDs dos rodapés `Refs: ROADMAP#` de eb12bc2 a 0127843, do commit mais re
 - `reports/` guarda evidência de asserts (`perf-*.json`, `balance-*.json`); os `sim-*.json` regenerados por run ficam no `.gitignore`.
 - Oráculo do VAT (`tools/bake-vat/babylon-oracle.test.ts`) ainda sem o timeout de 20 s dos testes pesados.
 - `assets/audio-archive/` fica no git (17 MB); se passar de 50 MB, o Orq pergunta ao PO.
-- Regen fracionário: a carta dá `+0,5` ponto, e a fórmula do GDD §8 (0,2 + 0,09 × (pontos − 1)) foi pensada para pontos inteiros (0,5 ponto cura 0,155 HP/s, 78% de um ponto inteiro). Decidir entre carta inteira com constantes menores ou fórmula contínua.
-- As 28 máscaras `_e.png` existem, mas o `assets-build` ainda não as lê; o item 9 do checklist B-03-01 passa sem que o emissivo chegue ao jogo.
+- Item 11 do checklist B-03-01: hoje basta existir a captura de revisão (`?art=`); a captura em jogo com câmera padrão está com o S1.
 - Pós-processo ffmpeg do `audio-generate` (SDD 08 §3: LUFS, trim, pitch de chefes).
 - Risco: conversor `.bbmodel` validado contra o próprio pipeline e o Babylon; os modelos refinados no Blockbench 5 passam pelo leitor de `groups` separado (4a4f19b).
