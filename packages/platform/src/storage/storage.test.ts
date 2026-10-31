@@ -52,3 +52,13 @@ test("electron and capacitor stubs throw NotImplemented", async () => {
 		await expect(storage.write("save", "x")).rejects.toBeInstanceOf(NotImplementedError);
 	}
 });
+
+test("the backup and corrupt save keys are valid and independent", async () => {
+	const storage = fresh();
+	await storage.write("save", "main");
+	await storage.write("save.bak", "backup");
+	await storage.write("save.corrupt", "bad");
+	expect(await storage.read("save")).toBe("main");
+	expect(await storage.read("save.bak")).toBe("backup");
+	expect(await storage.read("save.corrupt")).toBe("bad");
+});
