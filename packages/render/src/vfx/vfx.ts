@@ -17,6 +17,7 @@ import { createDecalPool, type DecalPool } from "./decals";
 import { createDamageNumbers, type DamageNumbers } from "./digits";
 import { createParticlePool, type ParticlePool } from "./particles";
 import { createTelegraph, type Telegraph } from "./telegraph";
+import { createZones, type Zones } from "./zones";
 
 type Rgb = readonly [number, number, number];
 
@@ -27,6 +28,8 @@ const rgb = (hex: string): Rgb => {
 
 /** Extra reach of a charge line past its travel distance, so the hit lands inside the drawn warning. */
 const LINE_PAD = 0.5;
+/** How long the scream ring takes to reach its radius. */
+const SCREAM_SECONDS = 0.6;
 const SUMMON_CUBES = 14;
 /** GDD section 23: the boss execution lasts 1.5 s. */
 const EXECUTION_SECONDS = 1.5;
@@ -60,6 +63,7 @@ export interface Vfx {
 	readonly decals: DecalPool;
 	readonly numbers: DamageNumbers;
 	readonly telegraph: Telegraph;
+	readonly zones: Zones;
 	/** Red edge vignette strength 0..1 (hit pulse plus low-HP warning), for the HUD. */
 	readonly vignette: number;
 	/** Camera shake in progress: remaining strength 0..1 of the last trigger. */
@@ -96,6 +100,7 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 	});
 
 	const telegraph = createTelegraph(game);
+	const zones = createZones(game);
 	/** Pattern index of the last BossPattern event per entity. */
 	const patternOf = new Uint8Array(MAX_ENTITIES);
 	// Execution of a boss (BossDied): a few bursts spread over EXECUTION_SECONDS while the death clip plays.
@@ -177,6 +182,7 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 		decals,
 		numbers,
 		telegraph,
+		zones,
 		get gore(): boolean {
 			return gore;
 		},
@@ -239,6 +245,15 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 						(boss?.speed ?? 0) * num("speedMult", 1) * num("chargeSeconds", 0.6) + LINE_PAD;
 					telegraph.line(entity, a, b, c, reach, (boss?.radius ?? 1) * 2);
 				}
+			} else if (type === EventType.BossPool) {
+				// The pool lasts `durationSeconds` of the mud_pool pattern in bosses.json.
+				const mud = bossesData
+					.flatMap((boss) => boss.patterns)
+					.find((pattern) => pattern.id === "mud_pool")?.params?.durationSeconds;
+				zones.pool(a, b, c, typeof mud === "number" ? mud : 8);
+			} else if (type === EventType.BossScream) {
+				zones.ring(a, b, c, SCREAM_SECONDS);
+				shake(config.shakeExplosion);
 			} else if (type === EventType.BossPattern) {
 				patternOf[entity] = a;
 			} else if (type === EventType.EnemyTelegraph) {
@@ -285,6 +300,7 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 				}
 			}
 			telegraph.update(dt);
+			zones.update(dt);
 			pulse = Math.max(0, pulse - (config.vignetteHit / config.vignetteSeconds) * dt);
 			clock += dt;
 			const offset = game.camera.targetScreenOffset;
@@ -303,6 +319,7 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 			numbers.update(dt);
 		},
 		shift(dx, dz): void {
+			zones.shift(dx, dz);
 			particles.shift(dx, dz);
 			decals.shift(dx, dz);
 			numbers.shift(dx, dz);

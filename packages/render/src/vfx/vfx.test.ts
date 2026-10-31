@@ -465,3 +465,23 @@ describe("vignette and shake", () => {
 		calm.dispose();
 	});
 });
+
+describe("boss zones", () => {
+	it("draws a mud pool for its duration and a scream ring that expands and fades", () => {
+		const { game, vfx, dispose } = setup();
+		vfx.onEvent(EventType.BossPool, 3, 4, 2.5, 0);
+		vfx.onEvent(EventType.BossScream, 0, 0, 6, 0);
+		vfx.update(0.1);
+		expect(vfx.zones.poolsLive).toBe(1);
+		expect(vfx.zones.ringsLive).toBe(1);
+		expect((game.scene.getMeshByName("vfx_mud") as Mesh | null)?.thinInstanceCount).toBe(1);
+		expect((game.scene.getMeshByName("vfx_scream") as Mesh | null)?.thinInstanceCount).toBe(1);
+		vfx.update(1);
+		expect(vfx.zones.ringsLive).toBe(0);
+		expect(vfx.zones.poolsLive).toBe(1);
+		vfx.shift(16, 0);
+		vfx.update(8);
+		expect(vfx.zones.poolsLive).toBe(0);
+		dispose();
+	});
+});

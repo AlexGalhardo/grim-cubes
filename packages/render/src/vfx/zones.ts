@@ -1,0 +1,184 @@
+import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
+import { Color3 } from "@babylonjs/core/Maths/math.color";
+import { CreateDisc } from "@babylonjs/core/Meshes/Builders/discBuilder";
+import { CreateTorus } from "@babylonjs/core/Meshes/Builders/torusBuilder";
+import { PALETTE } from "../scene/palette";
+import type { GameScene } from "../scene/scene";
+import { createInstanceSet, type InstanceSet } from "./instances";
+
+export interface Zones {
+	/** A mud pool (the Matriarch mud_pool pattern): a flat disc at (x, z) that fades over its last second. */
+	pool(x: number, z: number, radius: number, seconds: number): void;
+	/** A shockwave ring (the Matriarch scream pattern): expands from the centre to `radius` in `seconds`. */
+	ring(x: number, z: number, radius: number, seconds: number): void;
+	update(dtSeconds: number): void;
+	shift(dx: number, dz: number): void;
+	readonly poolsLive: number;
+	readonly ringsLive: number;
+}
+
+const POOL_CAPACITY = 8;
+const RING_CAPACITY = 4;
+const RING_SECONDS_DEFAULT = 0.6;
+const FADE_SECONDS = 1;
+const POOL_ALPHA = 0.7;
+const MUD = "#4A3B2A";
+const LAYER = 0.02;
+const RING_LAYER = 0.15;
+
+interface Slots {
+	x: Float32Array;
+	z: Float32Array;
+	radius: Float32Array;
+	total: Float32Array;
+	left: Float32Array;
+}
+
+const slots = (n: number): Slots => ({
+	x: new Float32Array(n),
+	z: new Float32Array(n),
+	radius: new Float32Array(n),
+	total: new Float32Array(n),
+	left: new Float32Array(n),
+});
+
+function emissive(game: GameScene, name: string, hex: string, backFace: boolean): StandardMaterial {
+	const material = new StandardMaterial(name, game.scene);
+	material.disableLighting = true;
+	material.emissiveColor = Color3.FromHexString(hex);
+	material.diffuseColor = Color3.Black();
+	material.backFaceCulling = backFace;
+	return material;
+}
+
+/** Ground zones the bosses leave behind: mud pools and expanding scream rings, one thin-instance mesh each. */
+export function createZones(game: GameScene): Zones {
+	const poolMesh = CreateDisc("vfx_mud", { radius: 1, tessellation: 24 }, game.scene);
+	// Discs are built upright (XY plane); lay it on the ground. Symmetric, so the facing does not matter.
+	poolMesh.rotation.x = Math.PI / 2;
+	poolMesh.bakeCurrentTransformIntoVertices();
+	const poolMaterial = emissive(game, "vfx_mud", MUD, false);
+	poolMaterial.zOffset = -2;
+	poolMesh.material = poolMaterial;
+	const pools = createInstanceSet(poolMesh, POOL_CAPACITY, true);
+	const ringMesh = CreateTorus(
+		"vfx_scream",
+		{ diameter: 2, thickness: 0.12, tessellation: 24 },
+		game.scene,
+	);
+	ringMesh.material = emissive(game, "vfx_scream", PALETTE.emberLight, true);
+	const rings = createInstanceSet(ringMesh, RING_CAPACITY, true);
+	const pool = slots(POOL_CAPACITY);
+	const ring = slots(RING_CAPACITY);
+	let poolCount = 0;
+	let ringCount = 0;
+
+	function add(
+		s: Slots,
+		count: number,
+		capacity: number,
+		x: number,
+		z: number,
+		radius: number,
+		seconds: number,
+	): number {
+		if (count >= capacity) return count;
+		s.x[count] = x;
+		s.z[count] = z;
+		s.radius[count] = radius;
+		s.total[count] = s.left[count] = Math.max(seconds, 0.05);
+		return count + 1;
+	}
+
+	function age(s: Slots, count: number, dt: number): number {
+		let n = 0;
+		for (let i = 0; i < count; i++) {
+			const left = (s.left[i] ?? 0) - dt;
+			if (left <= 0) continue;
+			s.x[n] = s.x[i] ?? 0;
+			s.z[n] = s.z[i] ?? 0;
+			s.radius[n] = s.radius[i] ?? 0;
+			s.total[n] = s.total[i] ?? 0;
+			s.left[n] = left;
+			n++;
+		}
+		return n;
+	}
+
+	function write(
+		set: InstanceSet,
+		s: Slots,
+		count: number,
+		y: number,
+		scaleOf: (i: number) => number,
+		alphaOf: (i: number) => number,
+	): void {
+		for (let i = 0; i < count; i++) {
+			const o = i * 16;
+			const scale = scaleOf(i);
+			set.matrices[o] = set.matrices[o + 5] = set.matrices[o + 10] = scale;
+			set.matrices[o + 12] = s.x[i] ?? 0;
+			set.matrices[o + 13] = y;
+			set.matrices[o + 14] = s.z[i] ?? 0;
+			const colors = set.colors;
+			if (colors) {
+				colors[i * 4] = colors[i * 4 + 1] = colors[i * 4 + 2] = 1;
+				colors[i * 4 + 3] = alphaOf(i);
+			}
+		}
+		set.commit(count);
+	}
+
+	return {
+		get poolsLive(): number {
+			return poolCount;
+		},
+		get ringsLive(): number {
+			return ringCount;
+		},
+		pool(x, z, radius, seconds): void {
+			poolCount = add(pool, poolCount, POOL_CAPACITY, x, z, radius, seconds);
+		},
+		ring(x, z, radius, seconds): void {
+			ringCount = add(
+				ring,
+				ringCount,
+				RING_CAPACITY,
+				x,
+				z,
+				radius,
+				seconds > 0 ? seconds : RING_SECONDS_DEFAULT,
+			);
+		},
+		update(dt): void {
+			poolCount = age(pool, poolCount, dt);
+			ringCount = age(ring, ringCount, dt);
+			write(
+				pools,
+				pool,
+				poolCount,
+				LAYER,
+				(i) => pool.radius[i] ?? 1,
+				(i) => POOL_ALPHA * Math.min(1, (pool.left[i] ?? 0) / FADE_SECONDS),
+			);
+			write(
+				rings,
+				ring,
+				ringCount,
+				RING_LAYER,
+				(i) => (ring.radius[i] ?? 1) * (1 - (ring.left[i] ?? 0) / (ring.total[i] ?? 1)),
+				(i) => (ring.left[i] ?? 0) / (ring.total[i] ?? 1),
+			);
+		},
+		shift(dx, dz): void {
+			for (let i = 0; i < poolCount; i++) {
+				pool.x[i] = (pool.x[i] ?? 0) - dx;
+				pool.z[i] = (pool.z[i] ?? 0) - dz;
+			}
+			for (let i = 0; i < ringCount; i++) {
+				ring.x[i] = (ring.x[i] ?? 0) - dx;
+				ring.z[i] = (ring.z[i] ?? 0) - dz;
+			}
+		},
+	};
+}
