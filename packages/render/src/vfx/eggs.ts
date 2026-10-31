@@ -13,12 +13,14 @@ export interface EggRenderer {
 }
 
 const CAPACITY = 16;
-/** Steps left (at 60 Hz) under which the egg starts to tremble. */
-const TREMBLE_STEPS = 180;
+/** Steps left (at 60 Hz) under which the egg trembles and cracks: the last second. */
+const TREMBLE_STEPS = 60;
 const TREMBLE_AMPLITUDE = 0.08;
 const TREMBLE_HZ = 14;
 const SIZE_PER_RADIUS = 1.6;
 const CORE_RATIO = 0.55;
+/** The ember core swells to this share of the shell as the hatch nears: light through the cracks. */
+const CRACKED_CORE_RATIO = 0.95;
 
 /** Eggs as bone-coloured cubes with an ember core: one shell mesh and one core mesh, two draw calls. */
 export function createEggRenderer(game: GameScene): EggRenderer {
@@ -56,7 +58,11 @@ export function createEggRenderer(game: GameScene): EggRenderer {
 				const x = (Position.x[e] ?? 0) + shake;
 				const z = Position.z[e] ?? 0;
 				writeTransform(shells.matrices, n, x, size / 2, z, size, e);
-				writeTransform(cores.matrices, n, x, size / 2, z, size * CORE_RATIO, e + 1);
+				const cracked =
+					hatch < TREMBLE_STEPS
+						? CORE_RATIO + (CRACKED_CORE_RATIO - CORE_RATIO) * (1 - hatch / TREMBLE_STEPS)
+						: CORE_RATIO;
+				writeTransform(cores.matrices, n, x, size / 2, z, size * cracked, e + 1);
 				n++;
 			}
 			live = n;
