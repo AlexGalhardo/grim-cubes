@@ -18,6 +18,7 @@ export const EFFECT_HANDLERS = {
 		"proximity_aura_damage",
 		"revive_once",
 		"shockwave_every_kills",
+		"pull_fragments",
 		"soul_gain",
 	],
 	/** `configure` in systems/weapon.ts. */
