@@ -10,7 +10,8 @@
 		"unloadRadius",
 		"chunksPerStep",
 		"poolSize",
-		"originShiftThreshold"
+		"originShiftThreshold",
+		"maxPropsPerChunk"
 	],
 	"properties": {
 		"chunkSize": { "type": "integer", "minimum": 1, "description": "Chunk edge in world units." },
@@ -34,6 +35,11 @@
 			"type": "integer",
 			"minimum": 16,
 			"description": "Hero distance from the render origin, per axis, that triggers an origin shift (SDD 03 §1)."
+		},
+		"maxPropsPerChunk": {
+			"type": "integer",
+			"minimum": 1,
+			"description": "Fixed capacity of the prop list in each ChunkData (SDD 03 §2.1 allows up to 26)."
 		}
 	}
 }

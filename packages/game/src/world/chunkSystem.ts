@@ -6,13 +6,22 @@ export interface WorldConfig {
 	poolSize: number;
 	/** Hero distance from the render origin (per axis) that triggers an origin shift. */
 	originShiftThreshold: number;
+	/** Capacity of each ChunkData prop list; the generator must never exceed it. */
+	maxPropsPerChunk: number;
 }
 
-/** P-01-01 extends this with the generated content (biome, props); the pool reuses the same objects. */
+/**
+ * Generated chunk content. The prop lists have fixed capacity (`maxPropsPerChunk`) and are reused with the
+ * object, so loading a chunk allocates nothing. Positions are local to the chunk corner, in world units.
+ */
 export interface ChunkData {
 	cx: number;
 	cz: number;
 	floorVariant: number;
+	propCount: number;
+	propType: Uint8Array;
+	propX: Float32Array;
+	propZ: Float32Array;
 }
 
 export type ChunkGenerator = (cx: number, cz: number, out: ChunkData) => void;
@@ -35,7 +44,7 @@ export interface ChunkSystem {
 }
 
 export function createChunkSystem(config: WorldConfig, generate: ChunkGenerator): ChunkSystem {
-	const { chunkSize, loadRadius, unloadRadius, chunksPerStep, poolSize } = config;
+	const { chunkSize, loadRadius, unloadRadius, chunksPerStep, poolSize, maxPropsPerChunk } = config;
 	if (unloadRadius <= loadRadius) throw new Error("unloadRadius must be greater than loadRadius");
 	// Every chunk closer than unloadRadius fits one window of this width, so (cx mod W, cz mod W) is unique.
 	const width = 2 * (unloadRadius - 1) + 1;
@@ -58,7 +67,15 @@ export function createChunkSystem(config: WorldConfig, generate: ChunkGenerator)
 		}
 		if (stats.newChunkData >= poolSize) throw new Error("ChunkData pool exhausted");
 		stats.newChunkData++;
-		return { cx: 0, cz: 0, floorVariant: 0 };
+		return {
+			cx: 0,
+			cz: 0,
+			floorVariant: 0,
+			propCount: 0,
+			propType: new Uint8Array(maxPropsPerChunk),
+			propX: new Float32Array(maxPropsPerChunk),
+			propZ: new Float32Array(maxPropsPerChunk),
+		};
 	}
 
 	function update(heroX: number, heroZ: number): void {
@@ -97,6 +114,8 @@ export function createChunkSystem(config: WorldConfig, generate: ChunkGenerator)
 			const chunk = acquire();
 			chunk.cx = bestX;
 			chunk.cz = bestZ;
+			chunk.floorVariant = 0;
+			chunk.propCount = 0;
 			generate(bestX, bestZ, chunk);
 			slots[slotOf(bestX, bestZ)] = chunk;
 			stats.generated++;

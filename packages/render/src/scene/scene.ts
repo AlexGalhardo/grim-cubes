@@ -25,7 +25,7 @@ export interface GameScene {
 	dispose(): void;
 }
 
-function flatMaterial(scene: Scene, name: string, hex: string): StandardMaterial {
+export function flatMaterial(scene: Scene, name: string, hex: string): StandardMaterial {
 	const material = new StandardMaterial(name, scene);
 	material.diffuseColor = Color3.FromHexString(hex);
 	material.specularColor = Color3.Black();

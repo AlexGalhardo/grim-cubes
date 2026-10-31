@@ -4,5 +4,6 @@
 	"unloadRadius": 5,
 	"chunksPerStep": 2,
 	"poolSize": 81,
-	"originShiftThreshold": 1024
+	"originShiftThreshold": 1024,
+	"maxPropsPerChunk": 32
 }
