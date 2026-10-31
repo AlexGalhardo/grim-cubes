@@ -3,7 +3,13 @@ import { hasComponent } from "bitecs";
 import { EnemyFaction, Health, Invulnerable, Position, Radius } from "../ecs/components";
 import type { GameWorld } from "../ecs/world";
 import { STEP } from "../loop";
-import { computeEffects, createItemEffects, type EffectSource, type ItemEffects } from "../rules/effects";
+import {
+	computeEffects,
+	createItemEffects,
+	type EffectSource,
+	type EffectsExtra,
+	type ItemEffects,
+} from "../rules/effects";
 import type { DamageQueue } from "./damage";
 
 export interface EffectsSystem {
@@ -20,10 +26,11 @@ const REVIVE_IFRAMES = 120;
 export function createEffectsSystem(
 	items: readonly EffectSource[],
 	owned: ReadonlyMap<string, number>,
+	extra?: EffectsExtra,
 ): EffectsSystem {
 	const effects = createItemEffects();
 	let spent = 0;
-	const refresh = (): void => computeEffects(items, owned, effects, spent);
+	const refresh = (): void => computeEffects(items, owned, effects, spent, extra);
 	refresh();
 
 	return {

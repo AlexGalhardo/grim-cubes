@@ -61,11 +61,20 @@ const num = (params: Record<string, number | boolean>, key: string): number => {
  * are not implemented yet and are ignored; their stat modifiers still apply through the stats system.
  * `revives` is only raised, never lowered, so a revive that was already spent stays spent.
  */
+/** Permanent bonuses from the Ossuary that stack with the items (A-04-01). */
+export interface EffectsExtra {
+	fragmentGain: number;
+	soulGain: number;
+	/** HP fraction of the weak phylactery revive; null when the node is not owned. */
+	weakReviveHpFraction: number | null;
+}
+
 export function computeEffects(
 	items: readonly EffectSource[],
 	owned: ReadonlyMap<string, number>,
 	out: ItemEffects,
 	revivesSpent = 0,
+	extra?: EffectsExtra,
 ): void {
 	out.doubleFragmentChance = 0;
 	out.bonusDamageVsElites = 0;
@@ -126,6 +135,15 @@ export function computeEffects(
 					// An id nobody implemented would silently do nothing; mark the item `status: "alpha"` instead.
 					throw new RangeError(`unknown effect "${effect.id}" on item "${item.id}"`);
 			}
+		}
+	}
+	if (extra) {
+		out.fragmentGain += extra.fragmentGain;
+		out.soulGain += extra.soulGain;
+		// The weak phylactery only applies while the real one is not owned.
+		if (extra.weakReviveHpFraction !== null && revives === 0) {
+			revives = 1;
+			out.reviveHpFraction = extra.weakReviveHpFraction;
 		}
 	}
 	out.revives = Math.max(0, revives - revivesSpent);

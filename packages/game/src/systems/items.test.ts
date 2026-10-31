@@ -262,3 +262,23 @@ test("an owned item with an unknown effect id fails loudly unless it is marked a
 		computeEffects(itemsData, owning(...itemsData.map((i) => i.id)), createItemEffects()),
 	).not.toThrow();
 });
+
+test("ossuary bonuses add to the item effects and the weak phylactery yields to the real one", () => {
+	const extra = { fragmentGain: 0.1, soulGain: 0.25, weakReviveHpFraction: 0.15 };
+	const weak = createEffectsSystem(itemsData, new Map(), extra);
+	expect(weak.effects.fragmentGain).toBeCloseTo(0.1);
+	expect(weak.effects.soulGain).toBeCloseTo(0.25);
+	expect(weak.effects.revives).toBe(1);
+	expect(weak.effects.reviveHpFraction).toBeCloseTo(0.15);
+	const both = createEffectsSystem(
+		itemsData,
+		new Map([
+			["phylactery", 1],
+			["soul_jar", 1],
+		]),
+		extra,
+	);
+	expect(both.effects.reviveHpFraction).toBeCloseTo(0.3);
+	expect(both.effects.soulGain).toBeCloseTo(0.75);
+	expect(both.effects.fragmentGain).toBeCloseTo(0.1);
+});

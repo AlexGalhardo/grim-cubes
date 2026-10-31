@@ -86,7 +86,7 @@ export {
 } from "./rules/damage";
 export type { StatLine } from "./rules/describe";
 export { describeModifier, describeStats } from "./rules/describe";
-export type { AuraEffect, EffectSource, ItemEffects } from "./rules/effects";
+export type { AuraEffect, EffectSource, EffectsExtra, ItemEffects } from "./rules/effects";
 export { computeEffects, createItemEffects } from "./rules/effects";
 export type { EliteRoller, EliteStats } from "./rules/elite";
 export { createEliteRoller, eliteStats } from "./rules/elite";
