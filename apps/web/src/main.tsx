@@ -601,8 +601,7 @@ async function boot(): Promise<void> {
 	for (const type of ["pointerdown", "keydown", "touchstart"]) window.addEventListener(type, unlockAudio);
 	const eventAudio = createEventAudio(audio, {
 		hero,
-		enemyDeath: (entity) =>
-			enemyIds[EnemyType.id[entity] ?? 0] === "wail" ? "sfx_enemy_wail_death" : "sfx_enemy_husk_death",
+		enemyDeath: (entity) => `sfx_enemy_${enemyIds[EnemyType.id[entity] ?? 0] ?? "husk"}_death`,
 		bossId: (entity) => bossesData[(Boss.id[entity] ?? 0) - 1]?.id ?? "",
 	});
 	// The render port drains the buffer, so the audio listens on the way through.

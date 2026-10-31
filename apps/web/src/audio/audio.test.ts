@@ -265,6 +265,10 @@ test("deaths depend on who died, and quiet events map to nothing", () => {
 	expect(soundFor(EventType.EnemyTelegraph, 1, 0, 0.5, 3, ctx)).toBeNull();
 });
 
+test("a fragment pickup plays its sound and a boss entry is named after the boss", () => {
+	expect(soundFor(EventType.FragmentPicked, 2, 0, 0, 1, ctx)?.ids).toBe("sfx_pickup_fragment_01");
+});
+
 test("boss voices are named after the boss and the moment", () => {
 	expect(soundFor(EventType.BossDied, 0, 0, 0, 9, ctx)?.ids).toBe("voice_gravedigger_death");
 	expect(soundFor(EventType.BossPhase, 2, 0, 0, 9, ctx)?.ids).toBe("voice_gravedigger_phase");

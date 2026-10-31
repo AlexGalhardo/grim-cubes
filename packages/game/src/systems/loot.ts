@@ -1,5 +1,6 @@
 import { hasComponent, removeEntity } from "bitecs";
 import { Boss, Elite, EnemyFaction, EnemyType, Fragment, Health, Position, Radius } from "../ecs/components";
+import { type EventBuffer, EventType } from "../ecs/events";
 import { dropFragment } from "../ecs/fragments";
 import { createQueryCache, type GameWorld } from "../ecs/world";
 import { STEP } from "../loop";
@@ -148,6 +149,8 @@ export interface PickupSystemDeps {
 	stats: { pickupRadius: number; xpGain: number };
 	/** Item effects (`fragment_gain`); optional. */
 	effects?: ItemEffects | undefined;
+	/** Receives one `FragmentPicked` per step that collected something. */
+	events?: EventBuffer | undefined;
 }
 
 export interface PickupSystem {
@@ -158,7 +161,7 @@ export interface PickupSystem {
 
 /** SDD 02 section 2.3 step 12: piles inside the pickup radius fly to the hero and are collected on arrival. */
 export function createPickupSystem(deps: PickupSystemDeps): PickupSystem {
-	const { fragments, xp, progress, stats, effects } = deps;
+	const { fragments, xp, progress, stats, effects, events } = deps;
 	const magnetStep = fragments.magnetSpeed * STEP;
 	const taken = new Uint16Array(4096);
 	let pullSteps = 0;
@@ -200,6 +203,7 @@ export function createPickupSystem(deps: PickupSystemDeps): PickupSystem {
 				);
 				removeEntity(world, p);
 			}
+			if (collected > 0) events?.push(EventType.FragmentPicked, collected, hx, hz, hero);
 		},
 	};
 }
