@@ -33,7 +33,7 @@ JSON com envelope:
 Interface única:
 
 ```ts
-export interface Storage {
+export interface PlatformStorage { // nome evita colisão com o `Storage` do DOM
 	read(key: "save" | "options" | "telemetry"): Promise<string | null>;
 	write(key: "save" | "options" | "telemetry", value: string): Promise<void>;
 }

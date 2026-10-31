@@ -87,7 +87,7 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
   - Asserts: `packages/ui/src/theme.css` contém `--color-night: #14121c` e `--breakpoint-desktop-xl: 2048px`; testes de componente (3) verdes; `bun tools/lint-extra/index.ts` não encontra hex em `.tsx`.
 - [x] **E-03-04** `data/` com JSON Schema e arquivos iniciais (`enemies.json` com os 8 tipos, `weapons.json` com 5 armas, `rounds.json`, `biomes.json`, `elites.json`, `items.json` com 40 itens, `cards.json`, `ossuary.json`, `bosses.json` com o Coveiro, `hero.json`, `world.json`; `render.json` e `presets.json` pendentes da D1, fase 2) copiados do GDD, e `tools/data-check`. Deps: E-02-01. Resp: Est. Prio: P0.
   - Asserts: `bun run data:check` exit 0; teste negativo: id duplicado em `items.json` faz o check falhar; `jq length data/items.json` = 40; `jq length data/enemies.json` = 8.
-- [ ] **E-03-05** `packages/platform` com adaptadores `web` (storage IndexedDB) e stubs `electron`/`capacitor` que lançam `NotImplemented`. Deps: E-03-01. Resp: S2. Prio: P1.
+- [x] **E-03-05** `packages/platform` com adaptadores `web` (storage IndexedDB) e stubs `electron`/`capacitor` que lançam `NotImplemented`. Deps: E-03-01. Resp: S2. Prio: P1.
   - Asserts: teste de storage web em jsdom com `fake-indexeddb` (dev dep, versão estável; aprovação do PO) faz round-trip de `save`; stubs cobertos por teste de "lança erro".
 - [x] **E-03-06** ECS base em `packages/game/src/ecs/`: world bitecs, `components.ts` (`Position`, `PrevPosition`, `Velocity`, `Radius`, `Health`, tags de facção) e `events.ts` (ring buffer de eventos consumido por `render` via `consumeEvents`), conforme SDD 02 §2; contrato `render.sync(world, alpha)` combinado com S1. Deps: E-03-01. Resp: S2. Prio: P0.
   - Asserts: testes de criação/remoção de entidade e de reciclagem de ids; ring buffer não aloca após o warm-up (teste com contador) e descarta o mais antigo ao encher; `render` não importa nada que escreva em componentes (regra do Biome ou teste de import).
@@ -177,8 +177,8 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
 
 ### P-04 Combate e armas
 
-- [ ] **P-04-01** `rules/damage.ts` (fórmulas GDD §8.2), fila de dano, `damageSystem` (crit, armadura, esquiva, roubo de vida, knockback, i-frames), eventos. Deps: E-03-04. Resp: S2. Prio: P0.
-  - Asserts: tabela de testes: armadura 10 → dano ×0,60 (±0,01); armadura −10 → ×1,98 (±0,02); dodge 60% com rng fixo bate a taxa (10.000 amostras, ±1%); cap de roubo de vida 10 HP/s respeitado.
+- [x] **P-04-01** `rules/damage.ts` (fórmulas GDD §8.2), fila de dano, `damageSystem` (crit, armadura, esquiva, roubo de vida, knockback, i-frames), eventos. Deps: E-03-04. Resp: S2. Prio: P0.
+  - Asserts: tabela de testes: armadura 10 → dano ×0,60 (±0,01); armadura −10 → ×1,40 (±0,01, fórmula simétrica do GDD §8.2); dodge 60% com rng fixo bate a taxa (10.000 amostras, ±1%); cap de roubo de vida 10 HP/s respeitado.
 - [ ] **P-04-02** `targetingSystem` (mais próximo, prioridade elite/chefe ×0,8) e `weaponSystem` para `sword` (arco 120°) e `pistol` (projétil). Deps: P-04-01, P-03-01. Resp: S2. Prio: P0.
   - Asserts: testes: espada acerta 3 de 4 inimigos posicionados (1 fora do arco); pistola com `pierce 0` acerta 1; `attacksPerSecond` 2,0 → 120 ataques em 60 s simulados (±1).
 - [ ] **P-04-03** `projectileSystem` (vida, hit por spatial hash, bitmask anti-duplo-hit, pool 512). Deps: P-04-02. Resp: S2. Prio: P0.

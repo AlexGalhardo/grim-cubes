@@ -34,6 +34,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **game:** Add bitecs world, components, event ring buffer and render port contract ([dbbe953](https://github.com/AlexGalhardo/grim-cubes/commit/dbbe95305eb5b868f48f150f52035440ab93a9c4))
 - **data:** Require `world.json` and its schema in data-check ([0a97079](https://github.com/AlexGalhardo/grim-cubes/commit/0a97079f053c64319b7c9f623f0054e7644f491a))
 - **world:** Add origin shifting (positions relative to a f64 origin, shift at 1024 u) and minimal render port ([91cce83](https://github.com/AlexGalhardo/grim-cubes/commit/91cce83324e77cff27ce975a3b613d720a71db3b))
+- **platform:** Add IndexedDB storage adapter with boundary validation and electron/capacitor stubs ([35830b8](https://github.com/AlexGalhardo/grim-cubes/commit/35830b816969270c17c65c4608ba6a9abe65e45b))
+- **game:** Add damage rules, damage queue and damageSystem (crit, armor, dodge, life steal cap, knockback, i-frames) ([e6e247d](https://github.com/AlexGalhardo/grim-cubes/commit/e6e247d5e998af8ae8d97f357feba978f3d04aae))
 
 ### Changed
 
@@ -45,5 +47,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **docs:** Amend SDD 01 §2: `ui` imports only `core`; Biome layer patterns documented
 - **docs:** Apply phase 2 review fixes to ROADMAP (new P-03-06, P-06-06, P-06-07) and SDD 02/03/09/10/11/14; add `.env.example` variable names
 - **tooling:** Tighten `secrets-scan` patterns (no false positives on docs/code; adds GitHub PAT and AWS keys)
+- **docs:** Define bounded negative-armor formula in GDD §8.2 and fix P-04-01 assert; rename SDD 06 storage interface to `PlatformStorage`
 
 [Unreleased]: https://github.com/AlexGalhardo/grim-cubes/compare/2775e6e...HEAD

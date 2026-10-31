@@ -225,7 +225,7 @@ dano_final = dano_base_arma(tier)
 dano_recebido = dano_inimigo × 100 / (100 + armadura × 6,66)   # baseline Brotato (aprox.)
 ```
 
-- Armadura negativa é permitida (itens com maldição): aumenta dano recebido.
+- Armadura negativa é permitida (itens com maldição): aumenta dano recebido de forma simétrica e limitada, `dano_recebido = dano_inimigo × (2 − 100 / (100 + |armadura| × 6,66))` (×1,40 em −10, nunca ×2). A forma literal acima diverge em armadura ≈ −15 (decisão do Orq em 2026-10-31, revisável pelo PO).
 - Esquiva: rolagem por hit, cap 60%.
 - I-frames do herói após hit: 0,3 s.
 - Knockback: toda arma tem valor em u; aplicado ao inimigo por 0,1 s. Chefes: ×0,1; elites ×0,5.
