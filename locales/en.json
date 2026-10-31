@@ -287,6 +287,8 @@
 	"voice.forgemaster.entry": "I will forge you into scrap.",
 	"voice.forgemaster.phase": "My armor is unbreakable!",
 	"voice.forgemaster.death": "The fire... goes out.",
+	"options.hpBarHero": "Hero health bar",
+	"options.hpBarEnemies": "Enemy health bars",
 	"options.subtitles": "Boss subtitles",
 	"tip.merchant": "Walk to the Merchant to open the shop.",
 	"merchant.go": "Head to the Merchant",

@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - **game:** The `pull_fragments` item effect (XP magnet): every N seconds of fighting the fragments on the floor fly to the hero, more often with more copies
+- **ui:** Main menu over the painted key art (`public/menu/menu-1.webp`), with the buttons on its dark left side
+- **ui:** ARPG shop from the PO mockup: hero panel (painted portrait, level, XP, HP, round, gold, souls), weapon, an inventory grid of owned items with counts, all stats in two columns with a before → after preview of the hovered offer, and the Merchant's portrait and a line above four offers in two columns
+- **ui:** Options from the PO mockup in three columns that fit without scrolling: segmented buttons, iron switches, sliders, key caps and room for the health bar toggles
+- **docs:** Image prompts for the menu key art, the shop, Options, Ossuary and the two portraits (`prompt-*.md`)
 - **ui:** A pause menu (Esc, Start on the pad, or a pause button next to the speed one on touch screens) with Continue, Options and Quit to menu (confirmed; the run stays saved at the start of its round)
 - **save:** Three save slots, each a complete profile (souls, Ossuary, records, stats, milestones, skins); settings and keys stay global. Save schema 10 moves the old single save into slot 1 with its checksum verified; per-slot storage keys and backups on web and Electron
 - **ui:** The slot screen opens from New game (overwrite and erase need a confirmation; keyboard, D-pad and axe covered), and the title menu shows Continue when a slot was used before

@@ -11,11 +11,9 @@ import {
 	padButtonName,
 	t,
 } from "@gc/core";
-import { type JSX, useEffect, useState } from "react";
+import { type JSX, type ReactNode, useEffect, useState } from "react";
 import { keyLabel } from "../../keys";
 import { useDialogNav } from "../../nav/useDialogNav";
-import { Button } from "../Button/Button";
-import { Panel } from "../Panel/Panel";
 
 export type VolumeBus = "master" | "music" | "sfx";
 const COLORBLIND = ["off", "protanopia", "deuteranopia", "tritanopia"] as const;
@@ -47,6 +45,8 @@ export interface OptionsViewModel {
 	/** Label set of the connected controller. */
 	padStyle?: PadStyle | undefined;
 	subtitles: boolean;
+	/** Health bars over the hero and over the enemies (render). */
+	hpBars?: { hero: boolean; enemies: boolean } | undefined;
 	locale: string;
 	locales: readonly { id: string; name: string }[];
 }
@@ -64,6 +64,7 @@ export interface OptionsActions {
 	setUiScale(percent: number): void;
 	setGore(full: boolean): void;
 	setSubtitles(on: boolean): void;
+	setHpBars?: ((part: "hero" | "enemies", on: boolean) => void) | undefined;
 	/** Tries to bind `code` to `action`; the answer says why not (conflict, reserved, invalid). */
 	setKey(action: KeyAction, code: string): KeyCheck;
 	resetKeys(): void;
@@ -81,7 +82,149 @@ export interface OptionsProps {
 	getPad?: (() => { buttons: readonly { pressed: boolean }[] } | null | undefined) | undefined;
 }
 
-const SELECT = "min-h-12 border-2 border-mist bg-night-2 px-2 font-body text-sm text-bone focus:border-ember";
+const SELECT =
+	"min-h-10 w-full max-w-80 border-2 border-iron bg-linear-to-b from-iron-dark to-iron-black px-2 font-display text-sm text-ember-light focus:border-ember";
+/** A riveted iron plate, the frame of every section (same look as the shop). */
+const PLATE =
+	"panel-riveted border-2 border-iron-dark bg-linear-to-b from-iron-black to-night-2 shadow-[inset_0_1px_0_var(--color-iron),0_4px_10px_var(--color-night)]";
+const PRESS =
+	"transition-[translate,box-shadow] duration-fast active:translate-y-1 active:shadow-none focus-visible:outline-2 focus-visible:outline-ember focus-visible:outline-offset-2";
+const KEY_CAP = `min-h-9 min-w-14 border-2 border-iron bg-linear-to-b from-iron to-iron-dark px-2 font-display text-sm text-ember-light shadow-[0_3px_0_var(--color-night)] hover:border-ember ${PRESS}`;
+const EMBER_BUTTON = `border-2 border-ember-light bg-linear-to-b from-ember to-rust font-display text-night shadow-[0_4px_0_var(--color-mud)] hover:from-ember-light ${PRESS}`;
+const IRON_BUTTON = `border-2 border-iron bg-linear-to-b from-iron to-iron-dark font-display text-bone shadow-[0_4px_0_var(--color-night)] hover:border-iron-light ${PRESS}`;
+
+function Section({ title, children }: { title: string; children: ReactNode }): JSX.Element {
+	return (
+		<section aria-label={title} className={`${PLATE} flex min-w-0 flex-col gap-1.5 p-3 desktop:p-4`}>
+			<h2 className="mb-1 border-iron-dark border-b-2 pb-1 font-display text-lg text-bone uppercase desktop:text-xl">
+				{title}
+			</h2>
+			{children}
+		</section>
+	);
+}
+
+/** One row: the label on the left, the control on the right. */
+function Row({ label, children }: { label: string; children: ReactNode }): JSX.Element {
+	return (
+		<div className="flex min-h-10 items-center justify-between gap-3 font-body text-sm text-bone desktop:text-base">
+			<span className="shrink-0">{label}</span>
+			<div className="flex min-w-0 flex-1 justify-end">{children}</div>
+		</div>
+	);
+}
+
+interface SegmentedProps<T extends string | number> {
+	options: readonly T[];
+	value: T;
+	label: string;
+	format: (option: T) => string;
+	onChange: (option: T) => void;
+	testId: string;
+}
+
+/** Radio-like buttons drawn as a row of iron keys; the chosen one glows ember. */
+function Segmented<T extends string | number>({
+	options,
+	value,
+	label,
+	format,
+	onChange,
+	testId,
+}: SegmentedProps<T>): JSX.Element {
+	return (
+		<fieldset
+			aria-label={label}
+			className="m-0 flex w-full max-w-80 flex-wrap border-0 p-0"
+			data-testid={testId}
+		>
+			{options.map((option) => (
+				<button
+					key={String(option)}
+					type="button"
+					aria-pressed={option === value}
+					data-testid={`${testId}-${option}`}
+					onClick={() => onChange(option)}
+					className={`min-h-9 flex-1 border-2 px-1.5 font-display text-sm focus-visible:outline-2 focus-visible:outline-ember ${option === value ? "border-ember-light bg-linear-to-b from-ember to-rust text-night" : "border-iron-dark bg-linear-to-b from-iron-dark to-iron-black text-bone hover:border-iron"}`}
+				>
+					{format(option)}
+				</button>
+			))}
+		</fieldset>
+	);
+}
+
+/** A checkbox drawn as an iron switch with an ember knob. */
+function Toggle({
+	checked,
+	onChange,
+	label,
+	testId,
+}: {
+	checked: boolean;
+	onChange: (on: boolean) => void;
+	label: string;
+	testId: string;
+}): JSX.Element {
+	return (
+		<label className="flex min-h-10 cursor-pointer items-center justify-between gap-3 font-body text-sm text-bone desktop:text-base">
+			<span>{label}</span>
+			<input
+				type="checkbox"
+				role="switch"
+				aria-checked={checked}
+				data-testid={testId}
+				checked={checked}
+				onChange={(event) => onChange(event.target.checked)}
+				className="peer sr-only"
+			/>
+			<span
+				aria-hidden="true"
+				className="relative h-6 w-12 shrink-0 rounded-full border-2 border-iron-dark bg-night after:absolute after:top-0.5 after:left-0.5 after:size-4 after:rounded-full after:bg-iron after:transition-[left] after:duration-fast peer-checked:bg-iron-dark peer-checked:after:left-6 peer-checked:after:bg-ember peer-focus-visible:outline-2 peer-focus-visible:outline-ember"
+			/>
+		</label>
+	);
+}
+
+function Slider({
+	value,
+	min,
+	max,
+	step,
+	onChange,
+	testId,
+	label,
+	suffix = "",
+}: {
+	label: string;
+	value: number;
+	min: number;
+	max: number;
+	step: number;
+	onChange: (value: number) => void;
+	testId: string;
+	suffix?: string;
+}): JSX.Element {
+	return (
+		<span className="flex w-full max-w-80 items-center gap-3">
+			<input
+				type="range"
+				min={min}
+				max={max}
+				step={step}
+				aria-label={label}
+				data-testid={testId}
+				value={value}
+				onChange={(event) => onChange(Number(event.target.value))}
+				className="flex-1 accent-ember"
+			/>
+			<span className="w-12 text-right font-display text-ember-light">
+				{value}
+				{suffix}
+			</span>
+		</span>
+	);
+}
 
 /** Video, audio, gameplay and language (A-01-01); the host saves every change as it happens. */
 export function Options({ view, actions, getPad }: OptionsProps): JSX.Element {
@@ -169,6 +312,53 @@ export function Options({ view, actions, getPad }: OptionsProps): JSX.Element {
 	}, [capturing, actions]);
 
 	const nav = useDialogNav<HTMLDivElement>({ onCancel: actions.close });
+	const presetIds = ["auto", ...view.presets.map((preset) => preset.id)];
+	const presetName = (id: string): string =>
+		id === "auto" ? t("options.auto") : (view.presets.find((preset) => preset.id === id)?.name ?? id);
+	const keyRow = (action: KeyAction): JSX.Element => (
+		<div
+			key={action}
+			className="flex min-h-9 items-center justify-between gap-2 border-iron-dark border-b font-body text-sm text-bone"
+		>
+			<span>{t(`options.key.${action}`)}</span>
+			<button
+				type="button"
+				data-testid={`options-key-${action}`}
+				aria-label={`${t(`options.key.${action}`)}: ${capturing === action ? t("options.keyPress") : keyLabel(view.keys[action])}`}
+				onClick={() => {
+					setProblem("");
+					setPadCapturing(null);
+					setCapturing(action);
+				}}
+				className={KEY_CAP}
+			>
+				{capturing === action ? t("options.keyPress") : keyLabel(view.keys[action])}
+			</button>
+		</div>
+	);
+	const padRow = (action: PadAction): JSX.Element => (
+		<div
+			key={action}
+			className="flex min-h-9 items-center justify-between gap-2 border-iron-dark border-b font-body text-sm text-bone"
+		>
+			<span>{t(`options.pad.${action}`)}</span>
+			<button
+				type="button"
+				data-testid={`options-pad-${action}`}
+				aria-label={`${t(`options.pad.${action}`)}: ${padCapturing === action ? t("options.padPress") : padButtonName(view.pad[action], view.padStyle)}`}
+				onClick={() => {
+					setProblem("");
+					setCapturing(null);
+					setPadCapturing(action);
+				}}
+				className={KEY_CAP}
+			>
+				{padCapturing === action
+					? t("options.padPress")
+					: padButtonName(view.pad[action], view.padStyle)}
+			</button>
+		</div>
+	);
 	return (
 		<div
 			ref={nav}
@@ -177,250 +367,213 @@ export function Options({ view, actions, getPad }: OptionsProps): JSX.Element {
 			aria-labelledby="options-title"
 			className="pointer-events-auto absolute inset-0 z-40 flex overflow-y-auto bg-night/90 p-2 mobile-l:p-4"
 		>
-			<div className="m-auto w-full max-w-xl">
-				<Panel title={t("options.panel")} riveted>
-					<h1 id="options-title" className="sr-only">
+			<div className={`${PLATE} m-auto flex w-full max-w-[1600px] flex-col gap-3 p-3 desktop:p-4`}>
+				<div className="flex items-center gap-4">
+					<h1
+						id="options-title"
+						className="font-display text-3xl text-bone uppercase desktop:text-4xl"
+					>
 						{t("options.title")}
 					</h1>
-					<fieldset className="flex flex-col gap-2 font-body text-sm text-bone-dark">
-						<legend className="font-display text-base text-bone">{t("options.video")}</legend>
-						<label className="flex flex-col gap-1">
-							{t("options.preset")}
-							<select
-								data-testid="options-preset"
+					<div aria-hidden="true" className="h-0.5 flex-1 bg-rust" />
+					<button
+						type="button"
+						aria-label={t("options.close")}
+						onClick={actions.close}
+						className={`size-10 text-xl ${IRON_BUTTON}`}
+					>
+						✕
+					</button>
+				</div>
+				<div className="grid grid-cols-1 gap-3 mobile-l:grid-cols-3">
+					<div className="flex flex-col gap-3">
+						<Section title={t("options.video")}>
+							<span className="font-body text-sm text-bone desktop:text-base">
+								{t("options.preset")}
+							</span>
+							<Segmented
+								options={presetIds}
 								value={view.preset}
-								onChange={(event) => actions.setPreset(event.target.value)}
-								className={SELECT}
-							>
-								<option value="auto">{t("options.auto")}</option>
-								{view.presets.map((preset) => (
-									<option key={preset.id} value={preset.id}>
-										{preset.name}
-									</option>
-								))}
-							</select>
-						</label>
-					</fieldset>
-					<fieldset className="mt-3 flex flex-col gap-2 font-body text-sm text-bone-dark">
-						<legend className="font-display text-base text-bone">{t("options.audio")}</legend>
-						{BUSES.map((bus) => (
-							<label key={bus} className="flex min-h-12 items-center gap-3">
-								<span className="w-28">{t(`options.volume.${bus}`)}</span>
-								<input
-									type="range"
-									min={0}
-									max={100}
-									step={5}
-									data-testid={`options-volume-${bus}`}
-									value={view.volume[bus]}
-									onChange={(event) => actions.setVolume(bus, Number(event.target.value))}
-									className="flex-1"
+								label={t("options.preset")}
+								format={presetName}
+								onChange={actions.setPreset}
+								testId="options-preset"
+							/>
+						</Section>
+						<Section title={t("options.audio")}>
+							{BUSES.map((bus) => (
+								<Row key={bus} label={t(`options.volume.${bus}`)}>
+									<Slider
+										value={view.volume[bus]}
+										min={0}
+										max={100}
+										step={5}
+										onChange={(value) => actions.setVolume(bus, value)}
+										testId={`options-volume-${bus}`}
+										label={t(`options.volume.${bus}`)}
+									/>
+								</Row>
+							))}
+						</Section>
+					</div>
+					<div className="flex flex-col gap-3">
+						<Section title={t("options.gameplay")}>
+							<Row label={t("options.speed")}>
+								<Segmented
+									options={[1, 2, 3]}
+									value={view.gameSpeed}
+									label={t("options.speed")}
+									format={(speed) => `${speed}x`}
+									onChange={actions.setGameSpeed}
+									testId="options-speed"
 								/>
-								<span className="w-10 text-right">{view.volume[bus]}%</span>
-							</label>
-						))}
-					</fieldset>
-					<fieldset className="mt-3 flex flex-col gap-2 font-body text-sm text-bone-dark">
-						<legend className="font-display text-base text-bone">{t("options.gameplay")}</legend>
-						<label className="flex min-h-12 items-center gap-2">
-							<input
-								type="checkbox"
-								data-testid="options-shake"
-								checked={view.screenShake}
-								onChange={(event) => actions.setScreenShake(event.target.checked)}
-							/>
-							{t("options.shake")}
-						</label>
-						<label className="flex flex-col gap-1">
-							{t("options.speed")}
-							<select
-								data-testid="options-speed"
-								value={view.gameSpeed}
-								onChange={(event) => actions.setGameSpeed(Number(event.target.value))}
-								className={SELECT}
-							>
-								{[1, 2, 3].map((speed) => (
-									<option key={speed} value={speed}>
-										{speed}x
-									</option>
-								))}
-							</select>
-						</label>
-						<label className="flex min-h-12 items-center gap-2">
-							<input
-								type="checkbox"
-								data-testid="options-telemetry"
-								checked={view.telemetry}
-								onChange={(event) => actions.setTelemetry(event.target.checked)}
-							/>
-							{t("options.telemetry")}
-						</label>
-						<label className="flex flex-col gap-1">
-							{t("options.language")}
-							<select
-								data-testid="options-locale"
-								value={view.locale}
-								onChange={(event) => actions.setLocale(event.target.value)}
-								className={SELECT}
-							>
-								{view.locales.map((locale) => (
-									<option key={locale.id} value={locale.id}>
-										{locale.name}
-									</option>
-								))}
-							</select>
-						</label>
-					</fieldset>
-					<fieldset className="mt-3 flex flex-col gap-2 font-body text-sm text-bone-dark">
-						<legend className="font-display text-base text-bone">{t("options.access")}</legend>
-						<label className="flex min-h-12 items-center gap-3">
-							<span className="w-28">{t("options.brightness")}</span>
-							<input
-								type="range"
-								min={-50}
-								max={50}
-								step={5}
-								data-testid="options-brightness"
-								value={view.brightness}
-								onChange={(event) => actions.setBrightness(Number(event.target.value))}
-								className="flex-1"
-							/>
-							<span className="w-12 text-right">{view.brightness}%</span>
-						</label>
-						<label className="flex min-h-12 items-center gap-3">
-							<span className="w-28">{t("options.contrast")}</span>
-							<input
-								type="range"
-								min={50}
-								max={150}
-								step={5}
-								data-testid="options-contrast"
-								value={view.contrast}
-								onChange={(event) => actions.setContrast(Number(event.target.value))}
-								className="flex-1"
-							/>
-							<span className="w-12 text-right">{view.contrast}%</span>
-						</label>
-						<label className="flex flex-col gap-1">
-							{t("options.colorblind")}
-							<select
-								data-testid="options-colorblind"
-								value={view.colorblind}
-								onChange={(event) => actions.setColorblind(event.target.value)}
-								className={SELECT}
-							>
-								{COLORBLIND.map((mode) => (
-									<option key={mode} value={mode}>
-										{t(`options.colorblind.${mode}`)}
-									</option>
-								))}
-							</select>
-						</label>
-						<label className="flex min-h-12 items-center gap-2">
-							<input
-								type="checkbox"
-								data-testid="options-flash"
-								checked={view.flashReduction}
-								onChange={(event) => actions.setFlashReduction(event.target.checked)}
-							/>
-							{t("options.flash")}
-						</label>
-						<label className="flex flex-col gap-1">
-							{t("options.uiScale")}
-							<select
-								data-testid="options-uiscale"
-								value={view.uiScale}
-								onChange={(event) => actions.setUiScale(Number(event.target.value))}
-								className={SELECT}
-							>
-								{UI_SCALES.map((scale) => (
-									<option key={scale} value={scale}>
-										{scale}%
-									</option>
-								))}
-							</select>
-						</label>
-						<label className="flex min-h-12 items-center gap-2">
-							<input
-								type="checkbox"
-								data-testid="options-gore"
-								checked={view.gore}
-								onChange={(event) => actions.setGore(event.target.checked)}
-							/>
-							{t("options.gore")}
-						</label>
-						<label className="flex min-h-12 items-center gap-2">
-							<input
-								type="checkbox"
-								data-testid="options-subtitles"
+							</Row>
+							<Row label={t("options.language")}>
+								<select
+									aria-label={t("options.language")}
+									data-testid="options-locale"
+									value={view.locale}
+									onChange={(event) => actions.setLocale(event.target.value)}
+									className={SELECT}
+								>
+									{view.locales.map((locale) => (
+										<option key={locale.id} value={locale.id}>
+											{locale.name}
+										</option>
+									))}
+								</select>
+							</Row>
+							<Toggle
 								checked={view.subtitles}
-								onChange={(event) => actions.setSubtitles(event.target.checked)}
+								onChange={actions.setSubtitles}
+								label={t("options.subtitles")}
+								testId="options-subtitles"
 							/>
-							{t("options.subtitles")}
-						</label>
-					</fieldset>
-					<fieldset className="mt-3 flex flex-col gap-2 font-body text-sm text-bone-dark">
-						<legend className="font-display text-base text-bone">{t("options.controls")}</legend>
-						{KEY_ACTIONS.map((action) => (
-							<div key={action} className="flex min-h-12 items-center gap-3">
-								<span className="flex-1">{t(`options.key.${action}`)}</span>
-								<button
-									type="button"
-									data-testid={`options-key-${action}`}
-									aria-label={`${t(`options.key.${action}`)}: ${capturing === action ? t("options.keyPress") : keyLabel(view.keys[action])}`}
-									onClick={() => {
-										setProblem("");
-										setPadCapturing(null);
-										setCapturing(action);
-									}}
-									className="min-h-12 min-w-28 border-2 border-iron-dark bg-night-2 px-3 font-display text-base text-bone hover:border-ember hover:text-ember-light"
+							{view.hpBars && actions.setHpBars ? (
+								<>
+									<Toggle
+										checked={view.hpBars.hero}
+										onChange={(on) => actions.setHpBars?.("hero", on)}
+										label={t("options.hpBarHero")}
+										testId="options-hpbar-hero"
+									/>
+									<Toggle
+										checked={view.hpBars.enemies}
+										onChange={(on) => actions.setHpBars?.("enemies", on)}
+										label={t("options.hpBarEnemies")}
+										testId="options-hpbar-enemies"
+									/>
+								</>
+							) : null}
+							<Toggle
+								checked={view.telemetry}
+								onChange={actions.setTelemetry}
+								label={t("options.telemetry")}
+								testId="options-telemetry"
+							/>
+						</Section>
+						<Section title={t("options.access")}>
+							<Row label={t("options.brightness")}>
+								<Slider
+									value={view.brightness}
+									min={-50}
+									max={50}
+									step={5}
+									onChange={actions.setBrightness}
+									testId="options-brightness"
+									label={t("options.brightness")}
+									suffix="%"
+								/>
+							</Row>
+							<Row label={t("options.contrast")}>
+								<Slider
+									value={view.contrast}
+									min={50}
+									max={150}
+									step={5}
+									onChange={actions.setContrast}
+									testId="options-contrast"
+									label={t("options.contrast")}
+									suffix="%"
+								/>
+							</Row>
+							<Row label={t("options.colorblind")}>
+								<select
+									aria-label={t("options.colorblind")}
+									data-testid="options-colorblind"
+									value={view.colorblind}
+									onChange={(event) => actions.setColorblind(event.target.value)}
+									className={SELECT}
 								>
-									{capturing === action
-										? t("options.keyPress")
-										: keyLabel(view.keys[action])}
-								</button>
-							</div>
-						))}
-						{PAD_ACTIONS.map((action) => (
-							<div key={action} className="flex min-h-12 items-center gap-3">
-								<span className="flex-1">{t(`options.pad.${action}`)}</span>
-								<button
-									type="button"
-									data-testid={`options-pad-${action}`}
-									aria-label={`${t(`options.pad.${action}`)}: ${padCapturing === action ? t("options.padPress") : padButtonName(view.pad[action], view.padStyle)}`}
-									onClick={() => {
-										setProblem("");
-										setCapturing(null);
-										setPadCapturing(action);
-									}}
-									className="min-h-12 min-w-28 border-2 border-iron-dark bg-night-2 px-3 font-display text-base text-bone hover:border-ember hover:text-ember-light"
-								>
-									{padCapturing === action
-										? t("options.padPress")
-										: padButtonName(view.pad[action], view.padStyle)}
-								</button>
-							</div>
-						))}
-						<p role="status" data-testid="options-key-problem" className="min-h-5 text-danger">
+									{COLORBLIND.map((mode) => (
+										<option key={mode} value={mode}>
+											{t(`options.colorblind.${mode}`)}
+										</option>
+									))}
+								</select>
+							</Row>
+							<Toggle
+								checked={view.flashReduction}
+								onChange={actions.setFlashReduction}
+								label={t("options.flash")}
+								testId="options-flash"
+							/>
+							<Toggle
+								checked={view.screenShake}
+								onChange={actions.setScreenShake}
+								label={t("options.shake")}
+								testId="options-shake"
+							/>
+							<Row label={t("options.uiScale")}>
+								<Segmented
+									options={UI_SCALES}
+									value={view.uiScale as (typeof UI_SCALES)[number]}
+									label={t("options.uiScale")}
+									format={(scale) => `${scale}%`}
+									onChange={actions.setUiScale}
+									testId="options-uiscale"
+								/>
+							</Row>
+							<Toggle
+								checked={view.gore}
+								onChange={actions.setGore}
+								label={t("options.gore")}
+								testId="options-gore"
+							/>
+						</Section>
+					</div>
+					<Section title={t("options.controls")}>
+						<div className="flex flex-col">{KEY_ACTIONS.map(keyRow)}</div>
+						<div className="mt-2 flex flex-col">{PAD_ACTIONS.map(padRow)}</div>
+						<p
+							role="status"
+							data-testid="options-key-problem"
+							className="min-h-5 font-body text-sm text-danger"
+						>
+							{problem ? <span aria-hidden="true">⚠ </span> : null}
 							{problem}
 						</p>
-						<div>
-							<Button
-								onClick={() => {
-									actions.resetKeys();
-									actions.resetPad();
-								}}
-							>
-								{t("options.keysReset")}
-							</Button>
-						</div>
-					</fieldset>
-					<div className="mt-4 flex justify-end">
-						<Button size="lg" onClick={actions.close}>
-							{t("options.close")}
-						</Button>
-					</div>
-				</Panel>
+						<button
+							type="button"
+							onClick={() => {
+								actions.resetKeys();
+								actions.resetPad();
+							}}
+							className={`min-h-11 px-4 text-base ${IRON_BUTTON}`}
+						>
+							{t("options.keysReset")}
+						</button>
+					</Section>
+				</div>
+				<div className="flex justify-end">
+					<button
+						type="button"
+						onClick={actions.close}
+						className={`min-h-12 min-w-44 px-6 text-xl ${EMBER_BUTTON}`}
+					>
+						{t("options.close")}
+					</button>
+				</div>
 			</div>
 		</div>
 	);
