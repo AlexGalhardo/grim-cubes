@@ -220,6 +220,8 @@ export function runSim(data: SimData, options: SimOptions): SimReport {
 		queue: damage.queue,
 		enemies: separation.hash,
 		maxEnemyRadius: maxRadius,
+		hero,
+		events,
 	});
 
 	const spawnSystem = createSpawnSystem({
