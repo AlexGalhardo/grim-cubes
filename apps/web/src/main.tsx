@@ -19,6 +19,7 @@ import {
 import {
 	addFragmentValue,
 	applyOriginShift,
+	Bleed,
 	Boss,
 	biomesData,
 	bossesData,
@@ -65,6 +66,7 @@ import {
 	Speed,
 	STEP,
 	soulsForRun,
+	ThornsCooldown,
 	unlockedSkins,
 	weaponsData,
 	worldData,
@@ -114,7 +116,7 @@ import {
 	type PortraitFactory,
 	type VolumeBus,
 } from "@gc/ui";
-import { query } from "bitecs";
+import { addComponent, query } from "bitecs";
 import { createRoot } from "react-dom/client";
 import { bootArtReview } from "./artReview";
 import { createAudioEngine } from "./audio/audioEngine";
@@ -1248,6 +1250,52 @@ async function boot(): Promise<void> {
 				progress.gold += amount;
 			},
 			endRound: () => run.forceEnd(world),
+			/** Game speed 1, 2 or 3 (perf margin check). */
+			setSpeed: (speed: number) => loop.setSpeed(speed),
+			/**
+			 * Effect captures. "bleed": three bleeding enemies; "thorns": three enemies hit by spiked boots every 200 ms;
+			 * "boss:<index>": a motionless boss of that bosses.json index that is executed after 0.6 s.
+			 */
+			fx: (kind: string) => {
+				const spawnNear = (dx: number, dz: number): number => {
+					const e = spawn.spawnEnemy(
+						world,
+						0,
+						(Position.x[hero] ?? 0) + dx,
+						(Position.z[hero] ?? 0) + dz,
+					);
+					Health.hp[e] = Health.max[e] = 1e6;
+					Speed.value[e] = 0;
+					KnockbackResist.value[e] = 1;
+					return e;
+				};
+				if (kind === "bleed" || kind === "thorns") {
+					const list = [spawnNear(2, 0), spawnNear(-2, 1), spawnNear(0, -2)];
+					if (kind === "bleed") {
+						for (const e of list) {
+							addComponent(world, e, Bleed);
+							Bleed.perStep[e] = 0;
+							Bleed.ticks[e] = 3000;
+						}
+					} else {
+						const timer = setInterval(() => {
+							for (const e of list) {
+								addComponent(world, e, ThornsCooldown);
+								ThornsCooldown.ticks[e] = 30;
+							}
+						}, 200);
+						setTimeout(() => clearInterval(timer), 3000);
+					}
+				} else if (kind.startsWith("boss:")) {
+					const e = spawnNear(4, 0);
+					Boss.id[e] = Number(kind.slice(5)) + 1;
+					setTimeout(() => {
+						Health.hp[e] = 0;
+						events.push(EventType.BossDied, Position.x[e] ?? 0, Position.z[e] ?? 0, 0, e);
+					}, 600);
+				}
+			},
+
 			/** Accessibility look (brightness, contrast, colour-blind mode, flash reduction) for captures. */
 			vision,
 			/** One enemy of the given type index at (x, z) relative to the hero (A-02-02b capture). */
