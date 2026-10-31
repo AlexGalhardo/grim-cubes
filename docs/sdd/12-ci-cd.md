@@ -1,6 +1,6 @@
 # SDD 12 — CI/CD (GitHub Actions)
 
-Actions pinadas por versão (`docs/web-search.md` §5.1): `actions/checkout@v7`, `oven-sh/setup-bun@v2`, `actions/setup-node@v7`, `actions/upload-artifact@v7`. Concurrency por branch (`cancel-in-progress: true`). Runners `ubuntu-latest` (Linux) para tudo exceto Electron (`windows-latest`).
+Actions pinadas por versão (`docs/web-search.md` §5.1): `actions/checkout@v7`, `oven-sh/setup-bun@v2`, `actions/setup-node@v7`, `actions/upload-artifact@v7`, `actions/download-artifact@v8`, `actions/cache@v6`, `github/codeql-action@v4`. Concurrency por ref (`cancel-in-progress` só em `pull_request`; runs de `main` nunca são cancelados). Runners `ubuntu-latest` (Linux) para tudo exceto Electron (`windows-latest`).
 
 ## 1. Workflows
 
