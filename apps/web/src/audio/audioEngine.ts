@@ -55,6 +55,10 @@ export interface AudioDeps {
 	createMedia(id: string): MediaLike;
 	random(): number;
 	warn(message: string, id: string): void;
+	/** Decoded-audio budget in bytes for the sounds that are not pinned (default `EVICTABLE_BYTES`). */
+	cacheBytes?: number;
+	/** Sounds that stay decoded once loaded: the frequent combat effects (default `FREQUENT_SFX`). */
+	pinned?: (id: string) => boolean;
 }
 
 export type Bus = "master" | "music" | "sfx";
@@ -66,6 +70,24 @@ export interface PlayOptions {
 	maxVoices?: number;
 	/** Playback rate spread, +-fraction (default 0.05). */
 	pitchSpread?: number;
+}
+
+/**
+ * Decoded PCM is the largest item of the Android memory budget (SDD 14): the rarely heard sounds (boss effects, voice
+ * lines, chest and round cues) share this many bytes of decoded audio and the least recently played are dropped; the
+ * frequent combat effects below stay decoded.
+ */
+export const EVICTABLE_BYTES = 8 * 1024 * 1024;
+export const FREQUENT_SFX = (id: string): boolean =>
+	/^sfx_(enemy_|sword_|pistol_|pickup_|player_hit|explosion|dash|prop_break)/.test(id);
+
+/** Bytes of a decoded buffer (AudioBuffer: float32 samples per channel); 0 for anything else. */
+export function decodedBytes(buffer: unknown): number {
+	if (typeof buffer !== "object" || buffer === null) return 0;
+	const { length, numberOfChannels } = buffer as { length?: unknown; numberOfChannels?: unknown };
+	return typeof length === "number" && typeof numberOfChannels === "number"
+		? length * numberOfChannels * 4
+		: 0;
 }
 
 const THROTTLE_SECONDS = 0.04;
@@ -113,6 +135,34 @@ export function createAudioEngine(deps: AudioDeps): AudioEngine {
 	const buses: Record<Bus, GainLike> = { master, music: musicBus, sfx: sfxBus };
 
 	const buffers = new Map<string, unknown>();
+	const cacheBytes = deps.cacheBytes ?? EVICTABLE_BYTES;
+	const pinned = deps.pinned ?? FREQUENT_SFX;
+	let evictableBytes = 0;
+	const sizes = new Map<string, number>();
+
+	/** A sound just played: it becomes the most recently used of the evictable ones (Map order is the LRU order). */
+	function touch(id: string, buffer: unknown): void {
+		if (pinned(id)) return;
+		buffers.delete(id);
+		buffers.set(id, buffer);
+	}
+
+	function remember(id: string, buffer: unknown): void {
+		buffers.set(id, buffer);
+		if (pinned(id)) return;
+		const size = decodedBytes(buffer);
+		sizes.set(id, size);
+		evictableBytes += size;
+		// A playing source keeps its own reference, so dropping the cache entry never cuts a sound short.
+		for (const [other] of buffers) {
+			if (evictableBytes <= cacheBytes) break;
+			if (other === id || pinned(other)) continue;
+			evictableBytes -= sizes.get(other) ?? 0;
+			sizes.delete(other);
+			buffers.delete(other);
+			loading.delete(other);
+		}
+	}
 	const loading = new Map<string, Promise<unknown>>();
 	const missing = new Set<string>();
 	const lastStart = new Map<string, number>();
@@ -138,7 +188,7 @@ export function createAudioEngine(deps: AudioDeps): AudioEngine {
 					return null;
 				}
 				const decoded = await ctx.decodeAudioData(bytes);
-				buffers.set(id, decoded);
+				remember(id, decoded);
 				return decoded;
 			})
 			.catch(() => {
@@ -261,8 +311,10 @@ export function createAudioEngine(deps: AudioDeps): AudioEngine {
 			lastStart.set(id, now);
 			newThisFrame++;
 			const ready = buffers.get(id);
-			if (ready) start(id, ready, options);
-			else void load(id).then((buffer) => buffer && start(id, buffer, options));
+			if (ready) {
+				touch(id, ready);
+				start(id, ready, options);
+			} else void load(id).then((buffer) => buffer && start(id, buffer, options));
 			return true;
 		},
 		setMusic(candidates): void {
