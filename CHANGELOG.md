@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **test:** UI test of the Notice and boss names in English (A-07-01)
+- **ci:** `tools/changelog-check` job that fails a PR with feat/fix commits and no new `[Unreleased]` entry, skippable with the `skip-changelog` label (E-04-06)
+
 ## [0.1.0] - 2026-10-31
 
 ### Added
