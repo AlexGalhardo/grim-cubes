@@ -71,7 +71,7 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
 - [x] **E-02-05** Vitest config (Node por padrão, jsdom em `packages/ui`, cobertura istanbul com thresholds iniciais 0 e meta documentada), um teste de exemplo por pacote. Deps: E-02-01. Resp: Est. Prio: P0.
   - Asserts: `bun run test` exit 0 com ≥ 5 testes; `bunx vitest run --coverage` gera `coverage/coverage-summary.json`.
 - [x] **E-02-06** Playwright config (4 projetos de viewport D31, flags SwiftShader, `webServer` com `vite preview`) + 1 teste e2e que abre a página e verifica que o `<canvas>` existe e que `window.gc.ready === true`. Deps: E-02-04, E-03-02. Resp: Est. Prio: P0.
-  - Asserts: `bunx playwright test` exit 0 nos 4 projetos; capturas `tests/visual/__screenshots__/boot-<alvo>.png` nos 4 alvos commitadas (`maxDiffPixelRatio` documentado); `playwright-report/index.html` gerado; no teste, `gl.getParameter(gl.RENDERER)` logado contém `SwiftShader` ou `ANGLE` (prova de WebGL headless).
+  - Asserts: `bunx playwright test` exit 0 nos 4 projetos; capturas `tests/visual/__screenshots__/boot-<alvo>-<plataforma>.png` nos 4 alvos commitadas (baselines por plataforma `-{platform}`; `maxDiffPixels: 100` e `threshold: 0.2`; captura extra só da UI com `maxDiffPixels: 0`); `playwright-report/index.html` gerado; no teste, `UNMASKED_RENDERER_WEBGL` (extensão `WEBGL_debug_renderer_info`, registrado como annotation no relatório) contém `SwiftShader` ou `ANGLE` (prova de WebGL headless; `gl.RENDERER` vem mascarado como "WebKit WebGL").
 - [x] **E-02-07** lefthook (`lefthook.yml` do SDD 11 §4) + `tools/commitlint` + `tools/secrets-scan` + `tools/lint-extra` (hex em TSX, `console.log`, `^` em versões). Deps: E-02-01. Resp: S2. Prio: P0.
   - Asserts: `bunx lefthook install` exit 0; commit com mensagem `bad message` é rejeitado (exit ≠ 0) e `feat(core): add logger` aceito; arquivo staged que atribui um valor de teste à variável `ELEVENLABS_API_KEY` bloqueia o commit; `bun tools/lint-extra/index.ts` exit 0 no repositório.
 - [x] **E-02-08** markdownlint (`.markdownlint-cli2.jsonc` já existente) integrado ao script `lint:md` e ao hook. Deps: E-02-07. Resp: Est. Prio: P1.
@@ -100,7 +100,7 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
   - Asserts: URL de produção responde 200 e renderiza o canvas (smoke E-04-04); `curl -I <url>/assets/<arquivo com hash>` retorna `cache-control: public, max-age=31536000, immutable`; PR de teste gera URL de preview comentada pelo bot da Vercel.
 - [ ] **E-04-03** `.github/workflows/release.yml` + `tools/release` (SDD 13 §4) e `tools/sbom` (CycloneDX a partir de `bun.lock`), release `v0.1.0`. Deps: E-01-03, E-04-01. Resp: S2. Prio: P0.
   - Asserts: `gh release view v0.1.0 --json name,tagName,isPrerelease` → `name == tagName == "v0.1.0"`, `isPrerelease == false`; corpo da release é idêntico à seção `## [0.1.0]` do CHANGELOG (diff vazio após remover o cabeçalho); assets incluem `checksums.txt` e `grim-cubes_0.1.0.sbom.json`.
-- [x] **E-04-04** Smoke com agent-browser (`tools/smoke/run.ts`: abre URL, espera `window.gc.ready`, screenshot, lê console, falha se houver `error`) + workflow `deploy-web.yml` pós-deploy. Deps: E-04-02. Resp: Est. Prio: P1.
+- [x] **E-04-04** Smoke com Playwright (`@playwright/test`; agent-browser não é dependência do projeto) em `tools/smoke/run.ts`: abre URL, espera `window.gc.ready`, screenshot, lê console, falha se houver `error`; aceita `VERCEL_AUTOMATION_BYPASS_SECRET` (headers `x-vercel-protection-bypass` e `x-vercel-set-bypass-cookie`, só mesma origem, valor nunca logado) + workflow `deploy-web.yml` pós-deploy (`deployment_status` de produção, environment `Production`, a confirmar no 1º deploy). Deps: E-04-02. Resp: Est. Prio: P1.
   - Asserts: `bun run test:smoke -- --url <preview>` exit 0 e gera `reports/smoke.png`; workflow roda após deploy de produção e está verde.
 - [x] **E-04-05** `codeql.yml` semanal e por PR. Deps: E-04-01. Resp: Est. Prio: P2.
   - Asserts: workflow presente e verde na primeira execução.
@@ -116,7 +116,7 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
 - [ ] **E-05-04** Conta ElevenLabs em plano pago (Creator recomendado) e `ELEVENLABS_API_KEY`/`ELEVENLABS_PLAN` em `.env` local e no ambiente `audio` do GitHub. Deps: —. Resp: PO. Prio: P1 (bloqueia áudio no PROTÓTIPO).
   - Asserts: `gh secret list --env audio` inclui `ELEVENLABS_API_KEY`; `.env.example` contém só os nomes; `tools/audio-generate --dry-run` lê o plano e imprime `plan: creator`.
 - [ ] **E-05-05** Validar as flags WebGL do Playwright/SwiftShader e a leitura de `.editorconfig` pelo Biome; registrar em `docs/sdd/11-testing-quality.md` (emenda) e no ADR-0019 se mudar. Deps: E-02-06. Resp: Est. Prio: P1.
-  - Asserts: trecho do log do e2e com `RENDERER` colado no PR; `biome format --check` respeita tab 4 com e sem `.editorconfig` (resultado documentado).
+  - Asserts: trecho do log do e2e com `RENDERER` colado no PR; `biome format .` (o Biome 2.6.4 não tem `--check`) respeita tab 4 com e sem `.editorconfig`, porque `biome.json` fixa os valores e o Biome só lê o `.editorconfig` com `formatter.useEditorconfig: true` (resultado documentado no SDD 11 §2).
 
 ### Riscos da fase 1
 
