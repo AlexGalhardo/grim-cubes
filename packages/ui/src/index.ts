@@ -2,6 +2,8 @@ export type { AppProps, HudState } from "./App";
 export { App } from "./App";
 export type { BarProps, BarVariant } from "./components/Bar/Bar";
 export { Bar } from "./components/Bar/Bar";
+export type { BossViewModel } from "./components/BossBar/BossBar";
+export { BossBar, BossIntro } from "./components/BossBar/BossBar";
 export type { ButtonProps, ButtonSize } from "./components/Button/Button";
 export { Button } from "./components/Button/Button";
 export type { CardView, LevelUpProps } from "./components/LevelUp/LevelUp";

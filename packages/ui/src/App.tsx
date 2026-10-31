@@ -1,6 +1,7 @@
 import type { SaveNotice, Store, VirtualStick } from "@gc/core";
 import { type JSX, useSyncExternalStore } from "react";
 import { Bar } from "./components/Bar/Bar";
+import { BossBar, BossIntro, type BossViewModel } from "./components/BossBar/BossBar";
 import { type CardView, LevelUp } from "./components/LevelUp/LevelUp";
 import { Notice } from "./components/Notice/Notice";
 import { Results, type ResultsViewModel } from "./components/Results/Results";
@@ -28,6 +29,10 @@ export interface HudState {
 	results: ResultsViewModel | null;
 	/** A save problem to tell the player about; null when the save loaded cleanly. */
 	notice: SaveNotice | null;
+	/** The boss HP bar while a boss fight runs; null otherwise. */
+	boss: BossViewModel | null;
+	/** Boss name during the 3 s intro; null otherwise. */
+	bossIntro: string | null;
 }
 
 export interface AppProps {
@@ -68,6 +73,8 @@ export function App({
 				<Shop view={hud.shop} stats={hud.stats} actions={shopActions} />
 			) : null}
 			{hud.results && onRestart ? <Results view={hud.results} onRestart={onRestart} /> : null}
+			{hud.boss ? <BossBar boss={hud.boss} /> : null}
+			{hud.bossIntro ? <BossIntro name={hud.bossIntro} /> : null}
 			{hud.notice ? <Notice notice={hud.notice} /> : null}
 			{stick ? <VirtualJoystick stick={stick} /> : null}
 		</div>
