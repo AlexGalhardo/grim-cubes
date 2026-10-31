@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { type Document, Logger, NodeIO } from "@gltf-transform/core";
 import { PNG } from "pngjs";
 import { bakeVat } from "../bake-vat/bake";
-import { ATLAS_SIZE, type Placement, packSprites, renderAtlas, type Sprite } from "./atlas";
+import { fitAtlas, type Placement, renderAtlas, type Sprite } from "./atlas";
 import { bbmodelToDocument, parseBbmodel, type SizeClass, validateBbmodel } from "./bbmodel";
 import { packGlb } from "./glb";
 import { encodeKtx2, type Ktx2Deps, systemKtx2Deps } from "./ktx2";
@@ -193,7 +193,7 @@ function blackLike(texture: PNG): PNG {
 	return black;
 }
 
-function remapUvs(document: Document, p: Placement): void {
+function remapUvs(document: Document, p: Placement, size: number): void {
 	const done = new Set<unknown>();
 	for (const primitive of document.getRoot().listMeshes()[0]?.listPrimitives() ?? []) {
 		const uv = primitive.getAttribute("TEXCOORD_0");
@@ -201,8 +201,8 @@ function remapUvs(document: Document, p: Placement): void {
 		done.add(uv);
 		const data = new Float32Array(uv.getArray() ?? []);
 		for (let i = 0; i < data.length; i += 2) {
-			data[i] = (p.x + (data[i] ?? 0) * p.width) / ATLAS_SIZE;
-			data[i + 1] = (p.y + (data[i + 1] ?? 0) * p.height) / ATLAS_SIZE;
+			data[i] = (p.x + (data[i] ?? 0) * p.width) / size;
+			data[i + 1] = (p.y + (data[i + 1] ?? 0) * p.height) / size;
 		}
 		uv.setArray(data);
 	}
@@ -261,8 +261,8 @@ function buildIconAtlas(options: BuildOptions, entries: Record<string, ManifestE
 		}
 	}
 	if (sprites.length === 0) return;
-	const placements = packSprites("atlas_vfx_ui", sprites);
-	const atlas = new Uint8Array(PNG.sync.write(renderAtlas(sprites, placements), { filterType: 0 }));
+	const { size, placements } = fitAtlas("atlas_vfx_ui", sprites);
+	const atlas = new Uint8Array(PNG.sync.write(renderAtlas(sprites, placements, size), { filterType: 0 }));
 	const hash = digest(atlas);
 	const url = `atlas_vfx_ui.${hash}.png`;
 	writeFileSync(join(options.outDir, url), atlas);
@@ -274,8 +274,8 @@ function buildIconAtlas(options: BuildOptions, entries: Record<string, ManifestE
 		group: "core",
 		sampling: "nearest",
 		mipmaps: false,
-		width: ATLAS_SIZE,
-		height: ATLAS_SIZE,
+		width: size,
+		height: size,
 	};
 	for (const p of placements) {
 		entries[p.name] = {
@@ -327,9 +327,9 @@ export async function buildAssets(options: BuildOptions): Promise<Manifest> {
 		const members = loaded.filter((l) => l.atlas === atlasName);
 		if (members.length === 0) continue;
 		const sprites: Sprite[] = members.map((l) => ({ name: l.input.name, png: l.texture }));
-		const placements = packSprites(atlasName, sprites);
+		const { size, placements } = fitAtlas(atlasName, sprites);
 		// filterType 0 (none): the default adaptive filter takes ~580 ms on a 2048x2048 atlas, this ~60 ms, same bytes every run.
-		const png = new Uint8Array(PNG.sync.write(renderAtlas(sprites, placements), { filterType: 0 }));
+		const png = new Uint8Array(PNG.sync.write(renderAtlas(sprites, placements, size), { filterType: 0 }));
 		const hash = digest(png);
 		const url = `${atlasName}.${hash}.png`;
 		writeFileSync(join(options.outDir, url), png);
@@ -344,8 +344,8 @@ export async function buildAssets(options: BuildOptions): Promise<Manifest> {
 			group: "core",
 			sampling: "nearest",
 			mipmaps: false,
-			width: ATLAS_SIZE,
-			height: ATLAS_SIZE,
+			width: size,
+			height: size,
 			ktx2,
 		};
 		// Emissive atlas: the same placements, black wherever a model has no `_e.png`, so the UVs stay shared.
@@ -354,7 +354,9 @@ export async function buildAssets(options: BuildOptions): Promise<Manifest> {
 				name: l.input.name,
 				png: l.emissive ?? blackLike(l.texture),
 			}));
-			const glowPng = new Uint8Array(PNG.sync.write(renderAtlas(glow, placements), { filterType: 0 }));
+			const glowPng = new Uint8Array(
+				PNG.sync.write(renderAtlas(glow, placements, size), { filterType: 0 }),
+			);
 			const glowHash = digest(glowPng);
 			const glowUrl = `${atlasName}_e.${glowHash}.png`;
 			writeFileSync(join(options.outDir, glowUrl), glowPng);
@@ -366,15 +368,15 @@ export async function buildAssets(options: BuildOptions): Promise<Manifest> {
 				group: "core",
 				sampling: "nearest",
 				mipmaps: false,
-				width: ATLAS_SIZE,
-				height: ATLAS_SIZE,
+				width: size,
+				height: size,
 				ktx2: false,
 			};
 		}
 		for (const member of members) {
 			const placement = placements.find((p) => p.name === member.input.name);
 			if (!placement) throw new RuleError("atlas-missing", member.input.name, "not placed");
-			remapUvs(member.input.document, placement);
+			remapUvs(member.input.document, placement, size);
 		}
 	}
 
