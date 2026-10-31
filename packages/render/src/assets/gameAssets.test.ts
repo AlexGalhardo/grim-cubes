@@ -60,6 +60,7 @@ describe("loadGameAssets", () => {
 		};
 
 		const warnings: string[] = [];
+		const formats: string[] = [];
 		const { engine, dispose } = createNullEngine();
 		const scene = new Scene(engine);
 		const loaded = await loadGameAssets(scene, {
@@ -67,12 +68,15 @@ describe("loadGameAssets", () => {
 			enemyIds: ["wail", "husk"],
 			propIds: ["prop_a", "prop_missing"],
 			warn: (message) => warnings.push(message),
+			onTextureFormat: (format) => formats.push(format),
 			fetchFn: async (url) =>
 				fetchFn(url === "manifest.json" ? "/assets/manifest.json" : `/assets/${url}`),
 		});
 
 		// "wail" has no VAT: it keeps its slot (the horde indexes by EnemyType id) and draws the first model available.
 		expect(loaded.enemies.map((e) => e.id)).toEqual(["wail", "husk"]);
+		// The manifest fixture has no atlases, so the PNG path is reported.
+		expect(formats).toEqual(["png"]);
 		expect(warnings).toEqual([
 			'enemy "wail" has no model or VAT in the manifest, drawing "husk" instead',
 		]);

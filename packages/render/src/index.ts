@@ -1,3 +1,5 @@
+export type { AtlasFormat, TextureCaps } from "./assets/atlasFormat";
+export { pickAtlasFormat } from "./assets/atlasFormat";
 export type {
 	AssetEntry,
 	AssetManifest,

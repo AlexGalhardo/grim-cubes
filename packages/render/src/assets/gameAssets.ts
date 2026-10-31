@@ -5,6 +5,7 @@ import { Color3 } from "@babylonjs/core/Maths/math.color";
 import type { Mesh } from "@babylonjs/core/Meshes/mesh";
 import type { Scene } from "@babylonjs/core/scene";
 import { type LoadedVat, loadVat } from "../vat/loader";
+import { type AtlasFormat, pickAtlasFormat } from "./atlasFormat";
 
 /** Mirrors `Manifest` in tools/assets-build (render cannot import tools); the JSON on disk is the contract. */
 export interface AssetEntry {
@@ -14,6 +15,8 @@ export interface AssetEntry {
 	kind: "atlas" | "model" | "vat";
 	group: string;
 	meta?: string;
+	/** Atlas only: the KTX2 sibling, or false when the build had no `toktx`. */
+	ktx2?: false | { url: string; hash: string; bytes: number };
 }
 
 export interface AssetManifest {
@@ -31,6 +34,14 @@ export interface GameAssetsOptions {
 	/** Prop ids as named in biomes.json / props.json. */
 	propIds: readonly string[];
 	fetchFn?: Fetcher;
+	/**
+	 * Directory (with a trailing slash, e.g. "/assets/ktx2/") holding `babylon.ktx2Decoder.js`,
+	 * `msc_basis_transcoder.js` and `msc_basis_transcoder.wasm`. Served locally: the CSP blocks the Babylon CDN.
+	 * Without it atlases stay PNG even when the manifest lists KTX2.
+	 */
+	ktx2DecoderUrl?: string;
+	/** Told once which format the atlases were loaded in ("ktx2" or "png"). */
+	onTextureFormat?: (format: AtlasFormat) => void;
 	/** Called for every enemy that has no model or VAT in the manifest and is drawn with a stand-in. */
 	warn?: (message: string) => void;
 }
@@ -61,6 +72,24 @@ export async function loadManifest(
 	fetchFn: Fetcher = (u) => fetch(u),
 ): Promise<AssetManifest> {
 	return (await getOk(fetchFn, `${baseUrl}manifest.json`)).json() as Promise<AssetManifest>;
+}
+
+/** Points Babylon's KTX2 transcoder at local files (the CSP blocks cdn.babylonjs.com) and registers the loader. */
+async function enableKtx2(decoderUrl: string): Promise<void> {
+	await import("@babylonjs/core/Materials/Textures/Loaders/ktxTextureLoader");
+	const { KhronosTextureContainer2 } = await import("@babylonjs/core/Misc/khronosTextureContainer2");
+	KhronosTextureContainer2.URLConfig = {
+		jsDecoderModule: `${decoderUrl}babylon.ktx2Decoder.js`,
+		wasmUASTCToASTC: null,
+		wasmUASTCToBC7: null,
+		wasmUASTCToRGBA_UNORM: null,
+		wasmUASTCToRGBA_SRGB: null,
+		wasmUASTCToR8_UNORM: null,
+		wasmUASTCToRG8_UNORM: null,
+		jsMSCTranscoder: `${decoderUrl}msc_basis_transcoder.js`,
+		wasmMSCTranscoder: `${decoderUrl}msc_basis_transcoder.wasm`,
+		wasmZSTDDecoder: null,
+	};
 }
 
 /** Flat, unlit-looking material sampling an atlas with NEAREST and no mipmaps (Art Bible §4, ADR-0014). */
@@ -99,10 +128,22 @@ export async function loadGameAssets(scene: Scene, options: GameAssetsOptions): 
 
 	const characters = entry("atlas_characters");
 	const propsAtlas = entry("atlas_props");
+	const decoderUrl = options.ktx2DecoderUrl;
+	const format: AtlasFormat =
+		characters && propsAtlas
+			? pickAtlasFormat(characters, scene.getEngine().getCaps(), decoderUrl !== undefined) === "ktx2" &&
+				pickAtlasFormat(propsAtlas, scene.getEngine().getCaps(), decoderUrl !== undefined) === "ktx2"
+				? "ktx2"
+				: "png"
+			: "png";
+	if (format === "ktx2" && decoderUrl !== undefined) await enableKtx2(decoderUrl);
+	const atlasUrl = (atlas: AssetEntry): string =>
+		url(format === "ktx2" && atlas.ktx2 ? atlas.ktx2.url : atlas.url);
+	options.onTextureFormat?.(format);
 	const characterMaterial = characters
-		? atlasMaterial(scene, "atlas_characters", url(characters.url))
+		? atlasMaterial(scene, "atlas_characters", atlasUrl(characters))
 		: null;
-	const propMaterial = propsAtlas ? atlasMaterial(scene, "atlas_props", url(propsAtlas.url)) : null;
+	const propMaterial = propsAtlas ? atlasMaterial(scene, "atlas_props", atlasUrl(propsAtlas)) : null;
 
 	const enemies: LoadedEnemy[] = [];
 	const loadEnemies = (async () => {
