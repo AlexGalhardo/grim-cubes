@@ -20,6 +20,16 @@
 		"bosses/forgemaster",
 		"bosses/alpha_hunter",
 		"bosses/nest_queen",
-		"npc/bone_merchant"
+		"npc/bone_merchant",
+		"props/prop_tombstone_01",
+		"props/prop_tombstone_02",
+		"props/prop_cross_01",
+		"props/prop_urn_01",
+		"props/prop_bone_01",
+		"props/prop_bonepile_01",
+		"props/prop_dead_tree_01",
+		"props/prop_fence_01",
+		"props/prop_crypt_01",
+		"props/prop_grass_01"
 	]
 }
