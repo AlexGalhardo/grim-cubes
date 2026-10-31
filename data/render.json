@@ -14,6 +14,11 @@
 		"heroHalfWidth": 0.6,
 		"heroHeight": 1
 	},
+	"character": {
+		"blendSeconds": 0.1,
+		"executionZoom": 0.2,
+		"executionSeconds": 1.5
+	},
 	"vfx": {
 		"particlePool": 600,
 		"decalPool": 200,

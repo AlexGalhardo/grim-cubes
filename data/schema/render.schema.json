@@ -4,7 +4,7 @@
 	"title": "Render constants (GDD section 5, ADR-0017)",
 	"type": "object",
 	"additionalProperties": false,
-	"required": ["camera", "propFade", "vfx"],
+	"required": ["camera", "propFade", "vfx", "character"],
 	"properties": {
 		"camera": {
 			"type": "object",
@@ -75,6 +75,16 @@
 					"exclusiveMinimum": 0,
 					"description": "Height of the hero's centre the camera looks at, in units."
 				}
+			}
+		},
+		"character": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": ["blendSeconds", "executionZoom", "executionSeconds"],
+			"properties": {
+				"blendSeconds": { "type": "number", "minimum": 0 },
+				"executionZoom": { "type": "number", "minimum": 0, "maximum": 1 },
+				"executionSeconds": { "type": "number", "exclusiveMinimum": 0 }
 			}
 		},
 		"vfx": {

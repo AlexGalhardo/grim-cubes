@@ -44,6 +44,8 @@ export interface GameAssets {
 	/** Contiguous prefix of `enemyIds` that has a model and a VAT: the horde indexes types by EnemyType id. */
 	enemies: LoadedEnemy[];
 	props: Map<string, Mesh>;
+	/** The shared character atlas material, for models loaded outside the horde (hero, Merchant, bosses, weapons). */
+	characterMaterial: StandardMaterial | null;
 }
 
 async function getOk(fetchFn: Fetcher, url: string): Promise<Response> {
@@ -133,5 +135,5 @@ export async function loadGameAssets(scene: Scene, options: GameAssetsOptions): 
 	);
 
 	await Promise.all([loadEnemies, loadProps]);
-	return { manifest, enemies, props };
+	return { manifest, enemies, props, characterMaterial };
 }

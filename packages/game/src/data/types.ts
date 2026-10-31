@@ -111,6 +111,7 @@ export interface RenderData {
 		radiusMobile: number;
 		followRate: number;
 	};
+	character: { blendSeconds: number; executionZoom: number; executionSeconds: number };
 	vfx: {
 		particlePool: number;
 		decalPool: number;

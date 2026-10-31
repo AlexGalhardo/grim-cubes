@@ -1,5 +1,8 @@
 import type { AnimationGroup } from "@babylonjs/core/Animations/animationGroup";
 import { ImportMeshAsync } from "@babylonjs/core/Loading/sceneLoader";
+import type { Material } from "@babylonjs/core/Materials/material";
+import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
+import { Color3 } from "@babylonjs/core/Maths/math.color";
 import type { AbstractMesh } from "@babylonjs/core/Meshes/abstractMesh";
 import { TransformNode } from "@babylonjs/core/Meshes/transformNode";
 import type { Scene } from "@babylonjs/core/scene";
@@ -13,6 +16,8 @@ export interface CharacterOptions {
 	idle: string;
 	/** Clip played while moving. */
 	move: string;
+	/** Applied to every mesh of the model (the shared character atlas). */
+	material?: Material | undefined;
 }
 
 export interface Character {
@@ -26,6 +31,8 @@ export interface Character {
 	/** Plays a clip and keeps its last frame (death, victory). */
 	playFinal(clip: string): boolean;
 	/** Advances the blend by `dt` seconds. */
+	/** Shows `clip` at `t` (0..1 of its length) and holds it: a deterministic pose for captures. */
+	holdPose(clip: string, t: number): boolean;
 	update(dt: number): void;
 	/** Current blend weight of a clip, 0..1. */
 	weight(clip: string): number;
@@ -34,6 +41,8 @@ export interface Character {
 	socket(name: string): TransformNode | null;
 	/** Parents a weapon mesh to `weapon_socket`; null detaches the current one. */
 	attachWeapon(mesh: AbstractMesh | null): void;
+	/** Multiplies the model colour by `hex` on a private copy of its material (cosmetic skins). */
+	setTint(hex: string): void;
 	setVisible(visible: boolean): void;
 	dispose(): void;
 }
@@ -52,6 +61,8 @@ export async function loadCharacter(
 		group.stop();
 		groups.set(group.name, group);
 	}
+	if (options.material)
+		for (const mesh of result.meshes) if (mesh.getTotalVertices() > 0) mesh.material = options.material;
 	const sockets = new Map<string, TransformNode>();
 	for (const node of result.transformNodes) sockets.set(node.name, node);
 	const importRoot = result.meshes.find((m) => m.name === "__root__") ?? result.meshes[0] ?? null;
@@ -67,12 +78,13 @@ export async function loadCharacter(
 	let locomotion = options.idle;
 	let oneShot = "";
 	let finalClip = "";
+	let frozen = false;
 	let weapon: AbstractMesh | null = null;
 
 	function start(clip: string, loop: boolean): boolean {
 		const group = groups.get(clip);
 		if (!group) return false;
-		if (current === clip && group.isPlaying) return true;
+		if (current === clip && group.isStarted) return true;
 		if (previous && previous !== current) stop(previous);
 		previous = current;
 		current = clip;
@@ -143,7 +155,33 @@ export async function loadCharacter(
 			finalClip = clip;
 			return true;
 		},
+		holdPose(clip, t): boolean {
+			const group = groups.get(clip);
+			if (!group) return false;
+			for (const other of groups.values()) if (other !== group) other.stop();
+			current = clip;
+			previous = "";
+			blend = options.blendSeconds;
+			for (const name of weights.keys()) weights.set(name, 0);
+			weights.set(clip, 1);
+			group.start(false, 1, group.from, group.to, false);
+			group.setWeightForAllAnimatables(1);
+			group.goToFrame(group.from + (group.to - group.from) * t);
+			group.pause();
+			return true;
+		},
 		update(dt): void {
+			// dt 0 = the game is paused (level-up, shop screens, captures): freeze the pose too.
+			const stopped = dt <= 0;
+			if (stopped !== frozen) {
+				frozen = stopped;
+				for (const clip of [current, previous]) {
+					const group = clip ? groups.get(clip) : undefined;
+					if (!group) continue;
+					if (frozen) group.pause();
+					else group.restart();
+				}
+			}
 			blend += dt;
 			setWeights();
 		},
@@ -161,6 +199,15 @@ export async function loadCharacter(
 			weapon = mesh;
 			const socket = sockets.get("weapon_socket");
 			if (mesh && socket) mesh.parent = socket;
+		},
+		setTint(hex): void {
+			for (const mesh of result.meshes) {
+				const material = mesh.material;
+				if (!(material instanceof StandardMaterial)) continue;
+				const copy = material.clone(`${material.name}_tint`);
+				copy.diffuseColor = Color3.FromHexString(hex);
+				mesh.material = copy;
+			}
 		},
 		setVisible(visible): void {
 			holder.setEnabled(visible);

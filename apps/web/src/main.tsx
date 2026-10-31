@@ -105,7 +105,9 @@ import {
 import { createInputSources, createWebStorage, detectPlatform, type StorageKey } from "@gc/platform";
 import {
 	CAMERA,
+	type Character,
 	createBenchRecorder,
+	createCharacters,
 	createChunkRenderer,
 	createEliteView,
 	createEnemyShotRenderer,
@@ -117,6 +119,8 @@ import {
 	createProjectileRenderer,
 	createRenderPort,
 	createVfx,
+	importModelMesh,
+	loadCharacter,
 	loadGameAssets,
 	PALETTE,
 	PLACEHOLDER_PROPS,
@@ -573,6 +577,54 @@ async function boot(): Promise<void> {
 		log.warn("assets unavailable, using placeholders", error);
 		return null;
 	});
+	// Skeleton characters (P-06-06): the hero, the Merchant and the Gravedigger. Missing models keep the placeholders.
+	const loadRig = async (
+		id: string,
+		rig: { refSpeed: number; idle: string; move: string },
+	): Promise<Character | undefined> => {
+		const entry = assets?.manifest.entries[id];
+		if (!assets || !entry) return undefined;
+		try {
+			return await loadCharacter(game.scene, `/assets/${entry.url}`, {
+				blendSeconds: renderData.character.blendSeconds,
+				material: assets.characterMaterial ?? undefined,
+				...rig,
+			});
+		} catch (error) {
+			log.warn(`character ${id} unavailable, using the placeholder`, error);
+			return undefined;
+		}
+	};
+	const heroRig = await loadRig("hero", { refSpeed: heroData.base.speed, idle: "idle", move: "run" });
+	const merchantRig = await loadRig("bone_merchant", { refSpeed: 1, idle: "idle", move: "idle" });
+	const gravediggerDef = bossesData.find((b) => b.id === "gravedigger");
+	const bossRig = await loadRig("gravedigger", {
+		refSpeed: gravediggerDef?.speed ?? 2.4,
+		idle: "idle",
+		move: "walk",
+	});
+	if (heroRig && assets) {
+		game.hero.isVisible = false;
+		const weaponEntry = assets.manifest.entries[`weapon_${heroData.startingWeapon}`];
+		if (weaponEntry) {
+			const weaponMesh = await importModelMesh(game.scene, `/assets/${weaponEntry.url}`).catch(
+				() => null,
+			);
+			if (weaponMesh) {
+				if (assets.characterMaterial) weaponMesh.material = assets.characterMaterial;
+				heroRig.attachWeapon(weaponMesh);
+			}
+		}
+	}
+	const characters = heroRig
+		? createCharacters(game, {
+				hero: heroRig,
+				merchant: merchantRig,
+				boss: bossRig,
+				executionZoom: renderData.character.executionZoom,
+				executionSeconds: renderData.character.executionSeconds,
+			})
+		: undefined;
 	const horde =
 		assets && assets.enemies.length > 0
 			? createHordeRenderer(
@@ -591,6 +643,7 @@ async function boot(): Promise<void> {
 						flashBrightness: renderData.vfx.flashBrightness,
 						hitSquash: renderData.vfx.hitSquash,
 						cullCamera: game.camera,
+						skipBoss: bossRig !== undefined,
 						boss: {
 							scale: renderData.vfx.bossScale,
 							enrageTint: renderData.vfx.bossEnrageTint as [number, number, number],
@@ -629,9 +682,16 @@ async function boot(): Promise<void> {
 		followRate: CAMERA.followRate,
 		vfx,
 		elite: eliteView,
+		characters,
 	});
 	const skin = unlockedSkins(milestonesData, meta).at(-1);
-	if (skin) game.setHeroTint(skin.tint);
+	if (skin) {
+		game.setHeroTint(skin.tint);
+		const tokenKey = skin.tint.replace(/-([a-z0-9])/g, (_, c: string) =>
+			c.toUpperCase(),
+		) as keyof typeof PALETTE;
+		heroRig?.setTint(PALETTE[tokenKey]);
+	}
 	const propTypes: PropTypeDef[] = [];
 	for (const name of chunkGen.propTypes) {
 		const placeholder = PLACEHOLDER_PROPS.find((p) => name.startsWith(p.name)) ?? PLACEHOLDER_PROPS[0];
@@ -1010,6 +1070,12 @@ async function boot(): Promise<void> {
 			vfx.update(run.state === "Paused" ? 0 : Math.min(0.1, render.engine.getDeltaTime() / 1000));
 			projectileView.sync(world, alpha);
 			enemyShotView.sync(world, alpha);
+			characters?.sync(
+				world,
+				alpha,
+				run.state === "Paused" ? 0 : Math.min(0.1, render.engine.getDeltaTime() / 1000),
+				run.state === "Shop",
+			);
 			eliteView.update(
 				run.state === "Paused" ? 0 : Math.min(0.1, render.engine.getDeltaTime() / 1000),
 				game.hero.position.x,
@@ -1107,6 +1173,7 @@ async function boot(): Promise<void> {
 			minPropAlpha: () => chunkRenderer.minAlpha(),
 			setGore: (full: boolean) => vfx.setGore(full),
 			/** Fires `count` enemy deaths on a ring around the hero (gore comparison capture, P-04-05). */
+			holdIdle: () => characters?.holdIdle(),
 			killRing: (count: number) => {
 				const x = Position.x[hero] ?? 0;
 				const z = Position.z[hero] ?? 0;

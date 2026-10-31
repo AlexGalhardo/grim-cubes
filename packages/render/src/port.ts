@@ -7,6 +7,7 @@ import {
 	PrevPosition,
 	type RenderPort,
 } from "@gc/game";
+import type { Characters } from "./character/characters";
 import type { HordeRenderer } from "./horde/hordeRenderer";
 import type { GameScene } from "./scene/scene";
 import type { EliteView } from "./vfx/elite";
@@ -26,6 +27,8 @@ export interface RenderPortOptions {
 	vfx?: Vfx;
 	/** Elite chest and incoming marker (P-05-06b). */
 	elite?: EliteView;
+	/** Skeleton rigs (hero, Merchant, Gravedigger): animation events. */
+	characters?: Characters | undefined;
 }
 
 /**
@@ -38,7 +41,7 @@ export function createRenderPort(
 	options: RenderPortOptions = {},
 ): RenderPort {
 	const target = game.camera.target;
-	const { origin, vfx, elite } = options;
+	const { origin, vfx, elite, characters } = options;
 	const followRate = options.followRate ?? Number.POSITIVE_INFINITY;
 	const engine = game.scene.getEngine();
 	const deltaSeconds = options.deltaSeconds ?? ((): number => Math.min(0.1, engine.getDeltaTime() / 1000));
@@ -50,6 +53,7 @@ export function createRenderPort(
 	const onEvent = (type: number, a: number, b: number, c: number, entity: number): void => {
 		vfx?.onEvent(type, a, b, c, entity);
 		elite?.onEvent(type, a, b, c);
+		characters?.onEvent(type, a, b, c, entity);
 		if (type === EventType.Died) horde?.onDied(entity);
 		if (type === EventType.OriginShifted) {
 			game.shiftWorld(a, b);
