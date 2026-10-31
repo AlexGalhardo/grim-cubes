@@ -5,6 +5,7 @@
 		"includes": [
 			"**/*.{ts,tsx,js,mjs,json,jsonc,css}",
 			"!public/assets",
+			"!.claude/settings.local.json",
 			"!apps/android",
 			"!release",
 			"!bun.lock"
