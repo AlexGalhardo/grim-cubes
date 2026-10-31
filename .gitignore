@@ -36,3 +36,6 @@ apps/android/android/local.properties
 
 # Concept arts são referência local do PO (repositório público); só o índice é versionado.
 references/concept-arts/*.png
+
+# Output of `bun run assets:build` (regenerated on every build).
+public/assets/
