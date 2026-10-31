@@ -21,6 +21,8 @@ export interface LevelUpSystem {
 	readonly offer: readonly CardOffer[] | null;
 	/** Card rerolls still available this run. */
 	readonly rerollsLeft: number;
+	/** Puts back the rerolls left (a resumed run). */
+	restoreRerollsLeft(n: number): void;
 	/** Redraws the three cards, spending one reroll. False when there is no offer or no reroll left. */
 	reroll(): boolean;
 	run(): void;
@@ -45,6 +47,9 @@ export function createLevelUpSystem(deps: LevelUpDeps): LevelUpSystem {
 		},
 		get rerollsLeft(): number {
 			return rerollsLeft;
+		},
+		restoreRerollsLeft(n: number): void {
+			rerollsLeft = n;
 		},
 		reroll(): boolean {
 			if (offer === null || rerollsLeft <= 0) return false;

@@ -338,6 +338,13 @@ function finite(value: unknown, label: string, max = MAX_COUNTER): number {
 	return value;
 }
 
+/** A non-negative amount that may have a fraction (gold, experience, fragment value). */
+function amount(value: unknown, label: string): number {
+	const n = finite(value, label, MAX_COUNTER);
+	if (n < 0) throw new SaveError(`${label} must not be negative`);
+	return n;
+}
+
 function validateCheckpoint(raw: unknown): RunCheckpoint | null {
 	if (raw === undefined || raw === null) return null;
 	if (!isRecord(raw)) throw new SaveError("run must be an object");
@@ -365,8 +372,8 @@ function validateCheckpoint(raw: unknown): RunCheckpoint | null {
 		seed: counter(raw.seed, "run.seed") % 4294967296,
 		difficulty: raw.difficulty as Difficulty,
 		round,
-		gold: counter(raw.gold, "run.gold"),
-		xp: counter(raw.xp, "run.xp"),
+		gold: amount(raw.gold, "run.gold"),
+		xp: amount(raw.xp, "run.xp"),
 		level: Math.max(1, counter(raw.level, "run.level")),
 		hp: finite(raw.hp, "run.hp", 1_000_000),
 		weapon: {
@@ -385,7 +392,7 @@ function validateCheckpoint(raw: unknown): RunCheckpoint | null {
 		}),
 		cardRerollsLeft: counter(raw.cardRerollsLeft, "run.cardRerollsLeft"),
 		revivesSpent: counter(raw.revivesSpent, "run.revivesSpent"),
-		bag: counter(raw.bag, "run.bag"),
+		bag: amount(raw.bag, "run.bag"),
 		rng: rng.map((state: unknown) => {
 			if (typeof state !== "number" || !Number.isInteger(state) || Math.abs(state) > 2 ** 32)
 				throw new SaveError("run.rng entries must be 32-bit integers");
@@ -394,7 +401,7 @@ function validateCheckpoint(raw: unknown): RunCheckpoint | null {
 		origin: { x: finite(origin.x, "run.origin.x"), z: finite(origin.z, "run.origin.z") },
 		position: { x: finite(position.x, "run.position.x"), z: finite(position.z, "run.position.z") },
 		kills: counter(raw.kills, "run.kills"),
-		damageDealt: finite(raw.damageDealt, "run.damageDealt"),
+		damageDealt: amount(raw.damageDealt, "run.damageDealt"),
 		elitesKilled: counter(raw.elitesKilled, "run.elitesKilled"),
 		bossRounds: bossRounds.map((r: unknown) => counter(r, "run.bossRounds entry")),
 	};

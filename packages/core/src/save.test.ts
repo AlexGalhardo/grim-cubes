@@ -312,3 +312,78 @@ test("visual and other settings are validated: ranges, modes, scales and types",
 		gore: false,
 	});
 });
+
+const checkpoint = () => ({
+	seed: 4242,
+	difficulty: "grim" as const,
+	round: 7,
+	gold: 123.5,
+	xp: 40.25,
+	level: 4,
+	hp: 82.5,
+	weapon: { id: "pistol", tier: 2, paid: 60 },
+	owned: { ring: 2 },
+	modifiers: [{ stat: "damage", op: "mult", value: 0.1 }],
+	cardRerollsLeft: 1,
+	revivesSpent: 0,
+	bag: 12,
+	rng: Array.from({ length: 10 }, (_, i) => i * 1_000_003 - 2_000_000_000),
+	origin: { x: 128, z: -256 },
+	position: { x: 3.5, z: -1.25 },
+	kills: 88,
+	damageDealt: 5120.5,
+	elitesKilled: 1,
+	bossRounds: [5],
+});
+
+test("a run checkpoint round-trips inside the slot and is null when absent", async () => {
+	const m = meta();
+	m.run = checkpoint();
+	const parsed = await parseSave(await serializeSave(m, "0.1.0"));
+	expect(parsed.run).toEqual(checkpoint());
+	expect((await parseSave(await serializeSave(meta(), "0.1.0"))).run).toBeNull();
+});
+
+test("a malformed checkpoint is refused field by field", async () => {
+	const bad = async (patch: Record<string, unknown>): Promise<void> => {
+		const m = meta() as unknown as Record<string, unknown>;
+		m.run = { ...structuredClone(checkpoint()), ...patch };
+		await expect(serializeSave(m as unknown as ReturnType<typeof meta>, "0.1.0")).rejects.toBeInstanceOf(
+			SaveError,
+		);
+	};
+	await bad({ difficulty: "easy" });
+	await bad({ round: 0 });
+	await bad({ gold: -1 });
+	await bad({ gold: Number.NaN });
+	await bad({ hp: Number.POSITIVE_INFINITY });
+	await bad({ rng: [1, 2, 3] });
+	await bad({ rng: Array.from({ length: 10 }, () => 1.5) });
+	await bad({ owned: { __proto__x: 1, constructor: 1 } });
+	await bad({ owned: { ring: -1 } });
+	await bad({ modifiers: Array.from({ length: 513 }, () => ({ stat: "a", op: "b", value: 1 })) });
+	await bad({ modifiers: [{ stat: "", op: "add", value: 1 }] });
+	await bad({ weapon: { id: "x".repeat(65), tier: 0, paid: 0 } });
+	await bad({ origin: { x: "0", z: 0 } });
+	await bad({ bossRounds: [-1] });
+});
+
+test("a schema 9 save has no checkpoint and no last slot, and its checksum still verifies", async () => {
+	const loaded = await parseSave(await legacySave(9));
+	expect(loaded.run).toBeNull();
+	expect(loaded.settings.lastSlot).toBe(0);
+});
+
+test("settings.lastSlot accepts 0 to 3 and refuses anything else", () => {
+	const ok = createSettings();
+	for (const lastSlot of [0, 1, 2, 3]) {
+		expect(validateMeta({ ...createMetaState(), settings: { ...ok, lastSlot } }).settings.lastSlot).toBe(
+			lastSlot,
+		);
+	}
+	for (const lastSlot of [-1, 4, 1.5, "1", null]) {
+		expect(() => validateMeta({ ...createMetaState(), settings: { ...ok, lastSlot } })).toThrow(
+			SaveError,
+		);
+	}
+});

@@ -66,6 +66,8 @@ export interface RunSystem {
 	readonly bag: Bag;
 	newRun(): void;
 	closeShop(): void;
+	/** Starts a run again at the intro of `round` with `bagValue` fragments in the bag (a resumed run). */
+	resumeAt(round: number, bagValue: number): void;
 	/** The hero reached the Merchant (or the wait ran out): opens the shop. No-op outside `MerchantWait`. */
 	enterShop(): void;
 	/** Where the enemies were, on average, when the last round ended (relative coordinates). */
@@ -191,6 +193,11 @@ export function createRunSystem(deps: RunSystemDeps): RunSystem {
 		closeShop(): void {
 			if (state !== "Shop") return;
 			round++;
+			startIntro();
+		},
+		resumeAt(next: number, bagValue: number): void {
+			round = next;
+			bag.value = bagValue;
 			startIntro();
 		},
 		enterShop(): void {

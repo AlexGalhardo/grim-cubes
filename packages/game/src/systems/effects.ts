@@ -26,6 +26,10 @@ export interface EffectsSystem {
 	readonly effects: ItemEffects;
 	/** Call after the inventory changes (a shop purchase). */
 	refresh(): void;
+	/** Revives used so far this run. */
+	readonly revivesSpent: number;
+	/** Puts back the revives already used (a resumed run) and recomputes. */
+	restoreRevivesSpent(spent: number): void;
 	/** Consumes a revive if one is available: restores HP, grants i-frames, returns true. */
 	tryRevive(hero: number): boolean;
 }
@@ -47,6 +51,13 @@ export function createEffectsSystem(
 	return {
 		effects,
 		refresh,
+		get revivesSpent(): number {
+			return spent;
+		},
+		restoreRevivesSpent(value: number): void {
+			spent = value;
+			refresh();
+		},
 		tryRevive(hero: number): boolean {
 			if (effects.revives <= 0) return false;
 			spent++;
