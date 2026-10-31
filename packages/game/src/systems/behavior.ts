@@ -68,6 +68,8 @@ export interface BehaviorDeps {
 	spawn?: SpawnSystem | undefined;
 	/** Needed by the watcher. */
 	shots?: EnemyShotPool | undefined;
+	/** Needed by the leech: damage that skips armor and i-frames (`DamageSystem.drain`). */
+	drain?: ((world: GameWorld, amount: number, by: number) => void) | undefined;
 }
 
 export interface BehaviorSystem {
@@ -81,7 +83,7 @@ export function createBehaviorSystem(
 	queue: DamageQueue,
 	deps: BehaviorDeps = {},
 ): BehaviorSystem {
-	const { events, spawn, shots } = deps;
+	const { events, spawn, shots, drain } = deps;
 	const steps = (seconds: number): number => Math.max(1, Math.round(seconds / STEP));
 	const periodSteps = steps(config.zigzag.periodSeconds);
 	const omega = (2 * Math.PI) / (periodSteps * STEP);
@@ -143,7 +145,8 @@ export function createBehaviorSystem(
 			const hz = Position.z[hero] ?? 0;
 			const heroRadius = Radius.r[hero] ?? 0;
 			const enemies = enemyList(world);
-			const alive = enemies.length;
+			// Several breeders can act in one step, so the count grows with every wail they add.
+			let alive = enemies.length;
 
 			for (let i = 0; i < enemies.length; i++) {
 				const e = enemies[i] ?? 0;
@@ -173,7 +176,7 @@ export function createBehaviorSystem(
 						vx = nx * speed * latch.speedMult;
 						vz = nz * speed * latch.speedMult;
 						// Drain skips armor and i-frames: it is a slow leak, not a hit.
-						Health.hp[hero] = (Health.hp[hero] ?? 0) - latch.drainHpPerSecond * STEP;
+						drain?.(world, latch.drainHpPerSecond * STEP, e);
 					}
 				} else if (kind === BehaviorKind.RangedStatic && ranged && shots) {
 					vx = 0;
@@ -201,7 +204,7 @@ export function createBehaviorSystem(
 					Behavior.aux[e] = wait;
 					if (wait >= steps(spawner.intervalSeconds)) {
 						Behavior.aux[e] = 0;
-						for (let k = 0; k < spawner.count && alive + k < spawner.cap; k++) {
+						for (let k = 0; k < spawner.count && alive < spawner.cap; k++) {
 							const angle = (k / spawner.count) * Math.PI * 2;
 							spawn.spawnEnemy(
 								world,
@@ -209,6 +212,7 @@ export function createBehaviorSystem(
 								(Position.x[e] ?? 0) + Math.cos(angle) * ((Radius.r[e] ?? 0) + 0.6),
 								(Position.z[e] ?? 0) + Math.sin(angle) * ((Radius.r[e] ?? 0) + 0.6),
 							);
+							alive++;
 						}
 					}
 				}

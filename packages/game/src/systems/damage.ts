@@ -73,6 +73,11 @@ export interface DamageSystemDeps {
 export interface DamageSystem {
 	readonly queue: DamageQueue;
 	run(world: GameWorld): void;
+	/**
+	 * Damage that ignores armor, dodge and i-frames (the leech leak). It still counts as damage taken: PlayerHit is
+	 * emitted per whole HP and the killer is recorded when it is the one that kills the hero.
+	 */
+	drain(world: GameWorld, amount: number, by: number): void;
 }
 
 export function createDamageSystem(deps: DamageSystemDeps): DamageSystem {
@@ -159,8 +164,25 @@ export function createDamageSystem(deps: DamageSystemDeps): DamageSystem {
 		if ((Health.hp[eid] ?? 0) <= 0) events.push(EventType.Died, 0, 0, 0, eid);
 	}
 
+	let drained = 0;
+
 	return {
 		queue,
+		drain(world: GameWorld, amountHp: number, by: number): void {
+			const before = Health.hp[hero] ?? 0;
+			if (before <= 0) return;
+			Health.hp[hero] = before - amountHp;
+			drained += amountHp;
+			const dead = (Health.hp[hero] ?? 0) <= 0;
+			if (drained >= 1 || dead) {
+				events.push(EventType.PlayerHit, drained, 0, 0, hero);
+				drained = 0;
+			}
+			if (dead) {
+				recordKiller(world, by);
+				events.push(EventType.Died, 0, 0, 0, hero);
+			}
+		},
 		run(world: GameWorld): void {
 			const ticks = Invulnerable.ticks[hero] ?? 0;
 			if (ticks > 0) Invulnerable.ticks[hero] = ticks - 1;

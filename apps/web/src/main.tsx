@@ -283,7 +283,7 @@ async function boot(): Promise<void> {
 			roundsData.spawn.maxSimultaneous,
 		),
 		damage.queue,
-		{ events, spawn, shots: enemyShots },
+		{ events, spawn, shots: enemyShots, drain: damage.drain },
 	);
 	const benchPool = [
 		{ type: enemyIds.indexOf("husk"), weight: 6 },

@@ -17,6 +17,7 @@ import {
 import { createEnemyShotPool } from "../ecs/enemyShot";
 import { createEventBuffer, EventType } from "../ecs/events";
 import { createGameWorld, spawnBody } from "../ecs/world";
+import { createRunStats } from "../rules/runstats";
 import { createBehaviorSystem } from "./behavior";
 import { createDamageSystem } from "./damage";
 import { createEnemyShotSystem } from "./enemyShot";
@@ -36,6 +37,7 @@ const damageConfig = {
 };
 
 function setup(heroHp = 1e6) {
+	const runStats = createRunStats();
 	const world = createGameWorld();
 	const hero = spawnBody(world, 0, 0);
 	addComponent(world, hero, Radius);
@@ -48,6 +50,7 @@ function setup(heroHp = 1e6) {
 		events,
 		hero,
 		stats: { armor: 0, dodge: 0, critMult: 2, lifeSteal: 0 },
+		runStats,
 	});
 	const spawn = createSpawnSystem({
 		config: roundsData.spawn,
@@ -65,7 +68,7 @@ function setup(heroHp = 1e6) {
 			roundsData.spawn.maxSimultaneous,
 		),
 		damage.queue,
-		{ events, spawn, shots },
+		{ events, spawn, shots, drain: damage.drain },
 	);
 	/** One simulation step in the real order: behavior, movement, shots, damage. */
 	const step = (): void => {
@@ -74,7 +77,7 @@ function setup(heroHp = 1e6) {
 		shotSystem.run(world, hero);
 		damage.run(world);
 	};
-	return { world, hero, events, damage, spawn, shots, behavior, step };
+	return { runStats, world, hero, events, damage, spawn, shots, behavior, step };
 }
 
 test("every behavior in enemies.json is implemented and an unknown one throws", () => {
@@ -202,4 +205,32 @@ test("the breeder stops when the simultaneous cap is full", () => {
 	for (let i = 0; i < 60 * 9; i++) step();
 	const wails = [...query(world, [EnemyFaction])].filter((e) => EnemyType.id[e] === idOf("wail"));
 	expect(wails).toHaveLength(0);
+});
+
+test("two breeders in the same step never push the horde past the cap", () => {
+	const { world, spawn, step } = setup();
+	spawn.spawnEnemy(world, idOf("breeder"), 6, 0);
+	spawn.spawnEnemy(world, idOf("breeder"), -6, 0);
+	for (let i = 0; i < roundsData.spawn.maxSimultaneous - 3; i++)
+		spawn.spawnEnemy(world, idOf("drowned"), 80 + i, 80);
+	for (let i = 0; i < 60 * 9; i++) step();
+	expect(query(world, [EnemyFaction]).length).toBeLessThanOrEqual(roundsData.spawn.maxSimultaneous);
+});
+
+test("a hero killed by the leech drain gets the PlayerHit/Died events and the leech as killer", () => {
+	const { world, hero, spawn, step, events, runStats } = setup(1);
+	spawn.spawnEnemy(world, idOf("leech"), 0.5, 0);
+	let hit = 0;
+	let died = 0;
+	for (let i = 0; i < 60 * 3 && died === 0; i++) {
+		step();
+		events.consume((type) => {
+			if (type === EventType.PlayerHit) hit++;
+			if (type === EventType.Died) died++;
+		});
+	}
+	expect(Health.hp[hero]).toBeLessThanOrEqual(0);
+	expect(hit).toBeGreaterThan(0);
+	expect(died).toBe(1);
+	expect(runStats.killer).toEqual({ kind: "enemy", type: idOf("leech") });
 });
