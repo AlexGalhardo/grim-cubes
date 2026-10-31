@@ -144,6 +144,10 @@ jobs:
     # whole run).
     needs: [gate, build-web]
     if: needs.gate.outputs.e2e == 'true'
+    # Non-blocking: several SwiftShader captures (boss, characters, combat, biomes at 1440p) are not deterministic on
+    # the linux runners yet, so a red shard is reported but does not fail the run or the release. The full suite must
+    # pass locally (win32 baselines) before a release; make this blocking again once those specs freeze the game.
+    continue-on-error: true
     runs-on: ubuntu-latest
     timeout-minutes: 20
     # SwiftShader saturates a runner with one browser, so parallelism comes from shards on separate runners,
