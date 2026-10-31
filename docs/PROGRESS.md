@@ -1,6 +1,6 @@
 # PROGRESS
 
-Atualizado: 2026-10-31 08:51 (fuso do PO) | Versão: 0.0.0 (v0.1.0 ainda não publicada) | Fase: 2 — PROTÓTIPO (itens da ALPHA adiantados em paralelo) | Sessão: #1
+Atualizado: 2026-10-31 (fuso do PO) | Versão: 0.1.0 (publicada, tag `v0.1.0`, `main` eb12bc2) | Fase: 2 — PROTÓTIPO (itens da ALPHA adiantados em paralelo) | Sessão: #1
 
 Meta do PO (2026-10-31): implementar o ROADMAP até o fim sem interrupções; tarefas `Resp: PO` ficam em Bloqueios e os agentes seguem com o resto. Hooks lefthook instalados em `.git` (valem para todos os worktrees).
 
@@ -8,17 +8,21 @@ Meta do PO (2026-10-31): implementar o ROADMAP até o fim sem interrupções; ta
 
 | Agente | Tarefa atual | Branch | Estado | Desde | Lock |
 | --- | --- | --- | --- | --- | --- |
-| Orq | merges em `wip/orq-merge`; commits; PROGRESS | wip/orq-merge | em andamento | 08:51 | — |
-| S1 | P-06-06 (rig de personagem) → A-02-01 (biomas Pântano, Forja e Ninho) | — | implementando | 08:51 | — |
-| S2 | P-07-04 (sim com loja) → A-03-02 (O Forjador) → A-03-03 (roster por round) | — | implementando | 08:51 | — |
-| Est | baselines finais do e2e → `rc-major` no `tools/release` (R-01-01) → i18n (A-07-01) → cobertura | — | implementando | 08:51 | — |
-| Esp | docs (CHANGELOG, PROGRESS) → auditoria a cada merge | — | em andamento | 08:51 | `CHANGELOG.md`, `docs/PROGRESS.md` |
+| Orq | integra as branches dos agentes na `main` (release `v0.1.0` feito); PROGRESS | main | em andamento | — | — |
+| S1 | investiga o que continua animando depois do `freeze()` (captura do Coveiro, `toBossFrame`) → A-02-01 (biomas Pântano, Forja e Ninho) | — | implementando | — | — |
+| S2 | A-03-02 (O Forjador) → A-03-03 (roster por round) | — | implementando | — | — |
+| Est | A-07-01: tutorial de 20 s (feito, em branch) e revisão do copy `en` (feita, em branch) → PROGRESS (esta atualização); `feat/A-01-03-perf-ci` parada a pedido do PO | `feat/A-07-01-tutorial` | aguardando merge | — | — |
+| Esp | docs (CHANGELOG, PROGRESS) → auditoria a cada merge | — | em andamento | — | `CHANGELOG.md`, `docs/PROGRESS.md` |
 
-Estado (2026-10-31 08:51): `origin/main` está em b899d7b, vermelha até as baselines do e2e entrarem (ver Dívidas). O trabalho integrado está em `origin/wip/orq-merge` (6180a55). Na última verificação em cópia limpa (bf90035), typecheck, `biome ci`, `data:check`, `lint:md` e `bun run test` (84 arquivos, 483 testes) ficaram verdes. Já existem o Coveiro e a Matriarca (padrões por id, A-03-00), os 8 behaviors de inimigo, elites com render, Ossuário com dash e bônus da Ruína, dificuldades, marcos, VFX (P-04-05), culling por frustum e os headers de segurança da Vercel.
+As linhas de S1, S2, Esp e Orq refletem as últimas mensagens do Orq e podem estar defasadas; o Orq confirma ao integrar.
+
+Estado (2026-10-31): `origin/main` está em eb12bc2 e é a **v0.1.0 publicada** (release no GitHub, tag `v0.1.0`). Entraram nela i18n (`t()`, `locales/en.json` e `pt-BR.json`, regra de lint contra texto fixo na UI), as dicas do round 1, `rc-major` no `tools/release`, thresholds de cobertura por pacote e o timeout do data-check. **Por decisão do PO, o e2e (Playwright) está desligado no CI** (CI rápido): os specs e as baselines continuam no repositório e rodam localmente; não gere baselines nem rode e2e sem o Orq pedir. A `feat/A-01-03-perf-ci` (job de bench no CI, +10 a 15 min) não entra por enquanto, pela mesma razão. Já existem o Coveiro e a Matriarca (padrões por id, A-03-00), os 8 behaviors de inimigo, elites com render, Ossuário com dash e bônus da Ruína, dificuldades, marcos, VFX (P-04-05), culling por frustum e os headers de segurança da Vercel.
 
 Dívida operacional: com 4 agentes rodando testes ao mesmo tempo, a CPU satura e o `pre-push` falha por timeout de worker (a suíte isolada passa). Solução adotada: janela de push (um agente por vez) e timeout de 20 s nos testes de simulação e determinismo (a2cdbad); o oráculo do VAT ainda pode estourar 5 s sob carga. Não contornar o hook.
 
 Risco: conversor `.bbmodel` validado só contra o próprio pipeline e o Babylon; falta golden contra um export real do Blockbench (quando o PO refinar o 1º modelo).
+
+Blockbench MCP: o servidor está instalado (skill `blockbench-art` e agente `blockbench-artist` existem), mas **o plugin do Blockbench não responde**; em investigação. Até lá, os modelos seguem gerados por `bun run assets:gen`.
 
 Pendência do PO: secret `VERCEL_AUTOMATION_BYPASS_SECRET` (Vercel → Deployment Protection → Protection Bypass for Automation; e `gh secret set VERCEL_AUTOMATION_BYPASS_SECRET`) para o smoke pós-deploy (E-04-04). Continua pendente em 2026-10-31 08:51: sem ele, o smoke de produção (que agora também falha com a API de debug viva, ff185d9) não roda.
 
@@ -77,15 +81,12 @@ Fonte: itens `[x]` do ROADMAP em `origin/wip/orq-merge` (6180a55), ordenados pel
 
 ## Próximos
 
-1. Fechar a fase 1:
-   - Est: baselines finais do e2e para a `main` voltar a ficar verde.
-   - Orq: release `v0.1.0` (E-04-03, `bun run release minor --publish`), que depende da `main` verde.
-   - Em aberto: E-03-02 (input + HUD), E-04-02 (`vercel.json`; a CSP e os headers já entraram em 6370507, falta o assert de produção, que depende do bypass do PO), E-05-05 e E-01-06 (o Dependabot já entrou em ff185d9).
-2. Fechar a fase 2: P-04-05 (VFX), P-07-01 (modo demo e `DemoEnd`), P-07-02 (Electron) e P-07-04 (sim com loja e `availableItems`, S2).
+1. Fase 1 fechada: `v0.1.0` publicada. Em aberto: E-03-02 (input + HUD), E-04-02 (o assert de produção depende do bypass do PO) e E-01-06.
+2. Fechar a fase 2: P-07-01 (modo demo e `DemoEnd`), P-07-02 (Electron) e P-07-04 (sim com loja e `availableItems`, S2).
 3. ALPHA em paralelo:
-   - S1: A-02-01 (biomas).
+   - S1: captura determinística do Coveiro, A-02-01 (biomas).
    - S2: A-03-02 (O Forjador) e A-03-03 (roster por round).
-   - Est: R-01-01 (`rc-major` no `tools/release`) e A-07-01 (i18n, com o inventário de chaves do Esp).
+   - Est: integrar o tutorial (A-07-01) e a revisão do copy `en` (B-05-01); A-07-03 pendente só dos testes visuais por tela, que dependem do e2e no CI.
 4. PO: secret `VERCEL_AUTOMATION_BYPASS_SECRET`, E-05-03 (Steamworks), `toktx` e Capacitor (ver Bloqueios).
 
 ## Dívidas e observações
@@ -99,4 +100,5 @@ Fonte: itens `[x]` do ROADMAP em `origin/wip/orq-merge` (6180a55), ordenados pel
 - Dívida operacional (CPU saturada no `pre-push`): ver o parágrafo no topo. Janela de push entre agentes e timeout de 20 s nos testes de simulação e determinismo (a2cdbad); falta dar o mesmo timeout ao oráculo do VAT (`tools/bake-vat/babylon-oracle.test.ts`).
 - `tools/sim` ainda roda sem loja e sem `availableItems` (marcos e exclusivos do Ossuário); o balanceamento simulado ignora o pool real até a P-07-04. O cull de 40 u já entrou no sim (7d89669).
 - Bloqueios do PO ainda abertos que travam o ROADMAP: `toktx` (A-01-02, M-01-04) e Capacitor (B-04-04, M-01-*); ver Bloqueios.
-- `origin/main` (b899d7b) segue vermelha até as baselines do e2e entrarem (Est, baselines finais). Até lá, o trabalho integrado e verificado está em `origin/wip/orq-merge`.
+- Copy `en`: os nomes de dados vêm do id em Title Case, revisados em `feat/A-07-01-tutorial` (armas, chefes, itens com posse); o resto ainda é provisório e passa pela B-05-01.
+- A `wip/orq-merge` deixou de ser o ponto de integração: tudo o que importava está na `main`.
