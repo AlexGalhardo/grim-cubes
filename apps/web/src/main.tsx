@@ -529,6 +529,7 @@ async function boot(): Promise<void> {
 		projectiles.capacity,
 		renderData.vfx.projectileSize,
 	);
+	let frozenAt: number | null = null;
 	const fragmentView = createFragmentRenderer(game, MAX_ENTITIES_FRAGMENTS);
 	const port = createRenderPort(game, horde, { origin, followRate: CAMERA.followRate, vfx });
 	const propTypes: PropTypeDef[] = [];
@@ -879,7 +880,7 @@ async function boot(): Promise<void> {
 			// VFX stop with the world while paused (level-up) so a captured frame is stable.
 			vfx.update(run.state === "Paused" ? 0 : Math.min(0.1, render.engine.getDeltaTime() / 1000));
 			projectileView.sync(world, alpha);
-			fragmentView.sync(world, alpha, performance.now() / 1000);
+			fragmentView.sync(world, alpha, (frozenAt ?? performance.now()) / 1000);
 			hitStop.update();
 			const camera = game.camera;
 			chunkRenderer.updateFade(
@@ -964,7 +965,7 @@ async function boot(): Promise<void> {
 			dropFragments: (count: number) => {
 				for (let i = 0; i < count; i++) {
 					const angle = (i / count) * Math.PI * 2;
-					const radius = 2 + (i % 3);
+					const radius = 4 + (i % 3);
 					dropFragment(
 						world,
 						(Position.x[hero] ?? 0) + Math.cos(angle) * radius,
@@ -986,7 +987,11 @@ async function boot(): Promise<void> {
 				hitStopActive: hitStop.active,
 			}),
 			/** Stops the simulation and the horde clock so the frame can be captured. */
-			freeze: () => run.pause(),
+			freeze: () => {
+				run.pause();
+				loop.pause();
+				frozenAt = performance.now();
+			},
 			saveNotice: () => loaded.notice,
 			heroMaxHp: () => Health.max[hero] ?? 0,
 			difficulty: () => difficultyId,

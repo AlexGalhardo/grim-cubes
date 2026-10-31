@@ -15,7 +15,8 @@ interface DebugWindow {
 }
 
 // Needs a build made with GC_DEBUG_API=1. The round20 bench scenario keeps 100 enemies and ~200 projectiles alive; 50
-// fragment piles are dropped around the hero. Shots and drops must be visible (P-04-06).
+// fragment piles are dropped 4-6 u from the hero, outside its 2.5 u pickup magnet, so none is collected before the
+// count. Shots and drops must be visible (P-04-06).
 test("projectiles and fragment piles are drawn", async ({ page }, testInfo) => {
 	test.slow();
 	await page.goto("/?debug=1&bench=round20");
