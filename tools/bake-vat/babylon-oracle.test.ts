@@ -2,7 +2,7 @@ import "@babylonjs/loaders/glTF/2.0";
 import { FreeCamera } from "@babylonjs/core/Cameras/freeCamera";
 import { NullEngine } from "@babylonjs/core/Engines/nullEngine";
 import { LoadAssetContainerAsync } from "@babylonjs/core/Loading/sceneLoader";
-import { Vector3 } from "@babylonjs/core/Maths/math.vector";
+import { Matrix, Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { Scene } from "@babylonjs/core/scene";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
@@ -34,6 +34,8 @@ describe("bakeVat against the Babylon skeleton", () => {
 			if (!mesh || !skeleton) throw new Error("loader produced no skinned mesh");
 
 			let maxError = 0;
+			let worldError = 0;
+			let moved = false;
 			for (const [clipName, range] of Object.entries(baked.meta.clips)) {
 				const group = container.animationGroups.find((g) => g.name === clipName);
 				const fps = group?.targetedAnimations[0]?.animation.framePerSecond;
@@ -52,10 +54,47 @@ describe("bakeVat against the Babylon skeleton", () => {
 							Math.abs((babylon[i] ?? 0) - (baked.data[row + i] ?? 0)),
 						);
 					}
+
+					// World position of every vertex skinned two ways: with the baked rows and with Babylon's own
+					// skeleton matrices (what a normal skinned mesh renders), both through the mesh world matrix.
+					const bind = mesh.getVerticesData("position") ?? [];
+					const indices = mesh.getVerticesData("matricesIndices") ?? [];
+					const weights = mesh.getVerticesData("matricesWeights") ?? [];
+					const world = mesh.getWorldMatrix();
+					for (let v = 0; v < bind.length / 3; v++) {
+						const p = new Vector3(bind[v * 3], bind[v * 3 + 1], bind[v * 3 + 2]);
+						const viaVat = Vector3.Zero();
+						for (let k = 0; k < 4; k++) {
+							const weight = weights[v * 4 + k] ?? 0;
+							if (weight === 0) continue;
+							const joint = indices[v * 4 + k] ?? 0;
+							const matrix = Matrix.FromArray(
+								Array.from(baked.data.subarray(row + joint * 16, row + joint * 16 + 16)),
+							);
+							viaVat.addInPlace(Vector3.TransformCoordinates(p, matrix).scale(weight));
+						}
+						const viaSkeleton = Vector3.Zero();
+						for (let k = 0; k < 4; k++) {
+							const weight = weights[v * 4 + k] ?? 0;
+							if (weight === 0) continue;
+							const joint = indices[v * 4 + k] ?? 0;
+							const matrix = Matrix.FromArray(
+								Array.from(babylon.subarray(joint * 16, joint * 16 + 16)),
+							);
+							viaSkeleton.addInPlace(Vector3.TransformCoordinates(p, matrix).scale(weight));
+						}
+						const fromVat = Vector3.TransformCoordinates(viaVat, world);
+						const fromSkeleton = Vector3.TransformCoordinates(viaSkeleton, world);
+						worldError = Math.max(worldError, Vector3.Distance(fromVat, fromSkeleton));
+						// The pose must actually move something, otherwise the comparison proves nothing.
+						moved = moved || Vector3.Distance(viaVat, p) > 0.1;
+					}
 					group.stop();
 				}
 			}
 			expect(maxError).toBeLessThan(1e-5);
+			expect(worldError).toBeLessThan(1e-5);
+			expect(moved).toBe(true);
 			scene.dispose();
 			engine.dispose();
 		},
