@@ -2,6 +2,7 @@ import { createKeyMap, createPadMap, createStore } from "@gc/core";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
 import { App, type HudState } from "./App";
+import { announcedSeconds } from "./components/MerchantPrompt/MerchantPrompt";
 
 afterEach(cleanup);
 
@@ -266,7 +267,7 @@ test("the Merchant prompt points toward him, asks to walk while far and offers t
 	const onTalk = vi.fn();
 	render(
 		<App
-			store={createStore({ ...hud(1), merchant: { angle: Math.PI / 2, near: false } })}
+			store={createStore({ ...hud(1), merchant: { angle: Math.PI / 2, near: false, secondsLeft: 12 } })}
 			onMerchantTalk={onTalk}
 		/>,
 	);
@@ -279,7 +280,7 @@ test("the Merchant prompt points toward him, asks to walk while far and offers t
 	cleanup();
 	render(
 		<App
-			store={createStore({ ...hud(1), merchant: { angle: 0, near: true } })}
+			store={createStore({ ...hud(1), merchant: { angle: 0, near: true, secondsLeft: 3 } })}
 			onMerchantTalk={onTalk}
 		/>,
 	);
@@ -292,4 +293,18 @@ test("the Merchant prompt points toward him, asks to walk while far and offers t
 test("no Merchant prompt without a waiting Merchant", () => {
 	render(<App store={createStore(hud(1))} onMerchantTalk={vi.fn()} />);
 	expect(screen.queryByTestId("merchant-prompt")).toBeNull();
+});
+
+test("the Merchant prompt counts down and the screen reader hears it only every 5 seconds", () => {
+	render(
+		<App
+			store={createStore({ ...hud(1), merchant: { angle: 0, near: false, secondsLeft: 12 } })}
+			onMerchantTalk={vi.fn()}
+		/>,
+	);
+	expect(screen.getByTestId("merchant-countdown").textContent).toBe("Loja em 12 s");
+	expect(screen.getByTestId("merchant-announce").textContent).toBe("Loja em 15 s");
+	expect(screen.getByTestId("merchant-announce").getAttribute("aria-live")).toBe("polite");
+	expect(screen.getByTestId("merchant-countdown").getAttribute("aria-hidden")).toBe("true");
+	expect([20, 19, 16, 15, 14, 1, 0].map(announcedSeconds)).toEqual([20, 20, 20, 15, 15, 5, 0]);
 });

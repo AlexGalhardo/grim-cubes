@@ -276,5 +276,6 @@
 	"tip.merchant": "Walk to the Merchant to open the shop.",
 	"merchant.go": "Head to the Merchant",
 	"merchant.talk": "Talk to the Merchant [Enter]",
-	"merchant.arrow": "Merchant direction"
+	"merchant.arrow": "Merchant direction",
+	"merchant.countdown": "Shop in {seconds} s"
 }
