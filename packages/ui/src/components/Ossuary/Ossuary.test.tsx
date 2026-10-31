@@ -47,15 +47,12 @@ test("only available nodes can be bought", () => {
 	expect(a.buy).toHaveBeenCalledWith("flesh_2");
 });
 
-test("tabs switch the visible branch on small screens", () => {
+test("every branch shows at once, linked node to node, with the reset warning", () => {
 	render(<Ossuary view={view} actions={actions()} />);
-	const flesh = screen.getByTestId("ossuary-branch-flesh");
-	const steel = screen.getByTestId("ossuary-branch-steel");
-	expect(flesh.className).not.toContain("hidden");
-	expect(steel.className).toContain("hidden");
-	fireEvent.click(screen.getByRole("tab", { name: "Aço" }));
-	expect(screen.getByTestId("ossuary-branch-steel").className).not.toContain("hidden");
-	expect(screen.getByTestId("ossuary-branch-flesh").className).toContain("hidden");
+	for (const branch of view.branches)
+		expect(screen.getByTestId(`ossuary-branch-${branch.id}`)).toBeTruthy();
+	expect(screen.queryByRole("tab")).toBeNull();
+	expect(screen.getByText(/Devolve/)).toBeTruthy();
 });
 
 test("reset and close call their actions; reset is off with nothing to refund", () => {

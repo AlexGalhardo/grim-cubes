@@ -1417,6 +1417,7 @@ async function boot(): Promise<void> {
 			branches: ossuaryData.branches.map((branch) => ({
 				id: branch.id,
 				name: t(`branch.${branch.id}`),
+				theme: t(`branchTheme.${branch.id}`),
 				nodes: branch.nodes.map((node) => ({
 					id: node.id,
 					lines: [
