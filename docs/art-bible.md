@@ -93,10 +93,13 @@ Cor do fog por bioma (`fogColor` em `data/biomes.json`): Cemitério Afundado `#1
 | Chefe | sempre com 1 acento Brasa clara + escala | igual |
 | Fragmento (XP+ouro) | Brasa clara `#F5B04A`, emissivo | igual |
 | Cura / consumível | Verde-cova claro `#7FBF6A` | azul `#5A9BD5` |
-| Raridade Comum | Osso `#D9C9A3` | igual |
-| Raridade Incomum | Lodo `#6B8F3A` | azul `#5A9BD5` |
-| Raridade Rara | Azul-frio `#4C7FB8` | laranja `#E07A2A` |
-| Raridade Lendária | Sangue claro `#8E1A1F` | magenta `#C04A9E` |
+| Raridade 1, Normal | Osso `#D9C9A3` (token `rarity-1`) | igual, forma ● |
+| Raridade 2, Rara | Azul-frio `#4C7FB8` (`rarity-2`) | azul `#5A9BD5`, forma ◆ |
+| Raridade 3, Épica | Roxo `#7A4FB8` (`rarity-3`) | magenta `#C04A9E`, forma ▲ |
+| Raridade 4, Lendária | Brasa `#E07A2A` (`rarity-4`) | laranja `#E07A2A`, forma ★ |
+| Raridade 5, Mítica | Amarelo `#F5D04A` (`rarity-5`) | igual, forma ✦ |
+
+As cinco raridades (decisão do PO, 2026-10-31) usam os tokens `rarity-1..5` de `packages/ui/src/theme.css`. No modo daltônico a cor sozinha não basta: cada raridade ganha uma forma ao lado do nome (`.rarity-mark`).
 | Dano recebido (UI) | Sangue claro | igual + ícone |
 | Perigo telegrafado (chão) | Sangue claro a 60% de opacidade | igual + hachura |
 

@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **ui:** Five rarities in the UI: Normal (bone), Rare (blue), Epic (purple), Legendary (orange) and Mythic (yellow) with `rarity-1..5` tokens and a distinct shape for each in colour-blind mode (Art Bible 3.3, GDD 15.1)
 - **game:** The `pull_fragments` item effect (XP magnet): every N seconds of fighting the fragments on the floor fly to the hero, more often with more copies
 - **ui:** Main menu over the painted key art (`public/menu/menu-1.webp`), with the buttons on its dark left side
 - **ui:** ARPG shop from the PO mockup: hero panel (painted portrait, level, XP, HP, round, gold, souls), weapon, an inventory grid of owned items with counts, all stats in two columns with a before → after preview of the hovered offer, and the Merchant's portrait and a line above four offers in two columns
