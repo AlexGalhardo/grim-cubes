@@ -24,6 +24,7 @@ test("event buffer drops the oldest events and drains in order", () => {
 	const seen: number[] = [];
 	consumeEvents(events, (_t, a) => seen.push(a));
 	expect(seen).toEqual([3, 4, 5]);
+	expect(events.dropped).toBe(2);
 	expect(events.size).toBe(0);
 });
 

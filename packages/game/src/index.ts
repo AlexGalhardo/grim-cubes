@@ -1,6 +1,12 @@
 export {
+	Armor,
+	Boss,
+	Elite,
 	EnemyFaction,
 	Health,
+	HitFlash,
+	Invulnerable,
+	Knockback,
 	MAX_ENTITIES,
 	PlayerFaction,
 	Position,
@@ -15,6 +21,16 @@ export type { GameWorld } from "./ecs/world";
 export { createGameWorld, spawn, spawnBody } from "./ecs/world";
 export type { Loop, LoopHooks } from "./loop";
 export { createLoop, MAX_STEPS, STEP } from "./loop";
+export type { DamageConfig, HeroCombatData, LifeStealLimiter } from "./rules/damage";
+export {
+	armorMultiplier,
+	createLifeStealLimiter,
+	damageConfigFromHero,
+	effectiveDodge,
+	knockbackScale,
+} from "./rules/damage";
+export type { DamageQueue, DamageSystem, DamageSystemDeps, HeroCombatStats } from "./systems/damage";
+export { createDamageSystem, DAMAGE_QUEUE_CAPACITY } from "./systems/damage";
 export type { ChunkData, ChunkGenerator, ChunkStats, ChunkSystem, WorldConfig } from "./world/chunkSystem";
 export { createChunkSystem } from "./world/chunkSystem";
 export type { Origin, OriginShiftConfig } from "./world/originShift";

@@ -1,8 +1,13 @@
 export const EventType = {
+	/** a = amount, b = 1 when critical, entity = target. */
 	Damaged: 1,
 	Died: 2,
 	/** a = dx, b = dz: the world origin moved; Position and PrevPosition were already shifted by (-dx, -dz). */
 	OriginShifted: 3,
+	/** The hero evaded a hit. */
+	Dodged: 4,
+	/** a = amount taken by the hero. */
+	PlayerHit: 5,
 } as const;
 
 export const EVENT_CAPACITY = 1024;
@@ -15,6 +20,8 @@ export interface EventBuffer {
 	/** Visits events oldest to newest, then empties the buffer. Allocates nothing. */
 	consume(visit: EventVisitor): void;
 	readonly size: number;
+	/** Events overwritten before being consumed, since creation (SDD 02 section 4). */
+	readonly dropped: number;
 }
 
 export function createEventBuffer(capacity = EVENT_CAPACITY): EventBuffer {
@@ -25,6 +32,7 @@ export function createEventBuffer(capacity = EVENT_CAPACITY): EventBuffer {
 	const entity = new Uint16Array(capacity);
 	let head = 0;
 	let size = 0;
+	let dropped = 0;
 
 	return {
 		push(t, ea, eb, ec, e): void {
@@ -35,7 +43,10 @@ export function createEventBuffer(capacity = EVENT_CAPACITY): EventBuffer {
 			c[slot] = ec;
 			entity[slot] = e;
 			if (size < capacity) size++;
-			else head = (head + 1) % capacity;
+			else {
+				head = (head + 1) % capacity;
+				dropped++;
+			}
 		},
 		consume(visit): void {
 			for (let i = 0; i < size; i++) {
@@ -47,6 +58,9 @@ export function createEventBuffer(capacity = EVENT_CAPACITY): EventBuffer {
 		},
 		get size(): number {
 			return size;
+		},
+		get dropped(): number {
+			return dropped;
 		},
 	};
 }

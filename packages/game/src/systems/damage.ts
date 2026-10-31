@@ -1,0 +1,143 @@
+import { hasComponent } from "bitecs";
+import { Armor, Boss, Elite, Health, HitFlash, Invulnerable, Knockback } from "../ecs/components";
+import { type EventBuffer, EventType } from "../ecs/events";
+import type { GameWorld } from "../ecs/world";
+import { STEP } from "../loop";
+import {
+	armorMultiplier,
+	createLifeStealLimiter,
+	type DamageConfig,
+	effectiveDodge,
+	knockbackScale,
+} from "../rules/damage";
+
+export const DAMAGE_QUEUE_CAPACITY = 1024;
+
+/** SoA queue, filled by weapon/projectile/contact systems and drained by `damageSystem` each step. */
+export interface DamageQueue {
+	/**
+	 * `amount` is the pre-crit, pre-armor damage (weapon x damage% x bonus vs type).
+	 * `critChance` is rolled by the system; use 0 for enemy attacks on the hero.
+	 * Returns false (and counts a drop) when the queue is full.
+	 */
+	push(
+		target: number,
+		amount: number,
+		source: number,
+		critChance: number,
+		knockbackX: number,
+		knockbackZ: number,
+	): boolean;
+	readonly size: number;
+	readonly dropped: number;
+}
+
+/** Mutable object owned by statsSystem; read by reference every step. */
+export interface HeroCombatStats {
+	armor: number;
+	dodge: number;
+	critMult: number;
+	/** Fraction of damage dealt returned as HP (0.02 = 2%). */
+	lifeSteal: number;
+}
+
+export interface DamageSystemDeps {
+	config: DamageConfig;
+	rng: { dodge: { next(): number }; combat: { next(): number } };
+	events: EventBuffer;
+	hero: number;
+	stats: HeroCombatStats;
+}
+
+export interface DamageSystem {
+	readonly queue: DamageQueue;
+	run(world: GameWorld): void;
+}
+
+export function createDamageSystem(deps: DamageSystemDeps): DamageSystem {
+	const { config, rng, events, hero, stats } = deps;
+	const target = new Uint16Array(DAMAGE_QUEUE_CAPACITY);
+	const amount = new Float32Array(DAMAGE_QUEUE_CAPACITY);
+	const critChance = new Float32Array(DAMAGE_QUEUE_CAPACITY);
+	const kbX = new Float32Array(DAMAGE_QUEUE_CAPACITY);
+	const kbZ = new Float32Array(DAMAGE_QUEUE_CAPACITY);
+	let size = 0;
+	let dropped = 0;
+
+	const iFrameTicks = Math.round(config.iFramesOnHitSeconds / STEP);
+	const knockbackTicks = Math.round(config.knockbackDurationSeconds / STEP);
+	const lifeSteal = createLifeStealLimiter(config, STEP);
+
+	const queue: DamageQueue = {
+		push(t, a, _source, c, x, z): boolean {
+			if (size === DAMAGE_QUEUE_CAPACITY) {
+				dropped++;
+				return false;
+			}
+			target[size] = t;
+			amount[size] = a;
+			critChance[size] = c;
+			kbX[size] = x;
+			kbZ[size] = z;
+			size++;
+			return true;
+		},
+		get size(): number {
+			return size;
+		},
+		get dropped(): number {
+			return dropped;
+		},
+	};
+
+	function hitHero(i: number): void {
+		if ((Invulnerable.ticks[hero] ?? 0) > 0) return;
+		if (rng.dodge.next() < effectiveDodge(stats.dodge, config.dodgeCap)) {
+			events.push(EventType.Dodged, 0, 0, 0, hero);
+			return;
+		}
+		const taken = (amount[i] ?? 0) * armorMultiplier(stats.armor, config.armorConstant);
+		Health.hp[hero] = (Health.hp[hero] ?? 0) - taken;
+		Invulnerable.ticks[hero] = iFrameTicks;
+		events.push(EventType.PlayerHit, taken, 0, 0, hero);
+		if ((Health.hp[hero] ?? 0) <= 0) events.push(EventType.Died, 0, 0, 0, hero);
+	}
+
+	function hitEnemy(world: GameWorld, i: number, eid: number): void {
+		if ((Health.hp[eid] ?? 0) <= 0) return;
+		const crit = rng.combat.next() < (critChance[i] ?? 0);
+		const raw = (amount[i] ?? 0) * (crit ? stats.critMult : 1);
+		const dealt = raw * armorMultiplier(Armor.value[eid] ?? 0, config.armorConstant);
+		Health.hp[eid] = (Health.hp[eid] ?? 0) - dealt;
+		HitFlash.ticks[eid] = 2;
+
+		const scale = knockbackScale(config, hasComponent(world, eid, Boss), hasComponent(world, eid, Elite));
+		Knockback.x[eid] = (kbX[i] ?? 0) * scale;
+		Knockback.z[eid] = (kbZ[i] ?? 0) * scale;
+		Knockback.ticks[eid] = knockbackTicks;
+
+		lifeSteal.add(dealt * stats.lifeSteal);
+		events.push(EventType.Damaged, dealt, crit ? 1 : 0, 0, eid);
+		if ((Health.hp[eid] ?? 0) <= 0) events.push(EventType.Died, 0, 0, 0, eid);
+	}
+
+	return {
+		queue,
+		run(world: GameWorld): void {
+			const ticks = Invulnerable.ticks[hero] ?? 0;
+			if (ticks > 0) Invulnerable.ticks[hero] = ticks - 1;
+
+			for (let i = 0; i < size; i++) {
+				const eid = target[i] ?? 0;
+				if (eid === hero) hitHero(i);
+				else hitEnemy(world, i, eid);
+			}
+			size = 0;
+
+			const heal = lifeSteal.step();
+			if (heal > 0 && (Health.hp[hero] ?? 0) > 0) {
+				Health.hp[hero] = Math.min((Health.hp[hero] ?? 0) + heal, Health.max[hero] ?? 0);
+			}
+		},
+	};
+}

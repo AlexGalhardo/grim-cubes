@@ -11,3 +11,11 @@ export const Health = { hp: f32(), max: f32() };
 
 export const PlayerFaction = {};
 export const EnemyFaction = {};
+
+export const Armor = { value: f32() };
+export const Invulnerable = { ticks: new Uint8Array(MAX_ENTITIES) };
+export const HitFlash = { ticks: new Uint8Array(MAX_ENTITIES) };
+/** x, z: total displacement in u to apply over `ticks` steps (movementSystem). */
+export const Knockback = { x: f32(), z: f32(), ticks: new Uint8Array(MAX_ENTITIES) };
+export const Elite = { modifier: new Uint8Array(MAX_ENTITIES) };
+export const Boss = { id: new Uint8Array(MAX_ENTITIES) };
