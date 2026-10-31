@@ -44,6 +44,8 @@ export interface HordeOptions {
 	 * Elite look: instance scale for entities with `Elite` and a tint per modifier (`Elite.modifier` is 1-based, so
 	 * `tints[modifier - 1]`). Needs the colour buffer, so it enables it like `flashBrightness`.
 	 */
+	/** Vertical scale of an enemy in its hit clip (a squash that reads as a knockback shove); 1 = none. */
+	hitSquash?: number;
 	boss?: { scale: number; enrageTint: readonly [number, number, number] };
 	elite?: { scale: number; tints: readonly (readonly [number, number, number])[] };
 }
@@ -145,6 +147,7 @@ export function createHordeRenderer(types: readonly HordeType[], options: HordeO
 		offset: number,
 		speed: number,
 		scale = 1,
+		squash = 1,
 	): void {
 		const m = matrices[t];
 		const s = settings[t];
@@ -155,7 +158,7 @@ export function createHordeRenderer(types: readonly HordeType[], options: HordeO
 		const s2 = Math.sin(local);
 		m[n * 16] = c * scale;
 		m[n * 16 + 2] = -s2 * scale;
-		m[n * 16 + 5] = scale;
+		m[n * 16 + 5] = scale * squash;
 		m[n * 16 + 8] = s2 * scale;
 		m[n * 16 + 10] = c * scale;
 		m[n * 16 + 12] = toLoaderLocalX(x);
@@ -235,10 +238,21 @@ export function createHordeRenderer(types: readonly HordeType[], options: HordeO
 					const speed =
 						Math.hypot(Velocity.x[eid] ?? 0, Velocity.z[eid] ?? 0) /
 						(types[t]?.walkRefSpeed || 1);
-					write(t, n, x, z, yaw, CLIP_WALK, walkOffset[eid] ?? 0, (fps[t] ?? 12) * speed, scale);
+					write(t, n, x, z, yaw, CLIP_WALK, walkOffset[eid] ?? 0, (fps[t] ?? 12) * speed, scale, 1);
 				} else {
 					const clip = next === STATE_HIT ? CLIP_HIT : CLIP_ATTACK;
-					write(t, n, x, z, yaw, clip, oneShotFrame(t, clip, stateStart[eid] ?? 0), 0, scale);
+					write(
+						t,
+						n,
+						x,
+						z,
+						yaw,
+						clip,
+						oneShotFrame(t, clip, stateStart[eid] ?? 0),
+						0,
+						scale,
+						next === STATE_HIT ? (options.hitSquash ?? 1) : 1,
+					);
 				}
 			}
 

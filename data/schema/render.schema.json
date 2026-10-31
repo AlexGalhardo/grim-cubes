@@ -104,7 +104,16 @@
 				"projectileSize",
 				"bossScale",
 				"bossEnrageTint",
-				"enemyShotSize"
+				"enemyShotSize",
+				"shakeHeroHit",
+				"shakeExplosion",
+				"shakeBossDeath",
+				"shakeSeconds",
+				"vignetteHit",
+				"vignetteSeconds",
+				"vignetteLowHpBelow",
+				"vignetteLowHpMax",
+				"hitSquash"
 			],
 			"properties": {
 				"particlePool": {
@@ -176,7 +185,16 @@
 					"minItems": 3,
 					"maxItems": 3
 				},
-				"enemyShotSize": { "type": "number", "exclusiveMinimum": 0 }
+				"enemyShotSize": { "type": "number", "exclusiveMinimum": 0 },
+				"shakeHeroHit": { "type": "number", "minimum": 0 },
+				"shakeExplosion": { "type": "number", "minimum": 0 },
+				"shakeBossDeath": { "type": "number", "minimum": 0 },
+				"shakeSeconds": { "type": "number", "minimum": 0 },
+				"vignetteHit": { "type": "number", "minimum": 0 },
+				"vignetteSeconds": { "type": "number", "minimum": 0 },
+				"vignetteLowHpBelow": { "type": "number", "minimum": 0 },
+				"vignetteLowHpMax": { "type": "number", "minimum": 0 },
+				"hitSquash": { "type": "number", "minimum": 0 }
 			}
 		}
 	}

@@ -451,6 +451,7 @@ async function boot(): Promise<void> {
 		notice: loaded.notice,
 		boss: null,
 		bossIntro: null,
+		vignette: 0,
 		ossuary: null,
 		difficulty: null,
 		dash: null,
@@ -550,6 +551,7 @@ async function boot(): Promise<void> {
 						deltaSeconds: () =>
 							run.state === "Paused" ? 0 : render.engine.getDeltaTime() / 1000,
 						flashBrightness: renderData.vfx.flashBrightness,
+						hitSquash: renderData.vfx.hitSquash,
 						boss: {
 							scale: renderData.vfx.bossScale,
 							enrageTint: renderData.vfx.bossEnrageTint as [number, number, number],
@@ -570,6 +572,8 @@ async function boot(): Promise<void> {
 	const vfx = createVfx(game, {
 		onHitStop: (ms) => hitStop.request(ms),
 		// Elites get the long hit-stop of a boss kill too (GDD section 23).
+		isHero: (entity) => entity === hero,
+		heroHealth: () => (Health.hp[hero] ?? 0) / Math.max(1, Health.max[hero] ?? 1),
 		isBoss: (entity) => (Boss.id[entity] ?? 0) > 0 || (Elite.modifier[entity] ?? 0) > 0,
 	});
 	const projectileView = createProjectileRenderer(
@@ -821,6 +825,7 @@ async function boot(): Promise<void> {
 						recharge: Math.floor(dash.recharge * 20) / 20,
 					}
 				: null,
+			vignette: Math.round(vfx.vignette * 20) / 20,
 		};
 		const cur = hud.get();
 		if (
@@ -840,6 +845,7 @@ async function boot(): Promise<void> {
 			next.difficulty !== null ||
 			next.ossuary !== null ||
 			cur.bossIntro !== next.bossIntro ||
+			cur.vignette !== next.vignette ||
 			cur.shop !== next.shop ||
 			cur.results !== next.results
 		) {
@@ -1044,6 +1050,19 @@ async function boot(): Promise<void> {
 			},
 			minPropAlpha: () => chunkRenderer.minAlpha(),
 			setGore: (full: boolean) => vfx.setGore(full),
+			/** Fires `count` enemy deaths on a ring around the hero (gore comparison capture, P-04-05). */
+			killRing: (count: number) => {
+				const x = Position.x[hero] ?? 0;
+				const z = Position.z[hero] ?? 0;
+				for (let i = 0; i < count; i++) {
+					const angle = (i / count) * Math.PI * 2;
+					Position.x[hero] = x + Math.cos(angle) * 5;
+					Position.z[hero] = z + Math.sin(angle) * 5;
+					vfx.onEvent(EventType.Died, 0, 0, 0, hero);
+				}
+				Position.x[hero] = x;
+				Position.z[hero] = z;
+			},
 			/** Drops `count` fragment piles in a ring around the hero (P-04-06 capture). */
 			dropFragments: (count: number) => {
 				for (let i = 0; i < count; i++) {

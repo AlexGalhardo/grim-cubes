@@ -136,6 +136,15 @@ export interface RenderData {
 		bossScale: number;
 		bossEnrageTint: number[];
 		enemyShotSize: number;
+		shakeHeroHit: number;
+		shakeExplosion: number;
+		shakeBossDeath: number;
+		shakeSeconds: number;
+		vignetteHit: number;
+		vignetteSeconds: number;
+		vignetteLowHpBelow: number;
+		vignetteLowHpMax: number;
+		hitSquash: number;
 	};
 	propFade: {
 		minHeight: number;

@@ -39,6 +39,10 @@ export interface VfxOptions {
 	onHitStop?: (ms: number) => void;
 	/** Whether a dying entity is a boss, for the longer hit-stop. */
 	isBoss?: (entity: number) => boolean;
+	/** Whether a damaged entity is the hero: drives the hit vignette and the camera shake. */
+	isHero?: (entity: number) => boolean;
+	/** Hero HP as a fraction of the maximum, for the low-HP vignette. */
+	heroHealth?: () => number;
 	seed?: number;
 }
 
@@ -54,6 +58,10 @@ export interface Vfx {
 	readonly decals: DecalPool;
 	readonly numbers: DamageNumbers;
 	readonly telegraph: Telegraph;
+	/** Red edge vignette strength 0..1 (hit pulse plus low-HP warning), for the HUD. */
+	readonly vignette: number;
+	/** Camera shake in progress: remaining strength 0..1 of the last trigger. */
+	readonly shaking: boolean;
 }
 
 /**
@@ -87,6 +95,16 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 
 	const telegraph = createTelegraph(game);
 	// Execution of a boss (BossDied): a few bursts spread over EXECUTION_SECONDS while the death clip plays.
+	let pulse = 0;
+	let shakeAmplitude = 0;
+	let shakeLeft = 0;
+	let clock = 0;
+	const shake = (amplitude: number): void => {
+		if (amplitude >= shakeAmplitude * (shakeLeft / config.shakeSeconds)) {
+			shakeAmplitude = amplitude;
+			shakeLeft = config.shakeSeconds;
+		}
+	};
 	let executionLeft = 0;
 	let executionX = 0;
 	let executionZ = 0;
@@ -157,6 +175,17 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 		get gore(): boolean {
 			return gore;
 		},
+		get vignette(): number {
+			const ratio = options.heroHealth?.() ?? 1;
+			const low =
+				ratio < config.vignetteLowHpBelow
+					? config.vignetteLowHpMax * (1 - ratio / config.vignetteLowHpBelow)
+					: 0;
+			return Math.min(1, Math.max(pulse, low));
+		},
+		get shaking(): boolean {
+			return shakeLeft > 0;
+		},
 		setGore(full): void {
 			gore = full;
 			if (!full) decals.clear();
@@ -168,6 +197,10 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 				numbers.spawn(a, x, z, b === 1);
 				burst(x, z, count(config.bloodCubesPerHit), bloodColors(), 4, 5, gore);
 				if (b === 1) options.onHitStop?.(config.hitStopCritMs);
+				if (options.isHero?.(entity)) {
+					pulse = config.vignetteHit;
+					shake(config.shakeHeroHit);
+				}
 			} else if (type === EventType.Died) {
 				// b = 1: purged at round end, nothing to see.
 				if (b === 1) return;
@@ -179,7 +212,10 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 				} else {
 					burst(x, z, config.reducedDeathCubes, reducedCubeOnly, 4, 4, false);
 				}
-				if (options.isBoss?.(entity)) options.onHitStop?.(config.hitStopBossDeathMs);
+				if (options.isBoss?.(entity)) {
+					options.onHitStop?.(config.hitStopBossDeathMs);
+					shake(config.shakeBossDeath);
+				}
 			} else if (type === EventType.BossTelegraph) {
 				// The event carries no pattern id: the shovel (maxDistance 3.5) only starts next to the hero, the charge
 				// (minDistance 5) only from afar.
@@ -202,6 +238,7 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 				executionNext = 0;
 			} else if (type === EventType.Exploded) {
 				burst(a, b, count(config.explosionCubes), explosionColors, 3 + c, 7, false);
+				shake(config.shakeExplosion);
 			}
 		},
 		update(dt): void {
@@ -223,6 +260,17 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 				}
 			}
 			telegraph.update(dt);
+			pulse = Math.max(0, pulse - (config.vignetteHit / config.vignetteSeconds) * dt);
+			clock += dt;
+			const offset = game.camera.targetScreenOffset;
+			if (shakeLeft > 0) {
+				shakeLeft = Math.max(0, shakeLeft - dt);
+				const strength = shakeAmplitude * (shakeLeft / config.shakeSeconds);
+				offset.x = Math.sin(clock * 83) * strength;
+				offset.y = Math.cos(clock * 71) * strength;
+			} else if (offset.x !== 0 || offset.y !== 0) {
+				offset.x = offset.y = 0;
+			}
 			particles.update(dt);
 			numbers.update(dt);
 		},

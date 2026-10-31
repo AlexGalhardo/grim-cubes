@@ -46,6 +46,8 @@ export interface HudState {
 	dash: DashView | null;
 	/** Boss name during the 3 s intro; null otherwise. */
 	bossIntro: string | null;
+	/** Red edge vignette strength, 0 (hidden) to 1: a hit pulse and the low-HP warning. */
+	vignette: number;
 }
 
 export interface AppProps {
@@ -102,6 +104,13 @@ export function App({
 			{hud.boss ? <BossBar boss={hud.boss} /> : null}
 			{hud.bossIntro ? <BossIntro name={hud.bossIntro} /> : null}
 			{hud.notice ? <Notice notice={hud.notice} /> : null}
+			{hud.vignette > 0 ? (
+				<div
+					className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_55%,var(--color-blood-light)_100%)]"
+					style={{ opacity: hud.vignette }}
+					data-testid="hud-vignette"
+				/>
+			) : null}
 			{stick ? <VirtualJoystick stick={stick} /> : null}
 			{stick && hud.dash && onDashHold ? <DashButton view={hud.dash} onHold={onDashHold} /> : null}
 		</div>

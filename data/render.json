@@ -38,6 +38,15 @@
 		"projectileSize": 0.2,
 		"bossScale": 2.2,
 		"bossEnrageTint": [1.7, 0.5, 0.5],
-		"enemyShotSize": 0.25
+		"enemyShotSize": 0.25,
+		"shakeHeroHit": 0.3,
+		"shakeExplosion": 0.2,
+		"shakeBossDeath": 0.8,
+		"shakeSeconds": 0.25,
+		"vignetteHit": 0.6,
+		"vignetteSeconds": 0.35,
+		"vignetteLowHpBelow": 0.3,
+		"vignetteLowHpMax": 0.4,
+		"hitSquash": 0.85
 	}
 }

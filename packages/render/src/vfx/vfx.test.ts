@@ -423,3 +423,24 @@ describe("enemy shot renderer", () => {
 		dispose();
 	});
 });
+
+describe("vignette and shake", () => {
+	it("pulses on a hero hit and decays; warns at low HP; shakes the camera and settles", () => {
+		let health = 1;
+		const { game, vfx, world, dispose } = setup({ isHero: () => true, heroHealth: () => health });
+		const hero = spawnBody(world, 0, 0);
+		expect(vfx.vignette).toBe(0);
+		vfx.onEvent(EventType.Damaged, 10, 0, 0, hero);
+		expect(vfx.vignette).toBeCloseTo(config.vignetteHit, 5);
+		expect(vfx.shaking).toBe(true);
+		vfx.update(0.05);
+		expect(game.camera.targetScreenOffset.x !== 0 || game.camera.targetScreenOffset.y !== 0).toBe(true);
+		for (let i = 0; i < 60; i++) vfx.update(1 / 60);
+		expect(vfx.vignette).toBe(0);
+		expect(vfx.shaking).toBe(false);
+		expect(Math.abs(game.camera.targetScreenOffset.x)).toBe(0);
+		health = 0.1;
+		expect(vfx.vignette).toBeGreaterThan(0);
+		dispose();
+	});
+});
