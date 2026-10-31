@@ -43,14 +43,14 @@ export function spawnBody(world: GameWorld, x: number, z: number): number {
  * The returned function applies pending removals and yields the live dense array (do not mutate).
  */
 export function createQueryCache(terms: QueryTerm[]): (world: GameWorld) => readonly number[] {
-	let owner: GameWorld | null = null;
-	let registered: Query | null = null;
+	const byWorld = new WeakMap<GameWorld, Query>();
 	return (world) => {
-		if (registered === null || owner !== world) {
-			owner = world;
-			registered = registerQuery(world, terms);
+		let query = byWorld.get(world);
+		if (!query) {
+			query = registerQuery(world, terms);
+			byWorld.set(world, query);
 		}
 		commitRemovals(world);
-		return registered.dense as readonly number[];
+		return query.dense as readonly number[];
 	};
 }
