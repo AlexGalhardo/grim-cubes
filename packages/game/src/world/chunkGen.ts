@@ -1,5 +1,6 @@
 import { hash32x3 } from "@gc/core";
 import { createNoise2D } from "simplex-noise";
+import { createBiomeMap } from "./biome";
 import type { ChunkData, ChunkGenerator } from "./chunkSystem";
 
 export const PROP_KIND = { blocking: 0, decor: 1, breakable: 2 } as const;
@@ -63,6 +64,15 @@ export function createChunkGenerator(
 
 	const propTypes: string[] = [];
 	const idOf = new Map<string, number>();
+	const map = createBiomeMap(
+		biomes,
+		defined.map((entry) => entry.index),
+	);
+	// Biome list index -> position in `defined`, so picking a chunk biome allocates nothing.
+	const positionOf: number[] = [];
+	defined.forEach((entry, position) => {
+		positionOf[entry.index] = position;
+	});
 	const lists = defined.map(({ biome }) => {
 		const ids = (names: readonly string[]): Uint8Array => {
 			const out = new Uint8Array(names.length);
@@ -109,14 +119,7 @@ export function createChunkGenerator(
 	}
 
 	function biomeIndex(cx: number, cz: number): number {
-		const x = (cx + 0.5) * chunkSize;
-		const z = (cz + 0.5) * chunkSize;
-		const distance = Math.hypot(x, z);
-		let chosen = 0;
-		for (let i = 0; i < defined.length; i++) {
-			if ((defined[i]?.biome.minDistance ?? 0) <= distance) chosen = i;
-		}
-		return chosen;
+		return positionOf[map.chunkBiome(cx, cz, chunkSize, seedRun)] ?? 0;
 	}
 
 	/** Orders the 16 cells by descending noise (insertion sort in preallocated arrays). */

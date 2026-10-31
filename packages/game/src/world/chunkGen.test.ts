@@ -124,9 +124,9 @@ describe("generateChunk", () => {
 		expect(violations).toEqual({ count: 0, bounds: 0, cell: 0, spawn: 0, corridor: 0 });
 	});
 
-	it("falls back to the last defined biome beyond its maxDistance", () => {
+	it("picks the outermost biome beyond every ring and the cemetery at the spawn", () => {
 		expect(gen.biomeIndex(0, 0)).toBe(0);
-		expect(gen.biomeIndex(100, -100)).toBe(0);
+		expect(gen.biomeIndex(100, -100)).toBe(biomes.length - 1);
 		const chunk = blank();
 		gen.generate(100, -100, chunk);
 		expect(chunk.propCount).toBeGreaterThanOrEqual(11);
