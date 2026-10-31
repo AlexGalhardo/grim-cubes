@@ -46,7 +46,7 @@
 		"id": "swamp_matriarch",
 		"name": "A Matriarca do Pântano",
 		"round": 20,
-		"hpBaseRound10": 11000,
+		"hpBaseRound10": 12500,
 		"archetype": "summoner",
 		"delivery": "ALPHA",
 		"patterns": [
@@ -94,7 +94,7 @@
 		"id": "forgemaster",
 		"name": "O Forjador",
 		"round": 30,
-		"hpBaseRound10": 10000,
+		"hpBaseRound10": 15000,
 		"archetype": "area_projectiles",
 		"delivery": "ALPHA",
 		"patterns": [

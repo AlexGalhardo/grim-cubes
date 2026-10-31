@@ -284,20 +284,20 @@ velocidade: constante por tipo (não escala)
 
 Multiplicador de dificuldade (D13) aplicado ao final: Normal ×1,0; Grim ×1,25; Nightmare ×1,5.
 
-Balanceamento A-02-03 (2026-10-31): os valores da tabela abaixo saíram do simulador (`bun run sim`, bot greedy, relatório em `reports/`): o dano base caiu para ~20% e o crescimento por round para ~160% do proposto antes, e o HP por round subiu 50%, porque com os números antigos o herói simulado morria no round 8–10 (Coveiro em 15 s, p50 de morte 8). Os números continuam só em `data/enemies.json`.
+Balanceamento A-02-03 (2026-10-31): os valores da tabela abaixo saíram do simulador (`bun run sim`, bot greedy, relatório em `reports/`): o dano base caiu para ~20% e o crescimento de dano por round para ~172% do proposto antes (1,6 × 1,15 × 0,94) e o HP por round para ~162% (1,5 × 1,15 × 0,94; as passadas seguintes compensaram o Frasco de Sangue e os breakables da A-02-04 e o preço dos itens), porque com os números antigos o herói simulado morria no round 8–10 (Coveiro em 15 s, p50 de morte 8). Os números continuam só em `data/enemies.json`.
 
 ### 10.2 Roster da 1.0 (8 tipos)
 
 | ID | Nome | Bioma | HP base | HP/round | Dano base | Dano/round | Vel. (u/s) | Comportamento | Fragmentos |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `husk` | Carcaça | 0 | 8 | +6 | 0,6 | +0,96 | 3,5 | persegue em linha reta | 1 |
-| `wail` | Lamento | 0 | 4 | +3 | 0,4 | +0,64 | 5,5 | rápido, zigue-zague | 1 |
-| `drowned` | Afogado | 1 | 20 | +13,5 | 1 | +1,44 | 2,8 | lento, tanque, empurra | 2 |
-| `leech` | Sanguessuga | 1 | 6 | +4,5 | 0,4 | +0,8 | 4,5 | gruda e drena 1 HP/s | 1 |
-| `forged` | Forjado | 2 | 35 | +21 | 1,4 | +1,76 | 3,0 | armadura 10 (reduz dano) | 3 |
-| `watcher` | Vigia | 2 | 12 | +7,5 | 0,8 | +1,28 | 0 (fixo) | atira projétil lento a 10 u | 2 |
-| `hunter` | Caçador | 3 | 18 | +12 | 1,2 | +1,6 | 6,5 | investida a cada 3 s | 2 |
-| `breeder` | Reprodutor | 3 | 40 | +24 | 0 | 0 | 2,0 | solta 1 Lamento a cada 4 s | 4 |
+| `husk` | Carcaça | 0 | 8 | +6,45 | 0,6 | +1,03 | 3,5 | persegue em linha reta | 1 |
+| `wail` | Lamento | 0 | 4 | +3,22 | 0,4 | +0,69 | 5,5 | rápido, zigue-zague | 1 |
+| `drowned` | Afogado | 1 | 20 | +14,5 | 1 | +1,55 | 2,8 | lento, tanque, empurra | 2 |
+| `leech` | Sanguessuga | 1 | 6 | +4,84 | 0,4 | +0,86 | 4,5 | gruda e drena 1 HP/s | 1 |
+| `forged` | Forjado | 2 | 35 | +22,57 | 1,4 | +1,89 | 3,0 | armadura 10 (reduz dano) | 3 |
+| `watcher` | Vigia | 2 | 12 | +8,07 | 0,8 | +1,37 | 0 (fixo) | atira projétil lento a 10 u | 2 |
+| `hunter` | Caçador | 3 | 18 | +12,9 | 1,2 | +1,72 | 6,5 | investida a cada 3 s | 2 |
+| `breeder` | Reprodutor | 3 | 40 | +25,79 | 0 | 0 | 2,0 | solta 1 Lamento a cada 4 s | 4 |
 
 Regra de mistura: um round usa 60% inimigos do bioma atual, 30% do anterior, 10% do próximo (se existir). No anel 0 não há "anterior": 80/20.
 
@@ -338,8 +338,8 @@ Decisão D02: roster de 3–5 chefes únicos; ordem fixa até o round 50; depois
 | Round | Chefe | Fase de entrega | Arquétipo | HP base (round 10) | Padrões |
 | --- | --- | --- | --- | --- | --- |
 | 10 | O Coveiro | PROTÓTIPO | tanque lento com investida | 4.800 | investida em linha (telegrafada 1 s), golpe de pá em arco, invoca 6 Carcaças a 50% HP |
-| 20 | A Matriarca do Pântano | ALPHA | invocadora | 11.000 | solta 3 Sanguessugas a cada 8 s, poça de lodo (lentidão), grito (knockback) |
-| 30 | O Forjador | ALPHA | área e projéteis | 10.000 | martelo (onda de choque radial), lança correntes em 4 direções, fase 2 com armadura 30 |
+| 20 | A Matriarca do Pântano | ALPHA | invocadora | 12.500 | solta 3 Sanguessugas a cada 8 s, poça de lodo (lentidão), grito (knockback) |
+| 30 | O Forjador | ALPHA | área e projéteis | 15.000 | martelo (onda de choque radial), lança correntes em 4 direções, fase 2 com armadura 30 |
 | 40 | O Caçador Alfa | BETA | rápido, caça | 7.500 | fica invisível 3 s e ataca pelas costas, salto com área, visão térmica (persegue sem obstáculos) |
 | 50 | A Rainha do Ninho | BETA | dois estágios | 11.000 | ovos que eclodem Caçadores, cauda varredura, fase 2 voa e bombardeia |
 | 60+ | sorteio do roster | — | — | HP(N) = HP_base_do_chefe × (1 + 0,35 × (N − round_original) / 10) | + 1 modificador de elite a partir do 60; 2 a partir do 100 |
@@ -508,13 +508,13 @@ Decisão D05: tela entre rounds no PROTÓTIPO; NPC físico no ALPHA (a tela vira
 ### 17.2 Fórmulas (baseline Brotato)
 
 ```text
-preco(base, N)   = floor((base + N + base × 0,1 × N) × (1 + shop_price/100)), mínimo 1
+preco(base, N)   = floor((base + N + base × 0,15 × N) × (1 + shop_price/100)), mínimo 1
 reroll_inc(N)    = max(1, floor(0,4 × N))
 reroll_1(N)      = floor(0,75 × N) + reroll_inc(N)
 reroll_k(N)      = reroll_1(N) + (k - 1) × reroll_inc(N)     # reseta a cada loja
 ```
 
-Exemplos: item base 20 no round 1 = 23; no round 10 = 50. Reroll no round 10: 11, 15, 19…
+Exemplos: item base 20 no round 1 = 24; no round 10 = 60. Reroll no round 10: 11, 15, 19…
 
 ### 17.3 Mercador de Ossos (NPC)
 
