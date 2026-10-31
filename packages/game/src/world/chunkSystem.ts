@@ -10,6 +10,10 @@ export interface WorldConfig {
 	hordeRenderSlack: number;
 	/** Distance ahead at which enemies start steering around a blocking prop. */
 	propAvoidLookahead: number;
+	/** How hard a prop dead ahead bends an enemy's heading. */
+	propSteerGain: number;
+	/** Extra clearance kept around props when steering. */
+	propSteerMargin: number;
 	/** Capacity of each ChunkData prop list; the generator must never exceed it. */
 	maxPropsPerChunk: number;
 }

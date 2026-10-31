@@ -8,6 +8,10 @@ export interface PropCollisionConfig {
 	chunkSize: number;
 	/** Distance ahead, in units, at which a moving enemy starts steering around a prop (`data/world.json`). */
 	avoidLookahead: number;
+	/** `propSteerGain` of `data/world.json`. */
+	steerGain: number;
+	/** `propSteerMargin` of `data/world.json`. */
+	steerMargin: number;
 	/** Collision radius per `ChunkData.propType` id (0 for props that never block). */
 	radiusByType: Float32Array;
 }
@@ -17,15 +21,15 @@ export interface PropCollision {
 	steer(world: GameWorld, origin: Origin): void;
 	/** Pushes `entity` out of every blocking prop it overlaps; run after `movementSystem`. */
 	resolve(world: GameWorld, origin: Origin, entity: number): void;
+	/** True when a circle at the relative position (x, z) overlaps a blocking prop; for spawn placement. */
+	overlaps(origin: Origin, x: number, z: number, radius: number): boolean;
 	/** Same as `resolve` for every enemy. */
 	resolveEnemies(world: GameWorld, origin: Origin): void;
 }
 
 const enemyList = createQueryCache([EnemyFaction, Position, Velocity, Radius]);
-/** Steering strength: how hard a prop dead ahead bends the heading (1 = fully sideways at contact). */
-const STEER_GAIN = 1.5;
-/** Extra clearance, in units, kept when deciding that a prop is in the way. */
-const STEER_MARGIN = 0.1;
+/** Candidate circles one query can keep: at most 9 chunks x 8 blocking props = 72 (SDD 03 section 2.1), plus slack. */
+const MAX_CANDIDATES = 96;
 
 /**
  * Static collision against blocking props (SDD 03 section 4). Props live in `ChunkData`, so there is no separate
@@ -34,11 +38,11 @@ const STEER_MARGIN = 0.1;
  * absolute position `origin + pos` selects the chunks and stays in f64.
  */
 export function createPropCollision(chunks: ChunkSystem, config: PropCollisionConfig): PropCollision {
-	const { chunkSize, avoidLookahead, radiusByType } = config;
+	const { chunkSize, avoidLookahead, radiusByType, steerGain, steerMargin } = config;
 	// A prop in a neighbouring chunk can still overlap the query: widen the chunk search by the biggest prop.
 	const maxPropRadius = radiusByType.reduce((max, r) => Math.max(max, r), 0);
 	// Candidate circles gathered for the current query: x, z (absolute) and radius.
-	const scratch = new Float64Array(3 * 64);
+	const scratch = new Float64Array(3 * MAX_CANDIDATES);
 	let found = 0;
 
 	function gather(ax: number, az: number, range: number): void {
@@ -96,6 +100,16 @@ export function createPropCollision(chunks: ChunkSystem, config: PropCollisionCo
 
 	return {
 		resolve,
+		overlaps(origin, x, z, radius): boolean {
+			gather(origin.x + x, origin.z + z, radius);
+			for (let i = 0; i < found; i += 3) {
+				const dx = (scratch[i] ?? 0) - origin.x - x;
+				const dz = (scratch[i + 1] ?? 0) - origin.z - z;
+				const min = (scratch[i + 2] ?? 0) + radius;
+				if (dx * dx + dz * dz < min * min) return true;
+			}
+			return false;
+		},
 		resolveEnemies(world, origin): void {
 			const list = enemyList(world);
 			for (let i = 0; i < list.length; i++) resolve(world, origin, list[i] ?? 0);
@@ -121,7 +135,7 @@ export function createPropCollision(chunks: ChunkSystem, config: PropCollisionCo
 				for (let k = 0; k < found; k += 3) {
 					const dx = (scratch[k] ?? 0) - ax;
 					const dz = (scratch[k + 1] ?? 0) - az;
-					const clearance = (scratch[k + 2] ?? 0) + er + STEER_MARGIN;
+					const clearance = (scratch[k + 2] ?? 0) + er + steerMargin;
 					const ahead = dx * dirX + dz * dirZ;
 					if (ahead < 0 || ahead > avoidLookahead + clearance) continue;
 					// Signed offset of the prop from the heading, along the heading's left normal (-z, x).
@@ -132,8 +146,8 @@ export function createPropCollision(chunks: ChunkSystem, config: PropCollisionCo
 					strongest = weight;
 					// Turn away from the side the prop is on; dead centre turns right.
 					const away = side >= 0 ? -1 : 1;
-					steerX = -dirZ * away * weight * STEER_GAIN;
-					steerZ = dirX * away * weight * STEER_GAIN;
+					steerX = -dirZ * away * weight * steerGain;
+					steerZ = dirX * away * weight * steerGain;
 				}
 				if (strongest === 0) continue;
 				const nx = dirX + steerX;

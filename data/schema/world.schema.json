@@ -13,7 +13,9 @@
 		"originShiftThreshold",
 		"maxPropsPerChunk",
 		"hordeRenderSlack",
-		"propAvoidLookahead"
+		"propAvoidLookahead",
+		"propSteerGain",
+		"propSteerMargin"
 	],
 	"properties": {
 		"chunkSize": { "type": "integer", "minimum": 1, "description": "Chunk edge in world units." },
@@ -52,6 +54,16 @@
 			"type": "number",
 			"minimum": 0,
 			"description": "Distance ahead, in units, at which enemies start steering around a blocking prop (SDD 03 section 4)."
+		},
+		"propSteerGain": {
+			"type": "number",
+			"minimum": 0,
+			"description": "How hard a prop dead ahead bends an enemy's heading (1 = fully sideways at contact)."
+		},
+		"propSteerMargin": {
+			"type": "number",
+			"minimum": 0,
+			"description": "Extra clearance, in units, kept when deciding that a prop is in an enemy's way."
 		}
 	}
 }

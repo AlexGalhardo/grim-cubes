@@ -7,5 +7,7 @@
 	"originShiftThreshold": 1024,
 	"maxPropsPerChunk": 32,
 	"hordeRenderSlack": 20,
-	"propAvoidLookahead": 2
+	"propAvoidLookahead": 2,
+	"propSteerGain": 1.5,
+	"propSteerMargin": 0.1
 }

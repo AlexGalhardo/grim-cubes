@@ -67,6 +67,8 @@ function setup(props: readonly PropAt[], radii: readonly number[]) {
 	const collision = createPropCollision(chunks, {
 		chunkSize: world$.chunkSize,
 		avoidLookahead: world$.propAvoidLookahead,
+		steerGain: world$.propSteerGain,
+		steerMargin: world$.propSteerMargin,
 		radiusByType: Float32Array.from(radii),
 	});
 	return { chunks, collision, origin: createOrigin(), world: createGameWorld() };

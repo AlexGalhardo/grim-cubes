@@ -310,6 +310,8 @@ async function boot(): Promise<void> {
 	const propCollision = createPropCollision(chunks, {
 		chunkSize: worldData.chunkSize,
 		avoidLookahead: worldData.propAvoidLookahead,
+		steerGain: worldData.propSteerGain,
+		steerMargin: worldData.propSteerMargin,
 		radiusByType: Float32Array.from(
 			chunkGen.propTypes.map((name) => propsData.find((p) => p.id === name)?.radius ?? 0),
 		),
