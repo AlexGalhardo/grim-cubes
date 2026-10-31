@@ -408,7 +408,7 @@ async function boot(): Promise<void> {
 		enemies: separation.hash,
 		round: () => run.round,
 	});
-	const bleed = createBleedSystem({ queue: damage.queue });
+	const bleed = createBleedSystem({ events });
 	const thorns = createThornsSystem({
 		effects: itemEffects.effects,
 		queue: damage.queue,

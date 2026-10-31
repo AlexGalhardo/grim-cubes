@@ -168,9 +168,12 @@ export function createDamageSystem(deps: DamageSystemDeps): DamageSystem {
 
 		const scale = knockbackScale(config, hasComponent(world, eid, Boss), hasComponent(world, eid, Elite));
 		const resist = 1 - (KnockbackResist.value[eid] ?? 0);
-		Knockback.x[eid] = (kbX[i] ?? 0) * scale * resist;
-		Knockback.z[eid] = (kbZ[i] ?? 0) * scale * resist;
-		Knockback.ticks[eid] = knockbackTicks;
+		// A hit with no push (aura, thorns, bleed-like ticks) must not cancel the knockback a weapon just gave.
+		if ((kbX[i] ?? 0) !== 0 || (kbZ[i] ?? 0) !== 0) {
+			Knockback.x[eid] = (kbX[i] ?? 0) * scale * resist;
+			Knockback.z[eid] = (kbZ[i] ?? 0) * scale * resist;
+			Knockback.ticks[eid] = knockbackTicks;
+		}
 
 		lifeSteal.add(dealt * stats.lifeSteal);
 		events.push(EventType.Damaged, dealt, crit ? 1 : 0, 0, eid);

@@ -1,9 +1,21 @@
 import { createSpatialHash, mulberry32 } from "@gc/core";
-import { addComponent } from "bitecs";
+import { addComponent, hasComponent } from "bitecs";
 import { expect, test } from "vitest";
 import { heroData, itemsData, weaponsData } from "../data";
-import { Boss, Elite, EnemyFaction, EnemyType, Fragment, Health, Position, Radius } from "../ecs/components";
-import { createEventBuffer } from "../ecs/events";
+import {
+	Bleed,
+	Boss,
+	Elite,
+	EnemyFaction,
+	EnemyType,
+	Fragment,
+	Health,
+	HitFlash,
+	Knockback,
+	Position,
+	Radius,
+} from "../ecs/components";
+import { createEventBuffer, EventType } from "../ecs/events";
 import { dropFragment } from "../ecs/fragments";
 import { createProjectilePool } from "../ecs/projectile";
 import { createGameWorld, spawnBody } from "../ecs/world";
@@ -289,14 +301,14 @@ test("ossuary bonuses add to the item effects and the weak phylactery yields to 
 });
 
 test("bone_saw makes a critical hit bleed for 20% of its damage over 2 s, and a plain hit does not", () => {
-	const { world, enemy, damage, fx } = fighters(owning("bone_saw"));
+	const { world, enemy, damage, fx, events } = fighters(owning("bone_saw"));
 	const bleeding = enemy(5, 0);
 	const plain = enemy(6, 0);
 	damage.queue.push(bleeding, 10, 0, 1, 0, 0);
 	damage.queue.push(plain, 10, 0, 0, 0, 0);
 	damage.run(world);
 	const afterHit = [Health.hp[bleeding] ?? 0, Health.hp[plain] ?? 0];
-	const bleed = createBleedSystem({ queue: damage.queue });
+	const bleed = createBleedSystem({ events });
 	for (let i = 0; i < 150; i++) {
 		bleed.run(world);
 		damage.run(world);
@@ -305,6 +317,59 @@ test("bone_saw makes a critical hit bleed for 20% of its damage over 2 s, and a 
 	expect((afterHit[0] ?? 0) - (Health.hp[bleeding] ?? 0)).toBeCloseTo(4, 3);
 	expect(Health.hp[plain]).toBe(afterHit[1]);
 	expect(fx.effects.bleedSeconds).toBe(2);
+});
+
+test("bleeding is damage over time: it keeps the weapon knockback, reports at most twice a second and ends cleanly", () => {
+	const { world, enemy, damage, events } = fighters(owning("bone_saw"));
+	const target = enemy(5, 0);
+	damage.queue.push(target, 10, 0, 1, 1.5, 0);
+	damage.run(world);
+	const kick = Knockback.ticks[target] ?? 0;
+	expect(kick).toBeGreaterThan(0);
+	events.consume(() => undefined);
+	const bleed = createBleedSystem({ events });
+	let reports = 0;
+	let reportsFirstSecond = 0;
+	let reported = 0;
+	HitFlash.ticks[target] = 0;
+	for (let i = 0; i < 150; i++) {
+		bleed.run(world);
+		damage.run(world);
+		events.consume((type, a) => {
+			if (type === EventType.Damaged) {
+				reports++;
+				if (i < 60) reportsFirstSecond++;
+				reported += a;
+			}
+		});
+	}
+	expect(reportsFirstSecond).toBeLessThanOrEqual(2);
+	expect(reports).toBeLessThanOrEqual(6);
+	// All of it is reported by the end: 20% of the 20 the crit dealt.
+	expect(reported).toBeCloseTo(4, 2);
+	expect(Knockback.ticks[target]).toBeLessThanOrEqual(kick);
+	expect(Math.abs(Knockback.x[target] ?? 0)).toBeGreaterThan(0);
+	expect(HitFlash.ticks[target]).toBe(0);
+	expect(hasComponent(world, target, Bleed)).toBe(false);
+});
+
+test("a bleed that kills reports Died once", () => {
+	const { world, enemy, damage, events } = fighters(owning("bone_saw"));
+	const target = enemy(5, 0);
+	Health.hp[target] = 1;
+	Bleed.perStep[target] = 0.5;
+	Bleed.ticks[target] = 10;
+	addComponent(world, target, Bleed);
+	const bleed = createBleedSystem({ events });
+	let died = 0;
+	for (let i = 0; i < 10; i++) {
+		bleed.run(world);
+		events.consume((type, _a, _b, _c, e) => {
+			if (type === EventType.Died && e === target) died++;
+		});
+	}
+	expect(died).toBe(1);
+	void damage;
 });
 
 test("spiked_boots hurts an enemy that touches the hero once per contact cooldown", () => {

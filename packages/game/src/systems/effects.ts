@@ -1,5 +1,5 @@
 import type { SpatialHash } from "@gc/core";
-import { hasComponent } from "bitecs";
+import { hasComponent, removeComponent } from "bitecs";
 import {
 	Bleed,
 	EnemyFaction,
@@ -96,22 +96,43 @@ export function createAuraSystem(deps: AuraSystemDeps): AuraSystem {
 }
 
 export interface BleedSystemDeps {
-	queue: DamageQueue;
+	events: EventBuffer;
 }
 
 const bleeding = createQueryCache([Bleed]);
+/** The bleed reports its damage to the render in lumps this often (steps), not every step. */
+const BLEED_REPORT_STEPS = 30;
 
-/** `bone_saw`: every bleeding enemy takes its share of the crit's damage each step until the bleed ends. */
-export function createBleedSystem({ queue }: BleedSystemDeps): { run(world: GameWorld): void } {
+/**
+ * `bone_saw`: a bleeding enemy loses its share of the crit's damage each step. It is damage over time, not a blow, so
+ * it skips the hit path: no flash, no knockback reset, no life steal; the render hears one aggregated `Damaged`
+ * every half second and `Died` when the bleed kills.
+ */
+export function createBleedSystem({ events }: BleedSystemDeps): { run(world: GameWorld): void } {
 	return {
 		run(world: GameWorld): void {
 			const list = bleeding(world);
-			for (let i = 0; i < list.length; i++) {
+			for (let i = list.length - 1; i >= 0; i--) {
 				const e = list[i] ?? 0;
 				const ticks = Bleed.ticks[e] ?? 0;
-				if (ticks <= 0) continue;
+				if (ticks <= 0) {
+					removeComponent(world, e, Bleed);
+					continue;
+				}
 				Bleed.ticks[e] = ticks - 1;
-				if ((Health.hp[e] ?? 0) > 0) queue.push(e, Bleed.perStep[e] ?? 0, 0, 0, 0, 0);
+				const hp = Health.hp[e] ?? 0;
+				if (hp > 0) {
+					const dealt = Bleed.perStep[e] ?? 0;
+					Health.hp[e] = hp - dealt;
+					Bleed.shown[e] = (Bleed.shown[e] ?? 0) + dealt;
+					if ((Health.hp[e] ?? 0) <= 0) events.push(EventType.Died, 0, 0, 0, e);
+				}
+				const last = ticks === 1 || (Health.hp[e] ?? 0) <= 0;
+				if ((last || ticks % BLEED_REPORT_STEPS === 0) && (Bleed.shown[e] ?? 0) > 0) {
+					events.push(EventType.Damaged, Bleed.shown[e] ?? 0, 0, 0, e);
+					Bleed.shown[e] = 0;
+				}
+				if (last) removeComponent(world, e, Bleed);
 			}
 		},
 	};
