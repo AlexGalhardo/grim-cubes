@@ -54,15 +54,15 @@ async function runWith(
 }
 
 describe("audio-generate", () => {
-	it("ships 20 sfx and 2 music prompts", async () => {
+	it("ships 20 sfx and 5 music prompts (menu, graveyard and the three ALPHA biomes)", async () => {
 		const prompts = await loadPrompts();
 		expect(prompts.filter((p) => p.kind === "sfx")).toHaveLength(20);
-		expect(prompts.filter((p) => p.kind === "music")).toHaveLength(2);
+		expect(prompts.filter((p) => p.kind === "music")).toHaveLength(5);
 	});
 
 	it("estimates credits per kind", async () => {
 		const prompts = await loadPrompts();
-		expect(prompts.reduce((s, p) => s + estimateCredits(p), 0)).toBe(20 * 200 + 2 * 2250);
+		expect(prompts.reduce((s, p) => s + estimateCredits(p), 0)).toBe(20 * 200 + 5 * 2250);
 	});
 
 	it("refuses missing and free plans", () => {
