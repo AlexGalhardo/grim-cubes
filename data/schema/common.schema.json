@@ -12,7 +12,7 @@
 		"tier": {
 			"type": "integer",
 			"minimum": 1,
-			"maximum": 4
+			"maximum": 5
 		},
 		"stat": {
 			"enum": [
@@ -101,8 +101,8 @@
 				"hero_speed_penalty_while_firing",
 				"hit_all_in_arc",
 				"on_kill_explode",
-				"proximity_aura_damage",
 				"pull_fragments",
+				"proximity_aura_damage",
 				"revive_once",
 				"self_damage_in_radius",
 				"shockwave_every_kills",

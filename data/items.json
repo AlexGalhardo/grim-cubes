@@ -704,5 +704,126 @@
 			}
 		],
 		"effects": []
+	},
+	{
+		"id": "bone_lodestone",
+		"name": "Ímã de Ossos",
+		"tier": 2,
+		"price": 40,
+		"modifiers": [],
+		"effects": [
+			{
+				"id": "pull_fragments",
+				"params": {
+					"intervalSeconds": 8
+				}
+			}
+		]
+	},
+	{
+		"id": "titan_core",
+		"name": "Núcleo do Titã",
+		"tier": 5,
+		"price": 280,
+		"modifiers": [
+			{
+				"stat": "max_hp",
+				"op": "add",
+				"value": 200
+			},
+			{
+				"stat": "armor",
+				"op": "add",
+				"value": 12
+			},
+			{
+				"stat": "speed",
+				"op": "add",
+				"value": -0.2
+			},
+			{
+				"stat": "attack_speed",
+				"op": "add",
+				"value": -0.15
+			}
+		],
+		"effects": []
+	},
+	{
+		"id": "blood_crown",
+		"name": "Coroa de Sangue",
+		"tier": 5,
+		"price": 300,
+		"modifiers": [
+			{
+				"stat": "damage",
+				"op": "add",
+				"value": 0.6
+			},
+			{
+				"stat": "life_steal",
+				"op": "add",
+				"value": 0.08
+			},
+			{
+				"stat": "max_hp",
+				"op": "mul",
+				"value": 0.6
+			}
+		],
+		"effects": []
+	},
+	{
+		"id": "storm_gauntlet",
+		"name": "Manopla da Tempestade",
+		"tier": 5,
+		"price": 320,
+		"modifiers": [
+			{
+				"stat": "attack_speed",
+				"op": "add",
+				"value": 0.5
+			},
+			{
+				"stat": "crit_chance",
+				"op": "add",
+				"value": 0.25
+			},
+			{
+				"stat": "armor",
+				"op": "add",
+				"value": -6
+			}
+		],
+		"effects": []
+	},
+	{
+		"id": "void_cloak",
+		"name": "Manto do Vazio",
+		"tier": 5,
+		"price": 240,
+		"modifiers": [
+			{
+				"stat": "dodge",
+				"op": "add",
+				"value": 0.25
+			},
+			{
+				"stat": "speed",
+				"op": "add",
+				"value": 0.2
+			},
+			{
+				"stat": "max_hp",
+				"op": "mul",
+				"value": 0.75
+			},
+			{
+				"stat": "damage",
+				"op": "add",
+				"value": -0.15
+			}
+		],
+		"effects": []
 	}
 ]

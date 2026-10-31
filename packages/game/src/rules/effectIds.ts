@@ -15,10 +15,10 @@ export const EFFECT_HANDLERS = {
 		"extra_pierce",
 		"fragment_gain",
 		"on_kill_explode",
+		"pull_fragments",
 		"proximity_aura_damage",
 		"revive_once",
 		"shockwave_every_kills",
-		"pull_fragments",
 		"soul_gain",
 	],
 	/** `configure` in systems/weapon.ts. */

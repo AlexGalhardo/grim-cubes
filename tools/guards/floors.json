@@ -5,12 +5,12 @@
 		"voice": 40
 	},
 	"tests": {
-		"packages/core": 67,
-		"packages/game": 309,
-		"packages/platform": 26,
+		"packages/core": 79,
+		"packages/game": 317,
+		"packages/platform": 27,
 		"packages/render": 154,
-		"packages/ui": 93,
-		"apps": 39,
+		"packages/ui": 102,
+		"apps": 40,
 		"tools": 164
 	}
 }

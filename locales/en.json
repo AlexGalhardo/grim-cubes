@@ -125,7 +125,7 @@
 	"effect.fragment_gain": "+{fraction}% fragments",
 	"effect.start_gold": "Start the run with {value} gold",
 	"effect.soul_gain": "+{fraction}% souls",
-	"effect.guaranteed_uncommon_shop_item": "The shop starts with 1 guaranteed Uncommon item",
+	"effect.guaranteed_uncommon_shop_item": "The shop starts with 1 guaranteed Rare item",
 	"effect.card_rerolls": "{count} card reroll per run",
 	"effect.extra_legendary_pool": "+{count} exclusive Legendary items in the pool",
 	"enemy.husk": "Husk",
@@ -351,5 +351,11 @@
 	"pause.quit": "Quit to menu",
 	"pause.confirmQuit": "Quit to the menu? The run stays saved at the start of round {round}.",
 	"pause.stay": "Stay",
-	"pause.confirmYes": "Quit"
+	"pause.confirmYes": "Quit",
+	"item.bone_lodestone": "Bone Lodestone",
+	"item.titan_core": "Titan Core",
+	"item.blood_crown": "Blood Crown",
+	"item.storm_gauntlet": "Storm Gauntlet",
+	"item.void_cloak": "Void Cloak",
+	"effect.pull_fragments": "Every {intervalSeconds} s pulls every fragment on the floor to you"
 }

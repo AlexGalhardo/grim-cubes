@@ -250,6 +250,33 @@ test("chest offers never include items whose effect is not implemented", () => {
 	}
 });
 
+test("Legendary and boss chests never offer Mythic items, only a Mythic chest does", () => {
+	const offered = (chestTier: number, seed: number): number[] => {
+		const world = createGameWorld();
+		const hero = spawnBody(world, 0, 0);
+		Health.hp[hero] = Health.max[hero] = 100;
+		const chest = createChestSystem({
+			reward: elitesData.reward,
+			items: itemsData,
+			rng: mulberry32(seed),
+			run: { state: "Round", pause: () => {}, resume: () => {} } as unknown as RunSystem,
+			stats: createStatsSystem(heroData, createPlayerStats()),
+			owned: new Map(),
+			onItemTaken: () => {},
+			events: createEventBuffer(8),
+			blocked: () => false,
+			pickupRadius: () => 2.5,
+		});
+		dropChest(world, 1, 0, chestTier, 3, 1);
+		chest.run(world, hero);
+		return (chest.offer ?? []).map((o) => o.tier);
+	};
+	for (let seed = 1; seed <= 100; seed++) {
+		for (const tier of [3, 4]) expect(Math.max(...offered(tier, seed))).toBeLessThan(5);
+	}
+	expect(offered(5, 1).every((t) => t === 5)).toBe(true);
+});
+
 test("a chest that does not heal (the boss chest) leaves the HP alone", () => {
 	const world = createGameWorld();
 	const hero = spawnBody(world, 0, 0);

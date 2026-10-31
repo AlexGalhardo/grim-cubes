@@ -125,7 +125,7 @@
 	"effect.fragment_gain": "+{fraction}% fragmentos",
 	"effect.start_gold": "Começa a run com {value} de ouro",
 	"effect.soul_gain": "+{fraction}% almas",
-	"effect.guaranteed_uncommon_shop_item": "A loja começa com 1 item Incomum garantido",
+	"effect.guaranteed_uncommon_shop_item": "A loja começa com 1 item Raro garantido",
 	"effect.card_rerolls": "{count} troca de cartas por run",
 	"effect.extra_legendary_pool": "+{count} itens Lendários exclusivos no pool",
 	"enemy.husk": "Carcaça",
@@ -351,5 +351,11 @@
 	"pause.quit": "Sair para o menu",
 	"pause.confirmQuit": "Sair para o menu? A run fica salva no início do round {round}.",
 	"pause.stay": "Ficar",
-	"pause.confirmYes": "Sair"
+	"pause.confirmYes": "Sair",
+	"item.bone_lodestone": "Ímã de Ossos",
+	"item.titan_core": "Núcleo do Titã",
+	"item.blood_crown": "Coroa de Sangue",
+	"item.storm_gauntlet": "Manopla da Tempestade",
+	"item.void_cloak": "Manto do Vazio",
+	"effect.pull_fragments": "A cada {intervalSeconds} s puxa todos os fragmentos do chão até você"
 }
