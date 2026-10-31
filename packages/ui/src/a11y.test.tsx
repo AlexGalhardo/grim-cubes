@@ -11,6 +11,7 @@ import { Options } from "./components/Options/Options";
 import { Ossuary } from "./components/Ossuary/Ossuary";
 import { Results } from "./components/Results/Results";
 import { Shop } from "./components/Shop/Shop";
+import { Slots } from "./components/Slots/Slots";
 
 afterEach(cleanup);
 
@@ -45,8 +46,63 @@ test("the title menu has no serious violations", async () => {
 	expect(
 		await violations(
 			<Menu
-				view={{ records: [{ id: "normal", name: "Normal", round: 12 }] }}
-				actions={{ play: vi.fn(), ossuary: vi.fn(), options: vi.fn() }}
+				view={{ records: [{ id: "normal", name: "Normal", round: 12 }], continue: null }}
+				actions={{ resume: vi.fn(), play: vi.fn(), ossuary: vi.fn(), options: vi.fn() }}
+			/>,
+		),
+	).toEqual([]);
+});
+
+const slotViews = [
+	{
+		slot: 1,
+		name: "Slot 1",
+		state: "used" as const,
+		lastPlayed: "31/10/2026",
+		bestRound: 12,
+		souls: 285,
+		runRound: 5,
+	},
+	{
+		slot: 2,
+		name: "Slot 2",
+		state: "empty" as const,
+		lastPlayed: "",
+		bestRound: 0,
+		souls: 0,
+		runRound: null,
+	},
+];
+
+test("the slot screen has no serious violations", async () => {
+	expect(
+		await violations(
+			<Slots
+				view={{ slots: slotViews }}
+				actions={{ choose: vi.fn(), erase: vi.fn(), cancel: vi.fn() }}
+			/>,
+		),
+	).toEqual([]);
+});
+
+test("the slot screen's overwrite question has no serious violations", async () => {
+	const { fireEvent } = await import("@testing-library/react");
+	const { container } = render(
+		<Slots view={{ slots: slotViews }} actions={{ choose: vi.fn(), erase: vi.fn(), cancel: vi.fn() }} />,
+	);
+	fireEvent.click(container.querySelector<HTMLElement>("[data-testid=slot-1]") as HTMLElement);
+	const result = await axe.run(container, {
+		rules: { "color-contrast": { enabled: false }, region: { enabled: false } },
+	});
+	expect(result.violations.filter((v) => v.impact === "serious" || v.impact === "critical")).toEqual([]);
+});
+
+test("the title menu with Continuar has no serious violations", async () => {
+	expect(
+		await violations(
+			<Menu
+				view={{ records: [], continue: { slotName: "Slot 2", runRound: 7 } }}
+				actions={{ resume: vi.fn(), play: vi.fn(), ossuary: vi.fn(), options: vi.fn() }}
 			/>,
 		),
 	).toEqual([]);

@@ -86,6 +86,21 @@ test("backup copies the save to save.bak atomically, ignores a missing save and 
 	expect((await readdir(dir)).sort()).toEqual(["save.bak.json", "save.json"]);
 });
 
+test("each slot has its own file and its own backup, and a fourth slot is refused", async () => {
+	const files = createSaveFiles(dir);
+	for (const n of [1, 2, 3]) {
+		await files.write(`slot${n}`, envelope(n));
+		await files.backup(`slot${n}`);
+		expect(await files.read(`slot${n}.bak`)).toBe(envelope(n));
+	}
+	expect(await files.read("slot2")).toBe(envelope(2));
+	for (const key of ["slot0", "slot4", "slot1.bak.bak", "slot01"]) {
+		await expect(files.read(key), key).rejects.toThrow(RangeError);
+		await expect(files.write(key, "x"), key).rejects.toThrow(RangeError);
+	}
+	await expect(files.backup("slot1.bak")).rejects.toThrow(RangeError);
+});
+
 test("a file that is too big reads as absent instead of filling memory", async () => {
 	const files = createSaveFiles(dir);
 	await files.write("options", "ok");

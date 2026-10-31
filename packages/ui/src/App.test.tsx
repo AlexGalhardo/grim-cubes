@@ -25,6 +25,7 @@ const hud = (speed: number): HudState => ({
 	options: null,
 	ossuary: null,
 	difficulty: null,
+	slots: null,
 	dash: null,
 	cardRerolls: 0,
 	bossIntro: null,
@@ -165,8 +166,9 @@ const menuView = {
 		{ id: "normal", name: "Normal", round: 12 },
 		{ id: "grim", name: "Sombrio", round: 0 },
 	],
+	continue: null,
 };
-const menuActions = () => ({ play: vi.fn(), ossuary: vi.fn(), options: vi.fn() });
+const menuActions = () => ({ resume: vi.fn(), play: vi.fn(), ossuary: vi.fn(), options: vi.fn() });
 
 test("the title screen lists the records and its buttons call the actions", () => {
 	const actions = menuActions();
@@ -183,6 +185,26 @@ test("the title screen lists the records and its buttons call the actions", () =
 	expect(actions.play).toHaveBeenCalledTimes(1);
 	expect(actions.ossuary).toHaveBeenCalledTimes(1);
 	expect(actions.options).toHaveBeenCalledTimes(1);
+});
+
+test("Continuar shows only when a slot was used, names it and the saved round, and takes focus", () => {
+	const actions = menuActions();
+	const store = createStore({
+		...hud(1),
+		menu: { ...menuView, continue: { slotName: "Slot 2", runRound: 7 } },
+	});
+	render(<App store={store} menuActions={actions} />);
+	const resume = screen.getByTestId("menu-continue");
+	expect(resume.textContent).toContain("Slot 2");
+	expect(resume.textContent).toContain("7");
+	expect(document.activeElement).toBe(resume);
+	fireEvent.click(resume);
+	expect(actions.resume).toHaveBeenCalledTimes(1);
+	expect(screen.getByTestId("menu-play").textContent).toBe("Novo jogo");
+	cleanup();
+	render(<App store={createStore({ ...hud(1), menu: menuView })} menuActions={menuActions()} />);
+	expect(screen.queryByTestId("menu-continue")).toBeNull();
+	expect(document.activeElement).toBe(screen.getByTestId("menu-play"));
 });
 
 test("the title screen steps aside for the difficulty screen", () => {

@@ -13,10 +13,12 @@ import {
 	createTelemetry,
 	createVirtualStick,
 	type Described,
+	eraseSlot,
 	i18n,
 	type KeyAction,
 	type KeyCheck,
 	keyBindingsFor,
+	loadGlobal,
 	loadMeta,
 	type MetaState,
 	type PadAction,
@@ -26,7 +28,9 @@ import {
 	padStyleFromId,
 	persistRun,
 	type RunResult,
+	readSlots,
 	type SaveIO,
+	SLOT_COUNT,
 	t,
 	UI_SCALES,
 	updateMeta,
@@ -238,7 +242,14 @@ async function boot(): Promise<void> {
 		withLock: (fn) => (navigator.locks ? navigator.locks.request("grim-cubes-save", fn) : fn()),
 	};
 	// A save that is unreadable or newer is never overwritten: `readOnly` blocks writes for the whole session.
-	const loaded = await loadMeta(saveIO);
+	// The slot in use: `?slot=` when the page was reloaded for a choice, else the last one the player used.
+	const global = await loadGlobal(saveIO, __APP_VERSION__);
+	const slotParam = Number(params.get("slot"));
+	const slot =
+		Number.isInteger(slotParam) && slotParam >= 1 && slotParam <= SLOT_COUNT
+			? slotParam
+			: Math.min(Math.max(global.settings.lastSlot, 1), SLOT_COUNT);
+	const loaded = await loadMeta(saveIO, slot, __APP_VERSION__);
 	const meta: MetaState = loaded.meta;
 	if (loaded.notice) log.warn("save problem", loaded.notice);
 	// The saved language applies unless `?lang=` forces one for this session.
@@ -342,6 +353,7 @@ async function boot(): Promise<void> {
 		caption: null,
 		merchant: null,
 		demoEnd: false,
+		slots: null,
 		menu: null,
 	});
 	// The handlers are function declarations further down; the screen only calls them after boot.
@@ -443,9 +455,15 @@ async function boot(): Promise<void> {
 			}}
 			optionsActions={optionsActions}
 			menuActions={{
+				resume: () => {
+					if (meta.run) reloadWith((query) => query.set("resume", "1"));
+					else {
+						difficultyOpen = true;
+						publishNow();
+					}
+				},
 				play: () => {
-					difficultyOpen = true;
-					publishNow();
+					void openSlots();
 				},
 				ossuary: () => {
 					ossuaryOpen = true;
@@ -466,6 +484,43 @@ async function boot(): Promise<void> {
 				difficultyOpen = true;
 				publishNow();
 			}}
+			slotsActions={{
+				choose: (target, wipe) => {
+					if (target === slot && !wipe) {
+						void changeSettings((st) => {
+							st.lastSlot = target;
+						});
+						slotsView = null;
+						difficultyOpen = true;
+						publishNow();
+					} else void useSlot(target, "difficulty", wipe);
+				},
+				erase: (target) => {
+					void (async () => {
+						try {
+							await eraseSlot(saveIO, target, __APP_VERSION__);
+							if (meta.settings.lastSlot === target)
+								await updateMeta(
+									saveIO,
+									target,
+									(m) => {
+										m.settings.lastSlot = 0;
+									},
+									__APP_VERSION__,
+								);
+						} catch (error) {
+							log.warn("slot erase refused", error);
+						}
+						// The open profile is stale once its slot was wiped.
+						if (target === slot) reloadWith((query) => query.set("next", "slots"));
+						else await openSlots();
+					})();
+				},
+				cancel: () => {
+					slotsView = null;
+					publishNow();
+				},
+			}}
 			difficultyActions={{
 				cancel: () => {
 					difficultyOpen = false;
@@ -476,6 +531,9 @@ async function boot(): Promise<void> {
 					const next = new URLSearchParams(location.search);
 					next.delete("seed");
 					next.delete("tutorial");
+					next.delete("next");
+					next.delete("resume");
+					next.set("slot", String(slot));
 					if (tutorial) next.set("tutorial", "1");
 					next.set("difficulty", chooseDifficulty(roundsData.difficulties, id, meta.records));
 					const typed = parseSeed(seedText);
@@ -958,7 +1016,7 @@ async function boot(): Promise<void> {
 		telemetry.flush();
 		if (!loaded.readOnly) {
 			// The stored save is re-read and the run added to it, so progress from another tab is kept.
-			persistRun(saveIO, result, __APP_VERSION__)
+			persistRun(saveIO, slot, result, __APP_VERSION__)
 				.then((merged) => {
 					Object.assign(meta, merged);
 					if (results)
@@ -1002,11 +1060,15 @@ async function boot(): Promise<void> {
 
 	let ossuaryOpen = false;
 	let difficultyOpen = false;
+	let slotsView: HudState["slots"] = null;
 	let optionsOpen = false;
 	// The title screen shows on a plain load; links with a seed, difficulty, tutorial or a debug flag go straight in.
-	const menuOpen = !["seed", "difficulty", "tutorial", "debug", "bench", "tips", "preset"].some((key) =>
-		params.has(key),
+	const menuOpen = !["seed", "difficulty", "tutorial", "debug", "bench", "tips", "preset", "resume"].some(
+		(key) => params.has(key),
 	);
+	// A page reloaded after a slot choice lands straight on the next screen of the flow.
+	const landing = menuOpen ? params.get("next") : null;
+	if (landing === "difficulty") difficultyOpen = true;
 
 	function menuView(): NonNullable<HudState["menu"]> {
 		return {
@@ -1015,7 +1077,59 @@ async function boot(): Promise<void> {
 				name: t(`difficultyName.${def.id}`),
 				round: meta.records[def.id as keyof typeof meta.records] ?? 0,
 			})),
+			// "Continuar" needs a slot the player used, not just the one a fresh install defaults to.
+			continue:
+				meta.settings.lastSlot > 0
+					? { slotName: t("slots.name", { slot }), runRound: meta.run?.round ?? null }
+					: null,
 		};
+	}
+
+	/** Reloads the page with the slot flow's parameters; everything else in the URL (debug, lang) survives. */
+	function reloadWith(change: (query: URLSearchParams) => void): void {
+		const query = new URLSearchParams(location.search);
+		for (const key of ["seed", "tutorial", "difficulty", "resume", "next"]) query.delete(key);
+		change(query);
+		location.search = query.toString();
+	}
+
+	async function openSlots(): Promise<void> {
+		const summaries = await readSlots(saveIO);
+		slotsView = {
+			slots: summaries.map((summary) => ({
+				slot: summary.slot,
+				name: t("slots.name", { slot: summary.slot }),
+				state: summary.state,
+				lastPlayed: summary.savedAt
+					? new Date(summary.savedAt).toLocaleString(meta.settings.locale)
+					: "",
+				bestRound: summary.bestRound,
+				souls: summary.souls,
+				runRound: summary.runRound,
+			})),
+		};
+		publishNow();
+	}
+
+	/** Makes `target` the slot in use and reloads, so every system starts from its profile. */
+	async function useSlot(target: number, next: string, wipe: boolean): Promise<void> {
+		try {
+			if (wipe) await eraseSlot(saveIO, target, __APP_VERSION__);
+			await updateMeta(
+				saveIO,
+				target,
+				(m) => {
+					m.settings.lastSlot = target;
+				},
+				__APP_VERSION__,
+			);
+		} catch (error) {
+			log.warn("slot change refused", error);
+		}
+		reloadWith((query) => {
+			query.set("slot", String(target));
+			query.set("next", next);
+		});
 	}
 
 	const nextSpeedOf = (speed: number): GameSpeed => (speed === 3 ? 3 : speed === 2 ? 2 : 1);
@@ -1066,6 +1180,7 @@ async function boot(): Promise<void> {
 		if (loaded.readOnly) return Promise.resolve();
 		return updateMeta(
 			saveIO,
+			slot,
 			(m) => {
 				mutate(m.settings);
 			},
@@ -1130,7 +1245,7 @@ async function boot(): Promise<void> {
 	/** Applies a tree change to the stored save under the lock, then mirrors it in memory. */
 	function changeOssuary(mutate: (m: MetaState) => void): void {
 		if (loaded.readOnly) return;
-		updateMeta(saveIO, mutate, __APP_VERSION__)
+		updateMeta(saveIO, slot, mutate, __APP_VERSION__)
 			.then((merged) => {
 				Object.assign(meta, merged);
 				publishNow();
@@ -1346,6 +1461,7 @@ async function boot(): Promise<void> {
 			boss: bossView,
 			ossuary: ossuaryOpen ? ossuaryView() : null,
 			difficulty: difficultyOpen ? difficultyView() : null,
+			slots: slotsView,
 			options: optionsOpen ? optionsView() : null,
 			speed: loop.speed,
 			uiScale: meta.settings.uiScale,
@@ -1947,6 +2063,7 @@ async function boot(): Promise<void> {
 			demo: __IS_DEMO__,
 		});
 	}
+	if (landing === "slots") void openSlots();
 	if (__DEBUG_API__ && bench && window.gc.debug) {
 		const recorder = createBenchRecorder(game.scene, render.engine);
 		window.gc.debug.bench = {

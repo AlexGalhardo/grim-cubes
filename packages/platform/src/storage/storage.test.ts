@@ -24,6 +24,17 @@ test("keys are independent", async () => {
 	expect(await storage.read("save")).toBeNull();
 });
 
+test("each slot is its own key and only three exist", async () => {
+	const storage = fresh();
+	await storage.write("slot2", "two");
+	await storage.write("slot2.bak", "two old");
+	expect(await storage.read("slot1")).toBeNull();
+	expect(await storage.read("slot2")).toBe("two");
+	expect(await storage.read("slot2.bak")).toBe("two old");
+	await expect(storage.read("slot4" as "save")).rejects.toThrow(RangeError);
+	await expect(storage.write("slot0" as "save", "x")).rejects.toThrow(RangeError);
+});
+
 test("rejects invalid keys and oversized values", async () => {
 	const storage = fresh();
 	await expect(storage.read("nope" as "save")).rejects.toThrow(RangeError);

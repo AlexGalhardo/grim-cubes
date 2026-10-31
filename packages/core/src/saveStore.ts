@@ -1,10 +1,20 @@
 import {
 	createMetaState,
+	createSettings,
 	type Difficulty,
+	isLegacySave,
 	type MetaState,
+	type Profile,
+	parseGlobal,
 	parseSave,
+	profileOf,
 	SaveError,
+	type Settings,
+	SLOT_COUNT,
+	serializeGlobal,
 	serializeSave,
+	validateProfile,
+	validateSettings,
 } from "./save";
 
 /** The slice of the platform storage the save needs; keys are plain strings so core stays platform-free. */
@@ -15,11 +25,14 @@ export interface SaveIO {
 	withLock?<T>(fn: () => Promise<T>): Promise<T>;
 }
 
+/** The settings shared by every slot (before schema 10 this key held the whole account). */
 export const SAVE_KEY = "save";
 export const SAVE_BACKUP_KEY = "save.bak";
 export const SAVE_CORRUPT_KEY = "save.corrupt";
 /** The corrupt text that `save.corrupt` held before the latest one. */
 export const SAVE_CORRUPT_PREVIOUS_KEY = "save.corrupt.old";
+export const slotKey = (slot: number): string => `slot${slot}`;
+export const slotBackupKey = (slot: number): string => `slot${slot}.bak`;
 
 /**
  * Why the session may not save as usual:
@@ -55,11 +68,15 @@ export function applyRun(meta: MetaState, run: RunResult): void {
 	meta.stats.kills += run.kills;
 	meta.stats.bossKills += run.bossKills;
 	meta.stats.elitesKilled += run.elitesKilled;
+	// The run is over, so its checkpoint goes with it.
+	meta.run = null;
 }
 
-async function tryParse(text: string): Promise<{ meta: MetaState } | { error: SaveError }> {
+type Parsed<T> = { value: T } | { error: SaveError };
+
+async function attempt<T>(parse: (text: string) => Promise<T>, text: string): Promise<Parsed<T>> {
 	try {
-		return { meta: await parseSave(text) };
+		return { value: await parse(text) };
 	} catch (error) {
 		return { error: error instanceof SaveError ? error : new SaveError(String(error)) };
 	}
@@ -73,92 +90,301 @@ async function keepCorrupt(io: SaveIO, text: string): Promise<void> {
 	await io.write(SAVE_CORRUPT_KEY, text);
 }
 
-/** Reads `save`, falls back to `save.bak`, and never overwrites anything it could not read. */
-export async function loadMeta(io: SaveIO): Promise<LoadedMeta> {
-	let main: string | null;
-	let backup: string | null;
-	try {
-		main = await io.read(SAVE_KEY);
-		backup = await io.read(SAVE_BACKUP_KEY);
-	} catch {
-		return { meta: createMetaState(), readOnly: true, notice: "unavailable" };
-	}
+/** What one file (with its backup) holds: nothing, a readable value, a value taken from the backup, or trouble. */
+type Stored<T> =
+	| { kind: "empty" }
+	| { kind: "ok"; value: T; text: string }
+	| { kind: "recovered"; value: T; badMain: string | null }
+	| { kind: "newer" }
+	| { kind: "corrupt"; text: string };
 
-	if (main === null && backup === null) return { meta: createMetaState(), readOnly: false, notice: null };
-
+async function readStored<T>(
+	io: SaveIO,
+	key: string,
+	backupKey: string,
+	parse: (text: string) => Promise<T>,
+): Promise<Stored<T>> {
+	const main = await io.read(key);
+	const backup = await io.read(backupKey);
+	if (main === null && backup === null) return { kind: "empty" };
 	if (main !== null) {
-		const parsed = await tryParse(main);
-		if ("meta" in parsed) return { meta: parsed.meta, readOnly: false, notice: null };
-		if (parsed.error.code === "newer")
-			return { meta: createMetaState(), readOnly: true, notice: "newer" };
+		const parsed = await attempt(parse, main);
+		if ("value" in parsed) return { kind: "ok", value: parsed.value, text: main };
+		if (parsed.error.code === "newer") return { kind: "newer" };
 	}
-
 	if (backup !== null) {
-		const parsed = await tryParse(backup);
-		if ("meta" in parsed) return { meta: parsed.meta, readOnly: false, notice: "recovered" };
-		// A newer backup next to a broken main save is still a save from the future: leave everything alone.
-		if (parsed.error.code === "newer")
-			return { meta: createMetaState(), readOnly: true, notice: "newer" };
+		const parsed = await attempt(parse, backup);
+		if ("value" in parsed) return { kind: "recovered", value: parsed.value, badMain: main };
+		// A newer backup next to a broken main file is still a file from the future: leave everything alone.
+		if (parsed.error.code === "newer") return { kind: "newer" };
 	}
+	return { kind: "corrupt", text: main ?? backup ?? "" };
+}
 
-	const unreadable = main ?? backup;
-	try {
-		if (unreadable !== null) await keepCorrupt(io, unreadable);
-	} catch {
-		return { meta: createMetaState(), readOnly: true, notice: "unavailable" };
-	}
-	return { meta: createMetaState(), readOnly: false, notice: "corrupt" };
+/** The global file, or the single save of schemas 1 to 9, which carries the settings too. */
+interface GlobalFile {
+	settings: Settings;
+	legacy: MetaState | null;
+}
+
+async function parseGlobalFile(text: string): Promise<GlobalFile> {
+	if (!isLegacySave(text)) return { settings: await parseGlobal(text), legacy: null };
+	const legacy = await parseSave(text);
+	return { settings: legacy.settings, legacy };
 }
 
 /**
- * Applies `mutate` to the stored save and returns the merged account. The stored save is read again right before
- * writing (under `io.withLock` when there is one), so progress from a second tab is kept and the last writer
- * no longer wins. `mutate` may throw to refuse the change; nothing is written then. The last readable version is
- * copied to `save.bak` first. Throws, writing nothing, if the stored save is unreadable and no backup is usable,
- * or if it comes from a newer version.
+ * Moves the single save of schemas 1 to 9 into slot 1 and keeps its settings as the global ones. Slot 1 is written
+ * first and never over an existing file, so a crash between the two writes is repaired by running this again.
+ */
+async function migrateLegacy(io: SaveIO, legacy: MetaState, appVersion: string): Promise<Settings> {
+	if ((await io.read(slotKey(1))) === null && (await io.read(slotBackupKey(1))) === null) {
+		await io.write(slotKey(1), await serializeSave(legacy, appVersion));
+	}
+	const settings = { ...legacy.settings, lastSlot: 1 };
+	await io.write(SAVE_KEY, await serializeGlobal(settings, appVersion));
+	return settings;
+}
+
+export interface LoadedGlobal {
+	settings: Settings;
+	readOnly: boolean;
+	notice: SaveNotice | null;
+}
+
+/** Reads the shared settings (migrating the old single save into slot 1 the first time). */
+export async function loadGlobal(io: SaveIO, appVersion: string): Promise<LoadedGlobal> {
+	const fresh = (readOnly: boolean, notice: SaveNotice | null): LoadedGlobal => ({
+		settings: createSettings(),
+		readOnly,
+		notice,
+	});
+	let stored: Stored<GlobalFile>;
+	try {
+		stored = await readStored(io, SAVE_KEY, SAVE_BACKUP_KEY, parseGlobalFile);
+	} catch {
+		return fresh(true, "unavailable");
+	}
+	if (stored.kind === "empty") return fresh(false, null);
+	if (stored.kind === "newer") return fresh(true, "newer");
+	if (stored.kind === "corrupt") {
+		try {
+			await keepCorrupt(io, stored.text);
+		} catch {
+			return fresh(true, "unavailable");
+		}
+		return fresh(false, "corrupt");
+	}
+	const notice = stored.kind === "recovered" ? "recovered" : null;
+	if (stored.value.legacy === null) return { settings: stored.value.settings, readOnly: false, notice };
+	try {
+		return {
+			settings: await migrateLegacy(io, stored.value.legacy, appVersion),
+			readOnly: false,
+			notice,
+		};
+	} catch {
+		return { settings: stored.value.settings, readOnly: true, notice: "unavailable" };
+	}
+}
+
+export interface LoadedSlot {
+	profile: Profile;
+	readOnly: boolean;
+	notice: SaveNotice | null;
+}
+
+const parseProfile = async (text: string): Promise<Profile> => profileOf(await parseSave(text));
+
+/** Reads one slot; a slot never written is an empty profile. */
+export async function loadSlot(io: SaveIO, slot: number): Promise<LoadedSlot> {
+	const fresh = (readOnly: boolean, notice: SaveNotice | null): LoadedSlot => ({
+		profile: profileOf(createMetaState()),
+		readOnly,
+		notice,
+	});
+	let stored: Stored<Profile>;
+	try {
+		stored = await readStored(io, slotKey(slot), slotBackupKey(slot), parseProfile);
+	} catch {
+		return fresh(true, "unavailable");
+	}
+	if (stored.kind === "empty") return fresh(false, null);
+	if (stored.kind === "newer") return fresh(true, "newer");
+	if (stored.kind === "corrupt") {
+		try {
+			await keepCorrupt(io, stored.text);
+		} catch {
+			return fresh(true, "unavailable");
+		}
+		return fresh(false, "corrupt");
+	}
+	return {
+		profile: stored.value,
+		readOnly: false,
+		notice: stored.kind === "recovered" ? "recovered" : null,
+	};
+}
+
+const NOTICE_RANK: readonly (SaveNotice | null)[] = [null, "recovered", "corrupt", "unavailable", "newer"];
+const worse = (a: SaveNotice | null, b: SaveNotice | null): SaveNotice | null =>
+	NOTICE_RANK.indexOf(a) >= NOTICE_RANK.indexOf(b) ? a : b;
+
+/** Loads the shared settings and one slot as the game uses them: the slot's profile with the global settings. */
+export async function loadMeta(io: SaveIO, slot: number, appVersion: string): Promise<LoadedMeta> {
+	const global = await loadGlobal(io, appVersion);
+	const loaded = await loadSlot(io, slot);
+	return {
+		meta: { ...loaded.profile, settings: global.settings },
+		readOnly: global.readOnly || loaded.readOnly,
+		notice: worse(global.notice, loaded.notice),
+	};
+}
+
+/** A slot as the selection screen shows it. */
+export interface SlotSummary {
+	slot: number;
+	/** `empty`: never played or erased; `unreadable`: the file and its backup are damaged (left untouched). */
+	state: "empty" | "used" | "unreadable";
+	/** When the slot was last written (ISO), or null. */
+	savedAt: string | null;
+	souls: number;
+	/** Best round over every difficulty. */
+	bestRound: number;
+	/** Round the saved run resumes at, or null when no run is in progress. */
+	runRound: number | null;
+}
+
+/** True for a profile that has never been played: nothing earned, bought or recorded. */
+export function isEmptyProfile(profile: Profile): boolean {
+	return (
+		profile.souls === 0 &&
+		profile.stats.runs === 0 &&
+		profile.unlocks.length === 0 &&
+		Object.keys(profile.ossuary).length === 0 &&
+		profile.run === null
+	);
+}
+
+async function savedAtOf(io: SaveIO, slot: number): Promise<string | null> {
+	const text = await io.read(slotKey(slot));
+	if (text === null) return null;
+	try {
+		const at = (JSON.parse(text) as { savedAt?: unknown }).savedAt;
+		return typeof at === "string" ? at : null;
+	} catch {
+		return null;
+	}
+}
+
+/** The three slots for the selection screen. A slot that cannot be read is reported, never altered. */
+export async function readSlots(io: SaveIO): Promise<SlotSummary[]> {
+	const out: SlotSummary[] = [];
+	for (let slot = 1; slot <= SLOT_COUNT; slot++) {
+		const empty: SlotSummary = {
+			slot,
+			state: "empty",
+			savedAt: null,
+			souls: 0,
+			bestRound: 0,
+			runRound: null,
+		};
+		try {
+			const stored = await readStored(io, slotKey(slot), slotBackupKey(slot), parseProfile);
+			if (stored.kind === "empty") out.push(empty);
+			else if (stored.kind === "newer" || stored.kind === "corrupt")
+				out.push({ ...empty, state: "unreadable" });
+			else if (isEmptyProfile(stored.value)) out.push(empty);
+			else {
+				const p = stored.value;
+				out.push({
+					slot,
+					state: "used",
+					savedAt: await savedAtOf(io, slot),
+					souls: p.souls,
+					bestRound: Math.max(p.records.normal, p.records.grim, p.records.nightmare),
+					runRound: p.run?.round ?? null,
+				});
+			}
+		} catch {
+			out.push({ ...empty, state: "unreadable" });
+		}
+	}
+	return out;
+}
+
+const withLock = <T>(io: SaveIO, fn: () => Promise<T>): Promise<T> => (io.withLock ? io.withLock(fn) : fn());
+
+/**
+ * Applies `mutate` to the stored slot and settings and returns the merged account. Both are read again right before
+ * writing (under `io.withLock` when there is one), so progress from a second tab is kept. Only the file that changed
+ * is written, after copying its last readable version to its backup. `mutate` may throw to refuse the change;
+ * nothing is written then. Throws, writing nothing, if a file is from a newer version.
  */
 export function updateMeta(
 	io: SaveIO,
+	slot: number,
 	mutate: (meta: MetaState) => void,
 	appVersion: string,
 ): Promise<MetaState> {
-	return io.withLock
-		? io.withLock(() => mergeInto(io, mutate, appVersion))
-		: mergeInto(io, mutate, appVersion);
+	return withLock(io, () => mergeInto(io, slot, mutate, appVersion));
 }
 
-/** Adds a finished run to the stored save (see `updateMeta`). */
-export function persistRun(io: SaveIO, run: RunResult, appVersion: string): Promise<MetaState> {
-	return updateMeta(io, (meta) => applyRun(meta, run), appVersion);
+/** Adds a finished run to the stored slot (see `updateMeta`). */
+export function persistRun(io: SaveIO, slot: number, run: RunResult, appVersion: string): Promise<MetaState> {
+	return updateMeta(io, slot, (meta) => applyRun(meta, run), appVersion);
+}
+
+/** Wipes a slot, backup included, so it reads as empty. The shared settings are not touched. */
+export function eraseSlot(io: SaveIO, slot: number, appVersion: string): Promise<void> {
+	return withLock(io, async () => {
+		const stored = await readStored(io, slotKey(slot), slotBackupKey(slot), parseProfile);
+		if (stored.kind === "newer") throw new SaveError("slot was written by a newer version", "newer");
+		if (stored.kind === "corrupt") await keepCorrupt(io, stored.text);
+		const text = await serializeSave(createMetaState(), appVersion);
+		await io.write(slotBackupKey(slot), text);
+		await io.write(slotKey(slot), text);
+	});
 }
 
 async function mergeInto(
 	io: SaveIO,
+	slot: number,
 	mutate: (meta: MetaState) => void,
 	appVersion: string,
 ): Promise<MetaState> {
-	const current = await io.read(SAVE_KEY);
-	let merged = createMetaState();
-	let readable: string | null = null;
-	if (current !== null) {
-		const parsed = await tryParse(current);
-		if ("meta" in parsed) {
-			merged = parsed.meta;
-			readable = current;
-		} else if (parsed.error.code === "newer") {
-			throw parsed.error;
-		} else {
-			// Unreadable main save: keep the text aside, continue from the backup when there is a readable one.
-			await keepCorrupt(io, current);
-			const backup = await io.read(SAVE_BACKUP_KEY);
-			const fromBackup = backup === null ? null : await tryParse(backup);
-			if (fromBackup && "error" in fromBackup && fromBackup.error.code === "newer")
-				throw fromBackup.error;
-			if (fromBackup && "meta" in fromBackup) merged = fromBackup.meta;
-		}
+	let globalStored = await readStored(io, SAVE_KEY, SAVE_BACKUP_KEY, parseGlobalFile);
+	if ((globalStored.kind === "ok" || globalStored.kind === "recovered") && globalStored.value.legacy) {
+		await migrateLegacy(io, globalStored.value.legacy, appVersion);
+		globalStored = await readStored(io, SAVE_KEY, SAVE_BACKUP_KEY, parseGlobalFile);
 	}
+	const slotStored = await readStored(io, slotKey(slot), slotBackupKey(slot), parseProfile);
+	for (const stored of [globalStored, slotStored]) {
+		if (stored.kind === "newer") throw new SaveError("save was written by a newer version", "newer");
+		// Unreadable with no usable backup: keep the text aside and continue from a fresh file.
+		if (stored.kind === "corrupt") await keepCorrupt(io, stored.text);
+		if (stored.kind === "recovered" && stored.badMain !== null) await keepCorrupt(io, stored.badMain);
+	}
+	const settings =
+		globalStored.kind === "ok" || globalStored.kind === "recovered"
+			? globalStored.value.settings
+			: createSettings();
+	const profile =
+		slotStored.kind === "ok" || slotStored.kind === "recovered"
+			? slotStored.value
+			: profileOf(createMetaState());
+	const merged: MetaState = { ...structuredClone(profile), settings: structuredClone(settings) };
 	mutate(merged);
-	if (readable !== null) await io.write(SAVE_BACKUP_KEY, readable);
-	await io.write(SAVE_KEY, await serializeSave(merged, appVersion));
-	return merged;
+
+	const nextProfile = validateProfile(merged);
+	if (slotStored.kind !== "ok" || JSON.stringify(nextProfile) !== JSON.stringify(profile)) {
+		if (slotStored.kind === "ok") await io.write(slotBackupKey(slot), slotStored.text);
+		await io.write(slotKey(slot), await serializeSave(nextProfile, appVersion));
+	}
+	const nextSettings = validateSettings(merged.settings);
+	if (globalStored.kind !== "ok" || JSON.stringify(nextSettings) !== JSON.stringify(settings)) {
+		if (globalStored.kind === "ok") await io.write(SAVE_BACKUP_KEY, globalStored.text);
+		await io.write(SAVE_KEY, await serializeGlobal(nextSettings, appVersion));
+	}
+	return { ...nextProfile, settings: nextSettings };
 }

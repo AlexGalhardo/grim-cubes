@@ -11,7 +11,12 @@ export function fileFor(dir: string, key: unknown): string {
 	return join(dir, `${key}.json`);
 }
 
-const BACKUP_OF: Readonly<Partial<Record<StorageKey, StorageKey>>> = { save: "save.bak" };
+const BACKUP_OF: Readonly<Partial<Record<StorageKey, StorageKey>>> = {
+	save: "save.bak",
+	slot1: "slot1.bak",
+	slot2: "slot2.bak",
+	slot3: "slot3.bak",
+};
 
 /**
  * The save envelope as files under `dir` (`<userData>/saves/`), ADR-0009. Writes go to `<file>.tmp` and are renamed
