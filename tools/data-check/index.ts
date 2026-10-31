@@ -1,6 +1,7 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { checkAssets, checkRules } from "./rules";
 
 type Json = null | boolean | number | string | Json[] | { [key: string]: Json };
 type JsonObject = { [key: string]: Json };
@@ -226,7 +227,7 @@ export function checkIntegrity(data: DataSet): string[] {
 	return errors;
 }
 
-export function checkAll(data: DataSet, schemas: SchemaSet): string[] {
+export function checkAll(data: DataSet, schemas: SchemaSet, assetsDir?: string): string[] {
 	const errors: string[] = [];
 	for (const [file, value] of Object.entries(data)) {
 		const schemaName = file.replace(/\.json$/, ".schema.json");
@@ -239,7 +240,8 @@ export function checkAll(data: DataSet, schemas: SchemaSet): string[] {
 		validate(value, schema, schemas, schemaName, "$", fileErrors);
 		errors.push(...fileErrors.map((e) => `${file}: ${e}`));
 	}
-	errors.push(...checkIntegrity(data));
+	errors.push(...checkIntegrity(data), ...checkRules(data));
+	if (assetsDir !== undefined) errors.push(...checkAssets(data, assetsDir));
 	return errors;
 }
 
@@ -278,17 +280,29 @@ const EXPECTED_FILES = [
 	"render",
 ].map((n) => `${n}.json`);
 
-export function checkDir(dataDir: string): string[] {
+/** `assets/src` next to the data dir, if it exists (fixtures without assets skip the data -> assets check). */
+export function defaultAssetsDir(dataDir: string): string | undefined {
+	const dir = resolve(dirname(dataDir), "assets", "src");
+	return existsSync(dir) ? dir : undefined;
+}
+
+export function checkDir(
+	dataDir: string,
+	assetsDir: string | undefined = defaultAssetsDir(dataDir),
+): string[] {
 	const { data, schemas } = loadDir(dataDir);
 	const missing = EXPECTED_FILES.filter((f) => !(f in data)).map((f) => `${f}: file missing`);
-	return [...missing, ...checkAll(data, schemas)];
+	return [...missing, ...checkAll(data, schemas, assetsDir)];
 }
 
 /** Negative cases: every mutation must be reported. Returns the cases that went undetected. */
-export function selfTest(dataDir: string): string[] {
+export function selfTest(
+	dataDir: string,
+	assetsDir: string | undefined = defaultAssetsDir(dataDir),
+): string[] {
 	const { data, schemas } = loadDir(dataDir);
 	const clone = (): DataSet => structuredClone(data);
-	const cases: Array<[string, (d: DataSet) => void]> = [
+	const cases: Array<[string, (d: DataSet) => void, boolean?]> = [
 		[
 			"duplicate item id",
 			(d) => {
@@ -334,6 +348,176 @@ export function selfTest(dataDir: string): string[] {
 			},
 		],
 		[
+			"effect id outside the enum",
+			(d) => {
+				const e = asArray(
+					asArray(d["items.json"]).find((i) => asArray(i.effects).length > 0)?.effects,
+				)[0];
+				if (e) e.id = "not_an_effect";
+			},
+		],
+		[
+			"prop kind differs from the biome list",
+			(d) => {
+				const p = asArray(d["props.json"]).find((x) => x.kind === "decor");
+				if (p) p.kind = "breakable";
+			},
+		],
+		[
+			"world: unloadRadius <= loadRadius",
+			(d) => {
+				const w = d["world.json"];
+				if (isObject(w)) w.unloadRadius = w.loadRadius as number;
+			},
+		],
+		[
+			"world: pool too small",
+			(d) => {
+				const w = d["world.json"];
+				if (isObject(w)) w.poolSize = 10;
+			},
+		],
+		[
+			"weapon: damageMult / upgradePrices mismatch",
+			(d) => {
+				const w = asArray(d["weapons.json"])[0];
+				if (w) w.upgradePrices = [1];
+			},
+		],
+		[
+			"weapon: unlockRound 0",
+			(d) => {
+				const w = asArray(d["weapons.json"])[0];
+				if (w) w.unlockRound = 0;
+			},
+		],
+		[
+			"weapon: ranged without projectile speed",
+			(d) => {
+				const w = asArray(d["weapons.json"]).find((x) => x.kind !== "melee");
+				if (w && isObject(w.projectile)) w.projectile.speed = 0;
+			},
+		],
+		[
+			"rounds: duplicate tier",
+			(d) => {
+				const r = d["rounds.json"];
+				if (isObject(r)) {
+					const t = asArray(r.tierChance);
+					if (t[1] && t[0]) t[1].tier = t[0].tier as number;
+				}
+			},
+		],
+		[
+			"rounds: unlockedBy unknown difficulty",
+			(d) => {
+				const r = d["rounds.json"];
+				if (isObject(r)) {
+					const u = asArray(r.difficulties).find((x) => isObject(x.unlockedBy))?.unlockedBy;
+					if (isObject(u)) u.difficulty = "nope";
+				}
+			},
+		],
+		[
+			"rounds: hordeIntervalMult 0",
+			(d) => {
+				const r = d["rounds.json"];
+				if (isObject(r) && isObject(r.boss)) r.boss.hordeIntervalMult = 0;
+			},
+		],
+		[
+			"ossuary: broken chain",
+			(d) => {
+				const o = d["ossuary.json"];
+				if (isObject(o)) {
+					const n = asArray(asArray(o.branches)[0]?.nodes)[2];
+					if (n) n.requires = null;
+				}
+			},
+		],
+		[
+			"ossuary: cost not increasing",
+			(d) => {
+				const o = d["ossuary.json"];
+				if (isObject(o)) {
+					const n = asArray(asArray(o.branches)[0]?.nodes)[2];
+					if (n) n.cost = 1;
+				}
+			},
+		],
+		[
+			"ossuary: demoMaxNodeIndex out of range",
+			(d) => {
+				const o = d["ossuary.json"];
+				if (isObject(o)) o.demoMaxNodeIndex = 99;
+			},
+		],
+		[
+			"cards: doubleCard.bonuses > cards",
+			(d) => {
+				const c = d["cards.json"];
+				if (isObject(c) && isObject(c.doubleCard)) c.doubleCard.bonuses = 999;
+			},
+		],
+		[
+			"bosses: duplicate round",
+			(d) => {
+				const b = asArray(d["bosses.json"]);
+				if (b[1] && b[0]) b[1].round = b[0].round as number;
+			},
+		],
+		[
+			"bosses: round not a multiple of 10",
+			(d) => {
+				const b = asArray(d["bosses.json"])[0];
+				if (b) b.round = 7;
+			},
+		],
+		[
+			"bosses: bad delivery",
+			(d) => {
+				const b = asArray(d["bosses.json"])[0];
+				if (b) b.delivery = "SOON";
+			},
+		],
+		[
+			"hero: dodge above 1",
+			(d) => {
+				const h = d["hero.json"];
+				if (isObject(h) && isObject(h.caps)) h.caps.dodge = 1.5;
+			},
+		],
+		[
+			"hero: radius 0",
+			(d) => {
+				const h = d["hero.json"];
+				if (isObject(h) && isObject(h.base)) h.base.radius = 0;
+			},
+		],
+		[
+			"hero: speedMin above 0",
+			(d) => {
+				const h = d["hero.json"];
+				if (isObject(h) && isObject(h.caps)) h.caps.speedMin = 0.5;
+			},
+		],
+		[
+			"assets: missing floor tile model",
+			(d) => {
+				const b = asArray(d["biomes.json"]).find((x) => Array.isArray(x.floorTiles));
+				if (b && Array.isArray(b.floorTiles)) b.floorTiles[0] = "tile_missing_99";
+			},
+			true,
+		],
+		[
+			"assets: missing biome music",
+			(d) => {
+				const b = asArray(d["biomes.json"]).find((x) => typeof x.music === "string");
+				if (b) b.music = "mus_missing";
+			},
+			true,
+		],
+		[
 			"schema: missing required",
 			(d) => {
 				const e = asArray(d["enemies.json"])[0];
@@ -341,12 +525,13 @@ export function selfTest(dataDir: string): string[] {
 			},
 		],
 	];
-	const baseline = checkAll(data, schemas);
+	const baseline = checkAll(data, schemas, assetsDir);
 	const undetected = baseline.length > 0 ? [`baseline data is invalid: ${baseline[0]}`] : [];
-	for (const [label, mutate] of cases) {
+	for (const [label, mutate, needsAssets] of cases) {
+		if (needsAssets && assetsDir === undefined) continue;
 		const copy = clone();
 		mutate(copy);
-		if (checkAll(copy, schemas).length === 0) undetected.push(label);
+		if (checkAll(copy, schemas, assetsDir).length === 0) undetected.push(label);
 	}
 	return undetected;
 }
@@ -355,14 +540,21 @@ function main(argv: string[]): number {
 	const dirFlag = argv.indexOf("--data");
 	const dataDir = dirFlag >= 0 ? (argv[dirFlag + 1] ?? DEFAULT_DATA_DIR) : DEFAULT_DATA_DIR;
 
+	const assetsFlag = argv.indexOf("--assets");
+	const assetsDir = argv.includes("--no-assets")
+		? undefined
+		: assetsFlag >= 0
+			? resolve(argv[assetsFlag + 1] ?? "assets/src")
+			: defaultAssetsDir(dataDir);
+
 	if (argv.includes("--self-test")) {
-		const undetected = selfTest(dataDir);
+		const undetected = selfTest(dataDir, assetsDir);
 		for (const u of undetected) console.error(`self-test FAIL: not detected: ${u}`);
 		if (undetected.length === 0) console.log("data-check self-test: all negative cases detected");
 		return undetected.length === 0 ? 0 : 1;
 	}
 
-	const errors = checkDir(dataDir);
+	const errors = checkDir(dataDir, assetsDir);
 	for (const e of errors) console.error(e);
 	console.log(
 		errors.length === 0 ? `data-check: OK (${dataDir})` : `data-check: ${errors.length} error(s)`,

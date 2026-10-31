@@ -46,11 +46,13 @@
 				},
 				"dodge": {
 					"type": "number",
-					"minimum": 0
+					"minimum": 0,
+					"maximum": 1
 				},
 				"critChance": {
 					"type": "number",
-					"minimum": 0
+					"minimum": 0,
+					"maximum": 1
 				},
 				"critMult": {
 					"type": "number",
@@ -100,11 +102,13 @@
 				},
 				"critChance": {
 					"type": "number",
-					"minimum": 0
+					"minimum": 0,
+					"maximum": 1
 				},
 				"dodge": {
 					"type": "number",
-					"minimum": 0
+					"minimum": 0,
+					"maximum": 1
 				},
 				"speedMax": {
 					"type": "number",

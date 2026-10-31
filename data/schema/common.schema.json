@@ -66,7 +66,7 @@
 			"additionalProperties": false,
 			"properties": {
 				"id": {
-					"$ref": "common.schema.json#/$defs/id"
+					"$ref": "common.schema.json#/$defs/effectId"
 				},
 				"params": {
 					"type": "object"
@@ -77,6 +77,50 @@
 			"type": "array",
 			"items": {
 				"$ref": "common.schema.json#/$defs/effect"
+			}
+		},
+		"effectId": {
+			"enum": [
+				"bleed_on_crit",
+				"bonus_damage_vs_elites",
+				"card_rerolls",
+				"close_range_damage_mult",
+				"contact_damage",
+				"crit_chance_bonus",
+				"crit_mult_set",
+				"damage_per_missing_hp",
+				"dash_charges",
+				"dash_cooldown_reduction",
+				"dash_unlock",
+				"double_fragment_chance",
+				"end_of_round_fragment_bonus",
+				"extra_legendary_pool",
+				"extra_pierce",
+				"fragment_gain",
+				"guaranteed_uncommon_shop_item",
+				"hero_speed_penalty_while_firing",
+				"hit_all_in_arc",
+				"on_kill_explode",
+				"proximity_aura_damage",
+				"revive_once",
+				"self_damage_in_radius",
+				"shockwave_every_kills",
+				"soul_gain",
+				"start_gold",
+				"weak_phylactery"
+			]
+		},
+		"pattern": {
+			"type": "object",
+			"required": ["id"],
+			"additionalProperties": false,
+			"properties": {
+				"id": {
+					"$ref": "common.schema.json#/$defs/id"
+				},
+				"params": {
+					"type": "object"
+				}
 			}
 		}
 	}
