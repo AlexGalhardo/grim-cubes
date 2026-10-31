@@ -3,7 +3,15 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { estimateCredits, type FetchFn, type PromptEntry, parsePrompts, resolvePlan, run } from "./lib";
+import {
+	buildRequest,
+	estimateCredits,
+	type FetchFn,
+	type PromptEntry,
+	parsePrompts,
+	resolvePlan,
+	run,
+} from "./lib";
 
 const promptsPath = fileURLToPath(new URL("../../assets/src/audio/prompts.json", import.meta.url));
 const SECRET = "sk-test-secret-123";
@@ -181,5 +189,24 @@ describe("audio-generate", () => {
 		const base = { file: "a", prompt: "p", model: "m" };
 		expect(() => parsePrompts([{ ...base, kind: "sfx", durationSeconds: 0.3 }])).toThrow(/0.5-30/);
 		expect(() => parsePrompts([{ ...base, kind: "music", durationSeconds: 2 }])).toThrow(/3-600/);
+	});
+
+	it("asks the music API for force_instrumental only when the entry says so, and ships every track that way", async () => {
+		const base: PromptEntry = {
+			file: "m",
+			kind: "music",
+			prompt: "p",
+			durationSeconds: 60,
+			model: "music_v1",
+		};
+		expect(buildRequest(base).body).not.toHaveProperty("force_instrumental");
+		expect(buildRequest({ ...base, instrumental: true }).body).toMatchObject({
+			force_instrumental: true,
+		});
+		const music = (await loadPrompts()).filter((p) => p.kind === "music");
+		for (const m of music) {
+			expect(m.instrumental).toBe(true);
+			expect(m.prompt).toContain("no vocals, no choir, no singing, no humming");
+		}
 	});
 });

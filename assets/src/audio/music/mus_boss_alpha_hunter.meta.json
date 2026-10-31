@@ -1,8 +1,9 @@
 {
-	"prompt": "relentless heavy metal boss music, 140 BPM, stalking low guitar riffs, tribal war drums, tense high string stabs, predator hunt mood, grimdark, no cheerful synthesizers, seamless loop",
+	"prompt": "instrumental only, no vocals, no choir, no singing, no humming, no voices, relentless heavy metal boss music, 140 BPM, stalking low guitar riffs, tribal war drums, tense high string stabs, predator hunt mood, grimdark, no cheerful synthesizers, seamless loop",
 	"model": "music_v1",
 	"durationSeconds": 150,
-	"generatedAt": "2026-10-31T15:38:55.428Z",
+	"generatedAt": "2026-10-31T16:12:34.918Z",
 	"plan": "creator",
-	"hash": "35e666d9d6b8163ecc4965d2d2ab95498a6688043dfc33055dc5819ef03b4a25"
+	"hash": "1752ccbba1209b50503ec413759ae1918a003d40ecca65b2947ad6896cae4ca3",
+	"instrumental": true
 }

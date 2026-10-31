@@ -1,8 +1,9 @@
 {
-	"prompt": "aggressive heavy metal combat music, 130 BPM, chugging low guitars, pounding war drums, ominous low choir, grimdark rotting bone swamp mood, wet low drones, croaking dissonant choir, no cheerful synthesizers, seamless loop",
+	"prompt": "instrumental only, no vocals, no choir, no singing, no humming, no voices, aggressive heavy metal combat music, 130 BPM, chugging low guitars, pounding war drums, grimdark bone swamp mood, bubbling mud and croaking insect ambience, slow sludgy riffs, no cheerful synthesizers, seamless loop",
 	"model": "music_v1",
 	"durationSeconds": 150,
-	"generatedAt": "2026-10-31T15:37:54.889Z",
+	"generatedAt": "2026-10-31T16:12:06.810Z",
 	"plan": "creator",
-	"hash": "4737a19b8ec1a257a80dcdc4f52796e6da94210e99c2e649e1f54fd5eaaf6d28"
+	"hash": "7007915ba3230cc1d195a297a69ab4bfc6778b9d74b17010762ff22c4130e464",
+	"instrumental": true
 }

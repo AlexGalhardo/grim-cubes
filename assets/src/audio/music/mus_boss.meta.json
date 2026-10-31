@@ -1,8 +1,9 @@
 {
-	"prompt": "epic heavy boss battle music, 140 BPM, massive wordless choir, crushing industrial metal guitars, pounding orchestral percussion and anvil strikes, apocalyptic grimdark mood, no cheerful synthesizers, seamless loop",
+	"prompt": "instrumental only, no vocals, no choir, no singing, no humming, no voices, epic heavy boss battle music, 140 BPM, crushing industrial metal guitars, pounding orchestral percussion, anvil strikes and massive brass, apocalyptic grimdark mood, no cheerful synthesizers, seamless loop",
 	"model": "music_v1",
 	"durationSeconds": 60,
-	"generatedAt": "2026-10-31T15:38:36.308Z",
+	"generatedAt": "2026-10-31T16:12:23.510Z",
 	"plan": "creator",
-	"hash": "1234a47d12640292e7fd45b38d8008428d4a6e82012aa2bc40d6085db0d2f5b9"
+	"hash": "6803f1293f1195d519b3f4b77855ba8750735282fcf73b00b576fdc03f2aeb1a",
+	"instrumental": true
 }

@@ -1,8 +1,9 @@
 {
-	"prompt": "slow dark ritual music, 75 BPM, deep low choir chanting with distorted gregorian feel, heavy detuned guitar drones and slow war drums, grimdark, no cheerful synthesizers, seamless loop",
+	"prompt": "instrumental only, no vocals, no choir, no singing, no humming, no voices, slow dark atmospheric ambient music, 75 BPM, deep detuned guitar drones, slow war drums, cold metallic reverb pads and distant wind, grimdark ritual mood, no cheerful synthesizers, seamless loop",
 	"model": "music_v1",
 	"durationSeconds": 60,
-	"generatedAt": "2026-10-31T15:37:35.890Z",
+	"generatedAt": "2026-10-31T16:11:43.232Z",
 	"plan": "creator",
-	"hash": "c233db08f37674607f4990a1d09b8bc148dd659a17b32e5d4aedcc0d55e9edac"
+	"hash": "8840bceea8cc4eaad39994c966dc810cfe84d634b8db3d578c37dd090c7add0c",
+	"instrumental": true
 }

@@ -1,8 +1,9 @@
 {
-	"prompt": "aggressive heavy metal combat music, 130 BPM, chugging low guitars, pounding war drums, ominous low choir, grimdark infernal forge mood, anvil hammering percussion, roaring furnace drones, no cheerful synthesizers, seamless loop",
+	"prompt": "instrumental only, no vocals, no choir, no singing, no humming, no voices, aggressive heavy metal combat music, 130 BPM, chugging low guitars, pounding war drums, grimdark infernal forge mood, anvil hammering percussion, roaring furnace drones, no cheerful synthesizers, seamless loop",
 	"model": "music_v1",
 	"durationSeconds": 150,
-	"generatedAt": "2026-10-31T15:39:56.959Z",
+	"generatedAt": "2026-10-31T16:12:07.679Z",
 	"plan": "creator",
-	"hash": "9b399d954bab222e1667d3637afd9b4a423d97b8324481fdf5f6512d56048f83"
+	"hash": "459d060751cbd771812a6a666a1a95432c79db63ca2043756fabdfa0e6c475de",
+	"instrumental": true
 }
