@@ -1,7 +1,13 @@
 import { presetsData } from "@gc/game";
 import { describe, expect, it } from "vitest";
 import { createNullEngine } from "../engine";
-import { applyPreset, createDynamicScaler, pickAutoPreset, type QualityEngine } from "./quality";
+import {
+	applyPreset,
+	createDynamicScaler,
+	hardwareInfo,
+	pickAutoPreset,
+	type QualityEngine,
+} from "./quality";
 import { createGameScene } from "./scene";
 
 function fakeEngine(): QualityEngine & { levels: number[] } {
@@ -109,5 +115,31 @@ describe("automatic preset", () => {
 		for (const rule of auto.rules)
 			expect(presetsData.presets.some((p) => p.id === rule.preset)).toBe(true);
 		expect(presetsData.presets.some((p) => p.id === auto.fallback)).toBe(true);
+	});
+});
+
+describe("auto preset from the browser hardware (R-01-03)", () => {
+	// `mobile: true` is what detectPlatform reports for an Android user agent (platform tests cover that side).
+	const android = (
+		nav: { hardwareConcurrency?: number; deviceMemory?: number },
+		renderer?: string,
+	): string => pickAutoPreset(presetsData.auto, hardwareInfo(true, nav, renderer));
+
+	it("maps the navigator fields and leaves the hidden ones undefined", () => {
+		expect(hardwareInfo(true, { hardwareConcurrency: 8 }, "Adreno")).toEqual({
+			mobile: true,
+			cores: 8,
+			memoryGb: undefined,
+			renderer: "Adreno",
+		});
+	});
+
+	it("picks Low on Android, with or without deviceMemory", () => {
+		expect(android({ hardwareConcurrency: 8, deviceMemory: 4 }, "Adreno (TM) 740")).toBe("low");
+		expect(android({ hardwareConcurrency: 8 }, "Mali-G78")).toBe("low");
+	});
+
+	it("picks Minimum on a 2 GB Android", () => {
+		expect(android({ hardwareConcurrency: 8, deviceMemory: 2 }, "Mali-G52")).toBe("minimum");
 	});
 });

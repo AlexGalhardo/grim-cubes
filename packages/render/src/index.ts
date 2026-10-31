@@ -27,7 +27,7 @@ export { auraHex, mixAuras } from "./scene/aura";
 export { CAMERA } from "./scene/camera";
 export { LIGHTING, PALETTE } from "./scene/palette";
 export type { AppliedPreset, DynamicScaler, HardwareInfo, QualityEngine } from "./scene/quality";
-export { applyPreset, createDynamicScaler, pickAutoPreset } from "./scene/quality";
+export { applyPreset, createDynamicScaler, hardwareInfo, pickAutoPreset } from "./scene/quality";
 export type { GameScene } from "./scene/scene";
 export { createGameScene, GROUND_SIZE, HERO_SIZE } from "./scene/scene";
 export type { LoadedVat, VatMeta } from "./vat/loader";
