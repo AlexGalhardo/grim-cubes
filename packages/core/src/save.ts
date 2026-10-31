@@ -1,4 +1,4 @@
-export const SAVE_SCHEMA_VERSION = 6;
+export const SAVE_SCHEMA_VERSION = 7;
 export const SAVE_APP = "grim-cubes";
 /** Upper bound on any counter read from a save; far above a real run, low enough to reject garbage. */
 const MAX_COUNTER = 1_000_000_000;
@@ -11,6 +11,7 @@ export type Difficulty = "normal" | "grim" | "nightmare";
 export const DIFFICULTIES: readonly Difficulty[] = ["normal", "grim", "nightmare"];
 
 import { createKeyMap, KEY_ACTIONS, type KeyMap, validKeyMap } from "./keys";
+import { createPadMap, PAD_ACTIONS, type PadMap, validPadMap } from "./pad";
 
 export const LOCALES = ["pt-BR", "en"] as const;
 export type SettingsLocale = (typeof LOCALES)[number];
@@ -44,6 +45,8 @@ export interface Settings {
 	gore: boolean;
 	/** Remapped keyboard controls (`KeyboardEvent.code`). */
 	keys: KeyMap;
+	/** Remapped gamepad buttons (indexes of the standard mapping). */
+	pad: PadMap;
 }
 
 export function createSettings(): Settings {
@@ -61,6 +64,7 @@ export function createSettings(): Settings {
 		uiScale: 100,
 		gore: true,
 		keys: createKeyMap(),
+		pad: createPadMap(),
 	};
 }
 
@@ -160,6 +164,20 @@ function validateKeys(raw: unknown): KeyMap {
 	return keys;
 }
 
+/** Absent before schema 7: the default buttons. Present: integers in range, none shared or on the D-pad. */
+function validatePad(raw: unknown): PadMap {
+	if (raw === undefined) return createPadMap();
+	if (!isRecord(raw)) throw new SaveError("settings.pad must be an object");
+	const pad = createPadMap();
+	for (const action of PAD_ACTIONS) {
+		const button = raw[action];
+		if (typeof button !== "number") throw new SaveError(`settings.pad.${action} must be a button number`);
+		pad[action] = button;
+	}
+	if (!validPadMap(pad)) throw new SaveError("settings.pad has an invalid, reserved or shared button");
+	return pad;
+}
+
 function percent(value: unknown, label: string): number {
 	if (typeof value !== "number" || !Number.isInteger(value) || value < 0 || value > 100) {
 		throw new SaveError(`${label} must be an integer between 0 and 100`);
@@ -205,6 +223,7 @@ function validateSettings(raw: unknown): Settings {
 	if (!UI_SCALES.includes(uiScale as UiScale))
 		throw new SaveError("settings.uiScale must be 90, 100, 125 or 150");
 	const keys = validateKeys(raw.keys);
+	const pad = validatePad(raw.pad);
 	return {
 		preset: raw.preset,
 		volume: {
@@ -223,6 +242,7 @@ function validateSettings(raw: unknown): Settings {
 		uiScale: uiScale as UiScale,
 		gore,
 		keys,
+		pad,
 	};
 }
 
@@ -294,6 +314,21 @@ const SETTINGS_KEYS: Readonly<Record<number, readonly (keyof Settings)[]>> = {
 		"flashReduction",
 		"uiScale",
 		"gore",
+	],
+	6: [
+		"preset",
+		"volume",
+		"screenShake",
+		"locale",
+		"gameSpeed",
+		"telemetry",
+		"brightness",
+		"contrast",
+		"colorblind",
+		"flashReduction",
+		"uiScale",
+		"gore",
+		"keys",
 	],
 };
 

@@ -1,6 +1,13 @@
 export type { PlatformInfo, PlatformScope, Runtime } from "./detect";
 export { detectPlatform } from "./detect";
-export type { GamepadLike, InputSources, InputSourcesOptions, KeyBindings, KeyboardSource } from "./input";
+export type {
+	GamepadLike,
+	InputSources,
+	InputSourcesOptions,
+	KeyBindings,
+	KeyboardSource,
+	PadBindings,
+} from "./input";
 export {
 	applyDeadZone,
 	createInputSources,

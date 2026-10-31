@@ -1,4 +1,4 @@
-import { createKeyMap } from "@gc/core";
+import { createKeyMap, createPadMap } from "@gc/core";
 import { cleanup, render } from "@testing-library/react";
 import axe from "axe-core";
 import type { ReactElement } from "react";
@@ -93,6 +93,7 @@ test("the options screen has no serious violations", async () => {
 					uiScale: 100,
 					gore: true,
 					keys: createKeyMap(),
+					pad: createPadMap(),
 					locale: "pt-BR",
 					locales: [{ id: "pt-BR", name: "Português" }],
 				}}
@@ -110,6 +111,8 @@ test("the options screen has no serious violations", async () => {
 					setGore: vi.fn(),
 					setKey: vi.fn(() => ({ ok: true }) as const),
 					resetKeys: vi.fn(),
+					setPadButton: vi.fn(() => ({ ok: true }) as const),
+					resetPad: vi.fn(),
 					setLocale: vi.fn(),
 					close: vi.fn(),
 				}}

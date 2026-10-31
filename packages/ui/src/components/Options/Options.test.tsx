@@ -1,5 +1,5 @@
-import { createKeyMap, type KeyCheck } from "@gc/core";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { createKeyMap, createPadMap, type KeyCheck, type PadCheck } from "@gc/core";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
 import { Options, type OptionsActions, type OptionsViewModel } from "./Options";
 
@@ -22,6 +22,7 @@ const view: OptionsViewModel = {
 	uiScale: 100,
 	gore: true,
 	keys: createKeyMap(),
+	pad: createPadMap(),
 	locale: "pt-BR",
 	locales: [
 		{ id: "pt-BR", name: "Português" },
@@ -43,6 +44,8 @@ const actions = (): OptionsActions => ({
 	setGore: vi.fn(),
 	setKey: vi.fn(() => ({ ok: true }) as KeyCheck),
 	resetKeys: vi.fn(),
+	setPadButton: vi.fn(() => ({ ok: true }) as PadCheck),
+	resetPad: vi.fn(),
 	setLocale: vi.fn(),
 	close: vi.fn(),
 });
@@ -131,4 +134,58 @@ test("Esc while capturing cancels the capture and does not close the screen", ()
 	fireEvent.keyDown(window, { code: "Escape" });
 	expect(a.close).not.toHaveBeenCalled();
 	expect(a.setKey).not.toHaveBeenCalled();
+});
+
+function padWith(pressed: number[]) {
+	return { buttons: Array.from({ length: 16 }, (_, i) => ({ pressed: pressed.includes(i) })) };
+}
+
+test("the pad rows show the buttons and capture the next one pressed, ignoring what was already held", () => {
+	const frames: FrameRequestCallback[] = [];
+	vi.stubGlobal("requestAnimationFrame", (cb: FrameRequestCallback) => frames.push(cb));
+	vi.stubGlobal("cancelAnimationFrame", () => undefined);
+	const a = actions();
+	let state = padWith([0]);
+	render(<Options view={view} actions={a} getPad={() => state} />);
+	expect(screen.getByTestId("options-pad-dash").textContent).toBe("A");
+	expect(screen.getByTestId("options-pad-pause").textContent).toBe("Start");
+	fireEvent.click(screen.getByTestId("options-pad-dash"));
+	expect(screen.getByTestId("options-pad-dash").textContent).toBe("Pressione um botão...");
+	const tick = (): void => {
+		act(() => {
+			for (const cb of frames.splice(0)) cb(0);
+		});
+	};
+	// A was down when the capture began: it is not the new binding.
+	tick();
+	expect(a.setPadButton).not.toHaveBeenCalled();
+	state = padWith([]);
+	tick();
+	state = padWith([2]);
+	tick();
+	expect(a.setPadButton).toHaveBeenCalledWith("dash", 2);
+	expect(screen.getByTestId("options-pad-dash").textContent).toBe("A");
+	vi.unstubAllGlobals();
+});
+
+test("a refused pad button is explained and the capture goes on", () => {
+	const frames: FrameRequestCallback[] = [];
+	vi.stubGlobal("requestAnimationFrame", (cb: FrameRequestCallback) => frames.push(cb));
+	vi.stubGlobal("cancelAnimationFrame", () => undefined);
+	const a = actions();
+	vi.mocked(a.setPadButton).mockReturnValueOnce({ ok: false, reason: "conflict", with: "pause" });
+	let state = padWith([]);
+	render(<Options view={view} actions={a} getPad={() => state} />);
+	fireEvent.click(screen.getByTestId("options-pad-dash"));
+	state = padWith([9]);
+	act(() => {
+		for (const cb of frames.splice(0)) cb(0);
+	});
+	expect(screen.getByTestId("options-key-problem").textContent).toBe(
+		"Essa tecla já é usada por Pausa (botão do controle)",
+	);
+	expect(screen.getByTestId("options-pad-dash").textContent).toBe("Pressione um botão...");
+	fireEvent.keyDown(window, { code: "Escape" });
+	expect(screen.getByTestId("options-pad-dash").textContent).toBe("A");
+	vi.unstubAllGlobals();
 });

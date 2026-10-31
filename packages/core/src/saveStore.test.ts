@@ -58,7 +58,7 @@ test("when both are unreadable the bad text is kept aside", async () => {
 
 test("a save from a newer version is read-only and left untouched", async () => {
 	const newer = JSON.parse(await saved(99)) as Record<string, unknown>;
-	newer.schemaVersion = 7;
+	newer.schemaVersion = 99;
 	const text = JSON.stringify(newer);
 	const io = memory({ [SAVE_KEY]: text, [SAVE_BACKUP_KEY]: await saved(10) });
 	const loaded = await loadMeta(io);
@@ -138,7 +138,7 @@ test("persist continues from the backup when the main save is unreadable and kee
 
 test("persist refuses to write over a newer save", async () => {
 	const newer = JSON.parse(await saved(99)) as Record<string, unknown>;
-	newer.schemaVersion = 8;
+	newer.schemaVersion = 99;
 	const text = JSON.stringify(newer);
 	const io = memory({ [SAVE_KEY]: text });
 	await expect(persistRun(io, run(5), "0.2.0")).rejects.toMatchObject({ code: "newer" });
@@ -148,7 +148,7 @@ test("persist refuses to write over a newer save", async () => {
 
 test("a newer backup next to a broken main save is read-only too", async () => {
 	const newer = JSON.parse(await saved(99)) as Record<string, unknown>;
-	newer.schemaVersion = 8;
+	newer.schemaVersion = 99;
 	const io = memory({ [SAVE_KEY]: "{broken", [SAVE_BACKUP_KEY]: JSON.stringify(newer) });
 	expect(await loadMeta(io)).toMatchObject({ readOnly: true, notice: "newer" });
 	expect(io.writes).toEqual([]);

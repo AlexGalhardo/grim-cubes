@@ -1,4 +1,4 @@
-import { clampUnit, type InputState } from "@gc/core";
+import { clampUnit, createPadMap, type InputState, padBindingsFor } from "@gc/core";
 
 /** The slice of the Gamepad API that mapping reads. */
 export interface GamepadLike {
@@ -8,9 +8,14 @@ export interface GamepadLike {
 
 export const DEAD_ZONE = 0.2;
 
-const BUTTON_DASH = 0;
-const BUTTON_DASH_ALT = 5;
-const BUTTON_START = 9;
+/** Buttons that dash and pause (`padBindingsFor` of the Options remap); the defaults are A or RB, and Start. */
+export interface PadBindings {
+	dash: readonly number[];
+	pause: readonly number[];
+}
+
+export const DEFAULT_PAD_BINDINGS: PadBindings = padBindingsFor(createPadMap());
+
 const BUTTON_DPAD_UP = 12;
 const BUTTON_DPAD_DOWN = 13;
 const BUTTON_DPAD_LEFT = 14;
@@ -34,7 +39,12 @@ const scratch = { x: 0, y: 0 };
 const pressed = (pad: GamepadLike, i: number): boolean => pad.buttons[i]?.pressed === true;
 
 /** Reads the left stick and D-pad into `out`. Stick up (axis y = -1) becomes +z. */
-export function readGamepad(pad: GamepadLike, out: InputState, deadZone = DEAD_ZONE): void {
+export function readGamepad(
+	pad: GamepadLike,
+	out: InputState,
+	deadZone = DEAD_ZONE,
+	bindings: PadBindings = DEFAULT_PAD_BINDINGS,
+): void {
 	applyDeadZone(pad.axes[0] ?? 0, pad.axes[1] ?? 0, deadZone, scratch);
 	out.moveX = scratch.x;
 	out.moveZ = 0 - scratch.y;
@@ -48,6 +58,6 @@ export function readGamepad(pad: GamepadLike, out: InputState, deadZone = DEAD_Z
 		out.moveZ = (pressed(pad, BUTTON_DPAD_UP) ? 1 : 0) - (pressed(pad, BUTTON_DPAD_DOWN) ? 1 : 0);
 		clampUnit(out);
 	}
-	out.dash = pressed(pad, BUTTON_DASH) || pressed(pad, BUTTON_DASH_ALT);
-	out.pause = pressed(pad, BUTTON_START);
+	out.dash = bindings.dash.some((button) => pressed(pad, button));
+	out.pause = bindings.pause.some((button) => pressed(pad, button));
 }

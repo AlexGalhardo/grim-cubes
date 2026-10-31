@@ -253,5 +253,8 @@
 	"options.keyConflict": "Essa tecla já é usada por {action}",
 	"options.keyReserved": "Essa tecla é reservada",
 	"options.keyInvalid": "Essa tecla não pode ser usada",
-	"options.keysReset": "Restaurar teclas padrão"
+	"options.keysReset": "Restaurar teclas padrão",
+	"options.pad.dash": "Dash (botão do controle)",
+	"options.pad.pause": "Pausa (botão do controle)",
+	"options.padPress": "Pressione um botão..."
 }

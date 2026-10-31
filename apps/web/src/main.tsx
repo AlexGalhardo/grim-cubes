@@ -2,10 +2,12 @@ import {
 	applyRun,
 	COLORBLIND_MODES,
 	checkKey,
+	checkPadButton,
 	consoleSink,
 	createInputState,
 	createKeyMap,
 	createLogger,
+	createPadMap,
 	createStore,
 	createTelemetry,
 	createVirtualStick,
@@ -16,6 +18,9 @@ import {
 	keyBindingsFor,
 	loadMeta,
 	type MetaState,
+	type PadAction,
+	type PadCheck,
+	padBindingsFor,
 	persistRun,
 	type RunResult,
 	type SaveIO,
@@ -353,6 +358,18 @@ async function boot(): Promise<void> {
 			void changeSettings((st) => Object.assign(st.keys, createKeyMap()));
 			sources.keyboard.setBindings(keyBindingsFor(meta.settings.keys));
 		},
+		setPadButton: (action: PadAction, button: number): PadCheck => {
+			const check = checkPadButton(meta.settings.pad, action, button);
+			if (check.ok) {
+				void changeSettings((st) => (st.pad[action] = button));
+				sources.setPadBindings(padBindingsFor(meta.settings.pad));
+			}
+			return check;
+		},
+		resetPad: (): void => {
+			void changeSettings((st) => Object.assign(st.pad, createPadMap()));
+			sources.setPadBindings(padBindingsFor(meta.settings.pad));
+		},
 		setLocale: (id: string): void => setLocaleOption(id),
 		close: (): void => {
 			optionsOpen = false;
@@ -459,6 +476,7 @@ async function boot(): Promise<void> {
 	const sources = createInputSources({
 		target: window,
 		bindings: keyBindingsFor(meta.settings.keys),
+		padBindings: padBindingsFor(meta.settings.pad),
 		getGamepads: () => navigator.getGamepads(),
 		...(stick ? { stick } : {}),
 	});
@@ -905,6 +923,7 @@ async function boot(): Promise<void> {
 			uiScale: meta.settings.uiScale,
 			gore: meta.settings.gore,
 			keys: meta.settings.keys,
+			pad: meta.settings.pad,
 			locale: meta.settings.locale,
 			locales: [
 				{ id: "pt-BR", name: "Português" },

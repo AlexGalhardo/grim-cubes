@@ -99,3 +99,38 @@ test("dash is on Space, either Shift and gamepad buttons 0 and 5 (GDD 5)", () =>
 	readGamepad({ axes: [0, 0], buttons }, s);
 	expect(s.dash).toBe(true);
 });
+
+test("remapped gamepad buttons dash and pause, the shoulder button keeps dashing and the old buttons stop", () => {
+	const s = createInputState();
+	const buttons = Array.from({ length: 16 }, () => ({ pressed: false }));
+	const bindings = { dash: [2, 5], pause: [8] };
+	buttons[2] = { pressed: true };
+	readGamepad({ axes: [0, 0], buttons }, s, undefined, bindings);
+	expect([s.dash, s.pause]).toEqual([true, false]);
+	buttons[2] = { pressed: false };
+	buttons[5] = { pressed: true };
+	buttons[8] = { pressed: true };
+	readGamepad({ axes: [0, 0], buttons }, s, undefined, bindings);
+	expect([s.dash, s.pause]).toEqual([true, true]);
+	buttons[5] = { pressed: false };
+	buttons[8] = { pressed: false };
+	buttons[0] = { pressed: true };
+	buttons[9] = { pressed: true };
+	readGamepad({ axes: [0, 0], buttons }, s, undefined, bindings);
+	expect([s.dash, s.pause]).toEqual([false, false]);
+});
+
+test("the input sources apply a new gamepad remap at once", () => {
+	const buttons = Array.from({ length: 16 }, () => ({ pressed: false }));
+	const sources = createInputSources({
+		target: new EventTarget(),
+		getGamepads: () => [{ axes: [0, 0], buttons }],
+	});
+	const s = createInputState();
+	buttons[3] = { pressed: true };
+	sources.poll(s);
+	expect(s.dash).toBe(false);
+	sources.setPadBindings({ dash: [3], pause: [9] });
+	sources.poll(s);
+	expect(s.dash).toBe(true);
+});

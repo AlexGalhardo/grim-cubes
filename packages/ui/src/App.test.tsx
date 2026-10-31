@@ -1,4 +1,4 @@
-import { createKeyMap, createStore } from "@gc/core";
+import { createKeyMap, createPadMap, createStore } from "@gc/core";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
 import { App, type HudState } from "./App";
@@ -77,6 +77,7 @@ test("the button shows the current speed and hides while the options screen is o
 			uiScale: 100,
 			gore: true,
 			keys: createKeyMap(),
+			pad: createPadMap(),
 			locale: "pt-BR",
 			locales: [],
 		},
@@ -99,6 +100,8 @@ test("the button shows the current speed and hides while the options screen is o
 				setGore: vi.fn(),
 				setKey: vi.fn(() => ({ ok: true }) as const),
 				resetKeys: vi.fn(),
+				setPadButton: vi.fn(() => ({ ok: true }) as const),
+				resetPad: vi.fn(),
 				setLocale: vi.fn(),
 				close: vi.fn(),
 			}}
