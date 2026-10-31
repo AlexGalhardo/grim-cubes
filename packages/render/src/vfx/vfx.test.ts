@@ -802,3 +802,21 @@ describe("damage number material", () => {
 		dispose();
 	});
 });
+
+describe("melee cutting arc", () => {
+	it("draws an ember fan as long as the weapon's reach and fades it out", () => {
+		const { game, vfx, dispose } = setup();
+		vfx.onEvent(EventType.Swung, 0, 1, 3.25, 0);
+		vfx.update(0.01);
+		const mesh = game.scene.getMeshByName("vfx_slash") as Mesh | null;
+		expect(vfx.slash.live).toBe(1);
+		expect(mesh?.thinInstanceCount).toBe(1);
+		// The fan is a unit fan scaled to the reach (matrix x/z basis length).
+		const matrix = (mesh as unknown as { _thinInstanceDataStorage: { matrixData: Float32Array } })
+			._thinInstanceDataStorage.matrixData;
+		expect(Math.hypot(matrix[0] ?? 0, matrix[2] ?? 0)).toBeCloseTo(3.25, 4);
+		vfx.update(0.5);
+		expect(vfx.slash.live).toBe(0);
+		dispose();
+	});
+});

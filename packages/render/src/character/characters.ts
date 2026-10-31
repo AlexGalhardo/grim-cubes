@@ -76,6 +76,8 @@ const MERCHANT_OFFSET_Z = 0;
 const MERCHANT_SUBMERGE_SECONDS = 0.8;
 /** Seconds the camera takes to return to its radius after the boss execution. */
 const RETURN_SECONDS = 0.6;
+/** How far (u) the sword model reaches from the hero at scale 1 (measured in game); a longer `range` scales it up. */
+const WEAPON_VISUAL_REACH = 1.7;
 /** Time constant of the hero's turn towards its target or movement (about 0.08 s to cover most of the angle). */
 const HERO_TURN_SECONDS = 0.08;
 /** A stealthed boss shimmers for this long every `STEALTH_PERIOD` seconds so its 0.15 opacity stays readable. */
@@ -329,8 +331,11 @@ export function createCharacters(game: GameScene, options: CharactersOptions): C
 			}
 		},
 		onEvent(type, a, _b, c, _entity): void {
-			if (type === EventType.Swung) hero.playOnce("attack_melee");
-			else if (type === EventType.Fired) hero.playOnce("attack_ranged");
+			if (type === EventType.Swung) {
+				hero.playOnce("attack_melee");
+				// c = the reach now; the blade model alone reaches `WEAPON_VISUAL_REACH`, so it grows to match.
+				hero.setWeaponScale(Math.max(1, c / WEAPON_VISUAL_REACH));
+			} else if (type === EventType.Fired) hero.playOnce("attack_ranged");
 			else if (type === EventType.PlayerHit && c !== 1) hero.playOnce("hit");
 			else if (type === EventType.DashStarted) hero.playOnce("dash");
 			else if (type === EventType.Died && _entity === heroEntity) hero.playFinal("death");
