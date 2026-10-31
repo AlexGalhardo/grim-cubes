@@ -288,6 +288,8 @@
 	"voice.forgemaster.entry": "Vou forjar você em sucata.",
 	"voice.forgemaster.phase": "Minha armadura é inquebrável!",
 	"voice.forgemaster.death": "O fogo... se apaga.",
+	"options.hpBarHero": "Barra de vida do herói",
+	"options.hpBarEnemies": "Barras de vida dos inimigos",
 	"options.subtitles": "Legendas das falas dos chefes",
 	"tip.merchant": "Ande até o Mercador para abrir a loja.",
 	"merchant.go": "Vá até o Mercador",
