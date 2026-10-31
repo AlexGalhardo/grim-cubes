@@ -67,7 +67,7 @@ export function LevelUp({
 					onClick={onReroll}
 					className="min-h-12 border-2 border-iron-dark bg-night-2 px-4 font-display text-base text-bone hover:border-ember hover:text-ember-light focus-visible:outline-2 focus-visible:outline-ember"
 				>
-					Retirar cartas ({rerollsLeft}) [R]
+					Rolar cartas de novo ({rerollsLeft}) [R]
 				</button>
 			) : null}
 		</div>
