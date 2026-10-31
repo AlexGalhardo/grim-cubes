@@ -17,6 +17,7 @@ import {
 	applyOriginShift,
 	applyRoundEndBonus,
 	Boss,
+	behaviorConfigFromData,
 	biomesData,
 	bossesData,
 	cardsData,
@@ -30,6 +31,8 @@ import {
 	createDeathSystem,
 	createEffectsSystem,
 	createEliteSystem,
+	createEnemyShotPool,
+	createEnemyShotSystem,
 	createEventBuffer,
 	createGameWorld,
 	createLevelUpSystem,
@@ -172,7 +175,6 @@ async function boot(): Promise<void> {
 	const startingWeapon = weaponsData.find((w) => w.id === heroData.startingWeapon);
 	if (!startingWeapon) throw new Error(`Unknown starting weapon ${heroData.startingWeapon}`);
 	const enemyIds = enemiesData.map((e) => e.id);
-	const zigzagParams = enemiesData.find((e) => e.behavior === "zigzag")?.behaviorParams;
 
 	const hooks: { heroHit?: (source: number, taken: number) => void } = {};
 	const damage = createDamageSystem({
@@ -215,18 +217,6 @@ async function boot(): Promise<void> {
 		hero,
 		events,
 	});
-	const behavior = createBehaviorSystem(
-		{
-			zigzag: {
-				amplitude: Number(zigzagParams?.amplitude ?? 1.5),
-				periodSeconds: Number(zigzagParams?.periodSeconds ?? 0.8),
-			},
-			contactCooldownSeconds: heroData.combat.contactCooldownSeconds,
-			attackAnimationSeconds: roundsData.ai.attackAnimationSeconds,
-		},
-		damage.queue,
-	);
-
 	// `run` is created after `spawn` but spawn must call back into it for the fragment bag.
 	const bag: { release?: (w: typeof world, x: number, z: number) => void } = {};
 	const spawn = createSpawnSystem({
@@ -238,6 +228,18 @@ async function boot(): Promise<void> {
 	});
 	let benchEmit = 0;
 	let benchAngle = 0;
+	const enemyShots = createEnemyShotPool(world);
+	const enemyShotSystem = createEnemyShotSystem(enemyShots, damage.queue);
+	const behavior = createBehaviorSystem(
+		behaviorConfigFromData(
+			enemiesData,
+			heroData.combat.contactCooldownSeconds,
+			roundsData.ai.attackAnimationSeconds,
+			roundsData.spawn.maxSimultaneous,
+		),
+		damage.queue,
+		{ events, spawn, shots: enemyShots },
+	);
 	const benchPool = [
 		{ type: enemyIds.indexOf("husk"), weight: 6 },
 		{ type: enemyIds.indexOf("wail"), weight: 4 },
@@ -713,6 +715,7 @@ async function boot(): Promise<void> {
 				targeting.run(world, hero, weapon.range);
 				weapon.run(world, hero);
 				projectileSystem.run(world);
+				enemyShotSystem.run(world, hero);
 				aura.run(world, hero);
 				damage.run(world);
 				death.run(world);
