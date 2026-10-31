@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **repo:** Add `.gitattributes` (LF, binary assets), `README.md` and extend `.gitignore` with release, Android and signing artifacts ([abe4492](https://github.com/AlexGalhardo/grim-cubes/commit/abe4492dc6bbffc143d9ab2668dd6bb5b83ff33d))
 - **docs:** Align `CHANGELOG.md` with Keep a Changelog 1.1.0 and the vukem item format ([f14a65b](https://github.com/AlexGalhardo/grim-cubes/commit/f14a65b1190ab9e540e01daf8008bf31ee2be14b))
 - **docs:** Add `docs/legal/third-party.md` referenced by `LICENSE`
+- **build:** Add root `package.json` with workspaces, exact-pinned deps, SDD 10 scripts and tool stubs ([e154a99](https://github.com/AlexGalhardo/grim-cubes/commit/e154a993518cc134cc3d0e48bcc317b75ed400ac))
 
 ### Changed
 
