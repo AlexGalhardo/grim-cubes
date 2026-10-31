@@ -11,6 +11,7 @@
 		"enemies/wail",
 		"enemies/hunter",
 		"enemies/drowned",
-		"bosses/gravedigger"
+		"bosses/gravedigger",
+		"enemies/leech"
 	]
 }
