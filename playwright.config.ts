@@ -1,6 +1,8 @@
 import { defineConfig } from "@playwright/test";
 
-const PORT = 4173;
+// Not vite's default 4173, and never reuse a running server: another worktree's `vite preview` on 4173 was silently
+// being served instead of this build (different HUD, thousands of diff pixels).
+const PORT = 4273;
 
 // Software GL so the same pixels render on CI (no GPU) and on dev machines (SDD 11 §2).
 const swiftShaderArgs = [
@@ -18,8 +20,9 @@ const viewport = (width: number, height: number, mobile = false) => ({
 
 export default defineConfig({
 	testDir: "tests/e2e",
-	// Baselines are shared across OS: tests/visual/__screenshots__/boot-<project>.png
-	snapshotPathTemplate: "tests/visual/__screenshots__/{arg}{ext}",
+	// One baseline per OS (text anti-aliasing differs): boot-<project>-linux.png, boot-<project>-win32.png.
+	// The linux ones come from the Playwright container (see .github/workflows/update-snapshots.yml).
+	snapshotPathTemplate: "tests/visual/__screenshots__/{arg}-{platform}{ext}",
 	fullyParallel: true,
 	// SwiftShader renders the full scene on the CPU; more than one worker times out at 1080p/1440p.
 	workers: 1,
@@ -28,9 +31,9 @@ export default defineConfig({
 	reporter: [["list"], ["html", { open: "never", outputFolder: "playwright-report" }]],
 	expect: {
 		toHaveScreenshot: {
-			// 2%: text anti-aliasing differs slightly between the Windows dev machine and the Linux CI image;
-			// the 3D scene itself is software-rendered and stable. Tighten once baselines come only from CI.
-			maxDiffPixelRatio: 0.02,
+			// Same-OS baselines: allow a few stray pixels (SwiftShader rasterization noise) and small color shifts.
+			maxDiffPixels: 100,
+			threshold: 0.2,
 		},
 	},
 	use: {
@@ -42,13 +45,13 @@ export default defineConfig({
 		{ name: "desktop-1080", use: viewport(1920, 1080) },
 		{ name: "desktop-1440", use: viewport(2560, 1440) },
 		{ name: "mobile-l", use: viewport(896, 414, true) },
-		{ name: "mobile-s", use: viewport(800, 360) },
+		{ name: "mobile-s", use: viewport(800, 360, true) },
 	],
 	// Serves the existing build (dist/); run `bun run build` first.
 	webServer: {
 		command: `bunx vite preview --config apps/web/vite.config.ts --port ${PORT} --strictPort`,
 		url: `http://localhost:${PORT}`,
-		reuseExistingServer: !process.env.CI,
+		reuseExistingServer: false,
 		timeout: 60_000,
 	},
 });

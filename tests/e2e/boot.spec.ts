@@ -34,5 +34,11 @@ test("boots, renders on software GL and matches the baseline", async ({ page }, 
 	expect(renderer?.unmasked).toMatch(/swiftshader|angle/i);
 
 	await expect(page).toHaveScreenshot(`boot-${testInfo.project.name}.png`, { animations: "disabled" });
+	// UI layer alone, exact: the canvas is hidden (not masked: a mask would also cover the HUD drawn over it).
+	await expect(page).toHaveScreenshot(`ui-${testInfo.project.name}.png`, {
+		animations: "disabled",
+		stylePath: "tests/e2e/hide-canvas.css",
+		maxDiffPixels: 0,
+	});
 	expect(problems).toEqual([]);
 });
