@@ -1,4 +1,6 @@
 export type { GcGlobal } from "./gc";
+export type { InputState, VirtualStick } from "./input";
+export { clampUnit, createInputState, createVirtualStick } from "./input";
 export type { Logger, LoggerOptions, LogLevel, LogSink } from "./logger";
 export { createLogger } from "./logger";
 export type { Rng, RngStreams, StreamName } from "./rng";
