@@ -66,6 +66,7 @@ test("the button shows the current speed and hides while the options screen is o
 			volume: { master: 1, music: 1, sfx: 1 },
 			screenShake: true,
 			gameSpeed: 1,
+			telemetry: false,
 			locale: "pt-BR",
 			locales: [],
 		},
@@ -79,6 +80,7 @@ test("the button shows the current speed and hides while the options screen is o
 				setVolume: vi.fn(),
 				setScreenShake: vi.fn(),
 				setGameSpeed: vi.fn(),
+				setTelemetry: vi.fn(),
 				setLocale: vi.fn(),
 				close: vi.fn(),
 			}}

@@ -1,8 +1,10 @@
 import {
 	applyRun,
+	consoleSink,
 	createInputState,
 	createLogger,
 	createStore,
+	createTelemetry,
 	createVirtualStick,
 	type Described,
 	i18n,
@@ -292,6 +294,11 @@ async function boot(): Promise<void> {
 		},
 		setScreenShake: (on: boolean): void => void changeSettings((st) => (st.screenShake = on)),
 		setGameSpeed: (speed: number): void => setSpeed(speed),
+		setTelemetry: (on: boolean): void => {
+			void changeSettings((st) => (st.telemetry = on));
+			if (on) telemetry.track("session_start", { version: __APP_VERSION__, target: __BUILD_TARGET__ });
+			else telemetry.flush();
+		},
 		setLocale: (id: string): void => setLocaleOption(id),
 		close: (): void => {
 			optionsOpen = false;
@@ -605,6 +612,14 @@ async function boot(): Promise<void> {
 		propTypes,
 	);
 
+	// Telemetry (A-06-04): off by default; there is no service yet, so batches only reach the log.
+	const telemetry = createTelemetry({
+		enabled: () => meta.settings.telemetry,
+		sink: consoleSink((line) => log.info("telemetry", line)),
+		now: () => performance.now(),
+	});
+	telemetry.track("session_start", { version: __APP_VERSION__, target: __BUILD_TARGET__ });
+
 	// Sound (P-06-04): silent until the first input, then bus volumes from the Options screen.
 	const audio = createAudioEngine(createWebAudioDeps((message, id) => log.warn(message, id)));
 	for (const bus of ["master", "music", "sfx"] as const) {
@@ -708,6 +723,14 @@ async function boot(): Promise<void> {
 			elitesKilled: runStats.elitesKilled,
 		};
 		applyRun(meta, result);
+		telemetry.track("run_end", {
+			round: run.round,
+			difficulty: difficultyId,
+			kills: runStats.kills,
+			bosses: runStats.bossRounds.length,
+			died: run.state === "Results",
+		});
+		telemetry.flush();
 		if (!loaded.readOnly) {
 			// The stored save is re-read and the run added to it, so progress from another tab is kept.
 			persistRun(saveIO, result, __APP_VERSION__)
@@ -779,6 +802,7 @@ async function boot(): Promise<void> {
 			volume: meta.settings.volume,
 			screenShake: meta.settings.screenShake,
 			gameSpeed: meta.settings.gameSpeed,
+			telemetry: meta.settings.telemetry,
 			locale: meta.settings.locale,
 			locales: [
 				{ id: "pt-BR", name: "Português" },

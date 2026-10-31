@@ -34,9 +34,9 @@ export interface Store<T> {
 
 ## 3. Telas
 
-Mapa `screen → componente` (GDD §21.1): `Title`, `MainMenu`, `Difficulty`, `Hud` (sempre montado durante a run), `LevelUp`, `Shop`, `BossIntro` (só banner), `Results`, `Ossuary`, `Options`, `DemoEnd`, `Pause`. Cada tela é um componente em `packages/ui/src/screens/`.
+Mapa `screen → componente` (GDD §21.1; hoje a tela de título e o menu principal são um só componente, `Menu`): `Title`, `MainMenu`, `Difficulty`, `Hud` (sempre montado durante a run), `LevelUp`, `Shop`, `BossIntro` (só banner), `Results`, `Ossuary`, `Options`, `DemoEnd`, `Pause`. Cada tela é um componente em `packages/ui/src/screens/`.
 
-Hoje existem `LevelUp`, `Shop` e `Results` (com contagem animada das almas) e o HUD inline no `App` (barras de HP e XP, round, nível e ouro), todos em `packages/ui/src/components/<Nome>/<Nome>.tsx`, junto com `Panel`, `Button`, `Bar` e `VirtualJoystick`. As telas são `role="dialog"` e escutam teclado em `window` (`1`–`3` para cartas, atalhos da loja, Enter para recomeçar). A pasta `screens/` e as demais telas são provisórias até A-07/P-07-01. O texto fixo em português no TSX ("Round", "Lv") fica até a tarefa de locales (B-05-01).
+Hoje existem, em `packages/ui/src/components/<Nome>/<Nome>.tsx`: `Menu` (título, Jogar, Ossuário, Opções e recordes por dificuldade; aparece numa carga limpa da página, e links com `seed`, `difficulty`, `tutorial`, `debug`, `bench`, `tips` ou `preset` entram direto no jogo), `Difficulty`, `Options` (preset de vídeo com automático, volumes, tremor, velocidade 1x–3x, telemetria opt-in e idioma, gravados em `meta.settings`), `LevelUp`, `Shop`, `Results` (com contagem animada das almas), `Ossuary` e `DemoEnd` (fim do build `web-demo` depois do Coveiro; selo "DEMO" no HUD), além do HUD inline no `App`. O `App` também tem, no canto superior direito, o botão de velocidade (1x/2x/3x, que a tecla TAB também alterna) ao lado de "Opções". Enquanto o menu está aberto, `simulate` não roda. O texto vem do catálogo de locales (`t()`).
 
 Regras de implementação (React 19, sem dependência extra):
 
@@ -64,6 +64,8 @@ Breakpoints e regras do Art Bible §16.4 e §17. Implementação:
 - Testes visuais: os specs ficam em `tests/e2e/*.spec.ts` (boot, levelup, shop, results, fade, world, art-review) e gravam baselines em `tests/visual/__screenshots__/` nos 4 projetos do `playwright.config.ts`. A tolerância é definida no config (hoje `maxDiffPixelRatio` 0,02; a redução para `maxDiffPixels` + máscara do canvas está com o Est).
 
 ## 6. Acessibilidade
+
+Navegação (A-07-02): toda tela modal usa `useDialogNav` (`packages/ui/src/nav/`). O foco vai ao primeiro controle (ou ao marcado com `data-autofocus`) e volta ao anterior ao fechar; Tab fica dentro da tela; setas movem o foco (menos em slider, select e campo de texto, que mantêm as suas); Esc cancela nas telas que podem ser dispensadas (dificuldade, Options, Ossuário). No gamepad, A clica no controle focado, B cancela e o D-pad ou o analógico esquerdo movem o foco, com repetição ao segurar (`createPadNav`). Só a tela do topo escuta, e `:focus-visible` desenha o contorno âmbar em todo controle. Loja, level-up, resultados, menu e `DemoEnd` não têm cancelamento. Remap de teclas, modo daltônico, escala de UI e toggles de flash e gore (outros itens da A-07-02) ainda não existem.
 
 Art Bible §16.8: foco visível, `aria-label` em ícones, `aria-live` só para eventos raros, contraste; `prefers-reduced-motion` respeitado via tokens de motion.
 

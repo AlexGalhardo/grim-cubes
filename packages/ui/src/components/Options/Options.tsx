@@ -16,6 +16,7 @@ export interface OptionsViewModel {
 	screenShake: boolean;
 	/** 1, 2 or 3. */
 	gameSpeed: number;
+	telemetry: boolean;
 	locale: string;
 	locales: readonly { id: string; name: string }[];
 }
@@ -25,6 +26,7 @@ export interface OptionsActions {
 	setVolume(bus: VolumeBus, percent: number): void;
 	setScreenShake(on: boolean): void;
 	setGameSpeed(speed: number): void;
+	setTelemetry(on: boolean): void;
 	setLocale(id: string): void;
 	close(): void;
 }
@@ -115,6 +117,15 @@ export function Options({ view, actions }: OptionsProps): JSX.Element {
 									</option>
 								))}
 							</select>
+						</label>
+						<label className="flex min-h-12 items-center gap-2">
+							<input
+								type="checkbox"
+								data-testid="options-telemetry"
+								checked={view.telemetry}
+								onChange={(event) => actions.setTelemetry(event.target.checked)}
+							/>
+							{t("options.telemetry")}
 						</label>
 						<label className="flex flex-col gap-1">
 							{t("options.language")}
