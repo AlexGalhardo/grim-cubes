@@ -5,39 +5,43 @@
 		"warmupMs": 5000,
 		"measureMs": 30000,
 		"enemies": 100,
-		"frames": 561,
-		"seconds": 30.018599999994038,
-		"fpsAvg": 18.68841318382974,
-		"fpsP1": 9.460737937292382,
-		"frameP99": 105.70000000298023,
-		"frameMsAvg": 53.485918003581,
+		"frames": 508,
+		"seconds": 30.00840000000596,
+		"fpsAvg": 16.928593327198353,
+		"fpsP1": 7.76397515545915,
+		"frameP99": 128.79999999701977,
+		"frameMsAvg": 59.08976377954516,
 		"drawCalls": 10,
 		"drawCallsAvg": 10,
 		"activeMeshes": 18,
 		"heapMB": {
-			"start": 29.754638671875,
-			"end": 29.754638671875,
+			"start": 33.473968505859375,
+			"end": 33.473968505859375,
 			"delta": 0
-		}
+		},
+		"enemiesAvg": 100,
+		"projectilesAvg": 0
 	},
 	"round20": {
 		"seed": 42,
 		"warmupMs": 5000,
 		"measureMs": 30000,
-		"enemies": 29,
-		"frames": 569,
-		"seconds": 30.00109999999404,
-		"fpsAvg": 18.965971247724685,
-		"fpsP1": 8.841732978965064,
-		"frameP99": 113.1000000089407,
-		"frameMsAvg": 52.7231985940246,
+		"enemies": 100,
+		"frames": 578,
+		"seconds": 30.015,
+		"fpsAvg": 19.25703814759287,
+		"fpsP1": 10.298661174679555,
+		"frameP99": 97.09999999403954,
+		"frameMsAvg": 51.922837370226745,
 		"drawCalls": 10,
 		"drawCallsAvg": 10,
 		"activeMeshes": 18,
 		"heapMB": {
-			"start": 28.03802490234375,
-			"end": 28.03802490234375,
+			"start": 31.566619873046875,
+			"end": 31.566619873046875,
 			"delta": 0
-		}
+		},
+		"enemiesAvg": 100,
+		"projectilesAvg": 183.18333333333334
 	}
 }

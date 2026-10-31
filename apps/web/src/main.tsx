@@ -95,6 +95,12 @@ import "./main.css";
 
 const log = createLogger("boot");
 const HUD_HZ = 12;
+/** Live projectiles the round20 bench keeps in the pool (SDD 14 section 1: 200). */
+const BENCH_PROJECTILES = 200;
+/** Flight time of an emitted bench projectile, in steps (5 s). */
+const BENCH_PROJECTILE_STEPS = 300;
+/** Bench enemy hit points: nothing dies, so the horde stays at the cap. */
+const BENCH_ENEMY_HP = 1e9;
 const NO_CARDS: readonly CardView[] = [];
 const NO_STATS: HudState["stats"] = [];
 
@@ -220,6 +226,8 @@ async function boot(): Promise<void> {
 		events,
 		onSpawn: (w, x, z) => bag.release?.(w, x, z),
 	});
+	let benchEmit = 0;
+	let benchAngle = 0;
 	const benchPool = [
 		{ type: enemyIds.indexOf("husk"), weight: 6 },
 		{ type: enemyIds.indexOf("wail"), weight: 4 },
@@ -570,6 +578,31 @@ async function boot(): Promise<void> {
 		}
 	}
 
+	/** Real shots die in the crowd around the hero, so a ring emitter keeps the pool at the reference load: slow
+	 * harmless pellets that circle the horde and live 5 s. */
+	const emitBenchProjectiles = (): void => {
+		benchEmit += BENCH_PROJECTILES / BENCH_PROJECTILE_STEPS;
+		while (benchEmit >= 1) {
+			benchEmit -= 1;
+			benchAngle += 2.399963;
+			const radius = 7 + (benchAngle % 3);
+			projectiles.acquire({
+				x: (Position.x[hero] ?? 0) + Math.cos(benchAngle) * radius,
+				z: (Position.z[hero] ?? 0) + Math.sin(benchAngle) * radius,
+				vx: -Math.sin(benchAngle) * 3,
+				vz: Math.cos(benchAngle) * 3,
+				damage: 0,
+				critChance: 0,
+				knockback: 0,
+				pierce: 0,
+				lifeSteps: BENCH_PROJECTILE_STEPS,
+				radius: 0.15,
+				explosionRadius: 0,
+				selfFraction: 0,
+			});
+		}
+	};
+
 	const loop = createLoop({
 		simulate: () => {
 			if (bench) {
@@ -580,9 +613,20 @@ async function boot(): Promise<void> {
 				applyOriginShift(world, origin, hero, events, worldData);
 				chunks.update(origin.x + (Position.x[hero] ?? 0), origin.z + (Position.z[hero] ?? 0));
 				spawn.run(world, hero);
+				// Keep the horde at the cap: enemies are made effectively immortal (the bench measures the load, not the
+				// balance) and a spent quota starts another round.
+				if (spawn.remaining === 0) spawn.startRound(20, { pool: benchPool, difficultyMult: 1 });
+				const benchEnemies = queryEnemies(world);
+				for (let i = 0; i < benchEnemies.length; i++) {
+					const e = benchEnemies[i] ?? 0;
+					Health.hp[e] = Health.max[e] = BENCH_ENEMY_HP;
+				}
 				if (bench === "round20") {
 					targeting.run(world, hero, weapon.range);
 					weapon.run(world, hero);
+					// Real shots die in the crowd around the hero, so a ring emitter keeps the pool at the reference
+					// load: harmless slow pellets that circle the horde and live 5 s.
+					emitBenchProjectiles();
 					projectileSystem.run(world);
 				}
 				damage.run(world);
@@ -725,20 +769,54 @@ async function boot(): Promise<void> {
 	if (bench) {
 		// Round 20 against the spawn cap: the 100-enemy reference load (SDD 14 section 1).
 		spawn.startRound(20, { pool: benchPool, difficultyMult: 1 });
-	} else {
-		run.newRun();
+		// Start already at the reference load: fill the cap and the projectile pool before the warm-up begins.
+		for (
+			let step = 0;
+			step < 900 && queryEnemies(world).length < roundsData.spawn.maxSimultaneous;
+			step++
+		) {
+			spawn.run(world, hero);
+		}
+		if (bench === "round20") {
+			for (let step = 0; step < BENCH_PROJECTILE_STEPS; step++) {
+				emitBenchProjectiles();
+				projectileSystem.run(world);
+			}
+		}
+		const heavy = weaponsData.find((w) => w.id === "mg");
+		// Maximum-cadence MG at its top tier fires for real; the emitter below holds the projectile count.
+		if (bench === "round20" && heavy) weapon.setWeapon(heavy, weapon.maxTier);
 	}
 	if (__DEBUG_API__ && bench && window.gc.debug) {
 		const recorder = createBenchRecorder(game.scene, render.engine);
 		window.gc.debug.bench = {
 			scenario: bench,
 			enemies: () => queryEnemies(world).length,
-			/** Warm-up is discarded; resolves with the SDD 14 metrics of the measured window. */
+			projectiles: () => projectiles.active,
+			/**
+			 * Warm-up is discarded; resolves with the SDD 14 metrics of the measured window plus the mean live
+			 * enemies and projectiles over it (sampled every 100 ms), so a report proves the load it measured.
+			 */
 			run: (warmupMs: number, measureMs: number) =>
 				new Promise((resolve) => {
 					setTimeout(() => {
+						let samples = 0;
+						let enemySum = 0;
+						let projectileSum = 0;
+						const sampler = setInterval(() => {
+							samples++;
+							enemySum += queryEnemies(world).length;
+							projectileSum += projectiles.active;
+						}, 100);
 						recorder.start();
-						setTimeout(() => resolve(recorder.stop()), measureMs);
+						setTimeout(() => {
+							clearInterval(sampler);
+							resolve({
+								...recorder.stop(),
+								enemiesAvg: samples > 0 ? enemySum / samples : 0,
+								projectilesAvg: samples > 0 ? projectileSum / samples : 0,
+							});
+						}, measureMs);
 					}, warmupMs);
 				}),
 		};

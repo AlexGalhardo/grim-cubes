@@ -14,6 +14,7 @@ interface BenchWindow {
 			bench?: {
 				scenario: string;
 				enemies(): number;
+				projectiles(): number;
 				run(warmupMs: number, measureMs: number): Promise<Record<string, unknown>>;
 			};
 		};
@@ -69,7 +70,12 @@ for (const scenario of ["horde100", "round20"] as const) {
 			)}\n`,
 		);
 
-		expect(measured.enemies).toBeGreaterThan(0);
 		expect(measured.metrics.frames as number).toBeGreaterThan(0);
+		// The report only means something if the load was there: SDD 14 §1 asks for 100 enemies (and, for
+		// round20, ~200 projectiles). Elite and decals stay provisional until P-05-06 and the decal pool lands in
+		// the bench.
+		expect(measured.metrics.enemiesAvg as number).toBeGreaterThanOrEqual(95);
+		if (scenario === "round20")
+			expect(measured.metrics.projectilesAvg as number).toBeGreaterThanOrEqual(150);
 	});
 }
