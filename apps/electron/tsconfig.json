@@ -5,7 +5,8 @@
 		"types": ["bun"],
 		"outDir": "../../node_modules/.tsc/electron",
 		"tsBuildInfoFile": "../../node_modules/.tsc/electron/.tsbuildinfo",
-		"rootDir": "."
+		"rootDir": "../.."
 	},
-	"include": ["src"]
+	"include": ["src"],
+	"references": [{ "path": "../../packages/platform" }]
 }

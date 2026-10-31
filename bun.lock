@@ -39,6 +39,13 @@
         "vitest": "5.0.5",
       },
     },
+    "apps/electron": {
+      "name": "@gc/electron",
+      "version": "0.0.0",
+      "dependencies": {
+        "@gc/platform": "workspace:*",
+      },
+    },
     "apps/web": {
       "name": "@gc/web",
       "version": "0.0.0",
@@ -357,6 +364,8 @@
     "@fluentui/tokens": ["@fluentui/tokens@1.0.0-alpha.24", "", { "dependencies": { "@swc/helpers": "^0.5.1" } }, "sha512-YrjGQfnxBR+9o8wXyTflON3Ohsv7OrZWYLVRU+7RaiFO1gcu36iDm3WjudlVmYuWRLDO0Gmxotm6RQNhbZuEQQ=="],
 
     "@gc/core": ["@gc/core@workspace:packages/core"],
+
+    "@gc/electron": ["@gc/electron@workspace:apps/electron"],
 
     "@gc/game": ["@gc/game@workspace:packages/game"],
 

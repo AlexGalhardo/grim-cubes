@@ -2,7 +2,7 @@
 import "fake-indexeddb/auto";
 import { IDBFactory } from "fake-indexeddb";
 import { expect, test } from "vitest";
-import { createCapacitorStorage, createElectronStorage } from "./stubs";
+import { createCapacitorStorage } from "./stubs";
 import { MAX_VALUE_BYTES, NotImplementedError } from "./types";
 import { createWebStorage } from "./web";
 
@@ -46,8 +46,8 @@ test("a non-string stored value reads as absent", async () => {
 	expect(await storage.read("save")).toBeNull();
 });
 
-test("electron and capacitor stubs throw NotImplemented", async () => {
-	for (const storage of [createElectronStorage(), createCapacitorStorage()]) {
+test("the capacitor stub throws NotImplemented", async () => {
+	for (const storage of [createCapacitorStorage()]) {
 		await expect(storage.read("save")).rejects.toBeInstanceOf(NotImplementedError);
 		await expect(storage.write("save", "x")).rejects.toBeInstanceOf(NotImplementedError);
 	}

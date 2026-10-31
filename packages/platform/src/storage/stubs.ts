@@ -7,5 +7,4 @@ function stub(name: string): PlatformStorage {
 	return { read: fail, write: fail };
 }
 
-export const createElectronStorage = (): PlatformStorage => stub("electron");
 export const createCapacitorStorage = (): PlatformStorage => stub("capacitor");

@@ -55,7 +55,7 @@ const steps: { label: string; cmd: string[]; env?: Record<string, string> }[] = 
 	},
 	{
 		label: "installer and portable",
-		cmd: ["bunx", "electron-builder", "--win", "nsis", "portable", "--x64", "--publish", "never"],
+		cmd: ["bunx", "electron-builder", "--win", "nsis", "portable", "dir", "--x64", "--publish", "never"],
 		env: { CSC_IDENTITY_AUTO_DISCOVERY: "false" },
 	},
 ];

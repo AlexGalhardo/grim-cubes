@@ -1,6 +1,7 @@
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { app, BrowserWindow, Menu, net, protocol, session } from "electron";
+import { registerStorageIpc } from "./ipc";
 import { resolveAppPath } from "./paths";
 
 /**
@@ -86,6 +87,7 @@ if (!app.requestSingleInstanceLock()) {
 		// The game needs no browser permission (the Gamepad API is not gated): refuse everything.
 		session.defaultSession.setPermissionRequestHandler((_contents, _permission, done) => done(false));
 		session.defaultSession.setPermissionCheckHandler(() => false);
+		registerStorageIpc(join(app.getPath("userData"), "saves"));
 		serveDist();
 		openWindow();
 	});

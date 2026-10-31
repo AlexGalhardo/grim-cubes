@@ -114,3 +114,4 @@ Fonte: IDs dos rodapés `Refs: ROADMAP#` de eb12bc2 a 59d5a42, do commit mais re
 - `assets/audio-archive/` fica no git (17 MB); se passar de 50 MB, o Orq pergunta ao PO.
 - Pós-processo ffmpeg do `audio-generate` (SDD 08 §3: LUFS, trim, pitch de chefes).
 - Risco: conversor `.bbmodel` validado contra o próprio pipeline e o Babylon; os modelos refinados no Blockbench 5 passam pelo leitor de `groups` separado (4a4f19b).
+- Dívida (P3, Esp): HSTS (`Strict-Transport-Security`) no `vercel.json` só quando houver domínio próprio; no domínio `*.vercel.app` a Vercel já o aplica. Não fazer antes disso.
