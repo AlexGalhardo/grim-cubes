@@ -33,14 +33,17 @@ Pilar P5 (GDD §2) e Art Bible §5.4. Alvos de tela D31.
 | Decals | ≤ 200 | ≤ 60 |
 | Alocações no hot path | 0 por frame (verificado com heap snapshot: sem crescimento em 60 s) | idem |
 
+Estado no PROTÓTIPO: os testes de alocação usam contador (espião em `Array.prototype.filter/map/slice/concat/join` e nos construtores de TypedArray), não heap snapshot. O `heapMB` do bench fica como sinal complementar. Os props só são instanciados até Chebyshev ≤ `loadRadius` (49 chunks × no máximo 24 ≈ 1.176), para caber no limite de thin instances junto com a horda. Projéteis e fragmentos ainda não têm render (provisório até a tarefa de render de projéteis e fragmentos, a criar, e até P-04-05 para partículas e decals).
+
 ## 3. Técnicas obrigatórias
 
-- Thin instances para inimigos, props, fragmentos, partículas cúbicas e projéteis (1 mesh por tipo); buffers `Float32Array` reutilizados; `thinInstanceSetBuffer(..., false)` e `thinInstanceBufferUpdated` uma vez por frame por mesh.
+- Thin instances para inimigos, props, fragmentos, partículas cúbicas e projéteis (1 mesh por tipo); buffers `Float32Array` reutilizados; `thinInstanceSetBuffer(..., false)` e `thinInstanceBufferUpdated` uma vez por frame por buffer (na horda: matriz + `bakedVertexAnimationSettingsInstanced`; nos props com fade: matriz + `color`). O chão é 1 mesh com 1 quad por cubo, escrito por slot com `updateDirectly`.
 - VAT para animação de inimigos comuns; skeleton só para herói, NPC e chefes.
 - `scene.freezeActiveMeshes()` só para meshes estáticos (chão e props), com `scene.unfreezeActiveMeshes()` quando o anel de chunks muda ou em `OriginShifted`; meshes de thin instances animadas (inimigos) usam `alwaysSelectAsActiveMesh = true`; `material.freeze()` em todos os materiais estáticos; `mesh.freezeWorldMatrix()` em chão e props.
 - `scene.autoClear = false` onde o chão cobre a tela; `skipPointerMovePicking = true`; picking só para UI (nenhum `scene.pick` por frame).
 - Culling manual por distância na simulação (inimigos > 40 u são removidos sem drop) e no render (instâncias fora do frustum ampliado não entram no buffer).
 - `engine.setHardwareScalingLevel()` dinâmico via `SceneOptimizer` (Android): começa em `devicePixelRatio / 1.5`; degrada até 2,0 se p99 > 45 ms por 3 s; recupera lentamente.
+- Estado no PROTÓTIPO: chão, props e horda usam `alwaysSelectAsActiveMesh`, e `freezeWorldMatrix`/`material.freeze()` só no chão base e nos materiais placeholder estáticos (os props com fade não devem ser congelados, ver P-02-03). Ainda não estão no código, todos provisórios até A-01: `freezeActiveMeshes`, `autoClear = false`, `skipPointerMovePicking`, `SceneOptimizer`/scaling dinâmico. O culling de 40 u na simulação e o de frustum no render ficam para a P-03-05.
 - Texturas `NEAREST` e sem mipmaps em todos os atlas por ora (pixel art); mipmaps no atlas de chão ficam para uma medição futura.
 - Áudio: ≤ 24 vozes simultâneas; `maxInstances` por som.
 - UI: React a 12 Hz; nenhum layout thrash (medir com Performance panel: `Recalculate Style` < 1 ms por atualização).
@@ -49,8 +52,9 @@ Pilar P5 (GDD §2) e Art Bible §5.4. Alvos de tela D31.
 
 - `tools/perf/bench.spec.ts` (Playwright): carrega `?debug=1&bench=round20`, que instancia o cenário de referência determinístico (seed fixa), roda 5 s de warm-up (descartados) e 30 s de medição, e grava `{ fpsAvg, fpsP1, frameP99, drawCalls, activeMeshes, heapMB }` com `fpsAvg` = frames medidos / segundos, `activeMeshes` = pico de `scene.getActiveMeshes().length`, `drawCalls` = pico por frame de `SceneInstrumentation.drawCallsCounter` (média em `drawCallsAvg`); `frameP99` por `performance.now()` em `engine.onEndFrameObservable`; cenários `horde100` e `round20`, rodar com `bun run test:perf` (`BENCH_GPU=1` em GPU real), `performance.memory` quando disponível. Resultado em `reports/perf-<alvo>.json` e comentário no PR (informativo no CI com SwiftShader; os números válidos vêm da execução local/manual com GPU real, registrada no checklist de fase).
 - Android: mesmo cenário via Capacitor em device real; coleta com `adb shell dumpsys gfxinfo` + overlay de fps do jogo; registrado em `reports/perf-android-<device>.json` ao final de cada fase.
-- Inspector do Babylon (`@babylonjs/inspector`) disponível em `?debug=1` para profiling manual; nunca no bundle de produção.
-- Regressão: variação > 10% em `frameP99` ou > 15% em draw calls no bench do CI bloqueia o merge (comparação com `main`).
+- Cenários (só em build com `GC_DEBUG_API=1`, `?bench=` em `apps/web`): seed 42, herói parado, sem fluxo de run nem level-up. `horde100` mantém a horda no cap; `round20` acrescenta mira, arma e projéteis. Hoje o `round20` não sustenta a carga de referência (a horda cai abaixo de 100 e a arma inicial não gera 200 projéteis); elite e decals entram com a P-05-06 e a P-04-05. Tudo isso é provisório até a correção do round20 (S1). O relatório deve registrar `enemies` e `projectiles` médios.
+- Inspector do Babylon (`@babylonjs/inspector`) disponível em `?debug=1` para profiling manual; nunca no bundle de produção (provisório: ainda não ligado no `apps/web`).
+- Regressão: variação > 10% em `frameP99` ou > 15% em draw calls no bench do CI bloqueia o merge (comparação com `main`). Provisório até A-01: hoje o bench não roda no `ci.yml`.
 
 ## 5. Degradação controlada (opções de vídeo)
 

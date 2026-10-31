@@ -187,6 +187,8 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
   - Asserts: testes de cada arma com valores de `weapons.json`; bazuca a 1 u do herói causa 50% do dano nele; T4 da espada = dano ×3,2.
 - [ ] **P-04-05** Juice do combate (Art Bible §9, GDD §23): números de dano por engine (sprites), flash branco, partículas cúbicas de sangue (pool 600), decals (pool 200 FIFO), desmembramento em cubos, knockback visual, hit-stop (30/80 ms), vignette de dano, shake (toggle). Decals como thin instances de 1 quad (1 draw call). Deps: P-03-04, P-04-01. Resp: S1. Prio: P1.
   - Asserts: vídeo de 15 s no PR; pools nunca excedidos (asserts em debug); toggle de gore reduz decals a 0 e troca cor (captura comparativa); `frameP99` do bench não piora > 10% com VFX ligado.
+- [ ] **P-04-06** Render de projéteis e pilhas de fragmento (thin instances, 1 mesh por tipo, buffer reutilizado, sem alocação; emissivo conforme Art Bible §5.1), lendo `Projectile`/`Fragment` só para leitura. Deps: P-04-03, P-05-02. Resp: S1. Prio: P0.
+  - Asserts: teste NullEngine: 200 projéteis e 50 pilhas viram 1 draw call por tipo; contador de alocação 0 por frame; captura `combat-<alvo>.png` com tiros e drops visíveis nos 4 alvos.
 
 ### P-05 Rounds, loja, level-up, elite, chefe
 

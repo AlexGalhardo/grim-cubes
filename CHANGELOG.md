@@ -103,6 +103,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **e2e:** Add results e2e covering souls, record and persistence across reload ([b3c0267](https://github.com/AlexGalhardo/grim-cubes/commit/b3c0267ac9cc542277981e8932b320bf49b643b8))
 - **render:** Fade tall props between camera and hero (per-instance colour alpha, `data/render.json` `propFade`) with fade e2e capture ([b242dfc](https://github.com/AlexGalhardo/grim-cubes/commit/b242dfcbed7b9c5ff03e0808503032434f4022a2))
 - **docs:** SDD 14 §4 bench metrics as implemented; GDD §18.2 souls use the round where the run ended
+- **docs:** Amend SDD 03/06/07/09/14 to the implemented world, save, UI, asset pipeline and performance code; add P-04-06 (projectile and fragment rendering)
 - **docs:** Fix the GDD §18.2 souls example to match the formula
 - **ci:** Add CI (lint, typecheck, unit, integration, build-web, e2e gated) and CodeQL workflows (#1) ([da8923e](https://github.com/AlexGalhardo/grim-cubes/commit/da8923ee65069ec95a017f53a20937718c27413b))
 
