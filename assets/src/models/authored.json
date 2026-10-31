@@ -50,6 +50,16 @@
 		"props/prop_emberrock_01",
 		"props/prop_pipe_01",
 		"props/prop_barrel_01",
-		"props/prop_crate_01"
+		"props/prop_crate_01",
+		"props/prop_egg_01",
+		"props/prop_eggcluster_01",
+		"props/prop_pod_01",
+		"props/prop_spire_01",
+		"props/prop_tank_01",
+		"props/prop_cable_01",
+		"props/prop_circuit_01",
+		"props/prop_antenna_01",
+		"props/prop_mesh_01",
+		"props/prop_canister_01"
 	]
 }
