@@ -16,6 +16,7 @@ export async function bootArtReview(canvas: HTMLCanvasElement, params: URLSearch
 		id,
 		silhouette: params.get("silhouette") === "1",
 		ingame: params.get("ingame") === "1",
+		bare: params.get("bare") === "1",
 		mobile: window.innerWidth <= MOBILE_WIDTH,
 		...(params.get("biome") ? { biome: params.get("biome") as string } : {}),
 	});

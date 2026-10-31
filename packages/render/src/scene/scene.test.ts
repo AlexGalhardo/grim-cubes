@@ -12,7 +12,7 @@ test("minimal scene stays within the E-03-02 mesh budget", () => {
 	game.scene.render();
 	expect(game.scene.meshes.length).toBeLessThanOrEqual(5);
 	expect(game.scene.getActiveMeshes().length).toBeLessThanOrEqual(5);
-	expect(game.scene.lights.length).toBe(2);
+	expect(game.scene.lights.length).toBe(3);
 	game.dispose();
 	dispose();
 });

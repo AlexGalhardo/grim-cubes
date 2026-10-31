@@ -26,6 +26,8 @@ export interface ModelReviewOptions {
 	mobile?: boolean;
 	/** Biome id for the ground, fog and clear colour; derived from the model id when omitted. */
 	biome?: string;
+	/** `&bare=1`: the same shot without the model, to measure it against the ground by differencing the two. */
+	bare?: boolean;
 }
 
 /** The biome a model belongs to: the one whose props or enemy pool name it, else the first (the cemetery). */
@@ -41,7 +43,10 @@ const BOSS_BIOME: Readonly<Record<string, string>> = {
 export function biomeIdFor(id: string): string {
 	if (BOSS_BIOME[id]) return BOSS_BIOME[id];
 	const found = biomesData.find(
-		(b) => b.enemyPool.includes(id) || Object.values(b.props ?? {}).some((list) => list.includes(id)),
+		(b) =>
+			b.enemyPool.includes(id) ||
+			b.floorTiles?.includes(id) ||
+			Object.values(b.props ?? {}).some((list) => list.includes(id)),
 	);
 	return (found ?? biomesData[0])?.id ?? "sunken_cemetery";
 }
@@ -96,12 +101,19 @@ async function startIngameReview(engine: Engine | NullEngine, options: ModelRevi
 	if (entry?.kind !== "model") throw new Error(`Unknown model "${options.id}"`);
 	const mesh = await importModelMesh(scene, `${options.baseUrl}${entry.url}`);
 	mesh.material = atlasMaterial(entry.atlas ?? "atlas_characters", "ingame_model");
+	if (options.id.startsWith("tile_") || options.bare) mesh.setEnabled(false);
 
-	const tileId = biome?.floorTiles?.[0];
+	// Reviewing a floor tile shows that tile as the floor; anything else stands on the biome's first tile.
+	const isTile = options.id.startsWith("tile_");
+	const tileId = isTile ? options.id : biome?.floorTiles?.[0];
 	const tileEntry = tileId ? manifest.entries[tileId] : undefined;
 	if (tileEntry?.kind === "model") {
 		const tile = await importModelMesh(scene, `${options.baseUrl}${tileEntry.url}`);
-		tile.material = atlasMaterial(tileEntry.atlas ?? "atlas_props", "ingame_tile");
+		const floorMaterial = atlasMaterial(tileEntry.atlas ?? "atlas_props", "ingame_tile");
+		const shade =
+			LIGHTING.floorShade * (LIGHTING.floorBiomeShade[biomesData.indexOf(biome as never)] ?? 1);
+		floorMaterial.diffuseColor = new Color3(shade, shade, shade);
+		tile.material = floorMaterial;
 		tile.computeWorldMatrix(true);
 		const box = tile.getHierarchyBoundingVectors(true);
 		const size = Math.max(box.max.x - box.min.x, box.max.z - box.min.z) || 1;

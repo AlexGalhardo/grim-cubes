@@ -7,5 +7,7 @@ it("finds the biome of a prop or an enemy and falls back to the first", () => {
 	expect(biomeIdFor("forged")).toBe("infernal_forge");
 	expect(biomeIdFor("forgemaster")).toBe("infernal_forge");
 	expect(biomeIdFor("nest_queen")).toBe("biomech_nest");
+	expect(biomeIdFor("tile_forge_03")).toBe("infernal_forge");
+	expect(biomeIdFor("tile_nest_02")).toBe("biomech_nest");
 	expect(biomeIdFor("hero")).toBe("sunken_cemetery");
 });

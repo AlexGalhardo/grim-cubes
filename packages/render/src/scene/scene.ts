@@ -10,7 +10,7 @@ import { CreateBox } from "@babylonjs/core/Meshes/Builders/boxBuilder";
 import { CreateGround } from "@babylonjs/core/Meshes/Builders/groundBuilder";
 import type { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { Scene } from "@babylonjs/core/scene";
-import { createCamera } from "./camera";
+import { CAMERA, createCamera } from "./camera";
 import { LIGHTING, PALETTE } from "./palette";
 
 export const GROUND_SIZE = 16;
@@ -51,10 +51,18 @@ export function createGameScene(engine: Engine | NullEngine, mobile = false): Ga
 	sun.intensity = LIGHTING.sunIntensity;
 
 	const hemi = new HemisphericLight("hemi", Vector3.Up(), scene);
-	hemi.diffuse = Color3.FromHexString(PALETTE.mist);
+	hemi.diffuse = Color3.FromHexString(LIGHTING.hemiSky);
 	hemi.groundColor = Color3.FromHexString(PALETTE.shadow);
 	hemi.specular = Color3.Black();
 	hemi.intensity = LIGHTING.hemiIntensity;
+
+	// Rim: shines along the camera's view so every model gets a lit front, whatever the sun does.
+	// The camera sits at alpha -PI/2 (south of the hero) and looks down at (PI/2 - beta) of elevation.
+	const elevation = Math.PI / 2 - CAMERA.beta;
+	const rim = new DirectionalLight("rim", new Vector3(0, -Math.sin(elevation), Math.cos(elevation)), scene);
+	rim.diffuse = Color3.FromHexString(PALETTE.bone);
+	rim.specular = Color3.Black();
+	rim.intensity = LIGHTING.rimIntensity;
 
 	const ground: Mesh = CreateGround("ground", { width: GROUND_SIZE, height: GROUND_SIZE }, scene);
 	ground.material = flatMaterial(scene, "ground", PALETTE.night2);
