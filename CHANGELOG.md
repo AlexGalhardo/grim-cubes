@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **render:** The hero faces the enemy it is attacking while moving, with a smoothed shortest-path turn
+
 - **game:** Game speed 1x/2x/3x for testing: Options selector, TAB cycles it, a HUD button on every screen size; save schema 3 (`settings.gameSpeed`)
 - **audio:** Web Audio engine (buses, unlock, crossfaded music by state, event sounds) and 39 ElevenLabs assets documented in `docs/audio.md` (P-06-04, A-05-02)
 - **ui:** Options screen (video preset, volumes, screen shake, language) saved with the meta (A-01-01)
