@@ -113,7 +113,7 @@ async function enableKtx2(decoderUrl: string): Promise<void> {
 }
 
 /** Emissive texture gain: the ember pixels of the `_e.png` masks read as glowing under the dark night lighting. */
-const EMISSIVE_LEVEL = 2;
+export const EMISSIVE_LEVEL = 2;
 
 /** Flat, unlit-looking material sampling an atlas with NEAREST and no mipmaps (Art Bible §4, ADR-0014). */
 function atlasMaterial(scene: Scene, name: string, url: string, glowUrl?: string): StandardMaterial {

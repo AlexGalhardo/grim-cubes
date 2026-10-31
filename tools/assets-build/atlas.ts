@@ -1,8 +1,9 @@
 import { PNG } from "pngjs";
 import { RuleError } from "./rules";
 
-/** The largest atlas edge; an atlas takes the smallest power of two from `MIN_ATLAS_SIZE` that fits its sprites. */
+/** The largest atlas edge (px): the fallback when a set of sprites needs the biggest size. */
 export const ATLAS_SIZE = 2048;
+/** The smallest atlas edge (px); `fitAtlas` tries this and doubles until the sprites fit, up to `ATLAS_SIZE`. */
 export const MIN_ATLAS_SIZE = 256;
 /** Edge pixels copied outwards so NEAREST sampling never bleeds a neighbour sprite. */
 export const EXTRUDE = 2;
