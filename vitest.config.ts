@@ -24,6 +24,9 @@ export default defineConfig({
 				test: {
 					name: "unit",
 					environment: "node",
+					// The asset pipeline tests build whole atlases and catalogs; 5 s is too tight when the
+					// pre-push hook runs them while other builds load the CPU.
+					testTimeout: 30_000,
 					include: [
 						"packages/{core,game,render,platform}/**/*.test.ts",
 						"tools/**/*.test.ts",
