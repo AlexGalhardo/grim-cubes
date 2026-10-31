@@ -61,7 +61,7 @@ Fronteira de confiança: chaves fora de `STORAGE_KEYS` lançam `RangeError`. O v
 - Existentes: round-trip de serialização com `schemaVersion` 1; checksum adulterado, versão nova, tipos errados e campos faltando recusados; adaptador web com `fake-indexeddb` (chave inválida, valor não string, limite de tamanho); e2e `results.spec` (almas e recorde sobrevivem ao reload).
 - A fazer: corrupção cai no `.bak` e versão nova não é sobrescrita (provisório até P-05-08); migrações com fixtures (quando houver v2); escrita atômica simulada com falha no meio (Electron/Android); importação de save da demo.
 
-## 6. Telemetria opt-in (A-06-04)
+## 7. Telemetria opt-in (A-06-04)
 
 `packages/core/src/telemetry.ts`: `createTelemetry({ enabled, sink, now })`. Desligada por padrão (`settings.telemetry`, toggle na tela Options): com ela desligada nada é enfileirado nem enviado. Os eventos são de uma lista fechada (`session_start`, `run_start`, `run_end`, `boss_killed`, `error`) com propriedades planas (números, booleanos e textos de até 64 caracteres, chaves `snake_case`), sem texto livre, identificador do jogador ou dado do dispositivo; o tempo é relativo ao início da sessão. A fila guarda 200 eventos (descarta o mais antigo) e despacha lotes de 50.
 
