@@ -21,6 +21,7 @@ export type { ModelReviewOptions } from "./review/modelReview";
 export { startModelReview } from "./review/modelReview";
 export type { Atmosphere, BiomeLook } from "./scene/atmosphere";
 export { createAtmosphere } from "./scene/atmosphere";
+export { auraHex, mixAuras } from "./scene/aura";
 export { CAMERA } from "./scene/camera";
 export { LIGHTING, PALETTE } from "./scene/palette";
 export type { GameScene } from "./scene/scene";

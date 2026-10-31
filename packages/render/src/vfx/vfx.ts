@@ -67,6 +67,8 @@ export interface Vfx {
 	readonly numbers: DamageNumbers;
 	readonly telegraph: Telegraph;
 	readonly zones: Zones;
+	/** `speedMult` of the elite modifiers the boss carries (the Swift one): the charge line grows with it. */
+	setBossSpeedMult(mult: number): void;
 	/** Red edge vignette strength 0..1 (hit pulse plus low-HP warning), for the HUD. */
 	readonly vignette: number;
 	/** Camera shake in progress: remaining strength 0..1 of the last trigger. */
@@ -104,6 +106,7 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 
 	const telegraph = createTelegraph(game);
 	const zones = createZones(game);
+	let bossSpeedMult = 1;
 	/** Pattern index of the last BossPattern event per entity. */
 	const patternOf = new Uint8Array(MAX_ENTITIES);
 	// Execution of a boss (BossDied): a few bursts spread over EXECUTION_SECONDS while the death clip plays.
@@ -186,6 +189,9 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 		numbers,
 		telegraph,
 		zones,
+		setBossSpeedMult(mult): void {
+			bossSpeedMult = mult;
+		},
 		get gore(): boolean {
 			return gore;
 		},
@@ -249,6 +255,7 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 					// The charge runs at the enraged speed and hurts anything its body touches: boss and hero radii count.
 					const reach =
 						(boss?.speed ?? 0) *
+							bossSpeedMult *
 							enrageMult(roundsData.boss, Boss.enrageStacks[entity] ?? 0) *
 							num("speedMult", 1) *
 							num("chargeSeconds", 0.6) +

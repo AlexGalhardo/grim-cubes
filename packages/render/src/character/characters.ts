@@ -9,6 +9,7 @@ import {
 	queryEnemies,
 	Velocity,
 } from "@gc/game";
+import { mixAuras } from "../scene/aura";
 import { PALETTE } from "../scene/palette";
 import type { GameScene } from "../scene/scene";
 import type { Character } from "./character";
@@ -30,6 +31,11 @@ export interface Characters {
 	sync(world: GameWorld, alpha: number, dt: number, shopOpen: boolean): void;
 	onEvent(type: number, a: number, b: number, c: number, entity: number): void;
 	readonly executing: boolean;
+	/**
+	 * Elite modifiers the current boss carries (A-03-03), by `aura` token: the boss rig takes their mixed colour. Call
+	 * every frame with the same array while nothing changes; it only re-tints when the auras change.
+	 */
+	setBossAuras(auras: readonly string[]): void;
 	/** The hero was revived: leave the death pose. */
 	revive(): void;
 	/** Holds every rig on its idle pose (captures). */
@@ -56,6 +62,8 @@ export function createCharacters(game: GameScene, options: CharactersOptions): C
 	let activeBoss: Character | undefined;
 	let returnLeft = 0;
 	let phaseTinted: Character | undefined;
+	let auraKey = "";
+	let auraTinted: Character | undefined;
 
 	hero.setVisible(true);
 	merchant?.setVisible(false);
@@ -77,6 +85,12 @@ export function createCharacters(game: GameScene, options: CharactersOptions): C
 			hero.holdPose("idle", 0.25);
 			for (const rig of bosses) rig?.holdPose("idle", 0.25);
 			merchant?.holdPose("idle", 0.25);
+		},
+		setBossAuras(auras): void {
+			const key = auras.join(",");
+			if (key === auraKey) return;
+			auraKey = key;
+			auraTinted = undefined;
 		},
 		revive(): void {
 			hero.clearFinal();
@@ -109,6 +123,10 @@ export function createCharacters(game: GameScene, options: CharactersOptions): C
 			} else if (executionLeft <= 0 && activeBoss) {
 				activeBoss.setVisible(false);
 				activeBoss = undefined;
+			}
+			if (activeBoss && auraKey !== "" && auraTinted !== activeBoss) {
+				auraTinted = activeBoss;
+				activeBoss.setTint(mixAuras(auraKey.split(",")));
 			}
 			for (const rig of bosses) rig?.update(dt);
 

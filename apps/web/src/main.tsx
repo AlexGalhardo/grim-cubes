@@ -57,6 +57,7 @@ import {
 } from "@gc/game";
 import { createInputSources, createWebStorage, detectPlatform, type StorageKey } from "@gc/platform";
 import {
+	auraHex,
 	CAMERA,
 	type Character,
 	createAtmosphere,
@@ -96,16 +97,9 @@ const BENCH_PROJECTILE_STEPS = 300;
 const BENCH_ENEMY_HP = 1e9;
 /** Fragment piles drawn at once; piles beyond this are simply not shown (the drop cap keeps it far below). */
 const MAX_ENTITIES_FRAGMENTS = 256;
-const AURA_COLORS: Readonly<Record<string, string>> = {
-	steel_gray: PALETTE.ironLight,
-	amber: PALETTE.emberLight,
-	wine: PALETTE.bloodLight,
-	orange: PALETTE.ember,
-};
-
 /** Instance colour of an elite aura: the token colour pushed past 1 so the texture glows towards it. */
 function auraTint(aura: string): readonly [number, number, number] {
-	const hex = (AURA_COLORS[aura] ?? PALETTE.ironLight).slice(1);
+	const hex = auraHex(aura).slice(1);
 	const channel = (offset: number): number =>
 		(Number.parseInt(hex.slice(offset, offset + 2), 16) / 255) * 2;
 	return [channel(0), channel(2), channel(4)];
@@ -477,6 +471,7 @@ async function boot(): Promise<void> {
 	let lastChest: readonly CardView[] = NO_CARDS;
 	let lastBossJson = "";
 	let lastBoss: HudState["boss"] = null;
+	let lastBossAuras = "";
 	let lastChestSource: unknown = null;
 	let lastHud = Number.NEGATIVE_INFINITY;
 	let settled = false;
@@ -652,6 +647,17 @@ async function boot(): Promise<void> {
 			}
 		}
 		const bossView = lastBoss;
+		// The elite modifiers of a late boss (A-03-03) tint its rig and lengthen its charge line.
+		const carried = (view?.modifiers ?? []).flatMap((name) => {
+			const found = elitesData.modifiers.find((modifier) => modifier.name === name);
+			return found ? [found] : [];
+		});
+		const auraKey = carried.map((modifier) => modifier.aura).join(",");
+		if (auraKey !== lastBossAuras) {
+			lastBossAuras = auraKey;
+			characters?.setBossAuras(carried.map((modifier) => modifier.aura));
+			vfx.setBossSpeedMult(carried.reduce((mult, modifier) => mult * (modifier.speedMult ?? 1), 1));
+		}
 		const next: HudState = {
 			hp: Math.max(0, Math.ceil(Health.hp[hero] ?? 0)),
 			maxHp: Math.ceil(Health.max[hero] ?? 0),
