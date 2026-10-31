@@ -17,6 +17,8 @@ export interface HudState {
 	gold: number;
 	/** The level-up offer on screen; empty when none. */
 	cards: readonly CardView[];
+	/** The elite chest offer on screen; empty when none. */
+	chest: readonly CardView[];
 	/** The shop screen between rounds; null during a round. */
 	shop: ShopViewModel | null;
 	/** Hero stats shown beside the shop offers. */
@@ -30,11 +32,19 @@ export interface AppProps {
 	/** Present on touch devices: shows the floating joystick. */
 	stick?: VirtualStick | undefined;
 	onChooseCard?: ((index: number) => void) | undefined;
+	onChooseChest?: ((index: number) => void) | undefined;
 	shopActions?: ShopActions | undefined;
 	onRestart?: (() => void) | undefined;
 }
 
-export function App({ store, stick, onChooseCard, shopActions, onRestart }: AppProps): JSX.Element {
+export function App({
+	store,
+	stick,
+	onChooseCard,
+	onChooseChest,
+	shopActions,
+	onRestart,
+}: AppProps): JSX.Element {
 	const hud = useSyncExternalStore(store.subscribe, store.get);
 	return (
 		<div className="pointer-events-none absolute inset-0 p-4 font-display text-bone [text-shadow:1px_1px_0_var(--color-night)]">
@@ -47,6 +57,9 @@ export function App({ store, stick, onChooseCard, shopActions, onRestart }: AppP
 			</div>
 			{hud.cards.length > 0 && onChooseCard ? (
 				<LevelUp cards={hud.cards} onChoose={onChooseCard} />
+			) : null}
+			{hud.chest.length > 0 && onChooseChest ? (
+				<LevelUp cards={hud.chest} onChoose={onChooseChest} title="Baú Lendário" />
 			) : null}
 			{hud.shop && shopActions ? (
 				<Shop view={hud.shop} stats={hud.stats} actions={shopActions} />

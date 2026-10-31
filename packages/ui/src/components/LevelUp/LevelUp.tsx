@@ -9,10 +9,12 @@ export interface CardView {
 export interface LevelUpProps {
 	cards: readonly CardView[];
 	onChoose: (index: number) => void;
+	/** Heading; defaults to "Level up". The elite chest reuses this screen. */
+	title?: string;
 }
 
 /** Level-up overlay (Art Bible 16.5 `LevelUpCard`): pick 1 of up to 3 cards with a click, a tap or keys 1-3. */
-export function LevelUp({ cards, onChoose }: LevelUpProps): JSX.Element {
+export function LevelUp({ cards, onChoose, title = "Level up" }: LevelUpProps): JSX.Element {
 	useEffect(() => {
 		const onKey = (e: KeyboardEvent): void => {
 			const index = Number(e.key) - 1;
@@ -30,7 +32,7 @@ export function LevelUp({ cards, onChoose }: LevelUpProps): JSX.Element {
 			className="pointer-events-auto absolute inset-0 z-20 flex flex-col items-center justify-center gap-6 bg-night/70 p-4"
 		>
 			<h1 id="levelup-title" className="font-display text-2xl text-ember-light">
-				Level up
+				{title}
 			</h1>
 			<div className="flex w-full max-w-4xl flex-col gap-3 mobile-l:flex-row">
 				{cards.map((card, i) => (

@@ -34,3 +34,8 @@ test("keys 1-3 choose and other keys are ignored", () => {
 	fireEvent.keyDown(window, { key: "a" });
 	expect(onChoose.mock.calls).toEqual([[0], [2]]);
 });
+
+test("a custom title replaces the default heading", () => {
+	render(<LevelUp cards={cards} onChoose={() => {}} title="Baú Lendário" />);
+	expect(screen.getByRole("heading", { name: "Baú Lendário" })).toBeTruthy();
+});

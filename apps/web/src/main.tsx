@@ -18,11 +18,13 @@ import {
 	cardsData,
 	createAuraSystem,
 	createBehaviorSystem,
+	createChestSystem,
 	createChunkGenerator,
 	createChunkSystem,
 	createDamageSystem,
 	createDeathSystem,
 	createEffectsSystem,
+	createEliteSystem,
 	createEventBuffer,
 	createGameWorld,
 	createLevelUpSystem,
@@ -43,7 +45,10 @@ import {
 	createTargetingSystem,
 	createWeaponSystem,
 	damageConfigFromHero,
+	describeModifier,
 	describeStats,
+	Elite,
+	elitesData,
 	enemiesData,
 	Health,
 	heroData,
@@ -79,6 +84,7 @@ import {
 	type PropTypeDef,
 } from "@gc/render";
 import { App, type CardView, type HudState } from "@gc/ui";
+import { query } from "bitecs";
 import { createRoot } from "react-dom/client";
 import { bootArtReview } from "./artReview";
 import "./main.css";
@@ -146,6 +152,7 @@ async function boot(): Promise<void> {
 	const enemyIds = enemiesData.map((e) => e.id);
 	const zigzagParams = enemiesData.find((e) => e.behavior === "zigzag")?.behaviorParams;
 
+	const hooks: { heroHit?: (source: number, taken: number) => void } = {};
 	const damage = createDamageSystem({
 		config: damageConfigFromHero(heroData),
 		rng,
@@ -154,6 +161,7 @@ async function boot(): Promise<void> {
 		stats: stats.stats,
 		effects: itemEffects.effects,
 		runStats,
+		onHeroHit: (source, taken) => hooks.heroHit?.(source, taken),
 	});
 	const separation = createSeparationSystem({
 		weight: roundsData.ai.separationWeight,
@@ -210,6 +218,21 @@ async function boot(): Promise<void> {
 		{ type: enemyIds.indexOf("husk"), weight: 6 },
 		{ type: enemyIds.indexOf("wail"), weight: 4 },
 	];
+	const elitePool = [
+		{ type: enemyIds.indexOf("husk"), weight: 6 },
+		{ type: enemyIds.indexOf("wail"), weight: 4 },
+	];
+	const elite = createEliteSystem({
+		config: elitesData,
+		spawn,
+		events,
+		queue: damage.queue,
+		rng: rng.elite,
+		pool: () => elitePool,
+		ring: { min: roundsData.spawn.ringMin, max: roundsData.spawn.ringMax },
+		hero,
+	});
+	hooks.heroHit = elite.handleHeroHit;
 	const run = createRunSystem({
 		config: { flow: roundsData.flow, duration: roundsData.duration, boss: roundsData.boss },
 		spawn,
@@ -220,6 +243,7 @@ async function boot(): Promise<void> {
 			{ type: enemyIds.indexOf("wail"), weight: 4 },
 		],
 		difficultyMult: 1,
+		onRoundStart: (round, boss) => elite.onRoundStart(round, boss),
 		onRoundEnd: (round) => {
 			applyHarvest(progress, fragments, xp, round, stats.stats.harvest, stats.stats.xpGain);
 			applyRoundEndBonus(progress, fragments, xp, itemEffects.effects, stats.stats.xpGain);
@@ -234,6 +258,7 @@ async function boot(): Promise<void> {
 		round: () => run.round,
 		effects: itemEffects.effects,
 		runStats,
+		onDeath: (w, e, x, z) => elite.handleDeath(w, e, x, z),
 	});
 	const pickup = createPickupSystem({
 		fragments,
@@ -249,6 +274,18 @@ async function boot(): Promise<void> {
 		round: () => run.round,
 	});
 	const levelUp = createLevelUpSystem({ progress, run, cards: cardsData, rng: rng.cards, stats, events });
+	const chest = createChestSystem({
+		reward: elitesData.reward,
+		items: itemsData,
+		rng: rng.loot,
+		run,
+		stats,
+		owned,
+		onItemTaken: itemEffects.refresh,
+		events,
+		blocked: () => levelUp.offer !== null,
+		pickupRadius: () => stats.stats.pickupRadius,
+	});
 	const shop = createShopSystem({
 		config: roundsData.shop,
 		tiers: roundsData.tierChance,
@@ -285,6 +322,7 @@ async function boot(): Promise<void> {
 		xpNeeded: xpForLevel(xp, 1),
 		gold: 0,
 		cards: NO_CARDS,
+		chest: NO_CARDS,
 		shop: null,
 		stats: [],
 		results: null,
@@ -294,6 +332,7 @@ async function boot(): Promise<void> {
 			store={hud}
 			stick={stick}
 			onChooseCard={(index) => levelUp.choose(index)}
+			onChooseChest={(index) => chest.choose(index)}
 			onRestart={() => location.reload()}
 			shopActions={{
 				buy: (index) => {
@@ -381,6 +420,8 @@ async function boot(): Promise<void> {
 	const fighting = (): boolean => run.state === "Round" || run.state === "BossRound";
 	let lastOffer: readonly CardView[] = NO_CARDS;
 	let lastOfferSource: unknown = null;
+	let lastChest: readonly CardView[] = NO_CARDS;
+	let lastChestSource: unknown = null;
 	let lastHud = Number.NEGATIVE_INFINITY;
 	let inShop = false;
 	let settled = false;
@@ -447,6 +488,17 @@ async function boot(): Promise<void> {
 			lastOfferSource = offer;
 			lastOffer = offer ? offer.map((c) => ({ id: c.id, name: c.name, double: c.double })) : NO_CARDS;
 		}
+		const chestOffer = chest.offer;
+		if (chestOffer !== lastChestSource) {
+			lastChestSource = chestOffer;
+			lastChest = chestOffer
+				? chestOffer.map((c) => ({
+						id: c.id,
+						name: [c.name, ...c.modifiers.map(describeModifier)].join(": "),
+						double: false,
+					}))
+				: NO_CARDS;
+		}
 		let shopView: HudState["shop"] = null;
 		if (run.state === "Shop") {
 			const view = shop.view();
@@ -468,6 +520,7 @@ async function boot(): Promise<void> {
 			xpNeeded: xpForLevel(xp, progress.level),
 			gold: Math.floor(progress.gold),
 			cards: lastOffer,
+			chest: lastChest,
 			shop: shopView,
 			stats: shopView ? describeStats(stats.stats) : NO_STATS,
 			results,
@@ -481,6 +534,7 @@ async function boot(): Promise<void> {
 			cur.xp !== next.xp ||
 			cur.gold !== next.gold ||
 			cur.cards !== next.cards ||
+			cur.chest !== next.chest ||
 			cur.shop !== next.shop ||
 			cur.results !== next.results
 		) {
@@ -526,6 +580,8 @@ async function boot(): Promise<void> {
 				damage.run(world);
 				death.run(world);
 				pickup.run(world, hero);
+				elite.run(world);
+				chest.run(world, hero);
 				stats.run(hero);
 				levelUp.run();
 				if ((Health.hp[hero] ?? 0) <= 0 && !itemEffects.tryRevive(hero)) run.heroDied();
@@ -574,6 +630,12 @@ async function boot(): Promise<void> {
 				progress.gold += amount;
 			},
 			endRound: () => run.forceEnd(world),
+			spawnElite: (modifier?: number) => {
+				elite.spawnNow(world, (Position.x[hero] ?? 0) + 1.5, Position.z[hero] ?? 0, modifier);
+			},
+			killElites: () => {
+				for (const e of query(world, [Elite])) Health.hp[e] = 0;
+			},
 			killHero: () => {
 				Health.hp[hero] = 0;
 			},
