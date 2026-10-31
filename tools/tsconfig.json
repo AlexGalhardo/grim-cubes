@@ -6,5 +6,6 @@
 		"tsBuildInfoFile": "../node_modules/.tsc/tools/.tsbuildinfo",
 		"rootDir": "."
 	},
-	"include": ["**/*.ts"]
+	"include": ["**/*.ts"],
+	"references": [{ "path": "../packages/core" }, { "path": "../packages/game" }]
 }
