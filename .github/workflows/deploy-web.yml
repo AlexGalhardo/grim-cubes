@@ -1,0 +1,48 @@
+name: Deploy smoke
+
+# Vercel deploys through its GitHub integration; this workflow only smoke-tests a
+# finished production deployment (SDD 12 §1).
+on:
+  deployment_status:
+
+concurrency:
+  group: deploy-smoke-${{ github.event.deployment.sha }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  BUN_VERSION: "1.4.4"
+
+jobs:
+  smoke:
+    name: smoke
+    if: github.event.deployment_status.state == 'success' && github.event.deployment.environment == 'Production'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
+      options: --ipc=host
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      # The Playwright image has no unzip, which setup-bun needs; npm ships the same Bun binary.
+      - run: npm install -g bun@${{ env.BUN_VERSION }}
+      - uses: actions/cache@v6
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+      - run: bun install --frozen-lockfile
+      - name: Smoke test the production deployment
+        env:
+          TARGET_URL: ${{ github.event.deployment_status.target_url }}
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+        run: bun run test:smoke -- --url "$TARGET_URL"
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: smoke
+          path: reports/smoke.png
+          if-no-files-found: warn
