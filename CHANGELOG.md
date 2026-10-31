@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **ui:** Gamepad dash and pause buttons can be remapped in Options (save schema 7)
+- **ui:** Boss voice lines are subtitled, with an Options toggle that is on by default (save schema 8)
+- **tests:** The effect id enum in the data schema is tied to the implemented handlers, so `data:check` refuses an id without one
+- **perf:** Debug hook to toggle the enemy variants and the SDD 14 bench with them (+2 draw calls, no frame cost)
+
 ## [0.3.0] - 2026-10-31
 
 ### Added
