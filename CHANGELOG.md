@@ -53,6 +53,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **render:** Draw the floor as one quad per cube (32 px/u) and instance only props within Chebyshev 3 ([a2afa48](https://github.com/AlexGalhardo/grim-cubes/commit/a2afa4832cfe0da078a5836e2ff2da6049eb6ba4))
 - **game:** Use registered queries in origin shifting; render port independent of event/sync order ([5dd486f](https://github.com/AlexGalhardo/grim-cubes/commit/5dd486fcca6cac51eb19ad166548ec5d283f8bac))
 - **render:** Render the horde with thin instances, per-instance VAT settings and death ghosts ([6d07ec4](https://github.com/AlexGalhardo/grim-cubes/commit/6d07ec416fbb45efac13f0d8930191a17df432d9))
+- **world:** Add deterministic chunk generator (two 4×4 grids, D3 prop counts, corridor rule, spawn exclusion, biome fallback) ([ba3ad64](https://github.com/AlexGalhardo/grim-cubes/commit/ba3ad647c12d01dd3ebbbc1ee574cfe60fd92422))
 - **ci:** Add CI (lint, typecheck, unit, integration, build-web, e2e gated) and CodeQL workflows (#1) ([da8923e](https://github.com/AlexGalhardo/grim-cubes/commit/da8923ee65069ec95a017f53a20937718c27413b))
 
 ### Changed
