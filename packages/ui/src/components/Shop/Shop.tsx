@@ -86,21 +86,7 @@ export function Shop({ view, stats, actions, portrait }: ShopProps): JSX.Element
 			aria-labelledby="shop-title"
 			className="pointer-events-auto absolute inset-0 z-20 flex overflow-y-auto bg-night/80 p-2 mobile-l:p-4"
 		>
-			<div className="relative m-auto w-full max-w-5xl">
-				{portrait ? (
-					<div
-						aria-hidden="true"
-						className="pointer-events-none absolute top-2 right-2 z-10 hidden size-24 border-2 border-iron-dark bg-night mobile-l:block desktop:size-32"
-					>
-						<canvas
-							ref={portraitCanvas}
-							width={PORTRAIT_PX}
-							height={PORTRAIT_PX}
-							data-testid="shop-portrait"
-							className="size-full"
-						/>
-					</div>
-				) : null}
+			<div className="m-auto w-full max-w-5xl">
 				<Panel title={t("shop.panel")} riveted>
 					<h1 id="shop-title" className="sr-only">
 						{t("shop.title")}
@@ -153,17 +139,33 @@ export function Shop({ view, stats, actions, portrait }: ShopProps): JSX.Element
 								</div>
 							))}
 						</div>
-						<dl
-							className="hidden w-full grid-cols-2 gap-x-3 gap-y-1 font-body text-sm mobile-l:grid desktop:w-56"
-							aria-label={t("shop.stats")}
-						>
-							{stats.map((line) => (
-								<div key={line.label} className="contents">
-									<dt className="text-bone-dark">{line.label}</dt>
-									<dd className="text-right">{line.value}</dd>
+						<div className="hidden w-full flex-col gap-3 mobile-l:flex desktop:w-56">
+							{portrait ? (
+								<div
+									aria-hidden="true"
+									className="pointer-events-none mx-auto size-24 shrink-0 border-2 border-iron-dark bg-night desktop:size-32"
+								>
+									<canvas
+										ref={portraitCanvas}
+										width={PORTRAIT_PX}
+										height={PORTRAIT_PX}
+										data-testid="shop-portrait"
+										className="size-full"
+									/>
 								</div>
-							))}
-						</dl>
+							) : null}
+							<dl
+								className="grid w-full grid-cols-2 gap-x-3 gap-y-1 font-body text-sm"
+								aria-label={t("shop.stats")}
+							>
+								{stats.map((line) => (
+									<div key={line.label} className="contents">
+										<dt className="text-bone-dark">{line.label}</dt>
+										<dd className="text-right">{line.value}</dd>
+									</div>
+								))}
+							</dl>
+						</div>
 					</div>
 					<div className="mt-4 flex flex-wrap justify-end gap-3">
 						<Button onClick={actions.reroll} disabled={view.gold < view.rerollPrice}>
