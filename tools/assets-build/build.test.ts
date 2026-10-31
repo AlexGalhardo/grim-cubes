@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { Document, Logger, NodeIO } from "@gltf-transform/core";
 import { PNG } from "pngjs";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
-import { ATLAS_SIZE, EXTRUDE, packSprites, renderAtlas } from "./atlas";
+import { ATLAS_SIZE, EXTRUDE, fitAtlas, packSprites, renderAtlas } from "./atlas";
 import { buildAssets } from "./build";
 import { packGlb } from "./glb";
 import { type Category, REQUIRED_CLIPS } from "./rules";
@@ -132,7 +132,7 @@ describe("buildAssets", () => {
 		expect(JSON.stringify(manifest)).not.toContain("generatedAt");
 	});
 
-	test("atlas_characters is a hashed 2048x2048 PNG with NEAREST and no mipmaps", async () => {
+	test("atlas_characters is a hashed square PNG sized to its sprites, with NEAREST and no mipmaps", async () => {
 		await writeModel("husk", { category: "enemies" }, 1);
 		const manifest = await build();
 		const entry = manifest.entries.atlas_characters;
@@ -140,7 +140,9 @@ describe("buildAssets", () => {
 		expect(entry?.sampling).toBe("nearest");
 		expect(entry?.mipmaps).toBe(false);
 		const png = PNG.sync.read(readFileSync(join(out, entry?.url ?? "")));
-		expect([png.width, png.height]).toEqual([2048, 2048]);
+		// One 32 px sprite fits the smallest atlas; the manifest names the real size the UVs were divided by.
+		expect([png.width, png.height]).toEqual([256, 256]);
+		expect([entry?.width, entry?.height]).toEqual([256, 256]);
 	});
 
 	test("atlases are marked ktx2: false by default and without toktx", async () => {
@@ -210,6 +212,17 @@ describe("buildAssets", () => {
 		expect(manifest.entries.tile_a?.atlas).toBe("atlas_props");
 	});
 
+	test("fitAtlas grows to the smallest power of two that holds the sprites", () => {
+		const sprite = (name: string, size: number): { name: string; png: PNG } => ({
+			name,
+			png: solidPng(size, size, () => [10, 20, 30]),
+		});
+		expect(fitAtlas("t", [sprite("a", 32)]).size).toBe(256);
+		expect(fitAtlas("t", [sprite("a", 200), sprite("b", 200)]).size).toBe(512);
+		expect(fitAtlas("t", [sprite("a", 600)]).size).toBe(1024);
+		expect(fitAtlas("t", [sprite("a", 1500)]).size).toBe(2048);
+	});
+
 	test("an _e.png next to a _d.png makes an emissive atlas with the same placements; without one nothing changes", async () => {
 		await writeModel("husk", { category: "enemies" }, 1);
 		await writeModel("wail", { category: "enemies" }, 2);
@@ -221,7 +234,7 @@ describe("buildAssets", () => {
 		const manifest = await build();
 		const entry = manifest.entries.atlas_characters_e;
 		expect(entry?.kind).toBe("atlas");
-		expect(entry?.width).toBe(ATLAS_SIZE);
+		expect(entry?.width).toBe(256);
 		expect(existsSync(join(out, entry?.url ?? "missing"))).toBe(true);
 		expect(manifest.entries.atlas_characters_e?.hash).not.toBe(manifest.entries.atlas_characters?.hash);
 		const atlas = PNG.sync.read(readFileSync(join(out, entry?.url ?? "")));
@@ -293,7 +306,7 @@ describe("buildAssets", () => {
 		expect((await new NodeIO().binaryToJSON(glb)).json.extensionsUsed).toContain("KHR_materials_unlit");
 		const doc = await new NodeIO().readBinary(glb);
 		const uv = doc.getRoot().listMeshes()[0]?.listPrimitives()[0]?.getAttribute("TEXCOORD_0")?.getArray();
-		const span = 32 / ATLAS_SIZE;
+		const span = 32 / (manifest.entries.atlas_characters?.width ?? ATLAS_SIZE);
 		expect(uv?.[2]).toBeCloseTo((uv?.[0] ?? 0) + span, 6);
 		expect(uv?.[5]).toBeCloseTo((uv?.[1] ?? 0) + span, 6);
 	});
