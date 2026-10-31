@@ -457,6 +457,8 @@ async function boot(): Promise<void> {
 		vfx,
 		elite: eliteView,
 		characters,
+		// Frozen while paused: the camera must stop easing too, or a frozen capture keeps drifting for a moment.
+		deltaSeconds: () => (run.state === "Paused" ? 0 : Math.min(0.1, render.engine.getDeltaTime() / 1000)),
 		onEvent: (type) => {
 			if (type === EventType.PropBroken) chunkRenderer.invalidateProps();
 		},
@@ -903,7 +905,7 @@ async function boot(): Promise<void> {
 					heroZ: game.hero.position.z,
 					heroHeight: renderData.propFade.heroHeight,
 				},
-				Math.min(0.1, render.engine.getDeltaTime() / 1000),
+				run.state === "Paused" ? 0 : Math.min(0.1, render.engine.getDeltaTime() / 1000),
 			);
 			game.scene.render();
 		},
