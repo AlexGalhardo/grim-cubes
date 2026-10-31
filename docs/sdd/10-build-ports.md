@@ -1,0 +1,54 @@
+# SDD 10 — Build e ports
+
+Decisões: D19 (Electron + electron-builder), D28 (web = demo), D29 (Android 1.1), D27 (Play: grátis + IAP). Versões em `docs/web-search.md` §5.1 e §7.
+
+## 1. Web (Vite 8)
+
+- `apps/web/vite.config.ts`: plugins `@vitejs/plugin-react` e `@tailwindcss/vite`; `build.target: "es2022"`; `assetsInclude: ["**/*.glb", "**/*.ktx2"]`; `build.rolldownOptions.output.manualChunks` separando `babylon` (core), `react`, `game`; `define` com `__APP_VERSION__` (do `package.json`) e `__BUILD_TARGET__` (`"web" | "electron" | "android"`).
+- Modos: `vite build --mode web-demo` (define `__IS_DEMO__ = true`), `--mode electron`, `--mode android`. Flags de demo vêm do build, não de runtime (ADR-0012).
+- Assets grandes em `public/assets` com hash no nome (gerado pelo pipeline), servidos com `Cache-Control: public, max-age=31536000, immutable`.
+- `vercel.json`: `rewrites` SPA (`/(.*)` → `/index.html`) e `headers` de cache para `/assets/*`; sem COOP/COEP (não há SharedArrayBuffer).
+- Vercel: projeto `grim-cubes-demo`, deploy de preview por PR e produção em `main` (tag). Plano Hobby enquanto for só demo não comercial `[confirmar fair use antes da página Steam]`; Pro se a Vercel considerar promoção de produto pago como uso comercial.
+
+## 2. Electron (Steam, Windows 11)
+
+- `apps/electron/main.ts`: `BrowserWindow` fullscreen por padrão (opção janela), `webPreferences: { contextIsolation: true, nodeIntegration: false, preload }`; carrega `dist/index.html` (`file://`) com `protocol.handle("app", …)` para caminhos absolutos.
+- Flags de GPU: nenhum por padrão; `--in-process-gpu` e `--disable-direct-composition` só se o overlay Steam exigir (teste no PROTÓTIPO; ADR-0008). Se instável: overlay desligado e documentado.
+- `steamworks.js` 0.4.0 no main: `init(appId)`, `electronEnableSteamOverlay()`, achievements (`achievement.activate`), `cloud` não usado (Auto-Cloud). Preload expõe `window.gc.steam = { unlockAchievement(id), isDemo(), getLanguage() }` via `contextBridge`.
+- Achievements 1.0 (10): primeira morte; round 10; matar o Coveiro; round 20; round 30; 1.000 kills; 10.000 kills; comprar 1 ramo inteiro do Ossuário; matar uma elite Explosiva sem tomar dano; vencer em Grim.
+- `electron-builder.yml`: `appId: com.alexgalhardo.grimcubes`, `win.target: [nsis, portable]`, `nsis.oneClick: false`, `artifactName: grim-cubes_${version}_windows_x64.${ext}`, `files` só `dist/**` e `apps/electron/dist/**`, `asar: true`, `extraResources` para redistribuíveis do Steamworks (`steam_api64.dll`).
+- Assinatura: `win.sign` com certificado OV (arquivo `.pfx` em secret do CI) quando existir; sem certificado, build não assinado (SmartScreen aceito na fase BETA; ADR-0008).
+- Build: `bun run build:electron` = `vite build --mode electron` + `tsc -p apps/electron` + `electron-builder --win`. Saída em `release/`.
+- Steam: dois App IDs (jogo e demo); depots `windows`; upload via `steamcmd` em workflow manual (`steam-deploy`), com `STEAM_BUILD_ACCOUNT` e `STEAM_CONFIG_VDF` em secrets. Branch `beta` para testers, `default` para release.
+
+## 3. Android (Capacitor 8) — versão 1.1
+
+- `apps/android/capacitor.config.ts`: `appId: com.alexgalhardo.grimcubes`, `webDir: ../web/dist`, `android: { allowMixedContent: false, backgroundColor: "#14121C" }`, `server: undefined` (assets locais).
+- Plugins: `@capacitor/app`, `@capacitor/haptics`, `@capacitor/screen-orientation` (lock landscape), `@capacitor/filesystem` (save), `@capacitor/status-bar` (immersive). Billing: `@capacitor-community/in-app-purchases` ou `@revenuecat/purchases-capacitor` `[decidir em ADR na fase BETA, após checar manutenção]`.
+- `AndroidManifest.xml`: `android:screenOrientation="sensorLandscape"`, `configChanges` com `density|orientation|screenSize|keyboardHidden`, `hardwareAccelerated="true"`.
+- Gradle: AGP 8.13.0, Gradle 8.14.3, Kotlin 2.2.20, `minSdk 24`, `compileSdk 36`, `targetSdk 36`; AAB assinado com keystore em secret.
+- Render: `hardwareScalingLevel` dinâmico (`SceneOptimizer`) começando em 1 / 1,5 do DPR para manter render interno ≈ 1344 × 621 (GDD §29); KTX2 ETC1S; blob shadows; cap de inimigos 60.
+- Play Billing: produto único `full_version` (one-time, US$ 9,99); `queryPurchases` no boot; `flags.fullVersion = true`; restauração automática.
+- Publicação: conta pessoal exige closed test de 12 testers por 14 dias antes da produção (`docs/web-search.md` §7.2); IARC preenchido como M/18 por gore.
+
+## 4. Scripts (`package.json`)
+
+| Script | Comando |
+| --- | --- |
+| `dev` | `vite --config apps/web/vite.config.ts` |
+| `build` | `bun run data:check && bun run assets:build && vite build --mode web-demo` |
+| `build:electron` | ver §2 |
+| `build:android` | `vite build --mode android && cap sync android && cd apps/android && ./gradlew bundleRelease` |
+| `typecheck` | `tsc -b` |
+| `lint` | `biome ci .` |
+| `lint:md` | `markdownlint-cli2 "**/*.md"` |
+| `test` | `vitest run` |
+| `test:e2e` | `playwright test` |
+| `test:smoke` | `bun tools/smoke/run.ts` (agent-browser) |
+| `sim` | `bun tools/sim/index.ts` |
+| `assets:build` | `bun tools/assets-build/index.ts` |
+| `audio:generate` | `bun tools/audio-generate/index.ts` |
+| `data:check` | `bun tools/data-check/index.ts` |
+| `release` | `bun tools/release/index.ts` (SDD 13) |
+
+Bun é o gerenciador e runner; Vite/Vitest/Playwright rodam sob Node (shebang) por compatibilidade (ADR-0003).

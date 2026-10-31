@@ -1,0 +1,17 @@
+Grim Cubes
+Copyright (c) 2026 Alex Galhardo. All rights reserved.
+
+This software, its source code, assets (models, textures, audio, text) and
+documentation are proprietary and confidential. No part of this repository may
+be copied, modified, distributed, sublicensed, sold or used to create derivative
+works without the prior written permission of the copyright holder.
+
+Third-party components are used under their own licenses, listed in
+docs/legal/third-party.md (dependencies from package.json under their
+respective licenses; fonts under the SIL Open Font License 1.1; CC0 assets
+where indicated). Audio generated with ElevenLabs is used under a paid
+commercial plan as recorded in each asset's meta.json.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.

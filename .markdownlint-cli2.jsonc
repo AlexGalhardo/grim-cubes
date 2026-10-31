@@ -1,0 +1,11 @@
+{
+	"config": {
+		"default": true,
+		"MD013": false,
+		"MD033": false,
+		"MD024": { "siblings_only": true },
+		"MD041": false,
+		"MD010": { "code_blocks": false }
+	},
+	"ignores": ["node_modules/**", "dist/**", "graphify-out/**", "chatgpt-chat.md", "PROMPT.md"]
+}
