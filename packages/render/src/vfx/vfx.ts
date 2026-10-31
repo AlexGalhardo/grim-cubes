@@ -41,6 +41,11 @@ const EGG_CUBES = 4;
 const EXECUTION_SECONDS = 1.5;
 const EXECUTION_BURSTS = 3;
 const EXECUTION_CUBES = 12;
+/** Art Bible section 9: the boss comes apart into 12 to 20 large pieces. */
+const EXECUTION_PIECES = 16;
+const PIECE_SIZE_MULT = 4;
+const FLASH_RADIUS = 9;
+const FLASH_SECONDS = 0.5;
 
 export type VfxConfig = typeof renderData.vfx;
 
@@ -157,6 +162,7 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 		speed: number,
 		lift: number,
 		landsAsDecal: boolean,
+		sizeMult = 1,
 	): void {
 		for (let i = 0; i < cubes; i++) {
 			const angle = rng.next() * Math.PI * 2;
@@ -169,7 +175,7 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 				Math.cos(angle) * v,
 				lift * (0.6 + rng.next() * 0.8),
 				Math.sin(angle) * v,
-				between(config.cubeSizeRange),
+				between(config.cubeSizeRange) * sizeMult,
 				color[0],
 				color[1],
 				color[2],
@@ -187,6 +193,14 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 		gore ? (rng.chance(config.bloodLightShare) ? bloodLightOnly : bloodOnly) : reducedOnly;
 	const reducedCubeOnly: readonly Rgb[] = [reducedCube];
 	const explosionColors: readonly Rgb[] = [ember, emberLight];
+	/** Piece colours of each boss's execution, by `bosses.json` id: its own materials, one ember-light shard in four. */
+	const piecePalettes: Readonly<Record<string, readonly Rgb[]>> = {
+		gravedigger: [rgb(PALETTE.ironLight), rgb(PALETTE.rust), rgb(PALETTE.boneDark), emberLight],
+		swamp_matriarch: [rgb(PALETTE.mud), rgb(PALETTE.boneDark), rgb(PALETTE.bone), emberLight],
+		forgemaster: [rgb(PALETTE.iron), rgb(PALETTE.ironDark), rgb(PALETTE.rust), emberLight],
+		alpha_hunter: [rgb(PALETTE.mist), rgb(PALETTE.shadow), rgb(PALETTE.bone), emberLight],
+		nest_queen: [rgb(PALETTE.bloodLight), rgb(PALETTE.bone), rgb(PALETTE.boneDark), emberLight],
+	};
 	const propDust: readonly Rgb[] = [rgb(PALETTE.boneDark), rgb(PALETTE.rust)];
 
 	return {
@@ -343,6 +357,19 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 				burst(a, b, SUMMON_CUBES, explosionColors, 4, 6, false);
 			} else if (type === EventType.BossDied) {
 				executionLeft = EXECUTION_SECONDS;
+				// The pieces fly at once with a bright flash ring; the bursts below keep the blood coming for 1.5 s.
+				const id = bossesData[(Boss.id[entity] ?? 0) - 1]?.id ?? "";
+				burst(
+					a,
+					b,
+					EXECUTION_PIECES,
+					gore ? (piecePalettes[id] ?? explosionColors) : reducedOnly,
+					6,
+					9,
+					false,
+					PIECE_SIZE_MULT,
+				);
+				zones.ring(a, b, FLASH_RADIUS, FLASH_SECONDS);
 				executionX = a;
 				executionZ = b;
 				executionNext = 0;
