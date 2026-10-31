@@ -312,6 +312,9 @@ Fonte de verificação: `registry.npmjs.org/<pkg>` (dist-tag `latest` e data `ti
 | actions/checkout | v7.0.1 | 2026-07-20 | — | GitHub |
 | actions/setup-node | v7.1.0 | 2026-10-08 | — | GitHub |
 | actions/upload-artifact | v7.0.2 | 2026-10-07 | — | GitHub |
+| actions/download-artifact | v8.0.2 | 2026-10-07 | — | GitHub |
+| actions/cache | v6.1.0 | CACHEDATE | — | GitHub |
+| github/codeql-action | v4.39.1 | 2026-10-21 | — | GitHub |
 | googleapis/release-please-action | v5.0.0 | 2026-04-22 | — | GitHub |
 | changesets/action | v2.1.2 | 2026-09-07 | — | GitHub |
 
