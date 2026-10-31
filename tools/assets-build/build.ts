@@ -245,6 +245,25 @@ function buildIconAtlas(options: BuildOptions, entries: Record<string, ManifestE
 	}
 }
 
+/**
+ * `assets/src/audio/<kind>/<id>.mp3` -> `<outDir>/audio/<id>.mp3`, the flat path the audio engine fetches
+ * (apps/web/src/audio/webAudio.ts). Not hashed: vercel.json gives `/assets/audio/` a short revalidating cache.
+ */
+function copyAudio(options: BuildOptions): void {
+	const root = join(options.srcDir, "audio");
+	const out = join(options.outDir, "audio");
+	rmSync(out, { recursive: true, force: true });
+	if (!existsSync(root)) return;
+	mkdirSync(out, { recursive: true });
+	for (const kind of readdirSync(root, { withFileTypes: true })) {
+		if (!kind.isDirectory()) continue;
+		for (const file of readdirSync(join(root, kind.name))) {
+			if (file.endsWith(".mp3"))
+				writeFileSync(join(out, file), readFileSync(join(root, kind.name, file)));
+		}
+	}
+}
+
 export async function buildAssets(options: BuildOptions): Promise<Manifest> {
 	const items = listModels(options.srcDir);
 	const loaded: Loaded[] = [];
@@ -331,6 +350,7 @@ export async function buildAssets(options: BuildOptions): Promise<Manifest> {
 	}
 
 	buildIconAtlas(options, entries);
+	copyAudio(options);
 
 	const sorted = Object.fromEntries(Object.entries(entries).sort(([a], [b]) => (a < b ? -1 : 1)));
 	const manifest: Manifest = { version: options.version, entries: sorted };

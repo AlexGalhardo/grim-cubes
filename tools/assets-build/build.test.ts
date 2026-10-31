@@ -1,4 +1,4 @@
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { Document, Logger, NodeIO } from "@gltf-transform/core";
@@ -180,6 +180,16 @@ describe("buildAssets", () => {
 		expect(ktx2?.url).toMatch(/^atlas_characters\.[0-9a-f]{8}\.ktx2$/);
 		expect([...readFileSync(join(out, ktx2?.url ?? ""))]).toEqual([0xab, 0x4b, 0x54, 0x58]);
 		expect(calls[0]).toContain("etc1s");
+	});
+
+	test("audio files are copied flat to audio/<id>.mp3", async () => {
+		await writeModel("prop_a", {}, 1);
+		mkdirSync(join(src, "audio", "sfx"), { recursive: true });
+		writeFileSync(join(src, "audio", "sfx", "sfx_hit.mp3"), new Uint8Array([1, 2, 3]));
+		writeFileSync(join(src, "audio", "sfx", "sfx_hit.meta.json"), "{}");
+		await build();
+		expect([...readFileSync(join(out, "audio", "sfx_hit.mp3"))]).toEqual([1, 2, 3]);
+		expect(existsSync(join(out, "audio", "sfx_hit.meta.json"))).toBe(false);
 	});
 
 	test("icons are packed into atlas_vfx_ui with one icon_<kind>_<id> entry each", async () => {
