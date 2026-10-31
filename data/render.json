@@ -35,6 +35,9 @@
 		"damageNumberLifeSeconds": 0.6,
 		"damageNumberRise": 1.2,
 		"damageNumberHeight": 0.42,
-		"projectileSize": 0.2
+		"projectileSize": 0.2,
+		"bossScale": 2.2,
+		"bossEnrageTint": [1.7, 0.5, 0.5],
+		"enemyShotSize": 0.25
 	}
 }

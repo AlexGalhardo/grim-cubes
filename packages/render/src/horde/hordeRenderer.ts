@@ -2,6 +2,7 @@ import { Material } from "@babylonjs/core/Materials/material";
 import type { Mesh } from "@babylonjs/core/Meshes/mesh";
 import {
 	Attacking,
+	Boss,
 	Elite,
 	EnemyType,
 	Facing,
@@ -43,6 +44,7 @@ export interface HordeOptions {
 	 * Elite look: instance scale for entities with `Elite` and a tint per modifier (`Elite.modifier` is 1-based, so
 	 * `tints[modifier - 1]`). Needs the colour buffer, so it enables it like `flashBrightness`.
 	 */
+	boss?: { scale: number; enrageTint: readonly [number, number, number] };
 	elite?: { scale: number; tints: readonly (readonly [number, number, number])[] };
 }
 
@@ -88,7 +90,7 @@ export function createHordeRenderer(types: readonly HordeType[], options: HordeO
 		type.mesh.alwaysSelectAsActiveMesh = true;
 		type.mesh.thinInstanceSetBuffer("matrix", m, 16, false);
 		type.mesh.thinInstanceSetBuffer(SETTINGS_KIND, s, 4, false);
-		if (options.flashBrightness !== undefined || options.elite) {
+		if (options.flashBrightness !== undefined || options.elite || options.boss) {
 			const colors = new Float32Array(total * 4).fill(1);
 			type.mesh.thinInstanceSetBuffer("color", colors, 4, false);
 			flashColors[t] = colors;
@@ -208,11 +210,21 @@ export function createHordeRenderer(types: readonly HordeType[], options: HordeO
 				const x = px + ((Position.x[eid] ?? 0) - px) * alpha;
 				const z = pz + ((Position.z[eid] ?? 0) - pz) * alpha;
 				const modifier = Elite.modifier[eid] ?? 0;
-				const scale = modifier > 0 && options.elite ? options.elite.scale : 1;
+				const isBoss = options.boss !== undefined && (Boss.id[eid] ?? 0) > 0;
+				const scale = isBoss
+					? (options.boss?.scale ?? 1)
+					: modifier > 0 && options.elite
+						? options.elite.scale
+						: 1;
 				const colors = flashColors[t];
 				if (colors) {
 					const flashed = (HitFlash.ticks[eid] ?? 0) > 0 && options.flashBrightness !== undefined;
-					const tint = modifier > 0 ? options.elite?.tints[modifier - 1] : undefined;
+					const tint =
+						isBoss && (Boss.enrageStacks[eid] ?? 0) > 0
+							? options.boss?.enrageTint
+							: modifier > 0
+								? options.elite?.tints[modifier - 1]
+								: undefined;
 					const level = flashed ? (options.flashBrightness ?? 1) : 1;
 					colors[n * 4] = level * (tint?.[0] ?? 1);
 					colors[n * 4 + 1] = level * (tint?.[1] ?? 1);

@@ -101,7 +101,10 @@
 				"damageNumberLifeSeconds",
 				"damageNumberRise",
 				"damageNumberHeight",
-				"projectileSize"
+				"projectileSize",
+				"bossScale",
+				"bossEnrageTint",
+				"enemyShotSize"
 			],
 			"properties": {
 				"particlePool": {
@@ -165,7 +168,15 @@
 				"damageNumberLifeSeconds": { "type": "number", "exclusiveMinimum": 0 },
 				"damageNumberRise": { "type": "number", "minimum": 0 },
 				"damageNumberHeight": { "type": "number", "exclusiveMinimum": 0 },
-				"projectileSize": { "type": "number", "exclusiveMinimum": 0 }
+				"projectileSize": { "type": "number", "exclusiveMinimum": 0 },
+				"bossScale": { "type": "number", "exclusiveMinimum": 0 },
+				"bossEnrageTint": {
+					"type": "array",
+					"items": { "type": "number", "minimum": 0 },
+					"minItems": 3,
+					"maxItems": 3
+				},
+				"enemyShotSize": { "type": "number", "exclusiveMinimum": 0 }
 			}
 		}
 	}

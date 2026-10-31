@@ -1,6 +1,7 @@
 import type { Mesh } from "@babylonjs/core/Meshes/mesh";
 import {
 	Boss,
+	createEnemyShotPool,
 	createEventBuffer,
 	createGameWorld,
 	createProjectilePool,
@@ -16,7 +17,7 @@ import { createGameScene } from "../scene/scene";
 import { createEliteView } from "./elite";
 import { createFragmentRenderer } from "./fragments";
 import { createHitStop } from "./hitStop";
-import { createProjectileRenderer } from "./projectiles";
+import { createEnemyShotRenderer, createProjectileRenderer } from "./projectiles";
 import { createVfx } from "./vfx";
 
 const config = renderData.vfx;
@@ -370,6 +371,55 @@ describe("hit allocation", () => {
 			for (const [name, original] of originals) proto[name] = original;
 		}
 		expect(calls).toBe(0);
+		dispose();
+	});
+});
+
+describe("boss and enemy telegraphs", () => {
+	it("draws the charge as a line from afar and the shovel as an arc next to the hero, then clears them", () => {
+		const { game, vfx, world, dispose } = setup();
+		const boss = spawnBody(world, 0, 10);
+		game.hero.position.set(0, 0, 0);
+		vfx.onEvent(EventType.BossTelegraph, 0, -1, 1, boss);
+		game.hero.position.set(0, 0, 8);
+		const second = spawnBody(world, 0, 10);
+		vfx.onEvent(EventType.BossTelegraph, 0, -1, 0.6, second);
+		vfx.update(0.1);
+		expect((game.scene.getMeshByName("vfx_telegraph_line") as Mesh | null)?.thinInstanceCount).toBe(1);
+		expect((game.scene.getMeshByName("vfx_telegraph_arc") as Mesh | null)?.thinInstanceCount).toBe(1);
+		vfx.update(2);
+		expect(vfx.telegraph.live).toBe(0);
+		expect((game.scene.getMeshByName("vfx_telegraph_line") as Mesh | null)?.thinInstanceCount).toBe(0);
+		dispose();
+	});
+
+	it("starts a hunter wind-up line and a 1.5 s boss execution of cubes", () => {
+		const { vfx, world, dispose } = setup();
+		const hunter = spawnBody(world, 1, 1);
+		vfx.onEvent(EventType.EnemyTelegraph, 1, 0, 0.5, hunter);
+		expect(vfx.telegraph.live).toBe(0);
+		vfx.update(0.01);
+		expect(vfx.telegraph.live).toBe(1);
+		vfx.onEvent(EventType.BossDied, 4, 4, 0, hunter);
+		for (let i = 0; i < 100; i++) vfx.update(1 / 60);
+		expect(vfx.particles.stats.peak).toBeGreaterThan(20);
+		dispose();
+	});
+});
+
+describe("enemy shot renderer", () => {
+	it("instances only the shots with life above zero", () => {
+		const { engine, dispose } = createNullEngine();
+		const game = createGameScene(engine);
+		const world = createGameWorld();
+		const pool = createEnemyShotPool(world, 16);
+		const view = createEnemyShotRenderer(game, 16, 0.25);
+		view.sync(world, 1);
+		expect(view.live).toBe(0);
+		for (let i = 0; i < 5; i++) pool.acquire(i, 0, 1, 0, 3, 60, 0.2);
+		view.sync(world, 0.5);
+		expect(view.live).toBe(5);
+		expect((game.scene.getMeshByName("vfx_enemy_shots") as Mesh | null)?.thinInstanceCount).toBe(5);
 		dispose();
 	});
 });

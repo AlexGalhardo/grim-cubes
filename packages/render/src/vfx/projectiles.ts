@@ -1,7 +1,15 @@
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { Color3 } from "@babylonjs/core/Maths/math.color";
 import { CreateBox } from "@babylonjs/core/Meshes/Builders/boxBuilder";
-import { type GameWorld, Position, PrevPosition, Projectile, queryProjectiles } from "@gc/game";
+import {
+	EnemyShot,
+	type GameWorld,
+	Position,
+	PrevPosition,
+	Projectile,
+	queryEnemyShots,
+	queryProjectiles,
+} from "@gc/game";
 import { PALETTE } from "../scene/palette";
 import type { GameScene } from "../scene/scene";
 import { createInstanceSet, writeTransform } from "./instances";
@@ -22,10 +30,43 @@ export function createProjectileRenderer(
 	capacity: number,
 	size: number,
 ): ProjectileRenderer {
-	const mesh = CreateBox("vfx_projectiles", { size: 1 }, game.scene);
-	const material = new StandardMaterial("vfx_projectiles", game.scene);
+	return createShotRenderer(
+		game,
+		"vfx_projectiles",
+		capacity,
+		size,
+		PALETTE.ember,
+		queryProjectiles,
+		(e) => Projectile.life[e] ?? 0,
+	);
+}
+
+/** Shots fired at the hero (the Watcher): same single draw call, blood-light so they read as hostile. */
+export function createEnemyShotRenderer(game: GameScene, capacity: number, size: number): ProjectileRenderer {
+	return createShotRenderer(
+		game,
+		"vfx_enemy_shots",
+		capacity,
+		size,
+		PALETTE.bloodLight,
+		queryEnemyShots,
+		(e) => EnemyShot.life[e] ?? 0,
+	);
+}
+
+function createShotRenderer(
+	game: GameScene,
+	name: string,
+	capacity: number,
+	size: number,
+	color: string,
+	query: (world: GameWorld) => readonly number[],
+	life: (entity: number) => number,
+): ProjectileRenderer {
+	const mesh = CreateBox(name, { size: 1 }, game.scene);
+	const material = new StandardMaterial(name, game.scene);
 	material.disableLighting = true;
-	material.emissiveColor = Color3.FromHexString(PALETTE.ember);
+	material.emissiveColor = Color3.FromHexString(color);
 	material.diffuseColor = Color3.Black();
 	mesh.material = material;
 	const set = createInstanceSet(mesh, capacity, false);
@@ -36,11 +77,11 @@ export function createProjectileRenderer(
 			return live;
 		},
 		sync(world, alpha): void {
-			const list = queryProjectiles(world);
+			const list = query(world);
 			let n = 0;
 			for (let i = 0; i < list.length && n < capacity; i++) {
 				const e = list[i] ?? 0;
-				if ((Projectile.life[e] ?? 0) === 0) continue;
+				if (life(e) === 0) continue;
 				const px = PrevPosition.x[e] ?? 0;
 				const pz = PrevPosition.z[e] ?? 0;
 				const x = px + ((Position.x[e] ?? 0) - px) * alpha;

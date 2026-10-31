@@ -3,6 +3,7 @@ import { CreateBox } from "@babylonjs/core/Meshes/Builders/boxBuilder";
 import type { Mesh } from "@babylonjs/core/Meshes/mesh";
 import {
 	Attacking,
+	Boss,
 	createEventBuffer,
 	createGameWorld,
 	Elite,
@@ -329,6 +330,38 @@ describe("elite look", () => {
 		expect(Array.from(colors?.slice(4, 7) ?? [])).toEqual([2, 0, 0]);
 		expect(Array.from(colors?.slice(8, 11) ?? [])).toEqual([0, 2, 0]);
 		expect(plain).toBeGreaterThanOrEqual(0);
+		dispose();
+	});
+});
+
+describe("boss look", () => {
+	it("draws the boss larger and tints it once it is enraged", () => {
+		const { engine, dispose } = createNullEngine();
+		const game = createGameScene(engine);
+		const mesh = skinnedBox("boss_enemy", game.scene);
+		const vat = createVat(
+			game.scene,
+			"boss_enemy",
+			new Float32Array(meta.width * meta.height * 4).buffer,
+			meta,
+		);
+		const horde = createHordeRenderer([{ mesh, vat, walkRefSpeed: 3 }], {
+			capacity: 4,
+			ghostCapacity: 1,
+			deltaSeconds: () => 1 / 60,
+			boss: { scale: 2.2, enrageTint: [1.7, 0.5, 0.5] },
+		});
+		const world = createGameWorld();
+		const boss = spawnEnemy(world, 0, 0);
+		addComponent(world, boss, Boss);
+		Boss.id[boss] = 1;
+		horde.sync(world, 1);
+		const colors = (): Float32Array => mesh.getVertexBuffer("instanceColor")?.getData() as Float32Array;
+		expect(Array.from(colors().slice(0, 3))).toEqual([1, 1, 1]);
+		Boss.enrageStacks[boss] = 1;
+		horde.sync(world, 1);
+		expect(Array.from(colors().slice(0, 3)).map((v) => Number(v.toFixed(2)))).toEqual([1.7, 0.5, 0.5]);
+		expect(mesh.thinInstanceGetWorldMatrices()[0]?.m[5]).toBeCloseTo(2.2, 5);
 		dispose();
 	});
 });

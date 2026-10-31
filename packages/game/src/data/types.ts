@@ -133,6 +133,9 @@ export interface RenderData {
 		damageNumberRise: number;
 		damageNumberHeight: number;
 		projectileSize: number;
+		bossScale: number;
+		bossEnrageTint: number[];
+		enemyShotSize: number;
 	};
 	propFade: {
 		minHeight: number;

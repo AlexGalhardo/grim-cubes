@@ -31,7 +31,7 @@ export type { HitStop, HitStopDeps } from "./vfx/hitStop";
 export { createHitStop } from "./vfx/hitStop";
 export type { ParticlePool, ParticlePoolStats } from "./vfx/particles";
 export type { ProjectileRenderer } from "./vfx/projectiles";
-export { createProjectileRenderer } from "./vfx/projectiles";
+export { createEnemyShotRenderer, createProjectileRenderer } from "./vfx/projectiles";
 export type { Vfx, VfxConfig, VfxOptions } from "./vfx/vfx";
 export { createVfx } from "./vfx/vfx";
 export type {

@@ -99,6 +99,7 @@ import {
 	createBenchRecorder,
 	createChunkRenderer,
 	createEliteView,
+	createEnemyShotRenderer,
 	createEngine,
 	createFragmentRenderer,
 	createGameScene,
@@ -543,6 +544,10 @@ async function boot(): Promise<void> {
 						deltaSeconds: () =>
 							run.state === "Paused" ? 0 : render.engine.getDeltaTime() / 1000,
 						flashBrightness: renderData.vfx.flashBrightness,
+						boss: {
+							scale: renderData.vfx.bossScale,
+							enrageTint: renderData.vfx.bossEnrageTint as [number, number, number],
+						},
 						elite: {
 							scale: elitesData.scale,
 							tints: elitesData.modifiers.map((modifier) => auraTint(modifier.aura)),
@@ -568,6 +573,7 @@ async function boot(): Promise<void> {
 	);
 	let frozenAt: number | null = null;
 	const eliteView = createEliteView(game);
+	const enemyShotView = createEnemyShotRenderer(game, 128, renderData.vfx.enemyShotSize);
 	const fragmentView = createFragmentRenderer(game, MAX_ENTITIES_FRAGMENTS);
 	const port = createRenderPort(game, horde, {
 		origin,
@@ -933,6 +939,7 @@ async function boot(): Promise<void> {
 			// VFX stop with the world while paused (level-up) so a captured frame is stable.
 			vfx.update(run.state === "Paused" ? 0 : Math.min(0.1, render.engine.getDeltaTime() / 1000));
 			projectileView.sync(world, alpha);
+			enemyShotView.sync(world, alpha);
 			eliteView.update(
 				run.state === "Paused" ? 0 : Math.min(0.1, render.engine.getDeltaTime() / 1000),
 				game.hero.position.x,

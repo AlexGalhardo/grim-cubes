@@ -187,4 +187,11 @@ export type { Origin, OriginShiftConfig } from "./world/originShift";
 export { applyOriginShift, createOrigin } from "./world/originShift";
 export type { PropCollision, PropCollisionConfig } from "./world/propCollision";
 export { createPropCollision } from "./world/propCollision";
-export { findHero, queryBodies, queryEnemies, queryFragments, queryProjectiles } from "./world/queries";
+export {
+	findHero,
+	queryBodies,
+	queryEnemies,
+	queryEnemyShots,
+	queryFragments,
+	queryProjectiles,
+} from "./world/queries";

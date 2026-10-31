@@ -7,6 +7,7 @@ import type { GameScene } from "../scene/scene";
 import { createDecalPool, type DecalPool } from "./decals";
 import { createDamageNumbers, type DamageNumbers } from "./digits";
 import { createParticlePool, type ParticlePool } from "./particles";
+import { createTelegraph, type Telegraph } from "./telegraph";
 
 type Rgb = readonly [number, number, number];
 
@@ -14,6 +15,21 @@ const rgb = (hex: string): Rgb => {
 	const c = Color3.FromHexString(hex);
 	return [c.r, c.g, c.b];
 };
+
+/** Hero distance below which a BossTelegraph is the shovel arc (its maxDistance is 3.5, the charge needs 5). */
+const ARC_OR_LINE_DISTANCE = 4.25;
+const BOSS_ARC_RANGE = 3;
+/** Charge reach: speed 2.4 x speedMult 4 x 0.6 s in bosses.json, rounded up. */
+const BOSS_LINE_LENGTH = 6;
+const BOSS_LINE_WIDTH = 2.4;
+/** Hunter charge reach: 6.5 x 3 x 0.6 s in enemies.json, rounded up. */
+const HUNTER_LINE_LENGTH = 12;
+const HUNTER_LINE_WIDTH = 1;
+const SUMMON_CUBES = 14;
+/** GDD section 23: the boss execution lasts 1.5 s. */
+const EXECUTION_SECONDS = 1.5;
+const EXECUTION_BURSTS = 3;
+const EXECUTION_CUBES = 12;
 
 export type VfxConfig = typeof renderData.vfx;
 
@@ -37,6 +53,7 @@ export interface Vfx {
 	readonly particles: ParticlePool;
 	readonly decals: DecalPool;
 	readonly numbers: DamageNumbers;
+	readonly telegraph: Telegraph;
 }
 
 /**
@@ -67,6 +84,13 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 		color: rgb(PALETTE.bone),
 		critColor: emberLight,
 	});
+
+	const telegraph = createTelegraph(game);
+	// Execution of a boss (BossDied): a few bursts spread over EXECUTION_SECONDS while the death clip plays.
+	let executionLeft = 0;
+	let executionX = 0;
+	let executionZ = 0;
+	let executionNext = 0;
 
 	const between = (range: readonly number[]): number =>
 		(range[0] ?? 0) + rng.next() * ((range[1] ?? 0) - (range[0] ?? 0));
@@ -129,6 +153,7 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 		particles,
 		decals,
 		numbers,
+		telegraph,
 		get gore(): boolean {
 			return gore;
 		},
@@ -155,11 +180,49 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 					burst(x, z, config.reducedDeathCubes, reducedCubeOnly, 4, 4, false);
 				}
 				if (options.isBoss?.(entity)) options.onHitStop?.(config.hitStopBossDeathMs);
+			} else if (type === EventType.BossTelegraph) {
+				// The event carries no pattern id: the shovel (maxDistance 3.5) only starts next to the hero, the charge
+				// (minDistance 5) only from afar.
+				const dx = Position.x[entity] ?? 0;
+				const dz = Position.z[entity] ?? 0;
+				const hero = game.hero.position;
+				if (Math.hypot(hero.x - dx, hero.z - dz) < ARC_OR_LINE_DISTANCE) {
+					telegraph.arc(entity, a, b, c, BOSS_ARC_RANGE);
+				} else {
+					telegraph.line(entity, a, b, c, BOSS_LINE_LENGTH, BOSS_LINE_WIDTH);
+				}
+			} else if (type === EventType.EnemyTelegraph) {
+				telegraph.line(entity, a, b, c, HUNTER_LINE_LENGTH, HUNTER_LINE_WIDTH);
+			} else if (type === EventType.BossSummon) {
+				burst(a, b, SUMMON_CUBES, explosionColors, 4, 6, false);
+			} else if (type === EventType.BossDied) {
+				executionLeft = EXECUTION_SECONDS;
+				executionX = a;
+				executionZ = b;
+				executionNext = 0;
 			} else if (type === EventType.Exploded) {
 				burst(a, b, count(config.explosionCubes), explosionColors, 3 + c, 7, false);
 			}
 		},
 		update(dt): void {
+			if (executionLeft > 0) {
+				executionLeft -= dt;
+				executionNext -= dt;
+				if (executionNext <= 0) {
+					executionNext = EXECUTION_SECONDS / EXECUTION_BURSTS;
+					burst(
+						executionX,
+						executionZ,
+						EXECUTION_CUBES,
+						gore ? bloodColors() : reducedOnly,
+						5,
+						8,
+						gore,
+					);
+					burst(executionX, executionZ, EXECUTION_CUBES / 2, explosionColors, 4, 9, false);
+				}
+			}
+			telegraph.update(dt);
 			particles.update(dt);
 			numbers.update(dt);
 		},
