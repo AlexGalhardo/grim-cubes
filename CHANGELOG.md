@@ -102,6 +102,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **web:** Settle runs into the account, persist the save in IndexedDB and show Results ([ee5c32c](https://github.com/AlexGalhardo/grim-cubes/commit/ee5c32c460326f794430784af84e19e336894462))
 - **e2e:** Add results e2e covering souls, record and persistence across reload ([b3c0267](https://github.com/AlexGalhardo/grim-cubes/commit/b3c0267ac9cc542277981e8932b320bf49b643b8))
 - **render:** Fade tall props between camera and hero (per-instance colour alpha, `data/render.json` `propFade`) with fade e2e capture ([b242dfc](https://github.com/AlexGalhardo/grim-cubes/commit/b242dfcbed7b9c5ff03e0808503032434f4022a2))
+- **game:** Add elites (20% roll with pity 5, 4 modifiers, ×1.6 scale, entry warning) and the legendary chest ([2bf5f88](https://github.com/AlexGalhardo/grim-cubes/commit/2bf5f8847c91341e8d2ed6ec23abc20efe105d10))
+- **web:** Wire elites and the legendary chest into the loop and HUD ([73d028b](https://github.com/AlexGalhardo/grim-cubes/commit/73d028b62594f5d916cef382d401668520bd29c5))
+- **core:** Load saves with `save.bak` fallback, keep unreadable saves in `save.corrupt` and never overwrite newer or unreadable saves ([54d281a](https://github.com/AlexGalhardo/grim-cubes/commit/54d281ae6846db17d3fbac511202ef058a7b92fa))
+- **core:** Bound the save parser (64 KB, list lengths, reserved keys) ([2f2d3cd](https://github.com/AlexGalhardo/grim-cubes/commit/2f2d3cd24c170ce2db07ab4cdb34086fbc1c8684))
+- **game:** Shop upgrades priced by the round formula, free starting weapon, no repeated or alpha items ([6ca102d](https://github.com/AlexGalhardo/grim-cubes/commit/6ca102d77cd6307920300858ca0e9085bac94f7e))
+- **game:** Reject unimplemented effect ids ([c7401d0](https://github.com/AlexGalhardo/grim-cubes/commit/c7401d0a009032415377e2aefbca53e3fab9d6ce))
+- **e2e:** Add elite chest and save-safety e2e ([8c356ff](https://github.com/AlexGalhardo/grim-cubes/commit/8c356ffc40d66b5e1b8e5f01d61bfb34d90b2475))
 - **docs:** SDD 14 §4 bench metrics as implemented; GDD §18.2 souls use the round where the run ended
 - **docs:** Amend SDD 03/06/07/09/14 to the implemented world, save, UI, asset pipeline and performance code; add P-04-06 (projectile and fragment rendering)
 - **docs:** Fix the GDD §18.2 souls example to match the formula
