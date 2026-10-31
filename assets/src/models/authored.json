@@ -12,6 +12,8 @@
 		"enemies/hunter",
 		"enemies/drowned",
 		"bosses/gravedigger",
-		"enemies/leech"
+		"enemies/leech",
+		"enemies/forged",
+		"enemies/watcher"
 	]
 }
