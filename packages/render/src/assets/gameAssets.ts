@@ -12,8 +12,13 @@ export interface AssetEntry {
 	url: string;
 	hash: string;
 	bytes: number;
-	kind: "atlas" | "model" | "vat";
+	kind: "atlas" | "model" | "vat" | "icon";
 	group: string;
+	/** Atlas only: size in pixels. */
+	width?: number;
+	height?: number;
+	/** Icon only: pixel rectangle inside the atlas this entry's `url` names (`atlas_vfx_ui`). */
+	rect?: { x: number; y: number; w: number; h: number };
 	meta?: string;
 	/** Atlas only: the KTX2 sibling, or false when the build had no `toktx`. */
 	ktx2?: false | { url: string; hash: string; bytes: number };

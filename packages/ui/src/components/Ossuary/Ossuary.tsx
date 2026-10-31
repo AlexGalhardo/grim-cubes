@@ -1,6 +1,7 @@
 import { t } from "@gc/core";
 import { type JSX, useState } from "react";
 import { Button } from "../Button/Button";
+import { Icon, type IconRef } from "../Icon/Icon";
 import { Panel } from "../Panel/Panel";
 
 export type OssuaryNodeState = "owned" | "available" | "locked" | "demo";
@@ -11,6 +12,7 @@ export interface OssuaryNodeView {
 	cost: number;
 	state: OssuaryNodeState;
 	affordable: boolean;
+	icon?: IconRef | undefined;
 }
 
 export interface OssuaryBranchView {
@@ -76,6 +78,7 @@ export function Ossuary({ view, actions }: OssuaryProps): JSX.Element {
 					onClick={() => actions.buy(node.id)}
 					className={`flex min-h-12 flex-col gap-1 border-2 bg-night-2 p-2 text-left font-body text-sm transition-colors duration-fast ${STATE_STYLE[node.state]} ${node.state === "available" && !node.affordable ? "text-danger" : ""} enabled:hover:text-ember-light`}
 				>
+					{node.icon ? <Icon icon={node.icon} /> : null}
 					{node.lines.map((line) => (
 						<span key={line}>{line}</span>
 					))}

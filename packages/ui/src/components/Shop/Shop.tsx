@@ -1,6 +1,7 @@
 import { t } from "@gc/core";
 import { type JSX, useEffect } from "react";
 import { Button } from "../Button/Button";
+import { Icon, type IconRef } from "../Icon/Icon";
 import { Panel } from "../Panel/Panel";
 
 export interface ShopSlotView {
@@ -13,6 +14,8 @@ export interface ShopSlotView {
 	locked: boolean;
 	sold: boolean;
 	affordable: boolean;
+	/** Item icon from the atlas; weapons and upgrades keep the text label. */
+	icon?: IconRef | undefined;
 }
 
 export interface ShopViewModel {
@@ -87,7 +90,10 @@ export function Shop({ view, stats, actions }: ShopProps): JSX.Element {
 									<span className="font-display text-xs text-bone-dark">
 										{i + 1} {kindLabel(slot.kind)}
 									</span>
-									<span className="font-display text-base">{slot.name}</span>
+									<span className="flex items-center gap-2 font-display text-base">
+										{slot.icon ? <Icon icon={slot.icon} /> : null}
+										{slot.name}
+									</span>
 									<ul className="flex-1 font-body text-sm text-bone-dark">
 										{slot.lines.map((line) => (
 											<li key={line}>{line}</li>
