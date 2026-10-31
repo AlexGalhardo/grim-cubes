@@ -2,6 +2,11 @@ import type { SaveNotice, Store, VirtualStick } from "@gc/core";
 import { type JSX, useSyncExternalStore } from "react";
 import { Bar } from "./components/Bar/Bar";
 import { BossBar, BossIntro, type BossViewModel } from "./components/BossBar/BossBar";
+import {
+	Difficulty,
+	type DifficultyActions,
+	type DifficultyViewModel,
+} from "./components/Difficulty/Difficulty";
 import { type CardView, LevelUp } from "./components/LevelUp/LevelUp";
 import { Notice } from "./components/Notice/Notice";
 import { Ossuary, type OssuaryActions, type OssuaryViewModel } from "./components/Ossuary/Ossuary";
@@ -34,6 +39,8 @@ export interface HudState {
 	boss: BossViewModel | null;
 	/** The permanent tree; null while closed. */
 	ossuary: OssuaryViewModel | null;
+	/** The pre-run difficulty and seed screen; null while closed. */
+	difficulty: DifficultyViewModel | null;
 	/** Boss name during the 3 s intro; null otherwise. */
 	bossIntro: string | null;
 }
@@ -46,6 +53,7 @@ export interface AppProps {
 	onChooseChest?: ((index: number) => void) | undefined;
 	shopActions?: ShopActions | undefined;
 	onRestart?: (() => void) | undefined;
+	difficultyActions?: DifficultyActions | undefined;
 	ossuaryActions?: (OssuaryActions & { open(): void }) | undefined;
 }
 
@@ -57,6 +65,7 @@ export function App({
 	shopActions,
 	onRestart,
 	ossuaryActions,
+	difficultyActions,
 }: AppProps): JSX.Element {
 	const hud = useSyncExternalStore(store.subscribe, store.get);
 	return (
@@ -77,8 +86,11 @@ export function App({
 			{hud.shop && shopActions ? (
 				<Shop view={hud.shop} stats={hud.stats} actions={shopActions} />
 			) : null}
-			{hud.results && onRestart ? (
+			{hud.results && onRestart && !hud.difficulty && !hud.ossuary ? (
 				<Results view={hud.results} onRestart={onRestart} onOssuary={ossuaryActions?.open} />
+			) : null}
+			{hud.difficulty && difficultyActions ? (
+				<Difficulty view={hud.difficulty} actions={difficultyActions} />
 			) : null}
 			{hud.ossuary && ossuaryActions ? <Ossuary view={hud.ossuary} actions={ossuaryActions} /> : null}
 			{hud.boss ? <BossBar boss={hud.boss} /> : null}

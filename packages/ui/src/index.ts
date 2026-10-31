@@ -6,6 +6,12 @@ export type { BossViewModel } from "./components/BossBar/BossBar";
 export { BossBar, BossIntro } from "./components/BossBar/BossBar";
 export type { ButtonProps, ButtonSize } from "./components/Button/Button";
 export { Button } from "./components/Button/Button";
+export type {
+	DifficultyActions,
+	DifficultyOptionView,
+	DifficultyViewModel,
+} from "./components/Difficulty/Difficulty";
+export { Difficulty } from "./components/Difficulty/Difficulty";
 export type { CardView, LevelUpProps } from "./components/LevelUp/LevelUp";
 export { LevelUp } from "./components/LevelUp/LevelUp";
 export { Notice, noticeText } from "./components/Notice/Notice";

@@ -24,6 +24,7 @@ import {
 	bossesData,
 	buyNode,
 	cardsData,
+	chooseDifficulty,
 	createAuraSystem,
 	createBehaviorSystem,
 	createBossSystem,
@@ -59,6 +60,7 @@ import {
 	describeEffect,
 	describeModifier,
 	describeStats,
+	difficultyData,
 	dropFragment,
 	Elite,
 	elitesData,
@@ -66,12 +68,14 @@ import {
 	Health,
 	heroData,
 	inputSystem,
+	isUnlocked,
 	itemsData,
 	movementSystem,
 	nodeState,
 	ossuaryData,
 	Position,
 	PrevPosition,
+	parseSeed,
 	propsData,
 	queryEnemies,
 	refundValue,
@@ -125,9 +129,16 @@ const NO_STATS: HudState["stats"] = [];
 
 function runSeed(): number {
 	const param = new URLSearchParams(location.search).get("seed");
-	if (param !== null && Number.isInteger(Number(param))) return Number(param) >>> 0;
-	return crypto.getRandomValues(new Uint32Array(1))[0] ?? 1;
+	const parsed = param === null ? null : parseSeed(param);
+	return parsed ?? crypto.getRandomValues(new Uint32Array(1))[0] ?? 1;
 }
+
+const DIFFICULTY_NAMES: Readonly<Record<string, string>> = {
+	normal: "Normal",
+	grim: "Grim",
+	nightmare: "Nightmare",
+};
+const pt = (n: number): string => String(n).replace(".", ",");
 
 async function boot(): Promise<void> {
 	const canvas = document.querySelector<HTMLCanvasElement>("#game");
@@ -167,6 +178,10 @@ async function boot(): Promise<void> {
 	const meta: MetaState = loaded.meta;
 	if (loaded.notice) log.warn("save problem", loaded.notice);
 	const { fragments, xp } = roundsData;
+
+	// A locked or unknown difficulty in the URL falls back to Normal (GDD 17).
+	const difficultyId = chooseDifficulty(roundsData.difficulties, params.get("difficulty"), meta.records);
+	const difficulty = difficultyData(roundsData.difficulties, difficultyId);
 
 	// Permanent Ossuary nodes shape the run before it starts (GDD 19).
 	const ossuaryBonus = applyOssuary(ossuaryData, meta);
@@ -291,7 +306,7 @@ async function boot(): Promise<void> {
 		hero,
 		rng: rng.combat,
 		summonType: enemyIds.indexOf("husk"),
-		difficulty: () => 1,
+		difficulty: () => difficulty.hpDamageMult,
 		onDefeated: () => {
 			run.bossDied();
 			for (let i = 0; i < roundsData.boss.freeWeaponUpgrades; i++) weapon.upgrade();
@@ -306,7 +321,7 @@ async function boot(): Promise<void> {
 			{ type: enemyIds.indexOf("husk"), weight: 6 },
 			{ type: enemyIds.indexOf("wail"), weight: 4 },
 		],
-		difficultyMult: 1,
+		difficultyMult: difficulty.hpDamageMult,
 		onRoundStart: (round, isBoss) => {
 			elite.onRoundStart(round, isBoss);
 			if (isBoss) boss.start(world, round);
@@ -402,6 +417,7 @@ async function boot(): Promise<void> {
 		boss: null,
 		bossIntro: null,
 		ossuary: null,
+		difficulty: null,
 	});
 	createRoot(uiRoot).render(
 		<App
@@ -409,7 +425,25 @@ async function boot(): Promise<void> {
 			stick={stick}
 			onChooseCard={(index) => levelUp.choose(index)}
 			onChooseChest={(index) => chest.choose(index)}
-			onRestart={() => location.reload()}
+			onRestart={() => {
+				difficultyOpen = true;
+				publishNow();
+			}}
+			difficultyActions={{
+				cancel: () => {
+					difficultyOpen = false;
+					publishNow();
+				},
+				start: (id, seedText) => {
+					// Other parameters (debug, bench) survive; only the seed and difficulty are replaced.
+					const next = new URLSearchParams(location.search);
+					next.delete("seed");
+					next.set("difficulty", chooseDifficulty(roundsData.difficulties, id, meta.records));
+					const typed = parseSeed(seedText);
+					if (typed !== null) next.set("seed", String(typed));
+					location.search = next.toString();
+				},
+			}}
 			ossuaryActions={{
 				open: () => {
 					ossuaryOpen = true;
@@ -547,14 +581,14 @@ async function boot(): Promise<void> {
 				bossPerRound: roundsData.boss.soulsPerRound,
 			},
 			{ round: run.round, elitesKilled: runStats.elitesKilled, bossRounds: runStats.bossRounds },
-			1,
+			difficulty.soulsMult,
 			itemEffects.effects.soulGain,
 		);
-		const newRecord = run.round > meta.records.normal;
+		const newRecord = run.round > meta.records[difficultyId];
 		const result: RunResult = {
 			souls,
 			round: run.round,
-			difficulty: "normal",
+			difficulty: difficultyId,
 			kills: runStats.kills,
 			bossKills: runStats.bossRounds.length,
 			elitesKilled: runStats.elitesKilled,
@@ -566,7 +600,11 @@ async function boot(): Promise<void> {
 				.then((merged) => {
 					Object.assign(meta, merged);
 					if (results)
-						results = { ...results, totalSouls: merged.souls, record: merged.records.normal };
+						results = {
+							...results,
+							totalSouls: merged.souls,
+							record: merged.records[difficultyId],
+						};
 					publishNow();
 				})
 				.catch((error: unknown) => log.error("save failed", error));
@@ -593,7 +631,7 @@ async function boot(): Promise<void> {
 			],
 			souls,
 			totalSouls: meta.souls,
-			record: meta.records.normal,
+			record: meta.records[difficultyId],
 			newRecord,
 			seed,
 		};
@@ -601,6 +639,26 @@ async function boot(): Promise<void> {
 	}
 
 	let ossuaryOpen = false;
+	let difficultyOpen = false;
+
+	function difficultyView(): NonNullable<HudState["difficulty"]> {
+		return {
+			selected: difficultyId,
+			options: roundsData.difficulties.map((def) => {
+				const locked = !isUnlocked(def, meta.records);
+				const needed = def.unlockedBy;
+				return {
+					id: def.id,
+					name: DIFFICULTY_NAMES[def.id] ?? def.id,
+					summary: `HP e dano ×${pt(def.hpDamageMult)} · almas ×${pt(def.soulsMult)}`,
+					locked,
+					requirement: needed
+						? `Chegue ao round ${needed.round} em ${DIFFICULTY_NAMES[needed.difficulty] ?? needed.difficulty}`
+						: "",
+				};
+			}),
+		};
+	}
 
 	function buyAndThrow(m: MetaState, id: string): void {
 		const result = buyNode(ossuaryData, m, id, __IS_DEMO__);
@@ -696,6 +754,7 @@ async function boot(): Promise<void> {
 			notice: loaded.notice,
 			boss: bossView,
 			ossuary: ossuaryOpen ? ossuaryView() : null,
+			difficulty: difficultyOpen ? difficultyView() : null,
 			bossIntro: run.state === "BossIntro" ? bossName : null,
 		};
 		const cur = hud.get();
@@ -710,6 +769,8 @@ async function boot(): Promise<void> {
 			cur.chest !== next.chest ||
 			cur.boss !== next.boss ||
 			cur.ossuary !== null ||
+			cur.difficulty !== null ||
+			next.difficulty !== null ||
 			next.ossuary !== null ||
 			cur.bossIntro !== next.bossIntro ||
 			cur.shop !== next.shop ||
@@ -928,6 +989,7 @@ async function boot(): Promise<void> {
 			freeze: () => run.pause(),
 			saveNotice: () => loaded.notice,
 			heroMaxHp: () => Health.max[hero] ?? 0,
+			difficulty: () => difficultyId,
 			openOssuary: () => {
 				ossuaryOpen = true;
 				publishNow();

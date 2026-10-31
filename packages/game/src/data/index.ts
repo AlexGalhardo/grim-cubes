@@ -162,6 +162,7 @@ export type {
 	BossData,
 	BossPatternData,
 	CardsData,
+	DifficultyData,
 	EliteModifierData,
 	ElitesData,
 	EnemyData,

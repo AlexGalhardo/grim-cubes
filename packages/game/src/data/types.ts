@@ -64,6 +64,16 @@ export interface EnemyData {
 
 export type WeaponData = WeaponDef & { id: string; name: string };
 
+/** One entry of `rounds.json` `difficulties` (GDD 17). */
+export interface DifficultyData {
+	id: string;
+	/** Multiplies enemy and boss HP and damage. */
+	hpDamageMult: number;
+	soulsMult: number;
+	/** Best round needed on another difficulty; absent when always open. */
+	unlockedBy?: { difficulty: string; round: number } | undefined;
+}
+
 /** `data/rounds.json` (the blocks the game reads). */
 export interface RoundsData {
 	flow: RunConfig["flow"];
@@ -87,6 +97,7 @@ export interface RoundsData {
 	shop: ShopConfig;
 	souls: { perRound: number; perElite: number };
 	tierChance: TierChance[];
+	difficulties: DifficultyData[];
 }
 
 /** `data/render.json`. */
