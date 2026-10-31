@@ -18,6 +18,8 @@
 		"enemies/breeder",
 		"bosses/swamp_matriarch",
 		"bosses/forgemaster",
-		"bosses/alpha_hunter"
+		"bosses/alpha_hunter",
+		"bosses/nest_queen",
+		"npc/bone_merchant"
 	]
 }
