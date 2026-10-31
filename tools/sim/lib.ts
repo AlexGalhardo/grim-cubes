@@ -71,6 +71,8 @@ export interface SimReport {
 	perRound: RoundReport[];
 	bosses: BossFight[];
 	itemsBought: number;
+	/** Items owned at the end of the run, by id (how often the greedy bot picks each one). */
+	itemsOwned: Record<string, number>;
 	/** Id of the enemy that landed the killing blow, "self" or "none" (run still alive). */
 	killedBy: string;
 }
@@ -154,6 +156,7 @@ export function runSim(options: SimOptions): SimReport {
 		perRound: [],
 		bosses,
 		itemsBought: 0,
+		itemsOwned: {},
 		killedBy: "none",
 	};
 	let steps = 0;
@@ -338,6 +341,7 @@ export function runSim(options: SimOptions): SimReport {
 	report.steps = steps;
 	report.roundReached = run.round;
 	report.gold = progress.gold;
+	report.itemsOwned = Object.fromEntries(shop.owned);
 	report.level = progress.level;
 	report.heroHp = Math.max(0, Health.hp[hero] ?? 0);
 	report.eventsDropped = events.dropped;

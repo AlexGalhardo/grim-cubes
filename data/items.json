@@ -153,7 +153,7 @@
 			{
 				"stat": "hp_regen",
 				"op": "add",
-				"value": 1
+				"value": 0.5
 			}
 		],
 		"effects": []
@@ -509,7 +509,7 @@
 			{
 				"stat": "hp_regen",
 				"op": "add",
-				"value": 1
+				"value": 0.5
 			},
 			{
 				"stat": "speed",
@@ -528,7 +528,7 @@
 			{
 				"stat": "enemy_speed",
 				"op": "add",
-				"value": -0.2
+				"value": -0.05
 			}
 		],
 		"effects": []
@@ -695,7 +695,7 @@
 			{
 				"stat": "hp_regen",
 				"op": "add",
-				"value": 1
+				"value": 0.5
 			},
 			{
 				"stat": "speed",

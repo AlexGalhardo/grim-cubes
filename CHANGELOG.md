@@ -19,7 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **balance:** Regeneration values lowered after regen started working (three items and the card); the simulator check passes again
+- **balance:** Regeneration lowered after regen started working (Black Bandage, Abyss Heart and Ossuary Mantle to +0.5, the regen card to +0.25) and the Reaper's Hourglass slows enemies by 5% instead of 20%; the simulator check passes on 64x35 and 500x30
+- **tools:** The simulator report lists the items each run bought
 - **i18n:** pt-BR and English copy reviewed against the GDD
 - **docs:** ADRs 0021 to 0024 (Electron, audio engine, telemetry, e2e out of CI) and a refreshed README
 
