@@ -2,6 +2,7 @@
 	"type": "object",
 	"required": [
 		"flow",
+		"merchant",
 		"duration",
 		"boss",
 		"spawn",
@@ -18,7 +19,13 @@
 	"properties": {
 		"flow": {
 			"type": "object",
-			"required": ["introSeconds", "outroSeconds", "bossIntroSeconds", "dyingSeconds"],
+			"required": [
+				"introSeconds",
+				"outroSeconds",
+				"bossIntroSeconds",
+				"dyingSeconds",
+				"merchantWaitSeconds"
+			],
 			"additionalProperties": false,
 			"properties": {
 				"introSeconds": {
@@ -36,7 +43,23 @@
 				"dyingSeconds": {
 					"type": "number",
 					"minimum": 0
+				},
+				"merchantWaitSeconds": {
+					"type": "number",
+					"minimum": 1
 				}
+			}
+		},
+		"merchant": {
+			"type": "object",
+			"required": ["distance", "arriveSeconds", "leaveSeconds", "openRadius", "talkRadius"],
+			"additionalProperties": false,
+			"properties": {
+				"distance": { "type": "number", "minimum": 2 },
+				"arriveSeconds": { "type": "number", "minimum": 0 },
+				"leaveSeconds": { "type": "number", "minimum": 0 },
+				"openRadius": { "type": "number", "minimum": 0.5 },
+				"talkRadius": { "type": "number", "minimum": 0.5 }
 			}
 		},
 		"duration": {

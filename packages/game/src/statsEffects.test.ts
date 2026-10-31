@@ -32,6 +32,7 @@ function arena(mods: readonly Modifier[] = [], weapon?: string) {
 		seed: 11,
 		difficulty,
 		meta: createMetaState(),
+		autoShop: true,
 		...(weapon ? { weapon } : {}),
 	});
 	session.stats.add(mods);

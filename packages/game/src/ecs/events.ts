@@ -94,6 +94,11 @@ export const EventType = {
 	 * render's: direction = enemy - hero); entity = the enemy. At most once per enemy per contact cooldown.
 	 */
 	ThornsHit: 42,
+	/**
+	 * a, b = x, z where the Merchant stands (relative coordinates, fixed until the shop closes); c = seconds he waits
+	 * before the shop opens by itself. His state is on `session.merchant` (arriving, waiting, leaving).
+	 */
+	MerchantArrived: 43,
 	/** a = new level. The run paused and a card offer is waiting. */
 	LevelUp: 11,
 } as const;

@@ -58,6 +58,7 @@ import {
 	createPickupSystem,
 	createProgress,
 } from "./systems/loot";
+import { createMerchantSystem } from "./systems/merchant";
 import { movementSystem } from "./systems/movement";
 import { createProjectileSystem } from "./systems/projectile";
 import { createRunSystem } from "./systems/round";
@@ -80,6 +81,11 @@ export interface GameSessionOptions {
 	meta: MetaState;
 	/** Starting weapon id; defaults to the hero's own (the simulator tries others). */
 	weapon?: string;
+	/**
+	 * Skip the walk to the Merchant and open the shop as soon as the round ends: the simulator, which spends no steps
+	 * or randomness on it, and the demo end. A function decides per round.
+	 */
+	autoShop?: boolean | ((round: number) => boolean);
 }
 
 /**
@@ -261,6 +267,7 @@ function build(options: GameSessionOptions) {
 			{ type: enemyIds.indexOf("wail"), weight: 4 },
 		],
 		difficultyMult: difficulty.hpDamageMult,
+		autoShop: typeof options.autoShop === "function" ? options.autoShop : () => options.autoShop === true,
 		onRoundStart: (round, isBoss) => {
 			elite.onRoundStart(round, isBoss);
 			if (isBoss) boss.start(world, round);
@@ -271,6 +278,13 @@ function build(options: GameSessionOptions) {
 		},
 	});
 	bag.release = run.releaseFromBag;
+	const merchant = createMerchantSystem({
+		config: roundsData.merchant,
+		run,
+		events,
+		hero,
+		waitSeconds: roundsData.flow.merchantWaitSeconds,
+	});
 
 	const death = createDeathSystem({
 		fragments,
@@ -451,7 +465,21 @@ function build(options: GameSessionOptions) {
 			regenerate();
 			levelUp.run();
 			if ((Health.hp[hero] ?? 0) <= 0 && !itemEffects.tryRevive(hero)) run.heroDied();
+		} else if (run.state === "MerchantWait") {
+			// No enemies and nothing to fight: the hero only walks to the Merchant (A-05-01).
+			inputSystem(world, hero, input, heroStatus.speedMultiplier);
+			heroStatus.run(hero);
+			movementSystem(world);
+			propCollision.resolve(world, origin, hero);
+			applyOriginShift(world, origin, hero, events, worldData, (dx, dz) => {
+				boss.shiftOrigin(dx, dz);
+				merchant.shift(dx, dz);
+			});
+			chunks.update(origin.x + (Position.x[hero] ?? 0), origin.z + (Position.z[hero] ?? 0));
+			stats.run(hero);
+			regenerate();
 		}
+		merchant.run();
 		if (run.state === "Shop" && !inShop) shop.open();
 		inShop = run.state === "Shop";
 	}
@@ -504,6 +532,7 @@ function build(options: GameSessionOptions) {
 		rng,
 		difficulty,
 		fighting,
+		merchant,
 		step,
 	};
 }
@@ -556,6 +585,7 @@ export interface GameSession {
 	readonly breakables: ReturnType<typeof build>["breakables"];
 	readonly biomeMap: ReturnType<typeof build>["biomeMap"];
 	readonly propCollision: ReturnType<typeof build>["propCollision"];
+	readonly merchant: ReturnType<typeof build>["merchant"];
 	readonly ossuaryBonus: ReturnType<typeof build>["ossuaryBonus"];
 	readonly rng: ReturnType<typeof build>["rng"];
 	readonly difficulty: ReturnType<typeof build>["difficulty"];
