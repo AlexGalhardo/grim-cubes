@@ -1,10 +1,21 @@
 {
 	"meta": {
-		"format_version": "4.10",
+		"format_version": "5.0",
 		"model_format": "free",
 		"box_uv": false
 	},
 	"name": "weapon_bazooka",
+	"model_identifier": "",
+	"visible_box": [
+		1,
+		1,
+		0
+	],
+	"variable_placeholders": "",
+	"multi_file_ruleset": "",
+	"variable_placeholder_buttons": [],
+	"timeline_setups": [],
+	"unhandled_root_fields": {},
 	"resolution": {
 		"width": 32,
 		"height": 32
@@ -29,7 +40,7 @@
 				4
 			],
 			"autouv": 0,
-			"color": 8,
+			"color": 3,
 			"origin": [
 				0,
 				-3,
@@ -92,7 +103,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "121528b0-90b3-54f2-3b05-f76f94e21a43"
+			"uuid": "7f46bbe5-7cc7-ce21-3283-39318a395bd9"
 		},
 		{
 			"name": "tube",
@@ -113,7 +124,7 @@
 				32
 			],
 			"autouv": 0,
-			"color": 2,
+			"color": 0,
 			"origin": [
 				0,
 				12,
@@ -176,7 +187,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "143bed88-4772-79f3-ca83-ebe9370935ca"
+			"uuid": "8ad62f5e-3036-ba67-1da1-af2cfe2b04df"
 		},
 		{
 			"name": "flare",
@@ -197,7 +208,7 @@
 				42
 			],
 			"autouv": 0,
-			"color": 4,
+			"color": 5,
 			"origin": [
 				0,
 				12,
@@ -260,7 +271,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "b5352fd6-9427-dd4c-cdbb-f5bd0bd250ca"
+			"uuid": "aec11e62-237c-3dd2-3df8-ad7a59d4649b"
 		},
 		{
 			"name": "handle",
@@ -281,7 +292,7 @@
 				18
 			],
 			"autouv": 0,
-			"color": 3,
+			"color": 0,
 			"origin": [
 				0,
 				-1,
@@ -344,7 +355,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "dd890e33-2fcb-39c6-7ed3-dd11f975219f"
+			"uuid": "be9439ac-f216-ef5e-c925-339fd0a0f99e"
 		},
 		{
 			"name": "pad",
@@ -365,7 +376,7 @@
 				-24
 			],
 			"autouv": 0,
-			"color": 9,
+			"color": 0,
 			"origin": [
 				0,
 				14,
@@ -428,13 +439,22 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "477199e7-02c0-0102-12d1-631d5026f22d"
+			"uuid": "80fcd2e4-f584-bd7b-09b4-f84c15a0c108"
 		}
 	],
-	"outliner": [
+	"groups": [
 		{
 			"name": "root",
 			"uuid": "g_root",
+			"export": true,
+			"locked": false,
+			"scope": 0,
+			"selected": false,
+			"visibility": true,
+			"_static": {
+				"properties": {},
+				"temp_data": {}
+			},
 			"origin": [
 				0,
 				0,
@@ -446,12 +466,25 @@
 				0
 			],
 			"color": 0,
+			"children": [],
+			"reset": false,
+			"shade": true,
+			"mirror_uv": false,
+			"autouv": 0,
+			"isOpen": false,
+			"primary_selected": false
+		}
+	],
+	"outliner": [
+		{
+			"uuid": "g_root",
+			"isOpen": false,
 			"children": [
-				"121528b0-90b3-54f2-3b05-f76f94e21a43",
-				"143bed88-4772-79f3-ca83-ebe9370935ca",
-				"b5352fd6-9427-dd4c-cdbb-f5bd0bd250ca",
-				"dd890e33-2fcb-39c6-7ed3-dd11f975219f",
-				"477199e7-02c0-0102-12d1-631d5026f22d"
+				"7f46bbe5-7cc7-ce21-3283-39318a395bd9",
+				"8ad62f5e-3036-ba67-1da1-af2cfe2b04df",
+				"aec11e62-237c-3dd2-3df8-ad7a59d4649b",
+				"be9439ac-f216-ef5e-c925-339fd0a0f99e",
+				"80fcd2e4-f584-bd7b-09b4-f84c15a0c108"
 			]
 		}
 	],

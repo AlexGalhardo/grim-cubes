@@ -1,10 +1,21 @@
 {
 	"meta": {
-		"format_version": "4.10",
+		"format_version": "5.0",
 		"model_format": "free",
 		"box_uv": false
 	},
 	"name": "weapon_sword",
+	"model_identifier": "",
+	"visible_box": [
+		1,
+		1,
+		0
+	],
+	"variable_placeholders": "",
+	"multi_file_ruleset": "",
+	"variable_placeholder_buttons": [],
+	"timeline_setups": [],
+	"unhandled_root_fields": {},
 	"resolution": {
 		"width": 32,
 		"height": 32
@@ -29,7 +40,7 @@
 				2
 			],
 			"autouv": 0,
-			"color": 1,
+			"color": 4,
 			"origin": [
 				0,
 				0,
@@ -92,7 +103,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "da755b84-14aa-d6b0-6237-2a242260f7dd"
+			"uuid": "d13ef485-5cdf-b1e1-c71b-32680d4fb57d"
 		},
 		{
 			"name": "pommel",
@@ -113,7 +124,7 @@
 				3
 			],
 			"autouv": 0,
-			"color": 4,
+			"color": 6,
 			"origin": [
 				0,
 				-9,
@@ -176,7 +187,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "7965785c-b81b-9cc8-8fdb-56ac79358824"
+			"uuid": "cb7adfea-5910-ba0d-6a2f-9b23b7feaaea"
 		},
 		{
 			"name": "guard",
@@ -197,7 +208,7 @@
 				3
 			],
 			"autouv": 0,
-			"color": 1,
+			"color": 7,
 			"origin": [
 				-2,
 				8,
@@ -260,7 +271,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "5943f3eb-b21f-c58a-15e8-d9d7a5fc29d6"
+			"uuid": "9747ef5f-8a58-c79a-56cd-eff423c23084"
 		},
 		{
 			"name": "blade",
@@ -281,7 +292,7 @@
 				1
 			],
 			"autouv": 0,
-			"color": 0,
+			"color": 6,
 			"origin": [
 				0,
 				32,
@@ -344,7 +355,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "c3943102-7b27-2aa3-1750-0f86f7f30ad7"
+			"uuid": "9acddc99-8d0b-415a-9d5e-98526e766a24"
 		},
 		{
 			"name": "tip",
@@ -365,7 +376,7 @@
 				1
 			],
 			"autouv": 0,
-			"color": 6,
+			"color": 1,
 			"origin": [
 				-1,
 				58,
@@ -428,13 +439,22 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "05aaef63-0b75-8088-16b5-4c425d6ac8d3"
+			"uuid": "3b7c4e5f-d041-c63e-9c49-ba86a53da0f4"
 		}
 	],
-	"outliner": [
+	"groups": [
 		{
 			"name": "root",
 			"uuid": "g_root",
+			"export": true,
+			"locked": false,
+			"scope": 0,
+			"selected": false,
+			"visibility": true,
+			"_static": {
+				"properties": {},
+				"temp_data": {}
+			},
 			"origin": [
 				0,
 				0,
@@ -446,12 +466,25 @@
 				0
 			],
 			"color": 0,
+			"children": [],
+			"reset": false,
+			"shade": true,
+			"mirror_uv": false,
+			"autouv": 0,
+			"isOpen": false,
+			"primary_selected": false
+		}
+	],
+	"outliner": [
+		{
+			"uuid": "g_root",
+			"isOpen": false,
 			"children": [
-				"da755b84-14aa-d6b0-6237-2a242260f7dd",
-				"7965785c-b81b-9cc8-8fdb-56ac79358824",
-				"5943f3eb-b21f-c58a-15e8-d9d7a5fc29d6",
-				"c3943102-7b27-2aa3-1750-0f86f7f30ad7",
-				"05aaef63-0b75-8088-16b5-4c425d6ac8d3"
+				"d13ef485-5cdf-b1e1-c71b-32680d4fb57d",
+				"cb7adfea-5910-ba0d-6a2f-9b23b7feaaea",
+				"9747ef5f-8a58-c79a-56cd-eff423c23084",
+				"9acddc99-8d0b-415a-9d5e-98526e766a24",
+				"3b7c4e5f-d041-c63e-9c49-ba86a53da0f4"
 			]
 		}
 	],

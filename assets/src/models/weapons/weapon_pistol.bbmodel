@@ -1,10 +1,21 @@
 {
 	"meta": {
-		"format_version": "4.10",
+		"format_version": "5.0",
 		"model_format": "free",
 		"box_uv": false
 	},
 	"name": "weapon_pistol",
+	"model_identifier": "",
+	"visible_box": [
+		1,
+		1,
+		0
+	],
+	"variable_placeholders": "",
+	"multi_file_ruleset": "",
+	"variable_placeholder_buttons": [],
+	"timeline_setups": [],
+	"unhandled_root_fields": {},
 	"resolution": {
 		"width": 32,
 		"height": 32
@@ -29,7 +40,7 @@
 				4
 			],
 			"autouv": 0,
-			"color": 6,
+			"color": 7,
 			"origin": [
 				0,
 				-3,
@@ -92,7 +103,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "452e5a88-f596-de32-a11c-cc36e3f0d8c9"
+			"uuid": "1b3926b7-16bc-1f05-746e-747dc3627263"
 		},
 		{
 			"name": "body",
@@ -113,7 +124,7 @@
 				20
 			],
 			"autouv": 0,
-			"color": 9,
+			"color": 1,
 			"origin": [
 				0,
 				8,
@@ -176,7 +187,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "133465c2-3d92-3b43-7385-7e6727f7e0d1"
+			"uuid": "8fd092fb-bb44-2bc2-ec6a-1efbc0a01471"
 		},
 		{
 			"name": "hammer",
@@ -197,7 +208,7 @@
 				0
 			],
 			"autouv": 0,
-			"color": 1,
+			"color": 3,
 			"origin": [
 				0,
 				14,
@@ -260,7 +271,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "9ec7d0c9-27a9-95e8-8295-ec1c38c71393"
+			"uuid": "a07c273c-b506-cf48-c7fb-c4dc6e650ca9"
 		},
 		{
 			"name": "guard",
@@ -281,7 +292,7 @@
 				12
 			],
 			"autouv": 0,
-			"color": 4,
+			"color": 8,
 			"origin": [
 				0,
 				3,
@@ -344,7 +355,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "8b58ad9c-946d-da18-fe0b-45ff80b81306"
+			"uuid": "e1fc0e07-2606-6871-596d-04c2702bb964"
 		},
 		{
 			"name": "muzzle",
@@ -365,7 +376,7 @@
 				28
 			],
 			"autouv": 0,
-			"color": 1,
+			"color": 2,
 			"origin": [
 				0,
 				8,
@@ -428,13 +439,22 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "2646597a-5aaf-11e3-ddce-5a314b09fe9c"
+			"uuid": "0765aabc-45db-86fa-37a5-76892df0fd9a"
 		}
 	],
-	"outliner": [
+	"groups": [
 		{
 			"name": "root",
 			"uuid": "g_root",
+			"export": true,
+			"locked": false,
+			"scope": 0,
+			"selected": false,
+			"visibility": true,
+			"_static": {
+				"properties": {},
+				"temp_data": {}
+			},
 			"origin": [
 				0,
 				0,
@@ -446,12 +466,25 @@
 				0
 			],
 			"color": 0,
+			"children": [],
+			"reset": false,
+			"shade": true,
+			"mirror_uv": false,
+			"autouv": 0,
+			"isOpen": false,
+			"primary_selected": false
+		}
+	],
+	"outliner": [
+		{
+			"uuid": "g_root",
+			"isOpen": false,
 			"children": [
-				"452e5a88-f596-de32-a11c-cc36e3f0d8c9",
-				"133465c2-3d92-3b43-7385-7e6727f7e0d1",
-				"9ec7d0c9-27a9-95e8-8295-ec1c38c71393",
-				"8b58ad9c-946d-da18-fe0b-45ff80b81306",
-				"2646597a-5aaf-11e3-ddce-5a314b09fe9c"
+				"1b3926b7-16bc-1f05-746e-747dc3627263",
+				"8fd092fb-bb44-2bc2-ec6a-1efbc0a01471",
+				"a07c273c-b506-cf48-c7fb-c4dc6e650ca9",
+				"e1fc0e07-2606-6871-596d-04c2702bb964",
+				"0765aabc-45db-86fa-37a5-76892df0fd9a"
 			]
 		}
 	],

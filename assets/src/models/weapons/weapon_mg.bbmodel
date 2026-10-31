@@ -1,10 +1,21 @@
 {
 	"meta": {
-		"format_version": "4.10",
+		"format_version": "5.0",
 		"model_format": "free",
 		"box_uv": false
 	},
 	"name": "weapon_mg",
+	"model_identifier": "",
+	"visible_box": [
+		1,
+		1,
+		0
+	],
+	"variable_placeholders": "",
+	"multi_file_ruleset": "",
+	"variable_placeholder_buttons": [],
+	"timeline_setups": [],
+	"unhandled_root_fields": {},
 	"resolution": {
 		"width": 32,
 		"height": 32
@@ -29,7 +40,7 @@
 				4
 			],
 			"autouv": 0,
-			"color": 6,
+			"color": 3,
 			"origin": [
 				0,
 				-3,
@@ -92,7 +103,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "3a812825-a271-9cc0-fdc0-bf63a0f56e0b"
+			"uuid": "f469c5ac-6d4b-e21e-267a-692bdb3bbcd2"
 		},
 		{
 			"name": "body",
@@ -113,7 +124,7 @@
 				34
 			],
 			"autouv": 0,
-			"color": 7,
+			"color": 0,
 			"origin": [
 				0,
 				10,
@@ -176,7 +187,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "05251dab-c02e-142b-0744-7c7e8861e78a"
+			"uuid": "2dc62b46-d48a-3e60-bcca-10218ab087e6"
 		},
 		{
 			"name": "barrel",
@@ -197,7 +208,7 @@
 				56
 			],
 			"autouv": 0,
-			"color": 0,
+			"color": 1,
 			"origin": [
 				0,
 				10,
@@ -260,7 +271,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "ae3bf3ab-0b0a-4b03-011a-9307802790a7"
+			"uuid": "0b782788-1d9e-9388-aa3d-6a5e9154ef5e"
 		},
 		{
 			"name": "ammo",
@@ -281,7 +292,7 @@
 				20
 			],
 			"autouv": 0,
-			"color": 7,
+			"color": 5,
 			"origin": [
 				13,
 				9,
@@ -344,7 +355,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "7d4c2a75-8826-dc6f-e750-94434ec06840"
+			"uuid": "0f5fe169-cdca-0bec-1d71-737c1e3e44c2"
 		},
 		{
 			"name": "bipod_l",
@@ -365,7 +376,7 @@
 				30
 			],
 			"autouv": 0,
-			"color": 4,
+			"color": 8,
 			"origin": [
 				-4,
 				-1,
@@ -428,7 +439,7 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "22527bd2-77e7-3fa5-a4e7-3fc6484fadbd"
+			"uuid": "28d2626e-0aee-039b-17a2-06828743d623"
 		},
 		{
 			"name": "bipod_r",
@@ -449,7 +460,7 @@
 				30
 			],
 			"autouv": 0,
-			"color": 3,
+			"color": 4,
 			"origin": [
 				4,
 				-1,
@@ -512,13 +523,22 @@
 				}
 			},
 			"type": "cube",
-			"uuid": "c6cbd02d-f470-f745-6f75-27e2a61bcbca"
+			"uuid": "21b0f1cf-3c36-2993-cde0-62718c3c2c06"
 		}
 	],
-	"outliner": [
+	"groups": [
 		{
 			"name": "root",
 			"uuid": "g_root",
+			"export": true,
+			"locked": false,
+			"scope": 0,
+			"selected": false,
+			"visibility": true,
+			"_static": {
+				"properties": {},
+				"temp_data": {}
+			},
 			"origin": [
 				0,
 				0,
@@ -530,13 +550,26 @@
 				0
 			],
 			"color": 0,
+			"children": [],
+			"reset": false,
+			"shade": true,
+			"mirror_uv": false,
+			"autouv": 0,
+			"isOpen": false,
+			"primary_selected": false
+		}
+	],
+	"outliner": [
+		{
+			"uuid": "g_root",
+			"isOpen": false,
 			"children": [
-				"3a812825-a271-9cc0-fdc0-bf63a0f56e0b",
-				"05251dab-c02e-142b-0744-7c7e8861e78a",
-				"ae3bf3ab-0b0a-4b03-011a-9307802790a7",
-				"7d4c2a75-8826-dc6f-e750-94434ec06840",
-				"22527bd2-77e7-3fa5-a4e7-3fc6484fadbd",
-				"c6cbd02d-f470-f745-6f75-27e2a61bcbca"
+				"f469c5ac-6d4b-e21e-267a-692bdb3bbcd2",
+				"2dc62b46-d48a-3e60-bcca-10218ab087e6",
+				"0b782788-1d9e-9388-aa3d-6a5e9154ef5e",
+				"0f5fe169-cdca-0bec-1d71-737c1e3e44c2",
+				"28d2626e-0aee-039b-17a2-06828743d623",
+				"21b0f1cf-3c36-2993-cde0-62718c3c2c06"
 			]
 		}
 	],

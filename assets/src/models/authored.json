@@ -30,6 +30,16 @@
 		"props/prop_dead_tree_01",
 		"props/prop_fence_01",
 		"props/prop_crypt_01",
-		"props/prop_grass_01"
+		"props/prop_grass_01",
+		"props/prop_swamp_stump_01",
+		"props/prop_swamp_tree_01",
+		"props/prop_swamp_hut_01",
+		"props/prop_swamp_bonearch_01",
+		"props/prop_reeds_01",
+		"props/prop_swamp_skull_01",
+		"props/prop_mushroom_01",
+		"props/prop_swamp_log_01",
+		"props/prop_swamp_jar_01",
+		"props/prop_swamp_nest_01"
 	]
 }
