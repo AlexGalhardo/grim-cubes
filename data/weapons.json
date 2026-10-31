@@ -3,11 +3,11 @@
 		"id": "sword",
 		"name": "Espada Enferrujada",
 		"kind": "melee",
-		"range": 2.5,
+		"range": 3.25,
 		"attacksPerSecond": 1.4,
 		"damage": 12,
 		"knockback": 1.5,
-		"arcDegrees": 120,
+		"arcDegrees": 130,
 		"special": {
 			"id": "hit_all_in_arc"
 		},

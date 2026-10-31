@@ -1,4 +1,9 @@
-import { createInputState, createMetaState } from "../../packages/core/src/index";
+import {
+	createInputState,
+	createMetaState,
+	DIFFICULTIES,
+	type Difficulty,
+} from "../../packages/core/src/index";
 import {
 	createGameSession,
 	difficultyData,
@@ -83,8 +88,9 @@ const MAX_SECONDS_PER_ROUND = 90;
 /** The tank stands and fights, so its boss rounds run long: it gets a longer budget before a run counts as a timeout. */
 const TANK_SECONDS_PER_ROUND = 150;
 
-function difficultyId(id: string): "easy" | "normal" | "grim" | "nightmare" {
-	if (id === "easy" || id === "normal" || id === "grim" || id === "nightmare") return id;
+function difficultyId(id: string): Difficulty {
+	const found = DIFFICULTIES.find((d) => d === id);
+	if (found) return found;
 	throw new Error(`unknown difficulty "${id}"`);
 }
 
