@@ -3,6 +3,7 @@ import { addComponent } from "bitecs";
 import { expect, test } from "vitest";
 import { heroData } from "../data";
 import { Invulnerable, PlayerFaction, Position, Speed, Velocity } from "../ecs/components";
+import { createEventBuffer, EventType } from "../ecs/events";
 import { createGameWorld, spawnBody } from "../ecs/world";
 import { createDashSystem } from "./dash";
 import { inputSystem } from "./input";
@@ -108,4 +109,27 @@ test("stacked cooldown reductions stop at the 0.5 s floor", () => {
 	expect(dash.charges).toBe(0);
 	step();
 	expect(dash.charges).toBe(1);
+});
+
+test("starting a dash announces DashStarted with the direction, once per dash", () => {
+	const events = createEventBuffer(16);
+	const world = createGameWorld();
+	const hero = spawnBody(world, 0, 0);
+	addComponent(world, hero, PlayerFaction);
+	addComponent(world, hero, Velocity);
+	const input = createInputState();
+	const dash = createDashSystem(heroData.dash, { ...unlocked, events });
+	input.moveX = 0;
+	input.moveZ = 1;
+	input.dash = true;
+	for (let i = 0; i < 5; i++) dash.run(hero, input);
+	const seen: number[][] = [];
+	events.consume((type, a, b, c, e) => {
+		if (type === EventType.DashStarted) seen.push([a, b, c, e]);
+	});
+	expect(seen).toHaveLength(1);
+	expect(seen[0]?.[0]).toBe(0);
+	expect(seen[0]?.[1]).toBe(1);
+	expect(seen[0]?.[2]).toBeCloseTo(heroData.dash.durationSeconds);
+	expect(seen[0]?.[3]).toBe(hero);
 });

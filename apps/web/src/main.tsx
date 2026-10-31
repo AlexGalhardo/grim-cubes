@@ -241,6 +241,7 @@ async function boot(): Promise<void> {
 		unlocked: ossuaryBonus.dashUnlocked,
 		charges: ossuaryBonus.dashCharges,
 		cooldownReductionSeconds: ossuaryBonus.dashCooldownReductionSeconds,
+		events,
 	});
 	let touchDash = false;
 	const itemEffects = createEffectsSystem(itemsData, owned, {

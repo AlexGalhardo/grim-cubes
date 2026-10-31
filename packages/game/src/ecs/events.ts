@@ -52,6 +52,8 @@ export const EventType = {
 	BossPool: 25,
 	/** a, b = x, z; c = radius. The boss screamed: the hero in range was shoved away. */
 	BossScream: 26,
+	/** a, b = unit direction x, z; c = dash duration in seconds; entity = the hero. A dash began. */
+	DashStarted: 27,
 	/** a = new level. The run paused and a card offer is waiting. */
 	LevelUp: 11,
 } as const;

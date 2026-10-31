@@ -1,5 +1,6 @@
 import type { InputState } from "@gc/core";
 import { Facing, Invulnerable, Velocity } from "../ecs/components";
+import { type EventBuffer, EventType } from "../ecs/events";
 import { STEP } from "../loop";
 
 export interface DashConfig {
@@ -16,6 +17,8 @@ export interface DashOptions {
 	charges: number;
 	/** Ossuary `dash_cooldown_reduction`, in seconds. */
 	cooldownReductionSeconds: number;
+	/** Receives `DashStarted` when a dash begins (animation and sound); optional. */
+	events?: EventBuffer | undefined;
 }
 
 export interface DashSystem {
@@ -74,6 +77,7 @@ export function createDashSystem(config: DashConfig, options: DashOptions): Dash
 					dirZ = Math.cos(yaw);
 				}
 				remaining = dashTicks;
+				options.events?.push(EventType.DashStarted, dirX, dirZ, config.durationSeconds, hero);
 				if (charges === maxCharges) rechargeTicks = 0;
 				charges--;
 				Invulnerable.ticks[hero] = Math.max(Invulnerable.ticks[hero] ?? 0, iFrameTicks);
