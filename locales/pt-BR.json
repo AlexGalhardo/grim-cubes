@@ -170,7 +170,7 @@
 	"card.speed": "+4% velocidade",
 	"card.crit_chance": "+3% crítico",
 	"card.dodge": "+3% esquiva",
-	"card.hp_regen": "+1 regen",
+	"card.hp_regen": "+0,5 regen",
 	"card.life_steal": "+2% roubo de vida",
 	"card.luck": "+4 sorte",
 	"card.harvest": "+1 colheita",
