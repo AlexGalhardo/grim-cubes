@@ -81,8 +81,8 @@
 		"id": "prop_swamp_tree_01",
 		"sizeClass": "large",
 		"kind": "blocking",
-		"radius": 0.4,
-		"height": 3.19
+		"radius": 0.58,
+		"height": 4.63
 	},
 	{
 		"id": "prop_swamp_hut_01",
