@@ -20,7 +20,8 @@
 				"damage",
 				"attackSpeed",
 				"luck",
-				"harvest"
+				"harvest",
+				"radius"
 			],
 			"additionalProperties": false,
 			"properties": {
@@ -70,6 +71,10 @@
 				"harvest": {
 					"type": "number",
 					"minimum": 0
+				},
+				"radius": {
+					"type": "number",
+					"exclusiveMinimum": 0
 				}
 			}
 		},
@@ -118,7 +123,8 @@
 				"armorConstant",
 				"hpRegenFirstPoint",
 				"hpRegenExtraPoint",
-				"lifeStealTriggerSeconds"
+				"lifeStealTriggerSeconds",
+				"meleeRangePerPointFactor"
 			],
 			"additionalProperties": false,
 			"properties": {
@@ -135,6 +141,10 @@
 					"minimum": 0
 				},
 				"lifeStealTriggerSeconds": {
+					"type": "number",
+					"minimum": 0
+				},
+				"meleeRangePerPointFactor": {
 					"type": "number",
 					"minimum": 0
 				}

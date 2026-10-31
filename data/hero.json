@@ -12,7 +12,8 @@
 		"damage": 0,
 		"attackSpeed": 0,
 		"luck": 0,
-		"harvest": 0
+		"harvest": 0,
+		"radius": 0.45
 	},
 	"caps": {
 		"lifeStealHpPerSecond": 10,
@@ -26,7 +27,8 @@
 		"armorConstant": 6.66,
 		"hpRegenFirstPoint": 0.2,
 		"hpRegenExtraPoint": 0.09,
-		"lifeStealTriggerSeconds": 0.1
+		"lifeStealTriggerSeconds": 0.1,
+		"meleeRangePerPointFactor": 0.5
 	},
 	"dash": {
 		"distance": 4,
