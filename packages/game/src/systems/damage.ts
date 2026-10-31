@@ -10,6 +10,7 @@ import {
 	effectiveDodge,
 	knockbackScale,
 } from "../rules/damage";
+import type { ItemEffects } from "../rules/effects";
 
 export const DAMAGE_QUEUE_CAPACITY = 1024;
 
@@ -39,6 +40,8 @@ export interface HeroCombatStats {
 	critMult: number;
 	/** Fraction of damage dealt returned as HP (0.02 = 2%). */
 	lifeSteal: number;
+	/** Extra damage fraction against bosses (`boss_damage`). */
+	bossDamage?: number;
 }
 
 export interface DamageSystemDeps {
@@ -47,6 +50,8 @@ export interface DamageSystemDeps {
 	events: EventBuffer;
 	hero: number;
 	stats: HeroCombatStats;
+	/** Item effects; optional so systems can run without items. */
+	effects?: ItemEffects | undefined;
 }
 
 export interface DamageSystem {
@@ -55,7 +60,7 @@ export interface DamageSystem {
 }
 
 export function createDamageSystem(deps: DamageSystemDeps): DamageSystem {
-	const { config, rng, events, hero, stats } = deps;
+	const { config, rng, events, hero, stats, effects } = deps;
 	const target = new Uint16Array(DAMAGE_QUEUE_CAPACITY);
 	const amount = new Float32Array(DAMAGE_QUEUE_CAPACITY);
 	const critChance = new Float32Array(DAMAGE_QUEUE_CAPACITY);
@@ -107,7 +112,11 @@ export function createDamageSystem(deps: DamageSystemDeps): DamageSystem {
 		if ((Health.hp[eid] ?? 0) <= 0) return;
 		const crit = rng.combat.next() < (critChance[i] ?? 0);
 		const raw = (amount[i] ?? 0) * (crit ? stats.critMult : 1);
-		const dealt = raw * armorMultiplier(Armor.value[eid] ?? 0, config.armorConstant);
+		const isBoss = hasComponent(world, eid, Boss);
+		const isElite = hasComponent(world, eid, Elite);
+		const bonus =
+			(isBoss ? (stats.bossDamage ?? 0) : 0) + (isElite ? (effects?.bonusDamageVsElites ?? 0) : 0);
+		const dealt = raw * (1 + bonus) * armorMultiplier(Armor.value[eid] ?? 0, config.armorConstant);
 		Health.hp[eid] = (Health.hp[eid] ?? 0) - dealt;
 		HitFlash.ticks[eid] = 2;
 

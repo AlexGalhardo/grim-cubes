@@ -61,6 +61,8 @@ export {
 } from "./rules/damage";
 export type { StatLine } from "./rules/describe";
 export { describeModifier, describeStats } from "./rules/describe";
+export type { AuraEffect, EffectSource, ItemEffects } from "./rules/effects";
+export { computeEffects, createItemEffects } from "./rules/effects";
 export type { FragmentsConfig, XpConfig } from "./rules/fragments";
 export { dropChance, harvestCount, xpForLevel } from "./rules/fragments";
 export type {
@@ -79,6 +81,8 @@ export type { BehaviorConfig, BehaviorSystem } from "./systems/behavior";
 export { BehaviorKind, createBehaviorSystem } from "./systems/behavior";
 export type { DamageQueue, DamageSystem, DamageSystemDeps, HeroCombatStats } from "./systems/damage";
 export { createDamageSystem, DAMAGE_QUEUE_CAPACITY } from "./systems/damage";
+export type { AuraSystem, AuraSystemDeps, EffectsSystem } from "./systems/effects";
+export { createAuraSystem, createEffectsSystem } from "./systems/effects";
 export { inputSystem } from "./systems/input";
 export type { LevelUpDeps, LevelUpSystem } from "./systems/levelup";
 export { createLevelUpSystem } from "./systems/levelup";
@@ -92,6 +96,7 @@ export type {
 export {
 	addFragmentValue,
 	applyHarvest,
+	applyRoundEndBonus,
 	createDeathSystem,
 	createPickupSystem,
 	createProgress,

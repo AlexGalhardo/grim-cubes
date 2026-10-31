@@ -117,4 +117,5 @@ export interface ItemData {
 	price: number;
 	modifiers: Modifier[];
 	effects: ItemEffect[];
+	status?: string;
 }

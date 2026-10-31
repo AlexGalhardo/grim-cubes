@@ -3,13 +3,16 @@ import {
 	addFragmentValue,
 	applyHarvest,
 	applyOriginShift,
+	applyRoundEndBonus,
 	biomesData,
 	cardsData,
+	createAuraSystem,
 	createBehaviorSystem,
 	createChunkGenerator,
 	createChunkSystem,
 	createDamageSystem,
 	createDeathSystem,
+	createEffectsSystem,
 	createEventBuffer,
 	createGameWorld,
 	createLevelUpSystem,
@@ -107,6 +110,9 @@ async function boot(): Promise<void> {
 	stats.stats.dirty = true;
 	stats.run(hero);
 
+	const owned = new Map<string, number>();
+	const itemEffects = createEffectsSystem(itemsData, owned);
+
 	const startingWeapon = weaponsData.find((w) => w.id === heroData.startingWeapon);
 	if (!startingWeapon) throw new Error(`Unknown starting weapon ${heroData.startingWeapon}`);
 	const enemyIds = enemiesData.map((e) => e.id);
@@ -118,6 +124,7 @@ async function boot(): Promise<void> {
 		events,
 		hero,
 		stats: stats.stats,
+		effects: itemEffects.effects,
 	});
 	const separation = createSeparationSystem({
 		weight: roundsData.ai.separationWeight,
@@ -139,6 +146,7 @@ async function boot(): Promise<void> {
 		enemies: separation.hash,
 		rng: rng.weapon,
 		projectiles,
+		effects: itemEffects.effects,
 	});
 	const projectileSystem = createProjectileSystem({
 		pool: projectiles,
@@ -185,6 +193,7 @@ async function boot(): Promise<void> {
 		difficultyMult: 1,
 		onRoundEnd: (round) => {
 			applyHarvest(progress, fragments, xp, round, stats.stats.harvest, stats.stats.xpGain);
+			applyRoundEndBonus(progress, fragments, xp, itemEffects.effects, stats.stats.xpGain);
 		},
 	});
 	bag.release = run.releaseFromBag;
@@ -194,8 +203,21 @@ async function boot(): Promise<void> {
 		fragmentsPerType: enemiesData.map((e) => e.fragments),
 		rng: rng.loot,
 		round: () => run.round,
+		effects: itemEffects.effects,
 	});
-	const pickup = createPickupSystem({ fragments, xp, progress, stats: stats.stats });
+	const pickup = createPickupSystem({
+		fragments,
+		xp,
+		progress,
+		stats: stats.stats,
+		effects: itemEffects.effects,
+	});
+	const aura = createAuraSystem({
+		effects: itemEffects.effects,
+		queue: damage.queue,
+		enemies: separation.hash,
+		round: () => run.round,
+	});
 	const levelUp = createLevelUpSystem({ progress, run, cards: cardsData, rng: rng.cards, stats, events });
 	const shop = createShopSystem({
 		config: roundsData.shop,
@@ -207,6 +229,8 @@ async function boot(): Promise<void> {
 		stats,
 		weapon,
 		round: () => run.round,
+		owned,
+		onItemBought: itemEffects.refresh,
 	});
 
 	const chunkGen = createChunkGenerator(seed, toBiomeDefs(biomesData), {
@@ -392,12 +416,13 @@ async function boot(): Promise<void> {
 				targeting.run(world, hero, weapon.range);
 				weapon.run(world, hero);
 				projectileSystem.run(world);
+				aura.run(world, hero);
 				damage.run(world);
 				death.run(world);
 				pickup.run(world, hero);
 				stats.run(hero);
 				levelUp.run();
-				if ((Health.hp[hero] ?? 0) <= 0) run.heroDied();
+				if ((Health.hp[hero] ?? 0) <= 0 && !itemEffects.tryRevive(hero)) run.heroDied();
 			}
 			if (run.state === "Shop" && !inShop) shop.open();
 			inShop = run.state === "Shop";

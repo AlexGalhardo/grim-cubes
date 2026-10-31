@@ -26,6 +26,10 @@ export interface ShopSystemDeps {
 	stats: StatsSystem;
 	weapon: WeaponSystem;
 	round: () => number;
+	/** Inventory map shared with the effects system; created here when omitted. */
+	owned?: Map<string, number>;
+	/** Called after an item is bought, so effects can be recomputed. */
+	onItemBought?: () => void;
 }
 
 export interface ShopSlotView {
@@ -65,7 +69,7 @@ export interface ShopSystem {
 
 export function createShopSystem(deps: ShopSystemDeps): ShopSystem {
 	const { config, tiers, catalog, weaponDefs, rng, progress, stats, weapon, round } = deps;
-	const owned = new Map<string, number>();
+	const owned = deps.owned ?? new Map<string, number>();
 	let slots: ShopSlot[] = [];
 	let rerolls = 0;
 	let paid = weapon.weapon.price ?? 0;
@@ -125,6 +129,7 @@ export function createShopSystem(deps: ShopSystemDeps): ShopSystem {
 				if (!item) return false;
 				stats.add(item.modifiers);
 				owned.set(item.id, (owned.get(item.id) ?? 0) + 1);
+				deps.onItemBought?.();
 			} else if (slot.kind === "weapon") {
 				const def = weaponDefs.find((w) => w.id === slot.id);
 				if (!def) return false;

@@ -3,6 +3,7 @@ import { EnemyFaction, EnemyType, Fragment, Health, Position, Radius } from "../
 import { dropFragment } from "../ecs/fragments";
 import { createQueryCache, type GameWorld } from "../ecs/world";
 import { STEP } from "../loop";
+import type { ItemEffects } from "../rules/effects";
 import {
 	dropChance,
 	type FragmentsConfig,
@@ -14,6 +15,8 @@ import {
 /** Run-wide currency and experience. The UI reads it through the store snapshot. */
 export interface Progress {
 	gold: number;
+	/** Fragment value collected since the round began; `tithe_box` adds a fraction of it at round end. */
+	roundGold: number;
 	xp: number;
 	level: number;
 	/** Level-ups earned and not yet resolved by the card screen (P-05-03). */
@@ -21,7 +24,7 @@ export interface Progress {
 }
 
 export function createProgress(): Progress {
-	return { gold: 0, xp: 0, level: 1, pendingLevelUps: 0 };
+	return { gold: 0, roundGold: 0, xp: 0, level: 1, pendingLevelUps: 0 };
 }
 
 // shortcut: cap de 65.535 por pilha (u16); revisar se a economia passar disso.
@@ -35,6 +38,7 @@ export function addFragmentValue(
 	xpGain = 0,
 ): void {
 	progress.gold += value * fragments.goldPerFragment;
+	progress.roundGold += value * fragments.goldPerFragment;
 	progress.xp += value * fragments.xpPerFragment * (1 + xpGain);
 	let need = xpForLevel(xp, progress.level);
 	while (progress.xp >= need) {
@@ -65,6 +69,8 @@ export interface DeathSystemDeps {
 	fragmentsPerType: readonly number[];
 	rng: { chance(p: number): boolean };
 	round: () => number;
+	/** Item effects (`double_fragment_chance`); optional. */
+	effects?: ItemEffects | undefined;
 }
 
 export interface DeathSystem {
@@ -79,7 +85,7 @@ const pileList = createQueryCache([Fragment, Position]);
  * round's drop chance, then are recycled. Over the pile cap the drop merges into the nearest pile, value kept.
  */
 export function createDeathSystem(deps: DeathSystemDeps): DeathSystem {
-	const { fragments, fragmentsPerType, rng, round } = deps;
+	const { fragments, fragmentsPerType, rng, round, effects } = deps;
 	const dead = new Uint16Array(4096);
 
 	function drop(world: GameWorld, x: number, z: number, value: number): void {
@@ -113,7 +119,8 @@ export function createDeathSystem(deps: DeathSystemDeps): DeathSystem {
 			const chance = dropChance(fragments, round());
 			for (let i = 0; i < count; i++) {
 				const e = dead[i] ?? 0;
-				const value = fragmentsPerType[EnemyType.id[e] ?? 0] ?? 0;
+				const base = fragmentsPerType[EnemyType.id[e] ?? 0] ?? 0;
+				const value = effects && rng.chance(effects.doubleFragmentChance) ? base * 2 : base;
 				if (value > 0 && rng.chance(chance))
 					drop(world, Position.x[e] ?? 0, Position.z[e] ?? 0, value);
 				removeEntity(world, e);
@@ -128,6 +135,8 @@ export interface PickupSystemDeps {
 	progress: Progress;
 	/** Live hero stats: `pickupRadius` in u and `xpGain` as a fraction. */
 	stats: { pickupRadius: number; xpGain: number };
+	/** Item effects (`fragment_gain`); optional. */
+	effects?: ItemEffects | undefined;
 }
 
 export interface PickupSystem {
@@ -136,7 +145,7 @@ export interface PickupSystem {
 
 /** SDD 02 section 2.3 step 12: piles inside the pickup radius fly to the hero and are collected on arrival. */
 export function createPickupSystem(deps: PickupSystemDeps): PickupSystem {
-	const { fragments, xp, progress, stats } = deps;
+	const { fragments, xp, progress, stats, effects } = deps;
 	const magnetStep = fragments.magnetSpeed * STEP;
 	const taken = new Uint16Array(4096);
 
@@ -163,9 +172,30 @@ export function createPickupSystem(deps: PickupSystemDeps): PickupSystem {
 			}
 			for (let i = 0; i < collected; i++) {
 				const p = taken[i] ?? 0;
-				addFragmentValue(progress, fragments, xp, Fragment.value[p] ?? 0, stats.xpGain);
+				addFragmentValue(
+					progress,
+					fragments,
+					xp,
+					(Fragment.value[p] ?? 0) * (1 + (effects?.fragmentGain ?? 0)),
+					stats.xpGain,
+				);
 				removeEntity(world, p);
 			}
 		},
 	};
+}
+
+/** `end_of_round_fragment_bonus` (`tithe_box`): adds a fraction of the round's fragments again, then resets the tally. */
+export function applyRoundEndBonus(
+	progress: Progress,
+	fragments: FragmentsConfig,
+	xp: XpConfig,
+	effects: ItemEffects,
+	xpGain = 0,
+): number {
+	const bonus = Math.floor(progress.roundGold * effects.endOfRoundFragmentBonus);
+	progress.roundGold = 0;
+	if (bonus > 0) addFragmentValue(progress, fragments, xp, bonus, xpGain);
+	progress.roundGold = 0;
+	return bonus;
 }

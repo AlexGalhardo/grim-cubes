@@ -5,6 +5,7 @@ import { type EventBuffer, EventType } from "../ecs/events";
 import type { ProjectilePool, ProjectileSpec } from "../ecs/projectile";
 import type { GameWorld } from "../ecs/world";
 import { STEP } from "../loop";
+import type { ItemEffects } from "../rules/effects";
 import type { DamageQueue } from "./damage";
 import type { TargetingSystem } from "./targeting";
 
@@ -58,6 +59,8 @@ export interface WeaponSystemDeps {
 	enemies: SpatialHash;
 	rng: { float(a: number, b: number): number };
 	projectiles: ProjectilePool;
+	/** Item effects (`extra_pierce`, `damage_per_missing_hp`); optional. */
+	effects?: ItemEffects | undefined;
 }
 
 export interface WeaponSystem {
@@ -82,7 +85,8 @@ const MAX_HITS = 128;
 const KINDS = new Set(["melee", "single_shot", "burst", "continuous", "explosive"]);
 
 export function createWeaponSystem(deps: WeaponSystemDeps): WeaponSystem {
-	const { stats, queue, events, targeting, enemies, rng, projectiles } = deps;
+	const { stats, queue, events, targeting, enemies, rng, projectiles, effects } = deps;
+	let heroId = -1;
 	let weapon = deps.weapon;
 	let tier = deps.tier;
 	let arcCos = 1;
@@ -139,10 +143,15 @@ export function createWeaponSystem(deps: WeaponSystemDeps): WeaponSystem {
 			weapon.attacksPerSecond * (1 + weapon.attackSpeedBonusPerTier * tier + stats.attackSpeed);
 		return Math.max(1, 1 / (Math.min(rate, deps.attackSpeedCap) * STEP));
 	};
+	const missingHpPercent = (): number => {
+		const max = Health.max[heroId] ?? 0;
+		return max > 0 ? Math.max(0, 1 - (Health.hp[heroId] ?? 0) / max) * 100 : 0;
+	};
 	const damage = (targetDistance: number): number =>
 		weapon.damage *
 		(weapon.damageMult[tier] ?? 1) *
 		(1 + stats.damage) *
+		(1 + (effects?.damagePerMissingHpPercent ?? 0) * missingHpPercent()) *
 		(closeMult !== 1 && targetDistance <= closeDistance ? closeMult : 1);
 	const crit = (): number => stats.critChance + critBonus;
 
@@ -179,6 +188,7 @@ export function createWeaponSystem(deps: WeaponSystemDeps): WeaponSystem {
 			shot.vx = Math.cos(a) * speed;
 			shot.vz = Math.sin(a) * speed;
 			shot.damage = damage(targetDistance);
+			shot.pierce = (projectile?.pierce ?? 0) + (effects?.extraPierce ?? 0);
 			shot.critChance = crit();
 			shot.lifeSteps = Math.ceil(range / speed / STEP);
 			shot.explosionRadius = explosion;
@@ -218,6 +228,7 @@ export function createWeaponSystem(deps: WeaponSystemDeps): WeaponSystem {
 			cooldown = 0;
 		},
 		run(world: GameWorld, hero: number): void {
+			heroId = hero;
 			if (firing > 0) firing--;
 			const target = targeting.target;
 			if (cooldown <= 0 && target >= 0) {
