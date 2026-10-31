@@ -1,9 +1,11 @@
-import { addComponent } from "bitecs";
+import { addComponent, hasComponent, removeEntity } from "bitecs";
 import {
 	Armor,
 	Behavior,
+	Boss,
 	ContactCooldown,
 	ContactDamage,
+	Elite,
 	EnemyFaction,
 	EnemyType,
 	Health,
@@ -13,6 +15,7 @@ import {
 	Speed,
 	Velocity,
 } from "../ecs/components";
+import { type EventBuffer, EventType } from "../ecs/events";
 import { createQueryCache, type GameWorld, spawn } from "../ecs/world";
 import { STEP } from "../loop";
 
@@ -66,6 +69,8 @@ export interface SpawnSystemDeps {
 	isBlocked?: (x: number, z: number) => boolean;
 	/** Called for every created enemy with its position (relative coordinates). */
 	onSpawn?: (world: GameWorld, x: number, z: number) => void;
+	/** Receives `Died` (b = 1, no drop) for enemies culled at the simultaneous cap. */
+	events?: EventBuffer;
 }
 
 export interface SpawnSystem {
@@ -76,6 +81,19 @@ export interface SpawnSystem {
 }
 
 const enemyList = createQueryCache([EnemyFaction]);
+const ENEMY_COMPONENTS = [
+	EnemyFaction,
+	Position,
+	PrevPosition,
+	Velocity,
+	Radius,
+	Health,
+	Speed,
+	ContactDamage,
+	EnemyType,
+	Behavior,
+	Armor,
+] as const;
 const MAX_PLACEMENT_TRIES = 4;
 
 export const spawnTotal = (c: SpawnConfig, round: number): number => c.totalBase + c.totalPerRound * round;
@@ -85,7 +103,7 @@ export const spawnBurst = (c: SpawnConfig, round: number): number =>
 	c.burstBase + Math.floor(round / c.burstRoundDivisor);
 
 export function createSpawnSystem(deps: SpawnSystemDeps): SpawnSystem {
-	const { config, enemies, rng, isBlocked, onSpawn } = deps;
+	const { config, enemies, rng, isBlocked, onSpawn, events } = deps;
 	let round = 1;
 	let remaining = 0;
 	let spawned = 0;
@@ -123,6 +141,30 @@ export function createSpawnSystem(deps: SpawnSystemDeps): SpawnSystem {
 
 	const spot = { x: 0, z: 0 };
 
+	/** GDD 6.4: at the cap, the next spawn removes the farthest common enemy, without drops. */
+	function cullFarthest(world: GameWorld, hero: number): boolean {
+		const live = enemyList(world);
+		const hx = Position.x[hero] ?? 0;
+		const hz = Position.z[hero] ?? 0;
+		let farthest = -1;
+		let best = -1;
+		for (let i = 0; i < live.length; i++) {
+			const e = live[i] ?? 0;
+			if (hasComponent(world, e, Boss) || hasComponent(world, e, Elite)) continue;
+			const d = (Position.x[e] ?? 0) - hx;
+			const dz = (Position.z[e] ?? 0) - hz;
+			const dist = d * d + dz * dz;
+			if (dist > best) {
+				best = dist;
+				farthest = e;
+			}
+		}
+		if (farthest < 0) return false;
+		events?.push(EventType.Died, 0, 1, 0, farthest);
+		removeEntity(world, farthest);
+		return true;
+	}
+
 	function create(world: GameWorld, typeIndex: number, hero: number): void {
 		const def = enemies[typeIndex];
 		if (def === undefined) throw new RangeError(`unknown enemy type ${typeIndex}`);
@@ -134,21 +176,8 @@ export function createSpawnSystem(deps: SpawnSystemDeps): SpawnSystem {
 			spot,
 		);
 		const e = spawn(world);
-		for (const c of [
-			EnemyFaction,
-			Position,
-			PrevPosition,
-			Velocity,
-			Radius,
-			Health,
-			Speed,
-			ContactDamage,
-		]) {
-			addComponent(world, e, c);
-		}
-		addComponent(world, e, EnemyType);
-		addComponent(world, e, Behavior);
-		addComponent(world, e, Armor);
+		for (let i = 0; i < ENEMY_COMPONENTS.length; i++)
+			addComponent(world, e, ENEMY_COMPONENTS[i] as object);
 		Position.x[e] = PrevPosition.x[e] = spot.x;
 		Position.z[e] = PrevPosition.z[e] = spot.z;
 		Velocity.x[e] = 0;
@@ -187,9 +216,12 @@ export function createSpawnSystem(deps: SpawnSystemDeps): SpawnSystem {
 			if (remaining === 0) return;
 			if (timer > 0) timer--;
 			if (timer > 0) return;
-			const alive = enemyList(world).length;
-			const n = Math.min(burst, remaining, config.maxSimultaneous - alive);
-			if (n <= 0) return;
+			let n = Math.min(burst, remaining);
+			// Cull before creating, so a burst never culls its own fresh spawns (they are the farthest).
+			const over = enemyList(world).length + n - config.maxSimultaneous;
+			for (let i = 0; i < over; i++) {
+				if (!cullFarthest(world, hero)) n--;
+			}
 			for (let i = 0; i < n; i++) create(world, pickType(), hero);
 			remaining -= n;
 			timer = intervalSteps;
