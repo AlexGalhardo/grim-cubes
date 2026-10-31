@@ -2,10 +2,11 @@
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
 		"lib": ["ES2023"],
+		"resolveJsonModule": true,
 		"outDir": "../../node_modules/.tsc/game",
 		"tsBuildInfoFile": "../../node_modules/.tsc/game/.tsbuildinfo",
-		"rootDir": "src"
+		"rootDir": "../.."
 	},
-	"include": ["src"],
+	"include": ["src", "../../data/*.json"],
 	"references": [{ "path": "../core" }]
 }

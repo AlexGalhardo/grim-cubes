@@ -2,12 +2,11 @@
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
 		"types": ["vite/client"],
-		"resolveJsonModule": true,
 		"outDir": "../../node_modules/.tsc/web",
 		"tsBuildInfoFile": "../../node_modules/.tsc/web/.tsbuildinfo",
-		"rootDir": "../.."
+		"rootDir": "src"
 	},
-	"include": ["src", "../../data/hero.json"],
+	"include": ["src"],
 	"references": [
 		{ "path": "../../packages/core" },
 		{ "path": "../../packages/game" },

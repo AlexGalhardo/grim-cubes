@@ -4,6 +4,7 @@ import {
 	createGameWorld,
 	createLoop,
 	Health,
+	heroData,
 	inputSystem,
 	movementSystem,
 	Position,
@@ -13,7 +14,7 @@ import { createInputSources, detectPlatform } from "@gc/platform";
 import { createEngine, createGameScene, createRenderPort } from "@gc/render";
 import { App, type HudState } from "@gc/ui";
 import { createRoot } from "react-dom/client";
-import heroData from "../../../data/hero.json";
+
 import "./main.css";
 
 const log = createLogger("boot");

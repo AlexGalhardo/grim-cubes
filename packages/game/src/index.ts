@@ -1,3 +1,14 @@
+export type { BiomeData, CardsData, EnemyData, HeroData, RoundsData, WeaponData, WorldData } from "./data";
+export {
+	biomesData,
+	cardsData,
+	enemiesData,
+	heroData,
+	roundsData,
+	toEnemyDefs,
+	weaponsData,
+	worldData,
+} from "./data";
 export {
 	Armor,
 	Attacking,

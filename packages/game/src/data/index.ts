@@ -1,0 +1,46 @@
+import biomesJson from "../../../../data/biomes.json";
+import cardsJson from "../../../../data/cards.json";
+import enemiesJson from "../../../../data/enemies.json";
+import heroJson from "../../../../data/hero.json";
+import roundsJson from "../../../../data/rounds.json";
+import weaponsJson from "../../../../data/weapons.json";
+import worldJson from "../../../../data/world.json";
+import { BehaviorKind } from "../systems/behavior";
+import type { EnemyDef } from "../systems/spawn";
+import type { BiomeData, CardsData, EnemyData, HeroData, RoundsData, WeaponData, WorldData } from "./types";
+
+/**
+ * Typed views of `data/*.json` (SDD 05 section 1). The assignments below are the type check: if a file
+ * drifts from these shapes, `bun check` fails. `bun run data:check` validates the values against the schemas.
+ */
+export const heroData: HeroData = heroJson;
+export const enemiesData: readonly EnemyData[] = enemiesJson;
+export const weaponsData: readonly WeaponData[] = weaponsJson;
+export const roundsData: RoundsData = roundsJson;
+export const worldData: WorldData = worldJson;
+export const biomesData: readonly BiomeData[] = biomesJson;
+export const cardsData: CardsData = cardsJson;
+
+const BEHAVIORS: Readonly<Record<string, number>> = {
+	chase: BehaviorKind.Chase,
+	zigzag: BehaviorKind.Zigzag,
+};
+
+/**
+ * Maps `enemies.json` to the spawn system's defs. Behaviors without an implementation yet (A-02-02) chase.
+ * Entry order is the `EnemyType` id.
+ */
+export function toEnemyDefs(enemies: readonly EnemyData[]): EnemyDef[] {
+	return enemies.map((e) => ({
+		radius: e.radius,
+		hpBase: e.hpBase,
+		hpPerRound: e.hpPerRound,
+		damageBase: e.damageBase,
+		damagePerRound: e.damagePerRound,
+		speed: e.speed,
+		armor: Number(e.behaviorParams.armor ?? 0),
+		behavior: BEHAVIORS[e.behavior] ?? BehaviorKind.Chase,
+	}));
+}
+
+export type { BiomeData, CardsData, EnemyData, HeroData, RoundsData, WeaponData, WorldData } from "./types";
