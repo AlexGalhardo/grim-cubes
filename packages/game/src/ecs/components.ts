@@ -90,4 +90,10 @@ export const Attacking = { ticks: u8() };
 export const Breakable = { cx: f32(), cz: f32(), index: u8(), type: u8() };
 /** A dropped consumable (GDD 15.4): `kind` is 1 blood vial, 2 bone magnet. */
 export const Consumable = { kind: u8() };
+/** The Alpha Hunter while stealthed: `alpha` is the opacity the render draws it with; weapons do not target it. */
+export const Stealth = { alpha: f32() };
+/** Walks through blocking props (the Alpha Hunter's thermal vision, the airborne Nest Queen). */
+export const IgnoresProps = {};
+/** A Nest Queen egg: a destructible target (hit through the enemy spatial hash) that hatches in `hatch` steps. */
+export const Egg = { hatch: u16() };
 export const Chest = { tier: u8(), choices: u8(), picks: u8(), heals: u8() };

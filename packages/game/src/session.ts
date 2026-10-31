@@ -21,7 +21,7 @@ import {
 	worldData,
 } from "./data";
 import type { DifficultyData } from "./data/types";
-import { Elite, Health, Position } from "./ecs/components";
+import { Elite, Health, IgnoresProps, Position, Velocity } from "./ecs/components";
 import { createEnemyShotPool } from "./ecs/enemyShot";
 import { createEventBuffer } from "./ecs/events";
 import { spawnHero } from "./ecs/hero";
@@ -395,14 +395,30 @@ function build(options: GameSessionOptions) {
 			heroStatus.run(hero);
 			behavior.run(world, hero);
 			boss.run(world);
+			// A boss that walks through props (thermal vision, flight) keeps the heading and place the props would change.
+			const ghost =
+				boss.entity >= 0 && hasComponent(world, boss.entity, IgnoresProps) ? boss.entity : -1;
+			const ghostVx = Velocity.x[ghost] ?? 0;
+			const ghostVz = Velocity.z[ghost] ?? 0;
 			propCollision.steer(world, origin);
+			if (ghost >= 0) {
+				Velocity.x[ghost] = ghostVx;
+				Velocity.z[ghost] = ghostVz;
+			}
 			separation.run(world);
 			breakables.populate();
 			breakables.insertInto(separation.hash);
+			boss.insertInto(separation.hash);
 			movementSystem(world);
 			cullDistantEnemies(world, Position.x[hero] ?? 0, Position.z[hero] ?? 0, worldData.cullDistance);
 			propCollision.resolve(world, origin, hero);
+			const ghostX = Position.x[ghost] ?? 0;
+			const ghostZ = Position.z[ghost] ?? 0;
 			propCollision.resolveEnemies(world, origin);
+			if (ghost >= 0) {
+				Position.x[ghost] = ghostX;
+				Position.z[ghost] = ghostZ;
+			}
 			applyOriginShift(world, origin, hero, events, worldData, boss.shiftOrigin);
 			chunks.update(origin.x + (Position.x[hero] ?? 0), origin.z + (Position.z[hero] ?? 0));
 			targeting.run(world, hero, weapon.range);

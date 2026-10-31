@@ -1,8 +1,22 @@
+import type { SpatialHash } from "@gc/core";
+import { addComponent, hasComponent, removeComponent, removeEntity } from "bitecs";
 import type { BossPatternData } from "../data/types";
-import { Armor, Boss, ContactDamage, Health, Position, Radius, Velocity } from "../ecs/components";
+import {
+	Armor,
+	Boss,
+	ContactDamage,
+	Egg,
+	Health,
+	IgnoresProps,
+	Position,
+	PrevPosition,
+	Radius,
+	Stealth,
+	Velocity,
+} from "../ecs/components";
 import type { EventBuffer } from "../ecs/events";
 import { EventType } from "../ecs/events";
-import type { GameWorld } from "../ecs/world";
+import { type GameWorld, spawn } from "../ecs/world";
 import { STEP } from "../loop";
 import type { DamageQueue } from "./damage";
 import type { SpawnSystem } from "./spawn";
@@ -61,6 +75,10 @@ export interface PatternHandler {
 	tick?(ctx: PatternContext): void;
 	/** The world origin moved by (dx, dz): positions the handler remembers (pools) shift by the opposite amount. */
 	shift?(dx: number, dz: number): void;
+	/** Puts the entities the handler owns that weapons must be able to hit (eggs) in the enemy spatial hash. */
+	insertInto?(hash: SpatialHash): void;
+	/** A new fight starts or the boss died: drop the entities and timers the handler still holds. */
+	reset?(world: GameWorld): void;
 }
 
 export type PatternParams = Readonly<Record<string, number | string | boolean>>;
@@ -468,6 +486,439 @@ const phaseArmor: PatternFactory = (p) => ({
 	},
 });
 
+/** Unit vector the hero is moving along, or the fallback while it stands still. */
+function heroHeading(
+	ctx: PatternContext,
+	out: { x: number; z: number },
+	fallbackX: number,
+	fallbackZ: number,
+): void {
+	const vx = Velocity.x[ctx.hero] ?? 0;
+	const vz = Velocity.z[ctx.hero] ?? 0;
+	const speed = Math.hypot(vx, vz);
+	out.x = speed > 0.1 ? vx / speed : fallbackX;
+	out.z = speed > 0.1 ? vz / speed : fallbackZ;
+}
+
+/** Hurts the hero by the boss's contact damage times `mult` when it is within `range` of (x, z). */
+function hitHeroWithin(ctx: PatternContext, x: number, z: number, range: number, mult: number): boolean {
+	const dist = Math.hypot((Position.x[ctx.hero] ?? 0) - x, (Position.z[ctx.hero] ?? 0) - z);
+	if (dist > range + (Radius.r[ctx.hero] ?? 0)) return false;
+	ctx.queue.push(ctx.hero, (ContactDamage.value[ctx.entity] ?? 0) * mult, ctx.entity, 0, 0, 0);
+	return true;
+}
+
+/**
+ * Stealth (Alpha Hunter): the boss vanishes (`Stealth`, so weapons cannot target it), sprints to a spot behind the
+ * hero's heading, shows itself and strikes after a short telegraph. The reveal is the warning for the hero.
+ */
+const stealth: PatternFactory = (p) => {
+	const heading = { x: 0, z: 1 };
+	let phase = 0;
+	let timer = 0;
+
+	function reveal(ctx: PatternContext): void {
+		if (!hasComponent(ctx.world, ctx.entity, Stealth)) return;
+		removeComponent(ctx.world, ctx.entity, Stealth);
+		ctx.events.push(EventType.BossStealth, 0, 1, 0, ctx.entity);
+	}
+
+	return {
+		canStart: (_ctx, distance) => distance >= num(p, "minDistance", 6),
+		start(ctx): void {
+			phase = 0;
+			timer = ctx.steps(num(p, "invisibleSeconds", 3));
+			const alpha = num(p, "alpha", 0.15);
+			addComponent(ctx.world, ctx.entity, Stealth);
+			Stealth.alpha[ctx.entity] = alpha;
+			heroHeading(ctx, heading, -ctx.dirX, -ctx.dirZ);
+			ctx.events.push(EventType.BossStealth, 1, alpha, num(p, "invisibleSeconds", 3), ctx.entity);
+		},
+		update(ctx): boolean {
+			if (phase === 0) {
+				heroHeading(ctx, heading, heading.x, heading.z);
+				const behind = num(p, "behindDistance", 2);
+				const dx = (Position.x[ctx.hero] ?? 0) - heading.x * behind - (Position.x[ctx.entity] ?? 0);
+				const dz = (Position.z[ctx.hero] ?? 0) - heading.z * behind - (Position.z[ctx.entity] ?? 0);
+				const dist = Math.hypot(dx, dz);
+				if (dist > 0.3) {
+					const v = ctx.baseSpeed * ctx.enrage * num(p, "speedMult", 2.2);
+					Velocity.x[ctx.entity] = (dx / dist) * v;
+					Velocity.z[ctx.entity] = (dz / dist) * v;
+				} else {
+					ctx.stop();
+				}
+				if (--timer <= 0) {
+					reveal(ctx);
+					ctx.stop();
+					ctx.aim();
+					phase = 1;
+					timer = ctx.steps(num(p, "strikeTelegraphSeconds", 0.5));
+					ctx.events.push(
+						EventType.BossTelegraph,
+						ctx.dirX,
+						ctx.dirZ,
+						num(p, "strikeTelegraphSeconds", 0.5),
+						ctx.entity,
+					);
+				}
+			} else if (phase === 1) {
+				ctx.stop();
+				if (--timer <= 0) {
+					const range = num(p, "strikeRange", 2.5);
+					const x = Position.x[ctx.entity] ?? 0;
+					const z = Position.z[ctx.entity] ?? 0;
+					ctx.events.push(EventType.BossShockwave, x, z, range, ctx.entity);
+					hitHeroWithin(ctx, x, z, range, num(p, "damageMult", 2));
+					phase = 2;
+					timer = ctx.steps(num(p, "recoverSeconds", 1));
+				}
+			} else {
+				ctx.stop();
+				if (--timer <= 0) return false;
+			}
+			return true;
+		},
+		end: (ctx) => {
+			// The boss can only be cut short by dying, but a handler must not leave the entity invisible.
+			if (hasComponent(ctx.world, ctx.entity, Stealth)) removeComponent(ctx.world, ctx.entity, Stealth);
+		},
+	};
+};
+
+/**
+ * Leap (Alpha Hunter): after a telegraph that names the landing spot (where the hero stood), the boss flies there
+ * in `airSeconds` and the landing hurts everything within `radius`.
+ */
+const leap: PatternFactory = (p) => {
+	let phase = 0;
+	let timer = 0;
+	let targetX = 0;
+	let targetZ = 0;
+
+	return {
+		canStart: (_ctx, distance) =>
+			distance >= num(p, "minDistance", 5) && distance <= num(p, "maxDistance", 16),
+		shift(dx, dz): void {
+			targetX -= dx;
+			targetZ -= dz;
+		},
+		start(ctx): void {
+			phase = 0;
+			timer = ctx.steps(num(p, "telegraphSeconds", 0.8));
+			targetX = Position.x[ctx.hero] ?? 0;
+			targetZ = Position.z[ctx.hero] ?? 0;
+			ctx.stop();
+			ctx.events.push(
+				EventType.BossTelegraph,
+				targetX,
+				targetZ,
+				num(p, "telegraphSeconds", 0.8),
+				ctx.entity,
+			);
+		},
+		update(ctx): boolean {
+			if (phase === 0) {
+				ctx.stop();
+				if (--timer <= 0) {
+					phase = 1;
+					timer = ctx.steps(num(p, "airSeconds", 0.5));
+					ctx.events.push(
+						EventType.BossLeap,
+						targetX,
+						targetZ,
+						num(p, "airSeconds", 0.5),
+						ctx.entity,
+					);
+				}
+			} else if (phase === 1) {
+				// Aim at the landing spot with exactly the time left, so the last step lands on it.
+				const left = timer * STEP;
+				Velocity.x[ctx.entity] = (targetX - (Position.x[ctx.entity] ?? 0)) / left;
+				Velocity.z[ctx.entity] = (targetZ - (Position.z[ctx.entity] ?? 0)) / left;
+				if (--timer <= 0) {
+					ctx.stop();
+					const radius = num(p, "radius", 3.5);
+					ctx.events.push(EventType.BossShockwave, targetX, targetZ, radius, ctx.entity);
+					hitHeroWithin(ctx, targetX, targetZ, radius, num(p, "damageMult", 3));
+					phase = 2;
+					timer = ctx.steps(num(p, "recoverSeconds", 1));
+				}
+			} else {
+				ctx.stop();
+				if (--timer <= 0) return false;
+			}
+			return true;
+		},
+	};
+};
+
+/** Thermal vision (Alpha Hunter): the boss walks through blocking props instead of steering around them. */
+const thermalVision: PatternFactory = () => ({
+	tick(ctx): void {
+		if (!hasComponent(ctx.world, ctx.entity, IgnoresProps))
+			addComponent(ctx.world, ctx.entity, IgnoresProps);
+	},
+});
+
+const MAX_EGGS = 12;
+
+/**
+ * Eggs (Nest Queen): after a telegraph the boss lays `count` eggs in a ring around itself. An egg is a target with
+ * HP (a fraction of the boss's) that weapons can hit; if it survives `hatchSeconds` a hunter climbs out of it, as
+ * soon as the enemy cap leaves room.
+ */
+const eggs: PatternFactory = (p) => {
+	const live = new Int32Array(MAX_EGGS).fill(-1);
+	let phase = 0;
+	let timer = 0;
+
+	function layEggs(ctx: PatternContext): void {
+		const count = Math.max(1, Math.round(num(p, "count", 3)));
+		const ring = num(p, "layRadius", 5);
+		const base = Math.atan2(ctx.dirZ, ctx.dirX);
+		const bx = Position.x[ctx.entity] ?? 0;
+		const bz = Position.z[ctx.entity] ?? 0;
+		const hatch = num(p, "hatchSeconds", 6);
+		for (let i = 0; i < count; i++) {
+			let slot = -1;
+			for (let k = 0; k < Math.min(MAX_EGGS, Math.round(num(p, "maxEggs", 8))); k++) {
+				if ((live[k] ?? -1) < 0) {
+					slot = k;
+					break;
+				}
+			}
+			if (slot < 0) return;
+			const angle = base + (i / count) * Math.PI * 2;
+			const x = bx + Math.cos(angle) * ring;
+			const z = bz + Math.sin(angle) * ring;
+			const e = spawn(ctx.world);
+			addComponent(ctx.world, e, Egg);
+			addComponent(ctx.world, e, Position);
+			addComponent(ctx.world, e, PrevPosition);
+			addComponent(ctx.world, e, Health);
+			addComponent(ctx.world, e, Radius);
+			Position.x[e] = PrevPosition.x[e] = x;
+			Position.z[e] = PrevPosition.z[e] = z;
+			Health.hp[e] = Health.max[e] = ctx.maxHp * num(p, "hpFractionOfBoss", 0.03);
+			Radius.r[e] = num(p, "eggRadius", 0.6);
+			Egg.hatch[e] = ctx.steps(hatch);
+			live[slot] = e;
+			ctx.events.push(EventType.BossEggLaid, x, z, hatch, e);
+		}
+	}
+
+	function clear(world: GameWorld): void {
+		for (let i = 0; i < MAX_EGGS; i++) {
+			const e = live[i] ?? -1;
+			if (e >= 0 && hasComponent(world, e, Egg)) removeEntity(world, e);
+			live[i] = -1;
+		}
+	}
+
+	return {
+		canStart(): boolean {
+			let used = 0;
+			for (let i = 0; i < MAX_EGGS; i++) if ((live[i] ?? -1) >= 0) used++;
+			return used + Math.round(num(p, "count", 3)) <= Math.round(num(p, "maxEggs", 8));
+		},
+		start(ctx): void {
+			phase = 0;
+			timer = ctx.steps(num(p, "telegraphSeconds", 0.8));
+			ctx.stop();
+			ctx.events.push(
+				EventType.BossTelegraph,
+				ctx.dirX,
+				ctx.dirZ,
+				num(p, "telegraphSeconds", 0.8),
+				ctx.entity,
+			);
+		},
+		update(ctx): boolean {
+			ctx.stop();
+			if (phase === 0) {
+				if (--timer <= 0) {
+					layEggs(ctx);
+					phase = 1;
+					timer = ctx.steps(num(p, "recoverSeconds", 1));
+				}
+			} else if (--timer <= 0) {
+				return false;
+			}
+			return true;
+		},
+		tick(ctx): void {
+			for (let i = 0; i < MAX_EGGS; i++) {
+				const e = live[i] ?? -1;
+				if (e < 0) continue;
+				if (!hasComponent(ctx.world, e, Egg)) {
+					live[i] = -1;
+					continue;
+				}
+				const x = Position.x[e] ?? 0;
+				const z = Position.z[e] ?? 0;
+				if ((Health.hp[e] ?? 0) <= 0) {
+					ctx.events.push(EventType.BossEggBroken, x, z, 0, e);
+					removeEntity(ctx.world, e);
+					live[i] = -1;
+					continue;
+				}
+				if ((Egg.hatch[e] ?? 0) > 0) Egg.hatch[e] = (Egg.hatch[e] ?? 0) - 1;
+				else if (ctx.spawn.hasRoom(ctx.world)) {
+					const born = ctx.spawn.spawnEnemy(
+						ctx.world,
+						ctx.enemyIndex(typeof p.enemy === "string" ? p.enemy : "hunter"),
+						x,
+						z,
+					);
+					ctx.events.push(EventType.BossEggHatched, x, z, born, e);
+					removeEntity(ctx.world, e);
+					live[i] = -1;
+				}
+			}
+		},
+		insertInto(hash): void {
+			for (let i = 0; i < MAX_EGGS; i++) {
+				const e = live[i] ?? -1;
+				if (e >= 0) hash.insert(e, Position.x[e] ?? 0, Position.z[e] ?? 0);
+			}
+		},
+		reset: clear,
+	};
+};
+
+/** Tail sweep (Nest Queen): a close-range arc that hurts the hero inside it after a telegraph. */
+const sweep: PatternFactory = (p) => {
+	let phase = 0;
+	let timer = 0;
+
+	function lash(ctx: PatternContext): void {
+		const range = num(p, "range", 5);
+		const cos = Math.cos(((num(p, "arcDegrees", 200) / 2) * Math.PI) / 180);
+		const x = Position.x[ctx.entity] ?? 0;
+		const z = Position.z[ctx.entity] ?? 0;
+		ctx.events.push(EventType.BossSweep, ctx.dirX, ctx.dirZ, range, ctx.entity);
+		const dx = (Position.x[ctx.hero] ?? 0) - x;
+		const dz = (Position.z[ctx.hero] ?? 0) - z;
+		const dist = Math.hypot(dx, dz);
+		if (dist < 1e-6 || (dx * ctx.dirX + dz * ctx.dirZ) / dist >= cos) {
+			hitHeroWithin(ctx, x, z, range, num(p, "damageMult", 2));
+		}
+	}
+
+	return {
+		canStart: (_ctx, distance) => distance <= num(p, "maxDistance", 5),
+		start(ctx): void {
+			phase = 0;
+			timer = ctx.steps(num(p, "telegraphSeconds", 0.9));
+			ctx.stop();
+			ctx.events.push(
+				EventType.BossTelegraph,
+				ctx.dirX,
+				ctx.dirZ,
+				num(p, "telegraphSeconds", 0.9),
+				ctx.entity,
+			);
+		},
+		update(ctx): boolean {
+			ctx.stop();
+			if (phase === 0) {
+				if (--timer <= 0) {
+					lash(ctx);
+					phase = 1;
+					timer = ctx.steps(num(p, "recoverSeconds", 1));
+				}
+			} else if (--timer <= 0) {
+				return false;
+			}
+			return true;
+		},
+	};
+};
+
+const MAX_BOMBS = 8;
+
+/**
+ * Flying bombardment (Nest Queen, phase 2): once HP falls to `atHpFraction` the boss takes off (`Boss.phase` flips,
+ * it walks through props) and its attack becomes a salvo of `count` bombs dropped on and around the hero. Each bomb
+ * is announced by `BossBomb` and explodes `delaySeconds` later, one after the other `gapSeconds` apart.
+ */
+const flyBomb: PatternFactory = (p) => {
+	const bombX = new Float32Array(MAX_BOMBS);
+	const bombZ = new Float32Array(MAX_BOMBS);
+	const bombLeft = new Uint16Array(MAX_BOMBS);
+	let next = 0;
+	let phase = 0;
+	let timer = 0;
+
+	return {
+		canStart: (ctx) => (Boss.phase[ctx.entity] ?? 0) !== 0,
+		shift(dx, dz): void {
+			for (let i = 0; i < MAX_BOMBS; i++) {
+				bombX[i] = (bombX[i] ?? 0) - dx;
+				bombZ[i] = (bombZ[i] ?? 0) - dz;
+			}
+		},
+		start(ctx): void {
+			phase = 0;
+			timer = ctx.steps(num(p, "telegraphSeconds", 0.6));
+			ctx.stop();
+			ctx.events.push(
+				EventType.BossTelegraph,
+				ctx.dirX,
+				ctx.dirZ,
+				num(p, "telegraphSeconds", 0.6),
+				ctx.entity,
+			);
+		},
+		update(ctx): boolean {
+			ctx.stop();
+			if (phase === 0) {
+				if (--timer <= 0) {
+					const count = Math.min(MAX_BOMBS, Math.max(1, Math.round(num(p, "count", 4))));
+					const spread = num(p, "spread", 3.5);
+					for (let i = 0; i < count; i++) {
+						// The first bomb falls on the hero; the rest ring it, so standing still is the worst answer.
+						const angle = (i / count) * Math.PI * 2;
+						const x = (Position.x[ctx.hero] ?? 0) + (i === 0 ? 0 : Math.cos(angle) * spread);
+						const z = (Position.z[ctx.hero] ?? 0) + (i === 0 ? 0 : Math.sin(angle) * spread);
+						const delay = num(p, "delaySeconds", 1.2) + i * num(p, "gapSeconds", 0.3);
+						bombX[next] = x;
+						bombZ[next] = z;
+						bombLeft[next] = ctx.steps(delay);
+						next = (next + 1) % MAX_BOMBS;
+						ctx.events.push(EventType.BossBomb, x, z, delay, ctx.entity);
+					}
+					phase = 1;
+					timer = ctx.steps(num(p, "recoverSeconds", 1.5));
+				}
+			} else if (--timer <= 0) {
+				return false;
+			}
+			return true;
+		},
+		tick(ctx): void {
+			if (
+				(Boss.phase[ctx.entity] ?? 0) === 0 &&
+				(Health.hp[ctx.entity] ?? 0) <= ctx.maxHp * num(p, "atHpFraction", 0.5)
+			) {
+				Boss.phase[ctx.entity] = 1;
+				addComponent(ctx.world, ctx.entity, IgnoresProps);
+				ctx.events.push(EventType.BossPhase, num(p, "phase", 2), 0, 0, ctx.entity);
+			}
+			const radius = num(p, "radius", 2.5);
+			for (let i = 0; i < MAX_BOMBS; i++) {
+				const left = bombLeft[i] ?? 0;
+				if (left === 0) continue;
+				bombLeft[i] = left - 1;
+				if (left > 1) continue;
+				ctx.events.push(EventType.Exploded, bombX[i] ?? 0, bombZ[i] ?? 0, radius, ctx.entity);
+				hitHeroWithin(ctx, bombX[i] ?? 0, bombZ[i] ?? 0, radius, num(p, "damageMult", 2));
+			}
+		},
+	};
+};
+
 const REGISTRY = new Map<string, PatternFactory>([
 	["line_charge", lineCharge],
 	["shovel_arc", shovelArc],
@@ -477,6 +928,12 @@ const REGISTRY = new Map<string, PatternFactory>([
 	["hammer_shockwave", hammerShockwave],
 	["chain_shot", chainShot],
 	["phase_armor", phaseArmor],
+	["stealth", stealth],
+	["leap", leap],
+	["thermal_vision", thermalVision],
+	["eggs", eggs],
+	["sweep", sweep],
+	["fly_bomb", flyBomb],
 ]);
 
 /** Adds a pattern for the next bosses (A-03-01 onward). Throws when the id is taken. */

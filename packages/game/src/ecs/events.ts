@@ -67,6 +67,26 @@ export const EventType = {
 	ConsumableDropped: 32,
 	/** a = kind (1 blood vial, 2 bone magnet); the hero picked a consumable up. */
 	ConsumablePicked: 33,
+	/**
+	 * a = 1 when the boss vanished, 0 when it showed itself; b = the opacity to draw it with while stealthed
+	 * (also `Stealth.alpha[entity]`); c = seconds of stealth (0 on the reveal); entity = the boss.
+	 */
+	BossStealth: 34,
+	/**
+	 * a, b = x, z of the landing spot; c = seconds in the air; entity = the boss. The leap took off from the boss's
+	 * current position; the landing is a BossShockwave (a, b = x, z; c = radius).
+	 */
+	BossLeap: 35,
+	/** a, b = x, z; c = seconds until it hatches; entity = the egg (it carries `Egg`, Health and Radius). */
+	BossEggLaid: 36,
+	/** a, b = x, z; entity = the egg. The hero destroyed it before it hatched. */
+	BossEggBroken: 37,
+	/** a, b = x, z; c = the Hunter's entity id; entity = the egg, which is removed. */
+	BossEggHatched: 38,
+	/** a, b = unit direction x, z; c = reach in u; entity = the boss. The tail sweep landed (arc in bosses.json). */
+	BossSweep: 39,
+	/** a, b = x, z of the target; c = seconds until the bomb explodes (then an Exploded event); entity = the boss. */
+	BossBomb: 40,
 	/** a = new level. The run paused and a card offer is waiting. */
 	LevelUp: 11,
 } as const;

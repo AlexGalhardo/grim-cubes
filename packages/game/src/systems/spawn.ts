@@ -87,6 +87,8 @@ export interface SpawnSystem {
 	startRound(round: number, options: SpawnRoundOptions): void;
 	/** Creates one extra enemy at (x, z) outside the round budget (elites, summons). */
 	spawnEnemy(world: GameWorld, typeIndex: number, x: number, z: number): number;
+	/** True while fewer enemies are alive than the simultaneous cap (egg hatching waits for room). */
+	hasRoom(world: GameWorld): boolean;
 	run(world: GameWorld, hero: number): void;
 	/** Lowers (or restores) the simultaneous enemy cap, e.g. from a video preset; the cap never exceeds the data value. */
 	setCap(cap: number): void;
@@ -267,6 +269,7 @@ export function createSpawnSystem(deps: SpawnSystemDeps): SpawnSystem {
 		spawnEnemy(world: GameWorld, typeIndex: number, x: number, z: number): number {
 			return build(world, typeIndex, x, z);
 		},
+		hasRoom: (world) => enemyList(world).length < config.maxSimultaneous,
 		run(world: GameWorld, hero: number): void {
 			if (remaining === 0) return;
 			if (timer > 0) timer--;

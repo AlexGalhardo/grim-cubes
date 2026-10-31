@@ -46,28 +46,42 @@ function roster(seed: number) {
 	return { world, boss };
 }
 
-test("rounds 10, 20 and 30 follow the fixed order", () => {
-	const { boss } = roster(1);
-	expect([10, 20, 30].map((r) => boss.defFor(r).id)).toEqual([
-		"gravedigger",
-		"swamp_matriarch",
-		"forgemaster",
-	]);
+test("rounds 10 to 50 follow the fixed order and 40 and 50 never draw", () => {
+	for (let seed = 1; seed <= 10; seed++) {
+		const { boss } = roster(seed);
+		expect([10, 20, 30, 40, 50].map((r) => boss.defFor(r).id)).toEqual([
+			"gravedigger",
+			"swamp_matriarch",
+			"forgemaster",
+			"alpha_hunter",
+			"nest_queen",
+		]);
+	}
 });
 
-test("from round 40 the boss is drawn from the roster, repeatably, and its HP scales 35% per ten rounds since its own", () => {
+test("the Alpha Hunter has its data HP in round 40 and the Nest Queen in round 50", () => {
+	const { world, boss } = roster(1);
+	expect(Health.max[boss.start(world, 40)]).toBe(
+		bossesData.find((b) => b.id === "alpha_hunter")?.hpBaseRound10,
+	);
+	expect(Health.max[boss.start(world, 50)]).toBe(
+		bossesData.find((b) => b.id === "nest_queen")?.hpBaseRound10,
+	);
+});
+
+test("from round 60 the boss is drawn from all five, repeatably, and its HP scales 35% per ten rounds since its own", () => {
 	const seen = new Set<string>();
-	for (let seed = 1; seed <= 40; seed++) {
+	for (let seed = 1; seed <= 60; seed++) {
 		const { world, boss } = roster(seed);
-		const def = boss.defFor(40);
-		expect(boss.defFor(40).id).toBe(def.id);
+		const def = boss.defFor(60);
+		expect(boss.defFor(60).id).toBe(def.id);
 		seen.add(def.id);
-		const e = boss.start(world, 40);
-		const expected = def.hpBaseRound10 * (1 + (0.35 * (40 - def.round)) / 10);
+		const e = boss.start(world, 60);
+		const expected = def.hpBaseRound10 * (1 + (0.35 * (60 - def.round)) / 10);
 		expect(Health.max[e]).toBeCloseTo(expected, 0);
-		expect(bossMaxHp(def, roundsData.boss, 40, 1)).toBeCloseTo(expected);
+		expect(bossMaxHp(def, roundsData.boss, 60, 1)).toBeCloseTo(expected);
 	}
-	expect(seen.size).toBe(3);
+	expect(seen.size).toBe(5);
 });
 
 test("round 60 adds one elite modifier to the boss and round 100 adds two, applied to its armour and speed", () => {

@@ -1,4 +1,4 @@
-import { hash32 } from "@gc/core";
+import { hash32, type SpatialHash } from "@gc/core";
 import { addComponent } from "bitecs";
 import { bossesData } from "../data";
 import type { BossData, EliteModifierData, RoundsData } from "../data/types";
@@ -64,6 +64,8 @@ export interface BossSystem {
 	view(): BossView | null;
 	/** Call when the world origin shifts so remembered positions (mud pools) follow it. */
 	shiftOrigin(dx: number, dz: number): void;
+	/** Puts the targets the boss owns (Nest Queen eggs) in the enemy spatial hash so weapons can hit them. */
+	insertInto(hash: SpatialHash): void;
 }
 
 /** HP of the boss at `round`: base at its own round, +35% per ten rounds after (GDD 12.1), times difficulty. */
@@ -204,6 +206,7 @@ export function createBossSystem(deps: BossSystemDeps): BossSystem {
 		},
 		start(world: GameWorld, round: number): number {
 			bossRound = round;
+			for (const p of patterns) p.handler.reset?.(world);
 			maxHp = bossMaxHp(def, rounds, round, difficulty());
 			const angle = rng.float(0, Math.PI * 2);
 			const x = (Position.x[hero] ?? 0) + Math.cos(angle) * 12;
@@ -264,6 +267,7 @@ export function createBossSystem(deps: BossSystemDeps): BossSystem {
 		},
 		handleDeath(world: GameWorld, e: number, x: number, z: number): void {
 			if (e !== entity) return;
+			for (const p of patterns) p.handler.reset?.(world);
 			for (const modifier of carried) {
 				const boom = modifier.onDeathExplosion;
 				if (!boom) continue;
@@ -282,6 +286,9 @@ export function createBossSystem(deps: BossSystemDeps): BossSystem {
 		},
 		shiftOrigin(dx: number, dz: number): void {
 			for (const p of patterns) p.handler.shift?.(dx, dz);
+		},
+		insertInto(hash: SpatialHash): void {
+			if (entity >= 0) for (const p of patterns) p.handler.insertInto?.(hash);
 		},
 		view(): BossView | null {
 			if (entity < 0) return null;
@@ -339,5 +346,6 @@ export function createBossRoster(base: Omit<BossSystemDeps, "def">, defs: readon
 		shiftOrigin(dx, dz): void {
 			for (const system of systems.values()) system.shiftOrigin(dx, dz);
 		},
+		insertInto: (hash) => current?.insertInto(hash),
 	};
 }
