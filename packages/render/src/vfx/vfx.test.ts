@@ -641,3 +641,23 @@ describe("bosses 4 and 5", () => {
 		dispose();
 	});
 });
+
+describe("flash reduction", () => {
+	it("skips the hit-stop and the shake when flashReduced is on", () => {
+		let reduced = true;
+		const stops: number[] = [];
+		const { vfx, world, dispose } = setup({
+			onHitStop: (ms) => stops.push(ms),
+			flashReduced: () => reduced,
+		});
+		const e = spawnBody(world, 2, 3);
+		vfx.onEvent(EventType.Damaged, 125, 1, 0, e);
+		vfx.onEvent(EventType.BossShockwave, 0, 0, 3, e);
+		expect(stops).toEqual([]);
+		expect(vfx.shaking).toBe(false);
+		reduced = false;
+		vfx.onEvent(EventType.Damaged, 125, 1, 0, e);
+		expect(stops.length).toBe(1);
+		dispose();
+	});
+});

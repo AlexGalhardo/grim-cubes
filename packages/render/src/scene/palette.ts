@@ -13,6 +13,8 @@ export const PALETTE = {
 	mist: "#3F3A52",
 	/** --color-bone: placeholder hero cube. */
 	bone: "#D9C9A3",
+	/** --color-damage-white: damage numbers on enemies; near white because pure #FFFFFF is banned (Art Bible §3.1). */
+	damageWhite: "#F4F1EA",
 	/** --color-bone-dark and --color-rust: broken prop dust. */
 	boneDark: "#8C7A5B",
 	rust: "#8A4A2B",

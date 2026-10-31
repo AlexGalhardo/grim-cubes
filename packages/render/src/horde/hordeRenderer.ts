@@ -44,6 +44,8 @@ export interface HordeOptions {
 	 * towards white. Omit to leave the colour buffer out.
 	 */
 	flashBrightness?: number;
+	/** Flash reduction (Options): the hit flash is not drawn. */
+	flashReduced?: () => boolean;
 	/**
 	 * Elite look: instance scale for entities with `Elite` and a tint per modifier (`Elite.modifier` is 1-based, so
 	 * `tints[modifier - 1]`). Needs the colour buffer, so it enables it like `flashBrightness`.
@@ -243,7 +245,10 @@ export function createHordeRenderer(types: readonly HordeType[], options: HordeO
 						: 1;
 				const colors = flashColors[t];
 				if (colors) {
-					const flashed = (HitFlash.ticks[eid] ?? 0) > 0 && options.flashBrightness !== undefined;
+					const flashed =
+						(HitFlash.ticks[eid] ?? 0) > 0 &&
+						options.flashBrightness !== undefined &&
+						!options.flashReduced?.();
 					const tint =
 						isBoss && (Boss.enrageStacks[eid] ?? 0) > 0
 							? options.boss?.enrageTint

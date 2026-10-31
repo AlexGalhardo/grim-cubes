@@ -96,6 +96,7 @@ import {
 	createProjectileRenderer,
 	createRenderPort,
 	createVfx,
+	createVision,
 	hardwareInfo,
 	importModelMesh,
 	loadCharacter,
@@ -410,6 +411,8 @@ async function boot(): Promise<void> {
 
 	const render = await createEngine(canvas);
 	const game = createGameScene(render.engine, platform.mobile);
+	// Accessibility look (Options screen): the Options wiring calls its setters; the VFX read `flashReduced`.
+	const vision = createVision(game);
 	// Models, VATs and atlases come from `assets:build`. Without them (dev server before the first build) the game
 	// keeps the placeholder boxes and the horde simply does not render.
 	const assets = await loadGameAssets(game.scene, {
@@ -485,6 +488,7 @@ async function boot(): Promise<void> {
 						deltaSeconds: () =>
 							run.state === "Paused" ? 0 : render.engine.getDeltaTime() / 1000,
 						flashBrightness: renderData.vfx.flashBrightness,
+						flashReduced: () => vision.flashReduced,
 						hitSquash: renderData.vfx.hitSquash,
 						cullCamera: game.camera,
 						skipBoss: (id) => bossRigs[id - 1] !== undefined,
@@ -542,6 +546,7 @@ async function boot(): Promise<void> {
 		// The pools are sized once, at creation: a preset change applies them on the next launch.
 		config: { ...renderData.vfx, decalPool: preset.decalPool, particlePool: preset.particlePool },
 		onHitStop: (ms) => hitStop.request(ms),
+		flashReduced: () => vision.flashReduced,
 		// Elites get the long hit-stop of a boss kill too (GDD section 23).
 		reducedMotion: () =>
 			!meta.settings.screenShake || window.matchMedia("(prefers-reduced-motion: reduce)").matches,
@@ -1241,6 +1246,8 @@ async function boot(): Promise<void> {
 				progress.gold += amount;
 			},
 			endRound: () => run.forceEnd(world),
+			/** Accessibility look (brightness, contrast, colour-blind mode, flash reduction) for captures. */
+			vision,
 			/** One enemy of the given type index at (x, z) relative to the hero (A-02-02b capture). */
 			spawnEnemy: (typeIndex: number, x: number, z: number) =>
 				spawn.spawnEnemy(world, typeIndex, (Position.x[hero] ?? 0) + x, (Position.z[hero] ?? 0) + z),

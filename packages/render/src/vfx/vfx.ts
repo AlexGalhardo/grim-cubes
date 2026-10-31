@@ -52,6 +52,8 @@ export interface VfxOptions {
 	isBoss?: (entity: number) => boolean;
 	/** prefers-reduced-motion (Art Bible 16.8): no hit pulse and no camera shake; the static low-HP vignette stays. */
 	reducedMotion?: () => boolean;
+	/** Flash reduction (Options): no hit-stop freeze, no shake and no execution flash ring. */
+	flashReduced?: () => boolean;
 	/** Hero HP as a fraction of the maximum, for the low-HP vignette. */
 	heroHealth?: () => number;
 	seed?: number;
@@ -103,7 +105,7 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 		rise: config.damageNumberRise,
 		height: config.damageNumberHeight,
 		elevation: Math.PI / 2 - CAMERA.beta,
-		color: rgb(PALETTE.bone),
+		color: rgb(PALETTE.damageWhite),
 		critColor: emberLight,
 	});
 
@@ -118,7 +120,7 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 	let shakeLeft = 0;
 	let clock = 0;
 	const shake = (amplitude: number): void => {
-		if (options.reducedMotion?.()) return;
+		if (options.reducedMotion?.() || options.flashReduced?.()) return;
 		if (amplitude >= shakeAmplitude * (shakeLeft / config.shakeSeconds)) {
 			shakeAmplitude = amplitude;
 			shakeLeft = config.shakeSeconds;
@@ -220,7 +222,7 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 				const z = Position.z[entity] ?? 0;
 				numbers.spawn(a, x, z, b === 1);
 				burst(x, z, count(config.bloodCubesPerHit), bloodColors(), 4, 5, gore);
-				if (b === 1) options.onHitStop?.(config.hitStopCritMs);
+				if (b === 1 && !options.flashReduced?.()) options.onHitStop?.(config.hitStopCritMs);
 			} else if (type === EventType.PlayerHit) {
 				// c = 1: the leech drain, which hurts without a pulse or a shake (Orq decision).
 				if (c === 1 || options.reducedMotion?.()) return;
@@ -239,7 +241,7 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 					burst(x, z, config.reducedDeathCubes, reducedCubeOnly, 4, 4, false);
 				}
 				if (options.isBoss?.(entity)) {
-					options.onHitStop?.(config.hitStopBossDeathMs);
+					if (!options.flashReduced?.()) options.onHitStop?.(config.hitStopBossDeathMs);
 					shake(config.shakeBossDeath);
 				}
 			} else if (type === EventType.BossTelegraph) {

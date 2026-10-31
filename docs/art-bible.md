@@ -56,6 +56,7 @@ Nenhuma fonte pública forneceu hex das referências; esta paleta é **proposta 
 | --- | --- | --- |
 | Osso | `#D9C9A3` | ossos, dentes, lápides claras, texto secundário |
 | Osso sombra | `#8C7A5B` | sombra de osso |
+| Branco de dano | `#F4F1EA` | números de dano em inimigos (quase branco: `#FFFFFF` puro é proibido; decisão do PO em 2026-10-31) |
 | Ferro | `#5A5F66` | armaduras, armas, estruturas |
 | Ferro escuro | `#2E3136` | sombra de metal |
 | Ferro negro | `#2B2A33` | metal enegrecido, tint da skin do round 50 (token `iron-black`) |
@@ -224,7 +225,7 @@ Decisão D23: gore alto estilizado, toggle para reduzir.
 - Fogo/explosão: 2 sprites pixel art animados (8 frames) em billboard + 6–10 cubos Brasa; sem luz em mobile.
 - Auras de elite: anel de quads emissivos no chão + partículas lentas; forma varia por modificador (§3.3).
 - Telegrafia de ataques de chefe: decal no chão (Sangue claro, 60%), cresce durante o wind-up.
-- Números de dano: sprites de dígitos pixel (fonte §11) em billboard, renderizados pela engine, 0,6 s de vida.
+- Números de dano: sprites de dígitos pixel (fonte §11) em billboard, renderizados pela engine, 0,6 s de vida. Em inimigos são quase brancos (token `damage-white` `#F4F1EA`, que existe porque `#FFFFFF` puro é proibido em textura); crítico usa Brasa clara. Decisão do PO em 2026-10-31.
 
 ## 10. Pipeline de assets e nomenclatura
 

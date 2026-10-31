@@ -38,6 +38,8 @@ export {
 } from "./scene/quality";
 export type { GameScene } from "./scene/scene";
 export { createGameScene, GROUND_SIZE, HERO_SIZE } from "./scene/scene";
+export type { ColorblindMode, Vision } from "./scene/vision";
+export { BRIGHTNESS_RANGE, CONTRAST_RANGE, createVision } from "./scene/vision";
 export type { LoadedVat, VatMeta } from "./vat/loader";
 export { createVat, loadVat, parseVat, setVatClip } from "./vat/loader";
 export type { ConsumableRenderer } from "./vfx/consumables";
