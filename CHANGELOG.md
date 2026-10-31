@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **ui:** Accessibility options: brightness, contrast, colour-blind modes, flash and shake reduction, UI scale and gore (save schema 5)
+- **desktop:** App icon for the Windows executables and the web favicon; Electron fuses and stricter shell permissions; executable checksums in the release
+- **render:** Emissive glow from `_e.png` masks, near-white enemy damage numbers, per-boss executions, bleed and thorns VFX, stealth shimmer, egg cracks, decal fade, biome prop dust, merged damage numbers, consumable rings
+- **art:** Second passes on the Alpha Hunter and the Nest Queen, longer Wail and Leech legs, foot-locked walk cycles, attack anticipation, ember eyes for the hero
+- **tools:** Emissive mask and B-03-01 checklist generators in `assets-gen`
+
+### Changed
+
+- **balance:** Regeneration values lowered after regen started working (three items and the card); the simulator check passes again
+- **i18n:** pt-BR and English copy reviewed against the GDD
+- **docs:** ADRs 0021 to 0024 (Electron, audio engine, telemetry, e2e out of CI) and a refreshed README
+
+### Fixed
+
+- **game:** `knockback` and `enemy_speed` now take effect; regeneration is continuous for fractional points
+- **ui:** A held gamepad button or direction no longer triggers the first control of a screen that opens
+- **render:** The hero portrait light, the white quad under the hero and a per-frame allocation in the character sync
+
 ## [0.2.0] - 2026-10-31
 
 ### Added
