@@ -1,4 +1,4 @@
-export const STORAGE_KEYS = ["save", "options", "telemetry"] as const;
+export const STORAGE_KEYS = ["save", "save.bak", "save.corrupt", "options", "telemetry"] as const;
 export type StorageKey = (typeof STORAGE_KEYS)[number];
 
 /** Upper bound for one stored value; far above a real save, low enough to refuse garbage. */

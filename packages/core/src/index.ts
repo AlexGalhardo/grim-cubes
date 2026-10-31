@@ -5,11 +5,12 @@ export type { Logger, LoggerOptions, LogLevel, LogSink } from "./logger";
 export { createLogger } from "./logger";
 export type { Rng, RngStreams, StreamName } from "./rng";
 export { createStreams, hash32, hash32x3, mulberry32, murmur3x86_32, RNG_STREAMS } from "./rng";
-export type { Difficulty, MetaState, SaveEnvelope } from "./save";
+export type { Difficulty, MetaState, SaveEnvelope, SaveErrorCode } from "./save";
 export {
 	checksumOf,
 	createMetaState,
 	DIFFICULTIES,
+	MAX_SAVE_BYTES,
 	parseSave,
 	SAVE_APP,
 	SAVE_SCHEMA_VERSION,
@@ -17,6 +18,8 @@ export {
 	serializeSave,
 	validateMeta,
 } from "./save";
+export type { LoadedMeta, SaveIO, SaveNotice } from "./saveStore";
+export { loadMeta, persistMeta, SAVE_BACKUP_KEY, SAVE_CORRUPT_KEY, SAVE_KEY } from "./saveStore";
 export type { SpatialHash, SpatialHashOptions } from "./spatial";
 export { createSpatialHash } from "./spatial";
 export type { Store } from "./store";
