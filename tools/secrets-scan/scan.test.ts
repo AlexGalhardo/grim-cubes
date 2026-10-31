@@ -1,3 +1,4 @@
+import { spawnSync } from "node:child_process";
 import { expect, test } from "vitest";
 import { findSecretLines } from "./scan";
 
@@ -22,3 +23,13 @@ test("ignores placeholders and legitimate code", () => {
 	expect(findSecretLines(`headers: { "${HDR}": apiKey }`)).toEqual([]);
 	expect(findSecretLines("nothing here")).toEqual([]);
 });
+
+const cli = (...args: string[]): number | null =>
+	spawnSync("bun", ["tools/secrets-scan/index.ts", ...args], { encoding: "utf8" }).status;
+
+test("the CLI rejects unknown flags and missing paths instead of passing", () => {
+	expect(cli("--all")).toBe(2);
+	expect(cli("tools/secrets-scan/does-not-exist.txt")).toBe(2);
+	expect(cli("tools/secrets-scan/scan.ts")).toBe(0);
+	expect(cli()).toBe(0);
+}, 30_000); // four bun start-ups
