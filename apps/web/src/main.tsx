@@ -1,4 +1,14 @@
-import { createInputState, createLogger, createStore, createStreams, createVirtualStick } from "@gc/core";
+import {
+	createInputState,
+	createLogger,
+	createMetaState,
+	createStore,
+	createStreams,
+	createVirtualStick,
+	type MetaState,
+	parseSave,
+	serializeSave,
+} from "@gc/core";
 import {
 	addFragmentValue,
 	applyHarvest,
@@ -24,6 +34,7 @@ import {
 	createProjectilePool,
 	createProjectileSystem,
 	createPropCollision,
+	createRunStats,
 	createRunSystem,
 	createSeparationSystem,
 	createShopSystem,
@@ -43,6 +54,7 @@ import {
 	propsData,
 	queryEnemies,
 	roundsData,
+	soulsForRun,
 	spawnHero,
 	toBiomeDefs,
 	toEnemyDefs,
@@ -51,7 +63,7 @@ import {
 	worldData,
 	xpForLevel,
 } from "@gc/game";
-import { createInputSources, detectPlatform } from "@gc/platform";
+import { createInputSources, createWebStorage, detectPlatform } from "@gc/platform";
 import {
 	CAMERA,
 	createBenchRecorder,
@@ -102,6 +114,17 @@ async function boot(): Promise<void> {
 	const world = createGameWorld();
 	const origin = createOrigin();
 	const progress = createProgress();
+	const runStats = createRunStats();
+
+	// Account progress lives in IndexedDB (SDD 06). A corrupt or unreadable save starts a fresh one.
+	const storage = createWebStorage();
+	let meta: MetaState = createMetaState();
+	try {
+		const saved = await storage.read("save");
+		if (saved !== null) meta = await parseSave(saved);
+	} catch (error) {
+		log.warn("save unreadable, starting fresh", error);
+	}
 	const { fragments, xp } = roundsData;
 
 	const hero = spawnHero(world, {
@@ -128,6 +151,7 @@ async function boot(): Promise<void> {
 		hero,
 		stats: stats.stats,
 		effects: itemEffects.effects,
+		runStats,
 	});
 	const separation = createSeparationSystem({
 		weight: roundsData.ai.separationWeight,
@@ -207,6 +231,7 @@ async function boot(): Promise<void> {
 		rng: rng.loot,
 		round: () => run.round,
 		effects: itemEffects.effects,
+		runStats,
 	});
 	const pickup = createPickupSystem({
 		fragments,
@@ -260,12 +285,14 @@ async function boot(): Promise<void> {
 		cards: NO_CARDS,
 		shop: null,
 		stats: [],
+		results: null,
 	});
 	createRoot(uiRoot).render(
 		<App
 			store={hud}
 			stick={stick}
 			onChooseCard={(index) => levelUp.choose(index)}
+			onRestart={() => location.reload()}
 			shopActions={{
 				buy: (index) => {
 					shop.buy(index);
@@ -347,8 +374,63 @@ async function boot(): Promise<void> {
 	let lastOfferSource: unknown = null;
 	let lastHud = Number.NEGATIVE_INFINITY;
 	let inShop = false;
+	let settled = false;
+	let results: HudState["results"] = null;
 	let lastShopJson = "";
 	let lastShop: HudState["shop"] = null;
+
+	/** Credits the run to the account once: souls, record and totals, then saves (SDD 06). */
+	function settleRun(): void {
+		settled = true;
+		const souls = soulsForRun(
+			{
+				perRound: roundsData.souls.perRound,
+				perElite: roundsData.souls.perElite,
+				bossBase: roundsData.boss.soulsBase,
+				bossPerRound: roundsData.boss.soulsPerRound,
+			},
+			{ round: run.round, elitesKilled: runStats.elitesKilled, bossRounds: runStats.bossRounds },
+			1,
+			itemEffects.effects.soulGain,
+		);
+		const newRecord = run.round > meta.records.normal;
+		meta.souls += souls;
+		meta.records.normal = Math.max(meta.records.normal, run.round);
+		meta.stats.runs++;
+		meta.stats.kills += runStats.kills;
+		meta.stats.bossKills += runStats.bossRounds.length;
+		meta.stats.elitesKilled += runStats.elitesKilled;
+		serializeSave(meta, __APP_VERSION__)
+			.then((text) => storage.write("save", text))
+			.catch((error: unknown) => log.error("save failed", error));
+
+		const weaponName = weaponsData.find((w) => w.id === weapon.weapon.id)?.name ?? weapon.weapon.id ?? "";
+		const killer = runStats.killer;
+		results = {
+			round: run.round,
+			kills: runStats.kills,
+			damage: Math.round(runStats.damageDealt),
+			cause:
+				killer.kind === "enemy"
+					? (enemiesData[killer.type]?.name ?? "Desconhecido")
+					: killer.kind === "self"
+						? "Explosão própria"
+						: "Desconhecido",
+			build: [
+				`${weaponName} (T${weapon.tier + 1})`,
+				...[...owned].map(([id, count]) => {
+					const name = itemsData.find((i) => i.id === id)?.name ?? id;
+					return count > 1 ? `${name} ×${count}` : name;
+				}),
+			],
+			souls,
+			totalSouls: meta.souls,
+			record: meta.records.normal,
+			newRecord,
+			seed,
+		};
+		publishNow();
+	}
 
 	function publishNow(): void {
 		const offer = levelUp.offer;
@@ -379,6 +461,7 @@ async function boot(): Promise<void> {
 			cards: lastOffer,
 			shop: shopView,
 			stats: shopView ? describeStats(stats.stats) : NO_STATS,
+			results,
 		};
 		const cur = hud.get();
 		if (
@@ -389,7 +472,8 @@ async function boot(): Promise<void> {
 			cur.xp !== next.xp ||
 			cur.gold !== next.gold ||
 			cur.cards !== next.cards ||
-			cur.shop !== next.shop
+			cur.shop !== next.shop ||
+			cur.results !== next.results
 		) {
 			hud.publish(next);
 		}
@@ -440,7 +524,7 @@ async function boot(): Promise<void> {
 			if (run.state === "Shop" && !inShop) shop.open();
 			inShop = run.state === "Shop";
 			// No results screen yet (P-05-08): a finished run starts over.
-			if (run.state === "Results") location.reload();
+			if (run.state === "Results" && !settled) settleRun();
 		},
 		render: (alpha) => {
 			port.sync(world, alpha);
@@ -469,6 +553,10 @@ async function boot(): Promise<void> {
 				progress.gold += amount;
 			},
 			endRound: () => run.forceEnd(world),
+			killHero: () => {
+				Health.hp[hero] = 0;
+			},
+			meta: () => ({ souls: meta.souls, record: meta.records.normal, runs: meta.stats.runs }),
 		};
 	}
 
