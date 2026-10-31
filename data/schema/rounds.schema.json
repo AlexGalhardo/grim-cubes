@@ -21,10 +21,22 @@
 			"required": ["introSeconds", "outroSeconds", "bossIntroSeconds", "dyingSeconds"],
 			"additionalProperties": false,
 			"properties": {
-				"introSeconds": { "type": "number", "minimum": 0 },
-				"outroSeconds": { "type": "number", "minimum": 0 },
-				"bossIntroSeconds": { "type": "number", "minimum": 0 },
-				"dyingSeconds": { "type": "number", "minimum": 0 }
+				"introSeconds": {
+					"type": "number",
+					"minimum": 0
+				},
+				"outroSeconds": {
+					"type": "number",
+					"minimum": 0
+				},
+				"bossIntroSeconds": {
+					"type": "number",
+					"minimum": 0
+				},
+				"dyingSeconds": {
+					"type": "number",
+					"minimum": 0
+				}
 			}
 		},
 		"duration": {
@@ -79,7 +91,10 @@
 				"soulsPerRound",
 				"hpScalePerTenRounds",
 				"rewardChest",
-				"freeWeaponUpgrades"
+				"freeWeaponUpgrades",
+				"randomRosterFromRound",
+				"eliteModifierFromRound",
+				"secondEliteModifierFromRound"
 			],
 			"additionalProperties": false,
 			"properties": {
@@ -149,6 +164,18 @@
 				"freeWeaponUpgrades": {
 					"type": "number",
 					"minimum": 0
+				},
+				"randomRosterFromRound": {
+					"type": "integer",
+					"minimum": 1
+				},
+				"eliteModifierFromRound": {
+					"type": "integer",
+					"minimum": 1
+				},
+				"secondEliteModifierFromRound": {
+					"type": "integer",
+					"minimum": 1
 				}
 			}
 		},

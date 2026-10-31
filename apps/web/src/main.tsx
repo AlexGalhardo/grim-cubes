@@ -344,7 +344,10 @@ async function boot(): Promise<void> {
 		ring: { min: roundsData.spawn.ringMin, max: roundsData.spawn.ringMax },
 		hero,
 	});
-	hooks.heroHit = elite.handleHeroHit;
+	hooks.heroHit = (source, taken) => {
+		elite.handleHeroHit(source, taken);
+		boss.handleHeroHit(source, taken);
+	};
 	const heroStatus = createHeroStatus();
 	const boss = createBossRoster(
 		{
@@ -358,6 +361,8 @@ async function boot(): Promise<void> {
 			enemyIndex: (id) => enemyIds.indexOf(id),
 			heroStatus,
 			shots: enemyShots,
+			eliteModifiers: elitesData.modifiers,
+			seed,
 			difficulty: () => difficulty.hpDamageMult,
 			onDefeated: () => {
 				run.bossDied();

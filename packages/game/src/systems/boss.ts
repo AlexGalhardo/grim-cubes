@@ -1,8 +1,9 @@
+import { hash32 } from "@gc/core";
 import { addComponent } from "bitecs";
 import { bossesData } from "../data";
-import type { BossData, RoundsData } from "../data/types";
+import type { BossData, EliteModifierData, RoundsData } from "../data/types";
 import { dropChest } from "../ecs/chest";
-import { Boss, ContactDamage, Health, Position, Radius, Speed, Velocity } from "../ecs/components";
+import { Armor, Boss, ContactDamage, Health, Position, Radius, Speed, Velocity } from "../ecs/components";
 import type { EnemyShotPool } from "../ecs/enemyShot";
 import { type EventBuffer, EventType } from "../ecs/events";
 import type { GameWorld } from "../ecs/world";
@@ -28,6 +29,10 @@ export interface BossSystemDeps {
 	difficulty: () => number;
 	/** `EnemyType` index of an enemy id from enemies.json (summon patterns). */
 	enemyIndex?: ((id: string) => number) | undefined;
+	/** Elite modifiers a boss can carry in late rounds (A-03-03); none when omitted. */
+	eliteModifiers?: readonly EliteModifierData[] | undefined;
+	/** Seed of the run: with the round it fixes which modifiers a boss carries, so the pick is repeatable. */
+	seed?: number | undefined;
 	/** Pool the boss's projectiles come from (chain shot); the pattern fires nothing without it. */
 	shots?: EnemyShotPool | undefined;
 	/** Hero slow and push effects (mud pool, scream); patterns that need them are no-ops without it. */
@@ -42,6 +47,8 @@ export interface BossView {
 	maxHp: number;
 	/** 0 before the summon, 1 after (the bar marks the 50% line). */
 	phase: number;
+	/** Names of the elite modifiers the boss carries (empty before round 60). */
+	modifiers: readonly string[];
 }
 
 export interface BossSystem {
@@ -49,6 +56,8 @@ export interface BossSystem {
 	start(world: GameWorld, round: number): number;
 	/** Runs the patterns and enrage; call after behaviorSystem so the pattern velocity wins. */
 	run(world: GameWorld): void;
+	/** Wire to the damage system's `onHeroHit`: a vampiric boss heals on what it deals. */
+	handleHeroHit(source: number, taken: number): void;
 	/** Wire to the death system's `onDeath`. */
 	handleDeath(world: GameWorld, enemy: number, x: number, z: number): void;
 	readonly entity: number;
@@ -85,6 +94,7 @@ export function createBossSystem(deps: BossSystemDeps): BossSystem {
 	const cooldownSteps = steps(def.patternCooldownSeconds ?? 1);
 
 	let entity = -1;
+	let carried: readonly EliteModifierData[] = [];
 	let bossRound = def.round;
 	let active: PatternHandler | null = null;
 	let cooldown = 0;
@@ -132,6 +142,20 @@ export function createBossSystem(deps: BossSystemDeps): BossSystem {
 		},
 		steps,
 	};
+
+	/** Late bosses carry elite modifiers (A-03-03): one from the first threshold, two from the second. */
+	function pickModifiers(round: number): EliteModifierData[] {
+		const all = deps.eliteModifiers ?? [];
+		const count =
+			round >= rounds.secondEliteModifierFromRound ? 2 : round >= rounds.eliteModifierFromRound ? 1 : 0;
+		const left = [...all];
+		const picked: EliteModifierData[] = [];
+		for (let i = 0; i < count && left.length > 0; i++) {
+			const index = hash32(deps.seed ?? 0, round, i + 1) % left.length;
+			picked.push(...left.splice(index, 1));
+		}
+		return picked;
+	}
 
 	function applyEnrage(): void {
 		ctx.enrage = enrageMult(rounds, Boss.enrageStacks[entity] ?? 0);
@@ -193,6 +217,12 @@ export function createBossSystem(deps: BossSystemDeps): BossSystem {
 			ctx.entity = entity;
 			ctx.maxHp = maxHp;
 			ctx.baseSpeed = def.speed ?? 2.4;
+			carried = pickModifiers(round);
+			for (const modifier of carried) {
+				// HP is already scaled by the round; the rest of what an elite modifier does applies to the boss too.
+				ctx.baseSpeed *= modifier.speedMult ?? 1;
+				Armor.value[entity] = (Armor.value[entity] ?? 0) + (modifier.armorAdd ?? 0);
+			}
 			baseContact =
 				(rounds.contactDamageBase + rounds.contactDamagePerRound * bossRound) * difficulty();
 			applyEnrage();
@@ -219,8 +249,28 @@ export function createBossSystem(deps: BossSystemDeps): BossSystem {
 			for (const p of patterns) p.handler.tick?.(ctx);
 			tickPattern();
 		},
+		handleHeroHit(source: number, taken: number): void {
+			if (entity < 0 || source !== entity) return;
+			for (const modifier of carried) {
+				const steal = modifier.lifestealOfDamage ?? 0;
+				if (steal > 0)
+					Health.hp[entity] = Math.min(
+						(Health.hp[entity] ?? 0) + taken * steal,
+						Health.max[entity] ?? 0,
+					);
+			}
+		},
 		handleDeath(world: GameWorld, e: number, x: number, z: number): void {
 			if (e !== entity) return;
+			for (const modifier of carried) {
+				const boom = modifier.onDeathExplosion;
+				if (!boom) continue;
+				const dist = Math.hypot((Position.x[hero] ?? 0) - x, (Position.z[hero] ?? 0) - z);
+				if (dist <= boom.radius + (Radius.r[hero] ?? 0)) {
+					queue.push(hero, boom.damageBase + boom.damagePerRound * bossRound, e, 0, 0, 0);
+				}
+				events.push(EventType.Exploded, x, z, boom.radius, e);
+			}
 			entity = -1;
 			events.push(EventType.BossDied, x, z, 0, e);
 			const chest = rounds.rewardChest;
@@ -238,6 +288,7 @@ export function createBossSystem(deps: BossSystemDeps): BossSystem {
 				hp: Math.max(0, Math.ceil(Health.hp[entity] ?? 0)),
 				maxHp: Math.ceil(maxHp),
 				phase: Boss.phase[entity] ?? 0,
+				modifiers: carried.map((m) => m.name),
 			};
 		},
 	};
@@ -250,8 +301,8 @@ export interface BossRoster extends BossSystem {
 
 /**
  * Picks the boss of a round from the definitions whose patterns are all implemented (A-03-01 onward: a boss in
- * bosses.json without its handlers yet is skipped, not a crash). Rounds past the last boss repeat it; the scaled
- * repeats and the shuffle come with A-03-03.
+ * bosses.json without its handlers yet is skipped, not a crash). From `randomRosterFromRound` the boss is drawn
+ * from all of them with HP scaled by the rounds since its own (`bossMaxHp`).
  */
 export function createBossRoster(base: Omit<BossSystemDeps, "def">, defs: readonly BossData[]): BossRoster {
 	const playable = defs
@@ -262,7 +313,13 @@ export function createBossRoster(base: Omit<BossSystemDeps, "def">, defs: readon
 	const systems = new Map(playable.map((def) => [def.id, createBossSystem({ ...base, def })]));
 	let current: BossSystem | null = null;
 
-	const defFor = (round: number): BossData => playable.filter((def) => def.round <= round).at(-1) ?? first;
+	// Fixed order 10/20/30; from `randomRosterFromRound` a draw, fixed by seed and round so the intro and the fight agree.
+	const defFor = (round: number): BossData => {
+		if (round >= base.rounds.randomRosterFromRound) {
+			return playable[hash32(base.seed ?? 0, round, 0) % playable.length] ?? first;
+		}
+		return playable.filter((def) => def.round <= round).at(-1) ?? first;
+	};
 
 	return {
 		defFor,
@@ -271,6 +328,7 @@ export function createBossRoster(base: Omit<BossSystemDeps, "def">, defs: readon
 			return current?.start(world, round) ?? -1;
 		},
 		run: (world) => current?.run(world),
+		handleHeroHit: (source, taken) => current?.handleHeroHit(source, taken),
 		handleDeath: (world, enemy, x, z) => current?.handleDeath(world, enemy, x, z),
 		get entity(): number {
 			return current?.entity ?? -1;

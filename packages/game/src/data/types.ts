@@ -84,6 +84,11 @@ export interface RoundsData {
 		soulsPerRound: number;
 		enrageEverySeconds: number;
 		enrageDamageSpeedBonus: number;
+		/** From this round the boss is drawn from the whole roster instead of the fixed 10/20/30 order. */
+		randomRosterFromRound: number;
+		/** Boss rounds from which the boss carries one, then two, elite modifiers. */
+		eliteModifierFromRound: number;
+		secondEliteModifierFromRound: number;
 		contactDamageBase: number;
 		contactDamagePerRound: number;
 		hpScalePerTenRounds: number;

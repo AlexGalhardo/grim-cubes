@@ -30,7 +30,10 @@
 			"offered": 3,
 			"picks": 2
 		},
-		"freeWeaponUpgrades": 1
+		"freeWeaponUpgrades": 1,
+		"randomRosterFromRound": 40,
+		"eliteModifierFromRound": 60,
+		"secondEliteModifierFromRound": 100
 	},
 	"ai": {
 		"separationWeight": 0.6,

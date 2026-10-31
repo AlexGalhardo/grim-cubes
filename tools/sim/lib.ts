@@ -283,6 +283,8 @@ export function runSim(options: SimOptions): SimReport {
 			summonType: enemyIds.indexOf("husk"),
 			enemyIndex: (id) => enemyIds.indexOf(id),
 			shots: enemyShots,
+			eliteModifiers: elitesData.modifiers,
+			seed: options.seed,
 			difficulty: () => difficulty.hpDamageMult,
 			onDefeated: () => {
 				run.bossDied();
