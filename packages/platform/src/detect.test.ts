@@ -18,3 +18,9 @@ test("detects capacitor and mobile touch", () => {
 	});
 	expect(info).toEqual({ runtime: "capacitor", mobile: true, touch: true });
 });
+
+test("iPadOS 13+ reports as Macintosh, so touch makes it mobile", () => {
+	const ua = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15";
+	expect(detectPlatform({ navigator: { userAgent: ua, maxTouchPoints: 5 } }).mobile).toBe(true);
+	expect(detectPlatform({ navigator: { userAgent: ua, maxTouchPoints: 0 } }).mobile).toBe(false);
+});
