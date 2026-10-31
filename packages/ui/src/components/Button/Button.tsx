@@ -17,7 +17,7 @@ export function Button({ size = "md", disabled = false, onClick, children }: But
 			type="button"
 			disabled={disabled}
 			onClick={onClick}
-			className={`${HEIGHT[size]} border-2 border-iron-dark bg-iron px-4 font-display text-base text-bone shadow-plate duration-fast hover:border-ember hover:text-ember-light focus-visible:outline-2 focus-visible:outline-ember focus-visible:outline-offset-2 active:translate-x-px active:translate-y-px disabled:text-mist disabled:opacity-50 disabled:hover:border-iron-dark`}
+			className={`${HEIGHT[size]} border-2 border-iron-dark bg-iron px-4 font-display text-base text-bone shadow-plate transition-colors duration-fast pointer-coarse:min-h-12 hover:border-ember hover:text-ember-light focus-visible:outline-2 focus-visible:outline-ember focus-visible:outline-offset-2 active:translate-x-px active:translate-y-px disabled:text-mist disabled:opacity-50 disabled:hover:border-iron-dark`}
 		>
 			{children}
 		</button>
