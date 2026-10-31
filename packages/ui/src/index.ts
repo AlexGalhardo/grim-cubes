@@ -14,6 +14,8 @@ export type {
 	DifficultyViewModel,
 } from "./components/Difficulty/Difficulty";
 export { Difficulty } from "./components/Difficulty/Difficulty";
+export type { IconProps, IconRef } from "./components/Icon/Icon";
+export { Icon } from "./components/Icon/Icon";
 export type { CardView, LevelUpProps } from "./components/LevelUp/LevelUp";
 export { LevelUp } from "./components/LevelUp/LevelUp";
 export { Notice, noticeText } from "./components/Notice/Notice";

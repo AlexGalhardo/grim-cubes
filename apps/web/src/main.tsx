@@ -91,7 +91,7 @@ import {
 	PLACEHOLDER_PROPS,
 	type PropTypeDef,
 } from "@gc/render";
-import { App, type CardView, type HudState } from "@gc/ui";
+import { App, type CardView, type HudState, type IconRef } from "@gc/ui";
 import { query } from "bitecs";
 import { createRoot } from "react-dom/client";
 import { bootArtReview } from "./artReview";
@@ -629,6 +629,29 @@ async function boot(): Promise<void> {
 			.catch((error: unknown) => log.warn("ossuary change refused", error));
 	}
 
+	/** An `icon_<kind>_<id>` of the UI atlas as the CSS cut-out the UI draws; undefined while assets are missing. */
+	const iconCache = new Map<string, IconRef | undefined>();
+	function iconFor(kind: "item" | "card" | "node", id: string): IconRef | undefined {
+		const key = `${kind}_${id}`;
+		if (iconCache.has(key)) return iconCache.get(key);
+		const entry = assets?.manifest.entries[`icon_${key}`];
+		const atlas = assets?.manifest.entries.atlas_vfx_ui;
+		const icon =
+			entry?.rect && atlas?.width && atlas.height
+				? {
+						url: `/assets/${entry.url}`,
+						x: entry.rect.x,
+						y: entry.rect.y,
+						w: entry.rect.w,
+						h: entry.rect.h,
+						atlasWidth: atlas.width,
+						atlasHeight: atlas.height,
+					}
+				: undefined;
+		iconCache.set(key, icon);
+		return icon;
+	}
+
 	function ossuaryView(): NonNullable<HudState["ossuary"]> {
 		return {
 			souls: meta.souls,
@@ -642,6 +665,7 @@ async function boot(): Promise<void> {
 						...node.modifiers.map((m) => text(describeModifier(m))),
 						...node.effects.map((e) => text(describeEffect(e.id, e.params))),
 					],
+					icon: iconFor("node", node.id),
 					cost: node.cost,
 					state: nodeState(ossuaryData, meta, node, __IS_DEMO__),
 					affordable: meta.souls >= node.cost,
@@ -655,7 +679,12 @@ async function boot(): Promise<void> {
 		if (offer !== lastOfferSource) {
 			lastOfferSource = offer;
 			lastOffer = offer
-				? offer.map((c) => ({ id: c.id, name: t(`card.${c.id}`), double: c.double }))
+				? offer.map((c) => ({
+						id: c.id,
+						name: t(`card.${c.id}`),
+						double: c.double,
+						icon: iconFor("card", c.id),
+					}))
 				: NO_CARDS;
 		}
 		const chestOffer = chest.offer;
@@ -668,6 +697,7 @@ async function boot(): Promise<void> {
 							": ",
 						),
 						double: false,
+						icon: iconFor("item", c.id),
 					}))
 				: NO_CARDS;
 		}
@@ -688,6 +718,7 @@ async function boot(): Promise<void> {
 									? t("shop.upgradeName", { name: t(`weapon.${slot.id}`) })
 									: t(`weapon.${slot.id}`),
 						lines: slot.lines.map(text),
+						icon: slot.kind === "item" ? iconFor("item", slot.id) : undefined,
 					})),
 				};
 			}

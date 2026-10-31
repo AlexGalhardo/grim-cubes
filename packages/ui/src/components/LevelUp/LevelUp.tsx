@@ -1,10 +1,12 @@
 import { t } from "@gc/core";
 import { type JSX, useEffect } from "react";
+import { Icon, type IconRef } from "../Icon/Icon";
 
 export interface CardView {
 	id: string;
 	name: string;
 	double: boolean;
+	icon?: IconRef | undefined;
 }
 
 export interface LevelUpProps {
@@ -57,7 +59,10 @@ export function LevelUp({
 						<span className="absolute top-1 left-2 border-2 border-iron-dark px-1 text-xs text-bone-dark">
 							{i + 1}
 						</span>
-						{card.name}
+						<span className="flex flex-col items-center gap-2">
+							{card.icon ? <Icon icon={card.icon} size={48} /> : null}
+							{card.name}
+						</span>
 					</button>
 				))}
 			</div>
