@@ -1,4 +1,4 @@
-import "@babylonjs/core/Engines/Extensions/engine.views";
+import "@babylonjs/core/Engines/AbstractEngine/abstractEngine.views";
 import { FreeCamera } from "@babylonjs/core/Cameras/freeCamera";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 import type { GameScene } from "../scene/scene";
@@ -15,9 +15,9 @@ export interface Portrait {
 /** A layer only the portrait camera sees, so the second pass draws the rig and nothing else of the scene. */
 const PORTRAIT_LAYER = 0x10000000;
 /** Camera offset from the rig, in u: in front of it (rig faces +z once posed) at bust height. */
-const CAMERA_DISTANCE = 2.6;
-const CAMERA_HEIGHT = 1.9;
-const LOOK_HEIGHT = 1.6;
+const CAMERA_DISTANCE = 3.4;
+const CAMERA_HEIGHT = 1.7;
+const LOOK_HEIGHT = 1.4;
 const FIELD_OF_VIEW = 0.6;
 
 /**
