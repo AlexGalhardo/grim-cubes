@@ -875,7 +875,6 @@ async function boot(): Promise<void> {
 		},
 	);
 
-	const _fighting = (): boolean => run.state === "Round" || run.state === "BossRound";
 	let lastOffer: readonly CardView[] = NO_CARDS;
 	let lastOfferSource: unknown = null;
 	let lastChest: readonly CardView[] = NO_CARDS;
