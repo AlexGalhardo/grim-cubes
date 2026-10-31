@@ -124,38 +124,63 @@ function stubShortScreen(short: boolean): void {
 	}));
 }
 
-test("on a short landscape screen the four offers share one row and the side stats are dropped", () => {
-	stubShortScreen(true);
-	render(<Shop view={view} stats={stats} actions={actions()} />);
-	expect(screen.getByTestId("shop-grid").className).toContain("grid-cols-4");
-	expect(screen.getByTestId("shop-grid").className).not.toContain("grid-cols-2");
-	expect(screen.getByTestId("shop-side").className).not.toContain("mobile-l:flex");
-	expect(screen.getByTestId("shop-buy-3")).toBeTruthy();
-	vi.unstubAllGlobals();
+test("the offers sit in two columns on short and tall screens", () => {
+	for (const short of [true, false]) {
+		stubShortScreen(short);
+		render(<Shop view={view} stats={stats} actions={actions()} />);
+		expect(screen.getByTestId("shop-grid").className).toContain("grid-cols-2");
+		expect(screen.getByTestId("shop-side")).toBeTruthy();
+		vi.unstubAllGlobals();
+		cleanup();
+	}
 });
 
-test("on a tall screen the offers keep two columns and the stats panel", () => {
-	stubShortScreen(false);
-	render(<Shop view={view} stats={stats} actions={actions()} />);
-	expect(screen.getByTestId("shop-grid").className).toContain("grid-cols-2");
-	expect(screen.getByTestId("shop-side").className).toContain("mobile-l:flex");
-	vi.unstubAllGlobals();
+test("shows the hero, the weapon and the owned items with their counts", () => {
+	render(
+		<Shop
+			view={{
+				...view,
+				hero: {
+					level: 7,
+					xp: 140,
+					xpNeeded: 200,
+					hp: 84,
+					maxHp: 120,
+					round: 3,
+					bossRound: 10,
+					souls: 18,
+				},
+				weapon: { name: "Espada Enferrujada", tier: 2, lines: ["Dano 12"] },
+				items: [{ id: "rusted_plate", name: "Placa Enferrujada", tier: 1, count: 3 }],
+				quote: "Ossos frescos.",
+			}}
+			stats={stats}
+			actions={actions()}
+		/>,
+	);
+	expect(screen.getByTestId("shop-hero").textContent).toContain("84 / 120");
+	expect(screen.getByTestId("shop-weapon").textContent).toContain("Dano 12");
+	expect(screen.getByTestId("shop-items").textContent).toContain("3");
+	expect(screen.getByText(/Ossos frescos/)).toBeTruthy();
 });
 
-test("on a short screen the reroll and next buttons sit beside the gold instead of below the offers", () => {
-	stubShortScreen(true);
-	render(<Shop view={view} stats={stats} actions={actions()} />);
-	const gold = screen.getByTestId("shop-gold");
-	const next = screen.getByRole("button", { name: "Próximo round" });
-	expect(gold.parentElement?.contains(next)).toBe(true);
-	vi.unstubAllGlobals();
-	cleanup();
-	stubShortScreen(false);
-	render(<Shop view={view} stats={stats} actions={actions()} />);
-	expect(
-		screen
-			.getByTestId("shop-gold")
-			.parentElement?.contains(screen.getByRole("button", { name: "Próximo round" })),
-	).toBe(false);
-	vi.unstubAllGlobals();
+test("hovering an offer previews the stats it changes", () => {
+	render(
+		<Shop
+			view={{
+				...view,
+				slots: view.slots.map((slot, i) =>
+					i === 0 ? { ...slot, preview: { "statLine.armor": "3" } } : slot,
+				),
+			}}
+			stats={[{ id: "statLine.armor", label: "Armadura", value: "0" }]}
+			actions={actions()}
+		/>,
+	);
+	// The first offer has the focus on open, so its preview shows for keyboard and pad players too.
+	expect(screen.getByTestId("stat-preview").textContent).toContain("0 → 3");
+	fireEvent.mouseEnter(screen.getByTestId("shop-slot-1"));
+	expect(screen.queryByTestId("stat-preview")).toBeNull();
+	fireEvent.mouseEnter(screen.getByTestId("shop-slot-0"));
+	expect(screen.getByTestId("stat-preview").textContent).toContain("0 → 3");
 });

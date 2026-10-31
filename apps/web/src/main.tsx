@@ -62,6 +62,7 @@ import {
 	Health,
 	heroData,
 	isUnlocked,
+	itemsData,
 	KnockbackResist,
 	milestonesData,
 	movementSystem,
@@ -79,6 +80,7 @@ import {
 	resetOssuary,
 	roundsData,
 	Speed,
+	STAT_FIELDS,
 	STEP,
 	soulsForRun,
 	unlockedSkins,
@@ -1130,6 +1132,65 @@ async function boot(): Promise<void> {
 
 	/** An `icon_<kind>_<id>` of the UI atlas as the CSS cut-out the UI draws; undefined while assets are missing. */
 	const iconCache = new Map<string, IconRef | undefined>();
+	const formatStat = (value: number, percent: boolean): string =>
+		`${i18n.formatNumber(percent ? Math.round(value * 1000) / 10 : Math.round(value * 100) / 100)}${percent ? "%" : ""}`;
+	/** Shop stat preview (`statLine.*` id -> value after buying): only additive modifiers of the listed stats. */
+	function statPreview(itemId: string): Record<string, string> | undefined {
+		const item = itemsData.find((entry) => entry.id === itemId);
+		if (!item) return undefined;
+		const lines = describeStats(stats.stats);
+		const out: Record<string, string> = {};
+		for (const modifier of item.modifiers) {
+			if (modifier.op !== "add") continue;
+			const field = STAT_FIELDS[modifier.stat];
+			const line = lines.find((entry) => entry.key === `statLine.${field}`);
+			if (!line) continue;
+			// The speed line is in u/s while its modifiers are fractions of the base speed.
+			const after = field === "speed" ? line.value * (1 + modifier.value) : line.value + modifier.value;
+			out[line.key] = formatStat(after, line.percent);
+		}
+		return Object.keys(out).length > 0 ? out : undefined;
+	}
+	/** The hero, weapon, items and Merchant line of the shop (ARPG layout, PO mockup of 2026-10-31). */
+	function shopPanels(): Pick<NonNullable<HudState["shop"]>, "hero" | "weapon" | "items" | "quote"> {
+		const def = weapon.weapon;
+		const tier = Math.min(4, weapon.tier + 1);
+		const damage = def.damage * (def.damageMult[weapon.tier] ?? 1);
+		return {
+			hero: {
+				level: progress.level,
+				xp: Math.floor(progress.xp),
+				xpNeeded: xpForLevel(xp, progress.level),
+				hp: Math.max(0, Math.ceil(Health.hp[hero] ?? 0)),
+				maxHp: Math.ceil(Health.max[hero] ?? 0),
+				round: run.round,
+				bossRound: Math.ceil((run.round + 1) / 10) * 10,
+				souls: meta.souls,
+			},
+			weapon: {
+				name: t(`weapon.${def.id ?? ""}`),
+				tier,
+				lines: [
+					t("shop.weaponDamage", { value: i18n.formatNumber(Math.round(damage * 10) / 10) }),
+					t("shop.weaponRate", {
+						value: i18n.formatNumber(
+							Math.round(
+								def.attacksPerSecond * (1 + def.attackSpeedBonusPerTier * weapon.tier) * 10,
+							) / 10,
+						),
+					}),
+				],
+			},
+			items: [...owned].map(([id, count]) => ({
+				id,
+				name: t(`item.${id}`),
+				tier: itemsData.find((entry) => entry.id === id)?.tier ?? 1,
+				count,
+				icon: iconFor("item", id),
+			})),
+			quote: t(`voice.merchant.arrive_${(run.round % 3) + 1}`),
+		};
+	}
 	function iconFor(kind: "item" | "card" | "node", id: string): IconRef | undefined {
 		const key = `${kind}_${id}`;
 		if (iconCache.has(key)) return iconCache.get(key);
@@ -1221,7 +1282,9 @@ async function boot(): Promise<void> {
 									: t(`weapon.${slot.id}`),
 						lines: slot.lines.map(text),
 						icon: slot.kind === "item" ? iconFor("item", slot.id) : undefined,
+						preview: slot.kind === "item" ? statPreview(slot.id) : undefined,
 					})),
+					...shopPanels(),
 				};
 			}
 			shopView = lastShop;
@@ -1265,8 +1328,9 @@ async function boot(): Promise<void> {
 			shop: shopView,
 			stats: shopView
 				? describeStats(stats.stats).map((line) => ({
+						id: line.key,
 						label: t(line.key),
-						value: `${i18n.formatNumber(line.percent ? line.value * 100 : line.value)}${line.percent ? "%" : ""}`,
+						value: formatStat(line.value, line.percent),
 					}))
 				: NO_STATS,
 			results,
