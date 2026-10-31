@@ -412,10 +412,13 @@ Stats secundários (só por itens): `pickup_range` (%), `xp_gain` (%), `shop_pri
 
 | Tier | Nome | Cor (ver Art Bible §3) | Cor daltônico | Preço base típico |
 | --- | --- | --- | --- | --- |
-| 1 | Comum | cinza-osso | — | 15–25 |
-| 2 | Incomum | verde-lodo | azul | 30–50 |
-| 3 | Raro | azul-frio | laranja | 60–100 |
-| 4 | Lendário | vermelho-sangue | magenta | 120–200 |
+| 1 | Normal | osso `#D9C9A3` | ● | 15–25 |
+| 2 | Raro | azul `#4C7FB8` | azul claro ◆ | 30–50 |
+| 3 | Épico | roxo `#7A4FB8` | magenta ▲ | 60–100 |
+| 4 | Lendário | laranja `#E07A2A` | laranja ★ | 120–200 |
+| 5 | Mítico | amarelo `#F5D04A` | amarelo ✦ | a definir com os dados (Est) |
+
+Decisão do PO (2026-10-31): cinco raridades na UI, `tier: 1..5` nos dados. Os nomes antigos (Comum, Incomum, Raro, Lendário) viram Normal, Raro, Épico e Lendário; os preços e as chances por tier de 15.2 continuam valendo até o Est atualizar os dados.
 
 ### 15.2 Chance por tier (baseline Brotato)
 

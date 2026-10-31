@@ -26,10 +26,15 @@
 	--color-cb-orange: #e07a2a;
 	--color-cb-magenta: #c04a9e;
 
-	--color-rarity-1: var(--color-bone);
-	--color-rarity-2: var(--color-sludge);
-	--color-rarity-3: var(--color-cold);
-	--color-rarity-4: var(--color-blood-light);
+	--color-epic: #7a4fb8;
+	--color-mythic: #f5d04a;
+
+	/* Normal, Rare, Epic, Legendary, Mythic (Art Bible 3.3). */
+	--color-rarity-1: #d9c9a3;
+	--color-rarity-2: var(--color-cold);
+	--color-rarity-3: var(--color-epic);
+	--color-rarity-4: var(--color-ember);
+	--color-rarity-5: var(--color-mythic);
 	--color-heal: var(--color-sludge);
 	--color-danger: var(--color-blood-light);
 	--color-currency: var(--color-ember-light);
@@ -74,8 +79,8 @@
 :root[data-theme="cb"],
 [data-theme="cb"] {
 	--color-rarity-2: var(--color-cb-blue);
-	--color-rarity-3: var(--color-cb-orange);
-	--color-rarity-4: var(--color-cb-magenta);
+	--color-rarity-3: var(--color-cb-magenta);
+	--color-rarity-4: var(--color-cb-orange);
 	--color-heal: var(--color-cb-blue);
 }
 
@@ -129,17 +134,21 @@
 }
 
 [data-theme="cb"] .rarity-mark[data-tier="1"]::before {
-	content: "CF";
+	content: "●";
 }
 
 [data-theme="cb"] .rarity-mark[data-tier="2"]::before {
-	content: "C6";
+	content: "◆";
 }
 
 [data-theme="cb"] .rarity-mark[data-tier="3"]::before {
-	content: "B2";
+	content: "▲";
 }
 
 [data-theme="cb"] .rarity-mark[data-tier="4"]::before {
-	content: "°5";
+	content: "★";
+}
+
+[data-theme="cb"] .rarity-mark[data-tier="5"]::before {
+	content: "✦";
 }

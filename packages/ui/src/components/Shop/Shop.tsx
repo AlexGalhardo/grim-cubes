@@ -53,7 +53,7 @@ export interface ShopHeroView {
 
 export interface ShopWeaponView {
 	name: string;
-	/** 1-4, the rarity colour of the weapon tier. */
+	/** 1-5, the rarity colour of the weapon tier. */
 	tier: number;
 	lines: readonly string[];
 }
@@ -97,12 +97,14 @@ const TIER_BORDER: Readonly<Record<number, string>> = {
 	2: "border-rarity-2",
 	3: "border-rarity-3",
 	4: "border-rarity-4",
+	5: "border-rarity-5",
 };
 const TIER_TEXT: Readonly<Record<number, string>> = {
 	1: "text-rarity-1",
 	2: "text-rarity-2",
 	3: "text-rarity-3",
 	4: "text-rarity-4",
+	5: "text-rarity-5",
 };
 const kindLabel = (kind: ShopSlotView["kind"]): string =>
 	kind === "weapon"
