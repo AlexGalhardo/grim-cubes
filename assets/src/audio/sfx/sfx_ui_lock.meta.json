@@ -1,0 +1,9 @@
+{
+	"prompt": "heavy iron padlock snapping shut, a sharp metal click, heavy dry tone, medium distance, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 0.5,
+	"generatedAt": "2026-10-31T20:59:48.804Z",
+	"plan": "creator",
+	"hash": "1659f755d3323ab6effe8fcb551670a99348a550000d9f75381a55a94295019b",
+	"promptInfluence": 0.5
+}

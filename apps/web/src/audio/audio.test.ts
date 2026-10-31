@@ -8,6 +8,7 @@ import {
 	createAudioEngine,
 	decodedBytes,
 	type GainLike,
+	groupOf,
 	type MediaLike,
 	type NodeLike,
 	type SourceLike,
@@ -23,18 +24,23 @@ interface Ramp {
 	time: number;
 }
 
-type FakeGain = GainLike & { ramps: Ramp[] };
+type FakeGain = GainLike & { ramps: Ramp[]; allRamps: Ramp[] };
 
 function fakeGain(): FakeGain {
 	const ramps: Ramp[] = [];
+	const allRamps: Ramp[] = [];
 	return {
 		ramps,
+		allRamps,
 		gain: {
 			value: 1,
 			setValueAtTime: () => {
 				ramps.length = 0;
 			},
-			linearRampToValueAtTime: (value: number, time: number) => ramps.push({ value, time }),
+			linearRampToValueAtTime: (value: number, time: number) => {
+				ramps.push({ value, time });
+				allRamps.push({ value, time });
+			},
 			cancelScheduledValues: () => undefined,
 		},
 		connect: () => undefined,
@@ -277,7 +283,7 @@ test("deaths depend on who died, and quiet events map to nothing", () => {
 	expect(soundFor(EventType.Died, 0, 1, 0, 7, ctx)).toBeNull();
 	expect(soundFor(EventType.PlayerHit, 1, 0, 1, 1, ctx)).toBeNull();
 	expect(soundFor(EventType.OriginShifted, 1, 1, 0, 0, ctx)).toBeNull();
-	expect(soundFor(EventType.EnemyTelegraph, 1, 0, 0.5, 3, ctx)).toBeNull();
+	expect(soundFor(EventType.BossPattern, 1, 0, 0, 3, ctx)).toBeNull();
 });
 
 test("a fragment pickup plays its sound and a boss entry is named after the boss", () => {
@@ -323,13 +329,18 @@ test("the event audio reports the caption of a boss voice, with or without the f
 	visit(EventType.BossDied, 0, 0, 0, 9);
 	visit(EventType.BossPhase, 2, 0, 0, 9);
 	visit(EventType.Swung, 1, 0, 2, 1);
-	expect(played).toEqual(["voice_gravedigger_death", "voice_gravedigger_phase", "sfx_sword_swing_01"]);
+	expect(played).toEqual([
+		"voice_gravedigger_death",
+		"sfx_boss_death",
+		"voice_gravedigger_phase",
+		"sfx_sword_swing_01",
+	]);
 	expect(captions).toEqual(["voice.gravedigger.death", "voice.gravedigger.phase"]);
 });
 
 test("rarely heard sounds share a decoded-audio budget and the least recently played is dropped", async () => {
 	// Each decoded buffer is 1000 frames x 2 channels x 4 bytes = 8000 bytes; the budget holds two.
-	const { engine, loads, clock } = setup(["voice_a", "voice_b", "voice_c"], [], {
+	const { engine, loads, clock } = setup(["boss_a", "boss_b", "boss_c"], [], {
 		decoded: { length: 1000, numberOfChannels: 2 },
 		cacheBytes: 16000,
 	});
@@ -340,14 +351,14 @@ test("rarely heard sounds share a decoded-audio budget and the least recently pl
 		engine.play(id);
 		await flush();
 	};
-	await play("voice_a");
-	await play("voice_b");
-	await play("voice_a");
-	await play("voice_c");
-	expect(loads).toEqual(["voice_a", "voice_b", "voice_c"]);
-	await play("voice_a");
-	await play("voice_b");
-	expect(loads).toEqual(["voice_a", "voice_b", "voice_c", "voice_b"]);
+	await play("boss_a");
+	await play("boss_b");
+	await play("boss_a");
+	await play("boss_c");
+	expect(loads).toEqual(["boss_a", "boss_b", "boss_c"]);
+	await play("boss_a");
+	await play("boss_b");
+	expect(loads).toEqual(["boss_a", "boss_b", "boss_c", "boss_b"]);
 });
 
 test("frequent combat effects stay decoded however much else is played", async () => {
@@ -396,4 +407,57 @@ test("the merchant takes turns between the lines of a moment and captions each o
 		"voice_merchant_farewell_1",
 	]);
 	expect(captions[1]).toBe("voice.merchant.arrive_2");
+});
+
+test("a voice line holds the music at -6 dB for its length and a hit does not raise it", async () => {
+	const { engine, gains, clock } = setup(["voice_gravedigger_entry"], [], { decoded: { duration: 2 } });
+	await engine.unlock();
+	const duck = gains[2] as FakeGain;
+	engine.play("voice_gravedigger_entry");
+	await flush();
+	expect(duck.allRamps[0]).toEqual({ value: 0.5, time: 0.1 });
+	expect(duck.allRamps[1]?.value).toBe(1);
+	expect(duck.allRamps[1]?.time).toBeCloseTo(2.5);
+	const ramps = duck.allRamps.length;
+	clock.now = 1;
+	engine.duck();
+	expect(duck.allRamps).toHaveLength(ramps);
+	clock.now = 3;
+	engine.duck();
+	expect(duck.allRamps.length).toBeGreaterThan(ramps);
+});
+
+test("polyphony is capped per group: 2 voice lines, 4 UI sounds and 24 sound effects at once", async () => {
+	const ids = [
+		...Array.from({ length: 3 }, (_, i) => `voice_boss${i}_entry`),
+		...Array.from({ length: 5 }, (_, i) => `sfx_ui_${i}`),
+		...Array.from({ length: 26 }, (_, i) => `sfx_x${i}`),
+	];
+	const { engine, clock } = setup(ids);
+	await engine.unlock();
+	const accepted = { voice: 0, ui: 0, sfx: 0 };
+	for (const [n, id] of ids.entries()) {
+		clock.now = n * 0.05;
+		engine.beginFrame();
+		if (engine.play(id, { priority: "hero" })) accepted[groupOf(id)]++;
+		await flush();
+	}
+	expect(accepted).toEqual({ voice: 2, ui: 4, sfx: 24 });
+});
+
+test("the remaining events and the boss death have a sound", () => {
+	expect(soundFor(EventType.ConsumableDropped, 1, 2, 1, 0, ctx)?.ids).toBe("sfx_consumable_drop");
+	expect(soundFor(EventType.EliteEscaped, 1, 2, 0, 5, ctx)?.ids).toBe("sfx_elite_escape");
+	expect(soundFor(EventType.EnemyShotFired, 1, 2, 0, 5, ctx)?.ids).toBe("sfx_enemy_shot");
+	expect(soundFor(EventType.EnemyTelegraph, 1, 0, 0.5, 5, ctx)?.ids).toBe("sfx_enemy_charge");
+	const played: string[] = [];
+	const audio = createEventAudio(
+		{
+			play: (ids: string | readonly string[]) => !!played.push(String(ids)),
+			duck: () => undefined,
+		} as never,
+		ctx,
+	);
+	audio(EventType.BossDied, 0, 0, 0, 9);
+	expect(played).toEqual(["voice_gravedigger_death", "sfx_boss_death"]);
 });

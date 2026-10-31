@@ -1,0 +1,9 @@
+{
+	"prompt": "powerful monster retreating, a low snarl fading into distant heavy footsteps and a closing cave echo, heavy dry tone, medium distance, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 1.5,
+	"generatedAt": "2026-10-31T20:59:44.558Z",
+	"plan": "creator",
+	"hash": "a262a924855062d4199ee81c846854dbdf6030125a5afc9cd30c57c1caf9932e",
+	"promptInfluence": 0.5
+}

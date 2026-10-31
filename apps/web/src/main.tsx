@@ -489,20 +489,29 @@ async function boot(): Promise<void> {
 					ossuaryOpen = false;
 					publishNow();
 				},
-				buy: (id) => changeOssuary((m) => buyAndThrow(m, id)),
+				buy: (id) => {
+					audio.play("sfx_ui_buy", { priority: "ui", maxVoices: 2 });
+					changeOssuary((m) => buyAndThrow(m, id));
+				},
 				reset: () => changeOssuary((m) => void resetOssuary(ossuaryData, m)),
 			}}
 			shopActions={{
 				buy: (index) => {
-					merchantVoice.say(shop.buy(index) ? "buy" : "nomoney");
+					const bought = shop.buy(index);
+					audio.play(bought ? "sfx_ui_buy" : "sfx_ui_no_gold", { priority: "ui", maxVoices: 2 });
+					merchantVoice.say(bought ? "buy" : "nomoney");
 					publishNow();
 				},
 				toggleLock: (index) => {
 					shop.toggleLock(index);
+					audio.play("sfx_ui_lock", { priority: "ui", maxVoices: 2 });
 					publishNow();
 				},
 				reroll: () => {
-					shop.reroll();
+					audio.play(shop.reroll() ? "sfx_ui_reroll" : "sfx_ui_no_gold", {
+						priority: "ui",
+						maxVoices: 2,
+					});
 					publishNow();
 				},
 				next: () => {

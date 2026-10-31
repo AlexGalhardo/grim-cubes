@@ -799,5 +799,61 @@
 		"durationSeconds": 1.8,
 		"promptInfluence": 0.5,
 		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_consumable_drop",
+		"kind": "sfx",
+		"prompt": "small glass vial and a bone charm dropping onto stone, a short bright clink and a soft thud, heavy dry tone, medium distance, no music, game sound effect",
+		"durationSeconds": 0.6,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_elite_escape",
+		"kind": "sfx",
+		"prompt": "powerful monster retreating, a low snarl fading into distant heavy footsteps and a closing cave echo, heavy dry tone, medium distance, no music, game sound effect",
+		"durationSeconds": 1.5,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_enemy_shot",
+		"kind": "sfx",
+		"prompt": "small bone-tipped bolt spat from a rusted turret, a short dry hiss and a wet snap, heavy dry tone, medium distance, no music, game sound effect",
+		"durationSeconds": 0.5,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_enemy_charge",
+		"kind": "sfx",
+		"prompt": "fast predator winding up to charge, a rising guttural growl with claws scraping on stone, heavy dry tone, medium distance, no music, game sound effect",
+		"durationSeconds": 0.8,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_ui_reroll",
+		"kind": "sfx",
+		"prompt": "wooden bones rattling and tumbling in a leather cup, quick dry clatter, heavy dry tone, medium distance, no music, game sound effect",
+		"durationSeconds": 0.7,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_ui_lock",
+		"kind": "sfx",
+		"prompt": "heavy iron padlock snapping shut, a sharp metal click, heavy dry tone, medium distance, no music, game sound effect",
+		"durationSeconds": 0.5,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_boss_death",
+		"kind": "sfx",
+		"prompt": "colossal monster collapsing, a deep final roar breaking into a heavy crash and rolling rubble, heavy dry tone, medium distance, no music, game sound effect",
+		"durationSeconds": 3.0,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
 	}
 ]

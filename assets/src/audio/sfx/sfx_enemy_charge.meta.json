@@ -1,0 +1,9 @@
+{
+	"prompt": "fast predator winding up to charge, a rising guttural growl with claws scraping on stone, heavy dry tone, medium distance, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 0.8,
+	"generatedAt": "2026-10-31T20:59:46.405Z",
+	"plan": "creator",
+	"hash": "74e67eb34c66264f647ebeaabc6d570419ee9891979553cb6f7c4c8132e552bc",
+	"promptInfluence": 0.5
+}
