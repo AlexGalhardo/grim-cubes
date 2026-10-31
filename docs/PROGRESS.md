@@ -111,8 +111,6 @@ Fonte: IDs dos rodapés `Refs: ROADMAP#` de eb12bc2 a 59d5a42, do commit mais re
 - `.env` existe localmente com `ELEVENLABS_API_KEY`; está no `.gitignore`. Nunca commitar.
 - Fontes dos percentuais de tela (D31) são secundárias e não verificadas; revisar antes de citar publicamente.
 - `reports/` guarda evidência de asserts (`perf-*.json`, `balance-*.json`); os `sim-*.json` regenerados por run ficam no `.gitignore`.
-- Oráculo do VAT (`tools/bake-vat/babylon-oracle.test.ts`) ainda sem o timeout de 20 s dos testes pesados.
 - `assets/audio-archive/` fica no git (17 MB); se passar de 50 MB, o Orq pergunta ao PO.
-- Item 11 do checklist B-03-01: hoje basta existir a captura de revisão (`?art=`); a captura em jogo com câmera padrão está com o S1.
 - Pós-processo ffmpeg do `audio-generate` (SDD 08 §3: LUFS, trim, pitch de chefes).
 - Risco: conversor `.bbmodel` validado contra o próprio pipeline e o Babylon; os modelos refinados no Blockbench 5 passam pelo leitor de `groups` separado (4a4f19b).
