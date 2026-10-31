@@ -236,7 +236,7 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
   - Asserts: e2e no build `web-demo`: após `killBoss` via cheat, a tela `DemoEnd` aparece e `Round 11` nunca inicia; no build `electron` (não demo) o round 11 inicia; `grep -c "gc.debug" dist/assets/*.js` = 0 no build de release (sem `GC_DEBUG_API=1`); o build de e2e usa `GC_DEBUG_API=1`.
 - [ ] **P-07-02** Electron 45 + electron-builder: main/preload, `contextIsolation`, build NSIS e portable, execução local do jogo completo; `steamworks.js` inicializado em modo "sem Steam" (sem App ID real ainda). Deps: P-05-08. Resp: S2. Prio: P0.
   - Asserts: `bun run build:electron` exit 0 e gera `release/grim-cubes_0.3.0_windows_x64.exe` (< 250 MB); executável abre em fullscreen e uma run completa é jogável (checklist manual do PO); `electron.yml` verde em `workflow_dispatch`.
-- [ ] **P-07-03** Determinismo: teste de hash de world por 3.600 passos (seed 42) e teste de alerta de dt. Deps: P-05-07. Resp: Est. Prio: P0.
+- [x] **P-07-03** Determinismo: teste de hash de world por 3.600 passos (seed 42) e teste de alerta de dt. Deps: P-05-07. Resp: Est. Prio: P0.
   - Asserts: `tests/integration/determinism.test.ts` verde em Node (Windows e Linux no CI); hash documentado no teste.
 - [ ] **P-07-04** `tools/sim` (SDD 05 §6) com política greedy, relatório e asserts de GDD §25 para rounds 1–10 (chefe 1). Deps: P-05-08. Resp: Est. Prio: P0.
   - Asserts: `bun run sim --runs 200 --rounds 10` termina em < 2 min e escreve `reports/sim-*.json` com p50 de round de morte e tempo de kill do Coveiro; `balance.yml` verde.
@@ -280,7 +280,7 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
 
 - [ ] **A-02-01** Biomas Pântano, Forja e Ninho: `biomes.json` (com `propCounts`), tiles (4 cada) e 10 props cada gerados em `tools/assets-gen` (D5), props com entradas em `data/props.json` (`sizeClass`, `kind`, `radius`, `height`), mistura de borda 16 u, fog/música por bioma, pool 60/30/10 no spawner (hoje é fixo em `apps/web`). Deps: P-01-03, P-06-01. Resp: S1 (+ S2 no pool do spawner). Prio: P0.
   - Asserts: teste: `biomeFn` devolve anel correto nas distâncias 0/120/260/420/900; captura de cada bioma nos 4 alvos; `assets:build` exit 0 com os 30 props novos.
-- [ ] **A-02-02a** Behaviors dos inimigos 3–8 (nomes do data, SDD 04 §5): Afogado (`push`), Sanguessuga (`latch_drain`), Forjado (`armored`), Vigia (`ranged_static`), Caçador (`charge`), Reprodutor (`spawner`), com testes. Deps: P-03-03. Resp: S2. Prio: P0.
+- [x] **A-02-02a** Behaviors dos inimigos 3–8 (nomes do data, SDD 04 §5): Afogado (`push`), Sanguessuga (`latch_drain`), Forjado (`armored`), Vigia (`ranged_static`), Caçador (`charge`), Reprodutor (`spawner`), com testes. Deps: P-03-03. Resp: S2. Prio: P0.
   - Asserts: teste por behavior (SDD 04 §5): Sanguessuga gruda e drena 1 HP/s; Vigia atira a cada 2 s a < 10 u; Caçador investe a cada 3 s; Reprodutor cria 1 Lamento a cada 4 s respeitando o cap; teste de que `toEnemyDefs` mapeia os 8 behaviors de `data/enemies.json` sem cair no `chase` por omissão.
 - [ ] **A-02-02b** Modelos e VAT dos inimigos 3–8: `.bbmodel` gerados em `tools/assets-gen` (D5) nas classes de `sizeClass`, VAT `.bin` RGBA32F com os 5 clipes, horda renderizando os 8 tipos. Deps: A-02-01, A-02-02a. Resp: S1. Prio: P0.
   - Asserts: `assets:build` exit 0 com os 6 modelos novos e `vat_<id>` no manifest para os 8 inimigos; oráculo VAT × skeleton do Babylon < 1e-5 em cada um; captura dos 8 tipos nos 4 alvos.
@@ -298,11 +298,11 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
 
 ### A-04 Ossuário, dificuldades e progressão
 
-- [ ] **A-04-01** Ossuário: loader tipado `ossuaryData` em `packages/game/src/data` (o `ossuary.json` com 30 nós e custos 50→800 já existe desde a E-03-04), `applyOssuary` (modificadores e flags), compra e reset com devolução total no `MetaState`, tela `Ossuary` (radial no desktop, tabs no mobile). Deps: P-05-08. Resp: S2. Prio: P0.
+- [x] **A-04-01** Ossuário: loader tipado `ossuaryData` em `packages/game/src/data` (o `ossuary.json` com 30 nós e custos 50→800 já existe desde a E-03-04), `applyOssuary` (modificadores e flags), compra e reset com devolução total no `MetaState`, tela `Ossuary` (radial no desktop, tabs no mobile). Deps: P-05-08. Resp: S2. Prio: P0.
   - Asserts: teste: custo total = 10.250; `requires` respeitado; reset devolve 100%; demo bloqueia `index > demoMaxNodeIndex`; e2e num build com `GC_DEBUG_API=1`: comprar `flesh_1` com 50 almas via cheat e verificar +10 HP na run seguinte; capturas nos 4 alvos.
 - [ ] **A-04-02** Dash (ramo Sombra): 4 u em 0,15 s, i-frames 0,2 s, recarga 3 s, 2 cargas no nó 6; botão mobile. Deps: A-04-01, P-02-02. Resp: S2. Prio: P1.
   - Asserts: teste: deslocamento 4 u ± 0,05; sem dano durante 0,2 s; e2e mobile: botão de dash funciona.
-- [ ] **A-04-03** Dificuldades Normal/Grim/Nightmare (multiplicadores, desbloqueio no round 20, almas ×1,5/×2) + tela `Difficulty` com seed opcional; `difficultyMult` no spawn e `soulsMult` no fechamento da run. Deps: P-05-08, P-07-03. Resp: S2. Prio: P0.
+- [x] **A-04-03** Dificuldades Normal/Grim/Nightmare (multiplicadores, desbloqueio no round 20, almas ×1,5/×2) + tela `Difficulty` com seed opcional; `difficultyMult` no spawn e `soulsMult` no fechamento da run. Deps: P-05-08, P-07-03. Resp: S2. Prio: P0.
   - Asserts: teste: Grim ×1,25 em HP e dano; Nightmare bloqueado até recorde Grim ≥ 20; seed digitada reproduz o mesmo hash de world (determinismo).
 - [ ] **A-04-04** Marcos e desbloqueios (GDD §20): itens no pool por kills/chefes, skin do round 50 (cosmético simples: tint), recordes no menu. Deps: P-05-08 (os recordes no menu dependem também da tela de menu, A-07). Resp: S2. Prio: P2.
   - Asserts: teste: `cube_of_wrath` fora do pool até 1.000 kills e dentro depois; menu mostra recordes por dificuldade.
