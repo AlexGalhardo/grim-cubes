@@ -57,6 +57,8 @@ export interface HeroCombatStats {
 	lifeSteal: number;
 	/** Extra damage fraction against bosses (`boss_damage`). */
 	bossDamage?: number;
+	/** `knockback` stat: the push of every hero hit is multiplied by (1 + this). */
+	knockback?: number;
 }
 
 export interface DamageSystemDeps {
@@ -168,7 +170,9 @@ export function createDamageSystem(deps: DamageSystemDeps): DamageSystem {
 			}
 		}
 
-		const scale = knockbackScale(config, hasComponent(world, eid, Boss), hasComponent(world, eid, Elite));
+		const scale =
+			knockbackScale(config, hasComponent(world, eid, Boss), hasComponent(world, eid, Elite)) *
+			Math.max(0, 1 + (stats.knockback ?? 0));
 		const resist = 1 - (KnockbackResist.value[eid] ?? 0);
 		// A hit with no push (aura, thorns, bleed-like ticks) must not cancel the knockback a weapon just gave.
 		if ((kbX[i] ?? 0) !== 0 || (kbZ[i] ?? 0) !== 0) {
