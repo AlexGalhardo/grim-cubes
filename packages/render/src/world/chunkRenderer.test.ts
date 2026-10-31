@@ -31,7 +31,7 @@ function setup() {
 	const renderer = createChunkRenderer(game, chunks, config, PLACEHOLDER_PROPS);
 	const step = (heroX: number, heroZ: number, originX = 0, originZ = 0): void => {
 		chunks.update(heroX, heroZ);
-		renderer.update(originX, originZ);
+		renderer.update(originX, originZ, heroX, heroZ);
 	};
 	return { game, chunks, renderer, step, dispose };
 }
@@ -110,13 +110,72 @@ describe("chunk renderer", () => {
 		dispose();
 	});
 
-	it("allocates nothing per step once warm", () => {
+	it("allocates nothing per step once warm, also while crossing chunk borders", () => {
 		const { step, dispose } = setup();
-		for (let i = 0; i < 60; i++) step(0, 0);
-		for (let i = 0; i < 20_000; i++) step(0, 0);
-		const before = process.memoryUsage().heapUsed;
-		for (let i = 0; i < 300_000; i++) step(0, 0);
-		expect(process.memoryUsage().heapUsed - before).toBeLessThan(1_000_000);
+		let x = 0;
+		for (let i = 0; i < 4000; i++) {
+			x += 0.15;
+			step(x, 0);
+		}
+
+		let calls = 0;
+		const arrayProto = Array.prototype as unknown as Record<string, (...args: unknown[]) => unknown>;
+		const typedProto = Float32Array.prototype as unknown as Record<
+			string,
+			(...args: unknown[]) => unknown
+		>;
+		const patched: [
+			Record<string, (...args: unknown[]) => unknown>,
+			string,
+			(...args: unknown[]) => unknown,
+		][] = [];
+		const count = (proto: Record<string, (...args: unknown[]) => unknown>, name: string): void => {
+			const original = proto[name];
+			if (!original) return;
+			patched.push([proto, name, original]);
+			proto[name] = function (this: unknown, ...args: unknown[]): unknown {
+				calls++;
+				return original.apply(this, args);
+			};
+		};
+		for (const name of ["filter", "map", "slice", "concat", "join"]) count(arrayProto, name);
+		count(typedProto, "subarray");
+		try {
+			for (let i = 0; i < 4000; i++) {
+				x += 0.15;
+				step(x, 0);
+			}
+			for (let i = 0; i < 4000; i++) step(x, 0);
+		} finally {
+			for (const [proto, name, original] of patched) proto[name] = original;
+		}
+		expect(calls).toBe(0);
+		dispose();
+	});
+
+	it("instances props only for chunks within the load radius of the hero chunk", () => {
+		const { chunks, renderer, step, dispose } = setup();
+		let x = 0;
+		for (let i = 0; i < 2000; i++) {
+			x += 0.2;
+			step(x, 0);
+		}
+		for (let i = 0; i < 40; i++) step(x, 0);
+		const hcx = Math.floor(x / config.chunkSize);
+		let visible = 0;
+		let loadedProps = 0;
+		for (const chunk of chunks.slots) {
+			if (!chunk) continue;
+			loadedProps += chunk.propCount;
+			if (Math.max(Math.abs(chunk.cx - hcx), Math.abs(chunk.cz)) <= config.loadRadius)
+				visible += chunk.propCount;
+		}
+		let rendered = 0;
+		for (let type = 0; type < PLACEHOLDER_PROPS.length; type++)
+			rendered += renderer.instances(type).count;
+		expect(rendered).toBe(visible);
+		expect(rendered).toBeLessThanOrEqual(loadedProps);
+		expect(rendered).toBeLessThanOrEqual(1500);
 		dispose();
 	});
 });
