@@ -1,4 +1,4 @@
-export type Bump = "patch" | "minor" | "major" | "rc";
+export type Bump = "patch" | "minor" | "major" | "rc" | "rc-major";
 
 const VERSION_RE = /^(\d+)\.(\d+)\.(\d+)(?:-rc\.(\d+))?$/;
 const UNRELEASED_HEADER = "## [Unreleased]";
@@ -23,10 +23,15 @@ export function parseVersion(version: string): ParsedVersion {
 	};
 }
 
-/** From an rc, patch/minor/major finalize it (1.0.0-rc.2 -> 1.0.0); from a stable version `rc` starts the next patch's rc line. */
+/**
+ * From an rc, patch/minor/major finalize it (1.0.0-rc.2 -> 1.0.0). From a stable version `rc` starts the next
+ * patch's rc line (0.9.0 -> 0.9.1-rc.1) and `rc-major` the next major's (0.9.0 -> 1.0.0-rc.1); from an rc both
+ * just count the next candidate.
+ */
 export function nextVersion(current: string, bump: Bump): string {
 	const v = parseVersion(current);
-	if (bump === "rc") {
+	if (bump === "rc-major" && v.rc === undefined) return `${v.major + 1}.0.0-rc.1`;
+	if (bump === "rc" || bump === "rc-major") {
 		return v.rc === undefined
 			? `${v.major}.${v.minor}.${v.patch + 1}-rc.1`
 			: `${v.major}.${v.minor}.${v.patch}-rc.${v.rc + 1}`;
