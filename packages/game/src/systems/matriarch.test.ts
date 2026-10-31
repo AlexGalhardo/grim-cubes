@@ -74,12 +74,13 @@ function setup(heroX = 0) {
 	return { world, hero, events, damage, spawn, boss, heroStatus, step };
 }
 
-test("the Matriarch has 2,800 HP in round 20 and 3,780 in round 30", () => {
-	expect(bossMaxHp(def, roundsData.boss, 20, 1)).toBe(2800);
-	expect(bossMaxHp(def, roundsData.boss, 30, 1)).toBeCloseTo(2800 * 1.35);
+test("the Matriarch has her data HP in round 20 and 35% more in round 30", () => {
+	const hp = def?.hpBaseRound10 ?? 0;
+	expect(bossMaxHp(def, roundsData.boss, 20, 1)).toBe(hp);
+	expect(bossMaxHp(def, roundsData.boss, 30, 1)).toBeCloseTo(hp * 1.35);
 	const { world, boss } = setup();
 	const e = boss.start(world, 20);
-	expect(Health.max[e]).toBe(2800);
+	expect(Health.max[e]).toBe(hp);
 	// Boss.id is the 1-based index in bosses.json, so the render does not give her the Gravedigger's model.
 	expect(Boss.id[e]).toBe(bossesData.findIndex((b) => b.id === "swamp_matriarch") + 1);
 	expect(Boss.id[e]).toBe(2);

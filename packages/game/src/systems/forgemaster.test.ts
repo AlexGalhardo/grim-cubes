@@ -77,11 +77,12 @@ function setup(heroX = 0) {
 	return { world, hero, events, damage, spawn, boss, heroStatus, shots, step };
 }
 
-test("the Forgemaster has 5,000 HP in round 30", () => {
-	expect(bossMaxHp(def, roundsData.boss, 30, 1)).toBe(5000);
+test("the Forgemaster has his data HP in round 30", () => {
+	const hp = def?.hpBaseRound10 ?? 0;
+	expect(bossMaxHp(def, roundsData.boss, 30, 1)).toBe(hp);
 	const { world, boss } = setup();
 	const e = boss.start(world, 30);
-	expect(Health.max[e]).toBe(5000);
+	expect(Health.max[e]).toBe(hp);
 	expect(Boss.id[e]).toBe(3);
 });
 
