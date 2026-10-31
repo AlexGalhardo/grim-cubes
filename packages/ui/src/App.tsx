@@ -1,5 +1,5 @@
 import { type SaveNotice, type Store, t, type VirtualStick } from "@gc/core";
-import { type JSX, useSyncExternalStore } from "react";
+import { type CSSProperties, type JSX, useSyncExternalStore } from "react";
 import { Bar } from "./components/Bar/Bar";
 import { BossBar, BossIntro, type BossViewModel } from "./components/BossBar/BossBar";
 import { DashButton, type DashView } from "./components/DashButton/DashButton";
@@ -56,6 +56,8 @@ export interface HudState {
 	menu: MenuViewModel | null;
 	/** The web demo is over (the Gravedigger fell): the DemoEnd screen shows and round 11 never starts. */
 	demoEnd: boolean;
+	/** HUD scale in percent (90, 100, 125 or 150), applied through the `--ui-scale` variable on the root. */
+	uiScale: number;
 	/** Simulation speed, 1 to 3. */
 	speed: number;
 	/** The options screen; null while closed. */
@@ -120,7 +122,11 @@ export function App({
 }: AppProps): JSX.Element {
 	const hud = useSyncExternalStore(store.subscribe, store.get);
 	return (
-		<div className="pointer-events-none absolute inset-0 p-4 font-display text-bone [text-shadow:1px_1px_0_var(--color-night)]">
+		<div
+			className="pointer-events-none absolute inset-0 p-4 font-display text-bone [text-shadow:1px_1px_0_var(--color-night)]"
+			style={{ "--ui-scale": hud.uiScale / 100, zoom: "var(--ui-scale)" } as CSSProperties}
+			data-testid="hud-root"
+		>
 			<div className="flex w-64 flex-col gap-1" data-testid="hud-hp">
 				<Bar value={hud.hp} max={hud.maxHp} label={t("hud.hp")} />
 				<Bar value={hud.xp} max={hud.xpNeeded} variant="xp" label={t("hud.xp")} />

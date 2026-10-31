@@ -7,8 +7,18 @@ export type { Logger, LoggerOptions, LogLevel, LogSink } from "./logger";
 export { createLogger } from "./logger";
 export type { Rng, RngStreams, StreamName } from "./rng";
 export { createStreams, hash32, hash32x3, mulberry32, murmur3x86_32, RNG_STREAMS } from "./rng";
-export type { Difficulty, MetaState, SaveEnvelope, SaveErrorCode, Settings, SettingsLocale } from "./save";
+export type {
+	ColorblindSetting,
+	Difficulty,
+	MetaState,
+	SaveEnvelope,
+	SaveErrorCode,
+	Settings,
+	SettingsLocale,
+	UiScale,
+} from "./save";
 export {
+	COLORBLIND_MODES,
 	checksumOf,
 	createMetaState,
 	createSettings,
@@ -20,6 +30,7 @@ export {
 	SAVE_SCHEMA_VERSION,
 	SaveError,
 	serializeSave,
+	UI_SCALES,
 	validateMeta,
 } from "./save";
 export type { LoadedMeta, RunResult, SaveIO, SaveNotice } from "./saveStore";

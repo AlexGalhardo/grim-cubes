@@ -228,5 +228,16 @@
 	"menu.records": "Recordes",
 	"menu.recordRound": "Round {round}",
 	"menu.noRecord": "-",
-	"options.telemetry": "Compartilhar dados de uso anônimos (desligado por padrão)"
+	"options.telemetry": "Compartilhar dados de uso anônimos (desligado por padrão)",
+	"options.access": "Acessibilidade",
+	"options.brightness": "Brilho",
+	"options.contrast": "Contraste",
+	"options.colorblind": "Modo daltônico",
+	"options.colorblind.off": "Desligado",
+	"options.colorblind.protanopia": "Protanopia",
+	"options.colorblind.deuteranopia": "Deuteranopia",
+	"options.colorblind.tritanopia": "Tritanopia",
+	"options.flash": "Reduzir flashes (sem clarão branco, hit-stop ou tremor)",
+	"options.uiScale": "Escala da interface",
+	"options.gore": "Gore completo"
 }

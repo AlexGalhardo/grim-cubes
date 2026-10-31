@@ -5,6 +5,8 @@ import { Button } from "../Button/Button";
 import { Panel } from "../Panel/Panel";
 
 export type VolumeBus = "master" | "music" | "sfx";
+const COLORBLIND = ["off", "protanopia", "deuteranopia", "tritanopia"] as const;
+const UI_SCALES = [90, 100, 125, 150] as const;
 const BUSES: readonly VolumeBus[] = ["master", "music", "sfx"];
 
 export interface OptionsViewModel {
@@ -17,6 +19,16 @@ export interface OptionsViewModel {
 	/** 1, 2 or 3. */
 	gameSpeed: number;
 	telemetry: boolean;
+	/** Percent, -50 to 50. */
+	brightness: number;
+	/** Percent, 50 to 150. */
+	contrast: number;
+	colorblind: string;
+	flashReduction: boolean;
+	/** Percent: 90, 100, 125 or 150. */
+	uiScale: number;
+	/** true = full gore. */
+	gore: boolean;
 	locale: string;
 	locales: readonly { id: string; name: string }[];
 }
@@ -27,6 +39,12 @@ export interface OptionsActions {
 	setScreenShake(on: boolean): void;
 	setGameSpeed(speed: number): void;
 	setTelemetry(on: boolean): void;
+	setBrightness(percent: number): void;
+	setContrast(percent: number): void;
+	setColorblind(mode: string): void;
+	setFlashReduction(on: boolean): void;
+	setUiScale(percent: number): void;
+	setGore(full: boolean): void;
 	setLocale(id: string): void;
 	close(): void;
 }
@@ -141,6 +159,85 @@ export function Options({ view, actions }: OptionsProps): JSX.Element {
 									</option>
 								))}
 							</select>
+						</label>
+					</fieldset>
+					<fieldset className="mt-3 flex flex-col gap-2 font-body text-sm text-bone-dark">
+						<legend className="font-display text-base text-bone">{t("options.access")}</legend>
+						<label className="flex min-h-12 items-center gap-3">
+							<span className="w-28">{t("options.brightness")}</span>
+							<input
+								type="range"
+								min={-50}
+								max={50}
+								step={5}
+								data-testid="options-brightness"
+								value={view.brightness}
+								onChange={(event) => actions.setBrightness(Number(event.target.value))}
+								className="flex-1"
+							/>
+							<span className="w-12 text-right">{view.brightness}%</span>
+						</label>
+						<label className="flex min-h-12 items-center gap-3">
+							<span className="w-28">{t("options.contrast")}</span>
+							<input
+								type="range"
+								min={50}
+								max={150}
+								step={5}
+								data-testid="options-contrast"
+								value={view.contrast}
+								onChange={(event) => actions.setContrast(Number(event.target.value))}
+								className="flex-1"
+							/>
+							<span className="w-12 text-right">{view.contrast}%</span>
+						</label>
+						<label className="flex flex-col gap-1">
+							{t("options.colorblind")}
+							<select
+								data-testid="options-colorblind"
+								value={view.colorblind}
+								onChange={(event) => actions.setColorblind(event.target.value)}
+								className={SELECT}
+							>
+								{COLORBLIND.map((mode) => (
+									<option key={mode} value={mode}>
+										{t(`options.colorblind.${mode}`)}
+									</option>
+								))}
+							</select>
+						</label>
+						<label className="flex min-h-12 items-center gap-2">
+							<input
+								type="checkbox"
+								data-testid="options-flash"
+								checked={view.flashReduction}
+								onChange={(event) => actions.setFlashReduction(event.target.checked)}
+							/>
+							{t("options.flash")}
+						</label>
+						<label className="flex flex-col gap-1">
+							{t("options.uiScale")}
+							<select
+								data-testid="options-uiscale"
+								value={view.uiScale}
+								onChange={(event) => actions.setUiScale(Number(event.target.value))}
+								className={SELECT}
+							>
+								{UI_SCALES.map((scale) => (
+									<option key={scale} value={scale}>
+										{scale}%
+									</option>
+								))}
+							</select>
+						</label>
+						<label className="flex min-h-12 items-center gap-2">
+							<input
+								type="checkbox"
+								data-testid="options-gore"
+								checked={view.gore}
+								onChange={(event) => actions.setGore(event.target.checked)}
+							/>
+							{t("options.gore")}
 						</label>
 					</fieldset>
 					<div className="mt-4 flex justify-end">

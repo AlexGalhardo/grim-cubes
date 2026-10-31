@@ -1,4 +1,4 @@
-export const SAVE_SCHEMA_VERSION = 4;
+export const SAVE_SCHEMA_VERSION = 5;
 export const SAVE_APP = "grim-cubes";
 /** Upper bound on any counter read from a save; far above a real run, low enough to reject garbage. */
 const MAX_COUNTER = 1_000_000_000;
@@ -13,6 +13,11 @@ export const DIFFICULTIES: readonly Difficulty[] = ["normal", "grim", "nightmare
 export const LOCALES = ["pt-BR", "en"] as const;
 export type SettingsLocale = (typeof LOCALES)[number];
 
+export const COLORBLIND_MODES = ["off", "protanopia", "deuteranopia", "tritanopia"] as const;
+export type ColorblindSetting = (typeof COLORBLIND_MODES)[number];
+export const UI_SCALES = [90, 100, 125, 150] as const;
+export type UiScale = (typeof UI_SCALES)[number];
+
 /** Options screen choices (A-01-01). Volumes are whole percents; `preset` is "auto" or a `data/presets.json` id. */
 export interface Settings {
 	preset: string;
@@ -24,6 +29,17 @@ export interface Settings {
 	gameSpeed: 1 | 2 | 3;
 	/** Opt-in telemetry (A-06-04); off unless the player turns it on. */
 	telemetry: boolean;
+	/** Percent, -50 to 50 (visual accessibility, A-07-02). */
+	brightness: number;
+	/** Percent, 50 to 150. */
+	contrast: number;
+	colorblind: ColorblindSetting;
+	/** Cuts white flashes, hit-stop and camera shake. */
+	flashReduction: boolean;
+	/** HUD scale in percent. */
+	uiScale: UiScale;
+	/** true = full gore, false = reduced (no decals or blood, grey cubes). */
+	gore: boolean;
 }
 
 export function createSettings(): Settings {
@@ -34,6 +50,12 @@ export function createSettings(): Settings {
 		locale: "pt-BR",
 		gameSpeed: 1,
 		telemetry: false,
+		brightness: 0,
+		contrast: 100,
+		colorblind: "off",
+		flashReduction: false,
+		uiScale: 100,
+		gore: true,
 	};
 }
 
@@ -141,6 +163,28 @@ function validateSettings(raw: unknown): Settings {
 	// Absent before schema 4: off.
 	const telemetry = raw.telemetry === undefined ? false : raw.telemetry;
 	if (typeof telemetry !== "boolean") throw new SaveError("settings.telemetry must be a boolean");
+	// The visual options are absent before schema 5: untouched picture, full gore.
+	const brightness = raw.brightness === undefined ? 0 : raw.brightness;
+	const contrast = raw.contrast === undefined ? 100 : raw.contrast;
+	if (
+		typeof brightness !== "number" ||
+		!Number.isInteger(brightness) ||
+		brightness < -50 ||
+		brightness > 50
+	)
+		throw new SaveError("settings.brightness must be an integer between -50 and 50");
+	if (typeof contrast !== "number" || !Number.isInteger(contrast) || contrast < 50 || contrast > 150)
+		throw new SaveError("settings.contrast must be an integer between 50 and 150");
+	const colorblind = raw.colorblind === undefined ? "off" : raw.colorblind;
+	if (!COLORBLIND_MODES.includes(colorblind as ColorblindSetting))
+		throw new SaveError("settings.colorblind is unknown");
+	const flashReduction = raw.flashReduction === undefined ? false : raw.flashReduction;
+	const gore = raw.gore === undefined ? true : raw.gore;
+	if (typeof flashReduction !== "boolean" || typeof gore !== "boolean")
+		throw new SaveError("settings.flashReduction and settings.gore must be booleans");
+	const uiScale = raw.uiScale === undefined ? 100 : raw.uiScale;
+	if (!UI_SCALES.includes(uiScale as UiScale))
+		throw new SaveError("settings.uiScale must be 90, 100, 125 or 150");
 	return {
 		preset: raw.preset,
 		volume: {
@@ -152,6 +196,12 @@ function validateSettings(raw: unknown): Settings {
 		locale: raw.locale as SettingsLocale,
 		gameSpeed: speed,
 		telemetry,
+		brightness,
+		contrast,
+		colorblind: colorblind as ColorblindSetting,
+		flashReduction,
+		uiScale: uiScale as UiScale,
+		gore,
 	};
 }
 
@@ -205,12 +255,21 @@ export function validateMeta(raw: unknown): MetaState {
 	};
 }
 
-/** The data as an older schema's checksum saw it: schema 1 had no `settings`, 2 no `gameSpeed`, 3 no `telemetry`. */
+/** Settings keys each schema wrote, in the order it wrote them: schema 1 had none, 5 added the visual options. */
+const SETTINGS_KEYS: Readonly<Record<number, readonly (keyof Settings)[]>> = {
+	2: ["preset", "volume", "screenShake", "locale"],
+	3: ["preset", "volume", "screenShake", "locale", "gameSpeed"],
+	4: ["preset", "volume", "screenShake", "locale", "gameSpeed", "telemetry"],
+};
+
+/** The data as an older schema's checksum saw it: only the settings keys that schema knew. */
 function coveredBy(version: number, data: MetaState): unknown {
 	if (version < 2) return (({ settings: _settings, ...rest }) => rest)(data);
-	if (version >= 4) return data;
-	const { gameSpeed, telemetry: _telemetry, ...rest } = data.settings;
-	return { ...data, settings: version < 3 ? rest : { ...rest, gameSpeed } };
+	const keys = SETTINGS_KEYS[version];
+	if (!keys) return data;
+	const settings: Record<string, unknown> = {};
+	for (const key of keys) settings[key] = data.settings[key];
+	return { ...data, settings };
 }
 
 /**

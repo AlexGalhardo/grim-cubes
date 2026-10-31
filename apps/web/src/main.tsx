@@ -1,5 +1,6 @@
 import {
 	applyRun,
+	COLORBLIND_MODES,
 	consoleSink,
 	createInputState,
 	createLogger,
@@ -14,6 +15,7 @@ import {
 	type RunResult,
 	type SaveIO,
 	t,
+	UI_SCALES,
 	updateMeta,
 } from "@gc/core";
 import {
@@ -285,6 +287,7 @@ async function boot(): Promise<void> {
 		cardRerolls: 0,
 		options: null,
 		speed: meta.settings.gameSpeed,
+		uiScale: meta.settings.uiScale,
 		demoEnd: false,
 		menu: null,
 	});
@@ -301,6 +304,31 @@ async function boot(): Promise<void> {
 			void changeSettings((st) => (st.telemetry = on));
 			if (on) telemetry.track("session_start", { version: __APP_VERSION__, target: __BUILD_TARGET__ });
 			else telemetry.flush();
+		},
+		setBrightness: (percent: number): void => {
+			vision.setBrightness(percent / 100);
+			void changeSettings((st) => (st.brightness = Math.round(percent)));
+		},
+		setContrast: (percent: number): void => {
+			vision.setContrast(percent / 100);
+			void changeSettings((st) => (st.contrast = Math.round(percent)));
+		},
+		setColorblind: (mode: string): void => {
+			const next = COLORBLIND_MODES.find((m) => m === mode) ?? "off";
+			vision.setColorblindMode(next);
+			void changeSettings((st) => (st.colorblind = next));
+		},
+		setFlashReduction: (on: boolean): void => {
+			vision.setFlashReduction(on);
+			void changeSettings((st) => (st.flashReduction = on));
+		},
+		setUiScale: (percent: number): void => {
+			const next = UI_SCALES.find((s) => s === percent) ?? 100;
+			void changeSettings((st) => (st.uiScale = next));
+		},
+		setGore: (full: boolean): void => {
+			vfx.setGore(full);
+			void changeSettings((st) => (st.gore = full));
 		},
 		setLocale: (id: string): void => setLocaleOption(id),
 		close: (): void => {
@@ -555,6 +583,12 @@ async function boot(): Promise<void> {
 		heroHealth: () => (Health.hp[hero] ?? 0) / Math.max(1, Health.max[hero] ?? 1),
 		isBoss: (entity) => (Boss.id[entity] ?? 0) > 0 || (Elite.modifier[entity] ?? 0) > 0,
 	});
+	// Saved visual options, applied at boot (the Options screen changes them live).
+	vision.setBrightness(meta.settings.brightness / 100);
+	vision.setContrast(meta.settings.contrast / 100);
+	vision.setColorblindMode(meta.settings.colorblind);
+	vision.setFlashReduction(meta.settings.flashReduction);
+	vfx.setGore(meta.settings.gore);
 	const projectileView = createProjectileRenderer(
 		game,
 		projectiles.capacity,
@@ -810,6 +844,12 @@ async function boot(): Promise<void> {
 			screenShake: meta.settings.screenShake,
 			gameSpeed: meta.settings.gameSpeed,
 			telemetry: meta.settings.telemetry,
+			brightness: meta.settings.brightness,
+			contrast: meta.settings.contrast,
+			colorblind: meta.settings.colorblind,
+			flashReduction: meta.settings.flashReduction,
+			uiScale: meta.settings.uiScale,
+			gore: meta.settings.gore,
 			locale: meta.settings.locale,
 			locales: [
 				{ id: "pt-BR", name: "Português" },
@@ -1044,6 +1084,7 @@ async function boot(): Promise<void> {
 			difficulty: difficultyOpen ? difficultyView() : null,
 			options: optionsOpen ? optionsView() : null,
 			speed: loop.speed,
+			uiScale: meta.settings.uiScale,
 			menu: menuOpen ? menuView() : null,
 			demoEnd,
 			bossIntro: run.state === "BossIntro" ? t(`boss.${boss.defFor(run.round).id}`) : null,
@@ -1098,6 +1139,7 @@ async function boot(): Promise<void> {
 			cur.difficulty !== null ||
 			next.difficulty !== null ||
 			cur.speed !== next.speed ||
+			cur.uiScale !== next.uiScale ||
 			cur.menu !== null ||
 			next.menu !== null ||
 			cur.demoEnd !== next.demoEnd ||

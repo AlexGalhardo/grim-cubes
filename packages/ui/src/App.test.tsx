@@ -29,6 +29,7 @@ const hud = (speed: number): HudState => ({
 	tip: null,
 	vignette: 0,
 	demoEnd: false,
+	uiScale: 100,
 	menu: null,
 	speed,
 });
@@ -67,6 +68,12 @@ test("the button shows the current speed and hides while the options screen is o
 			screenShake: true,
 			gameSpeed: 1,
 			telemetry: false,
+			brightness: 0,
+			contrast: 100,
+			colorblind: "off",
+			flashReduction: false,
+			uiScale: 100,
+			gore: true,
 			locale: "pt-BR",
 			locales: [],
 		},
@@ -81,6 +88,12 @@ test("the button shows the current speed and hides while the options screen is o
 				setScreenShake: vi.fn(),
 				setGameSpeed: vi.fn(),
 				setTelemetry: vi.fn(),
+				setBrightness: vi.fn(),
+				setContrast: vi.fn(),
+				setColorblind: vi.fn(),
+				setFlashReduction: vi.fn(),
+				setUiScale: vi.fn(),
+				setGore: vi.fn(),
 				setLocale: vi.fn(),
 				close: vi.fn(),
 			}}
@@ -167,4 +180,10 @@ test("the title screen steps aside for the difficulty screen", () => {
 	);
 	expect(screen.queryByTestId("menu-play")).toBeNull();
 	expect(screen.getAllByRole("dialog")).toHaveLength(1);
+});
+
+test("the HUD scale goes to the root as a CSS variable", () => {
+	render(<App store={createStore({ ...hud(1), uiScale: 125 })} />);
+	const root = screen.getByTestId("hud-root");
+	expect(root.style.getPropertyValue("--ui-scale")).toBe("1.25");
 });
