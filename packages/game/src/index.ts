@@ -43,11 +43,27 @@ export {
 	effectiveDodge,
 	knockbackScale,
 } from "./rules/damage";
+export type { FragmentsConfig, XpConfig } from "./rules/fragments";
+export { dropChance, harvestCount, xpForLevel } from "./rules/fragments";
 export type { BehaviorConfig, BehaviorSystem } from "./systems/behavior";
 export { BehaviorKind, createBehaviorSystem } from "./systems/behavior";
 export type { DamageQueue, DamageSystem, DamageSystemDeps, HeroCombatStats } from "./systems/damage";
 export { createDamageSystem, DAMAGE_QUEUE_CAPACITY } from "./systems/damage";
 export { inputSystem } from "./systems/input";
+export type {
+	DeathSystem,
+	DeathSystemDeps,
+	PickupSystem,
+	PickupSystemDeps,
+	Progress,
+} from "./systems/loot";
+export {
+	addFragmentValue,
+	applyHarvest,
+	createDeathSystem,
+	createPickupSystem,
+	createProgress,
+} from "./systems/loot";
 export { movementSystem } from "./systems/movement";
 export type { ProjectileSystem, ProjectileSystemDeps } from "./systems/projectile";
 export { createProjectileSystem } from "./systems/projectile";

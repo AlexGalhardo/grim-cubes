@@ -283,7 +283,9 @@
 				"goldPerFragment",
 				"xpPerFragment",
 				"groundPileCap",
-				"harvestPerRound"
+				"harvestPerRound",
+				"magnetSpeed",
+				"collectRadius"
 			],
 			"additionalProperties": false,
 			"properties": {
@@ -314,6 +316,16 @@
 				"groundPileCap": {
 					"type": "number",
 					"minimum": 0
+				},
+				"magnetSpeed": {
+					"type": "number",
+					"minimum": 0,
+					"description": "Speed in u/s of a pile flying to the hero once inside the pickup radius."
+				},
+				"collectRadius": {
+					"type": "number",
+					"minimum": 0,
+					"description": "Distance at which a magnetised pile is collected."
 				},
 				"harvestPerRound": {
 					"type": "number",

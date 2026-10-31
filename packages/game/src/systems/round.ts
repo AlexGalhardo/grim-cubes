@@ -37,6 +37,8 @@ export interface RunSystemDeps {
 	events: EventBuffer;
 	poolFor: (round: number) => readonly SpawnWeight[];
 	difficultyMult: number;
+	/** Called once at the end of every round, after enemies and floor piles were handled (e.g. harvest). */
+	onRoundEnd?: (round: number) => void;
 }
 
 /** Fragments left on the floor at round end; released one per spawn in the next round, never lost. */
@@ -75,7 +77,7 @@ export function roundDurationSeconds(config: RunConfig, round: number): number {
 const toSteps = (seconds: number): number => Math.max(1, Math.round(seconds / STEP));
 
 export function createRunSystem(deps: RunSystemDeps): RunSystem {
-	const { config, spawn, events, poolFor, difficultyMult } = deps;
+	const { config, spawn, events, poolFor, difficultyMult, onRoundEnd } = deps;
 	const bag: Bag = { value: 0 };
 	const enemies = createQueryCache([EnemyFaction]);
 	const fragments = createQueryCache([Fragment]);
@@ -127,6 +129,7 @@ export function createRunSystem(deps: RunSystemDeps): RunSystem {
 			removeEntity(world, e);
 		}
 		events.push(EventType.RoundEnded, round, 0, 0, 0);
+		onRoundEnd?.(round);
 		enter("RoundOutro", config.flow.outroSeconds);
 	}
 

@@ -116,7 +116,9 @@
 		"goldPerFragment": 1,
 		"xpPerFragment": 1,
 		"groundPileCap": 50,
-		"harvestPerRound": 0.05
+		"harvestPerRound": 0.05,
+		"magnetSpeed": 14,
+		"collectRadius": 0.6
 	},
 	"xp": {
 		"base": 10,
