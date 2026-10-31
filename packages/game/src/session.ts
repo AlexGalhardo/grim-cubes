@@ -27,11 +27,12 @@ import { createEventBuffer } from "./ecs/events";
 import { spawnHero } from "./ecs/hero";
 import { createProjectilePool } from "./ecs/projectile";
 import { createGameWorld } from "./ecs/world";
+import { STEP } from "./loop";
 import { damageConfigFromHero } from "./rules/damage";
 import { availableItems } from "./rules/milestones";
 import { applyOssuary } from "./rules/ossuary";
 import { createRunStats } from "./rules/runstats";
-import { createPlayerStats } from "./rules/stats";
+import { createPlayerStats, regenPerSecond } from "./rules/stats";
 import { createBehaviorSystem } from "./systems/behavior";
 import { createBossRoster } from "./systems/boss";
 import { createBreakableSystem } from "./systems/breakables";
@@ -386,6 +387,15 @@ function build(options: GameSessionOptions) {
 	});
 
 	const fighting = (): boolean => run.state === "Round" || run.state === "BossRound";
+	const { hpRegenFirstPoint, hpRegenExtraPoint } = heroData.formulas;
+	/** Heals the living hero by the `hp_regen` stat each step, never above max HP (GDD 8). */
+	const regenerate = (): void => {
+		const hp = Health.hp[hero] ?? 0;
+		const max = Health.max[hero] ?? 0;
+		if (hp <= 0 || hp >= max) return;
+		const perSecond = regenPerSecond(stats.stats.hpRegen, hpRegenFirstPoint, hpRegenExtraPoint);
+		Health.hp[hero] = Math.min(max, hp + perSecond * STEP);
+	};
 	let inShop = false;
 
 	function step(input: Readonly<InputState>): void {
@@ -437,6 +447,7 @@ function build(options: GameSessionOptions) {
 			elite.run(world);
 			chest.run(world, hero);
 			stats.run(hero);
+			regenerate();
 			levelUp.run();
 			if ((Health.hp[hero] ?? 0) <= 0 && !itemEffects.tryRevive(hero)) run.heroDied();
 		}

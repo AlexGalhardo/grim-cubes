@@ -1,7 +1,9 @@
 import { createInputState, createMetaState } from "@gc/core";
 import { expect, test } from "vitest";
 import { roundsData } from "./data";
+import { Health } from "./ecs/components";
 import { difficultyData } from "./rules/difficulty";
+import { regenPerSecond } from "./rules/stats";
 import { createGameSession } from "./session";
 import { hashWorld } from "./world/hash";
 
@@ -47,4 +49,27 @@ test("a fresh session starts idle and opens the shop by itself once a round is w
 		if (session.run.state === "Shop") sawShop = session.shop.slots.length > 0;
 	}
 	expect(sawShop).toBe(true);
+});
+
+test("hp_regen heals the hero during a round by the GDD formula and never above max HP", () => {
+	expect(regenPerSecond(0, 0.2, 0.09)).toBe(0);
+	expect(regenPerSecond(1, 0.2, 0.09)).toBeCloseTo(0.2);
+	expect(regenPerSecond(5, 0.2, 0.09)).toBeCloseTo(0.56);
+
+	const session = createGameSession({ seed: 7, difficulty, meta: createMetaState() });
+	session.stats.add([{ stat: "hp_regen", op: "add", value: 5 }]);
+	session.run.newRun();
+	const input = createInputState();
+	while (!session.fighting()) session.step(input);
+	const hero = session.hero;
+	Health.hp[hero] = 10;
+	for (let i = 0; i < 60; i++) {
+		session.step(input);
+		session.events.consume(() => undefined);
+	}
+	// One second at 0.56 HP/s, minus whatever the first enemies managed to hit.
+	expect(Health.hp[hero] ?? 0).toBeGreaterThan(10);
+	Health.hp[hero] = (Health.max[hero] ?? 0) - 0.001;
+	session.step(input);
+	expect(Health.hp[hero] ?? 0).toBeLessThanOrEqual(Health.max[hero] ?? 0);
 });

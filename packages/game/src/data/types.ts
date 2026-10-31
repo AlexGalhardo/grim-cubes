@@ -33,7 +33,12 @@ export interface HeroData {
 		speedMax: number;
 		speedMin: number;
 	};
-	formulas: { armorConstant: number; lifeStealTriggerSeconds: number };
+	formulas: {
+		armorConstant: number;
+		lifeStealTriggerSeconds: number;
+		hpRegenFirstPoint: number;
+		hpRegenExtraPoint: number;
+	};
 	combat: {
 		iFramesOnHitSeconds: number;
 		contactCooldownSeconds: number;
