@@ -60,6 +60,8 @@ export interface BuildOptions {
 interface Loaded {
 	input: ModelInput;
 	texture: PNG;
+	/** `<name>_e.png` next to the diffuse one (eyes, furnaces, lanterns), same size, or null. */
+	emissive: PNG | null;
 	atlas: AtlasName;
 }
 
@@ -148,7 +150,22 @@ async function load(
 		texture: existsSync(pngPath) ? PNG.sync.read(readFileSync(pngPath)) : null,
 	};
 	const texture = validateModel(input);
-	return { input, texture, atlas: ATLAS_OF[item.category] };
+	const emissivePath = item.path.replace(/(\.glb|\.bbmodel)$/, "_e.png");
+	const emissive = existsSync(emissivePath) ? PNG.sync.read(readFileSync(emissivePath)) : null;
+	if (emissive && (emissive.width !== texture.width || emissive.height !== texture.height)) {
+		throw new RuleError(
+			"emissive-size",
+			item.name,
+			`_e.png is ${emissive.width}x${emissive.height}, the diffuse is ${texture.width}x${texture.height}`,
+		);
+	}
+	return { input, texture, emissive, atlas: ATLAS_OF[item.category] };
+}
+
+function blackLike(texture: PNG): PNG {
+	const black = new PNG({ width: texture.width, height: texture.height });
+	for (let i = 3; i < black.data.length; i += 4) black.data[i] = 255;
+	return black;
 }
 
 function remapUvs(document: Document, p: Placement): void {
@@ -273,7 +290,7 @@ export async function buildAssets(options: BuildOptions): Promise<Manifest> {
 	rmSync(join(options.outDir, "models"), { recursive: true, force: true });
 	rmSync(join(options.outDir, "vat"), { recursive: true, force: true });
 	for (const file of existsSync(options.outDir) ? readdirSync(options.outDir) : []) {
-		if (/^atlas_(characters|props)\..*\.(png|ktx2)$/.test(file)) rmSync(join(options.outDir, file));
+		if (/^atlas_(characters|props)(_e)?\..*\.(png|ktx2)$/.test(file)) rmSync(join(options.outDir, file));
 	}
 	mkdirSync(join(options.outDir, "models"), { recursive: true });
 	mkdirSync(join(options.outDir, "vat"), { recursive: true });
@@ -304,6 +321,29 @@ export async function buildAssets(options: BuildOptions): Promise<Manifest> {
 			height: ATLAS_SIZE,
 			ktx2,
 		};
+		// Emissive atlas: the same placements, black wherever a model has no `_e.png`, so the UVs stay shared.
+		if (members.some((l) => l.emissive)) {
+			const glow: Sprite[] = members.map((l) => ({
+				name: l.input.name,
+				png: l.emissive ?? blackLike(l.texture),
+			}));
+			const glowPng = new Uint8Array(PNG.sync.write(renderAtlas(glow, placements), { filterType: 0 }));
+			const glowHash = digest(glowPng);
+			const glowUrl = `${atlasName}_e.${glowHash}.png`;
+			writeFileSync(join(options.outDir, glowUrl), glowPng);
+			entries[`${atlasName}_e`] = {
+				url: glowUrl,
+				hash: glowHash,
+				bytes: glowPng.length,
+				kind: "atlas",
+				group: "core",
+				sampling: "nearest",
+				mipmaps: false,
+				width: ATLAS_SIZE,
+				height: ATLAS_SIZE,
+				ktx2: false,
+			};
+		}
 		for (const member of members) {
 			const placement = placements.find((p) => p.name === member.input.name);
 			if (!placement) throw new RuleError("atlas-missing", member.input.name, "not placed");

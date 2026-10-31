@@ -182,6 +182,39 @@ describe("buildAssets", () => {
 		expect(calls[0]).toContain("etc1s");
 	});
 
+	test("an _e.png next to a _d.png makes an emissive atlas with the same placements; without one nothing changes", async () => {
+		await writeModel("husk", { category: "enemies" }, 1);
+		await writeModel("wail", { category: "enemies" }, 2);
+		const plain = await build();
+		expect(plain.entries.atlas_characters_e).toBeUndefined();
+
+		const glow = solidPng(32, 32, (x) => (x < 4 ? [245, 176, 74] : [0, 0, 0]));
+		writeFileSync(join(src, "models", "enemies", "husk_e.png"), PNG.sync.write(glow, { filterType: 0 }));
+		const manifest = await build();
+		const entry = manifest.entries.atlas_characters_e;
+		expect(entry?.kind).toBe("atlas");
+		expect(entry?.width).toBe(ATLAS_SIZE);
+		expect(existsSync(join(out, entry?.url ?? "missing"))).toBe(true);
+		expect(manifest.entries.atlas_characters_e?.hash).not.toBe(manifest.entries.atlas_characters?.hash);
+		const atlas = PNG.sync.read(readFileSync(join(out, entry?.url ?? "")));
+		let lit = 0;
+		for (let i = 0; i < atlas.data.length; i += 4) if ((atlas.data[i] ?? 0) > 200) lit++;
+		expect(lit).toBeGreaterThan(0);
+		expect(manifest.entries.atlas_characters?.url).toBe(plain.entries.atlas_characters?.url);
+	});
+
+	test("an _e.png of another size than its _d.png fails the build", async () => {
+		await writeModel("husk", { category: "enemies" }, 1);
+		writeFileSync(
+			join(src, "models", "enemies", "husk_e.png"),
+			PNG.sync.write(
+				solidPng(64, 64, () => [0, 0, 0]),
+				{ filterType: 0 },
+			),
+		);
+		await expect(build()).rejects.toThrow("[emissive-size]");
+	});
+
 	test("audio files are copied flat to audio/<id>.mp3", async () => {
 		await writeModel("prop_a", {}, 1);
 		mkdirSync(join(src, "audio", "sfx"), { recursive: true });

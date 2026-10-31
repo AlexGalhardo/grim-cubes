@@ -99,10 +99,13 @@ async function enableKtx2(decoderUrl: string): Promise<void> {
 }
 
 /** Flat, unlit-looking material sampling an atlas with NEAREST and no mipmaps (Art Bible §4, ADR-0014). */
-function atlasMaterial(scene: Scene, name: string, url: string): StandardMaterial {
+function atlasMaterial(scene: Scene, name: string, url: string, glowUrl?: string): StandardMaterial {
 	const material = new StandardMaterial(name, scene);
 	const texture = new Texture(url, scene, true, false, Texture.NEAREST_SAMPLINGMODE);
 	material.diffuseTexture = texture;
+	// Eyes, furnaces and lanterns (`_e.png`, same UVs as the diffuse atlas) glow through the emissive texture.
+	if (glowUrl)
+		material.emissiveTexture = new Texture(glowUrl, scene, true, false, Texture.NEAREST_SAMPLINGMODE);
 	material.specularColor = Color3.Black();
 	return material;
 }
@@ -152,10 +155,17 @@ export async function loadGameAssets(scene: Scene, options: GameAssetsOptions): 
 	const atlasUrl = (atlas: AssetEntry): string =>
 		url(format === "ktx2" && atlas.ktx2 ? atlas.ktx2.url : atlas.url);
 	options.onTextureFormat?.(format);
+	/** The emissive atlas ships as PNG only; absent from the manifest when no model has an `_e.png`. */
+	const glowOf = (id: string): string | undefined => {
+		const glow = entry(id);
+		return glow ? url(glow.url) : undefined;
+	};
 	const characterMaterial = characters
-		? atlasMaterial(scene, "atlas_characters", atlasUrl(characters))
+		? atlasMaterial(scene, "atlas_characters", atlasUrl(characters), glowOf("atlas_characters_e"))
 		: null;
-	const propMaterial = propsAtlas ? atlasMaterial(scene, "atlas_props", atlasUrl(propsAtlas)) : null;
+	const propMaterial = propsAtlas
+		? atlasMaterial(scene, "atlas_props", atlasUrl(propsAtlas), glowOf("atlas_props_e"))
+		: null;
 
 	const enemies: LoadedEnemy[] = [];
 	const loadEnemies = (async () => {
