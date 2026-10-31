@@ -272,6 +272,7 @@ export function createChunkRenderer(
 		}
 		propMeshes.forEach((mesh, t) => {
 			mesh.thinInstanceCount = propCounts[t] ?? 0;
+			mesh.setEnabled((propCounts[t] ?? 0) > 0);
 			mesh.thinInstanceBufferUpdated("matrix");
 			if (colorBuffers[t]) {
 				mesh.thinInstanceBufferUpdated("color");

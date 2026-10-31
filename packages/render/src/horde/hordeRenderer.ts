@@ -307,6 +307,7 @@ export function createHordeRenderer(types: readonly HordeType[], options: HordeO
 				const mesh = types[t]?.mesh;
 				if (!mesh) continue;
 				mesh.thinInstanceCount = counts[t] ?? 0;
+				mesh.setEnabled((counts[t] ?? 0) > 0);
 				mesh.thinInstanceBufferUpdated("matrix");
 				mesh.thinInstanceBufferUpdated(SETTINGS_KIND);
 				if (flashColors[t]) {

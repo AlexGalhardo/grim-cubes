@@ -37,6 +37,8 @@ export function createInstanceSet(mesh: Mesh, capacity: number, withColor: boole
 		colors,
 		commit(count: number): void {
 			mesh.thinInstanceCount = count;
+			// A mesh with no instance must not count as active (alwaysSelectAsActiveMesh would still select it).
+			mesh.setEnabled(count > 0);
 			mesh.thinInstanceBufferUpdated("matrix");
 			if (!colors) return;
 			mesh.thinInstanceBufferUpdated("color");
