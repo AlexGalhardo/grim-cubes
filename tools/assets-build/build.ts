@@ -38,6 +38,8 @@ export interface ManifestEntry {
 	height?: number;
 	/** Atlas only: the KTX2 ETC1S sibling for GPUs that sample it, or false when `toktx` was not run (SDD 09). */
 	ktx2?: false | { url: string; hash: string; bytes: number };
+	/** Model only: the atlas its UVs were remapped into (props and tiles share `atlas_props`). */
+	atlas?: AtlasName;
 	/** Icon only: pixel rectangle inside `atlas_vfx_ui` (this entry's `url` is that atlas). */
 	rect?: { x: number; y: number; w: number; h: number };
 }
@@ -365,6 +367,7 @@ export async function buildAssets(options: BuildOptions): Promise<Manifest> {
 			hash,
 			bytes: glb.length,
 			kind: "model",
+			atlas: item.atlas,
 			group: groupOf(item.input.category, item.input.name),
 		};
 	}
