@@ -509,3 +509,14 @@ describe("Matriarch and Forgemaster telegraphs", () => {
 		dispose();
 	});
 });
+
+describe("shockwave", () => {
+	it("draws a ring and shakes the camera on BossShockwave", () => {
+		const { vfx, dispose } = setup();
+		vfx.onEvent(EventType.BossShockwave, 2, 3, 7, 0);
+		vfx.update(0.05);
+		expect(vfx.zones.ringsLive).toBe(1);
+		expect(vfx.shaking).toBe(true);
+		dispose();
+	});
+});

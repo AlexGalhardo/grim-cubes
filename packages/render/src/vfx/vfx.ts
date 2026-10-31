@@ -31,6 +31,8 @@ const rgb = (hex: string): Rgb => {
 
 /** How long the scream ring takes to reach its radius. */
 const SCREAM_SECONDS = 0.6;
+/** How long the Forgemaster shockwave ring takes to reach its radius. */
+const SHOCKWAVE_SECONDS = 0.4;
 const SUMMON_CUBES = 14;
 /** GDD section 23: the boss execution lasts 1.5 s. */
 const EXECUTION_SECONDS = 1.5;
@@ -267,6 +269,9 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 					.flatMap((boss) => boss.patterns)
 					.find((pattern) => pattern.id === "mud_pool")?.params?.durationSeconds;
 				zones.pool(a, b, c, typeof mud === "number" ? mud : 8);
+			} else if (type === EventType.BossShockwave) {
+				zones.ring(a, b, c, SHOCKWAVE_SECONDS);
+				shake(config.shakeBossDeath * 0.5);
 			} else if (type === EventType.BossScream) {
 				zones.ring(a, b, c, SCREAM_SECONDS);
 				shake(config.shakeExplosion);
