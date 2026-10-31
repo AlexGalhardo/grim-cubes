@@ -44,6 +44,8 @@ export interface HudState {
 	difficulty: DifficultyViewModel | null;
 	/** Null until the Ossuary unlocks the dash. */
 	dash: DashView | null;
+	/** Level-up card rerolls left (Ossuary). */
+	cardRerolls: number;
 	/** Boss name during the 3 s intro; null otherwise. */
 	bossIntro: string | null;
 	/** Red edge vignette strength, 0 (hidden) to 1: a hit pulse and the low-HP warning. */
@@ -55,6 +57,7 @@ export interface AppProps {
 	/** Present on touch devices: shows the floating joystick. */
 	stick?: VirtualStick | undefined;
 	onChooseCard?: ((index: number) => void) | undefined;
+	onRerollCards?: (() => void) | undefined;
 	onChooseChest?: ((index: number) => void) | undefined;
 	shopActions?: ShopActions | undefined;
 	onRestart?: (() => void) | undefined;
@@ -68,6 +71,7 @@ export function App({
 	store,
 	stick,
 	onChooseCard,
+	onRerollCards,
 	onChooseChest,
 	shopActions,
 	onRestart,
@@ -86,7 +90,12 @@ export function App({
 				Round {hud.round} · Lv {hud.level} · <span className="text-currency">{hud.gold}</span>
 			</div>
 			{hud.cards.length > 0 && onChooseCard ? (
-				<LevelUp cards={hud.cards} onChoose={onChooseCard} />
+				<LevelUp
+					cards={hud.cards}
+					onChoose={onChooseCard}
+					rerollsLeft={hud.cardRerolls}
+					onReroll={onRerollCards}
+				/>
 			) : null}
 			{hud.chest.length > 0 && onChooseChest ? (
 				<LevelUp cards={hud.chest} onChoose={onChooseChest} title="Baú Lendário" />

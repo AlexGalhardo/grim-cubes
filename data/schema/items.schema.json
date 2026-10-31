@@ -22,6 +22,10 @@
 			"modifiers": {
 				"$ref": "common.schema.json#/$defs/modifiers"
 			},
+			"exclusiveTo": {
+				"$ref": "common.schema.json#/$defs/id",
+				"description": "Ossuary node that adds this item to the pool (GDD 19.1); absent for items every run can find."
+			},
 			"status": {
 				"enum": ["alpha"],
 				"description": "Present while a special effect is not implemented yet (TODO:ALPHA); modifiers still apply."

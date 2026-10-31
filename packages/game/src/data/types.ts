@@ -205,6 +205,8 @@ export interface ItemData {
 	price: number;
 	modifiers: Modifier[];
 	effects: ItemEffect[];
+	/** Ossuary node that adds the item to the pool. */
+	exclusiveTo?: string;
 	status?: string;
 }
 

@@ -183,3 +183,31 @@ test("speed bonuses are capped at x2 and floored at x0.5", () => {
 	computeStats(heroData, [{ stat: "speed", op: "add", value: -0.8 }], slow);
 	expect(slow.speed).toBeCloseTo(heroData.base.speed * 0.5);
 });
+
+test("Ossuary card rerolls redraw the offer, are limited per run and cost nothing else", () => {
+	const world = createGameWorld();
+	spawnHero(world, { speed: 6, maxHp: 100, radius: 0.45 });
+	const progress = createProgress();
+	const run = fakeRun();
+	const levelUp = createLevelUpSystem({
+		progress,
+		run,
+		cards: cardsData,
+		rng: mulberry32(5),
+		stats: createStatsSystem(heroData, createPlayerStats()),
+		events: createEventBuffer(64),
+		rerolls: 1,
+	});
+	expect(levelUp.reroll()).toBe(false);
+	progress.pendingLevelUps = 2;
+	levelUp.run();
+	const first = levelUp.offer?.map((c) => c.id).join();
+	expect(levelUp.rerollsLeft).toBe(1);
+	expect(levelUp.reroll()).toBe(true);
+	expect(levelUp.rerollsLeft).toBe(0);
+	expect(levelUp.offer).toHaveLength(3);
+	expect(levelUp.offer?.map((c) => c.id).join()).not.toBe(first);
+	expect(levelUp.reroll()).toBe(false);
+	expect(progress.pendingLevelUps).toBe(2);
+	expect(run.state).toBe("Paused");
+});

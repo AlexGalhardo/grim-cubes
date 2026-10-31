@@ -104,6 +104,8 @@ export interface GenerateContext {
 	shopPrice: number;
 	/** The weapon the hero holds, and its tier index, for upgrade offers. */
 	currentWeapon: { id: string; tier: number; maxTier: number };
+	/** Ossuary `guaranteed_uncommon_shop_item`: how many Uncommon (tier 2) item slots every visit must hold. */
+	guaranteedUncommon?: number;
 }
 
 function pickItem(ctx: GenerateContext, used: ReadonlySet<string>): ShopItem {
@@ -162,6 +164,46 @@ function weaponSlot(ctx: GenerateContext, used: Set<string>): ShopSlot {
 	};
 }
 
+const UNCOMMON = 2;
+
+/**
+ * Turns freshly drawn slots into Uncommon items until the guarantee is met (locked slots are left alone). Item
+ * slots go first; a weapon slot is only replaced when no redrawn item slot is left, so the weapon guarantee of the
+ * first rounds survives unless the shop has no other room.
+ */
+function guaranteeUncommon(
+	ctx: GenerateContext,
+	slots: ShopSlot[],
+	redrawable: ReadonlySet<number>,
+	used: Set<string>,
+): void {
+	const tierOf = (slot: ShopSlot): number =>
+		slot.kind === "item" ? (ctx.catalog.items.find((i) => i.id === slot.id)?.tier ?? 0) : 0;
+	let missing = (ctx.guaranteedUncommon ?? 0) - slots.filter((s) => tierOf(s) === UNCOMMON).length;
+	const order = slots
+		.map((_, i) => i)
+		.sort((a, b) => Number(slots[a]?.kind !== "item") - Number(slots[b]?.kind !== "item"));
+	for (const i of order) {
+		if (missing <= 0) break;
+		const slot = slots[i];
+		if (!slot || !redrawable.has(i) || tierOf(slot) === UNCOMMON) continue;
+		const pool = ctx.catalog.items.filter(
+			(it) => it.tier === UNCOMMON && it.status !== "alpha" && !used.has(it.id),
+		);
+		if (pool.length === 0) return;
+		const item = pool[ctx.rng.int(pool.length)] as ShopItem;
+		used.add(item.id);
+		slots[i] = {
+			kind: "item",
+			id: item.id,
+			price: shopPrice(ctx.config, item.price, ctx.round, ctx.shopPrice),
+			locked: false,
+			sold: false,
+		};
+		missing--;
+	}
+}
+
 /**
  * GDD 17.1: 4 slots, each 35% weapon / 65% item; rounds up to `guaranteeUntilRound` guarantee 1 weapon and
  * 3 items. `keep` holds the slots to preserve (locked ones, by index); the rest are redrawn.
@@ -187,6 +229,7 @@ export function generateShop(ctx: GenerateContext, keep: readonly (ShopSlot | nu
 		for (const i of open) wants.set(i, rng.chance(config.weaponChance) ? "weapon" : "item");
 	}
 	for (const i of open) slots[i] = wants.get(i) === "weapon" ? weaponSlot(ctx, used) : itemSlot(ctx, used);
+	guaranteeUncommon(ctx, slots as ShopSlot[], new Set(open), used);
 	return slots as ShopSlot[];
 }
 

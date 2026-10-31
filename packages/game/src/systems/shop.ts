@@ -28,6 +28,8 @@ export interface ShopSystemDeps {
 	round: () => number;
 	/** Inventory map shared with the effects system; created here when omitted. */
 	owned?: Map<string, number>;
+	/** Ossuary: Uncommon item slots every shop visit must hold. */
+	guaranteedUncommon?: number | undefined;
 	/** Called after an item is bought, so effects can be recomputed. */
 	onItemBought?: () => void;
 }
@@ -68,7 +70,8 @@ export interface ShopSystem {
 }
 
 export function createShopSystem(deps: ShopSystemDeps): ShopSystem {
-	const { config, tiers, catalog, weaponDefs, rng, progress, stats, weapon, round } = deps;
+	const { config, tiers, catalog, weaponDefs, rng, progress, stats, weapon, round, guaranteedUncommon } =
+		deps;
 	const owned = deps.owned ?? new Map<string, number>();
 	let slots: ShopSlot[] = [];
 	let rerolls = 0;
@@ -84,6 +87,7 @@ export function createShopSystem(deps: ShopSystemDeps): ShopSystem {
 		luck: stats.stats.luck,
 		shopPrice: stats.stats.shopPrice,
 		currentWeapon: { id: weapon.weapon.id ?? "", tier: weapon.tier, maxTier: weapon.maxTier },
+		...(guaranteedUncommon ? { guaranteedUncommon } : {}),
 	});
 	const nextRerollPrice = (): number => {
 		const free = stats.stats.freeRerolls;

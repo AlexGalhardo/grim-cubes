@@ -21,14 +21,18 @@ export function lockedItemIds(data: MilestonesData, meta: MetaState): ReadonlySe
 	return locked;
 }
 
-/** The item pool for a run: everything except what the account has not unlocked yet. */
+/** The item pool for a run: everything except milestone items not reached and Ossuary exclusives not bought. */
 export function availableItems(
 	items: readonly ItemData[],
 	data: MilestonesData,
 	meta: MetaState,
 ): readonly ItemData[] {
 	const locked = lockedItemIds(data, meta);
-	return locked.size === 0 ? items : items.filter((item) => !locked.has(item.id));
+	return items.filter(
+		(item) =>
+			!locked.has(item.id) &&
+			(item.exclusiveTo === undefined || meta.ossuary[item.exclusiveTo] === true),
+	);
 }
 
 /** Skins whose milestone is reached. */

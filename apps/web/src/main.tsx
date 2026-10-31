@@ -394,7 +394,15 @@ async function boot(): Promise<void> {
 		enemies: separation.hash,
 		round: () => run.round,
 	});
-	const levelUp = createLevelUpSystem({ progress, run, cards: cardsData, rng: rng.cards, stats, events });
+	const levelUp = createLevelUpSystem({
+		progress,
+		run,
+		cards: cardsData,
+		rng: rng.cards,
+		stats,
+		events,
+		rerolls: ossuaryBonus.cardRerolls,
+	});
 	const chest = createChestSystem({
 		reward: elitesData.reward,
 		items: poolItems,
@@ -409,6 +417,7 @@ async function boot(): Promise<void> {
 	});
 	const shop = createShopSystem({
 		config: roundsData.shop,
+		guaranteedUncommon: ossuaryBonus.guaranteedUncommonShopItems,
 		tiers: roundsData.tierChance,
 		catalog: { items: poolItems, weapons: toShopWeapons(weaponsData) },
 		weaponDefs: weaponsData,
@@ -456,12 +465,14 @@ async function boot(): Promise<void> {
 		ossuary: null,
 		difficulty: null,
 		dash: null,
+		cardRerolls: 0,
 	});
 	createRoot(uiRoot).render(
 		<App
 			store={hud}
 			stick={stick}
 			onChooseCard={(index) => levelUp.choose(index)}
+			onRerollCards={() => levelUp.reroll()}
 			onChooseChest={(index) => chest.choose(index)}
 			onDashHold={(down) => {
 				touchDash = down;
@@ -811,6 +822,7 @@ async function boot(): Promise<void> {
 			xpNeeded: xpForLevel(xp, progress.level),
 			gold: Math.floor(progress.gold),
 			cards: lastOffer,
+			cardRerolls: levelUp.rerollsLeft,
 			chest: lastChest,
 			shop: shopView,
 			stats: shopView ? describeStats(stats.stats) : NO_STATS,
@@ -838,6 +850,7 @@ async function boot(): Promise<void> {
 			cur.xp !== next.xp ||
 			cur.gold !== next.gold ||
 			cur.cards !== next.cards ||
+			cur.cardRerolls !== next.cardRerolls ||
 			cur.chest !== next.chest ||
 			cur.boss !== next.boss ||
 			cur.dash?.charges !== next.dash?.charges ||

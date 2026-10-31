@@ -12,11 +12,17 @@ export interface LevelUpDeps {
 	rng: CardRng;
 	stats: StatsSystem;
 	events: EventBuffer;
+	/** Ossuary `card_rerolls`: card rerolls the whole run may spend (0 when omitted). */
+	rerolls?: number;
 }
 
 export interface LevelUpSystem {
 	/** The three cards on screen, or null. While set, the run is paused. */
 	readonly offer: readonly CardOffer[] | null;
+	/** Card rerolls still available this run. */
+	readonly rerollsLeft: number;
+	/** Redraws the three cards, spending one reroll. False when there is no offer or no reroll left. */
+	reroll(): boolean;
 	run(): void;
 	/** Applies card `index` of the current offer. Returns false when there is no such card. */
 	choose(index: number): boolean;
@@ -26,6 +32,7 @@ export interface LevelUpSystem {
 export function createLevelUpSystem(deps: LevelUpDeps): LevelUpSystem {
 	const { progress, run, cards, rng, stats, events } = deps;
 	let offer: CardOffer[] | null = null;
+	let rerollsLeft = deps.rerolls ?? 0;
 
 	function present(): void {
 		offer = drawCards(rng, cards, progress.level);
@@ -35,6 +42,15 @@ export function createLevelUpSystem(deps: LevelUpDeps): LevelUpSystem {
 	return {
 		get offer(): readonly CardOffer[] | null {
 			return offer;
+		},
+		get rerollsLeft(): number {
+			return rerollsLeft;
+		},
+		reroll(): boolean {
+			if (offer === null || rerollsLeft <= 0) return false;
+			rerollsLeft--;
+			offer = drawCards(rng, cards, progress.level);
+			return true;
 		},
 		run(): void {
 			if (offer !== null || progress.pendingLevelUps <= 0) return;

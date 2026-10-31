@@ -13,7 +13,7 @@ import { createStatsSystem } from "./stats";
 import { createTargetingSystem } from "./targeting";
 import { createWeaponSystem } from "./weapon";
 
-function setup(round = 3, seed = 1) {
+function setup(round = 3, seed = 1, guaranteedUncommon = 0) {
 	const world = createGameWorld();
 	const hero = spawnBody(world, 0, 0);
 	const events = createEventBuffer(64);
@@ -62,6 +62,7 @@ function setup(round = 3, seed = 1) {
 		stats,
 		weapon,
 		round: () => roundRef.value,
+		guaranteedUncommon,
 	});
 	return { shop, progress, stats, weapon, roundRef };
 }
@@ -177,4 +178,18 @@ test("selling the starting weapon returns nothing", () => {
 		return;
 	}
 	throw new Error("no weapon offer in 200 seeds");
+});
+
+test("with the Ossuary guarantee every shop visit holds an Uncommon item", () => {
+	for (let seed = 1; seed <= 40; seed++) {
+		const { shop, roundRef } = setup(3, seed, 1);
+		for (const round of [3, 12, 30]) {
+			roundRef.value = round;
+			shop.open();
+			const tiers = shop.slots.flatMap((slot) =>
+				slot.kind === "item" ? [itemsData.find((i) => i.id === slot.id)?.tier] : [],
+			);
+			expect(tiers, `seed ${seed} round ${round}`).toContain(2);
+		}
+	}
 });

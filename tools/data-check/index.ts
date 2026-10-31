@@ -213,6 +213,12 @@ export function checkIntegrity(data: DataSet): string[] {
 		checkUniqueIds("ossuary.json branches", branches, errors);
 		const nodes = branches.flatMap((b) => asArray(b.nodes));
 		const nodeIds = checkUniqueIds("ossuary.json nodes", nodes, errors);
+		for (const item of asArray(data["items.json"])) {
+			if (typeof item.exclusiveTo === "string" && !nodeIds.has(item.exclusiveTo))
+				errors.push(
+					`items.json: ${idOf(item)}.exclusiveTo unknown ossuary node "${item.exclusiveTo}"`,
+				);
+		}
 		for (const node of nodes) {
 			if (typeof node.requires === "string" && !nodeIds.has(node.requires))
 				errors.push(`ossuary.json: ${idOf(node)}.requires unknown node "${node.requires}"`);

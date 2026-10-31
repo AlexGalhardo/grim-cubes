@@ -23,7 +23,7 @@ test("warlord_banner needs 10,000 kills and executioner_mark 5 bosses", () => {
 	meta.stats.kills = 10_000;
 	meta.stats.bossKills = 5;
 	expect(lockedItemIds(milestonesData, meta).size).toBe(0);
-	expect(availableItems(itemsData, milestonesData, meta)).toBe(itemsData);
+	expect(ids(meta)).not.toContain("ruin_chalice");
 });
 
 test("the round 50 skin unlocks from the best record on any difficulty", () => {
@@ -33,4 +33,12 @@ test("the round 50 skin unlocks from the best record on any difficulty", () => {
 	expect(unlockedSkins(milestonesData, meta).map((s) => s.id)).toEqual(["iron_executioner"]);
 	const round = milestonesData.milestones.find((m) => m.id === "round_50");
 	expect(round && isReached(round, meta)).toBe(true);
+});
+
+test("the two Ruin exclusives join the pool only with the last Ruin node", () => {
+	const meta = createMetaState();
+	expect(ids(meta)).not.toContain("ruin_chalice");
+	expect(ids(meta)).not.toContain("ossuary_mantle");
+	meta.ossuary.ruin_6 = true;
+	expect(ids(meta)).toEqual(expect.arrayContaining(["ruin_chalice", "ossuary_mantle"]));
 });

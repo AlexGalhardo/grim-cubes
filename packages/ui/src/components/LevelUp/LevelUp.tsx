@@ -11,14 +11,24 @@ export interface LevelUpProps {
 	onChoose: (index: number) => void;
 	/** Heading; defaults to "Level up". The elite chest reuses this screen. */
 	title?: string;
+	/** Ossuary card rerolls left; the button is hidden when 0 or when there is no handler. */
+	rerollsLeft?: number;
+	onReroll?: (() => void) | undefined;
 }
 
 /** Level-up overlay (Art Bible 16.5 `LevelUpCard`): pick 1 of up to 3 cards with a click, a tap or keys 1-3. */
-export function LevelUp({ cards, onChoose, title = "Level up" }: LevelUpProps): JSX.Element {
+export function LevelUp({
+	cards,
+	onChoose,
+	title = "Level up",
+	rerollsLeft = 0,
+	onReroll,
+}: LevelUpProps): JSX.Element {
 	useEffect(() => {
 		const onKey = (e: KeyboardEvent): void => {
 			const index = Number(e.key) - 1;
 			if (Number.isInteger(index) && index >= 0 && index < cards.length) onChoose(index);
+			else if (e.key === "r" || e.key === "R") onReroll?.();
 		};
 		window.addEventListener("keydown", onKey);
 		return () => window.removeEventListener("keydown", onKey);
@@ -50,6 +60,16 @@ export function LevelUp({ cards, onChoose, title = "Level up" }: LevelUpProps): 
 					</button>
 				))}
 			</div>
+			{onReroll && rerollsLeft > 0 ? (
+				<button
+					type="button"
+					data-testid="levelup-reroll"
+					onClick={onReroll}
+					className="min-h-12 border-2 border-iron-dark bg-night-2 px-4 font-display text-base text-bone hover:border-ember hover:text-ember-light focus-visible:outline-2 focus-visible:outline-ember"
+				>
+					Retirar cartas ({rerollsLeft}) [R]
+				</button>
+			) : null}
 		</div>
 	);
 }
