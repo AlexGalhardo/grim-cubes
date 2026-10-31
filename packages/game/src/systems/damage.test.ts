@@ -2,7 +2,18 @@ import { readFileSync } from "node:fs";
 import { mulberry32 } from "@gc/core";
 import { addComponent } from "bitecs";
 import { expect, test } from "vitest";
-import { Armor, Boss, Elite, Health, Invulnerable, Knockback } from "../ecs/components";
+import {
+	Armor,
+	Boss,
+	Elite,
+	Health,
+	Invulnerable,
+	Knockback,
+	KnockbackResist,
+	Position,
+	PrevPosition,
+	Velocity,
+} from "../ecs/components";
 import { createEventBuffer, EventType } from "../ecs/events";
 import { createGameWorld, spawn } from "../ecs/world";
 import {
@@ -12,6 +23,7 @@ import {
 	type HeroCombatData,
 } from "../rules/damage";
 import { createDamageSystem, type HeroCombatStats } from "./damage";
+import { movementSystem } from "./movement";
 
 const hero = JSON.parse(
 	readFileSync(new URL("../../../../data/hero.json", import.meta.url), "utf8"),
@@ -187,4 +199,34 @@ test("a hero that is already dead takes no further hits: one Died event and the 
 		if (type === EventType.Died && e === heroEid) died++;
 	});
 	expect(died).toBe(1);
+});
+
+test("a hit pushes the enemy the weapon's knockback over 0.1 s: x1 common, x0.5 elite, x0.1 boss, resisted by KnockbackResist", () => {
+	const { world, system, enemy } = setup();
+	const spawnEnemyAt = (x: number): number => {
+		const e = spawn(world);
+		addComponent(world, e, Velocity);
+		addComponent(world, e, Position);
+		addComponent(world, e, PrevPosition);
+		addComponent(world, e, Health);
+		Position.x[e] = x;
+		Health.hp[e] = Health.max[e] = 100;
+		return e;
+	};
+	const plain = spawnEnemyAt(10);
+	const elite = spawnEnemyAt(10);
+	const boss = spawnEnemyAt(10);
+	const drowned = spawnEnemyAt(10);
+	addComponent(world, elite, Elite);
+	addComponent(world, boss, Boss);
+	KnockbackResist.value[drowned] = 0.7;
+	for (const e of [plain, elite, boss, drowned]) system.queue.push(e, 1, 0, 0, 1.5, 0);
+	system.run(world);
+	for (let i = 0; i < 12; i++) movementSystem(world);
+	expect((Position.x[plain] ?? 0) - 10).toBeCloseTo(1.5, 5);
+	expect((Position.x[elite] ?? 0) - 10).toBeCloseTo(0.75, 5);
+	expect((Position.x[boss] ?? 0) - 10).toBeCloseTo(0.15, 5);
+	expect((Position.x[drowned] ?? 0) - 10).toBeCloseTo(0.45, 5);
+	expect(Position.z[plain]).toBe(0);
+	void enemy;
 });
