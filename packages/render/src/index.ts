@@ -14,6 +14,8 @@ export type { Character, CharacterOptions } from "./character/character";
 export { loadCharacter } from "./character/character";
 export type { Characters } from "./character/characters";
 export { createCharacters } from "./character/characters";
+export type { Portrait } from "./character/portrait";
+export { createPortrait } from "./character/portrait";
 export type { RenderEngine } from "./engine";
 export { createEngine, createNullEngine, EngineUnavailableError } from "./engine";
 export type { HordeOptions, HordeRenderer, HordeType } from "./horde/hordeRenderer";
