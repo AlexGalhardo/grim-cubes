@@ -43,8 +43,8 @@ export interface Characters {
 }
 
 /** Where the Merchant stands relative to the hero while the shop is open. */
-const MERCHANT_OFFSET_X = 3;
-const MERCHANT_OFFSET_Z = 1.5;
+const MERCHANT_OFFSET_X = 4;
+const MERCHANT_OFFSET_Z = 0;
 const MERCHANT_SUBMERGE_SECONDS = 0.8;
 /** Seconds the camera takes to return to its radius after the boss execution. */
 const RETURN_SECONDS = 0.6;
