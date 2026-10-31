@@ -4,19 +4,22 @@ Requisitos: GDD §6 (terreno plano, chunks 16×16 u, anel raio 3, biomas por dis
 
 ## 1. Coordenadas e origin shifting
 
-- Mundo em `f32`. Posições absolutas `(wx, wz)`; posição renderizada = absoluta − `origin`.
-- Quando `abs(hero.wx - origin.x) > 1024` ou idem em z: `origin += delta` (múltiplo de 16 u), todos os `Position`/`PrevPosition` e meshes recebem −delta no mesmo passo (antes do render). Chunks são indexados por coordenadas absolutas inteiras, então não mudam.
-- Alternativa `useLargeWorldRendering` do Babylon 9 não é usada (ADR-0007: API experimental).
+- `Position` e `PrevPosition` são relativas a `origin`, um par `f64` sempre múltiplo de 16 u (as posições absolutas são `origin + Position`). Os componentes continuam em `f32`, então a precisão é mantida perto do herói.
+- A chave de chunk usa a posição absoluta: `cx = floor((origin.x + x) / 16)`. Mover a origem não muda quais chunks existem.
+- Gatilho: `|hero.Position| > 1.024` em x ou em z (valor em `data/world.json`). `applyOriginShift` (em `game/world`) soma o delta (múltiplo de 16) a `origin` e subtrai `delta` de `Position` e `PrevPosition` de todas as entidades no mesmo passo, antes do render, e emite o evento `OriginShifted {dx, dz}`.
+- O render consome `OriginShifted`: desloca a câmera e reescreve os buffers de chão e props. O shift é determinístico (mesma sequência de passos, mesmos shifts).
+- `useLargeWorldRendering` do Babylon 9 fica fora (ADR-0007: API experimental).
 
 ## 2. Chunks
 
 | Item | Valor |
 | --- | --- |
 | Tamanho | 16 × 16 u, chave `cx = floor(wx / 16)`, `cz = floor(wz / 16)` |
-| Anel carregado | `max(abs(cx - hx), abs(cz - hz)) ≤ 3` (49 chunks) |
+| Anel carregado | `max(abs(cx - hx), abs(cz - hz)) ≤ 3`; total ∈ [49, 81] (a histerese mantém chunks até Chebyshev 4) |
 | Anel de spawn | ≤ 2 |
-| Carga por frame | no máximo 2 chunks gerados por frame (fila por distância) |
-| Descarga | chunks fora do anel ≥ 5 voltam ao pool |
+| Carga por passo | no máximo 2 chunks gerados por passo (fila por distância) |
+| Descarga | Chebyshev ≥ 5 volta ao pool, antes da carga no mesmo passo |
+| Pool | 81 `ChunkData` (9×9), fixo |
 
 ### 2.1 Geração (determinística, síncrona na 1.0)
 
@@ -58,8 +61,8 @@ function generateChunk(seedRun: u32, cx: i32, cz: i32, biomeFn): ChunkData {
 }
 ```
 
-- `biomeFn(cx, cz)`: distância do centro do chunk ao spawn; anel 3 repete acima de 420 u. Borda misturada: 16 u a partir do limite, props sorteados 50/50 entre os dois biomas; chão muda em linha dura (aceitável no look cúbico).
-- Pool de spawn do round: 60% bioma atual (do herói), 30% anterior, 10% próximo (GDD §10.2).
+- `biomeFn(cx, cz)`: distância `d` do centro do chunk ao spawn; usa o bioma definido de maior `minDistance` ≤ d (enquanto só existe o Cemitério, todos os anéis resolvem para ele); anel 3 repete acima de 420 u. Borda misturada: 16 u a partir do limite, props sorteados 50/50 entre os dois biomas; chão muda em linha dura (aceitável no look cúbico).
+- Pool de spawn do round: 60% bioma atual (do herói), 30% anterior, 10% próximo (GDD §10.2). Quando um desses biomas não está definido, o pool renormaliza os pesos entre os biomas existentes.
 
 ## 4. Colisão herói/inimigo vs props
 
