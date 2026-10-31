@@ -4,6 +4,7 @@ import { expect, test } from "vitest";
 import { behaviorConfigFromData, enemiesData, heroData, roundsData, toEnemyDefs } from "../data";
 import {
 	Behavior,
+	ContactDamage,
 	EnemyFaction,
 	EnemyShot,
 	EnemyType,
@@ -219,7 +220,9 @@ test("two breeders in the same step never push the horde past the cap", () => {
 
 test("a hero killed by the leech drain gets the PlayerHit/Died events and the leech as killer", () => {
 	const { world, hero, spawn, step, events, runStats } = setup(1);
-	spawn.spawnEnemy(world, idOf("leech"), 0.5, 0);
+	const leech = spawn.spawnEnemy(world, idOf("leech"), 0.5, 0);
+	// Only the drain may kill here, not the contact hit.
+	ContactDamage.value[leech] = 0;
 	let hit = 0;
 	let died = 0;
 	for (let i = 0; i < 60 * 3 && died === 0; i++) {
