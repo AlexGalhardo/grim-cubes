@@ -47,5 +47,6 @@
 				"damagePerRound": 2
 			}
 		}
-	]
+	],
+	"incomingWarningSeconds": 2
 }

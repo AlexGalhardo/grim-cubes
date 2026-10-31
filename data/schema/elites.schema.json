@@ -7,6 +7,7 @@
 		"excludeBossRounds",
 		"scale",
 		"entryDelaySeconds",
+		"incomingWarningSeconds",
 		"reward",
 		"modifiers"
 	],
@@ -31,6 +32,11 @@
 		"scale": {
 			"type": "number",
 			"minimum": 1
+		},
+		"incomingWarningSeconds": {
+			"type": "number",
+			"minimum": 0,
+			"description": "Lead time of the EliteIncoming event before the elite enters."
 		},
 		"entryDelaySeconds": {
 			"type": "number",

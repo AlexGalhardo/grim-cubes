@@ -37,6 +37,8 @@ export const EventType = {
 	BossDied: 19,
 	/** a = new enrage stack count. */
 	BossEnraged: 20,
+	/** a, b = x, z; entity = the elite. The round ended with the elite alive: it leaves without a reward. */
+	EliteEscaped: 21,
 	/** a = new level. The run paused and a card offer is waiting. */
 	LevelUp: 11,
 } as const;

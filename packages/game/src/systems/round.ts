@@ -1,5 +1,5 @@
-import { removeEntity } from "bitecs";
-import { EnemyFaction, Fragment } from "../ecs/components";
+import { hasComponent, removeEntity } from "bitecs";
+import { Elite, EnemyFaction, Fragment, Health, Position } from "../ecs/components";
 import { type EventBuffer, EventType } from "../ecs/events";
 import { dropFragment } from "../ecs/fragments";
 import { createQueryCache, type GameWorld } from "../ecs/world";
@@ -124,6 +124,9 @@ export function createRunSystem(deps: RunSystemDeps): RunSystem {
 		for (let i = 0; i < count; i++) scratch[i] = live[i] ?? 0;
 		for (let i = 0; i < count; i++) {
 			const e = scratch[i] ?? 0;
+			if (hasComponent(world, e, Elite) && (Health.hp[e] ?? 0) > 0) {
+				events.push(EventType.EliteEscaped, Position.x[e] ?? 0, Position.z[e] ?? 0, 0, e);
+			}
 			events.push(EventType.Died, 0, 1, 0, e);
 			removeEntity(world, e);
 		}

@@ -203,6 +203,7 @@ export interface ElitesData {
 	excludeBossRounds: boolean;
 	scale: number;
 	entryDelaySeconds: number;
+	incomingWarningSeconds: number;
 	reward: { chest: { tier: number; offered: number; picks: number }; souls: number; healHp: number };
 	modifiers: EliteModifierData[];
 }

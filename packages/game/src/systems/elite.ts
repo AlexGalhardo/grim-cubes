@@ -38,13 +38,11 @@ export interface EliteSystem {
 	readonly pending: boolean;
 }
 
-/** Warning event lead time before the elite enters (GDD 11 audio cue). */
-const INCOMING_LEAD_STEPS = 120;
-
 export function createEliteSystem(deps: EliteSystemDeps): EliteSystem {
 	const { config, spawn, events, queue, rng, pool, ring, hero } = deps;
 	const roller = createEliteRoller(rng, config);
 	const delaySteps = Math.round(config.entryDelaySeconds / STEP);
+	const warningSteps = Math.round(config.incomingWarningSeconds / STEP);
 	let round = 0;
 	let timer = -1;
 	let announced = false;
@@ -87,7 +85,7 @@ export function createEliteSystem(deps: EliteSystemDeps): EliteSystem {
 		},
 		run(world: GameWorld): void {
 			if (timer < 0) return;
-			if (!announced && timer <= INCOMING_LEAD_STEPS) {
+			if (!announced && timer <= warningSteps) {
 				announced = true;
 				events.push(EventType.EliteIncoming, 0, 0, 0, 0);
 			}

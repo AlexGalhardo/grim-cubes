@@ -48,8 +48,10 @@ export function createChestSystem(deps: ChestSystemDeps): ChestSystem {
 	let picksLeft = 0;
 
 	function draw(tier: number, count: number): ChestOffer[] {
-		let pool = items.filter((i) => i.tier >= tier);
-		if (pool.length === 0) pool = [...items];
+		// Items whose effect is not implemented yet (status alpha) are not offered.
+		const sellable = items.filter((i) => i.status !== "alpha");
+		let pool = sellable.filter((i) => i.tier >= tier);
+		if (pool.length === 0) pool = [...sellable];
 		const out: ChestOffer[] = [];
 		while (out.length < count && pool.length > 0) {
 			const [pick] = pool.splice(rng.int(pool.length), 1);

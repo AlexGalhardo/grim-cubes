@@ -12,6 +12,7 @@ import { createDamageSystem } from "./damage";
 import { createEliteSystem } from "./elite";
 import { createDeathSystem } from "./loot";
 import type { RunSystem } from "./round";
+import { createRunSystem } from "./round";
 import { createSpawnSystem } from "./spawn";
 import { createStatsSystem } from "./stats";
 
@@ -189,4 +190,62 @@ test("opening a chest heals 25 HP, pauses the run and offers 2 distinct tier 4 i
 	expect(run.state).toBe("Round");
 	expect(owned.get(a?.id ?? "")).toBe(1);
 	expect(taken).toBe(1);
+});
+
+test("an elite still alive at round end is reported as escaped and no chest drops", () => {
+	const { world, hero, elite, events } = setup();
+	elite.onRoundStart(5, false);
+	const e = elite.spawnNow(world, 6, 0, 0);
+	void hero;
+	const run = createRunSystem({
+		config: { flow: roundsData.flow, duration: roundsData.duration, boss: roundsData.boss },
+		spawn: setupSpawn(),
+		events,
+		poolFor: () => [{ type: 0, weight: 1 }],
+		difficultyMult: 1,
+	});
+	run.newRun();
+	for (let i = 0; i < 400 && run.state !== "Round"; i++) run.run(world, 1);
+	run.forceEnd(world);
+	let escaped = 0;
+	events.consume((type, _a, _b, _c, entity) => {
+		if (type === EventType.EliteEscaped && entity === e) escaped++;
+	});
+	expect(escaped).toBe(1);
+	expect(query(world, [Chest])).toHaveLength(0);
+});
+
+function setupSpawn() {
+	const spawn = createSpawnSystem({
+		config: roundsData.spawn,
+		enemies: toEnemyDefs(enemiesData),
+		rng: mulberry32(9),
+	});
+	spawn.startRound(5, { pool: [{ type: 0, weight: 1 }], difficultyMult: 1 });
+	return spawn;
+}
+
+test("chest offers never include items whose effect is not implemented", () => {
+	const alpha = new Set(itemsData.filter((i) => i.status === "alpha").map((i) => i.id));
+	for (let seed = 1; seed <= 200; seed++) {
+		const world = createGameWorld();
+		const hero = spawnBody(world, 0, 0);
+		Health.hp[hero] = Health.max[hero] = 100;
+		const run = { state: "Round", pause: () => {}, resume: () => {} };
+		const chest = createChestSystem({
+			reward: elitesData.reward,
+			items: itemsData,
+			rng: mulberry32(seed),
+			run: run as unknown as RunSystem,
+			stats: createStatsSystem(heroData, createPlayerStats()),
+			owned: new Map(),
+			onItemTaken: () => {},
+			events: createEventBuffer(8),
+			blocked: () => false,
+			pickupRadius: () => 2.5,
+		});
+		dropChest(world, 1, 0, 4, 2, 1);
+		chest.run(world, hero);
+		for (const offer of chest.offer ?? []) expect(alpha.has(offer.id)).toBe(false);
+	}
 });
