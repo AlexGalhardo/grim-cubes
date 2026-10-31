@@ -31,6 +31,7 @@ const hud = (speed: number): HudState => ({
 	demoEnd: false,
 	uiScale: 100,
 	rerollKey: "KeyR",
+	caption: null,
 	colorblind: false,
 	menu: null,
 	speed,
@@ -78,6 +79,7 @@ test("the button shows the current speed and hides while the options screen is o
 			gore: true,
 			keys: createKeyMap(),
 			pad: createPadMap(),
+			subtitles: true,
 			locale: "pt-BR",
 			locales: [],
 		},
@@ -98,6 +100,7 @@ test("the button shows the current speed and hides while the options screen is o
 				setFlashReduction: vi.fn(),
 				setUiScale: vi.fn(),
 				setGore: vi.fn(),
+				setSubtitles: vi.fn(),
 				setKey: vi.fn(() => ({ ok: true }) as const),
 				resetKeys: vi.fn(),
 				setPadButton: vi.fn(() => ({ ok: true }) as const),
@@ -246,4 +249,14 @@ test("at 150% on 800x360 the HUD corner and the dialogs stay inside the scaled r
 	expect(root.contains(screen.getByRole("dialog"))).toBe(true);
 	// A dialog scrolls instead of being clipped when the zoomed content outgrows the screen.
 	expect(screen.getByRole("dialog").className).toContain("overflow-y-auto");
+});
+
+test("a boss subtitle shows as a polite status and disappears with the caption", () => {
+	render(<App store={createStore({ ...hud(1), caption: "Mais uma alma para as minhas covas." })} />);
+	const caption = screen.getByTestId("caption");
+	expect(caption.textContent).toBe("Mais uma alma para as minhas covas.");
+	expect(caption.getAttribute("role")).toBe("status");
+	cleanup();
+	render(<App store={createStore(hud(1))} />);
+	expect(screen.queryByTestId("caption")).toBeNull();
 });

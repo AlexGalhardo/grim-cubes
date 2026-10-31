@@ -304,6 +304,7 @@ async function boot(): Promise<void> {
 		uiScale: meta.settings.uiScale,
 		rerollKey: meta.settings.keys.reroll,
 		colorblind: meta.settings.colorblind !== "off",
+		caption: null,
 		demoEnd: false,
 		menu: null,
 	});
@@ -369,6 +370,10 @@ async function boot(): Promise<void> {
 		resetPad: (): void => {
 			void changeSettings((st) => Object.assign(st.pad, createPadMap()));
 			sources.setPadBindings(padBindingsFor(meta.settings.pad));
+		},
+		setSubtitles: (on: boolean): void => {
+			void changeSettings((st) => (st.subtitles = on));
+			if (!on) captionText = null;
 		},
 		setLocale: (id: string): void => setLocaleOption(id),
 		close: (): void => {
@@ -727,11 +732,28 @@ async function boot(): Promise<void> {
 			window.removeEventListener(type, unlockAudio);
 	};
 	for (const type of ["pointerdown", "keydown", "touchstart"]) window.addEventListener(type, unlockAudio);
-	const eventAudio = createEventAudio(audio, {
-		hero,
-		enemyDeath: (entity) => `sfx_enemy_${enemyIds[EnemyType.id[entity] ?? 0] ?? "husk"}_death`,
-		bossId: (entity) => bossesData[(Boss.id[entity] ?? 0) - 1]?.id ?? "",
-	});
+	// Subtitle of the boss voice line being heard (Options can turn them off); cleared after a few seconds.
+	let captionText: string | null = null;
+	let captionTimer = 0;
+	const showCaption = (key: string): void => {
+		if (!meta.settings.subtitles) return;
+		captionText = t(key);
+		window.clearTimeout(captionTimer);
+		captionTimer = window.setTimeout(() => {
+			captionText = null;
+			publishNow();
+		}, 4000);
+		publishNow();
+	};
+	const eventAudio = createEventAudio(
+		audio,
+		{
+			hero,
+			enemyDeath: (entity) => `sfx_enemy_${enemyIds[EnemyType.id[entity] ?? 0] ?? "husk"}_death`,
+			bossId: (entity) => bossesData[(Boss.id[entity] ?? 0) - 1]?.id ?? "",
+		},
+		showCaption,
+	);
 	// The render port drains the buffer, so the audio listens on the way through.
 	const tappedEvents: EventBuffer = {
 		push: (type, a, b, c, entity) => events.push(type, a, b, c, entity),
@@ -759,6 +781,7 @@ async function boot(): Promise<void> {
 			const id = boss.defFor(run.round).id;
 			audio.play(`sfx_boss_${id}_entry`, { priority: "boss", maxVoices: 1 });
 			audio.play(`voice_${id}_entry`, { priority: "boss", maxVoices: 1, pitchSpread: 0 });
+			showCaption(`voice.${id}.entry`);
 		}
 		lastAudioState = run.state;
 	};
@@ -907,6 +930,7 @@ async function boot(): Promise<void> {
 			gore: meta.settings.gore,
 			keys: meta.settings.keys,
 			pad: meta.settings.pad,
+			subtitles: meta.settings.subtitles,
 			locale: meta.settings.locale,
 			locales: [
 				{ id: "pt-BR", name: "Português" },
@@ -1145,6 +1169,7 @@ async function boot(): Promise<void> {
 			uiScale: meta.settings.uiScale,
 			rerollKey: meta.settings.keys.reroll,
 			colorblind: meta.settings.colorblind !== "off",
+			caption: captionText,
 			menu: menuOpen ? menuView() : null,
 			demoEnd,
 			bossIntro: run.state === "BossIntro" ? t(`boss.${boss.defFor(run.round).id}`) : null,
@@ -1200,6 +1225,7 @@ async function boot(): Promise<void> {
 			next.difficulty !== null ||
 			cur.speed !== next.speed ||
 			cur.uiScale !== next.uiScale ||
+			cur.caption !== next.caption ||
 			cur.rerollKey !== next.rerollKey ||
 			cur.colorblind !== next.colorblind ||
 			cur.menu !== null ||

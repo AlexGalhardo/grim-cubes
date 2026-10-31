@@ -23,6 +23,7 @@ const view: OptionsViewModel = {
 	gore: true,
 	keys: createKeyMap(),
 	pad: createPadMap(),
+	subtitles: true,
 	locale: "pt-BR",
 	locales: [
 		{ id: "pt-BR", name: "Português" },
@@ -42,6 +43,7 @@ const actions = (): OptionsActions => ({
 	setFlashReduction: vi.fn(),
 	setUiScale: vi.fn(),
 	setGore: vi.fn(),
+	setSubtitles: vi.fn(),
 	setKey: vi.fn(() => ({ ok: true }) as KeyCheck),
 	resetKeys: vi.fn(),
 	setPadButton: vi.fn(() => ({ ok: true }) as PadCheck),
@@ -188,4 +190,13 @@ test("a refused pad button is explained and the capture goes on", () => {
 	fireEvent.keyDown(window, { code: "Escape" });
 	expect(screen.getByTestId("options-pad-dash").textContent).toBe("A");
 	vi.unstubAllGlobals();
+});
+
+test("the subtitles toggle reports its change and starts on", () => {
+	const a = actions();
+	render(<Options view={view} actions={a} />);
+	const toggle = screen.getByTestId("options-subtitles") as HTMLInputElement;
+	expect(toggle.checked).toBe(true);
+	fireEvent.click(toggle);
+	expect(a.setSubtitles).toHaveBeenCalledWith(false);
 });

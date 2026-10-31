@@ -256,5 +256,21 @@
 	"options.keysReset": "Restore default keys",
 	"options.pad.dash": "Dash (gamepad button)",
 	"options.pad.pause": "Pause (gamepad button)",
-	"options.padPress": "Press a button..."
+	"options.padPress": "Press a button...",
+	"voice.alpha_hunter.entry": "You cannot see me. You can only die.",
+	"voice.alpha_hunter.phase": "The hunt begins in earnest.",
+	"voice.alpha_hunter.death": "A worthy prey... after all.",
+	"voice.nest_queen.entry": "My children hunger. Feed them.",
+	"voice.nest_queen.phase": "Rise, my brood. Rise!",
+	"voice.nest_queen.death": "The hive... will remember.",
+	"voice.gravedigger.entry": "Another soul for my graves.",
+	"voice.gravedigger.phase": "Rise! Rise from the dirt!",
+	"voice.gravedigger.death": "Back... into the earth...",
+	"voice.swamp_matriarch.entry": "Come closer, little one. The swamp is hungry.",
+	"voice.swamp_matriarch.phase": "Drown them all, my leeches.",
+	"voice.swamp_matriarch.death": "The water... takes me back...",
+	"voice.forgemaster.entry": "I will forge you into scrap.",
+	"voice.forgemaster.phase": "My armor is unbreakable!",
+	"voice.forgemaster.death": "The fire... goes out.",
+	"options.subtitles": "Boss subtitles"
 }

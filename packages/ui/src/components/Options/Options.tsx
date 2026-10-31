@@ -42,6 +42,7 @@ export interface OptionsViewModel {
 	gore: boolean;
 	keys: KeyMap;
 	pad: PadMap;
+	subtitles: boolean;
 	locale: string;
 	locales: readonly { id: string; name: string }[];
 }
@@ -58,6 +59,7 @@ export interface OptionsActions {
 	setFlashReduction(on: boolean): void;
 	setUiScale(percent: number): void;
 	setGore(full: boolean): void;
+	setSubtitles(on: boolean): void;
 	/** Tries to bind `code` to `action`; the answer says why not (conflict, reserved, invalid). */
 	setKey(action: KeyAction, code: string): KeyCheck;
 	resetKeys(): void;
@@ -347,6 +349,15 @@ export function Options({ view, actions, getPad }: OptionsProps): JSX.Element {
 								onChange={(event) => actions.setGore(event.target.checked)}
 							/>
 							{t("options.gore")}
+						</label>
+						<label className="flex min-h-12 items-center gap-2">
+							<input
+								type="checkbox"
+								data-testid="options-subtitles"
+								checked={view.subtitles}
+								onChange={(event) => actions.setSubtitles(event.target.checked)}
+							/>
+							{t("options.subtitles")}
 						</label>
 					</fieldset>
 					<fieldset className="mt-3 flex flex-col gap-2 font-body text-sm text-bone-dark">

@@ -1,5 +1,7 @@
-import { EventType } from "@gc/game";
+import { bossesData, EventType } from "@gc/game";
 import { afterEach, expect, test, vi } from "vitest";
+import en from "../../../../locales/en.json" with { type: "json" };
+import ptBR from "../../../../locales/pt-BR.json" with { type: "json" };
 import {
 	type AudioDeps,
 	type ContextLike,
@@ -9,7 +11,7 @@ import {
 	type NodeLike,
 	type SourceLike,
 } from "./audioEngine";
-import { type SoundContext, soundFor } from "./eventSounds";
+import { captionKeyFor, createEventAudio, type SoundContext, soundFor } from "./eventSounds";
 import { musicFor } from "./webAudio";
 
 afterEach(() => vi.useRealTimers());
@@ -275,4 +277,39 @@ test("boss voices are named after the boss and the moment", () => {
 	expect(soundFor(EventType.BossDied, 0, 0, 0, 3, ctx)).toBeNull();
 	expect(soundFor(EventType.BossStealth, 1, 0.15, 3, 9, ctx)?.ids).toBe("sfx_boss_stealth");
 	expect(soundFor(EventType.BossStealth, 0, 1, 0, 9, ctx)?.ids).toBe("sfx_boss_reveal");
+});
+
+test("a voice id maps to its caption key and other sounds have none", () => {
+	expect(captionKeyFor("voice_gravedigger_entry")).toBe("voice.gravedigger.entry");
+	expect(captionKeyFor("voice_swamp_matriarch_death")).toBe("voice.swamp_matriarch.death");
+	expect(captionKeyFor("sfx_boss_telegraph")).toBeNull();
+	expect(captionKeyFor("voice_gravedigger_hello")).toBeNull();
+});
+
+test("every boss has an entry, phase and death caption in both languages", () => {
+	for (const boss of bossesData) {
+		for (const moment of ["entry", "phase", "death"]) {
+			const key = `voice.${boss.id}.${moment}`;
+			expect((en as Record<string, string>)[key], key).toBeTruthy();
+			expect((ptBR as Record<string, string>)[key], key).toBeTruthy();
+		}
+	}
+});
+
+test("the event audio reports the caption of a boss voice, with or without the file", () => {
+	const played: string[] = [];
+	const captions: string[] = [];
+	const engine = {
+		play: (ids: string | readonly string[]) => {
+			played.push(String(ids));
+			return true;
+		},
+		duck: () => undefined,
+	};
+	const visit = createEventAudio(engine as never, ctx, (key) => captions.push(key));
+	visit(EventType.BossDied, 0, 0, 0, 9);
+	visit(EventType.BossPhase, 2, 0, 0, 9);
+	visit(EventType.Swung, 1, 0, 2, 1);
+	expect(played).toEqual(["voice_gravedigger_death", "voice_gravedigger_phase", "sfx_sword_swing_01"]);
+	expect(captions).toEqual(["voice.gravedigger.death", "voice.gravedigger.phase"]);
 });

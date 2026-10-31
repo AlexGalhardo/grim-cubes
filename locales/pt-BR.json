@@ -256,5 +256,21 @@
 	"options.keysReset": "Restaurar teclas padrão",
 	"options.pad.dash": "Dash (botão do controle)",
 	"options.pad.pause": "Pausa (botão do controle)",
-	"options.padPress": "Pressione um botão..."
+	"options.padPress": "Pressione um botão...",
+	"voice.alpha_hunter.entry": "Você não pode me ver. Só pode morrer.",
+	"voice.alpha_hunter.phase": "A caçada começa de verdade.",
+	"voice.alpha_hunter.death": "Uma presa digna... afinal.",
+	"voice.nest_queen.entry": "Meus filhos têm fome. Alimentem-nos.",
+	"voice.nest_queen.phase": "Levantem, minha ninhada. Levantem!",
+	"voice.nest_queen.death": "A colmeia... vai lembrar.",
+	"voice.gravedigger.entry": "Mais uma alma para as minhas covas.",
+	"voice.gravedigger.phase": "Levantem! Levantem da terra!",
+	"voice.gravedigger.death": "De volta... para a terra...",
+	"voice.swamp_matriarch.entry": "Chegue mais perto, pequeno. O pântano tem fome.",
+	"voice.swamp_matriarch.phase": "Afoguem todos eles, minhas sanguessugas.",
+	"voice.swamp_matriarch.death": "A água... me leva de volta...",
+	"voice.forgemaster.entry": "Vou forjar você em sucata.",
+	"voice.forgemaster.phase": "Minha armadura é inquebrável!",
+	"voice.forgemaster.death": "O fogo... se apaga.",
+	"options.subtitles": "Legendas das falas dos chefes"
 }
