@@ -16,3 +16,9 @@ test("every skin tint in milestones.json names a PALETTE colour and a theme.css 
 		);
 	}
 });
+
+test("damage-white is near white, never pure white, and lives in theme.css", () => {
+	const theme = readFileSync(new URL("../../../ui/src/theme.css", import.meta.url), "utf8");
+	expect(PALETTE.damageWhite).not.toBe("#FFFFFF");
+	expect(theme).toContain(`--color-damage-white: ${PALETTE.damageWhite.toLowerCase()};`);
+});
