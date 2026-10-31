@@ -91,7 +91,8 @@
 		"special": {
 			"id": "hero_speed_penalty_while_firing",
 			"params": {
-				"value": 0.2
+				"value": 0.2,
+				"lingerSeconds": 0.1
 			}
 		},
 		"unlockRound": 4,

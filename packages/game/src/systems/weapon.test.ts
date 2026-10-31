@@ -224,11 +224,11 @@ test("mg slows the hero while firing and recovers shortly after", () => {
 });
 
 test("bazooka shells carry the explosion radius from the data", () => {
-	const { world, add, tick } = setup("bazooka", 0, { explosionSize: 0.5 });
+	const { world, add, tick } = setup("bazooka", 0, { explosionSize: 0.3 });
 	add(8, 0);
 	tick();
 	const p = query(world, [Projectile]).find((e) => (Projectile.life[e] ?? 0) > 0) ?? -1;
-	expect(Projectile.explosionRadius[p]).toBeCloseTo(3 * 1.5);
+	expect(Projectile.explosionRadius[p]).toBeCloseTo(3 * 1.3);
 	expect(Projectile.selfFraction[p]).toBe(0.5);
 	expect(Projectile.damage[p]).toBeCloseTo(45);
 });

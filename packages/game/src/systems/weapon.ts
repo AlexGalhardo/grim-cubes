@@ -79,8 +79,6 @@ export interface WeaponSystem {
 }
 
 const MAX_HITS = 128;
-/** The firing speed penalty lingers this many steps after the last shot. */
-const FIRING_STEPS = 6;
 const KINDS = new Set(["melee", "single_shot", "burst", "continuous", "explosive"]);
 
 export function createWeaponSystem(deps: WeaponSystemDeps): WeaponSystem {
@@ -92,6 +90,7 @@ export function createWeaponSystem(deps: WeaponSystemDeps): WeaponSystem {
 	let closeMult = 1;
 	let closeDistance = 0;
 	let firingPenalty = 0;
+	let lingerSteps = 0;
 	let selfFraction = 0;
 	let cooldown = 0;
 	let firing = 0;
@@ -125,6 +124,7 @@ export function createWeaponSystem(deps: WeaponSystemDeps): WeaponSystem {
 		closeMult = def.special?.id === "close_range_damage_mult" ? (params?.mult ?? 1) : 1;
 		closeDistance = def.special?.id === "close_range_damage_mult" ? (params?.maxDistance ?? 0) : 0;
 		firingPenalty = def.special?.id === "hero_speed_penalty_while_firing" ? (params?.value ?? 0) : 0;
+		lingerSteps = Math.round((params?.lingerSeconds ?? 0) / STEP);
 		selfFraction = def.special?.id === "self_damage_in_radius" ? (params?.fraction ?? 0) : 0;
 		shot.knockback = def.knockback;
 		shot.pierce = def.projectile?.pierce ?? 0;
@@ -235,7 +235,7 @@ export function createWeaponSystem(deps: WeaponSystemDeps): WeaponSystem {
 				if (weapon.kind === "melee") swing(world, hero, dx, dz, range);
 				else shoot(hero, dx, dz, range, dist);
 				attacks++;
-				firing = FIRING_STEPS;
+				firing = lingerSteps;
 				// Fractional period keeps the remainder, so 7.5 steps alternate 8 and 7 (SMG at exactly 8/s).
 				cooldown += periodSteps();
 			}
