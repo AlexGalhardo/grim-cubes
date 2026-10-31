@@ -129,15 +129,59 @@ export const IQR_LIMIT = 25;
  */
 export const ALIVE_LIMIT = 0.45;
 
-/** GDD 25 targets for Normal. A check is skipped when the runs were too short to judge it. */
-export function checkTargets(metrics: Metrics, roundsRequested: number): Check[] {
+export type Difficulty = "normal" | "grim" | "nightmare";
+export type PolicyName = "greedy" | "tank";
+export interface Profile {
+	difficulty: Difficulty;
+	policy: PolicyName;
+}
+
+interface Ranges {
+	p50: readonly [number, number];
+	alive: number;
+	/** Highest median boss kill time in seconds (the lower bound is the one of GDD 25). */
+	killMax: { gravedigger: number; other: number };
+	/** Boss enrage stacks must stay below this (a Nightmare tank may reach 3). */
+	enrageBelow: number;
+}
+
+/**
+ * GDD 25.1 ranges per difficulty and policy (decision of the Orq, 2026-10-31). Grim and Nightmare are calibrated with
+ * the reference Ossuary profiles of the GDD (`--ossuary`); without them the bot dies far earlier.
+ */
+export function rangesFor({ difficulty, policy }: Profile): Ranges {
+	if (policy === "greedy") {
+		const p50 = { normal: [18, 26], grim: [14, 22], nightmare: [11, 18] } as const;
+		return {
+			p50: p50[difficulty],
+			alive: ALIVE_LIMIT,
+			killMax: { gravedigger: 90, other: 120 },
+			enrageBelow: 3,
+		};
+	}
+	const nightmare = difficulty === "nightmare";
+	return {
+		p50: nightmare ? [30, 35] : [26, 35],
+		alive: nightmare ? 0.7 : 0.65,
+		killMax: nightmare ? { gravedigger: 190, other: 190 } : { gravedigger: 150, other: 150 },
+		enrageBelow: nightmare ? 4 : 3,
+	};
+}
+
+/** GDD 25 targets for the given profile (default: Normal, greedy). A check is skipped when the runs were too short. */
+export function checkTargets(
+	metrics: Metrics,
+	roundsRequested: number,
+	profile: Profile = { difficulty: "normal", policy: "greedy" },
+): Check[] {
 	const checks: Check[] = [];
+	const ranges = rangesFor(profile);
 	const longEnough = roundsRequested >= 30;
 	checks.push({
 		id: "death-round-p50",
-		target: "18-26",
+		target: `${ranges.p50[0]}-${ranges.p50[1]}`,
 		value: metrics.deathRound.p50,
-		ok: within(metrics.deathRound.p50, 18, 26),
+		ok: within(metrics.deathRound.p50, ranges.p50[0], ranges.p50[1]),
 		skipped: !longEnough,
 	});
 	checks.push({
@@ -150,13 +194,14 @@ export function checkTargets(metrics: Metrics, roundsRequested: number): Check[]
 	const alive = metrics.runs > 0 ? metrics.survivors / metrics.runs : null;
 	checks.push({
 		id: "alive-fraction-at-horizon",
-		target: `<= ${ALIVE_LIMIT}`,
+		target: `<= ${ranges.alive}`,
 		value: alive,
-		ok: alive !== null && alive <= ALIVE_LIMIT,
+		ok: alive !== null && alive <= ranges.alive,
 		skipped: !longEnough || alive === null,
 	});
 	for (const [id, entry] of Object.entries(metrics.bosses)) {
-		const [lo, hi] = id === "gravedigger" ? [45, 90] : [60, 120];
+		const lo = id === "gravedigger" ? 45 : 60;
+		const hi = id === "gravedigger" ? ranges.killMax.gravedigger : ranges.killMax.other;
 		checks.push({
 			id: `boss-kill-seconds:${id}`,
 			target: `${lo}-${hi}`,
@@ -166,9 +211,9 @@ export function checkTargets(metrics: Metrics, roundsRequested: number): Check[]
 		});
 		checks.push({
 			id: `boss-enrage-stacks:${id}`,
-			target: "< 3",
+			target: `< ${ranges.enrageBelow}`,
 			value: entry.medianEnrageStacks,
-			ok: entry.medianEnrageStacks !== null && entry.medianEnrageStacks < 3,
+			ok: entry.medianEnrageStacks !== null && entry.medianEnrageStacks < ranges.enrageBelow,
 			skipped: entry.fought === 0,
 		});
 	}
