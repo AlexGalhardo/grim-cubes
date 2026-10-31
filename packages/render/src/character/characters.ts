@@ -12,6 +12,7 @@ import {
 	Position,
 	PrevPosition,
 	queryEnemies,
+	roundsData,
 	Velocity,
 } from "@gc/game";
 import { mixAuras } from "../scene/aura";
@@ -73,7 +74,8 @@ const MERCHANT_RING_PULSE_HZ = 0.9;
 /** Where the Merchant stands relative to the hero while the shop is open. */
 const MERCHANT_OFFSET_X = 4;
 const MERCHANT_OFFSET_Z = 0;
-const MERCHANT_SUBMERGE_SECONDS = 0.8;
+/** Seconds the old follow-the-hero Merchant takes to sink, the `leaveSeconds` of data/rounds.json. */
+const MERCHANT_SUBMERGE_SECONDS = roundsData.merchant.leaveSeconds;
 /** Seconds the camera takes to return to its radius after the boss execution. */
 const RETURN_SECONDS = 0.6;
 /** Time constant of the hero's turn towards its target or movement (about 0.08 s to cover most of the angle). */
