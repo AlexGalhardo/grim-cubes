@@ -50,3 +50,12 @@ export const ContactCooldown = { ticks: u8() };
 
 /** A pile of gold/XP on the floor; `value` is the amount (SDD 02 section 2.1). */
 export const Fragment = { value: u16(), magnetTimer: u16() };
+
+/** Hero projectile in flight. `life` counts steps; lifecycle and hits belong to projectileSystem. */
+export const Projectile = {
+	damage: f32(),
+	critChance: f32(),
+	knockback: f32(),
+	pierce: u8(),
+	life: u16(),
+};

@@ -29,7 +29,8 @@
 		"knockback": 0.5,
 		"projectile": {
 			"count": 1,
-			"pierce": 0
+			"pierce": 0,
+			"speed": 28
 		},
 		"special": {
 			"id": "crit_chance_bonus",

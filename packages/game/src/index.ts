@@ -16,6 +16,7 @@ export {
 	PlayerFaction,
 	Position,
 	PrevPosition,
+	Projectile,
 	Radius,
 	Speed,
 	Velocity,
@@ -24,6 +25,8 @@ export type { RenderPort } from "./ecs/contract";
 export type { EventBuffer, EventVisitor } from "./ecs/events";
 export { consumeEvents, createEventBuffer, EVENT_CAPACITY, EventType } from "./ecs/events";
 export { dropFragment } from "./ecs/fragments";
+export type { ProjectileSpec } from "./ecs/projectile";
+export { spawnProjectile } from "./ecs/projectile";
 export type { GameWorld } from "./ecs/world";
 export { createGameWorld, spawn, spawnBody } from "./ecs/world";
 export type { Loop, LoopHooks } from "./loop";
@@ -53,6 +56,10 @@ export type {
 	SpawnWeight,
 } from "./systems/spawn";
 export { createSpawnSystem, spawnBurst, spawnIntervalSeconds, spawnTotal } from "./systems/spawn";
+export type { TargetingConfig, TargetingSystem } from "./systems/targeting";
+export { createTargetingSystem } from "./systems/targeting";
+export type { WeaponDef, WeaponStats, WeaponSystem, WeaponSystemDeps } from "./systems/weapon";
+export { createWeaponSystem } from "./systems/weapon";
 export type { ChunkData, ChunkGenerator, ChunkStats, ChunkSystem, WorldConfig } from "./world/chunkSystem";
 export { createChunkSystem } from "./world/chunkSystem";
 export type { Origin, OriginShiftConfig } from "./world/originShift";

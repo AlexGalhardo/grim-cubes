@@ -59,6 +59,10 @@
 						"type": "integer",
 						"minimum": 1
 					},
+					"speed": {
+						"type": "number",
+						"minimum": 0
+					},
 					"pierce": {
 						"type": "integer",
 						"minimum": 0

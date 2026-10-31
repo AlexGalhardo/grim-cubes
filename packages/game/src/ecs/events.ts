@@ -13,6 +13,10 @@ export const EventType = {
 	RoundStarted: 6,
 	/** a = round number. */
 	RoundEnded: 7,
+	/** a, b = unit direction x, z; c = reach in u. The hero swung a melee weapon. */
+	Swung: 8,
+	/** a, b = unit direction x, z. The hero fired a projectile. */
+	Fired: 9,
 } as const;
 
 export const EVENT_CAPACITY = 1024;
