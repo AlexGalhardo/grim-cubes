@@ -1,3 +1,6 @@
+import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
+import { Color3 } from "@babylonjs/core/Maths/math.color";
+import { CreateTorus } from "@babylonjs/core/Meshes/Builders/torusBuilder";
 import {
 	Boss,
 	bossesData,
@@ -17,10 +20,23 @@ import type { GameScene } from "../scene/scene";
 import type { Character } from "./character";
 import { desiredYaw, type FacingInput, isBackpedaling, turnTowards } from "./facing";
 
+/** The Merchant the session keeps in the world (`session.merchant.view`), in scene coordinates. */
+export interface MerchantLook {
+	x: number;
+	z: number;
+	state: "arriving" | "waiting" | "leaving";
+}
+
 export interface CharactersOptions {
 	hero: Character;
 	/** Shown beside the hero while the shop is open. */
 	merchant?: Character | undefined;
+	/**
+	 * Where the Merchant stands and what it is doing, or null when it is away. When given, the rig stays at that fixed
+	 * spot (emerge while arriving, idle while waiting, submerge while leaving) and a ring marks it when the hero is
+	 * near; without it the rig follows the hero while the shop is open.
+	 */
+	merchantView?: (() => MerchantLook | null) | undefined;
 	/** Boss rigs by `Boss.id - 1` (the 1-based position in bosses.json); they replace the horde instance of their boss. */
 	bosses: readonly (Character | undefined)[];
 	/** Fraction the camera radius shrinks by during the boss execution (GDD 12.2: 20%). */
@@ -48,6 +64,11 @@ export interface Characters {
 	/** Holds every rig on its idle pose (captures). */
 	holdIdle(): void;
 }
+
+/** The interaction ring around a waiting Merchant (u) and the hero distance at which it shows (u). */
+const MERCHANT_RING_RADIUS = 1.8;
+const MERCHANT_RING_SHOW = 4;
+const MERCHANT_RING_PULSE_HZ = 0.9;
 
 /** Where the Merchant stands relative to the hero while the shop is open. */
 const MERCHANT_OFFSET_X = 4;
@@ -103,6 +124,20 @@ export function createCharacters(game: GameScene, options: CharactersOptions): C
 
 	hero.setVisible(true);
 	merchant?.setVisible(false);
+	const ring = CreateTorus(
+		"merchant_ring",
+		{ diameter: MERCHANT_RING_RADIUS * 2, thickness: 0.1, tessellation: 32 },
+		game.scene,
+	);
+	const ringMaterial = new StandardMaterial("merchant_ring", game.scene);
+	ringMaterial.disableLighting = true;
+	ringMaterial.emissiveColor = Color3.FromHexString(PALETTE.emberLight);
+	ringMaterial.diffuseColor = Color3.Black();
+	ring.material = ringMaterial;
+	ring.isPickable = false;
+	ring.setEnabled(false);
+	let ringClock = 0;
+	let lookState: MerchantLook["state"] | "away" = "away";
 	for (const rig of bosses) rig?.setVisible(false);
 
 	function pose(rig: Character, e: number, alpha: number): void {
@@ -239,7 +274,34 @@ export function createCharacters(game: GameScene, options: CharactersOptions): C
 				game.camera.radius = baseRadius * (1 - options.executionZoom * k * k * (3 - 2 * k));
 			}
 
-			if (merchant) {
+			if (merchant && options.merchantView) {
+				const look = options.merchantView();
+				if (!look) {
+					if (lookState !== "away") merchant.setVisible(false);
+					lookState = "away";
+				} else {
+					if (lookState !== look.state) {
+						if (lookState === "away") merchant.setVisible(true);
+						if (look.state === "arriving") merchant.playOnce("emerge");
+						else if (look.state === "leaving") merchant.playOnce("submerge");
+						lookState = look.state;
+					}
+					const hx = heroEntity >= 0 ? (Position.x[heroEntity] ?? 0) : look.x;
+					const hz = heroEntity >= 0 ? (Position.z[heroEntity] ?? 0) : look.z;
+					// Faces the hero (yaw 0 looks along +z).
+					merchant.setPose(look.x, look.z, Math.atan2(hx - look.x, hz - look.z));
+					const near = Math.hypot(hx - look.x, hz - look.z) < MERCHANT_RING_SHOW;
+					if (look.state === "waiting" && near) {
+						ringClock += dt;
+						const pulse = 1 + 0.06 * Math.sin(ringClock * MERCHANT_RING_PULSE_HZ * Math.PI * 2);
+						ring.position.set(look.x, 0.05, look.z);
+						ring.scaling.set(pulse, 1, pulse);
+						ring.setEnabled(true);
+					} else ring.setEnabled(false);
+				}
+				if (!look) ring.setEnabled(false);
+				merchant.update(dt);
+			} else if (merchant) {
 				if (shopOpen && merchantState !== "in") {
 					merchantState = "in";
 					merchant.setVisible(true);

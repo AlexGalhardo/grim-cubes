@@ -578,6 +578,7 @@ async function boot(): Promise<void> {
 		? createCharacters(game, {
 				hero: heroRig,
 				merchant: merchantRig,
+				merchantView: () => session.merchant.view,
 				bosses: bossRigs,
 				heroTarget: () => targeting.target,
 				executionZoom: renderData.character.executionZoom,
@@ -1432,6 +1433,8 @@ async function boot(): Promise<void> {
 			},
 			/** Variant budget check: 0 draws no cosmetic variants, 30 is the default share. */
 			setVariants: (percent: number) => horde?.setVariantPercent(percent),
+			/** The Merchant the session keeps in the world (fixed spot capture). */
+			merchant: () => session.merchant.view,
 			/** Game speed 1, 2 or 3 (perf margin check). */
 			setSpeed: (speed: number) => loop.setSpeed(speed),
 			/**
