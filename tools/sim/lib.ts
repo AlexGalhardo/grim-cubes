@@ -3,6 +3,7 @@ import {
 	createGameSession,
 	difficultyData,
 	EventType,
+	enemiesData,
 	Health,
 	hashWorld,
 	heroData,
@@ -70,6 +71,8 @@ export interface SimReport {
 	perRound: RoundReport[];
 	bosses: BossFight[];
 	itemsBought: number;
+	/** Id of the enemy that landed the killing blow, "self" or "none" (run still alive). */
+	killedBy: string;
 }
 
 const MAX_SECONDS_PER_ROUND = 90;
@@ -82,12 +85,12 @@ const STAT_WEIGHT: Readonly<Record<string, number>> = {
 	damage: 100,
 	attack_speed: 100,
 	crit_chance: 60,
-	max_hp: 0.4,
-	hp_regen: 8,
-	armor: 3,
+	max_hp: 0.8,
+	hp_regen: 30,
+	armor: 6,
 	dodge: 80,
 	speed: 25,
-	life_steal: 150,
+	life_steal: 300,
 	range: 6,
 	luck: 0.2,
 	harvest: 4,
@@ -150,6 +153,7 @@ export function runSim(options: SimOptions): SimReport {
 		perRound: [],
 		bosses,
 		itemsBought: 0,
+		killedBy: "none",
 	};
 	let steps = 0;
 	let bossStartStep = 0;
@@ -278,7 +282,6 @@ export function runSim(options: SimOptions): SimReport {
 
 	const maxSteps = options.maxSteps ?? Math.ceil((options.rounds * MAX_SECONDS_PER_ROUND) / STEP);
 	run.newRun();
-	let inBossRound = false;
 	while (steps < maxSteps) {
 		if (run.state === "Results") {
 			report.outcome = "died";
@@ -287,8 +290,8 @@ export function runSim(options: SimOptions): SimReport {
 		choose();
 		if (run.state === "Round" || run.state === "BossRound") steer();
 		session.step(input);
-		if (run.state === "BossRound" && !inBossRound) {
-			inBossRound = true;
+		// A level-up or chest pauses the round mid-fight, so the fight is told apart by its round, not by the state.
+		if (run.state === "BossRound" && bosses.at(-1)?.round !== run.round) {
 			bossStartStep = steps;
 			bosses.push({
 				round: run.round,
@@ -296,8 +299,6 @@ export function runSim(options: SimOptions): SimReport {
 				killSeconds: null,
 				enrageStacks: 0,
 			});
-		} else if (run.state !== "BossRound") {
-			inBossRound = false;
 		}
 		if (progress.gold > lastGold) roundGoldEarned += progress.gold - lastGold;
 		lastGold = progress.gold;
@@ -316,6 +317,13 @@ export function runSim(options: SimOptions): SimReport {
 		}
 	}
 
+	const killer = session.runStats.killer;
+	report.killedBy =
+		killer.kind === "enemy"
+			? (enemiesData[killer.type]?.id ?? "enemy")
+			: killer.kind === "self"
+				? "self"
+				: "none";
 	report.steps = steps;
 	report.roundReached = run.round;
 	report.gold = progress.gold;

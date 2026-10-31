@@ -28,7 +28,7 @@ describe("sim harness", () => {
 	});
 
 	it("fights the round 10 boss and records how long it took", () => {
-		// Seed 10 survives to round 10 and kills the Gravedigger (about 25 s); other seeds die earlier.
+		// Seed 10 survives to round 10 and kills the Gravedigger (about 29 s); other seeds die earlier.
 		const report = runSim({ seed: 10, rounds: 10, difficulty: "normal" });
 		expect(report.bosses).toHaveLength(1);
 		expect(report.bosses[0]).toMatchObject({ round: 10, boss: "gravedigger" });

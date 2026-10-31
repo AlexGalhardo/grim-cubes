@@ -187,6 +187,11 @@ function build(options: GameSessionOptions) {
 		events,
 		// propCollision is created further down; it is only called once the loop runs.
 		isBlocked: (x, z) => propCollision.overlaps(origin, x, z, maxEnemyRadius),
+		// GDD 10.2: the ring the hero stands in decides the enemy pool (60/30/10 with its neighbours).
+		biomes: {
+			at: (x, z) => biomeMap.at(origin.x + x, origin.z + z),
+			pools: biomesData.map((biome) => biome.enemyPool.map((id) => enemyIds.indexOf(id))),
+		},
 		onSpawn: (w, x, z) => bag.release?.(w, x, z),
 	});
 	const enemyShots = createEnemyShotPool(world);

@@ -73,6 +73,12 @@ export interface SpawnSystemDeps {
 	isBlocked?: (x: number, z: number) => boolean;
 	/** Called for every created enemy with its position (relative coordinates). */
 	onSpawn?: (world: GameWorld, x: number, z: number) => void;
+	/**
+	 * Per-biome enemy pools (GDD 10.2): which biome ring a position (relative coordinates) is in, and the enemy types
+	 * of each ring. When set, the round pool is ignored: 60% of the spawns come from the hero's ring, 30% from the
+	 * ring before it and 10% from the next one (80/20 in the first ring, 2/3 and 1/3 in the last).
+	 */
+	biomes?: { at: (x: number, z: number) => number; pools: readonly (readonly number[])[] };
 	/** Receives `Died` (b = 1, no drop) for enemies culled at the simultaneous cap. */
 	events?: EventBuffer;
 }
@@ -109,7 +115,7 @@ export const spawnBurst = (c: SpawnConfig, round: number): number =>
 	c.burstBase + Math.floor(round / c.burstRoundDivisor);
 
 export function createSpawnSystem(deps: SpawnSystemDeps): SpawnSystem {
-	const { config, enemies, rng, isBlocked, onSpawn, events } = deps;
+	const { config, enemies, rng, isBlocked, onSpawn, events, biomes } = deps;
 	let round = 1;
 	let remaining = 0;
 	let spawned = 0;
@@ -120,7 +126,28 @@ export function createSpawnSystem(deps: SpawnSystemDeps): SpawnSystem {
 	let pool: readonly SpawnWeight[] = [];
 	let poolTotal = 0;
 
-	function pickType(): number {
+	/** GDD 10.2 mix: the ring (current, previous or next) comes first, then a uniform enemy of that ring. */
+	function pickByBiome(x: number, z: number): number {
+		if (!biomes) return 0;
+		const here = biomes.at(x, z);
+		const before = here > 0 ? here - 1 : -1;
+		const after = here + 1 < biomes.pools.length ? here + 1 : -1;
+		const weightHere = before < 0 ? 0.8 : 0.6;
+		const weightBefore = before < 0 ? 0 : 0.3;
+		const weightAfter = after < 0 ? 0 : before < 0 ? 0.2 : 0.1;
+		let roll = rng.float(0, weightHere + weightBefore + weightAfter);
+		let ring = here;
+		if (roll >= weightHere) {
+			roll -= weightHere;
+			ring = roll < weightBefore ? before : after;
+		}
+		const list = biomes.pools[ring] ?? [];
+		if (list.length === 0) return 0;
+		return list[Math.min(list.length - 1, Math.floor(rng.float(0, list.length)))] ?? 0;
+	}
+
+	function pickType(x: number, z: number): number {
+		if (biomes) return pickByBiome(x, z);
 		let roll = rng.float(0, poolTotal);
 		for (let i = 0; i < pool.length; i++) {
 			const entry = pool[i];
@@ -239,7 +266,8 @@ export function createSpawnSystem(deps: SpawnSystemDeps): SpawnSystem {
 			for (let i = 0; i < over; i++) {
 				if (!cullFarthest(world, hero)) n--;
 			}
-			for (let i = 0; i < n; i++) create(world, pickType(), hero);
+			for (let i = 0; i < n; i++)
+				create(world, pickType(Position.x[hero] ?? 0, Position.z[hero] ?? 0), hero);
 			remaining -= n;
 			timer = intervalSteps;
 		},

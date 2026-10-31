@@ -1,11 +1,12 @@
 import { readFileSync } from "node:fs";
 import { mulberry32 } from "@gc/core";
-import { addComponent, query } from "bitecs";
+import { addComponent, query, removeEntity } from "bitecs";
 import { expect, test } from "vitest";
 import {
 	ContactDamage,
 	Elite,
 	EnemyFaction,
+	EnemyType,
 	Health,
 	PlayerFaction,
 	Position,
@@ -140,4 +141,44 @@ test("an enemy never spawns where isBlocked says a prop stands", () => {
 	for (let step = 0; step < 6_000 && system.remaining > 0; step++) system.run(world, hero);
 	expect(system.spawned).toBe(140);
 	for (const e of query(world, [EnemyFaction])) expect(Position.x[e] ?? 0).toBeGreaterThanOrEqual(0);
+});
+
+test("with biome pools a spawn takes 60% from the hero's ring, 30% from the previous and 10% from the next", () => {
+	const world = createGameWorld();
+	const hero = spawnBody(world, 0, 0);
+	addComponent(world, hero, PlayerFaction);
+	addComponent(world, hero, Velocity);
+	// Four rings, one enemy type each (0..3, all present in `enemies`).
+	let ring = 1;
+	const system = createSpawnSystem({
+		config: { ...config, maxSimultaneous: 100_000 },
+		enemies,
+		rng: mulberry32(11),
+		biomes: { at: () => ring, pools: [[0], [1], [0], [1]] },
+	});
+	// A huge quota so the spawner keeps creating; each batch is tallied by enemy type.
+	const spawnMany = (r: number): Record<number, number> => {
+		ring = r;
+		const counts: Record<number, number> = {};
+		for (let batch = 0; batch < 20; batch++) {
+			system.startRound(10, { pool, difficultyMult: 1 });
+			for (let i = 0; i < 4000 && system.remaining > 0; i++) system.run(world, hero);
+			for (const e of [...query(world, [EnemyFaction])]) {
+				const type = EnemyType.id[e] ?? 0;
+				counts[type] = (counts[type] ?? 0) + 1;
+				removeEntity(world, e);
+			}
+		}
+		return counts;
+	};
+	const share = (counts: Record<number, number>, type: number): number => {
+		const total = Object.values(counts).reduce((a, b) => a + b, 0);
+		return (counts[type] ?? 0) / total;
+	};
+	// Ring 1 (type 1): 60% own, 30% ring 0 (type 0), 10% ring 2 (type 0) -> type 1 = 60%.
+	expect(share(spawnMany(1), 1)).toBeCloseTo(0.6, 1);
+	// Ring 0 has no previous ring: 80% own (type 0), 20% next (type 1).
+	expect(share(spawnMany(0), 0)).toBeCloseTo(0.8, 1);
+	// Last ring (3, type 1): 2/3 own, 1/3 previous (type 0).
+	expect(share(spawnMany(3), 1)).toBeCloseTo(2 / 3, 1);
 });
