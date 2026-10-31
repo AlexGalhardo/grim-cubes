@@ -375,7 +375,7 @@ async function boot(): Promise<void> {
 			}
 			if (run.state === "Shop" && !inShop) shop.open();
 			inShop = run.state === "Shop";
-			// No results screen yet: a finished run starts over.
+			// No results screen yet (P-05-08): a finished run starts over.
 			if (run.state === "Results") location.reload();
 		},
 		render: (alpha) => {
@@ -407,6 +407,12 @@ async function boot(): Promise<void> {
 			endRound: () => run.forceEnd(world),
 		};
 	}
+
+	// SDD 02 section 1: a hidden tab pauses the simulation and resuming ignores the time spent away.
+	document.addEventListener("visibilitychange", () => {
+		if (document.hidden) loop.pause();
+		else loop.resume();
+	});
 
 	run.newRun();
 	render.engine.runRenderLoop(() => {
