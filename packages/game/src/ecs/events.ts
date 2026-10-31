@@ -54,6 +54,10 @@ export const EventType = {
 	BossScream: 26,
 	/** a, b = unit direction x, z; c = dash duration in seconds; entity = the hero. A dash began. */
 	DashStarted: 27,
+	/** a, b = x, z; c = radius. The boss slammed the ground (hammer): the hero in range was thrown back. */
+	BossShockwave: 28,
+	/** a = phase number entered (2 = the armoured phase); entity = the boss. */
+	BossPhase: 29,
 	/** a = new level. The run paused and a card offer is waiting. */
 	LevelUp: 11,
 } as const;

@@ -352,6 +352,7 @@ async function boot(): Promise<void> {
 			summonType: enemyIds.indexOf("husk"),
 			enemyIndex: (id) => enemyIds.indexOf(id),
 			heroStatus,
+			shots: enemyShots,
 			difficulty: () => difficulty.hpDamageMult,
 			onDefeated: () => {
 				run.bossDied();

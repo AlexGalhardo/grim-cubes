@@ -156,7 +156,7 @@ test("the scream shoves a hero standing next to her away and hurts it, after a t
 	expect(Health.hp[hero]).toBeLessThan(1e6);
 });
 
-test("the roster fights the Gravedigger in round 10 and the Matriarch from round 20, skipping bosses without handlers", () => {
+test("the roster fights the Gravedigger in round 10, the Matriarch from 20 and the Forgemaster from 30", () => {
 	const { spawn, events, damage } = setup();
 	const hero = spawnBody(createGameWorld(), 0, 0);
 	const roster = createBossRoster(
@@ -177,6 +177,5 @@ test("the roster fights the Gravedigger in round 10 and the Matriarch from round
 	expect(roster.defFor(10).id).toBe("gravedigger");
 	expect(roster.defFor(20).id).toBe("swamp_matriarch");
 	expect(roster.defFor(29).id).toBe("swamp_matriarch");
-	// The Forgemaster's patterns are not written yet, so round 30 still gets the Matriarch.
-	expect(roster.defFor(30).id).toBe("swamp_matriarch");
+	expect(roster.defFor(30).id).toBe("forgemaster");
 });

@@ -277,6 +277,7 @@ export function runSim(options: SimOptions): SimReport {
 			rng: streams.combat,
 			summonType: enemyIds.indexOf("husk"),
 			enemyIndex: (id) => enemyIds.indexOf(id),
+			shots: enemyShots,
 			difficulty: () => difficulty.hpDamageMult,
 			onDefeated: () => {
 				run.bossDied();

@@ -1,8 +1,9 @@
 import type { BossPatternData } from "../data/types";
-import { Boss, ContactDamage, Health, Position, Radius, Velocity } from "../ecs/components";
+import { Armor, Boss, ContactDamage, Health, Position, Radius, Velocity } from "../ecs/components";
 import type { EventBuffer } from "../ecs/events";
 import { EventType } from "../ecs/events";
 import type { GameWorld } from "../ecs/world";
+import { STEP } from "../loop";
 import type { DamageQueue } from "./damage";
 import type { SpawnSystem } from "./spawn";
 
@@ -28,6 +29,16 @@ export interface PatternContext {
 	enemyIndex(id: string): number;
 	/** Slows the hero (mud pool). */
 	slowHero(seconds: number, multiplier: number): void;
+	/** Fires one projectile from the shared enemy shot pool (chain shot). */
+	fireShot(
+		x: number,
+		z: number,
+		vx: number,
+		vz: number,
+		damage: number,
+		lifeSteps: number,
+		radius: number,
+	): void;
 	/** Shoves the hero along (dirX, dirZ) by `distance` over `seconds` (scream). */
 	pushHero(dirX: number, dirZ: number, distance: number, seconds: number): void;
 	/** Turns the pattern's `dir` toward the hero and returns the distance. */
@@ -311,12 +322,150 @@ const scream: PatternFactory = (p) => {
 	};
 };
 
+/**
+ * Hammer (Forgemaster): after a telegraph the boss slams the ground; a hero inside the radius is thrown back and
+ * hurt. The radius is a full circle, so the only answer is distance, not facing.
+ */
+const hammerShockwave: PatternFactory = (p) => {
+	let phase = 0;
+	let timer = 0;
+	return {
+		canStart: (_ctx, distance) => distance <= num(p, "maxDistance", 7),
+		start(ctx): void {
+			phase = 0;
+			timer = ctx.steps(num(p, "telegraphSeconds", 1.2));
+			ctx.stop();
+			ctx.events.push(
+				EventType.BossTelegraph,
+				ctx.dirX,
+				ctx.dirZ,
+				num(p, "telegraphSeconds", 1.2),
+				ctx.entity,
+			);
+		},
+		update(ctx): boolean {
+			ctx.stop();
+			if (phase === 0) {
+				if (--timer <= 0) {
+					const x = Position.x[ctx.entity] ?? 0;
+					const z = Position.z[ctx.entity] ?? 0;
+					const radius = num(p, "radius", 7);
+					ctx.events.push(EventType.BossShockwave, x, z, radius, ctx.entity);
+					const dx = (Position.x[ctx.hero] ?? 0) - x;
+					const dz = (Position.z[ctx.hero] ?? 0) - z;
+					const dist = Math.hypot(dx, dz);
+					if (dist <= radius + (Radius.r[ctx.hero] ?? 0)) {
+						const nx = dist > 1e-6 ? dx / dist : ctx.dirX;
+						const nz = dist > 1e-6 ? dz / dist : ctx.dirZ;
+						ctx.pushHero(nx, nz, num(p, "knockbackDistance", 3), num(p, "knockbackSeconds", 0.2));
+						ctx.queue.push(
+							ctx.hero,
+							(ContactDamage.value[ctx.entity] ?? 0) * num(p, "damageMult", 1.3),
+							ctx.entity,
+							0,
+							0,
+							0,
+						);
+					}
+					phase = 1;
+					timer = ctx.steps(num(p, "recoverSeconds", 1.2));
+				}
+			} else if (--timer <= 0) {
+				return false;
+			}
+			return true;
+		},
+	};
+};
+
+/**
+ * Chains (Forgemaster): `bursts` volleys of `directions` projectiles, evenly spread, the first aimed at the hero and
+ * each next one turned by half a spacing so the gaps move. Shots come from the shared enemy shot pool.
+ */
+const chainShot: PatternFactory = (p) => {
+	let phase = 0;
+	let timer = 0;
+	let burstsLeft = 0;
+	let baseAngle = 0;
+
+	function volley(ctx: PatternContext, index: number): void {
+		const directions = Math.max(1, Math.round(num(p, "directions", 4)));
+		const speed = num(p, "projectileSpeed", 9);
+		const life = Math.ceil(num(p, "range", 18) / speed / STEP);
+		const damage = (ContactDamage.value[ctx.entity] ?? 0) * num(p, "damageMult", 0.7);
+		const offset = (index * Math.PI) / directions;
+		for (let i = 0; i < directions; i++) {
+			const angle = baseAngle + offset + (i / directions) * Math.PI * 2;
+			ctx.fireShot(
+				Position.x[ctx.entity] ?? 0,
+				Position.z[ctx.entity] ?? 0,
+				Math.sin(angle) * speed,
+				Math.cos(angle) * speed,
+				damage,
+				life,
+				num(p, "projectileRadius", 0.35),
+			);
+		}
+	}
+
+	return {
+		canStart: (_ctx, distance) => distance >= num(p, "minDistance", 3),
+		start(ctx): void {
+			phase = 0;
+			burstsLeft = Math.max(1, Math.round(num(p, "bursts", 2)));
+			baseAngle = Math.atan2(ctx.dirX, ctx.dirZ);
+			timer = ctx.steps(num(p, "telegraphSeconds", 0.8));
+			ctx.stop();
+			ctx.events.push(
+				EventType.BossTelegraph,
+				ctx.dirX,
+				ctx.dirZ,
+				num(p, "telegraphSeconds", 0.8),
+				ctx.entity,
+			);
+		},
+		update(ctx): boolean {
+			ctx.stop();
+			if (phase === 0) {
+				if (--timer <= 0) {
+					const total = Math.max(1, Math.round(num(p, "bursts", 2)));
+					volley(ctx, total - burstsLeft);
+					burstsLeft--;
+					if (burstsLeft > 0) {
+						timer = ctx.steps(num(p, "burstGapSeconds", 0.5));
+					} else {
+						phase = 1;
+						timer = ctx.steps(num(p, "recoverSeconds", 1));
+					}
+				}
+			} else if (--timer <= 0) {
+				return false;
+			}
+			return true;
+		},
+	};
+};
+
+/** Armor phase (Forgemaster): once HP falls to `atHpFraction` the boss hardens to `armor` (and `Boss.phase` flips). */
+const phaseArmor: PatternFactory = (p) => ({
+	tick(ctx): void {
+		if ((Boss.phase[ctx.entity] ?? 0) !== 0) return;
+		if ((Health.hp[ctx.entity] ?? 0) > ctx.maxHp * num(p, "atHpFraction", 0.5)) return;
+		Boss.phase[ctx.entity] = 1;
+		Armor.value[ctx.entity] = num(p, "armor", 30);
+		ctx.events.push(EventType.BossPhase, num(p, "phase", 2), 0, 0, ctx.entity);
+	},
+});
+
 const REGISTRY = new Map<string, PatternFactory>([
 	["line_charge", lineCharge],
 	["shovel_arc", shovelArc],
 	["summon", summon],
 	["mud_pool", mudPool],
 	["scream", scream],
+	["hammer_shockwave", hammerShockwave],
+	["chain_shot", chainShot],
+	["phase_armor", phaseArmor],
 ]);
 
 /** Adds a pattern for the next bosses (A-03-01 onward). Throws when the id is taken. */

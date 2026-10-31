@@ -2,6 +2,7 @@ import { addComponent } from "bitecs";
 import type { BossData, RoundsData } from "../data/types";
 import { dropChest } from "../ecs/chest";
 import { Boss, ContactDamage, Health, Position, Radius, Speed, Velocity } from "../ecs/components";
+import type { EnemyShotPool } from "../ecs/enemyShot";
 import { type EventBuffer, EventType } from "../ecs/events";
 import type { GameWorld } from "../ecs/world";
 import { STEP } from "../loop";
@@ -26,6 +27,8 @@ export interface BossSystemDeps {
 	difficulty: () => number;
 	/** `EnemyType` index of an enemy id from enemies.json (summon patterns). */
 	enemyIndex?: ((id: string) => number) | undefined;
+	/** Pool the boss's projectiles come from (chain shot); the pattern fires nothing without it. */
+	shots?: EnemyShotPool | undefined;
 	/** Hero slow and push effects (mud pool, scream); patterns that need them are no-ops without it. */
 	heroStatus?: Pick<HeroStatus, "slow" | "push"> | undefined;
 	/** The kill was recorded: end the round, grant the free weapon upgrade, etc. */
@@ -104,6 +107,9 @@ export function createBossSystem(deps: BossSystemDeps): BossSystem {
 			const index = deps.enemyIndex(id);
 			if (index < 0) throw new RangeError(`boss pattern names unknown enemy "${id}"`);
 			return index;
+		},
+		fireShot: (x, z, vx, vz, damage, lifeSteps, radius) => {
+			deps.shots?.acquire(x, z, vx, vz, damage, lifeSteps, radius);
 		},
 		slowHero: (seconds, multiplier) => heroStatus?.slow(seconds, multiplier),
 		pushHero: (dirX, dirZ, distance, seconds) => heroStatus?.push(dirX, dirZ, distance, seconds),
