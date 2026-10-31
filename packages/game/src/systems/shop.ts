@@ -1,3 +1,4 @@
+import type { Described } from "@gc/core";
 import { describeModifier } from "../rules/describe";
 import {
 	type GenerateContext,
@@ -38,8 +39,8 @@ export interface ShopSlotView {
 	kind: ShopSlot["kind"];
 	id: string;
 	name: string;
-	/** Effect lines, e.g. "+3 armadura". */
-	lines: string[];
+	/** Effect lines as keys and parameters, e.g. +3 armor; the UI translates them. */
+	lines: Described[];
 	price: number;
 	tier: number;
 	locked: boolean;
@@ -95,7 +96,7 @@ export function createShopSystem(deps: ShopSystemDeps): ShopSystem {
 		return rerolls < free ? 0 : rerollPrice(config, round(), rerolls - free + 1);
 	};
 
-	function describe(slot: ShopSlot): { name: string; lines: string[]; tier: number } {
+	function describe(slot: ShopSlot): { name: string; lines: Described[]; tier: number } {
 		if (slot.kind === "item") {
 			const item = catalog.items.find((i) => i.id === slot.id);
 			return {

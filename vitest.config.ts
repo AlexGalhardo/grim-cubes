@@ -32,6 +32,7 @@ export default defineConfig({
 					name: "unit-ui",
 					environment: "jsdom",
 					include: ["packages/ui/**/*.test.{ts,tsx}"],
+					setupFiles: ["tests/setup/i18n.ts"],
 				},
 			},
 			{

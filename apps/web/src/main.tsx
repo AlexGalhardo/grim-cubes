@@ -4,11 +4,14 @@ import {
 	createLogger,
 	createStore,
 	createVirtualStick,
+	type Described,
+	i18n,
 	loadMeta,
 	type MetaState,
 	persistRun,
 	type RunResult,
 	type SaveIO,
+	t,
 	updateMeta,
 } from "@gc/core";
 import {
@@ -85,6 +88,7 @@ import { App, type CardView, type HudState } from "@gc/ui";
 import { query } from "bitecs";
 import { createRoot } from "react-dom/client";
 import { bootArtReview } from "./artReview";
+import { initLocale } from "./locale";
 import "./main.css";
 
 const log = createLogger("boot");
@@ -126,14 +130,11 @@ function runSeed(): number {
 	return parsed ?? crypto.getRandomValues(new Uint32Array(1))[0] ?? 1;
 }
 
-const DIFFICULTY_NAMES: Readonly<Record<string, string>> = {
-	normal: "Normal",
-	grim: "Grim",
-	nightmare: "Nightmare",
-};
-const pt = (n: number): string => String(n).replace(".", ",");
+/** Turns a key plus parameters from the game into text for the active locale. */
+const text = (d: Described): string => t(d.key, d.params);
 
 async function boot(): Promise<void> {
+	initLocale();
 	const canvas = document.querySelector<HTMLCanvasElement>("#game");
 	const uiRoot = document.querySelector<HTMLElement>("#ui");
 	if (!canvas || !uiRoot) throw new Error("Missing #game or #ui element");
@@ -519,7 +520,7 @@ async function boot(): Promise<void> {
 				.catch((error: unknown) => log.error("save failed", error));
 		}
 
-		const weaponName = weaponsData.find((w) => w.id === weapon.weapon.id)?.name ?? weapon.weapon.id ?? "";
+		const weaponName = t(`weapon.${weapon.weapon.id}`);
 		const killer = runStats.killer;
 		results = {
 			round: run.round,
@@ -527,15 +528,15 @@ async function boot(): Promise<void> {
 			damage: Math.round(runStats.damageDealt),
 			cause:
 				killer.kind === "enemy"
-					? (enemiesData[killer.type]?.name ?? "Desconhecido")
+					? t(`enemy.${enemiesData[killer.type]?.id ?? ""}`)
 					: killer.kind === "self"
-						? "Explosão própria"
-						: "Desconhecido",
+						? t("results.causeSelf")
+						: t("results.causeUnknown"),
 			build: [
-				`${weaponName} (T${weapon.tier + 1})`,
+				t("results.weaponTier", { name: weaponName, tier: weapon.tier + 1 }),
 				...[...owned].map(([id, count]) => {
-					const name = itemsData.find((i) => i.id === id)?.name ?? id;
-					return count > 1 ? `${name} ×${count}` : name;
+					const name = t(`item.${id}`);
+					return count > 1 ? t("results.stack", { name, count }) : name;
 				}),
 			],
 			souls,
@@ -558,11 +559,14 @@ async function boot(): Promise<void> {
 				const needed = def.unlockedBy;
 				return {
 					id: def.id,
-					name: DIFFICULTY_NAMES[def.id] ?? def.id,
-					summary: `HP e dano ×${pt(def.hpDamageMult)} · almas ×${pt(def.soulsMult)}`,
+					name: t(`difficultyName.${def.id}`),
+					summary: t("difficulty.summary", { hpDamage: def.hpDamageMult, souls: def.soulsMult }),
 					locked,
 					requirement: needed
-						? `Chegue ao round ${needed.round} em ${DIFFICULTY_NAMES[needed.difficulty] ?? needed.difficulty}`
+						? t("difficulty.requirement", {
+								round: needed.round,
+								difficulty: t(`difficultyName.${needed.difficulty}`),
+							})
 						: "",
 				};
 			}),
@@ -591,12 +595,12 @@ async function boot(): Promise<void> {
 			refund: refundValue(ossuaryData, meta),
 			branches: ossuaryData.branches.map((branch) => ({
 				id: branch.id,
-				name: branch.name,
+				name: t(`branch.${branch.id}`),
 				nodes: branch.nodes.map((node) => ({
 					id: node.id,
 					lines: [
-						...node.modifiers.map(describeModifier),
-						...node.effects.map((e) => describeEffect(e.id, e.params)),
+						...node.modifiers.map((m) => text(describeModifier(m))),
+						...node.effects.map((e) => text(describeEffect(e.id, e.params))),
 					],
 					cost: node.cost,
 					state: nodeState(ossuaryData, meta, node, __IS_DEMO__),
@@ -610,7 +614,9 @@ async function boot(): Promise<void> {
 		const offer = levelUp.offer;
 		if (offer !== lastOfferSource) {
 			lastOfferSource = offer;
-			lastOffer = offer ? offer.map((c) => ({ id: c.id, name: c.name, double: c.double })) : NO_CARDS;
+			lastOffer = offer
+				? offer.map((c) => ({ id: c.id, name: t(`card.${c.id}`), double: c.double }))
+				: NO_CARDS;
 		}
 		const chestOffer = chest.offer;
 		if (chestOffer !== lastChestSource) {
@@ -618,7 +624,9 @@ async function boot(): Promise<void> {
 			lastChest = chestOffer
 				? chestOffer.map((c) => ({
 						id: c.id,
-						name: [c.name, ...c.modifiers.map(describeModifier)].join(": "),
+						name: [t(`item.${c.id}`), ...c.modifiers.map((m) => text(describeModifier(m)))].join(
+							": ",
+						),
 						double: false,
 					}))
 				: NO_CARDS;
@@ -629,7 +637,19 @@ async function boot(): Promise<void> {
 			const json = JSON.stringify(view);
 			if (json !== lastShopJson) {
 				lastShopJson = json;
-				lastShop = view;
+				lastShop = {
+					...view,
+					slots: view.slots.map((slot) => ({
+						...slot,
+						name:
+							slot.kind === "item"
+								? t(`item.${slot.id}`)
+								: slot.kind === "upgrade"
+									? t("shop.upgradeName", { name: t(`weapon.${slot.id}`) })
+									: t(`weapon.${slot.id}`),
+						lines: slot.lines.map(text),
+					})),
+				};
 			}
 			shopView = lastShop;
 		} else {
@@ -643,7 +663,7 @@ async function boot(): Promise<void> {
 			const json = JSON.stringify(view);
 			if (json !== lastBossJson) {
 				lastBossJson = json;
-				lastBoss = view;
+				lastBoss = { ...view, name: t(`boss.${boss.defFor(run.round).id}`) };
 			}
 		}
 		const bossView = lastBoss;
@@ -670,13 +690,18 @@ async function boot(): Promise<void> {
 			cardRerolls: levelUp.rerollsLeft,
 			chest: lastChest,
 			shop: shopView,
-			stats: shopView ? describeStats(stats.stats) : NO_STATS,
+			stats: shopView
+				? describeStats(stats.stats).map((line) => ({
+						label: t(line.key),
+						value: `${i18n.formatNumber(line.percent ? line.value * 100 : line.value)}${line.percent ? "%" : ""}`,
+					}))
+				: NO_STATS,
 			results,
 			notice: loaded.notice,
 			boss: bossView,
 			ossuary: ossuaryOpen ? ossuaryView() : null,
 			difficulty: difficultyOpen ? difficultyView() : null,
-			bossIntro: run.state === "BossIntro" ? boss.defFor(run.round).name : null,
+			bossIntro: run.state === "BossIntro" ? t(`boss.${boss.defFor(run.round).id}`) : null,
 			dash: dash.unlocked
 				? {
 						charges: dash.charges,

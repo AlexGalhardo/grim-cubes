@@ -1,3 +1,4 @@
+import { t } from "@gc/core";
 import type { JSX, PointerEvent } from "react";
 
 export interface DashView {
@@ -24,7 +25,7 @@ export function DashButton({ view, onHold }: DashButtonProps): JSX.Element {
 	return (
 		<button
 			type="button"
-			aria-label="Dash"
+			aria-label={t("dash.label")}
 			data-testid="dash-button"
 			data-charges={view.charges}
 			onPointerDown={press}
@@ -32,7 +33,9 @@ export function DashButton({ view, onHold }: DashButtonProps): JSX.Element {
 			onPointerCancel={release}
 			className={`pointer-events-auto absolute right-4 bottom-4 flex size-20 touch-none select-none items-center justify-center border-2 bg-night-2/80 font-display text-base ${ready ? "border-ember text-ember-light" : "border-mist text-bone-dark"}`}
 		>
-			<span aria-hidden="true">{view.max > 1 ? `${view.charges}/${view.max}` : "Dash"}</span>
+			<span aria-hidden="true">
+				{view.max > 1 ? t("dash.charges", { charges: view.charges, max: view.max }) : t("dash.label")}
+			</span>
 			<span
 				aria-hidden="true"
 				className="absolute inset-x-0 bottom-0 h-1 origin-left bg-ember"

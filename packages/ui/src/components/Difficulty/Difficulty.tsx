@@ -1,3 +1,4 @@
+import { t } from "@gc/core";
 import { type JSX, useState } from "react";
 import { Button } from "../Button/Button";
 import { Panel } from "../Panel/Panel";
@@ -41,9 +42,9 @@ export function Difficulty({ view, actions }: DifficultyProps): JSX.Element {
 			className="pointer-events-auto absolute inset-0 z-30 flex overflow-y-auto bg-night/90 p-2 mobile-l:p-4"
 		>
 			<div className="m-auto w-full max-w-xl">
-				<Panel title="Dificuldade" riveted>
+				<Panel title={t("difficulty.panel")} riveted>
 					<h1 id="difficulty-title" className="sr-only">
-						Dificuldade
+						{t("difficulty.title")}
 					</h1>
 					<div className="flex flex-col gap-2">
 						{view.options.map((option) => (
@@ -64,7 +65,7 @@ export function Difficulty({ view, actions }: DifficultyProps): JSX.Element {
 						))}
 					</div>
 					<label className="mt-4 flex flex-col gap-1 font-body text-sm text-bone-dark">
-						Seed (opcional)
+						{t("difficulty.seed")}
 						<input
 							type="text"
 							data-testid="difficulty-seed"
@@ -73,14 +74,14 @@ export function Difficulty({ view, actions }: DifficultyProps): JSX.Element {
 							maxLength={32}
 							autoComplete="off"
 							spellCheck={false}
-							placeholder="aleatória"
+							placeholder={t("difficulty.seedPlaceholder")}
 							className="min-h-12 border-2 border-mist bg-night-2 px-2 text-bone focus:border-ember"
 						/>
 					</label>
 					<div className="mt-4 flex flex-wrap justify-between gap-3">
-						<Button onClick={actions.cancel}>Voltar</Button>
+						<Button onClick={actions.cancel}>{t("difficulty.back")}</Button>
 						<Button size="lg" onClick={() => actions.start(selected, seed)}>
-							Começar
+							{t("difficulty.start")}
 						</Button>
 					</div>
 				</Panel>

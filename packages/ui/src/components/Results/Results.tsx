@@ -1,3 +1,4 @@
+import { t } from "@gc/core";
 import { type JSX, useEffect, useState } from "react";
 import { Button } from "../Button/Button";
 import { Panel } from "../Panel/Panel";
@@ -62,48 +63,50 @@ export function Results({ view, onRestart, onOssuary }: ResultsProps): JSX.Eleme
 			className="pointer-events-auto absolute inset-0 z-20 flex overflow-y-auto bg-night/85 p-2 mobile-l:p-4"
 		>
 			<div className="m-auto w-full max-w-3xl">
-				<Panel title="Fim da run" riveted>
+				<Panel title={t("results.panel")} riveted>
 					<h1 id="results-title" className="sr-only">
-						Resultados
+						{t("results.title")}
 					</h1>
 					<dl className="grid grid-cols-2 gap-x-4 gap-y-1 font-body text-sm mobile-l:text-base">
-						<dt className="text-bone-dark">Round</dt>
+						<dt className="text-bone-dark">{t("results.round")}</dt>
 						<dd className="text-right" data-testid="results-round">
 							{view.round}
 						</dd>
-						<dt className="text-bone-dark">Recorde</dt>
+						<dt className="text-bone-dark">{t("results.record")}</dt>
 						<dd className="text-right" data-testid="results-record">
 							{view.record}
-							{view.newRecord ? " (novo!)" : ""}
+							{view.newRecord ? t("results.newRecord") : ""}
 						</dd>
-						<dt className="text-bone-dark">Abates</dt>
+						<dt className="text-bone-dark">{t("results.kills")}</dt>
 						<dd className="text-right" data-testid="results-kills">
 							{view.kills}
 						</dd>
-						<dt className="text-bone-dark">Dano causado</dt>
+						<dt className="text-bone-dark">{t("results.damage")}</dt>
 						<dd className="text-right">{view.damage}</dd>
-						<dt className="text-bone-dark">Causa da morte</dt>
+						<dt className="text-bone-dark">{t("results.cause")}</dt>
 						<dd className="text-right" data-testid="results-cause">
 							{view.cause}
 						</dd>
-						<dt className="text-bone-dark">Seed</dt>
+						<dt className="text-bone-dark">{t("results.seed")}</dt>
 						<dd className="text-right" data-testid="results-seed">
 							{view.seed}
 						</dd>
 					</dl>
-					<ul className="my-3 font-body text-sm text-bone-dark" aria-label="Build">
+					<ul className="my-3 font-body text-sm text-bone-dark" aria-label={t("results.build")}>
 						{view.build.map((line) => (
 							<li key={line}>{line}</li>
 						))}
 					</ul>
 					<p className="mb-4 text-ember-light">
-						Almas: <span data-testid="results-souls">{souls}</span>
-						<span className="text-bone-dark"> (total {view.totalSouls})</span>
+						{t("results.souls")} <span data-testid="results-souls">{souls}</span>
+						<span className="text-bone-dark">
+							{t("results.totalSouls", { total: view.totalSouls })}
+						</span>
 					</p>
 					<div className="flex flex-wrap justify-end gap-3">
-						{onOssuary ? <Button onClick={onOssuary}>Ossuário</Button> : null}
+						{onOssuary ? <Button onClick={onOssuary}>{t("results.ossuary")}</Button> : null}
 						<Button size="lg" onClick={onRestart}>
-							Jogar de novo
+							{t("results.restart")}
 						</Button>
 					</div>
 				</Panel>

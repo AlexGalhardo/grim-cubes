@@ -1,3 +1,4 @@
+import { t } from "@gc/core";
 import { type JSX, useEffect } from "react";
 
 export interface CardView {
@@ -9,7 +10,7 @@ export interface CardView {
 export interface LevelUpProps {
 	cards: readonly CardView[];
 	onChoose: (index: number) => void;
-	/** Heading; defaults to "Level up". The elite chest reuses this screen. */
+	/** Heading; defaults to the level-up title. The elite chest reuses this screen. */
 	title?: string;
 	/** Ossuary card rerolls left; the button is hidden when 0 or when there is no handler. */
 	rerollsLeft?: number;
@@ -20,7 +21,7 @@ export interface LevelUpProps {
 export function LevelUp({
 	cards,
 	onChoose,
-	title = "Level up",
+	title = t("levelUp.title"),
 	rerollsLeft = 0,
 	onReroll,
 }: LevelUpProps): JSX.Element {
@@ -67,7 +68,7 @@ export function LevelUp({
 					onClick={onReroll}
 					className="min-h-12 border-2 border-iron-dark bg-night-2 px-4 font-display text-base text-bone hover:border-ember hover:text-ember-light focus-visible:outline-2 focus-visible:outline-ember"
 				>
-					Rolar cartas de novo ({rerollsLeft}) [R]
+					{t("levelUp.reroll", { left: rerollsLeft })}
 				</button>
 			) : null}
 		</div>
