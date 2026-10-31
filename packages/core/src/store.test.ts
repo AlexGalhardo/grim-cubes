@@ -18,3 +18,17 @@ test("unsubscribe stops notifications", () => {
 	store.publish(1);
 	expect(calls).toBe(0);
 });
+
+test("unsubscribing during a publish is safe and skips listeners not yet reached", () => {
+	const store = createStore(0);
+	const calls: string[] = [];
+	let offB: () => void = () => {};
+	store.subscribe(() => {
+		calls.push("a");
+		offB();
+	});
+	offB = store.subscribe(() => calls.push("b"));
+	store.subscribe(() => calls.push("c"));
+	store.publish(1);
+	expect(calls).toEqual(["a", "c"]);
+});

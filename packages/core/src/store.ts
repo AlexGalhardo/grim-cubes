@@ -11,7 +11,10 @@ export function createStore<T>(initial: T): Store<T> {
 		get: () => state,
 		publish(next) {
 			state = next;
-			for (const listener of [...listeners]) listener(state);
+			// Iterates the Set directly (no copy per publish, so no allocation). A listener may unsubscribe itself or
+			// another during the loop: a Set skips deleted entries it has not reached yet. One added meanwhile is visited
+			// in the same pass.
+			for (const listener of listeners) listener(state);
 		},
 		subscribe(listener) {
 			listeners.add(listener);
