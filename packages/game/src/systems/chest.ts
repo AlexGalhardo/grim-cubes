@@ -76,11 +76,13 @@ export function createChestSystem(deps: ChestSystemDeps): ChestSystem {
 				offer = draw(Chest.tier[c] || reward.chest.tier, Chest.choices[c] || reward.chest.offered);
 				picksLeft = Math.min(Chest.picks[c] || reward.chest.picks, offer.length);
 				const healing = Chest.heals[c] === 1;
+				const chestX = Position.x[c] ?? 0;
+				const chestZ = Position.z[c] ?? 0;
 				removeEntity(world, c);
 				if (healing)
 					Health.hp[hero] = Math.min((Health.hp[hero] ?? 0) + reward.healHp, Health.max[hero] ?? 0);
 				run.pause();
-				events.push(EventType.ChestOpened, 0, 0, 0, 0);
+				events.push(EventType.ChestOpened, chestX, chestZ, 0, 0);
 				return;
 			}
 		},

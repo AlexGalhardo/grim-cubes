@@ -255,6 +255,7 @@ test("a chest that does not heal (the boss chest) leaves the HP alone", () => {
 	const hero = spawnBody(world, 0, 0);
 	Health.hp[hero] = 50;
 	Health.max[hero] = 100;
+	const events = createEventBuffer(8);
 	const run = { state: "Round", pause: () => undefined, resume: () => undefined };
 	const chest = createChestSystem({
 		reward: elitesData.reward,
@@ -264,12 +265,18 @@ test("a chest that does not heal (the boss chest) leaves the HP alone", () => {
 		stats: createStatsSystem(heroData, createPlayerStats()),
 		owned: new Map<string, number>(),
 		onItemTaken: () => undefined,
-		events: createEventBuffer(8),
+		events,
 		blocked: () => false,
 		pickupRadius: () => 2.5,
 	});
-	dropChest(world, 1, 0, 4, 3, 2);
+	dropChest(world, 1, 0.5, 4, 3, 2);
 	chest.run(world, hero);
+	const opened: number[] = [];
+	events.consume((type, a, b) => {
+		if (type === EventType.ChestOpened) opened.push(a, b);
+	});
+	// The render removes the chest by this position, so it must be where the chest stood.
+	expect(opened).toEqual([1, 0.5]);
 	expect(chest.offer).toHaveLength(3);
 	expect(Health.hp[hero]).toBe(50);
 });

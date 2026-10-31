@@ -27,7 +27,7 @@ export const EventType = {
 	EliteSpawned: 14,
 	/** a, b = x, z. An elite chest dropped. */
 	ChestDropped: 15,
-	/** An elite chest was opened and the offer is on screen. */
+	/** a, b = x, z of the chest that was opened; the offer is on screen. */
 	ChestOpened: 16,
 	/** a, b = unit direction x, z; c = seconds until the hit lands; entity = the boss. */
 	BossTelegraph: 17,
