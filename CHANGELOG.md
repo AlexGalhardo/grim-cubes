@@ -81,6 +81,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **assets:** Add `tools/assets-gen` generating the 24 PROTÓTIPO placeholder `.bbmodel` models and textures ([fc91a7c](https://github.com/AlexGalhardo/grim-cubes/commit/fc91a7c75bd29a5c3a705e70c91f6cf4678f6125))
 - **e2e:** Run Playwright with a single worker under SwiftShader ([8945c1d](https://github.com/AlexGalhardo/grim-cubes/commit/8945c1d5377f469ae10bb2c3fd8ba076e9f3c44c))
 - **game:** Add weapon tiers and upgrades, SMG burst, MG continuous fire with speed penalty and bazooka explosions with self-damage (projectile speeds for SMG/MG/bazooka are provisional Orq values) ([e2d8065](https://github.com/AlexGalhardo/grim-cubes/commit/e2d80659243158218972b95286d88e832994bd70))
+- **web:** Load the asset manifest (glb, atlas, VAT) and render the animated horde and glb props in the web app ([4c953bb](https://github.com/AlexGalhardo/grim-cubes/commit/4c953bb51e1b5eb85be6a19e18b8563141aeef92))
+- **assets:** Require a size class for enemy and prop `.bbmodel` files ([3902244](https://github.com/AlexGalhardo/grim-cubes/commit/3902244a85ba82deffb775f5e7971887600dfddb))
+- **assets:** Bring hero, merchant and wail widths into the Art Bible range ([2582d65](https://github.com/AlexGalhardo/grim-cubes/commit/2582d651357200cd60a60408b39eb115d5a0113a))
+- **web:** Add the model review route and silhouette captures (`docs/art/review`); freeze the horde while paused ([c7dc306](https://github.com/AlexGalhardo/grim-cubes/commit/c7dc3063682cb968a6572fc96cc3a1cb8e1ae8eb))
+- **e2e:** Add Cemetery world captures and refresh baselines with the horde, glb props and cube floor ([c8904fa](https://github.com/AlexGalhardo/grim-cubes/commit/c8904fa967b85b3f96db6cff91c0790708bf9308))
+- **docs:** Amend SDD 02/04/05 to match the implemented ECS, combat, spawn and data loaders
 - **ci:** Add CI (lint, typecheck, unit, integration, build-web, e2e gated) and CodeQL workflows (#1) ([da8923e](https://github.com/AlexGalhardo/grim-cubes/commit/da8923ee65069ec95a017f53a20937718c27413b))
 
 ### Changed

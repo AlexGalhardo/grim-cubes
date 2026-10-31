@@ -4,64 +4,80 @@ Requisitos: GDD §8–§13. Tudo roda em `packages/game`, sem Babylon.
 
 ## 1. Spatial hash
 
-Grade uniforme no plano XZ, célula 2 u (≈ diâmetro do maior inimigo comum), chaves `hash(cellX, cellZ)` em `Map<number, Uint16Array>` com buckets de tamanho fixo (32 entidades) e contador; reconstruída por completo a cada passo (100–600 entidades: custo < 0,1 ms). Dois hashes: `dynamic` (inimigos, fragmentos) e `static` (props, por chunk).
+`createSpatialHash` em `@gc/core`: grade uniforme no plano XZ, célula 2 u (≈ diâmetro do maior inimigo comum). Os slots (potência de 2) recebem `hash(cellX, cellZ) & mask` e guardam listas encadeadas em arrays fixos (`head`, `next`, `ids`, `xs`, `zs`). Um `stamp` por consulta evita visitar o mesmo slot duas vezes. A grade é reconstruída por completo a cada passo e não aloca depois de criada.
 
-Consultas: `queryCircle(x, z, r, out: Uint16Array): number` (sem alocação).
+Há um único hash dinâmico, só de inimigos: `separationSystem.hash`, reconstruído na separação e reaproveitado por `targetingSystem`, `weaponSystem` e `projectileSystem`. O `pickupSystem` percorre as pilhas de fragmento em linha (no máximo 50). O hash estático de props por chunk é provisório até P-01-05.
+
+Consultas: `queryCircle(x, z, r, out: Uint16Array): number` (sem alocação; para quando `out` enche).
 
 ## 2. Mira e armas
 
-- `targetingSystem`: a cada passo (ou a cada 3 passos para economizar), consulta `dynamic` num raio = alcance da arma; escolhe menor `dist × (isBossOrElite ? 0.8 : 1)`. Guarda `targetEntity`; se morreu ou saiu do alcance, reescolhe.
-- `weaponSystem`: cooldown em passos = `round(60 / attacksPerSecond)`. Dados da arma em `weapons.json`:
+- `targetingSystem`: a cada `retargetEvery` passos (3) ou quando o alvo morre ou sai do alcance, consulta o hash de inimigos num raio = alcance da arma; escolhe menor `dist × (isBossOrElite ? 0.8 : 1)`. Guarda `targetEntity`; se morreu ou saiu do alcance, reescolhe.
+- `weaponSystem`: cooldown fracionário. A cada disparo soma `1 / (min(taxa, 12) × STEP)` passos e preserva o resto (8/s alterna 8 e 7 passos), com piso de −1 para não acumular rajada. Taxa = `attacksPerSecond × (1 + attackSpeedBonusPerTier × tier + attackSpeed%)`; o cap de 12 ataques/s vem de `hero.json`. Dados da arma em `weapons.json` (fonte única):
 
 ```json
-{ "id": "pistol", "kind": "projectile", "range": 12, "attacksPerSecond": 2.0, "damage": 10, "projectileSpeed": 28, "pierce": 0, "spreadDeg": 0, "knockback": 0.5, "critBonus": 0.15, "tiers": { "damageMult": [1, 1.5, 2.2, 3.2], "attackSpeedBonus": [0, 0.1, 0.2, 0.3], "rangeBonus": [0, 0.5, 1, 1.5] }, "prices": { "base": 20, "upgrade": [30, 65, 140] }, "unlockRound": 1 }
+{ "id": "pistol", "kind": "single_shot", "range": 12, "attacksPerSecond": 2, "damage": 10, "knockback": 0.5, "projectile": { "count": 1, "pierce": 0, "speed": 28, "radius": 0.15 }, "special": { "id": "crit_chance_bonus", "params": { "value": 0.15 } }, "unlockRound": 1, "price": 20, "upgradePrices": [30, 65, 140], "damageMult": [1, 1.5, 2.2, 3.2], "attackSpeedBonusPerTier": 0.1, "rangeBonusPerTier": 0.5 }
 ```
 
-- Tipos: `melee_arc` (espada: aplica dano a todos no setor de 120° e alcance; sem projétil), `projectile` (pistola, SMG, MG; SMG e MG com dispersão aleatória via `rng.weapon`), `explosive` (bazuca: projétil que explode em raio; dano em área com queda linear 100%→50% na borda; 50% do dano no herói se dentro do raio).
-- Projéteis: entidade com `Projectile` + `Position` + `Velocity`; vida em passos = `range / speed × 60`; a cada passo consulta `dynamic` na célula; hit → fila de dano; `pierce` decrementa; mesma entidade não é atingida duas vezes pelo mesmo projétil (bitmask por projétil de 8 últimos alvos).
+- Tipos (`kind`, os mesmos do GDD §9):
+  - `melee` (espada): dano a todos no setor de `arcDegrees` dentro do alcance + raio do inimigo; knockback radial por inimigo.
+  - `single_shot` (pistola), `burst` (SMG) e `continuous` (MG): projétil com `count` e `spreadDegrees`; a dispersão é sorteada em `rng.weapon`.
+  - `explosive` (bazuca): explode no acerto ou no fim da vida; dano em área com queda linear de 100% a 50% na borda; knockback radial; evento `Exploded`; o herói leva `selfFraction` (50%) do dano se estiver dentro do raio; raio × (1 + `explosionSize`).
+- Especiais vindos de `special` em `weapons.json`:
+  - SMG: ×1,3 com o alvo a ≤ 4 u, distância medida no disparo, não no impacto.
+  - MG: −20% de velocidade do herói enquanto atira; a penalidade dura alguns passos após o último tiro (hoje 6 passos fixos no código, provisório até a correção da P-04-04).
+- Velocidades de projétil (provisórias, calibrar no sim): pistola 28, SMG 30, MG 32, bazuca 16 u/s. O teste de acerto é pontual por passo. Com raio mínimo de contato 2 × (0,3 + 0,15) = 0,9 u, velocidades acima de cerca de 54 u/s podem atravessar o alvo sem acertar.
+- Projéteis: pool fixo de 512 entidades com `Projectile` + `Position` + `Velocity` + `Radius`; vida em passos = `ceil(range / speed / STEP)`. A cada passo, o projétil consulta o hash de inimigos e, ao acertar, manda dano para a fila e decrementa `pierce`. A mesma entidade nunca é atingida duas vezes pelo mesmo projétil: há um histórico circular dos 8 últimos ids (`ProjectileHits`), não bitmask. Com o pool cheio, o tiro é descartado com o evento `PoolExhausted`.
 
 ## 3. Dano
 
-Fila `DamageQueue` (SoA, 1.024 entradas por passo): `{ target, amount, source, crit, knockbackX, knockbackZ }`. `damageSystem` aplica em ordem:
+Fila `DamageQueue` (SoA, 1.024 entradas por passo): `{ target, amount, source, critChance, knockbackX, knockbackZ }`. O crítico é sorteado no `damageSystem` com `rng.combat` a partir de `critChance`, e `source` hoje é ignorado. `damageSystem` aplica em ordem:
 
 ```text
 if target == hero:
     if invulnTicks > 0: skip
     if rng.dodge() < dodge: emit Dodged; skip
-    amount *= 100 / (100 + 6.66 * armor)   # armor pode ser negativa
-    hp -= amount; invulnTicks = 18 (0.3 s); emit PlayerHit
+    amount *= armorMultiplier(armor)       # ver abaixo
+    hp -= amount; invulnTicks = iFramesOnHitSeconds / STEP (hero.json, 0,3 s); emit PlayerHit
 else:
     amount = base * (1 + damage%) * (crit ? critMult : 1) * (1 + bonusVsType)
-    amount *= 100 / (100 + 6.66 * enemyArmor)   # Forjado tem armadura
+    amount *= armorMultiplier(enemyArmor)  # Forjado tem armadura
     hp -= amount; hitFlash = 2; knockback (×0.5 elite, ×0.1 boss)
     lifeSteal: heroHeal += amount * lifeSteal% (cap 10 HP/s via acumulador)
     emit Damaged(amount, crit)
     if hp <= 0: emit Died
 ```
 
+`armorMultiplier(a) = 100 / (100 + a × k)` para `a ≥ 0` e `2 − 100 / (100 + |a| × k)` para `a < 0` (simétrica e limitada abaixo de 2; ×1,40 em −10), com `k = armorConstant` (6,66, de `hero.json`). Fonte: GDD §8.2; a forma literal divergiria perto de −15.
+
 Números de dano são eventos; `render` desenha.
 
 ## 4. Spawn
 
-`rounds.json` define por round (ou fórmula): `total(N) = 20 + 12N`, `interval(N) = max(0.6, 1.5 − 0.045N)` s, `burst(N) = 2 + floor(N/4)`, cap 100. `spawnSystem` mantém `remaining`; a cada intervalo cria `burst` inimigos sorteando tipo pelo pool do bioma (60/30/10) e posição (SDD 03 §5). Round de chefe: `total` = 30% do normal, intervalo ×1,5, mais o chefe.
+`rounds.json` define por round (ou fórmula): `total(N) = 20 + 12N`, `interval(N) = max(0.6, 1.5 − 0.045N)` s, `burst(N) = 2 + floor(N/4)`, cap 100. `spawnSystem` mantém `remaining`; a cada intervalo cria `burst` inimigos sorteando tipo pelo pool (`poolFor`) e posição (SDD 03 §5). Com o cap atingido, o próximo spawn remove sem drop o inimigo comum (sem `Boss`/`Elite`) mais distante do herói e nasce no lugar dele (GDD §6.4). Round de chefe: `total` = `remainingHordeFraction` (30%) do normal, intervalo × `hordeIntervalMult` (1,5), mais o chefe.
 
-Inicialização do inimigo: `hp = (base + (N−1) × inc) × difficultyMult`, `damage` idem, `speed` fixo, `Anim.clip = walk`, `Render.meshId` por tipo, `instanceSlot` do pool de thin instances do tipo.
+O pool por bioma (60/30/10, GDD §10.2) é provisório até a seleção de bioma por distância chegar ao spawner (P-05-06/A-02). Hoje `apps/web` usa um pool fixo do anel 0 (`husk` 6, `wail` 4).
+
+Inicialização do inimigo: `hp = (base + (N−1) × inc) × difficultyMult`, `ContactDamage` idem, `Speed` fixo, mais `EnemyType`, `Behavior`, `Armor`, `Radius`, `Health` e `ContactCooldown` zerado. Clipe, mesh e slot de instância não são componentes: o render os deriva de `EnemyType`, `Facing`, `Attacking` e `HitFlash`.
 
 ## 5. IA (behaviorSystem)
 
-Máquina de estados por tipo, em `enemies.json` campo `behavior`:
+Máquina de estados por tipo, em `enemies.json` campo `behavior` (nomes do data, a fonte única; `toEnemyDefs` mapeia para `BehaviorKind`):
 
-| Behavior | Estados | Regras |
-| --- | --- | --- |
-| `chase` | Chase | `Velocity = normalize(hero − pos) × speed` |
-| `zigzag` | Chase | chase + seno perpendicular (amplitude 1,5 u, período 0,8 s) |
-| `tank` | Chase | chase lento; knockback recebido ×0,3 |
-| `latch` | Chase → Latched | ao tocar, gruda: segue o herói a `speed × 1,2`, 1 HP/s; solta ao ser atingido |
-| `shooter` | Idle | fixo; se herói a < 10 u, atira projétil lento (8 u/s) a cada 2 s |
-| `charger` | Chase → Windup(0,5 s) → Charge(0,6 s, 3× speed) → Recover(1 s) | investida a cada 3 s quando a < 8 u; telegrafia via evento |
-| `breeder` | Chase | lento; a cada 4 s cria 1 `wail` adjacente (conta no cap) |
+| Behavior (inimigo) | Estados | Regras | Estado |
+| --- | --- | --- | --- |
+| `chase` (`husk`) | Chase | `Velocity = normalize(hero − pos) × speed` | implementado |
+| `zigzag` (`wail`) | Chase | chase + seno perpendicular (`amplitude` 1,5 u, `periodSeconds` 0,8 s, de `behaviorParams`); fase defasada por entidade | implementado |
+| `push` (`drowned`) | Chase | chase lento; knockback recebido ×0,3 | provisório até A-02-02 (hoje chase) |
+| `latch_drain` (`leech`) | Chase → Latched | ao tocar, gruda: segue o herói a `speed × 1,2`, `drainHpPerSecond` 1; solta ao ser atingido | provisório até A-02-02 (hoje chase) |
+| `armored` (`forged`) | Chase | chase; armadura de `behaviorParams.armor` (10) vai para `Armor` | armadura aplicada; IA = chase |
+| `ranged_static` (`watcher`) | Idle | fixo; se o herói está a < `projectileRange` (10 u), atira projétil lento (8 u/s) a cada 2 s | provisório até A-02-02 (hoje chase) |
+| `charge` (`hunter`) | Chase → Windup(0,5 s) → Charge(0,6 s, 3× speed) → Recover(1 s) | investida a cada `chargeIntervalSeconds` (3 s) quando a < 8 u; telegrafia via evento | provisório até A-02-02 (hoje chase) |
+| `spawner` (`breeder`) | Chase | lento; a cada `spawnIntervalSeconds` (4 s) cria `spawnCount` `spawnEnemy` (`wail`) adjacente (conta no cap) | provisório até A-02-02 (hoje chase) |
 
-Separação (soft collision): para cada inimigo, soma vetor de repulsão dos vizinhos a < `r1 + r2` (força `1 − d/(r1+r2)`), aplicado a `Velocity` com peso 0,6. Chefes não são empurrados.
+Contato com o herói: dano de `ContactDamage` com cooldown por inimigo (`contactCooldownSeconds` 0,5 s) e `Attacking.ticks` = `attackAnimationSeconds` para o clipe de ataque.
+
+Separação (soft collision): para cada inimigo em movimento, soma o vetor de repulsão dos vizinhos a < `r1 + r2` (força `1 − d/(r1+r2)`) e aplica `Velocity += push × separationWeight × |v|`. Peso 0,6, vindo de `rounds.json` `ai.separationWeight`. Escalar pela velocidade atual deixa parados os inimigos que não se movem. Dois inimigos exatamente sobrepostos se separam num eixo escolhido pelo id. Chefes não são empurrados.
 
 ## 6. Elites
 
@@ -69,7 +85,7 @@ Separação (soft collision): para cada inimigo, soma vetor de repulsão dos viz
 
 ## 7. Chefes
 
-`bosses.json`: HP base, dano, padrões com timings. `bossSystem` implementa cada chefe como máquina de estados com padrões parametrizados (`charge`, `swing_arc`, `summon`, `pool`, `shockwave`, `chains`, `stealth`, `leap`, `eggs`, `sweep`, `fly_bomb`). Cada padrão: `windup` (telegrafia: evento com forma e duração), `active` (hitbox), `recover`. Fases por % de HP. Enrage: a cada 3.600 passos (60 s) `enrageStacks++` (+15% dano/velocidade). Morte: `BossDied` → `Dying(1.5 s)` com execução, baú de chefe (`tier ≥ 3`, `choices: 3`), almas, upgrade grátis de arma.
+`bosses.json`: HP base e padrões com timings (o dano de contato e de projétil dos chefes fica em `rounds.json` `boss`). `bossSystem` implementa cada chefe como máquina de estados com padrões parametrizados (`charge`, `swing_arc`, `summon`, `pool`, `shockwave`, `chains`, `stealth`, `leap`, `eggs`, `sweep`, `fly_bomb`). Cada padrão: `windup` (telegrafia: evento com forma e duração), `active` (hitbox), `recover`. Fases por % de HP. Enrage: a cada 3.600 passos (60 s) `enrageStacks++` (+15% dano/velocidade). Morte: `BossDied` → `Dying(1.5 s)` com execução, baú de chefe (`tier ≥ 3`, `choices: 3`), almas, upgrade grátis de arma.
 
 A partir do round 60: sorteio no roster com `eliteModifiers` 1 (≥60) ou 2 (≥100); HP escala conforme GDD §12.1.
 

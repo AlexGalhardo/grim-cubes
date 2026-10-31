@@ -6,16 +6,21 @@ Requisitos: GDD §14–§20, §25.
 
 Todos os números vivem em `data/*.json`, validados por JSON Schema (`data/schema/*.schema.json`) no build (`bun run data:check`) e carregados por loaders tipados (`packages/game/src/data`). O simulador (`tools/sim`) e o jogo usam os mesmos loaders.
 
+Os loaders importam os JSON (`resolveJsonModule`; `rootDir: "../.."` só no `tsconfig` de `packages/game`) e os atribuem a tipos explícitos (`heroData: HeroData = heroJson`). Se um arquivo mudar de forma, `bun run typecheck` falha; o `data:check` valida os valores. `toEnemyDefs` e `toBiomeDefs` convertem para as defs dos sistemas. `apps/web` e `tools/*` importam de `@gc/game`, nunca o JSON cru.
+
 | Arquivo | Conteúdo |
 | --- | --- |
-| `enemies.json` | 8 tipos: hp/dano base e incremento, velocidade, raio, behavior, fragmentos, bioma |
+| `hero.json` | stats base do herói, caps, fórmulas (armadura, regen, gatilho de roubo de vida), dash, combate (i-frames, contato, knockback, prioridade de alvo), raio, arma inicial |
+| `world.json` | chunk, raios de carga/descarga, chunks por passo, pool, limiar de origin shift, props por chunk (SDD 03) |
+| `props.json` | props: `id`, `sizeClass` (orçamento de elementos, Art Bible §5.1), `kind` |
+| `enemies.json` | 8 tipos: hp/dano base e incremento, velocidade, `walkRefSpeed`, raio, `sizeClass`, behavior, fragmentos, bioma |
 | `elites.json` | 4 modificadores |
-| `bosses.json` | 5 chefes: HP, dano, fases, padrões |
+| `bosses.json` | 5 chefes: HP, padrões e fase de entrega (o dano de contato e de projétil dos chefes fica em `rounds.json` `boss`) |
 | `weapons.json` | 5 armas: stats por tier, preços |
 | `items.json` | 40 itens: tier, modificadores de stat, efeitos especiais (por id de efeito), preço base |
 | `cards.json` | 12 cartas de level-up + regra de carta dupla |
 | `ossuary.json` | 5 ramos × 6 nós: custo, modificadores, efeitos |
-| `rounds.json` | duração, fórmulas de spawn, chance de tier, drop de fragmento, dificuldades |
+| `rounds.json` | duração, fluxo da run, chefe (enrage, horda, dano), IA (`ai`), fórmulas de spawn, mistura de biomas, chance de tier, fragmentos, XP, loja, almas, dificuldades |
 | `biomes.json` | ver SDD 03 |
 
 Modificadores de stat usam um formato único:
@@ -30,7 +35,7 @@ Ordem de aplicação em `statsSystem`: base → `add` (somatório) → `mul` (pr
 
 ## 2. PlayerStats
 
-Objeto plano recalculado quando `dirty` (compra, carta, nó do Ossuário, item): `{ maxHp, hpRegen, lifeSteal, damage, attackSpeed, critChance, critMult, range, armor, dodge, speed, luck, harvest, pickupRange, xpGain, shopPrice, explosionSize, knockback, enemySpeed, bossDamage, freeRerolls }`. Caps conforme GDD §14 aplicados no final. Snapshot vai ao store para a UI mostrar deltas na loja.
+Objeto plano recalculado quando `dirty` (compra, carta, nó do Ossuário, item): `{ maxHp, hpRegen, lifeSteal, damage, attackSpeed, critChance, critMult, range, armor, dodge, speed, luck, harvest, pickupRadius, xpGain, shopPrice, explosionSize, knockback, enemySpeed, bossDamage, freeRerolls }`. Unidades: percentuais como fração (0,05 = +5%); `speed` e `pickupRadius` já em u/s e u (base de `hero.json` × (1 + soma dos `add`) × `mul`); `range` em u somado; `armor`, `luck`, `harvest` e `hpRegen` em pontos. O mapeamento `stat` → campo fica em `STAT_FIELDS` (`rules/stats.ts`). Caps conforme GDD §14 aplicados no final. Snapshot vai ao store para a UI mostrar deltas na loja.
 
 ## 3. Loja
 
@@ -43,7 +48,7 @@ Estado `ShopState { slots: Slot[4], rerollCount, locked: boolean[4], gold }`.
 
 ## 4. Level-up
 
-`xpToLevel(L) = 10 + 8 (L−1)`; `pickupSystem` acumula XP; ao cruzar, emite `LevelUp` e a run entra em `Paused(LevelUp)`. `drawCards(rng.cards, level)`: 3 cartas distintas do pool; ≥ nível 10, 10% de chance de carta dupla. Escolha aplica modificadores e `dirty`.
+`xpForLevel(config, L) = 10 + 8 (L−1)` é a XP para passar do nível L para L+1 (GDD §16.1). O `pickupSystem` (e a colheita) acumula XP e soma `pendingLevelUps` a cada nível cruzado. O `levelUpSystem`, durante `Round`/`BossRound`, pausa a run (`Paused`), emite `LevelUp` e apresenta as cartas; com vários níveis pendentes, as ofertas se encadeiam. `drawCards(rng.cards, config, level)`: 3 cartas distintas do pool; a partir do nível 10, 10% de chance por slot de carta dupla, que são 2 cartas diferentes a 50% do valor cada (GDD §16.2). A escolha aplica os modificadores no `statsSystem` (`dirty`).
 
 ## 5. Almas e Ossuário
 
