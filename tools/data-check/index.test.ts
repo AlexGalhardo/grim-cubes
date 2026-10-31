@@ -1,8 +1,11 @@
 import { fileURLToPath } from "node:url";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { checkAll, checkDir, loadDir, selfTest } from "./index";
 
 const dataDir = fileURLToPath(new URL("../../data", import.meta.url));
+
+// The self-test validates the whole data set once per negative case (30+): over 5 s when the CPU is busy.
+vi.setConfig({ testTimeout: 20_000 });
 
 describe("data-check", () => {
 	it("accepts the real data", () => {
