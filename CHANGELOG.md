@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **desktop:** Windows build with Electron 45 and electron-builder (NSIS installer and portable `.exe`), sandboxed and served from `app://game/`; the release attaches both executables (P-07-02)
+- **ui:** Title menu, keyboard and gamepad navigation on every screen, opt-in telemetry interface (A-07-02, A-06-04)
+- **art:** Biome props and the sixteen seamless floor tiles refined in Blockbench (B-03-01)
+
 - **render:** The hero faces the enemy it is attacking while moving, with a smoothed shortest-path turn
 
 - **game:** Game speed 1x/2x/3x for testing: Options selector, TAB cycles it, a HUD button on every screen size; save schema 3 (`settings.gameSpeed`)
@@ -39,6 +43,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **data:** Rebalance after breakables and consumables: enemy HP and damage per round, Matriarch 12,500 HP, Forgemaster 15,000 HP, item price `base × 0.15 × N`; 64-run deterministic sim check in CI (A-02-03) ([159e9f3](https://github.com/AlexGalhardo/grim-cubes/commit/159e9f34c1b11064585626029a10062f7d52276a))
 
 ### Fixed
+
+- **game:** `hp_regen` now heals the hero every step with the GDD formula
+- **render:** The Merchant portrait no longer shrinks the game canvas after the Shop (render target instead of `registerView`)
 
 - **web:** Stop the camera follow and the prop fade while the run is paused (P-06-01) ([89c9f04](https://github.com/AlexGalhardo/grim-cubes/commit/89c9f041445d49ae3487e4ef15c6c019ad0d30e7))
 
