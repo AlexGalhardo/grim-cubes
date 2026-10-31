@@ -192,5 +192,9 @@
 	"levelUp.reroll": "Reroll cards ({left}) [R]",
 	"tip.move": "Move with WASD or drag the joystick.",
 	"tip.fragments": "Pick up the fragments: they give gold and XP.",
-	"tip.shop": "Buy with gold, lock what you want to keep and start the next round."
+	"tip.shop": "Buy with gold, lock what you want to keep and start the next round.",
+	"difficulty.tutorial": "20 s tutorial",
+	"tip.tutorialMove": "Tutorial: move (WASD or joystick).",
+	"tip.tutorialKill": "Tutorial: your weapon attacks by itself; let an enemy die.",
+	"tip.tutorialCollect": "Tutorial: pick up the fragment it dropped."
 }
