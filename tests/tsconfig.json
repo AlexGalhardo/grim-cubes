@@ -3,8 +3,15 @@
 	"compilerOptions": {
 		"outDir": "../node_modules/.tsc/tests",
 		"tsBuildInfoFile": "../node_modules/.tsc/tests/.tsbuildinfo",
-		"rootDir": ".."
+		"rootDir": "..",
+		"resolveJsonModule": true
 	},
-	"include": ["e2e/**/*.ts", "integration/**/*.ts", "../playwright.config.ts"],
+	"include": [
+		"e2e/**/*.ts",
+		"integration/**/*.ts",
+		"setup/**/*.ts",
+		"../locales/*.json",
+		"../playwright.config.ts"
+	],
 	"references": [{ "path": "../tools" }, { "path": "../packages/game" }]
 }

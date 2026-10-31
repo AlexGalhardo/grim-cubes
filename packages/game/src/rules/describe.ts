@@ -1,81 +1,77 @@
+import type { Described } from "@gc/core";
 import type { Modifier, PlayerStats } from "./stats";
 
 /**
- * pt-BR labels for stats, until the i18n pipeline exists (SDD 07). `percent` stats are fractions in the data
- * (0.05 = +5%); the rest are shown as plain numbers.
+ * The game describes stats and effects as keys plus parameters (`Described`); the UI layer turns them into text with
+ * `t()` (A-07-01), so no language lives in `game`. `percent` stats are fractions in the data (0.05 = +5%).
  */
-const LABELS: Readonly<Record<string, { label: string; percent: boolean }>> = {
-	max_hp: { label: "HP máx", percent: false },
-	hp_regen: { label: "regen", percent: false },
-	life_steal: { label: "roubo de vida", percent: true },
-	damage: { label: "dano", percent: true },
-	attack_speed: { label: "velocidade de ataque", percent: true },
-	crit_chance: { label: "crítico", percent: true },
-	range: { label: "u alcance", percent: false },
-	armor: { label: "armadura", percent: false },
-	dodge: { label: "esquiva", percent: true },
-	speed: { label: "velocidade", percent: true },
-	luck: { label: "sorte", percent: false },
-	harvest: { label: "colheita", percent: false },
-	free_rerolls: { label: "rerolls grátis", percent: false },
-	pickup_range: { label: "raio de pickup", percent: true },
-	xp_gain: { label: "XP", percent: true },
-	shop_price: { label: "preços na loja", percent: true },
-	knockback: { label: "knockback", percent: true },
-	enemy_speed: { label: "velocidade dos inimigos", percent: true },
-	boss_damage: { label: "dano em chefes", percent: true },
-	explosion_size: { label: "tamanho de explosão", percent: true },
-};
+const PERCENT_STATS: ReadonlySet<string> = new Set([
+	"life_steal",
+	"damage",
+	"attack_speed",
+	"crit_chance",
+	"dodge",
+	"speed",
+	"pickup_range",
+	"xp_gain",
+	"shop_price",
+	"knockback",
+	"enemy_speed",
+	"boss_damage",
+	"explosion_size",
+]);
 
-const trim = (n: number): string => String(Math.round(n * 100) / 100).replace(".", ",");
-
-export function describeModifier(m: Modifier): string {
-	const meta = LABELS[m.stat] ?? { label: m.stat, percent: false };
-	if (m.op === "mul") return `${meta.label} ×${trim(m.value)}`;
-	const value = meta.percent ? m.value * 100 : m.value;
-	return `${m.value >= 0 ? "+" : "−"}${trim(Math.abs(value))}${meta.percent ? "%" : ""} ${meta.label}`;
+export function describeModifier(m: Modifier): Described {
+	const stat: Described = { key: `stat.${m.stat}` };
+	if (m.op === "mul") return { key: "modifier.mul", params: { stat, value: m.value } };
+	const percent = PERCENT_STATS.has(m.stat);
+	return {
+		key: "modifier.add",
+		params: {
+			sign: m.value >= 0 ? "+" : "−",
+			value: Math.abs(percent ? m.value * 100 : m.value),
+			unit: percent ? "%" : "",
+			stat,
+		},
+	};
 }
 
+/** One hero stat for the shop panel: `percent` values are fractions to show as percentages. */
 export interface StatLine {
-	label: string;
-	value: string;
+	/** Locale key of the label (`statLine.*`). */
+	key: string;
+	value: number;
+	percent: boolean;
 }
 
 /** The hero stats the shop shows next to the offers. */
 export function describeStats(stats: PlayerStats): StatLine[] {
-	const pct = (n: number): string => `${trim(n * 100)}%`;
 	return [
-		{ label: "HP máx", value: trim(stats.maxHp) },
-		{ label: "Armadura", value: trim(stats.armor) },
-		{ label: "Dano", value: pct(stats.damage) },
-		{ label: "Vel. de ataque", value: pct(stats.attackSpeed) },
-		{ label: "Crítico", value: pct(stats.critChance) },
-		{ label: "Esquiva", value: pct(stats.dodge) },
-		{ label: "Velocidade", value: trim(stats.speed) },
-		{ label: "Roubo de vida", value: pct(stats.lifeSteal) },
-		{ label: "Regen", value: trim(stats.hpRegen) },
-		{ label: "Sorte", value: trim(stats.luck) },
-		{ label: "Colheita", value: trim(stats.harvest) },
+		{ key: "statLine.maxHp", value: stats.maxHp, percent: false },
+		{ key: "statLine.armor", value: stats.armor, percent: false },
+		{ key: "statLine.damage", value: stats.damage, percent: true },
+		{ key: "statLine.attackSpeed", value: stats.attackSpeed, percent: true },
+		{ key: "statLine.critChance", value: stats.critChance, percent: true },
+		{ key: "statLine.dodge", value: stats.dodge, percent: true },
+		{ key: "statLine.speed", value: stats.speed, percent: false },
+		{ key: "statLine.lifeSteal", value: stats.lifeSteal, percent: true },
+		{ key: "statLine.hpRegen", value: stats.hpRegen, percent: false },
+		{ key: "statLine.luck", value: stats.luck, percent: false },
+		{ key: "statLine.harvest", value: stats.harvest, percent: false },
 	];
 }
 
-const pct = (n: number): string => `${trim(n * 100)}%`;
+/** Effect parameters that are fractions in the data and shown as percentages (`0.15` -> `15`). */
+const FRACTION_PARAMS: ReadonlySet<string> = new Set(["hpFraction", "fraction"]);
 
-/** pt-BR descriptions of the special effects on Ossuary nodes, until the i18n pipeline exists. */
-const EFFECT_TEXT: Readonly<Record<string, (p: Record<string, number | string | boolean>) => string>> = {
-	weak_phylactery: (p) => `Filactério fraco: revive 1× com ${pct(Number(p.hpFraction ?? 0))} de HP`,
-	crit_mult_set: (p) => `Multiplicador crítico ×${trim(Number(p.value ?? 0))}`,
-	dash_unlock: () => "Desbloqueia o dash",
-	dash_cooldown_reduction: (p) => `Dash: recarga −${trim(Number(p.seconds ?? 0))} s`,
-	dash_charges: (p) => `${trim(Number(p.value ?? 0))} cargas de dash`,
-	fragment_gain: (p) => `+${pct(Number(p.fraction ?? 0))} fragmentos`,
-	start_gold: (p) => `Começa a run com ${trim(Number(p.value ?? 0))} de ouro`,
-	soul_gain: (p) => `+${pct(Number(p.fraction ?? 0))} almas`,
-	guaranteed_uncommon_shop_item: () => "A loja começa com 1 item Incomum garantido",
-	card_rerolls: (p) => `${trim(Number(p.count ?? 0))} reroll de cartas por run`,
-	extra_legendary_pool: (p) => `Pool Lendário +${trim(Number(p.count ?? 0))} itens exclusivos`,
-};
-
-export function describeEffect(id: string, params: Record<string, number | string | boolean> = {}): string {
-	return EFFECT_TEXT[id]?.(params) ?? id;
+export function describeEffect(
+	id: string,
+	params: Record<string, number | string | boolean> = {},
+): Described {
+	const out: Record<string, string | number> = {};
+	for (const [name, value] of Object.entries(params)) {
+		if (typeof value === "number") out[name] = FRACTION_PARAMS.has(name) ? value * 100 : value;
+		else if (typeof value === "string") out[name] = value;
+	}
+	return { key: `effect.${id}`, params: out };
 }

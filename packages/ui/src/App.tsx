@@ -1,4 +1,4 @@
-import type { SaveNotice, Store, VirtualStick } from "@gc/core";
+import { type SaveNotice, type Store, t, type VirtualStick } from "@gc/core";
 import { type JSX, useSyncExternalStore } from "react";
 import { Bar } from "./components/Bar/Bar";
 import { BossBar, BossIntro, type BossViewModel } from "./components/BossBar/BossBar";
@@ -83,11 +83,12 @@ export function App({
 	return (
 		<div className="pointer-events-none absolute inset-0 p-4 font-display text-bone [text-shadow:1px_1px_0_var(--color-night)]">
 			<div className="flex w-64 flex-col gap-1" data-testid="hud-hp">
-				<Bar value={hud.hp} max={hud.maxHp} label="HP" />
-				<Bar value={hud.xp} max={hud.xpNeeded} variant="xp" label="XP" />
+				<Bar value={hud.hp} max={hud.maxHp} label={t("hud.hp")} />
+				<Bar value={hud.xp} max={hud.xpNeeded} variant="xp" label={t("hud.xp")} />
 			</div>
 			<div data-testid="hud-round">
-				Round {hud.round} · Lv {hud.level} · <span className="text-currency">{hud.gold}</span>
+				{t("hud.round", { round: hud.round })} · {t("hud.level", { level: hud.level })} ·{" "}
+				<span className="text-currency">{hud.gold}</span>
 			</div>
 			{hud.cards.length > 0 && onChooseCard ? (
 				<LevelUp
@@ -98,7 +99,7 @@ export function App({
 				/>
 			) : null}
 			{hud.chest.length > 0 && onChooseChest ? (
-				<LevelUp cards={hud.chest} onChoose={onChooseChest} title="Baú Lendário" />
+				<LevelUp cards={hud.chest} onChoose={onChooseChest} title={t("chest.title")} />
 			) : null}
 			{hud.shop && shopActions ? (
 				<Shop view={hud.shop} stats={hud.stats} actions={shopActions} />

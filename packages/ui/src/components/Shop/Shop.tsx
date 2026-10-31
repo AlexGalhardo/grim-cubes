@@ -1,3 +1,4 @@
+import { t } from "@gc/core";
 import { type JSX, useEffect } from "react";
 import { Button } from "../Button/Button";
 import { Panel } from "../Panel/Panel";
@@ -44,7 +45,8 @@ const TIER_BORDER: Readonly<Record<number, string>> = {
 	3: "border-rarity-3",
 	4: "border-rarity-4",
 };
-const KIND_LABEL = { item: "", weapon: "Arma", upgrade: "Upgrade" } as const;
+const kindLabel = (kind: ShopSlotView["kind"]): string =>
+	kind === "weapon" ? t("shop.kindWeapon") : kind === "upgrade" ? t("shop.kindUpgrade") : "";
 
 /** Between-rounds shop (GDD 17): 4 offers, lock, reroll, hero stats, next round. Keys 1-4 buy, R rerolls, Enter continues. */
 export function Shop({ view, stats, actions }: ShopProps): JSX.Element {
@@ -67,12 +69,12 @@ export function Shop({ view, stats, actions }: ShopProps): JSX.Element {
 			className="pointer-events-auto absolute inset-0 z-20 flex overflow-y-auto bg-night/80 p-2 mobile-l:p-4"
 		>
 			<div className="m-auto w-full max-w-5xl">
-				<Panel title="Mercador de Ossos" riveted>
+				<Panel title={t("shop.panel")} riveted>
 					<h1 id="shop-title" className="sr-only">
-						Loja
+						{t("shop.title")}
 					</h1>
 					<div className="mb-3 text-currency" data-testid="shop-gold">
-						{view.gold} fragmentos
+						{t("shop.gold", { gold: view.gold })}
 					</div>
 					<div className="flex flex-col gap-3 desktop:flex-row">
 						<div className="grid flex-1 grid-cols-2 gap-2 mobile-l:gap-3 desktop:grid-cols-4">
@@ -83,7 +85,7 @@ export function Shop({ view, stats, actions }: ShopProps): JSX.Element {
 									className={`flex flex-col gap-2 border-2 bg-night-2 p-3 ${TIER_BORDER[slot.tier] ?? "border-iron-dark"} ${slot.sold ? "opacity-40" : ""}`}
 								>
 									<span className="font-display text-xs text-bone-dark">
-										{i + 1} {KIND_LABEL[slot.kind]}
+										{i + 1} {kindLabel(slot.kind)}
 									</span>
 									<span className="font-display text-base">{slot.name}</span>
 									<ul className="flex-1 font-body text-sm text-bone-dark">
@@ -99,14 +101,14 @@ export function Shop({ view, stats, actions }: ShopProps): JSX.Element {
 											onClick={() => actions.buy(i)}
 											className={`h-10 flex-1 border-2 border-iron-dark bg-iron px-2 font-display text-base shadow-plate transition-colors duration-fast hover:border-ember focus-visible:outline-2 focus-visible:outline-ember focus-visible:outline-offset-2 disabled:opacity-50 pointer-coarse:min-h-12 ${slot.affordable ? "text-currency" : "text-danger"}`}
 										>
-											{slot.sold ? "Vendido" : slot.price}
+											{slot.sold ? t("shop.sold") : slot.price}
 										</button>
 										<button
 											type="button"
 											data-testid={`shop-lock-${i}`}
 											disabled={slot.sold}
 											aria-pressed={slot.locked}
-											aria-label={slot.locked ? "Destravar" : "Travar"}
+											aria-label={slot.locked ? t("shop.unlock") : t("shop.lock")}
 											onClick={() => actions.toggleLock(i)}
 											className={`h-10 w-10 border-2 font-display text-base transition-colors duration-fast pointer-coarse:min-h-12 pointer-coarse:min-w-12 ${slot.locked ? "border-ember text-ember-light" : "border-iron-dark text-bone-dark"}`}
 										>
@@ -118,7 +120,7 @@ export function Shop({ view, stats, actions }: ShopProps): JSX.Element {
 						</div>
 						<dl
 							className="hidden w-full grid-cols-2 gap-x-3 gap-y-1 font-body text-sm mobile-l:grid desktop:w-56"
-							aria-label="Atributos"
+							aria-label={t("shop.stats")}
 						>
 							{stats.map((line) => (
 								<div key={line.label} className="contents">
@@ -130,10 +132,10 @@ export function Shop({ view, stats, actions }: ShopProps): JSX.Element {
 					</div>
 					<div className="mt-4 flex flex-wrap justify-end gap-3">
 						<Button onClick={actions.reroll} disabled={view.gold < view.rerollPrice}>
-							Rolar de novo ({view.rerollPrice})
+							{t("shop.reroll", { price: view.rerollPrice })}
 						</Button>
 						<Button size="lg" onClick={actions.next}>
-							Próximo round
+							{t("shop.next")}
 						</Button>
 					</div>
 				</Panel>

@@ -4,9 +4,10 @@
 		"types": ["vite/client"],
 		"outDir": "../../node_modules/.tsc/web",
 		"tsBuildInfoFile": "../../node_modules/.tsc/web/.tsbuildinfo",
-		"rootDir": "src"
+		"rootDir": "../..",
+		"resolveJsonModule": true
 	},
-	"include": ["src"],
+	"include": ["src", "../../locales/*.json"],
 	"references": [
 		{ "path": "../../packages/core" },
 		{ "path": "../../packages/game" },
