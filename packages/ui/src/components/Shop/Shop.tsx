@@ -45,6 +45,8 @@ export interface ShopProps {
 	stats: readonly StatLineView[];
 	actions: ShopActions;
 	portrait?: PortraitFactory | undefined;
+	/** `KeyboardEvent.code` of the reroll key (Options remap); defaults to R. */
+	rerollKey?: string | undefined;
 }
 
 const PORTRAIT_PX = 160;
@@ -63,7 +65,7 @@ const kindLabel = (kind: ShopSlotView["kind"]): string =>
 	kind === "weapon" ? t("shop.kindWeapon") : kind === "upgrade" ? t("shop.kindUpgrade") : "";
 
 /** Between-rounds shop (GDD 17): 4 offers, lock, reroll, hero stats, next round. Keys 1-4 buy, R rerolls, Enter continues. */
-export function Shop({ view, stats, actions, portrait }: ShopProps): JSX.Element {
+export function Shop({ view, stats, actions, portrait, rerollKey = "KeyR" }: ShopProps): JSX.Element {
 	const portraitCanvas = useRef<HTMLCanvasElement>(null);
 	useEffect(() => {
 		const canvas = portraitCanvas.current;
@@ -77,12 +79,12 @@ export function Shop({ view, stats, actions, portrait }: ShopProps): JSX.Element
 		const onKey = (e: KeyboardEvent): void => {
 			const index = Number(e.key) - 1;
 			if (Number.isInteger(index) && index >= 0 && index < view.slots.length) actions.buy(index);
-			else if (e.key === "r" || e.key === "R") actions.reroll();
+			else if (e.code === rerollKey) actions.reroll();
 			else if (e.key === "Enter") actions.next();
 		};
 		window.addEventListener("keydown", onKey);
 		return () => window.removeEventListener("keydown", onKey);
-	}, [view.slots.length, actions]);
+	}, [view.slots.length, actions, rerollKey]);
 
 	const nav = useDialogNav<HTMLDivElement>();
 	return (
@@ -110,6 +112,12 @@ export function Shop({ view, stats, actions, portrait }: ShopProps): JSX.Element
 									className={`flex flex-col gap-2 border-2 bg-night-2 p-3 ${TIER_BORDER[slot.tier] ?? "border-iron-dark"} ${slot.sold ? "opacity-40" : ""}`}
 								>
 									<span className="font-display text-xs text-bone-dark">
+										<span
+											className="rarity-mark"
+											data-tier={slot.tier}
+											data-testid={`rarity-mark-${i}`}
+											aria-hidden="true"
+										/>
 										{i + 1} {kindLabel(slot.kind)}
 									</span>
 									<span className="flex items-center gap-2 font-display text-base">

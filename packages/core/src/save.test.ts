@@ -1,4 +1,5 @@
 import { expect, test } from "vitest";
+import { createKeyMap } from "./keys";
 import {
 	checksumOf,
 	createMetaState,
@@ -21,11 +22,11 @@ const meta = () => {
 	return m;
 };
 
-test("a save round-trips and uses schemaVersion 5", async () => {
+test("a save round-trips and uses schemaVersion 6", async () => {
 	const text = await serializeSave(meta(), "0.1.0", new Date("2026-10-31T12:00:00Z"));
 	const envelope = JSON.parse(text) as { schemaVersion: number; app: string; savedAt: string };
-	expect(envelope.schemaVersion).toBe(5);
-	expect(SAVE_SCHEMA_VERSION).toBe(5);
+	expect(envelope.schemaVersion).toBe(6);
+	expect(SAVE_SCHEMA_VERSION).toBe(6);
 	expect(envelope.app).toBe("grim-cubes");
 	expect(envelope.savedAt).toBe("2026-10-31T12:00:00.000Z");
 	expect(await parseSave(text)).toEqual(meta());
@@ -72,7 +73,7 @@ test("untrusted fields are validated", async () => {
 test("a save from another app or a newer schema is refused", async () => {
 	const base = JSON.parse(await serializeSave(meta(), "0.1.0")) as Record<string, unknown>;
 	await expect(parseSave(JSON.stringify({ ...base, app: "other" }))).rejects.toBeInstanceOf(SaveError);
-	await expect(parseSave(JSON.stringify({ ...base, schemaVersion: 6 }))).rejects.toThrow("newer version");
+	await expect(parseSave(JSON.stringify({ ...base, schemaVersion: 7 }))).rejects.toThrow("newer version");
 });
 
 test("size, list and key limits protect the parser", async () => {
@@ -114,6 +115,20 @@ const SETTINGS_BY_VERSION: Record<number, string[] | null> = {
 	2: ["preset", "volume", "screenShake", "locale"],
 	3: ["preset", "volume", "screenShake", "locale", "gameSpeed"],
 	4: ["preset", "volume", "screenShake", "locale", "gameSpeed", "telemetry"],
+	5: [
+		"preset",
+		"volume",
+		"screenShake",
+		"locale",
+		"gameSpeed",
+		"telemetry",
+		"brightness",
+		"contrast",
+		"colorblind",
+		"flashReduction",
+		"uiScale",
+		"gore",
+	],
 };
 
 /** A save as the given older schema wrote it: only the settings keys it knew, with its own checksum. */
@@ -131,8 +146,8 @@ async function legacySave(version: number): Promise<string> {
 	return JSON.stringify({ ...current, schemaVersion: version, checksum, data });
 }
 
-test("saves from schemas 1 to 4 load with the defaults of every setting they lacked", async () => {
-	for (const version of [1, 2, 3, 4]) {
+test("saves from schemas 1 to 5 load with the defaults of every setting they lacked", async () => {
+	for (const version of [1, 2, 3, 4, 5]) {
 		const loaded = await parseSave(await legacySave(version));
 		expect(loaded.settings.gameSpeed, `v${version}`).toBe(1);
 		expect(loaded.settings.telemetry, `v${version}`).toBe(false);
@@ -142,6 +157,7 @@ test("saves from schemas 1 to 4 load with the defaults of every setting they lac
 		expect(loaded.settings.flashReduction, `v${version}`).toBe(false);
 		expect(loaded.settings.uiScale, `v${version}`).toBe(100);
 		expect(loaded.settings.gore, `v${version}`).toBe(true);
+		expect(loaded.settings.keys, `v${version}`).toEqual(createKeyMap());
 	}
 	expect((await parseSave(await legacySave(1))).settings).toEqual(createSettings());
 });
@@ -168,6 +184,10 @@ test("visual and other settings are validated: ranges, modes, scales and types",
 	expect(bad({ uiScale: 110 })).toThrow(SaveError);
 	expect(bad({ flashReduction: 1 })).toThrow(SaveError);
 	expect(bad({ gore: "full" })).toThrow(SaveError);
+	expect(bad({ keys: { ...ok.keys, dash: "KeyW" } })).toThrow(SaveError);
+	expect(bad({ keys: { ...ok.keys, reroll: "Enter" } })).toThrow(SaveError);
+	expect(bad({ keys: { ...ok.keys, up: 5 } })).toThrow(SaveError);
+	expect(bad({ keys: "wasd" })).toThrow(SaveError);
 	const edge = validateMeta({
 		...createMetaState(),
 		settings: {
@@ -179,6 +199,12 @@ test("visual and other settings are validated: ranges, modes, scales and types",
 			gore: false,
 		},
 	});
+	expect(
+		validateMeta({
+			...createMetaState(),
+			settings: { ...ok, keys: { ...ok.keys, dash: "KeyE", speed: "KeyZ" } },
+		}).settings.keys,
+	).toMatchObject({ dash: "KeyE", speed: "KeyZ" });
 	expect(edge.settings).toMatchObject({
 		brightness: -50,
 		contrast: 150,

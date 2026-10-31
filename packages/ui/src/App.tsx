@@ -56,6 +56,10 @@ export interface HudState {
 	menu: MenuViewModel | null;
 	/** The web demo is over (the Gravedigger fell): the DemoEnd screen shows and round 11 never starts. */
 	demoEnd: boolean;
+	/** `KeyboardEvent.code` of the reroll key (Options remap). */
+	rerollKey: string;
+	/** Colour-blind mode on: rarities get shapes and a safer palette (`data-theme="cb"`). */
+	colorblind: boolean;
 	/** HUD scale in percent (90, 100, 125 or 150), applied through the `--ui-scale` variable on the root. */
 	uiScale: number;
 	/** Simulation speed, 1 to 3. */
@@ -126,6 +130,7 @@ export function App({
 			className="pointer-events-none absolute inset-0 p-4 font-display text-bone [text-shadow:1px_1px_0_var(--color-night)]"
 			style={{ "--ui-scale": hud.uiScale / 100, zoom: "var(--ui-scale)" } as CSSProperties}
 			data-testid="hud-root"
+			data-theme={hud.colorblind ? "cb" : undefined}
 		>
 			<div className="flex w-64 flex-col gap-1" data-testid="hud-hp">
 				<Bar value={hud.hp} max={hud.maxHp} label={t("hud.hp")} />
@@ -141,13 +146,20 @@ export function App({
 					onChoose={onChooseCard}
 					rerollsLeft={hud.cardRerolls}
 					onReroll={onRerollCards}
+					rerollKey={hud.rerollKey}
 				/>
 			) : null}
 			{hud.chest.length > 0 && onChooseChest ? (
 				<LevelUp cards={hud.chest} onChoose={onChooseChest} title={t("chest.title")} />
 			) : null}
 			{hud.shop && shopActions ? (
-				<Shop view={hud.shop} stats={hud.stats} actions={shopActions} portrait={shopPortrait} />
+				<Shop
+					view={hud.shop}
+					stats={hud.stats}
+					actions={shopActions}
+					portrait={shopPortrait}
+					rerollKey={hud.rerollKey}
+				/>
 			) : null}
 			{hud.menu && menuActions && !hud.difficulty && !hud.ossuary && !hud.options ? (
 				<Menu view={hud.menu} actions={menuActions} demo={demo} />

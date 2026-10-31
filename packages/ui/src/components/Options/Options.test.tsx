@@ -1,3 +1,4 @@
+import { createKeyMap, type KeyCheck } from "@gc/core";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
 import { Options, type OptionsActions, type OptionsViewModel } from "./Options";
@@ -20,6 +21,7 @@ const view: OptionsViewModel = {
 	flashReduction: false,
 	uiScale: 100,
 	gore: true,
+	keys: createKeyMap(),
 	locale: "pt-BR",
 	locales: [
 		{ id: "pt-BR", name: "Português" },
@@ -39,6 +41,8 @@ const actions = (): OptionsActions => ({
 	setFlashReduction: vi.fn(),
 	setUiScale: vi.fn(),
 	setGore: vi.fn(),
+	setKey: vi.fn(() => ({ ok: true }) as KeyCheck),
+	resetKeys: vi.fn(),
 	setLocale: vi.fn(),
 	close: vi.fn(),
 });
@@ -89,4 +93,42 @@ test("the accessibility section reports brightness, contrast, colour-blind mode,
 	expect(
 		Array.from((screen.getByTestId("options-uiscale") as HTMLSelectElement).options).map((o) => o.value),
 	).toEqual(["90", "100", "125", "150"]);
+});
+
+test("the controls list the keys, a pressed key is sent to setKey and a conflict is explained", () => {
+	const a = actions();
+	render(<Options view={view} actions={a} />);
+	expect(screen.getByTestId("options-key-up").textContent).toBe("W");
+	expect(screen.getByTestId("options-key-dash").textContent).toBe("Space");
+	fireEvent.click(screen.getByTestId("options-key-dash"));
+	expect(screen.getByTestId("options-key-dash").textContent).toBe("Pressione uma tecla...");
+	fireEvent.keyDown(window, { code: "KeyE" });
+	expect(a.setKey).toHaveBeenCalledWith("dash", "KeyE");
+	expect(screen.getByTestId("options-key-dash").textContent).toBe("Space");
+
+	vi.mocked(a.setKey).mockReturnValueOnce({ ok: false, reason: "conflict", with: "up" });
+	fireEvent.click(screen.getByTestId("options-key-reroll"));
+	fireEvent.keyDown(window, { code: "KeyW" });
+	expect(screen.getByTestId("options-key-problem").textContent).toBe(
+		"Essa tecla já é usada por Mover para cima",
+	);
+	expect(screen.getByTestId("options-key-reroll").textContent).toBe("Pressione uma tecla...");
+
+	vi.mocked(a.setKey).mockReturnValueOnce({ ok: false, reason: "reserved" });
+	fireEvent.keyDown(window, { code: "Enter" });
+	expect(screen.getByTestId("options-key-problem").textContent).toBe("Essa tecla é reservada");
+
+	fireEvent.keyDown(window, { code: "Escape" });
+	expect(screen.getByTestId("options-key-reroll").textContent).toBe("R");
+	fireEvent.click(screen.getByRole("button", { name: "Restaurar teclas padrão" }));
+	expect(a.resetKeys).toHaveBeenCalledTimes(1);
+});
+
+test("Esc while capturing cancels the capture and does not close the screen", () => {
+	const a = actions();
+	render(<Options view={view} actions={a} />);
+	fireEvent.click(screen.getByTestId("options-key-speed"));
+	fireEvent.keyDown(window, { code: "Escape" });
+	expect(a.close).not.toHaveBeenCalled();
+	expect(a.setKey).not.toHaveBeenCalled();
 });

@@ -18,6 +18,8 @@ export interface LevelUpProps {
 	/** Ossuary card rerolls left; the button is hidden when 0 or when there is no handler. */
 	rerollsLeft?: number;
 	onReroll?: (() => void) | undefined;
+	/** `KeyboardEvent.code` of the reroll key (Options remap); defaults to R. */
+	rerollKey?: string | undefined;
 }
 
 /** Level-up overlay (Art Bible 16.5 `LevelUpCard`): pick 1 of up to 3 cards with a click, a tap or keys 1-3. */
@@ -27,16 +29,17 @@ export function LevelUp({
 	title = t("levelUp.title"),
 	rerollsLeft = 0,
 	onReroll,
+	rerollKey = "KeyR",
 }: LevelUpProps): JSX.Element {
 	useEffect(() => {
 		const onKey = (e: KeyboardEvent): void => {
 			const index = Number(e.key) - 1;
 			if (Number.isInteger(index) && index >= 0 && index < cards.length) onChoose(index);
-			else if (e.key === "r" || e.key === "R") onReroll?.();
+			else if (e.code === rerollKey) onReroll?.();
 		};
 		window.addEventListener("keydown", onKey);
 		return () => window.removeEventListener("keydown", onKey);
-	}, [cards, onChoose]);
+	}, [cards, onChoose, onReroll, rerollKey]);
 
 	const nav = useDialogNav<HTMLDivElement>();
 	return (

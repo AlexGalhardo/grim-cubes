@@ -1,4 +1,4 @@
-export const SAVE_SCHEMA_VERSION = 5;
+export const SAVE_SCHEMA_VERSION = 6;
 export const SAVE_APP = "grim-cubes";
 /** Upper bound on any counter read from a save; far above a real run, low enough to reject garbage. */
 const MAX_COUNTER = 1_000_000_000;
@@ -9,6 +9,8 @@ const FORBIDDEN_KEYS = new Set(["__proto__", "constructor", "prototype"]);
 
 export type Difficulty = "normal" | "grim" | "nightmare";
 export const DIFFICULTIES: readonly Difficulty[] = ["normal", "grim", "nightmare"];
+
+import { createKeyMap, KEY_ACTIONS, type KeyMap, validKeyMap } from "./keys";
 
 export const LOCALES = ["pt-BR", "en"] as const;
 export type SettingsLocale = (typeof LOCALES)[number];
@@ -40,6 +42,8 @@ export interface Settings {
 	uiScale: UiScale;
 	/** true = full gore, false = reduced (no decals or blood, grey cubes). */
 	gore: boolean;
+	/** Remapped keyboard controls (`KeyboardEvent.code`). */
+	keys: KeyMap;
 }
 
 export function createSettings(): Settings {
@@ -56,6 +60,7 @@ export function createSettings(): Settings {
 		flashReduction: false,
 		uiScale: 100,
 		gore: true,
+		keys: createKeyMap(),
 	};
 }
 
@@ -141,6 +146,20 @@ function counter(value: unknown, label: string): number {
 	return value;
 }
 
+/** Absent before schema 6: the default keys. Present: every action a short code and no key shared. */
+function validateKeys(raw: unknown): KeyMap {
+	if (raw === undefined) return createKeyMap();
+	if (!isRecord(raw)) throw new SaveError("settings.keys must be an object");
+	const keys = createKeyMap();
+	for (const action of KEY_ACTIONS) {
+		const code = raw[action];
+		if (typeof code !== "string") throw new SaveError(`settings.keys.${action} must be a key code`);
+		keys[action] = code;
+	}
+	if (!validKeyMap(keys)) throw new SaveError("settings.keys has an invalid, reserved or shared key");
+	return keys;
+}
+
 function percent(value: unknown, label: string): number {
 	if (typeof value !== "number" || !Number.isInteger(value) || value < 0 || value > 100) {
 		throw new SaveError(`${label} must be an integer between 0 and 100`);
@@ -185,6 +204,7 @@ function validateSettings(raw: unknown): Settings {
 	const uiScale = raw.uiScale === undefined ? 100 : raw.uiScale;
 	if (!UI_SCALES.includes(uiScale as UiScale))
 		throw new SaveError("settings.uiScale must be 90, 100, 125 or 150");
+	const keys = validateKeys(raw.keys);
 	return {
 		preset: raw.preset,
 		volume: {
@@ -202,6 +222,7 @@ function validateSettings(raw: unknown): Settings {
 		flashReduction,
 		uiScale: uiScale as UiScale,
 		gore,
+		keys,
 	};
 }
 
@@ -260,6 +281,20 @@ const SETTINGS_KEYS: Readonly<Record<number, readonly (keyof Settings)[]>> = {
 	2: ["preset", "volume", "screenShake", "locale"],
 	3: ["preset", "volume", "screenShake", "locale", "gameSpeed"],
 	4: ["preset", "volume", "screenShake", "locale", "gameSpeed", "telemetry"],
+	5: [
+		"preset",
+		"volume",
+		"screenShake",
+		"locale",
+		"gameSpeed",
+		"telemetry",
+		"brightness",
+		"contrast",
+		"colorblind",
+		"flashReduction",
+		"uiScale",
+		"gore",
+	],
 };
 
 /** The data as an older schema's checksum saw it: only the settings keys that schema knew. */

@@ -3,6 +3,8 @@ export type { Described, I18n, Messages, Params, ParamValue } from "./i18n";
 export { createI18n, i18n, t } from "./i18n";
 export type { InputState, VirtualStick } from "./input";
 export { clampUnit, createInputState, createVirtualStick } from "./input";
+export type { KeyAction, KeyCheck, KeyMap } from "./keys";
+export { checkKey, createKeyMap, FIXED_KEYS, KEY_ACTIONS, keyBindingsFor, validKeyMap } from "./keys";
 export type { Logger, LoggerOptions, LogLevel, LogSink } from "./logger";
 export { createLogger } from "./logger";
 export type { Rng, RngStreams, StreamName } from "./rng";
