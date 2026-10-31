@@ -1,3 +1,4 @@
+import type { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import type { Mesh } from "@babylonjs/core/Meshes/mesh";
 import {
 	Bleed,
@@ -784,6 +785,20 @@ describe("live pool limits", () => {
 		vfx.setPools(capacity * 2, capacity * 2);
 		expect(vfx.particles.limit).toBe(capacity);
 		expect(vfx.decals.limit).toBe(vfx.decals.capacity);
+		dispose();
+	});
+});
+
+describe("damage number material", () => {
+	it("is unlit with an emissive white base, so the digits take the instance colour instead of black", () => {
+		const { game, vfx, dispose } = setup();
+		const mesh = game.scene.getMeshByName("vfx_digit_1") as Mesh | null;
+		const material = mesh?.material as StandardMaterial | null | undefined;
+		expect(vfx.numbers).toBeDefined();
+		expect(material?.disableLighting).toBe(true);
+		expect([material?.emissiveColor.r, material?.emissiveColor.g, material?.emissiveColor.b]).toEqual([
+			1, 1, 1,
+		]);
 		dispose();
 	});
 });

@@ -1597,6 +1597,11 @@ async function boot(): Promise<void> {
 					KnockbackResist.value[e] = 1;
 					return e;
 				};
+				if (kind === "number") {
+					const e = spawnNear(2, 0);
+					events.push(EventType.Damaged, 125, 0, 0, e);
+					return;
+				}
 				if (kind === "bleed" || kind === "thorns") {
 					const list = [spawnNear(2, 0), spawnNear(-2, 1), spawnNear(0, -2)];
 					if (kind === "bleed") {
