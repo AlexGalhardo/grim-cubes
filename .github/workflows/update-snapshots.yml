@@ -1,0 +1,43 @@
+name: Update visual snapshots
+
+# Regenerates the linux Playwright baselines inside the same container the e2e job uses.
+# Download the artifact and commit the PNGs into tests/visual/__screenshots__/.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  BUN_VERSION: "1.4.4"
+
+jobs:
+  update-snapshots:
+    name: update-snapshots
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
+      options: --ipc=host
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      # The Playwright image has no unzip, which setup-bun needs; npm ships the same Bun binary.
+      - run: npm install -g bun@${{ env.BUN_VERSION }}
+      - uses: actions/cache@v6
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+      - run: bun install --frozen-lockfile
+      - run: bun run data:check
+      - run: bun run assets:build
+      - run: bunx vite build --config apps/web/vite.config.ts --mode web-demo
+      # In CI mode Playwright can report the run that writes new baselines as failed; the second run is the real check.
+      - run: bunx playwright test --update-snapshots=all || true
+      - run: bunx playwright test
+      - uses: actions/upload-artifact@v7
+        with:
+          name: linux-snapshots
+          path: tests/visual/__screenshots__/*-linux.png
+          if-no-files-found: error

@@ -1,0 +1,4 @@
+canvas#game {
+	/* biome-ignore lint/complexity/noImportantStyles: must beat the app stylesheet for the UI-only capture */
+	display: none !important;
+}
