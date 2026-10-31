@@ -70,6 +70,22 @@ function makeEnemy(): BbModel {
 	};
 }
 
+function firstKeyframe(
+	model: BbModel,
+): NonNullable<BbModel["animations"]>[number]["animators"][string]["keyframes"][number] {
+	const animator = Object.values(model.animations?.[0]?.animators ?? {})[0];
+	const frame = animator?.keyframes[0];
+	if (!frame) throw new Error("fixture has no keyframes");
+	return frame;
+}
+
+function setFirstKeyframe(
+	model: BbModel,
+	point: { x: number | string; y: number | string; z: number | string },
+): void {
+	firstKeyframe(model).data_points = [point];
+}
+
 describe("validateBbmodel", () => {
 	it("accepts a valid enemy model", () => {
 		expect(() => validateBbmodel("husk", "enemies", makeEnemy())).not.toThrow();
@@ -119,6 +135,44 @@ describe("validateBbmodel", () => {
 			},
 		],
 		[
+			"bbmodel-keyframe",
+			(m) => {
+				setFirstKeyframe(m, { x: "Math.sin(q.anim_time)", y: 0, z: 0 });
+			},
+		],
+		[
+			"bbmodel-keyframe",
+			(m) => {
+				setFirstKeyframe(m, { x: Number.NaN, y: 0, z: 0 });
+			},
+		],
+		[
+			"bbmodel-keyframe",
+			(m) => {
+				firstKeyframe(m).interpolation = "catmullrom";
+			},
+		],
+		[
+			"bbmodel-keyframe",
+			(m) => {
+				firstKeyframe(m).interpolation = "step";
+			},
+		],
+		[
+			"bbmodel-face-rotation",
+			(m) => {
+				// ALL_FACES is shared between elements, so replace the face instead of mutating it.
+				const element = m.elements[0] as BbElement;
+				element.faces = { ...element.faces, north: { ...FACE, rotation: 90 } };
+			},
+		],
+		[
+			"bbmodel-box-uv",
+			(m) => {
+				m.meta = { box_uv: true };
+			},
+		],
+		[
 			"bbmodel-texture",
 			(m) => {
 				m.textures = [{}, {}];
@@ -134,6 +188,40 @@ describe("validateBbmodel", () => {
 		const model = makeEnemy();
 		mutate(model);
 		expect(() => validateBbmodel("bad", "enemies", model)).toThrow(`[${rule}]`);
+	});
+
+	it("applies the Art Bible size-class budgets to enemies and props", () => {
+		const sized = (count: number): BbModel => {
+			const model = makeEnemy();
+			for (let i = model.elements.length; i < count; i++)
+				model.elements.push(cube(`x${i}`, [0, 0, 0], [1, 1, 1]));
+			return model;
+		};
+		expect(() => validateBbmodel("wail", "enemies", sized(10), "small")).not.toThrow();
+		expect(() => validateBbmodel("wail", "enemies", sized(11), "small")).toThrow(
+			"[bbmodel-element-budget]",
+		);
+		expect(() => validateBbmodel("husk", "enemies", sized(16), "medium")).not.toThrow();
+		expect(() => validateBbmodel("husk", "enemies", sized(17), "medium")).toThrow(
+			"[bbmodel-element-budget]",
+		);
+		expect(() => validateBbmodel("forged", "enemies", sized(20), "large")).not.toThrow();
+		expect(() => validateBbmodel("forged", "enemies", sized(21), "large")).toThrow(
+			"[bbmodel-element-budget]",
+		);
+	});
+
+	it("maps step keyframes to STEP interpolation in glTF", () => {
+		const model = makeEnemy();
+		for (const animation of model.animations ?? []) {
+			for (const animator of Object.values(animation.animators)) {
+				for (const frame of animator.keyframes) frame.interpolation = "step";
+			}
+		}
+		expect(() => validateBbmodel("husk", "enemies", model)).not.toThrow();
+		const doc = bbmodelToDocument("husk", "enemies", model);
+		const sampler = doc.getRoot().listAnimations()[0]?.listSamplers()[0];
+		expect(sampler?.getInterpolation()).toBe("STEP");
 	});
 
 	it("rejects text that is not a model", () => {
@@ -207,6 +295,24 @@ describe("assets-build with a .bbmodel", () => {
 			?.getAttribute("WEIGHTS_0")
 			?.getArray();
 		expect(weights && Array.from(weights).every((w, i) => (i % 4 === 0 ? w === 1 : w === 0))).toBe(true);
+	});
+
+	it("reads size classes from the data directory to tighten the element budget", async () => {
+		const dir = join(root, "src", "models", "enemies");
+		mkdirSync(dir, { recursive: true });
+		const model = makeEnemy();
+		for (let i = 0; i < 10; i++) model.elements.push(cube(`x${i}`, [0, 0, 0], [1, 1, 1]));
+		writeFileSync(join(dir, "husk.bbmodel"), JSON.stringify(model));
+		const png = new PNG({ width: 32, height: 32 });
+		for (let i = 0; i < 32 * 32; i++) png.data.set([60, 50, 90, 255], i * 4);
+		writeFileSync(join(dir, "husk_d.png"), PNG.sync.write(png));
+		const data = join(root, "data");
+		mkdirSync(data, { recursive: true });
+		writeFileSync(join(data, "enemies.json"), JSON.stringify([{ id: "husk", sizeClass: "small" }]));
+
+		const options = { srcDir: join(root, "src"), outDir: join(root, "out"), version: "1.0.0" };
+		await expect(buildAssets({ ...options, dataDir: data })).rejects.toThrow("[bbmodel-element-budget]");
+		await expect(buildAssets(options)).resolves.toBeDefined();
 	});
 
 	it("fails the build with the rule name for an invalid .bbmodel", async () => {

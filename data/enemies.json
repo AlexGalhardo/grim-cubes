@@ -1,6 +1,7 @@
 [
 	{
 		"id": "husk",
+		"sizeClass": "medium",
 		"name": "Carcaça",
 		"biomeRing": 0,
 		"radius": 0.45,
@@ -16,6 +17,7 @@
 	},
 	{
 		"id": "wail",
+		"sizeClass": "small",
 		"name": "Lamento",
 		"biomeRing": 0,
 		"radius": 0.3,
@@ -34,6 +36,7 @@
 	},
 	{
 		"id": "drowned",
+		"sizeClass": "medium",
 		"name": "Afogado",
 		"biomeRing": 1,
 		"radius": 0.5,
@@ -49,6 +52,7 @@
 	},
 	{
 		"id": "leech",
+		"sizeClass": "small",
 		"name": "Sanguessuga",
 		"biomeRing": 1,
 		"radius": 0.3,
@@ -66,6 +70,7 @@
 	},
 	{
 		"id": "forged",
+		"sizeClass": "large",
 		"name": "Forjado",
 		"biomeRing": 2,
 		"radius": 0.7,
@@ -83,6 +88,7 @@
 	},
 	{
 		"id": "watcher",
+		"sizeClass": "medium",
 		"name": "Vigia",
 		"biomeRing": 2,
 		"radius": 0.45,
@@ -101,6 +107,7 @@
 	},
 	{
 		"id": "hunter",
+		"sizeClass": "medium",
 		"name": "Caçador",
 		"biomeRing": 3,
 		"radius": 0.45,
@@ -118,6 +125,7 @@
 	},
 	{
 		"id": "breeder",
+		"sizeClass": "large",
 		"name": "Reprodutor",
 		"biomeRing": 3,
 		"radius": 0.7,

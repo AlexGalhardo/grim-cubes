@@ -5,7 +5,7 @@ import { type Document, Logger, NodeIO } from "@gltf-transform/core";
 import { PNG } from "pngjs";
 import { bakeVat } from "../bake-vat/bake";
 import { ATLAS_SIZE, type Placement, packSprites, renderAtlas, type Sprite } from "./atlas";
-import { bbmodelToDocument, parseBbmodel, validateBbmodel } from "./bbmodel";
+import { bbmodelToDocument, parseBbmodel, type SizeClass, validateBbmodel } from "./bbmodel";
 import { packGlb } from "./glb";
 import { rigidSkin } from "./rigidSkin";
 import { CATEGORIES, type Category, type ModelInput, RuleError, validateModel } from "./rules";
@@ -43,6 +43,8 @@ export interface Manifest {
 }
 
 export interface BuildOptions {
+	/** `data/` directory; when set, enemy and prop size classes tighten the element budget (Art Bible §5.1). */
+	dataDir?: string;
 	srcDir: string;
 	outDir: string;
 	version: string;
@@ -82,14 +84,33 @@ function listModels(srcDir: string): { category: Category; name: string; path: s
 	return found;
 }
 
-async function load(item: { category: Category; name: string; path: string }): Promise<Loaded> {
+function readSizeClasses(dataDir: string | undefined): Map<string, SizeClass> {
+	const classes = new Map<string, SizeClass>();
+	if (!dataDir) return classes;
+	for (const file of ["enemies.json", "props.json"]) {
+		const path = join(dataDir, file);
+		if (!existsSync(path)) continue;
+		for (const entry of JSON.parse(readFileSync(path, "utf8")) as {
+			id: string;
+			sizeClass?: SizeClass;
+		}[]) {
+			if (entry.sizeClass) classes.set(entry.id, entry.sizeClass);
+		}
+	}
+	return classes;
+}
+
+async function load(
+	item: { category: Category; name: string; path: string },
+	sizeClasses: ReadonlyMap<string, SizeClass>,
+): Promise<Loaded> {
 	const isBbmodel = item.path.endsWith(".bbmodel");
 	const pngPath = item.path.replace(/(\.glb|\.bbmodel)$/, "_d.png");
 	let document: Document;
 	let extensionsUsed: string[];
 	if (isBbmodel) {
 		const model = parseBbmodel(item.name, readFileSync(item.path, "utf8"));
-		validateBbmodel(item.name, item.category, model);
+		validateBbmodel(item.name, item.category, model, sizeClasses.get(item.name));
 		document = bbmodelToDocument(item.name, item.category, model);
 		rigidSkin(item.name, document, { skin: SKINNED.includes(item.category) });
 		extensionsUsed = ["KHR_materials_unlit"];
@@ -142,7 +163,8 @@ function groupOf(category: Category, name: string): string {
 export async function buildAssets(options: BuildOptions): Promise<Manifest> {
 	const items = listModels(options.srcDir);
 	const loaded: Loaded[] = [];
-	for (const item of items) loaded.push(await load(item));
+	const sizeClasses = readSizeClasses(options.dataDir);
+	for (const item of items) loaded.push(await load(item, sizeClasses));
 
 	rmSync(join(options.outDir, "models"), { recursive: true, force: true });
 	rmSync(join(options.outDir, "vat"), { recursive: true, force: true });

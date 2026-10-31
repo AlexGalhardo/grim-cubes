@@ -1,0 +1,12 @@
+[
+	{ "id": "prop_tombstone_01", "sizeClass": "medium", "kind": "blocking" },
+	{ "id": "prop_tombstone_02", "sizeClass": "medium", "kind": "blocking" },
+	{ "id": "prop_dead_tree_01", "sizeClass": "large", "kind": "blocking" },
+	{ "id": "prop_crypt_01", "sizeClass": "large", "kind": "blocking" },
+	{ "id": "prop_bone_01", "sizeClass": "small", "kind": "decor" },
+	{ "id": "prop_grass_01", "sizeClass": "small", "kind": "decor" },
+	{ "id": "prop_urn_01", "sizeClass": "small", "kind": "breakable" },
+	{ "id": "prop_cross_01", "sizeClass": "medium", "kind": "decor" },
+	{ "id": "prop_fence_01", "sizeClass": "medium", "kind": "decor" },
+	{ "id": "prop_bonepile_01", "sizeClass": "medium", "kind": "decor" }
+]

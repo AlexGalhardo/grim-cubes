@@ -5,6 +5,10 @@ export type Vec3 = [number, number, number];
 
 export interface BbFace {
 	uv: [number, number, number, number];
+	/** Index into `textures`; Blockbench writes it, the converter ignores it (one texture per model). */
+	texture?: number;
+	/** Face UV rotation in degrees; not implemented, so a non-zero value is rejected. */
+	rotation?: number;
 }
 
 export interface BbElement {
@@ -30,6 +34,7 @@ export interface BbGroup {
 export interface BbKeyframe {
 	channel: "rotation" | "position" | "scale";
 	time: number;
+	interpolation?: string;
 	data_points: { x: number | string; y: number | string; z: number | string }[];
 }
 
@@ -40,6 +45,7 @@ export interface BbAnimation {
 }
 
 export interface BbModel {
+	meta?: { box_uv?: boolean };
 	name?: string;
 	resolution: { width: number; height: number };
 	elements: BbElement[];
@@ -51,7 +57,15 @@ export interface BbModel {
 type FaceName = "north" | "south" | "east" | "west" | "up" | "down";
 const FACES: readonly FaceName[] = ["north", "south", "east", "west", "up", "down"];
 
-/** Art Bible §5.1 element budget per category (the largest class of each; per-class tightening is a later pass). */
+/** Category-wide budget: the largest class, used when a model has no size class in `data/`. */
+export type SizeClass = "small" | "medium" | "large";
+
+/** Art Bible §5.1 budgets that depend on the size class (enemies 10/16/20, props 4/8/16). */
+export const CLASS_BUDGET: Readonly<Partial<Record<Category, Readonly<Record<SizeClass, number>>>>> = {
+	enemies: { small: 10, medium: 16, large: 20 },
+	props: { small: 4, medium: 8, large: 16 },
+};
+
 export const ELEMENT_BUDGET: Readonly<Record<Category, number>> = {
 	hero: 24,
 	enemies: 20,
@@ -104,7 +118,14 @@ export function parseBbmodel(name: string, text: string): BbModel {
 }
 
 /** SDD 09 §2.1 rules for a `.bbmodel`; the PNG itself (colors, forbidden pure white/black) is checked separately. */
-export function validateBbmodel(name: string, category: Category, model: BbModel): void {
+export function validateBbmodel(
+	name: string,
+	category: Category,
+	model: BbModel,
+	sizeClass?: SizeClass,
+): void {
+	if (model.meta?.box_uv === true)
+		fail("bbmodel-box-uv", name, "box UV mapping is not implemented; use per-face UV");
 	for (const element of model.elements) {
 		if (element.type !== "cube" && element.type !== "quad") {
 			fail(
@@ -112,6 +133,15 @@ export function validateBbmodel(name: string, category: Category, model: BbModel
 				name,
 				`element "${element.name}" is a ${element.type}; only cube and quad are allowed`,
 			);
+		}
+		for (const [faceName, face] of Object.entries(element.faces ?? {})) {
+			if (face?.rotation !== undefined && face.rotation !== 0) {
+				fail(
+					"bbmodel-face-rotation",
+					name,
+					`element "${element.name}" face ${faceName} rotates its UV by ${face.rotation}`,
+				);
+			}
 		}
 		for (const angle of element.rotation ?? []) {
 			if (Math.abs(angle / ROTATION_STEP - Math.round(angle / ROTATION_STEP)) > 1e-6) {
@@ -144,13 +174,15 @@ export function validateBbmodel(name: string, category: Category, model: BbModel
 			}
 		}
 	}
-	if (model.elements.length > ELEMENT_BUDGET[category]) {
+	const budget = (sizeClass && CLASS_BUDGET[category]?.[sizeClass]) || ELEMENT_BUDGET[category];
+	if (model.elements.length > budget) {
 		fail(
 			"bbmodel-element-budget",
 			name,
-			`${model.elements.length} elements, ${category} budget is ${ELEMENT_BUDGET[category]}`,
+			`${model.elements.length} elements, ${sizeClass ? `${sizeClass} ` : ""}${category} budget is ${budget}`,
 		);
 	}
+	validateKeyframes(name, model);
 
 	const groupNames = new Set(groups(model.outliner).map((g) => g.name));
 	const required = CHARACTER.includes(category) ? ["root", "body", "head"] : ["root"];
@@ -167,6 +199,48 @@ export function validateBbmodel(name: string, category: Category, model: BbModel
 	const { width, height } = model.resolution;
 	if (width % 32 !== 0 || height % 32 !== 0) {
 		fail("bbmodel-texture", name, `resolution ${width}x${height} is not a multiple of 32`);
+	}
+}
+
+const INTERPOLATIONS = new Set(["linear", "step"]);
+
+/** Keyframes must be plain numbers (Molang expressions evaluate to NaN here) and use linear or step interpolation. */
+function validateKeyframes(name: string, model: BbModel): void {
+	for (const animation of model.animations ?? []) {
+		for (const animator of Object.values(animation.animators)) {
+			for (const channel of ["rotation", "position", "scale"] as const) {
+				const frames = animator.keyframes.filter((k) => k.channel === channel);
+				for (const frame of frames) {
+					const point = frame.data_points[0];
+					for (const value of [point?.x, point?.y, point?.z]) {
+						if (
+							!Number.isFinite(Number(value ?? 0)) ||
+							(typeof value === "string" && value.trim() === "")
+						) {
+							fail(
+								"bbmodel-keyframe",
+								name,
+								`animation "${animation.name}" has a non-numeric keyframe value "${String(value)}"`,
+							);
+						}
+					}
+					if (frame.interpolation !== undefined && !INTERPOLATIONS.has(frame.interpolation)) {
+						fail(
+							"bbmodel-keyframe",
+							name,
+							`animation "${animation.name}" uses ${frame.interpolation} interpolation; only linear and step are supported`,
+						);
+					}
+				}
+				if (new Set(frames.map((f) => f.interpolation ?? "linear")).size > 1) {
+					fail(
+						"bbmodel-keyframe",
+						name,
+						`animation "${animation.name}" mixes interpolations in one ${channel} track`,
+					);
+				}
+			}
+		}
 	}
 }
 
@@ -475,7 +549,7 @@ export function bbmodelToDocument(name: string, category: Category, model: BbMod
 							.setBuffer(buffer)
 							.setArray(new Float32Array(output)),
 					)
-					.setInterpolation("LINEAR");
+					.setInterpolation(frames.every((f) => f.interpolation === "step") ? "STEP" : "LINEAR");
 				gltfAnimation.addSampler(sampler).addChannel(
 					doc
 						.createAnimationChannel()

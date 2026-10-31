@@ -153,8 +153,19 @@ export function checkIntegrity(data: DataSet): string[] {
 	const weaponIds = checkUniqueIds("weapons.json", asArray(data["weapons.json"]), errors);
 	checkUniqueIds("bosses.json", asArray(data["bosses.json"]), errors);
 
+	const propIds = checkUniqueIds("props.json", asArray(data["props.json"]), errors);
 	const biomes = asArray(data["biomes.json"]);
 	checkUniqueIds("biomes.json", biomes, errors);
+	for (const biome of biomes) {
+		const lists = isObject(biome.props) ? Object.values(biome.props) : [];
+		for (const list of lists) {
+			for (const prop of Array.isArray(list) ? list : []) {
+				if (typeof prop === "string" && !propIds.has(prop)) {
+					errors.push(`biomes.json: ${idOf(biome)}.props references unknown prop "${prop}"`);
+				}
+			}
+		}
+	}
 	const rings = new Set(biomes.map((b) => b.ring).filter((r): r is number => typeof r === "number"));
 	for (const biome of biomes) {
 		const pool = Array.isArray(biome.enemyPool) ? biome.enemyPool : [];
@@ -263,6 +274,7 @@ const EXPECTED_FILES = [
 	"rounds",
 	"biomes",
 	"hero",
+	"props",
 ].map((n) => `${n}.json`);
 
 export function checkDir(dataDir: string): string[] {

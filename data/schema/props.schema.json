@@ -1,0 +1,24 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "props.schema.json",
+	"title": "World props (SDD 03 section 3, Art Bible 5.1)",
+	"type": "array",
+	"minItems": 1,
+	"items": {
+		"type": "object",
+		"required": ["id", "sizeClass", "kind"],
+		"additionalProperties": false,
+		"properties": {
+			"id": {
+				"$ref": "common.schema.json#/$defs/id"
+			},
+			"sizeClass": {
+				"enum": ["small", "medium", "large"],
+				"description": "Sets the model element budget (4 / 8 / 16)."
+			},
+			"kind": {
+				"enum": ["blocking", "decor", "breakable"]
+			}
+		}
+	}
+}

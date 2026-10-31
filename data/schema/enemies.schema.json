@@ -5,6 +5,7 @@
 		"type": "object",
 		"required": [
 			"id",
+			"sizeClass",
 			"name",
 			"biomeRing",
 			"hpBase",
@@ -48,6 +49,10 @@
 			"speed": {
 				"type": "number",
 				"minimum": 0
+			},
+			"sizeClass": {
+				"enum": ["small", "medium", "large"],
+				"description": "Art Bible 5.1 size class; sets the model element budget (10 / 16 / 20)."
 			},
 			"walkRefSpeed": {
 				"type": "number",

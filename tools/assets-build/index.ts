@@ -8,6 +8,7 @@ try {
 	const manifest = await buildAssets({
 		srcDir: "assets/src",
 		outDir: "public/assets",
+		dataDir: "data",
 		version: pkg.version,
 	});
 	console.log(`assets-build: ${Object.keys(manifest.entries).length} entries`);
