@@ -70,6 +70,8 @@ export interface BehaviorDeps {
 	shots?: EnemyShotPool | undefined;
 	/** Needed by the leech: damage that skips armor and i-frames (`DamageSystem.drain`). */
 	drain?: ((world: GameWorld, amount: number, by: number) => void) | undefined;
+	/** `enemy_speed` stat: every enemy moves at (1 + this) of its speed; -0.2 slows them by 20%. */
+	enemySpeed?: (() => number) | undefined;
 }
 
 export interface BehaviorSystem {
@@ -83,7 +85,7 @@ export function createBehaviorSystem(
 	queue: DamageQueue,
 	deps: BehaviorDeps = {},
 ): BehaviorSystem {
-	const { events, spawn, shots, drain } = deps;
+	const { events, spawn, shots, drain, enemySpeed } = deps;
 	const steps = (seconds: number): number => Math.max(1, Math.round(seconds / STEP));
 	const periodSteps = steps(config.zigzag.periodSeconds);
 	const omega = (2 * Math.PI) / (periodSteps * STEP);
@@ -144,6 +146,7 @@ export function createBehaviorSystem(
 			const hx = Position.x[hero] ?? 0;
 			const hz = Position.z[hero] ?? 0;
 			const heroRadius = Radius.r[hero] ?? 0;
+			const speedScale = Math.max(0, 1 + (enemySpeed?.() ?? 0));
 			const enemies = enemyList(world);
 			// Several breeders can act in one step, so the count grows with every wail they add.
 			let alive = enemies.length;
@@ -153,7 +156,7 @@ export function createBehaviorSystem(
 				const dx = hx - (Position.x[e] ?? 0);
 				const dz = hz - (Position.z[e] ?? 0);
 				const dist = Math.hypot(dx, dz);
-				const speed = Speed.value[e] ?? 0;
+				const speed = (Speed.value[e] ?? 0) * speedScale;
 				const nx = dist > 1e-6 ? dx / dist : 0;
 				const nz = dist > 1e-6 ? dz / dist : 0;
 				const kind = Behavior.kind[e];

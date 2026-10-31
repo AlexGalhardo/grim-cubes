@@ -208,7 +208,7 @@ function build(options: GameSessionOptions) {
 			roundsData.spawn.maxSimultaneous,
 		),
 		damage.queue,
-		{ events, spawn, shots: enemyShots, drain: damage.drain },
+		{ events, spawn, shots: enemyShots, drain: damage.drain, enemySpeed: () => stats.stats.enemySpeed },
 	);
 	const elitePool = [
 		{ type: enemyIds.indexOf("husk"), weight: 6 },
