@@ -1,6 +1,9 @@
 @import "tailwindcss";
 @source ".";
 
+/* Landscape phones (896x414, 800x360): dialogs go compact and the corner chrome steps aside. */
+@custom-variant low (@media (max-height: 480px));
+
 @theme {
 	--color-night: #14121c;
 	--color-night-2: #1c1926;

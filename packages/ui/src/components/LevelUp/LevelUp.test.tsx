@@ -51,3 +51,12 @@ test("the reroll button and the R key appear only with rerolls left", () => {
 	rerender(<LevelUp cards={cards} onChoose={() => {}} rerollsLeft={0} onReroll={onReroll} />);
 	expect(screen.queryByTestId("levelup-reroll")).toBeNull();
 });
+
+test("on a low landscape screen the cards sit in one row and the dialog scrolls instead of cutting them", () => {
+	render(<LevelUp cards={cards} onChoose={() => {}} />);
+	const dialog = screen.getByRole("dialog");
+	expect(dialog.className).toContain("overflow-y-auto");
+	const row = screen.getByTestId("levelup-card-0").parentElement;
+	expect(row?.className).toContain("low:flex-row");
+	expect(screen.getByTestId("levelup-card-0").className).toContain("low:min-h-24");
+});

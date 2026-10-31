@@ -292,4 +292,33 @@ test("the Merchant prompt points toward him, asks to walk while far and offers t
 test("no Merchant prompt without a waiting Merchant", () => {
 	render(<App store={createStore(hud(1))} onMerchantTalk={vi.fn()} />);
 	expect(screen.queryByTestId("merchant-prompt")).toBeNull();
+
+test("a dialog hides the corner buttons, the DEMO seal and the build label on low landscape screens only", () => {
+	const withCards = { ...hud(1), cards: [{ id: "armor", name: "+3 armor", double: false }] };
+	render(
+		<App
+			store={createStore(withCards)}
+			onChooseCard={vi.fn()}
+			onOpenOptions={vi.fn()}
+			onCycleSpeed={vi.fn()}
+			demo
+			version="9.9.9"
+		/>,
+	);
+	for (const id of ["hud-corner", "demo-seal", "build-version"]) {
+		expect(screen.getByTestId(id).className).toContain("low:hidden");
+	}
+	cleanup();
+	render(
+		<App
+			store={createStore(hud(1))}
+			onOpenOptions={vi.fn()}
+			onCycleSpeed={vi.fn()}
+			demo
+			version="9.9.9"
+		/>,
+	);
+	for (const id of ["hud-corner", "demo-seal", "build-version"]) {
+		expect(screen.getByTestId(id).className).not.toContain("low:hidden");
+	}
 });

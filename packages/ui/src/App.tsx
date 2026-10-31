@@ -133,6 +133,17 @@ export function App({
 	version,
 }: AppProps): JSX.Element {
 	const hud = useSyncExternalStore(store.subscribe, store.get);
+	// A full-screen dialog is open (the title menu keeps the corner and the build label): on the low landscape
+	// screens the corner buttons, the DEMO seal and the build label would sit over its header and its buttons.
+	const dialogOpen =
+		hud.cards.length > 0 ||
+		hud.chest.length > 0 ||
+		hud.shop !== null ||
+		hud.results !== null ||
+		hud.demoEnd ||
+		hud.difficulty !== null ||
+		hud.ossuary !== null;
+	const lowHide = dialogOpen ? "low:hidden" : "";
 	return (
 		<div
 			className="pointer-events-none absolute inset-0 p-4 font-display text-bone [text-shadow:1px_1px_0_var(--color-night)]"
@@ -184,7 +195,7 @@ export function App({
 			{hud.ossuary && ossuaryActions ? <Ossuary view={hud.ossuary} actions={ossuaryActions} /> : null}
 			{!hud.options && (onOpenOptions || onCycleSpeed) ? (
 				<div
-					className="pointer-events-none absolute top-2 right-2 z-20 flex gap-2"
+					className={`pointer-events-none absolute top-2 right-2 z-20 flex gap-2 ${lowHide}`}
 					data-testid="hud-corner"
 				>
 					{onCycleSpeed ? (
@@ -230,14 +241,17 @@ export function App({
 			{stick && hud.dash && onDashHold ? <DashButton view={hud.dash} onHold={onDashHold} /> : null}
 			{demo ? (
 				<div
-					className="absolute bottom-1 left-16 z-50 border-2 border-ember px-1 text-xs text-ember-light"
+					className={`absolute bottom-1 left-16 z-50 border-2 border-ember px-1 text-xs text-ember-light ${lowHide}`}
 					data-testid="demo-seal"
 				>
 					{t("demo.badge")}
 				</div>
 			) : null}
 			{version ? (
-				<div className="absolute bottom-1 left-2 z-50 text-xs opacity-70" data-testid="build-version">
+				<div
+					className={`absolute bottom-1 left-2 z-50 text-xs opacity-70 ${lowHide}`}
+					data-testid="build-version"
+				>
 					v{version}
 				</div>
 			) : null}
