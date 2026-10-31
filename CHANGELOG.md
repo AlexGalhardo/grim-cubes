@@ -11,6 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **game:** Shared `createGameSession` used by the game and the simulator; enemy pool by biome ring (60/30/10) (P-07-05, A-02-01)
+- **game:** Breakable props as entities with `PropBroken`, per-chunk memory and consumable drops (blood vial, bone magnet) (A-02-04)
+- **game:** Boss roster with seeded draws from round 40 and elite modifiers on bosses from rounds 60 and 100 (A-03-03)
+- **render:** Boss modifier auras, the eight enemy types in a debug lineup, the biome border capture, video presets with a dynamic resolution scaler and an optional KTX2 atlas path (A-03-03, A-02-02b, A-01-01, A-01-02)
+- **assets:** 84 generated UI icons packed into `atlas_vfx_ui`; reshaped Drowned and Hunter placeholders with painted AO (B-03-05, B-03-01)
+- **i18n:** `t()` with en and pt-BR catalogs, game text moved to keys, the three round 1 tips and a lint rule against hard-coded UI text (A-07-01)
+- **release:** `release rc --major` (R-01-01); per-package coverage thresholds (A-07-03)
+
 - **docs:** Add web research, brainstorming decisions (D01–D33), GDD, Art Bible with design system, 14 SDDs and 20 ADRs ([2775e6e](https://github.com/AlexGalhardo/grim-cubes/commit/2775e6ee07d913f912d80bf5367bf5b7d867a5bb))
 - **docs:** Add ROADMAP with 5 phases and 125 micro-tasks with verifiable asserts, plus the 1.1 Android appendix ([2775e6e](https://github.com/AlexGalhardo/grim-cubes/commit/2775e6ee07d913f912d80bf5367bf5b7d867a5bb))
 - **docs:** Add `prompt-workers.md` (agent protocol) and `prompt-concept-arts.md` (concept art prompts) ([2775e6e](https://github.com/AlexGalhardo/grim-cubes/commit/2775e6ee07d913f912d80bf5367bf5b7d867a5bb))
@@ -152,6 +160,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **balance:** Enemy and boss data tuned with the simulator (bosses 4,800 / 11,000 / 10,000 HP); the GDD 25 death-round spread uses right-censored runs and IQR <= 25 for the greedy bot, and `balance.yml` runs `sim --check` (A-02-03)
+- **ci:** The e2e job no longer runs on push, PRs or releases (kept behind `if: false`); run `bun run test:e2e` locally
 - **roadmap:** Apply phase 1 review fixes: add E-03-06 (ECS base), break the E-03-02/E-02-06 cycle, pin `@babylonjs/inspector` and approved dev deps in E-02-01, async WebGL2 `createEngine` with golden-value asserts in E-03-01
 - **docs:** Add command table to `AGENTS.md` (E-01-05)
 - **build:** Use `bun check -b` for typecheck, raise node engine floor to 22.12 and fix stub roadmap ids ([89ae8e4](https://github.com/AlexGalhardo/grim-cubes/commit/89ae8e4354db80ae348b94a38c0067991936c1c2))
