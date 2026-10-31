@@ -143,7 +143,9 @@ jobs:
     # The check jobs run in parallel with this one; any red job still blocks the release (release.yml waits for the
     # whole run).
     needs: [gate, build-web]
-    if: needs.gate.outputs.e2e == 'true'
+    # Disabled by the PO on 2026-10-31: e2e does not run on push, PRs or releases. The job is kept so it can be turned
+    # back on by removing `false &&`; run the suite locally with `bun run test:e2e` when needed.
+    if: false && needs.gate.outputs.e2e == 'true'
     # Non-blocking: several SwiftShader captures (boss, characters, combat, biomes at 1440p) are not deterministic on
     # the linux runners yet, so a red shard is reported but does not fail the run or the release. The full suite must
     # pass locally (win32 baselines) before a release; make this blocking again once those specs freeze the game.
