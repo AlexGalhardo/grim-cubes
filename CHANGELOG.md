@@ -62,6 +62,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **ci:** Install Bun via npm in the Playwright e2e container ([526c00a](https://github.com/AlexGalhardo/grim-cubes/commit/526c00ae66808908fbcb6893964f970376130abd))
 - **release:** Dedupe SBOM components, binary sort, green-CI gate and local date in release tooling ([cc9f93d](https://github.com/AlexGalhardo/grim-cubes/commit/cc9f93de48916160d3b1095f6065bca5d323dffc))
 - **lint:** Ignore nested `node_modules` and `dist` in markdownlint (workspace packages install nested dependencies)
+- **ui:** Give Button a 48 px touch target on coarse pointers and a colour transition ([6ffba51](https://github.com/AlexGalhardo/grim-cubes/commit/6ffba51779c6d614a68c1e4e8100e8e453691070))
+- **game:** Add drops, pickup magnet, XP curve and round-end harvest ([7a8d2fd](https://github.com/AlexGalhardo/grim-cubes/commit/7a8d2fd5dc1bc9732f2ecede08f8c700c9c40e5a))
+- **e2e:** Regenerate boot baselines with the themed HUD ([3b678a8](https://github.com/AlexGalhardo/grim-cubes/commit/3b678a819754bb36dfb2ce89e50aba2ee848507d))
+- **smoke:** Add Playwright post-deploy smoke test (gc.ready, screenshot, console errors, same-origin Vercel bypass) and deploy-web workflow ([ac4f5a9](https://github.com/AlexGalhardo/grim-cubes/commit/ac4f5a94f4c45af6a798c3bde27aa1c03630235c))
+- **render:** Conjugate horde instances for the glTF loader mirror (x and yaw); one-shot hit, attack and death clips; walk speed follows velocity ([aee88a3](https://github.com/AlexGalhardo/grim-cubes/commit/aee88a318e06378588967daf60507a5ef2cf53c0))
+- **assets:** Write atlas PNGs with filterType 0 (10× faster, still deterministic) ([daedd28](https://github.com/AlexGalhardo/grim-cubes/commit/daedd28033bcf113a39052fe5b66e2f754860805))
 - **ci:** Add CI (lint, typecheck, unit, integration, build-web, e2e gated) and CodeQL workflows (#1) ([da8923e](https://github.com/AlexGalhardo/grim-cubes/commit/da8923ee65069ec95a017f53a20937718c27413b))
 
 ### Changed

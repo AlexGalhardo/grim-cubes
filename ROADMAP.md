@@ -100,7 +100,7 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
   - Asserts: URL de produção responde 200 e renderiza o canvas (smoke E-04-04); `curl -I <url>/assets/<arquivo com hash>` retorna `cache-control: public, max-age=31536000, immutable`; PR de teste gera URL de preview comentada pelo bot da Vercel.
 - [ ] **E-04-03** `.github/workflows/release.yml` + `tools/release` (SDD 13 §4) e `tools/sbom` (CycloneDX a partir de `bun.lock`), release `v0.1.0`. Deps: E-01-03, E-04-01. Resp: S2. Prio: P0.
   - Asserts: `gh release view v0.1.0 --json name,tagName,isPrerelease` → `name == tagName == "v0.1.0"`, `isPrerelease == false`; corpo da release é idêntico à seção `## [0.1.0]` do CHANGELOG (diff vazio após remover o cabeçalho); assets incluem `checksums.txt` e `grim-cubes_0.1.0.sbom.json`.
-- [ ] **E-04-04** Smoke com agent-browser (`tools/smoke/run.ts`: abre URL, espera `window.gc.ready`, screenshot, lê console, falha se houver `error`) + workflow `deploy-web.yml` pós-deploy. Deps: E-04-02. Resp: Est. Prio: P1.
+- [x] **E-04-04** Smoke com agent-browser (`tools/smoke/run.ts`: abre URL, espera `window.gc.ready`, screenshot, lê console, falha se houver `error`) + workflow `deploy-web.yml` pós-deploy. Deps: E-04-02. Resp: Est. Prio: P1.
   - Asserts: `bun run test:smoke -- --url <preview>` exit 0 e gera `reports/smoke.png`; workflow roda após deploy de produção e está verde.
 - [x] **E-04-05** `codeql.yml` semanal e por PR. Deps: E-04-01. Resp: Est. Prio: P2.
   - Asserts: workflow presente e verde na primeira execução.
@@ -192,7 +192,7 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
 
 - [x] **P-05-01** `roundSystem` + máquina de estados da run (SDD 02 §5): rampa de duração (GDD §13.1), intro/outro, fim de round mata restantes sem drop, Bolsa. Deps: P-03-02. Resp: S2. Prio: P0.
   - Asserts: teste: durações dos rounds 1–12 = [20,25,30,35,40,45,50,55,60,60(chefe: sem timer),60,60] s em passos; fragmentos no chão ao fim do round vão para a Bolsa e reaparecem no seguinte (contagem conservada).
-- [ ] **P-05-02** Fragmentos (drop por tipo, chance decrescente, 50 pilhas, magnet por raio de pickup), XP + ouro, colheita no fim do round. Deps: P-05-01, P-04-01. Resp: S2. Prio: P0.
+- [x] **P-05-02** Fragmentos (drop por tipo, chance decrescente, 50 pilhas, magnet por raio de pickup), XP + ouro, colheita no fim do round. Deps: P-05-01, P-04-01. Resp: S2. Prio: P0.
   - Asserts: teste: round 10 → chance de drop 85% (10.000 amostras ±1%); 60 pilhas viram 50 com valor conservado; colheita 4 no round 5 → `ceil(4 × 1,25) = 5`.
 - [ ] **P-05-03** Level-up (curva GDD §16.1, 3 cartas de `cards.json`, pausa) + tela `LevelUp` no design system. Deps: P-05-02, E-03-03. Resp: S2. Prio: P0.
   - Asserts: teste: XP para nível 10 = 82; 3 cartas distintas; escolha aplica o stat e marca `dirty`; e2e: cartas aparecem e a escolha por tecla `1` fecha a tela; capturas nos 4 alvos.
