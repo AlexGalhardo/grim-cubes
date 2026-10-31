@@ -54,6 +54,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **game:** Use registered queries in origin shifting; render port independent of event/sync order ([5dd486f](https://github.com/AlexGalhardo/grim-cubes/commit/5dd486fcca6cac51eb19ad166548ec5d283f8bac))
 - **render:** Render the horde with thin instances, per-instance VAT settings and death ghosts ([6d07ec4](https://github.com/AlexGalhardo/grim-cubes/commit/6d07ec416fbb45efac13f0d8930191a17df432d9))
 - **world:** Add deterministic chunk generator (two 4×4 grids, D3 prop counts, corridor rule, spawn exclusion, biome fallback) ([ba3ad64](https://github.com/AlexGalhardo/grim-cubes/commit/ba3ad647c12d01dd3ebbbc1ee574cfe60fd92422))
+- **input:** Add unified input (keyboard with remap, gamepad dead zone, floating virtual joystick), input/movement systems and web boot with hero, fixed loop and 12 Hz HUD ([797f3a5](https://github.com/AlexGalhardo/grim-cubes/commit/797f3a5ab9bf34a26bfbb5563fbc56da777adfed))
+- **game:** Add `Facing` and `Attacking` components for horde animation ([b9eb949](https://github.com/AlexGalhardo/grim-cubes/commit/b9eb94977992cfa252ad5059d8e2d5020c8e16aa))
 - **ci:** Add CI (lint, typecheck, unit, integration, build-web, e2e gated) and CodeQL workflows (#1) ([da8923e](https://github.com/AlexGalhardo/grim-cubes/commit/da8923ee65069ec95a017f53a20937718c27413b))
 
 ### Changed
