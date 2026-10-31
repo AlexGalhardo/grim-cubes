@@ -62,9 +62,9 @@ async function runWith(
 }
 
 describe("audio-generate", () => {
-	it("ships 54 sfx, 9 music and 35 voice prompts (every id the audio engine asks for)", async () => {
+	it("ships 55 sfx, 9 music and 35 voice prompts (every id the audio engine asks for)", async () => {
 		const prompts = await loadPrompts();
-		expect(prompts.filter((p) => p.kind === "sfx")).toHaveLength(54);
+		expect(prompts.filter((p) => p.kind === "sfx")).toHaveLength(55);
 		expect(prompts.filter((p) => p.kind === "music")).toHaveLength(9);
 		expect(prompts.filter((p) => p.kind === "voice")).toHaveLength(35);
 	});
@@ -74,7 +74,7 @@ describe("audio-generate", () => {
 		const music = prompts.filter((p) => p.kind === "music").reduce((n, p) => n + p.durationSeconds, 0);
 		const voice = prompts.filter((p) => p.kind === "voice").reduce((n, p) => n + p.prompt.length, 0);
 		expect(prompts.reduce((s, p) => s + estimateCredits(p), 0)).toBe(
-			54 * 200 + Math.round((music / 60) * 900) + voice,
+			55 * 200 + Math.round((music / 60) * 900) + voice,
 		);
 	});
 
