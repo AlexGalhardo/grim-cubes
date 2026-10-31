@@ -2,7 +2,7 @@ import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { app, BrowserWindow, Menu, net, protocol, session } from "electron";
 import { registerStorageIpc } from "./ipc";
-import { resolveAppPath } from "./paths";
+import { resolveAppPath, userDataDir } from "./paths";
 
 /**
  * Electron shell (P-07-02, SDD 10 section 2): loads the Vite build from `dist` through an `app://` scheme (the game
@@ -18,6 +18,8 @@ protocol.registerSchemesAsPrivileged([
 	{ scheme: "app", privileges: { standard: true, secure: true, supportFetchAPI: true, stream: true } },
 ]);
 
+// Before anything reads it: the save lives in `%APPDATA%\grim-cubes\saves` for good (ADR-0009, Steam Auto-Cloud).
+app.setPath("userData", userDataDir(app.getPath("appData")));
 app.enableSandbox();
 // The first input unlocks audio, but a fullscreen game window should not wait for a gesture to start music.
 app.commandLine.appendSwitch("autoplay-policy", "no-user-gesture-required");

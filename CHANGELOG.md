@@ -13,6 +13,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **ui:** Boss voice lines are subtitled, with an Options toggle that is on by default (save schema 8)
 - **tests:** The effect id enum in the data schema is tied to the implemented handlers, so `data:check` refuses an id without one
 - **perf:** Debug hook to toggle the enemy variants and the SDD 14 bench with them (+2 draw calls, no frame cost)
+- **game:** The Merchant waits for the hero after each round at a fixed spot (6 u away, opposite the horde): the shop opens on contact, with Enter or the dash button, or after 20 s; an arrow and a countdown show where he is; the simulator and the demo end skip the walk (A-05-01)
+- **render:** The Merchant stands at his fixed spot on the map with an interaction ring
+- **ui:** Gamepad reroll (X) and game speed (Back), both remappable (save schema 9), and button hints named for the controller: Xbox letters or PlayStation symbols from `Gamepad.id` (B-04-02)
+- **ui:** A D-pad focus test for every screen: menu, difficulty, Ossuary, Options, shop, level-up, chest, results and demo end
+- **desktop:** The Electron save is a set of files in `%APPDATA%\grim-cubes\saves` (atomic writes over IPC, one-time move from IndexedDB, folder pinned so a rename never loses it), and the build also produces `win-unpacked` for the Steam upload
+- **audio:** An LRU budget for the decoded rarely heard sounds; frequent effects stay loaded
+- **art:** Hand-drawn item, card and Ossuary icons with tier marks that read in greyscale; in-game captures of all 78 models; distinct silhouettes for the Alpha Hunter, SMG and MG, a grimmer Wail and a segmented Leech; bone and ember accents, darker swamp and nest floors and a darker dead wood so the biomes contrast
+- **tools:** A local UX capture of the HUD, level-up, shop and Merchant at 100% and 150% UI scale, and an in-game art capture mode
+
+### Changed
+
+- **assets:** Each atlas is sized to its sprites: 80 MB of atlas GPU memory down to 5 MB
+- **ui:** On short screens (800x360) the level-up cards share one row and the shop shows four offers with its buttons beside the gold; the HUD buttons, version and DEMO seal are not drawn under a dialog; the UI scale is capped at 125% on screens 414 px tall or less
 
 ## [0.3.0] - 2026-10-31
 
