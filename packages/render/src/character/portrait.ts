@@ -61,6 +61,8 @@ export function createPortrait(game: GameScene, canvas: HTMLCanvasElement, rig: 
 		stop(): void {
 			if (!camera) return;
 			engine.unRegisterView(canvas);
+			// A registered view resizes the shared rendering canvas to its own size; restore the game canvas.
+			engine.resize();
 			scene.onBeforeRenderObservable.remove(observer);
 			observer = null;
 			camera.dispose();
