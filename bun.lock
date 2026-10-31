@@ -57,6 +57,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@gc/core": "workspace:*",
+        "simplex-noise": "4.0.3",
       },
     },
     "packages/platform": {
