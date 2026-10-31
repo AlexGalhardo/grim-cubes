@@ -36,6 +36,7 @@ import {
 	itemsData,
 	movementSystem,
 	Position,
+	queryEnemies,
 	roundsData,
 	spawnHero,
 	toBiomeDefs,
@@ -47,6 +48,7 @@ import {
 } from "@gc/game";
 import { createInputSources, detectPlatform } from "@gc/platform";
 import {
+	createBenchRecorder,
 	createChunkRenderer,
 	createEngine,
 	createGameScene,
@@ -86,7 +88,9 @@ async function boot(): Promise<void> {
 	const platform = detectPlatform();
 	const stick = platform.touch ? createVirtualStick() : undefined;
 
-	const seed = runSeed();
+	// Bench scenarios (P-03-06) are debug-only and always run on the same seed.
+	const bench = __DEBUG_API__ ? params.get("bench") : null;
+	const seed = bench ? 42 : runSeed();
 	const rng = createStreams(seed);
 	const events = createEventBuffer();
 	const world = createGameWorld();
@@ -165,6 +169,10 @@ async function boot(): Promise<void> {
 		events,
 		onSpawn: (w, x, z) => bag.release?.(w, x, z),
 	});
+	const benchPool = [
+		{ type: enemyIds.indexOf("husk"), weight: 6 },
+		{ type: enemyIds.indexOf("wail"), weight: 4 },
+	];
 	const run = createRunSystem({
 		config: { flow: roundsData.flow, duration: roundsData.duration, boss: roundsData.boss },
 		spawn,
@@ -355,6 +363,24 @@ async function boot(): Promise<void> {
 
 	const loop = createLoop({
 		simulate: () => {
+			if (bench) {
+				// Fixed horde around a stationary hero: no run flow, no level-ups, no shop (SDD 14 section 4).
+				behavior.run(world, hero);
+				separation.run(world);
+				movementSystem(world);
+				applyOriginShift(world, origin, hero, events, worldData);
+				chunks.update(origin.x + (Position.x[hero] ?? 0), origin.z + (Position.z[hero] ?? 0));
+				spawn.run(world, hero);
+				if (bench === "round20") {
+					targeting.run(world, hero, weapon.range);
+					weapon.run(world, hero);
+					projectileSystem.run(world);
+				}
+				damage.run(world);
+				death.run(world);
+				pickup.run(world, hero);
+				return;
+			}
 			run.run(world, hero);
 			if (fighting()) {
 				inputSystem(world, hero, input, weapon.speedMultiplier);
@@ -414,7 +440,27 @@ async function boot(): Promise<void> {
 		else loop.resume();
 	});
 
-	run.newRun();
+	if (bench) {
+		// Round 20 against the spawn cap: the 100-enemy reference load (SDD 14 section 1).
+		spawn.startRound(20, { pool: benchPool, difficultyMult: 1 });
+	} else {
+		run.newRun();
+	}
+	if (__DEBUG_API__ && bench && window.gc.debug) {
+		const recorder = createBenchRecorder(game.scene, render.engine);
+		window.gc.debug.bench = {
+			scenario: bench,
+			enemies: () => queryEnemies(world).length,
+			/** Warm-up is discarded; resolves with the SDD 14 metrics of the measured window. */
+			run: (warmupMs: number, measureMs: number) =>
+				new Promise((resolve) => {
+					setTimeout(() => {
+						recorder.start();
+						setTimeout(() => resolve(recorder.stop()), measureMs);
+					}, warmupMs);
+				}),
+		};
+	}
 	render.engine.runRenderLoop(() => {
 		// Once per frame: getGamepads() allocates, and several steps may run per frame.
 		sources.poll(input);
