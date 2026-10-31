@@ -21,6 +21,8 @@ export default defineConfig({
 	// Baselines are shared across OS: tests/visual/__screenshots__/boot-<project>.png
 	snapshotPathTemplate: "tests/visual/__screenshots__/{arg}{ext}",
 	fullyParallel: true,
+	// SwiftShader renders the full scene on the CPU; more than one worker times out at 1080p/1440p.
+	workers: 1,
 	forbidOnly: !!process.env.CI,
 	retries: process.env.CI ? 1 : 0,
 	reporter: [["list"], ["html", { open: "never", outputFolder: "playwright-report" }]],
