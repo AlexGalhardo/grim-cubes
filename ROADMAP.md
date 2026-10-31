@@ -85,7 +85,7 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
   - Asserts: `window.gc.ready === true` verificado por script Playwright local (o e2e definitivo, com as capturas `tests/visual/__screenshots__/boot-<alvo>.png` nos 4 alvos, é entregue em E-02-06); fps no desktop-1080 medido por `SceneInstrumentation` em 30 s após 5 s de warm-up, média ≥ 120 com vsync desligado, na máquina do PO (CPU/GPU registradas em `docs/PROGRESS.md`); `scene.getActiveMeshes().length` ≤ 5.
 - [ ] **E-03-03** Tailwind v4 `theme.css` com todos os tokens do Art Bible §16.9 e componentes `Panel`, `Button`, `Bar` do design system. Deps: E-03-01. Resp: S2. Prio: P0.
   - Asserts: `packages/ui/src/theme.css` contém `--color-night: #14121c` e `--breakpoint-desktop-xl: 2048px`; testes de componente (3) verdes; `bun tools/lint-extra/index.ts` não encontra hex em `.tsx`.
-- [ ] **E-03-04** `data/` com JSON Schema e arquivos iniciais (`enemies.json` com os 8 tipos, `weapons.json` com 5 armas, `rounds.json`, `biomes.json`, `elites.json`, `items.json` com 40 itens, `cards.json`, `ossuary.json`, `bosses.json` com o Coveiro) copiados do GDD, e `tools/data-check`. Deps: E-02-01. Resp: Est. Prio: P0.
+- [x] **E-03-04** `data/` com JSON Schema e arquivos iniciais (`enemies.json` com os 8 tipos, `weapons.json` com 5 armas, `rounds.json`, `biomes.json`, `elites.json`, `items.json` com 40 itens, `cards.json`, `ossuary.json`, `bosses.json` com o Coveiro) copiados do GDD, e `tools/data-check`. Deps: E-02-01. Resp: Est. Prio: P0.
   - Asserts: `bun run data:check` exit 0; teste negativo: id duplicado em `items.json` faz o check falhar; `jq length data/items.json` = 40; `jq length data/enemies.json` = 8.
 - [ ] **E-03-05** `packages/platform` com adaptadores `web` (storage IndexedDB) e stubs `electron`/`capacitor` que lançam `NotImplemented`. Deps: E-03-01. Resp: S2. Prio: P1.
   - Asserts: teste de storage web em jsdom com `fake-indexeddb` (dev dep, versão estável; aprovação do PO) faz round-trip de `save`; stubs cobertos por teste de "lança erro".
@@ -142,7 +142,7 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
 
 - [ ] **P-01-01** `game/world/chunks`: `generateChunk` determinístico (SDD 03 §2.1) com props do `biomes.json` (só Cemitério), regra de corredor, exclusão perto do spawn. Deps: E-03-04. Resp: S1. Prio: P0.
   - Asserts: testes: mesma seed → mesmo hash em 1.000 chunks; bloqueantes ∈ [4, 10]; regra de corredor 0 violações em 10.000 chunks; nenhum prop > 2 u a < 3 u do spawn; `generate 49 chunks` < 50 ms em Node (teste com `performance.now()`).
-- [ ] **P-01-02** `chunkSystem`: anel raio 3, fila por distância, ≤ 2 chunks por frame, descarga ≥ 5, pool de `ChunkData`. Deps: P-01-01. Resp: S1. Prio: P0.
+- [x] **P-01-02** `chunkSystem`: anel raio 3, fila por distância, ≤ 2 chunks por frame, descarga ≥ 5, pool de `ChunkData`. Deps: P-01-01. Resp: S1. Prio: P0.
   - Asserts: teste de integração: mover o herói 2.000 u em linha reta mantém exatamente 49 chunks carregados após estabilizar e nunca aloca além do pool (contador de alocações = 0 após o warm-up).
 - [ ] **P-01-03** Render de chunks: chão por chunk com variante de atlas, props por thin instances por tipo, reconstrução de buffers só quando o anel muda. Deps: P-01-02, P-06-02. Resp: S1. Prio: P0.
   - Asserts: `scene.getActiveMeshes().length` ≤ 12 com 49 chunks; draw calls ≤ 60 sem inimigos (via `SceneInstrumentation` logado em `?debug=1`); captura visual `world-cemetery-<alvo>.png` nos 4 alvos.
@@ -209,7 +209,7 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
 
 - [ ] **P-06-01** Modelos Blockbench (`.bbmodel` + `.glb` + texturas conforme Art Bible): herói, Carcaça, Lamento, Coveiro, Mercador, 10 props do Cemitério, 4 tiles de chão, 5 armas (meshes na mão). Deps: —. Resp: S1 (com o PO no Blockbench quando necessário). Prio: P0.
   - Asserts: `bun run assets:build` exit 0 (validações de elementos, textura, cores, sockets); capturas de cada modelo em `docs/art/review/*.png`; teste de silhueta (preto sólido a 64 px) anexado e aprovado pelo PO em PROGRESS.
-- [ ] **P-06-02** `tools/assets-build` (SDD 09): validação, atlas por categoria (MaxRects), reescrita de UV via `@gltf-transform/core` (aprovação do PO para a dependência), manifest com grupos. Deps: E-02-01. Resp: S1. Prio: P0.
+- [x] **P-06-02** `tools/assets-build` (SDD 09): validação, atlas por categoria (MaxRects), reescrita de UV via `@gltf-transform/core` (aprovação do PO para a dependência), manifest com grupos. Deps: E-02-01. Resp: S1. Prio: P0.
   - Asserts: duas execuções seguidas produzem `manifest.json` idêntico (hash); fixtures inválidas (1 por regra) falham com mensagem contendo o nome da regra; `public/assets/atlas_characters.png` é 2048×2048.
 - [ ] **P-06-03** Bake de VAT (`tools/bake-vat`) para Carcaça e Lamento (12 fps) + loader no render. Deps: P-06-02. Resp: S1. Prio: P0.
   - Asserts: teste: vértice conhecido no frame 5 do clipe `walk` bate com o glTF (tolerância 1e-4); `vat/enemy_husk.png` existe e seu JSON lista 4 clipes.

@@ -23,6 +23,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **test:** Add Vitest config with node, jsdom and integration projects and istanbul coverage ([36f1f7d](https://github.com/AlexGalhardo/grim-cubes/commit/36f1f7d3e498b58a3b274684944ccba34f6f71b6))
 - **core:** Add seeded rng (mulberry32, MurmurHash3-based `hash32`, streams), logger and store ([d8b8d08](https://github.com/AlexGalhardo/grim-cubes/commit/d8b8d088ea8f3f1b723c53abc695263b806d975e))
 - **render:** Add WebGL2 engine factory, NullEngine for tests and minimal scene (camera, lights, ground, hero cube) ([d8b8d08](https://github.com/AlexGalhardo/grim-cubes/commit/d8b8d088ea8f3f1b723c53abc695263b806d975e))
+- **data:** Add game data JSON files (enemies, weapons, rounds, biomes, elites, 40 items, cards, ossuary, bosses, hero) with JSON Schemas and `tools/data-check` ([15b6038](https://github.com/AlexGalhardo/grim-cubes/commit/15b6038702b778ca63e28ae209b1432444577527))
+- **assets:** Add `tools/assets-build` with glTF validation rules, MaxRects atlas (2 px extrusion, NEAREST) and deterministic hashed manifest ([278d2ec](https://github.com/AlexGalhardo/grim-cubes/commit/278d2ec2d586670c7d7eb0571e501ce5e33b032f))
+- **world:** Add chunk streaming system with load/unload hysteresis, fixed 81-slot pool and `data/world.json` ([00d1dc2](https://github.com/AlexGalhardo/grim-cubes/commit/00d1dc2b311d3a492f4358c37e47f170ae887c52))
 
 ### Changed
 
