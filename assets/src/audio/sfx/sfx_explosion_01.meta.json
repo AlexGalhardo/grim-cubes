@@ -1,0 +1,9 @@
+{
+	"prompt": "heavy bazooka shell exploding, deep boom with a debris crackle and a short low rumble tail, heavy dry tone, medium distance, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 1.5,
+	"generatedAt": "2026-10-31T16:05:08.754Z",
+	"plan": "creator",
+	"hash": "9036fcd8b9bd052887a533ba85d6e7c1d615dea8bcdcacb4cdba78c21c7aa3ad",
+	"promptInfluence": 0.5
+}

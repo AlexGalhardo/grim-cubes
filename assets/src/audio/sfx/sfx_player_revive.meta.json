@@ -1,0 +1,9 @@
+{
+	"prompt": "dead warrior revived by a phylactery, deep heartbeat thump, cold magical breath and a low choir swell, heavy dry tone, medium distance, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 2,
+	"generatedAt": "2026-10-31T16:05:12.914Z",
+	"plan": "creator",
+	"hash": "96bc0ac167d1730833b5ca4a464f9cf93e9d8d9e7b952d42f50730e4e2bf4621",
+	"promptInfluence": 0.5
+}

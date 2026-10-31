@@ -1,0 +1,9 @@
+{
+	"prompt": "small glass vial and bone charm snatched up, short wet glass clink and a low soft chime, heavy dry tone, medium distance, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 0.6,
+	"generatedAt": "2026-10-31T16:05:12.691Z",
+	"plan": "creator",
+	"hash": "d51f776f6637e9ed52f4b09bf4666bae81f4e287c77f9765121a1fee1bcf8297",
+	"promptInfluence": 0.5
+}

@@ -1,0 +1,9 @@
+{
+	"prompt": "mechanical watcher turret exploding, sparks, metal crunch and a short electric whine, heavy dry tone, medium distance, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 1,
+	"generatedAt": "2026-10-31T16:05:34.158Z",
+	"plan": "creator",
+	"hash": "5a35fab6ac1620e9e0113831caf7058e707fb2352f891ea0be3bcc6d472ce23b",
+	"promptInfluence": 0.5
+}

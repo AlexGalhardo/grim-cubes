@@ -1,0 +1,9 @@
+{
+	"prompt": "huge swamp hag rising from black water, thick bubbling, wet gurgling roar and slow heavy splashes, heavy dry tone, medium distance, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 3,
+	"generatedAt": "2026-10-31T16:05:29.405Z",
+	"plan": "creator",
+	"hash": "c7b5efe61ea6f6595e5d68513e9ea208f6ec41b5afba56c3f780d80b988a8b86",
+	"promptInfluence": 0.5
+}

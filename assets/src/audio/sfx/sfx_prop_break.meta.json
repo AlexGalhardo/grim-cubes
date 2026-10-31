@@ -1,0 +1,9 @@
+{
+	"prompt": "old clay burial urn smashing, ceramic shards scattering over stone with a dry crack, heavy dry tone, medium distance, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 0.8,
+	"generatedAt": "2026-10-31T16:05:10.818Z",
+	"plan": "creator",
+	"hash": "039b613b5a9fe3e7e8c3387ace9109cce7848e3c451df50e91f483c99439751a",
+	"promptInfluence": 0.5
+}

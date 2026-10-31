@@ -54,11 +54,11 @@ async function runWith(
 }
 
 describe("audio-generate", () => {
-	it("ships 24 sfx, 9 music and 6 voice prompts (3 themes, 4 biomes, bosses 4 and 5)", async () => {
+	it("ships 54 sfx, 9 music and 15 voice prompts (every id the audio engine asks for)", async () => {
 		const prompts = await loadPrompts();
-		expect(prompts.filter((p) => p.kind === "sfx")).toHaveLength(24);
+		expect(prompts.filter((p) => p.kind === "sfx")).toHaveLength(54);
 		expect(prompts.filter((p) => p.kind === "music")).toHaveLength(9);
-		expect(prompts.filter((p) => p.kind === "voice")).toHaveLength(6);
+		expect(prompts.filter((p) => p.kind === "voice")).toHaveLength(15);
 	});
 
 	it("estimates credits per kind", async () => {
@@ -66,7 +66,7 @@ describe("audio-generate", () => {
 		const music = prompts.filter((p) => p.kind === "music").reduce((n, p) => n + p.durationSeconds, 0);
 		const voice = prompts.filter((p) => p.kind === "voice").reduce((n, p) => n + p.prompt.length, 0);
 		expect(prompts.reduce((s, p) => s + estimateCredits(p), 0)).toBe(
-			24 * 200 + Math.round((music / 60) * 900) + voice,
+			54 * 200 + Math.round((music / 60) * 900) + voice,
 		);
 	});
 

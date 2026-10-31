@@ -1,0 +1,9 @@
+{
+	"prompt": "rusted chest lid creaking open, metal latch click and a faint ethereal chime, heavy dry tone, medium distance, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 1.2,
+	"generatedAt": "2026-10-31T16:05:16.538Z",
+	"plan": "creator",
+	"hash": "8d2548f1c91429b29bf6f6ed9a755aaafda653564a4de51075781724f9075529",
+	"promptInfluence": 0.5
+}

@@ -1,0 +1,9 @@
+{
+	"prompt": "thick toxic mud pool bubbling up, wet gurgling splash and slow dripping, heavy dry tone, medium distance, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 1.5,
+	"generatedAt": "2026-10-31T16:05:20.879Z",
+	"plan": "creator",
+	"hash": "3f158fea553a4c19d4d40c149d964c30236d88efdce2a642264d1cc673281e28",
+	"promptInfluence": 0.5
+}

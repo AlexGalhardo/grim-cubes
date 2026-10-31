@@ -1,0 +1,9 @@
+{
+	"prompt": "ominous low horn blast and distant heavy footsteps approaching, warning of a stronger enemy, heavy dry tone, medium distance, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 2,
+	"generatedAt": "2026-10-31T16:05:14.421Z",
+	"plan": "creator",
+	"hash": "678dd463e27a4bf67a119223bf132dbf3b2bd050aff7d8465f95e25b10e71d3e",
+	"promptInfluence": 0.5
+}
