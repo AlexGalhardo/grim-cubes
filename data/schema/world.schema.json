@@ -16,7 +16,6 @@
 		"propAvoidLookahead",
 		"propSteerGain",
 		"cullDistance",
-		"renderCullRadius",
 		"propSteerMargin"
 	],
 	"properties": {
@@ -61,11 +60,6 @@
 			"type": "number",
 			"exclusiveMinimum": 0,
 			"description": "Enemies farther than this from the hero are removed without a drop (SDD 03)."
-		},
-		"renderCullRadius": {
-			"type": "number",
-			"exclusiveMinimum": 0,
-			"description": "Enemies farther than this from the hero are left out of the horde instance buffers."
 		},
 		"propSteerGain": {
 			"type": "number",

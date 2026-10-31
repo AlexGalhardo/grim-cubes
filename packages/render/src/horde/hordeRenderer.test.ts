@@ -1,4 +1,5 @@
 import { VertexBuffer } from "@babylonjs/core/Buffers/buffer";
+import { Matrix, Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { CreateBox } from "@babylonjs/core/Meshes/Builders/boxBuilder";
 import type { Mesh } from "@babylonjs/core/Meshes/mesh";
 import {
@@ -368,9 +369,12 @@ describe("boss look", () => {
 });
 
 describe("render culling", () => {
-	it("leaves enemies beyond the cull radius out of the instance buffers", () => {
-		const { engine, dispose } = createNullEngine();
-		const game = createGameScene(engine);
+	it.each([
+		{ name: "1920x1080", width: 1920, height: 1080, mobile: false },
+		{ name: "800x360", width: 800, height: 360, mobile: true },
+	])("keeps every enemy on screen and few off it at $name", ({ width, height, mobile }) => {
+		const { engine, dispose } = createNullEngine({ width, height });
+		const game = createGameScene(engine, mobile);
 		const mesh = skinnedBox("cull_enemy", game.scene);
 		const vat = createVat(
 			game.scene,
@@ -378,20 +382,37 @@ describe("render culling", () => {
 			new Float32Array(meta.width * meta.height * 4).buffer,
 			meta,
 		);
-		const horde = createHordeRenderer([{ mesh, vat, walkRefSpeed: 3 }], {
-			capacity: 100,
+		const horde = createHordeRenderer([{ mesh, vat, walkRefSpeed: 3, radius: 0.5 }], {
+			capacity: 4000,
 			ghostCapacity: 2,
 			deltaSeconds: () => 1 / 60,
-			cullRadius: 30,
+			cullCamera: game.camera,
 		});
 		const world = createGameWorld();
 		const hero = spawnBody(world, 0, 0);
 		addComponent(world, hero, PlayerFaction);
-		const visible = 60;
-		for (let i = 0; i < 100; i++) spawnEnemy(world, i < visible ? 10 : 35, 0);
+		const transform = game.camera.getViewMatrix(true).multiply(game.camera.getProjectionMatrix(true));
+		const viewport = game.camera.viewport.toGlobal(width, height);
+		let onScreen = 0;
+		let total = 0;
+		let missed = 0;
+		for (let x = -70; x <= 70; x += 3) {
+			for (let z = -70; z <= 70; z += 3) {
+				const e = spawnEnemy(world, x, z);
+				total++;
+				const p = Vector3.Project(new Vector3(x, 0.8, z), Matrix.Identity(), transform, viewport);
+				if (p.x >= 0 && p.x <= width && p.y >= 0 && p.y <= height) onScreen++;
+				void e;
+			}
+		}
 		horde.sync(world, 1);
-		expect(mesh.thinInstanceCount).toBeLessThanOrEqual(visible * 1.1);
-		expect(mesh.thinInstanceCount).toBeGreaterThanOrEqual(visible);
+		const drawn = mesh.thinInstanceCount;
+		// Every enemy whose centre is on screen must be drawn (no pop-in).
+		missed = onScreen - Math.min(onScreen, drawn);
+		expect(missed).toBe(0);
+		expect(drawn).toBeLessThan(total);
+		// The margin (body radius + 1 u of follow slack) draws a ring just off screen: bounded, not zero.
+		expect(drawn).toBeLessThanOrEqual(onScreen * 1.5);
 		dispose();
 	});
 });

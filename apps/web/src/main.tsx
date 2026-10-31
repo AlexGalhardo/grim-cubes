@@ -556,6 +556,7 @@ async function boot(): Promise<void> {
 						mesh: enemy.mesh,
 						vat: enemy.vat,
 						walkRefSpeed: enemiesData[index]?.walkRefSpeed ?? 1,
+						radius: enemiesData[index]?.radius ?? 0.6,
 					})),
 					{
 						capacity: roundsData.spawn.maxSimultaneous + worldData.hordeRenderSlack,
@@ -565,7 +566,7 @@ async function boot(): Promise<void> {
 							run.state === "Paused" ? 0 : render.engine.getDeltaTime() / 1000,
 						flashBrightness: renderData.vfx.flashBrightness,
 						hitSquash: renderData.vfx.hitSquash,
-						cullRadius: worldData.renderCullRadius,
+						cullCamera: game.camera,
 						boss: {
 							scale: renderData.vfx.bossScale,
 							enrageTint: renderData.vfx.bossEnrageTint as [number, number, number],
