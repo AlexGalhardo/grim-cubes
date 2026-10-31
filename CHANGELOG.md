@@ -68,6 +68,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **smoke:** Add Playwright post-deploy smoke test (gc.ready, screenshot, console errors, same-origin Vercel bypass) and deploy-web workflow ([ac4f5a9](https://github.com/AlexGalhardo/grim-cubes/commit/ac4f5a94f4c45af6a798c3bde27aa1c03630235c))
 - **render:** Conjugate horde instances for the glTF loader mirror (x and yaw); one-shot hit, attack and death clips; walk speed follows velocity ([aee88a3](https://github.com/AlexGalhardo/grim-cubes/commit/aee88a318e06378588967daf60507a5ef2cf53c0))
 - **assets:** Write atlas PNGs with filterType 0 (10× faster, still deterministic) ([daedd28](https://github.com/AlexGalhardo/grim-cubes/commit/daedd28033bcf113a39052fe5b66e2f754860805))
+- **world:** Enforce the corridor limit on the final state; floor variants from the biome; `hash32x3` in core ([709866d](https://github.com/AlexGalhardo/grim-cubes/commit/709866d0a7b8420cd02b29103762a43c6cccd3c4))
+- **web:** Gate `window.gc.debug` behind compile-time `__DEBUG_API__` (`GC_DEBUG_API=1`) ([caa7143](https://github.com/AlexGalhardo/grim-cubes/commit/caa7143192f59cd9b772e668259b9f867111fdcf))
+- **input:** Poll input once per frame and drop the per-call gamepad closure ([08a586c](https://github.com/AlexGalhardo/grim-cubes/commit/08a586cc6f31ab9a65e37ba569a32e0b5f4f8833))
+- **game:** Add typed data loaders in `packages/game/src/data` ([7d9e747](https://github.com/AlexGalhardo/grim-cubes/commit/7d9e747a547f92aea1769cf1549dea68d95e91ea))
+- **assets:** Convert validated `.bbmodel` files to rigid-skin glTF in `assets-build` (D5) ([0c6a918](https://github.com/AlexGalhardo/grim-cubes/commit/0c6a918143c7ff2ceb362ec2cfb4aab731d73314))
 - **ci:** Add CI (lint, typecheck, unit, integration, build-web, e2e gated) and CodeQL workflows (#1) ([da8923e](https://github.com/AlexGalhardo/grim-cubes/commit/da8923ee65069ec95a017f53a20937718c27413b))
 
 ### Changed

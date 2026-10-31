@@ -221,7 +221,7 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
   - Asserts: `bun run audio:generate --dry-run` lista 22 itens; com mock de API, gera arquivos e `meta.json` com `plan`; com `ELEVENLABS_PLAN=free` sem `--allow-free` sai com exit 2 e mensagem.
 - [ ] **P-06-06** Render de personagens com skeleton (herói, Mercador, Coveiro): `AnimationGroup` com blend de 0,1 s, arma no `weapon_socket`, `hit_socket` exposto, `speedRatio` ∝ velocidade. Deps: P-06-01, P-06-02, P-02-01. Resp: S1. Prio: P0.
   - Asserts: NullEngine com pai da arma = `weapon_socket`; peso intermediário em t = 0,05 s; `speedRatio` = |v|/v_ref ±5%; capturas nos 4 alvos.
-- [ ] **P-06-07** Conversão nó→skin rígido no `assets-build` (Blockbench exporta animação por nó): cada nó animado vira osso com peso 1; primitivas unidas em 1 mesh. Validação do `.bbmodel` (SDD 09 §2.1: só cube/quad, rotação múltipla de 22,5°, orçamento de elementos do Art Bible §5.1, grupos `root/body/head`, `weapon_socket`/`hit_socket`). Deps: P-06-03 (D5 decidida: opção A). Resp: S1. Prio: P0.
+- [x] **P-06-07** Conversão nó→skin rígido no `assets-build` (Blockbench exporta animação por nó): cada nó animado vira osso com peso 1; primitivas unidas em 1 mesh. Validação do `.bbmodel` (SDD 09 §2.1: só cube/quad, rotação múltipla de 22,5°, orçamento de elementos do Art Bible §5.1, grupos `root/body/head`, `weapon_socket`/`hit_socket`). Deps: P-06-03 (D5 decidida: opção A). Resp: S1. Prio: P0.
   - Asserts: fixture com 2 nós animados (glTF por nó) vira 1 mesh com skin de 2 ossos e `WEIGHTS_0` = 1 por vértice; posição de vértice no frame 5 igual à do glTF por nó (tolerância 1e-4); fixtures `.bbmodel` inválidas (1 por regra) falham com o nome da regra.
 
 ### P-07 Demo, Electron e qualidade
