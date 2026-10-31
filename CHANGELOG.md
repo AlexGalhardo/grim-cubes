@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-31
+
 ### Added
 
 - **desktop:** Windows build with Electron 45 and electron-builder (NSIS installer and portable `.exe`), sandboxed and served from `app://game/`; the release attaches both executables (P-07-02)
@@ -251,5 +253,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **web:** Revalidate the asset manifest and add CSP and security headers (E-04-02, R-01-05) ([6370507](https://github.com/AlexGalhardo/grim-cubes/commit/6370507dfbdc4e29579e4313f87ad1912991b616))
 - **game:** Apply the knockback the damage system writes to enemy movement (P-04-01) ([6180a55](https://github.com/AlexGalhardo/grim-cubes/commit/6180a55c4e18195196f35427b91548263d1e654a))
 
-[Unreleased]: https://github.com/AlexGalhardo/grim-cubes/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/AlexGalhardo/grim-cubes/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/AlexGalhardo/grim-cubes/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/AlexGalhardo/grim-cubes/compare/2775e6e...v0.1.0
