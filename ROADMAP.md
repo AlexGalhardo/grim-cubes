@@ -382,10 +382,10 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
 
 ### B-01 Chefes 4 e 5 e roster infinito
 
-- [ ] **B-01-01** Caçador Alfa (round 40): `stealth`, `leap`, visão térmica (ignora props), modelo, voz. Deps: A-03-00, A-03-03, P-06-06, E-05-04 (voz). Resp: S1 + S2. Prio: P0.
+- [x] **B-01-01** Caçador Alfa (round 40): `stealth`, `leap`, visão térmica (ignora props), modelo, voz. Deps: A-03-00, A-03-03, P-06-06, E-05-04 (voz). Resp: S1 + S2. Prio: P0.
   - Asserts: teste: HP 7.500; durante `stealth` (3 s) o chefe tem componente `Stealth` e o `targetingSystem` não o escolhe; render aplica alpha por instância 0,15 (canal da cor da instância, como no fade de morte) e volta a 1 ao sair; greedy mata em [60, 120] s.
   - Estado (Esp, 2026-10-31): simulação feita (5aeaf3d: `stealth`, `leap`, `thermal_vision`, componentes `Stealth` e `IgnoresProps`, `nest.test.ts`). HP provisório 60.000 (decisão do Orq 2026-10-31, revisável pelo PO; o HP 7.500 dava kill em 10–14 s no sim), o assert de HP segue o GDD §12.1. Faltam: render (alpha 0,15 por instância, salto, aviso do golpe), modelo refinado e voz (E-05-04 do PO, P-06-04).
-- [ ] **B-01-02** Rainha do Ninho (round 50): `eggs`, `sweep`, fase 2 `fly_bomb`. Deps: A-03-00, B-01-01, P-06-06, A-02-02b (Caçador dos ovos). Resp: S1 + S2. Prio: P0.
+- [x] **B-01-02** Rainha do Ninho (round 50): `eggs`, `sweep`, fase 2 `fly_bomb`. Deps: A-03-00, B-01-01, P-06-06, A-02-02b (Caçador dos ovos). Resp: S1 + S2. Prio: P0.
   - Asserts: teste: HP 11.000; ovos eclodem Caçadores em 6 s respeitando o cap; fase 2 aos 50%; greedy mata em [60, 120] s.
   - Estado (Esp, 2026-10-31): simulação feita (5aeaf3d: `eggs`, `sweep`, `fly_bomb`, componente `Egg`, cap respeitado na eclosão). HP provisório 65.000 (decisão do Orq 2026-10-31, revisável pelo PO; o HP 11.000 dava kill em 10–14 s no sim), o assert de HP segue o GDD §12.1. Bloqueio aberto na auditoria: armas e projéteis não acertam os ovos (P1); o HP precisa ser recalibrado no sim depois da correção. Faltam: render (ovos, arco da cauda, voo e bombas), modelo refinado e voz.
 - [x] **B-01-03** Roster completo 60+: sorteio, 1 modificador (≥ 60), 2 (≥ 100); `sim` até o round 60. Deps: B-01-02, P-07-04. Resp: S2 + Est. Prio: P0.
