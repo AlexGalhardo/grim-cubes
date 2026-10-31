@@ -252,6 +252,7 @@ export function loadDir(dataDir: string): { data: DataSet; schemas: SchemaSet } 
 }
 
 const EXPECTED_FILES = [
+	"world",
 	"enemies",
 	"elites",
 	"bosses",
@@ -310,6 +311,13 @@ export function selfTest(dataDir: string): string[] {
 			(d) => {
 				const h = d["hero.json"];
 				if (isObject(h)) h.startingWeapon = "nope";
+			},
+		],
+		[
+			"world: missing poolSize",
+			(d) => {
+				const w = d["world.json"];
+				if (isObject(w)) delete w.poolSize;
 			},
 		],
 		[
