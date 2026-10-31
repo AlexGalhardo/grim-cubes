@@ -116,8 +116,13 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 		}
 	}
 
+	// Constants: an array literal per event would allocate on every hit.
+	const bloodOnly: readonly Rgb[] = [blood];
+	const bloodLightOnly: readonly Rgb[] = [bloodLight];
+	const reducedOnly: readonly Rgb[] = [reducedBlood];
 	const bloodColors = (): readonly Rgb[] =>
-		gore ? (rng.chance(config.bloodLightShare) ? [bloodLight] : [blood]) : [reducedBlood];
+		gore ? (rng.chance(config.bloodLightShare) ? bloodLightOnly : bloodOnly) : reducedOnly;
+	const reducedCubeOnly: readonly Rgb[] = [reducedCube];
 	const explosionColors: readonly Rgb[] = [ember, emberLight];
 
 	return {
@@ -147,7 +152,7 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 					burst(x, z, count(config.bloodCubesPerDeath), bloodColors(), 5, 6, true);
 					addDecal(x, z);
 				} else {
-					burst(x, z, config.reducedDeathCubes, [reducedCube], 4, 4, false);
+					burst(x, z, config.reducedDeathCubes, reducedCubeOnly, 4, 4, false);
 				}
 				if (options.isBoss?.(entity)) options.onHitStop?.(config.hitStopBossDeathMs);
 			} else if (type === EventType.Exploded) {

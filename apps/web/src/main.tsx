@@ -558,7 +558,8 @@ async function boot(): Promise<void> {
 	});
 	const vfx = createVfx(game, {
 		onHitStop: (ms) => hitStop.request(ms),
-		isBoss: (entity) => (Boss.id[entity] ?? 0) > 0,
+		// Elites get the long hit-stop of a boss kill too (GDD section 23).
+		isBoss: (entity) => (Boss.id[entity] ?? 0) > 0 || (Elite.modifier[entity] ?? 0) > 0,
 	});
 	const projectileView = createProjectileRenderer(
 		game,

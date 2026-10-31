@@ -345,3 +345,31 @@ describe("elite view", () => {
 		dispose();
 	});
 });
+
+describe("hit allocation", () => {
+	it("100 Damaged events allocate no arrays", () => {
+		const { vfx, world, dispose } = setup();
+		const e = spawnBody(world, 0, 0);
+		for (let i = 0; i < 20; i++) vfx.onEvent(EventType.Damaged, 50, 0, 0, e);
+		vfx.update(1);
+		let calls = 0;
+		const proto = Array.prototype as unknown as Record<string, (...args: unknown[]) => unknown>;
+		const originals = new Map<string, (...args: unknown[]) => unknown>();
+		for (const name of ["filter", "map", "slice", "concat", "join"]) {
+			const original = proto[name];
+			if (!original) continue;
+			originals.set(name, original);
+			proto[name] = function (this: unknown, ...args: unknown[]): unknown {
+				calls++;
+				return original.apply(this, args);
+			};
+		}
+		try {
+			for (let i = 0; i < 100; i++) vfx.onEvent(EventType.Damaged, 50, i % 2, 0, e);
+		} finally {
+			for (const [name, original] of originals) proto[name] = original;
+		}
+		expect(calls).toBe(0);
+		dispose();
+	});
+});
