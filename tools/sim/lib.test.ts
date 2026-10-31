@@ -95,8 +95,15 @@ describe("sim report", () => {
 		expect(m.deathRound.iqr).toBeCloseTo(32.5);
 		expect(percentile([1, 2, 3, 4, 5], 0.5)).toBe(3);
 		const checks = checkTargets(m, 50);
-		expect(checks.find((c) => c.id === "death-round-iqr")).toMatchObject({ ok: false, skipped: false });
+		expect(checks.find((c) => c.id === "death-round-iqr")).toMatchObject({
+			ok: false,
+			skipped: false,
+			target: "<= 25",
+		});
 		const tight = summarize([20, 21, 22, 23, 24].map((r) => fake(r, null)));
+		const loose = summarize([10, 12, 20, 30, 34].map((r) => fake(r, null)));
+		expect(loose.deathRound.iqr).toBe(18);
+		expect(checkTargets(loose, 50).find((c) => c.id === "death-round-iqr")?.ok).toBe(true);
 		expect(checkTargets(tight, 50).find((c) => c.id === "death-round-iqr")?.ok).toBe(true);
 		expect(checkTargets(tight, 50).find((c) => c.id === "death-round-p50")?.ok).toBe(true);
 	});

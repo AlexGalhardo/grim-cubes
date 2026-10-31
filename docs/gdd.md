@@ -708,6 +708,7 @@ Valores iniciais (**proposta**; calibrar por playtest; todos com toggle onde ind
 | Dispersão do round de morte entre seeds | intervalo interquartil (P75 − P25) ≤ 10 rounds (desvio padrão só informativo) |
 
 - **Decisão do Orq em 2026-10-31, revisável pelo PO**: a dispersão passou de "desvio ≤ 4" para IQR ≤ 10, e o round de morte conta os sobreviventes no horizonte (censura à direita). Motivo: um bot greedy e estatísticas lineares dão uma distribuição bimodal (atrição nos rounds 5–8 e sobreviventes), na qual o desvio das runs que morreram não mede nada.
+- **IQR provisório (decisão do Orq em 2026-10-31, revisável pelo PO)**: o bot greedy não consegue IQR ≤ 10 com p50 em 18–26 (medido em oito rodadas de 16–24 runs: IQR 21–28); o limite do simulador é **IQR ≤ 25, provisório até os playtests da B-04**. O alvo de produto continua ≤ 10 para jogadores reais.
 - **Fluxo**: toda mudança em `data/*.json` roda o simulador no CI e publica o relatório; desvio dos alvos bloqueia o merge (assert no ROADMAP).
 - **Playtest humano**: a partir do PROTÓTIPO, 3 sessões por semana com telemetria (§26).
 

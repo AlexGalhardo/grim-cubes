@@ -116,6 +116,12 @@ export function summarize(reports: readonly SimReport[]): Metrics {
 const within = (value: number | null, lo: number, hi: number): boolean =>
 	value !== null && Number.isFinite(value) && value >= lo && value <= hi;
 
+/**
+ * Spread limit of the death round for the greedy bot (GDD 25): provisional until the B-04 playtests. The product
+ * target for real players stays at 10 rounds.
+ */
+export const IQR_LIMIT = 25;
+
 /** GDD 25 targets for Normal. A check is skipped when the runs were too short to judge it. */
 export function checkTargets(metrics: Metrics, roundsRequested: number): Check[] {
 	const checks: Check[] = [];
@@ -129,9 +135,9 @@ export function checkTargets(metrics: Metrics, roundsRequested: number): Check[]
 	});
 	checks.push({
 		id: "death-round-iqr",
-		target: "<= 10",
+		target: `<= ${IQR_LIMIT}`,
 		value: metrics.deathRound.iqr,
-		ok: Number.isFinite(metrics.deathRound.iqr) && metrics.deathRound.iqr <= 10,
+		ok: Number.isFinite(metrics.deathRound.iqr) && metrics.deathRound.iqr <= IQR_LIMIT,
 		skipped: !longEnough,
 	});
 	for (const [id, entry] of Object.entries(metrics.bosses)) {

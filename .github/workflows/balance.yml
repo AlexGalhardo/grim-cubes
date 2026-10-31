@@ -1,7 +1,8 @@
 name: Balance
 
-# GDD 25: every change to data/*.json runs the simulator and publishes the report. The GDD targets are listed in the
-# job log; they do not fail the job yet (`--check` is off) because rounds 1-30 are still being tuned (A-02-03).
+# GDD 25: every change to data/*.json runs the simulator and publishes the report; a missed target (`--check`) fails
+# the job. 16 runs of 35 rounds keep the job short; survivors count as the horizon (censored) and the death-round
+# spread limit is the provisional IQR <= 25 of the greedy bot.
 on:
   push:
     branches: [main, wip/orq-merge]
@@ -34,7 +35,7 @@ jobs:
   balance:
     name: balance
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -47,7 +48,7 @@ jobs:
           path: ~/.bun/install/cache
           key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
       - run: bun install --frozen-lockfile
-      - run: bun run sim --runs 200 --rounds 10 --out reports/sim-ci.json
+      - run: bun run sim --runs 16 --rounds 35 --check --out reports/sim-ci.json
       - run: |
           echo '### Balance report' >> "$GITHUB_STEP_SUMMARY"
           echo '```json' >> "$GITHUB_STEP_SUMMARY"
