@@ -1,7 +1,7 @@
 import type { JSX, ReactNode } from "react";
 
 export interface PanelProps {
-	title?: string;
+	title?: string | undefined;
 	riveted?: boolean;
 	children?: ReactNode;
 }

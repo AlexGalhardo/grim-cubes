@@ -1,5 +1,6 @@
 import { t } from "@gc/core";
 import { type JSX, useEffect, useRef } from "react";
+import { useShortScreen } from "../../hooks/useViewport";
 import { useDialogNav } from "../../nav/useDialogNav";
 import { Button } from "../Button/Button";
 import { Panel } from "../Panel/Panel";
@@ -30,20 +31,31 @@ export function Menu({ view, actions, version, demo }: MenuProps): JSX.Element {
 		play.current?.focus();
 	}, []);
 	const nav = useDialogNav<HTMLDivElement>();
+	// Short landscape phones: buttons only, under the logo, so the art's title stays readable.
+	const short = useShortScreen();
 	return (
 		<div
 			ref={nav}
 			role="dialog"
 			aria-modal="true"
 			aria-labelledby="menu-title"
-			className="pointer-events-auto absolute inset-0 z-30 flex overflow-y-auto bg-night/90 p-2 mobile-l:p-4"
+			data-testid="menu"
+			className="pointer-events-auto absolute inset-0 z-30 flex overflow-y-auto bg-night bg-[url(/menu/menu-1.webp)] bg-cover bg-top p-2 mobile-l:p-4"
 		>
-			<div className="m-auto w-full max-w-xl">
-				<Panel title={demo ? t("demo.badge") : t("menu.panel")} riveted>
-					<h1 id="menu-title" className="text-center font-display text-3xl text-ember-light">
+			{/* The key art carries the logo at the top centre; the dark left side holds the buttons. */}
+			<div
+				aria-hidden="true"
+				className="pointer-events-none fixed inset-0 bg-linear-to-r from-night/85 via-night/30 to-transparent"
+			/>
+			<div
+				data-testid="menu-panel"
+				className={`relative w-full ${short ? "mt-auto max-w-52" : "my-auto max-w-60 mobile-l:ml-[3%] mobile-l:max-w-xs desktop-xl:max-w-sm"}`}
+			>
+				<Panel title={demo ? t("demo.badge") : short ? undefined : t("menu.panel")} riveted>
+					<h1 id="menu-title" className="sr-only">
 						{t("menu.title")}
 					</h1>
-					<div className="mt-4 flex flex-col gap-2">
+					<div className="flex flex-col gap-2">
 						<button
 							ref={play}
 							type="button"
@@ -60,21 +72,23 @@ export function Menu({ view, actions, version, demo }: MenuProps): JSX.Element {
 							{t("menu.options")}
 						</Button>
 					</div>
-					<div className="mt-4 font-body text-sm text-bone-dark" data-testid="menu-records">
-						<div className="font-display text-base text-bone">{t("menu.records")}</div>
-						<ul className="mt-1">
-							{view.records.map((record) => (
-								<li key={record.id} className="flex justify-between">
-									<span>{record.name}</span>
-									<span>
-										{record.round > 0
-											? t("menu.recordRound", { round: record.round })
-											: t("menu.noRecord")}
-									</span>
-								</li>
-							))}
-						</ul>
-					</div>
+					{short ? null : (
+						<div className="mt-4 font-body text-sm text-bone-dark" data-testid="menu-records">
+							<div className="font-display text-base text-bone">{t("menu.records")}</div>
+							<ul className="mt-1">
+								{view.records.map((record) => (
+									<li key={record.id} className="flex justify-between">
+										<span>{record.name}</span>
+										<span>
+											{record.round > 0
+												? t("menu.recordRound", { round: record.round })
+												: t("menu.noRecord")}
+										</span>
+									</li>
+								))}
+							</ul>
+						</div>
+					)}
 					{version ? (
 						<div className="mt-3 text-right text-xs opacity-70" data-testid="menu-version">
 							v{version}
