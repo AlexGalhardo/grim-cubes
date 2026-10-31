@@ -32,6 +32,7 @@ import {
 	createChunkGenerator,
 	createChunkSystem,
 	createDamageSystem,
+	createDashSystem,
 	createDeathSystem,
 	createEffectsSystem,
 	createEliteSystem,
@@ -201,6 +202,12 @@ async function boot(): Promise<void> {
 	stats.run(hero);
 
 	const owned = new Map<string, number>();
+	const dash = createDashSystem(heroData.dash, {
+		unlocked: ossuaryBonus.dashUnlocked,
+		charges: ossuaryBonus.dashCharges,
+		cooldownReductionSeconds: ossuaryBonus.dashCooldownReductionSeconds,
+	});
+	let touchDash = false;
 	const itemEffects = createEffectsSystem(itemsData, owned, {
 		fragmentGain: ossuaryBonus.fragmentGain,
 		soulGain: ossuaryBonus.soulGain,
@@ -421,6 +428,7 @@ async function boot(): Promise<void> {
 		bossIntro: null,
 		ossuary: null,
 		difficulty: null,
+		dash: null,
 	});
 	createRoot(uiRoot).render(
 		<App
@@ -428,6 +436,9 @@ async function boot(): Promise<void> {
 			stick={stick}
 			onChooseCard={(index) => levelUp.choose(index)}
 			onChooseChest={(index) => chest.choose(index)}
+			onDashHold={(down) => {
+				touchDash = down;
+			}}
 			onRestart={() => {
 				difficultyOpen = true;
 				publishNow();
@@ -760,6 +771,13 @@ async function boot(): Promise<void> {
 			ossuary: ossuaryOpen ? ossuaryView() : null,
 			difficulty: difficultyOpen ? difficultyView() : null,
 			bossIntro: run.state === "BossIntro" ? bossName : null,
+			dash: dash.unlocked
+				? {
+						charges: dash.charges,
+						max: dash.maxCharges,
+						recharge: Math.floor(dash.recharge * 20) / 20,
+					}
+				: null,
 		};
 		const cur = hud.get();
 		if (
@@ -772,6 +790,8 @@ async function boot(): Promise<void> {
 			cur.cards !== next.cards ||
 			cur.chest !== next.chest ||
 			cur.boss !== next.boss ||
+			cur.dash?.charges !== next.dash?.charges ||
+			cur.dash?.recharge !== next.dash?.recharge ||
 			cur.ossuary !== null ||
 			cur.difficulty !== null ||
 			next.difficulty !== null ||
@@ -843,6 +863,7 @@ async function boot(): Promise<void> {
 			run.run(world, hero);
 			if (fighting()) {
 				inputSystem(world, hero, input, weapon.speedMultiplier);
+				dash.run(hero, input);
 				behavior.run(world, hero);
 				boss.run(world);
 				propCollision.steer(world, origin);
@@ -997,6 +1018,7 @@ async function boot(): Promise<void> {
 			},
 			saveNotice: () => loaded.notice,
 			heroMaxHp: () => Health.max[hero] ?? 0,
+			heroPos: () => ({ x: origin.x + (Position.x[hero] ?? 0), z: origin.z + (Position.z[hero] ?? 0) }),
 			difficulty: () => difficultyId,
 			openOssuary: () => {
 				ossuaryOpen = true;
@@ -1076,6 +1098,7 @@ async function boot(): Promise<void> {
 	render.engine.runRenderLoop(() => {
 		// Once per frame: getGamepads() allocates, and several steps may run per frame.
 		sources.poll(input);
+		if (touchDash) input.dash = true;
 		loop.frame(performance.now());
 	});
 	window.addEventListener("resize", () => render.engine.resize());

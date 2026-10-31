@@ -128,6 +128,8 @@ export type { ChestOffer, ChestSystem, ChestSystemDeps } from "./systems/chest";
 export { createChestSystem } from "./systems/chest";
 export type { DamageQueue, DamageSystem, DamageSystemDeps, HeroCombatStats } from "./systems/damage";
 export { createDamageSystem, DAMAGE_QUEUE_CAPACITY } from "./systems/damage";
+export type { DashConfig, DashOptions, DashSystem } from "./systems/dash";
+export { createDashSystem } from "./systems/dash";
 export type { AuraSystem, AuraSystemDeps, EffectsSystem } from "./systems/effects";
 export { createAuraSystem, createEffectsSystem } from "./systems/effects";
 export type { EliteSystem, EliteSystemDeps } from "./systems/elite";

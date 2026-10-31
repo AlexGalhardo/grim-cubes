@@ -2,6 +2,7 @@ import type { SaveNotice, Store, VirtualStick } from "@gc/core";
 import { type JSX, useSyncExternalStore } from "react";
 import { Bar } from "./components/Bar/Bar";
 import { BossBar, BossIntro, type BossViewModel } from "./components/BossBar/BossBar";
+import { DashButton, type DashView } from "./components/DashButton/DashButton";
 import {
 	Difficulty,
 	type DifficultyActions,
@@ -41,6 +42,8 @@ export interface HudState {
 	ossuary: OssuaryViewModel | null;
 	/** The pre-run difficulty and seed screen; null while closed. */
 	difficulty: DifficultyViewModel | null;
+	/** Null until the Ossuary unlocks the dash. */
+	dash: DashView | null;
 	/** Boss name during the 3 s intro; null otherwise. */
 	bossIntro: string | null;
 }
@@ -54,6 +57,8 @@ export interface AppProps {
 	shopActions?: ShopActions | undefined;
 	onRestart?: (() => void) | undefined;
 	difficultyActions?: DifficultyActions | undefined;
+	/** Touch dash button held state. */
+	onDashHold?: ((down: boolean) => void) | undefined;
 	ossuaryActions?: (OssuaryActions & { open(): void }) | undefined;
 }
 
@@ -65,6 +70,7 @@ export function App({
 	shopActions,
 	onRestart,
 	ossuaryActions,
+	onDashHold,
 	difficultyActions,
 }: AppProps): JSX.Element {
 	const hud = useSyncExternalStore(store.subscribe, store.get);
@@ -97,6 +103,7 @@ export function App({
 			{hud.bossIntro ? <BossIntro name={hud.bossIntro} /> : null}
 			{hud.notice ? <Notice notice={hud.notice} /> : null}
 			{stick ? <VirtualJoystick stick={stick} /> : null}
+			{stick && hud.dash && onDashHold ? <DashButton view={hud.dash} onHold={onDashHold} /> : null}
 		</div>
 	);
 }

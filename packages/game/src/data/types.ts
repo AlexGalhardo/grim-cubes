@@ -8,6 +8,7 @@ import type { WorldConfig } from "../world/chunkSystem";
 
 /** `data/hero.json`. */
 export interface HeroData {
+	dash: { distance: number; durationSeconds: number; iFramesSeconds: number; cooldownSeconds: number };
 	startingWeapon: string;
 	base: {
 		maxHp: number;
