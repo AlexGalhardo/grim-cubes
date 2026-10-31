@@ -13,9 +13,14 @@ env:
 
 jobs:
   update-snapshots:
-    name: update-snapshots
+    name: update-snapshots (${{ matrix.shard }}/4)
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
+    # Same sharding as the CI e2e job: one browser saturates a runner, so the suite is split across runners.
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
     container:
       image: mcr.microsoft.com/playwright:v1.64.1-noble
       options: --ipc=host
@@ -37,10 +42,12 @@ jobs:
         env:
           GC_DEBUG_API: "1"
       # In CI mode Playwright can report the run that writes new baselines as failed; the second run is the real check.
-      - run: bunx playwright test --update-snapshots=all || true
-      - run: bunx playwright test
+      - run: bunx playwright test --shard=${{ matrix.shard }}/4 --update-snapshots=all || true
+      - run: bunx playwright test --shard=${{ matrix.shard }}/4
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        # Upload even when the verification run is red, so a flaky capture can be inspected.
+        if: always()
         with:
-          name: linux-snapshots
+          name: linux-snapshots-${{ matrix.shard }}
           path: tests/visual/__screenshots__/*-linux.png
-          if-no-files-found: error
+          if-no-files-found: warn
