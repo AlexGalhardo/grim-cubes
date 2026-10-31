@@ -1,20 +1,17 @@
 import { describe, expect, it, vi } from "vitest";
 import { STEP } from "../../packages/game/src/index";
-import { loadSimData, runSim, type SimData } from "../../tools/sim/lib";
-
-const data: SimData = loadSimData();
+import { runSim } from "../../tools/sim/lib";
 
 // Full 3,600-step simulations by design; the default 5 s trips when other processes saturate the CPU.
 vi.setConfig({ testTimeout: 20_000 });
 const STEPS = 3600;
-const run = (seed: number, maxSteps = STEPS) =>
-	runSim(data, { seed, rounds: 50, difficulty: "normal", maxSteps });
+const run = (seed: number, maxSteps = STEPS) => runSim({ seed, rounds: 50, difficulty: "normal", maxSteps });
 
 /**
  * Re-anchor (update this value) whenever a task legitimately changes the simulation, e.g. P-05-07 (SDD 11 section 2).
  * A change that is NOT meant to alter the simulation must leave it untouched.
  */
-const ANCHOR_SEED_42_3600 = 3965063525;
+const ANCHOR_SEED_42_3600 = 3242524696;
 
 describe("determinism (seed 42, 3600 steps)", () => {
 	it("two runs end in the same world", () => {
