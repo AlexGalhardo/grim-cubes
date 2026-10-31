@@ -12,7 +12,10 @@ import {
 import { CATEGORIES, type Category, REQUIRED_CLIPS } from "../assets-build/rules";
 import { baseModelName } from "./emissive";
 
-/** Art Bible §14 checklist for every `.bbmodel` in `assets/src/models` (B-03-01); item 11 is met when `docs/art/review/ingame/<name>.png` exists (the `?art=<id>` capture, kept only after a visual review). */
+/** Art Bible §14 checklist for every `.bbmodel` in `assets/src/models` (B-03-01); item 11 is met when `docs/art/review/ingame/<name>-1080.png` and `<name>-800x360.png` both exist (the `?art=<id>&ingame=1` captures at 1920x1080 and 800x360, kept only after a visual review). */
+
+/** Screens of the in-game capture (item 11): 1080p and the low landscape phone. */
+export const INGAME_SHOTS = ["1080", "800x360"] as const;
 
 export const CHECKLIST_ITEMS = [
 	"Nome de arquivo segue §10.2 (snake_case ASCII, prefixo `prop_`/`tile_`/`weapon_`, sufixo `_d`; a categoria dos demais vem da pasta)",
@@ -25,7 +28,7 @@ export const CHECKLIST_ITEMS = [
 	"Clipes obrigatórios de §8 presentes",
 	"Emissivos em `_e.png` separado",
 	"`bun run assets:build` passa",
-	"Captura in-game com câmera padrão",
+	"Captura in-game com câmera padrão (`docs/art/review/ingame/<nome>-1080.png` e `-800x360.png`, de `?art=<id>&ingame=1`)",
 	"Áudio `meta.json` (não se aplica a modelos 3D)",
 ] as const;
 
@@ -160,7 +163,7 @@ export function buildChecklist(
 			staticModel ? null : REQUIRED_CLIPS[category].every((c) => clips.has(c)),
 			!emissive || existsSync(join(dir, `${name}_e.png`)),
 			buildOk,
-			existsSync(join(reviewDir, "ingame", `${name}.png`)),
+			INGAME_SHOTS.every((shot) => existsSync(join(reviewDir, "ingame", `${name}-${shot}.png`))),
 			null,
 		];
 		rows.push({ category, folder, name, elements: model.elements.length, budget, items });
