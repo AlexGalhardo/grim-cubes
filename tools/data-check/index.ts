@@ -329,6 +329,7 @@ const EXPECTED_FILES = [
 	"hero",
 	"props",
 	"render",
+	"presets",
 ].map((n) => `${n}.json`);
 
 /** `assets/src` next to the data dir, if it exists (fixtures without assets skip the data -> assets check). */

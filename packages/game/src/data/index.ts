@@ -8,6 +8,7 @@ import heroJson from "../../../../data/hero.json";
 import itemsJson from "../../../../data/items.json";
 import milestonesJson from "../../../../data/milestones.json";
 import ossuaryJson from "../../../../data/ossuary.json";
+import presetsJson from "../../../../data/presets.json";
 import propsJson from "../../../../data/props.json";
 import renderJson from "../../../../data/render.json";
 import roundsJson from "../../../../data/rounds.json";
@@ -28,6 +29,7 @@ import type {
 	ItemData,
 	MilestonesData,
 	OssuaryData,
+	PresetsData,
 	PropData,
 	RenderData,
 	RoundsData,
@@ -54,6 +56,7 @@ export const elitesData: ElitesData = elitesJson;
 export const itemsData: readonly ItemData[] = itemsJson;
 export const propsData: readonly PropData[] = propsJson;
 export const renderData: RenderData = renderJson;
+export const presetsData: PresetsData = presetsJson as PresetsData;
 
 const BEHAVIORS: Readonly<Record<string, number>> = {
 	chase: BehaviorKind.Chase,
@@ -169,6 +172,7 @@ export type {
 	BossPatternData,
 	CardsData,
 	DifficultyData,
+	DynamicScaleConfig,
 	EliteModifierData,
 	ElitesData,
 	EnemyData,
@@ -178,9 +182,12 @@ export type {
 	OssuaryBranchData,
 	OssuaryData,
 	OssuaryNodeData,
+	PresetsData,
 	PropData,
 	RenderData,
 	RoundsData,
+	ShadowQuality,
+	VideoPreset,
 	WeaponData,
 	WorldData,
 } from "./types";

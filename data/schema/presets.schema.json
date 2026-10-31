@@ -1,0 +1,54 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "presets.schema.json",
+	"title": "Video presets (SDD 14 section 5)",
+	"type": "object",
+	"additionalProperties": false,
+	"required": ["default", "dynamicScale", "presets"],
+	"properties": {
+		"default": { "$ref": "common.schema.json#/$defs/id" },
+		"dynamicScale": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": ["startDivisor", "maxLevel", "p99Ms", "degradeSeconds", "recoverSeconds", "step"],
+			"properties": {
+				"startDivisor": { "type": "number", "exclusiveMinimum": 0 },
+				"maxLevel": { "type": "number", "minimum": 1 },
+				"p99Ms": { "type": "number", "exclusiveMinimum": 0 },
+				"degradeSeconds": { "type": "number", "exclusiveMinimum": 0 },
+				"recoverSeconds": { "type": "number", "exclusiveMinimum": 0 },
+				"step": { "type": "number", "exclusiveMinimum": 0 }
+			}
+		},
+		"presets": {
+			"type": "array",
+			"minItems": 1,
+			"items": {
+				"type": "object",
+				"additionalProperties": false,
+				"required": [
+					"id",
+					"name",
+					"enemyCap",
+					"shadows",
+					"post",
+					"decalPool",
+					"particlePool",
+					"renderScale",
+					"dynamicScale"
+				],
+				"properties": {
+					"id": { "$ref": "common.schema.json#/$defs/id" },
+					"name": { "$ref": "common.schema.json#/$defs/name" },
+					"enemyCap": { "type": "integer", "minimum": 1 },
+					"shadows": { "enum": ["cascade2048", "cascade1024", "blob", "none"] },
+					"post": { "enum": ["all", "vignette", "none"] },
+					"decalPool": { "type": "integer", "minimum": 0 },
+					"particlePool": { "type": "integer", "minimum": 0 },
+					"renderScale": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 },
+					"dynamicScale": { "type": "boolean" }
+				}
+			}
+		}
+	}
+}

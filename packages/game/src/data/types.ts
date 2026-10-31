@@ -323,3 +323,37 @@ export interface ConsumablesData {
 	pickupRadius: number;
 	kinds: ConsumableKindData[];
 }
+
+export type ShadowQuality = "cascade2048" | "cascade1024" | "blob" | "none";
+
+/** One entry of `data/presets.json` (SDD 14 section 5). */
+export interface VideoPreset {
+	id: string;
+	name: string;
+	/** Simultaneous enemy cap: spawns beyond it are removed without a drop. */
+	enemyCap: number;
+	shadows: ShadowQuality;
+	post: "all" | "vignette" | "none";
+	decalPool: number;
+	particlePool: number;
+	/** Render scale, 1 = native; `hardwareScalingLevel = 1 / renderScale`. */
+	renderScale: number;
+	/** The SceneOptimizer-style scaler may degrade the scale below `renderScale` while frames are slow. */
+	dynamicScale: boolean;
+}
+
+export interface DynamicScaleConfig {
+	/** Starting level = devicePixelRatio / startDivisor (never below 1). */
+	startDivisor: number;
+	maxLevel: number;
+	p99Ms: number;
+	degradeSeconds: number;
+	recoverSeconds: number;
+	step: number;
+}
+
+export interface PresetsData {
+	default: string;
+	dynamicScale: DynamicScaleConfig;
+	presets: VideoPreset[];
+}

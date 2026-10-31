@@ -1,0 +1,68 @@
+{
+	"default": "high",
+	"dynamicScale": {
+		"startDivisor": 1.5,
+		"maxLevel": 2,
+		"p99Ms": 45,
+		"degradeSeconds": 3,
+		"recoverSeconds": 12,
+		"step": 0.25
+	},
+	"presets": [
+		{
+			"id": "ultra",
+			"name": "Ultra",
+			"enemyCap": 100,
+			"shadows": "cascade2048",
+			"post": "all",
+			"decalPool": 200,
+			"particlePool": 600,
+			"renderScale": 1,
+			"dynamicScale": false
+		},
+		{
+			"id": "high",
+			"name": "Alto",
+			"enemyCap": 100,
+			"shadows": "cascade1024",
+			"post": "all",
+			"decalPool": 200,
+			"particlePool": 600,
+			"renderScale": 1,
+			"dynamicScale": false
+		},
+		{
+			"id": "medium",
+			"name": "Médio",
+			"enemyCap": 100,
+			"shadows": "blob",
+			"post": "vignette",
+			"decalPool": 100,
+			"particlePool": 300,
+			"renderScale": 1,
+			"dynamicScale": false
+		},
+		{
+			"id": "low",
+			"name": "Baixo",
+			"enemyCap": 60,
+			"shadows": "blob",
+			"post": "vignette",
+			"decalPool": 60,
+			"particlePool": 200,
+			"renderScale": 1,
+			"dynamicScale": true
+		},
+		{
+			"id": "minimum",
+			"name": "Mínimo",
+			"enemyCap": 40,
+			"shadows": "none",
+			"post": "none",
+			"decalPool": 30,
+			"particlePool": 100,
+			"renderScale": 0.75,
+			"dynamicScale": true
+		}
+	]
+}
