@@ -174,5 +174,29 @@
 		"durationSeconds": 150,
 		"loop": true,
 		"model": "music_v1"
+	},
+	{
+		"file": "mus_biome_swamp",
+		"kind": "music",
+		"prompt": "aggressive heavy metal combat music, 130 BPM, chugging low guitars, pounding war drums, ominous low choir, grimdark rotting bone swamp mood, wet low drones, croaking dissonant choir, no cheerful synthesizers, seamless loop",
+		"durationSeconds": 150,
+		"loop": true,
+		"model": "music_v1"
+	},
+	{
+		"file": "mus_biome_forge",
+		"kind": "music",
+		"prompt": "aggressive heavy metal combat music, 130 BPM, chugging low guitars, pounding war drums, ominous low choir, grimdark infernal forge mood, anvil hammering percussion, roaring furnace drones, no cheerful synthesizers, seamless loop",
+		"durationSeconds": 150,
+		"loop": true,
+		"model": "music_v1"
+	},
+	{
+		"file": "mus_biome_nest",
+		"kind": "music",
+		"prompt": "aggressive heavy metal combat music, 130 BPM, chugging low guitars, pounding war drums, ominous low choir, grimdark biomechanical nest mood, cold mechanical pulses, wet organic textures, no cheerful synthesizers, seamless loop",
+		"durationSeconds": 150,
+		"loop": true,
+		"model": "music_v1"
 	}
 ]
