@@ -94,7 +94,7 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
 
 ### E-04 CI/CD e deploy
 
-- [ ] **E-04-01** `.github/workflows/ci.yml` conforme SDD 12 §1 (lint → typecheck → unit → integration → build-web → e2e; container Playwright `v1.64.1-noble`; `setup-bun@v2`; `checkout@v7`; artefatos). Deps: E-02-05, E-02-06. Resp: S2. Prio: P0.
+- [x] **E-04-01** `.github/workflows/ci.yml` conforme SDD 12 §1 (lint → typecheck → unit → integration → build-web → e2e; container Playwright `v1.64.1-noble`; `setup-bun@v2`; `checkout@v7`; artefatos). Deps: E-02-05, E-02-06. Resp: S2. Prio: P0.
   - Asserts: workflow verde em PR (`gh run list --workflow ci.yml --limit 1 --json conclusion` = `success`); duração < 10 min; artefatos `coverage` e `playwright-report` presentes.
 - [ ] **E-04-02** Projeto Vercel `grim-cubes-demo` conectado ao repositório; `vercel.json` (rewrites SPA, headers de cache); preview por PR; produção em `main`. Deps: E-02-04. Resp: PO (criar projeto) + S2. Prio: P0.
   - Asserts: URL de produção responde 200 e renderiza o canvas (smoke E-04-04); `curl -I <url>/assets/<arquivo com hash>` retorna `cache-control: public, max-age=31536000, immutable`; PR de teste gera URL de preview comentada pelo bot da Vercel.

@@ -124,6 +124,8 @@ Decisão D22: 1 unidade = 1 m = 1 cubo de terreno. Personagens 64 px por unidade
 | Prop médio (lápide, bigorna) | 1–1,5 | — | 32 | 8 |
 | Prop grande (árvore morta, ossada) | 2,5–4 | — | 32 | 16 |
 | Mercador de Ossos | 2,3 | 1,0 | 64 | 28 |
+| Arma (na mão) | 0,6–1,4 | — | 64 | 8 |
+| Tile de chão (cubo 1×1 u) | — | 1,0 | 32 | 8 |
 | Fragmento | 0,25 | 0,25 | 32 | 1 (emissivo) |
 | Projétil | 0,15–0,3 | — | — | 1 (emissivo) |
 
