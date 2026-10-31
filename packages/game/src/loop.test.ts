@@ -42,3 +42,36 @@ test("pause keeps rendering without simulating, resume ignores the gap", () => {
 	loop.frame(60_000);
 	expect(calls.simulate).toBe(0);
 });
+
+test("2x simulates twice the steps in the same real time and never passes the ceiling", () => {
+	const { loop, calls } = harness();
+	loop.frame(0);
+	loop.frame(STEP * 1000 * 2);
+	expect(calls.simulate).toBe(2);
+	loop.setSpeed(2);
+	const before = calls.simulate;
+	loop.frame(STEP * 1000 * 2 + STEP * 1000 * 3);
+	expect(calls.simulate - before).toBe(6);
+	expect(loop.speed).toBe(2);
+	const budget = calls.simulate;
+	loop.frame(10_000);
+	expect(calls.simulate - budget).toBe(MAX_STEPS * 2);
+	expect(loop.slowFrame).toBe(1);
+});
+
+test("speed is clamped to 1..3 and each step is still exactly STEP", () => {
+	const steps: number[] = [];
+	const loop = createLoop({
+		simulate: (s) => steps.push(s),
+		render: () => undefined,
+		publish: () => undefined,
+	});
+	loop.setSpeed(9);
+	expect(loop.speed).toBe(3);
+	loop.setSpeed(0);
+	expect(loop.speed).toBe(1);
+	loop.setSpeed(3);
+	loop.frame(0);
+	loop.frame(STEP * 1000);
+	expect(steps).toEqual([STEP, STEP, STEP]);
+});
