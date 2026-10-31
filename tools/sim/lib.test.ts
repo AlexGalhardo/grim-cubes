@@ -24,6 +24,15 @@ describe("sim harness", () => {
 		expect(["boss-round", "died"]).toContain(report.outcome);
 	});
 
+	// Guard against an O(n^2) pass sneaking into a system: CPU time (not wall time, which other processes on the
+	// machine inflate) of a run that steps a full horde for thousands of steps. ~1.8 s on node when written (0.25 s on bun); 10 s budget.
+	it("simulates a full horde within a loose CPU budget", () => {
+		const before = process.cpuUsage();
+		runSim(data, { seed: 3, rounds: 10, difficulty: "normal" });
+		const used = process.cpuUsage(before);
+		expect((used.user + used.system) / 1000).toBeLessThan(10_000);
+	});
+
 	it("rejects unknown difficulty and weapon", () => {
 		expect(() => runSim(data, { seed: 1, rounds: 1, difficulty: "nope" })).toThrow(/difficulty/);
 		expect(() => runSim(data, { seed: 1, rounds: 1, difficulty: "normal", weapon: "nope" })).toThrow(
