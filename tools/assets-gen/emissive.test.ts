@@ -1,6 +1,6 @@
 import { PNG } from "pngjs";
 import { describe, expect, it } from "vitest";
-import { emissiveMask } from "./emissive";
+import { baseModelName, emissiveMask } from "./emissive";
 
 function texture(pixels: readonly (readonly [number, number, number, number])[]): PNG {
 	const png = new PNG({ width: pixels.length, height: 1 });
@@ -23,5 +23,10 @@ describe("emissive mask", () => {
 	it("keeps bloodLight only for the models that glow with it, and returns null when nothing glows", () => {
 		expect(emissiveMask(texture([iron, blood]), false)).toBeNull();
 		expect(emissiveMask(texture([iron, blood]), true)?.data[7]).toBe(255);
+	});
+
+	it("treats a variant like its base model", () => {
+		expect(baseModelName("wail_02")).toBe("wail");
+		expect(baseModelName("husk")).toBe("husk");
 	});
 });

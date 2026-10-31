@@ -16,6 +16,11 @@ export const BLOOD_EMISSIVE: ReadonlySet<string> = new Set([
 	"nest_queen",
 ]);
 
+/** A variant `<base>_NN` glows like its base model. */
+export function baseModelName(name: string): string {
+	return name.replace(/_\d{2}$/, "");
+}
+
 /** Copies only the glowing pixels of `diffuse` into a transparent PNG of the same size; null when it has none. */
 export function emissiveMask(diffuse: PNG, includeBloodLight: boolean): PNG | null {
 	const out = new PNG({ width: diffuse.width, height: diffuse.height });
@@ -30,10 +35,10 @@ export function emissiveMask(diffuse: PNG, includeBloodLight: boolean): PNG | nu
 	return lit > 0 ? out : null;
 }
 
-/** Rewrites every `_e.png` under `srcDir/models`; returns the `category/name` of the files created, changed (by pixels, not by encoding) or removed. */
+/** Rewrites every `_e.png` under `srcDir/models`; returns the `category/name` (variants included, as `variants/<base>_NN`) of the files created, changed (by pixels, not by encoding) or removed. */
 export function writeEmissive(srcDir: string): string[] {
 	const changed: string[] = [];
-	for (const category of CATEGORIES) {
+	for (const category of [...CATEGORIES, "variants"]) {
 		const dir = join(srcDir, "models", category);
 		if (!existsSync(dir)) continue;
 		for (const file of readdirSync(dir)
@@ -41,7 +46,10 @@ export function writeEmissive(srcDir: string): string[] {
 			.sort()) {
 			const name = file.slice(0, -"_d.png".length);
 			const target = join(dir, `${name}_e.png`);
-			const mask = emissiveMask(PNG.sync.read(readFileSync(join(dir, file))), BLOOD_EMISSIVE.has(name));
+			const mask = emissiveMask(
+				PNG.sync.read(readFileSync(join(dir, file))),
+				BLOOD_EMISSIVE.has(baseModelName(name)),
+			);
 			const before = existsSync(target) ? readFileSync(target) : null;
 			if (!mask) {
 				if (before) {

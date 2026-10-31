@@ -22,3 +22,5 @@ Fórmula: com a perna de comprimento `L` (px, do quadril ao chão) girando `±θ
 Pernas alongadas: o `wail` e a `leech` ganharam pernas mais longas (do quadril ao chão, 16 para 25 px no `wail`, 12 para 20 px na `leech`), mantendo a altura total dentro da faixa do §5.1 (`wail` 63 px = 0,98 u, com o tronco encurtado de 14 para 10 px; `leech` 58 px = 0,91 u, com o corpo subindo 8 px). Com o ciclo mínimo do VAT (3 quadros, 0,25 s) e amplitudes de 52° e 55°, o deslize cai a cerca de 10%. As patas traseiras do `hunter` (6%) ficam como estão. O `watcher` é fixo (`walk` quase parado, ±4°) e o `breeder` anda a 2 u/s no `enemies.json`.
 
 `attack` dos inimigos agora tem antecipação: o braço (e o corpo, já existente) recua primeiro (`-50°` no editor, `+50°` no arquivo) e só então vai à frente (`+100°` no editor, `-100°` no arquivo). Nos chefes, `idle` passa a 1 s (respiração mais pesada) e `walk` ganha o balanço do corpo (2 px).
+
+As chaves do `walk` são senoides amostradas a cada 1/12 s nos inimigos (o VAT assa a 12 fps) e a cada 1/24 s nos chefes, com o ciclo `T` dividido em quadros inteiros, para que o Blockbench (que prende as chaves a 24 fps) não deforme o ritmo.

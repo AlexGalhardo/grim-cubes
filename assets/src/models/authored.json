@@ -76,6 +76,8 @@
 		"tiles/tile_nest_01",
 		"tiles/tile_nest_02",
 		"tiles/tile_nest_03",
-		"tiles/tile_nest_04"
+		"tiles/tile_nest_04",
+		"variants/husk_02",
+		"variants/wail_02"
 	]
 }
