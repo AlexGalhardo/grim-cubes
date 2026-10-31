@@ -3,11 +3,21 @@ name: Balance
 # GDD 25: every change to data/*.json runs the simulator and publishes the report. The GDD targets are listed in the
 # job log; they do not fail the job yet (`--check` is off) because rounds 1-30 are still being tuned (A-02-03).
 on:
+  push:
+    branches: [main, wip/orq-merge]
+    paths:
+      - "data/**"
+      - "tools/sim/**"
+      - "packages/game/**"
+      - ".github/workflows/balance.yml"
+      - "bun.lock"
   pull_request:
     paths:
       - "data/**"
       - "tools/sim/**"
       - "packages/game/**"
+      - ".github/workflows/balance.yml"
+      - "bun.lock"
   workflow_dispatch:
 
 concurrency:
@@ -27,6 +37,8 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
         with:
           bun-version: ${{ env.BUN_VERSION }}
@@ -36,8 +48,14 @@ jobs:
           key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
       - run: bun install --frozen-lockfile
       - run: bun run sim --runs 200 --rounds 10 --out reports/sim-ci.json
+      - run: |
+          echo '### Balance report' >> "$GITHUB_STEP_SUMMARY"
+          echo '```json' >> "$GITHUB_STEP_SUMMARY"
+          bun -e 'const r = await Bun.file("reports/sim-ci.json").json(); console.log(JSON.stringify(r.checks ?? r.metrics, null, 2))' >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: sim-report
           path: reports/sim-ci.json
+          if-no-files-found: error
