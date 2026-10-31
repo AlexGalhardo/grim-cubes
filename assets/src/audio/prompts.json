@@ -791,5 +791,13 @@
 		"durationSeconds": 4,
 		"voiceId": "pqHfZKP75CvOlQylNhV4",
 		"model": "eleven_multilingual_v2"
+	},
+	{
+		"file": "sfx_merchant_arrive",
+		"kind": "sfx",
+		"prompt": "rusty chains dragging across stone and a cracked bone bell ringing twice, a bone merchant arriving, dry eerie tone, medium distance, no music, game sound effect",
+		"durationSeconds": 1.8,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
 	}
 ]
