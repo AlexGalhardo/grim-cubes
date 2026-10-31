@@ -82,7 +82,7 @@ test("the Forgemaster has 5,000 HP in round 30", () => {
 	const { world, boss } = setup();
 	const e = boss.start(world, 30);
 	expect(Health.max[e]).toBe(5000);
-	expect(Boss.id[e]).toBe(1);
+	expect(Boss.id[e]).toBe(3);
 });
 
 test("the hammer is telegraphed, then throws a hero in range back and hurts it", () => {
