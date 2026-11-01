@@ -16,6 +16,9 @@ Implementado em P-06-04 (`apps/web/src/audio/`), em Web Audio puro, sem dependê
 - Spatial desligado na 1.0 (câmera fixa); pan estéreo continua como possibilidade futura.
 - Formatos: `.mp3` (44,1 kHz, 128 kbps SFX / 160 kbps música).
 
+- Loops: `playLoop(id, { hold? })` e `stop(id)` no barramento sfx, com fade de 0,25 s. Com `hold`, o loop para sozinho esse tempo depois da última chamada (a SMG e a MG chamam a cada tiro, com 0,3 s); sem `hold`, roda até o `stop` (ambiente do bioma, trocado quando a trilha do bioma muda e calado nos menus e nos resultados). Pedido antes do unlock, começa no unlock. Arquivo ausente é silêncio com aviso.
+- Fúria de chefe: o primeiro `BossEnraged` da luta toca `sfx_boss_enrage` e a fala `voice_<chefe>_enrage` com legenda `voice.<chefe>.enrage`; as seguintes só o efeito.
+
 ## 2. Eventos → sons
 
 `apps/web/src/audio/eventSounds.ts` (`soundFor`) mapeia o tipo do evento a ids de som: golpe e tiro, acerto (variações `sfx_sword_hit_01/02`, crítico `sfx_enemy_hit_01`), morte por tipo de inimigo, esquiva, dano no herói, início e fim de round, level-up, explosão, elite, baú, telegrafia, invocação, fúria, grito, onda de choque, ações dos chefes 4 e 5, dash, prop quebrado e consumível. O render drena o buffer; o áudio escuta no caminho (um `EventBuffer` que repassa cada evento ao mapa e depois ao render).

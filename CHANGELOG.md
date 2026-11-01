@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **audio:** The engine can loop a sound (`playLoop`/`stop`, with a hold that ends it a moment after the last call): the SMG and MG loops while they fire and the biome ambience under the hero; the first rage of a boss is shouted (`voice_<boss>_enrage`, captioned in both languages)
 - **tests:** A virtual gamepad for debug builds (`?gamepad=1`, `gc.debug.gamepad`) and an e2e spec that walks menu, slots, difficulty and pause with it (B-04-02)
 - **ui:** Five rarities in the UI: Normal (bone), Rare (blue), Epic (purple), Legendary (orange) and Mythic (yellow) with `rarity-1..5` tokens and a distinct shape for each in colour-blind mode (Art Bible 3.3, GDD 15.1)
 - **game:** The `pull_fragments` item effect (XP magnet): every N seconds of fighting the fragments on the floor fly to the hero, more often with more copies

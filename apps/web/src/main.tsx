@@ -144,7 +144,7 @@ import { createAudioEngine } from "./audio/audioEngine";
 import { createEventAudio } from "./audio/eventSounds";
 import { createFootsteps } from "./audio/footsteps";
 import { createMerchantVoice } from "./audio/merchantVoice";
-import { createWebAudioDeps, musicFor } from "./audio/webAudio";
+import { ambienceFor, createWebAudioDeps, musicFor, weaponLoopFor } from "./audio/webAudio";
 import { createDebugGamepad } from "./debugGamepad";
 import { applyLocale, initLocale } from "./locale";
 import "./main.css";
@@ -915,6 +915,7 @@ async function boot(): Promise<void> {
 			hero,
 			enemyDeath: (entity) => `sfx_enemy_${enemyIds[EnemyType.id[entity] ?? 0] ?? "husk"}_death`,
 			bossId: (entity) => bossesData[(Boss.id[entity] ?? 0) - 1]?.id ?? "",
+			weaponLoop: () => weaponLoopFor(weapon.weapon.id),
 		},
 		showCaption,
 	);
@@ -961,12 +962,19 @@ async function boot(): Promise<void> {
 	};
 	let biomeTrack: string | null = null;
 	let musicKey = "";
+	let ambienceId: string | null = null;
 	let lastAudioState = "";
 	const updateAudioState = (): void => {
 		const key = `${run.state}|${difficultyOpen || menuOpen}|${biomeTrack}`;
 		if (key === musicKey) return;
 		musicKey = key;
 		audio.setMusic(musicFor({ state: run.state, menu: difficultyOpen || menuOpen, biomeTrack }));
+		const wanted = ambienceFor({ state: run.state, menu: difficultyOpen || menuOpen, biomeTrack });
+		if (wanted !== ambienceId) {
+			if (ambienceId) audio.stop(ambienceId);
+			if (wanted) audio.playLoop(wanted);
+			ambienceId = wanted;
+		}
 		if (run.state === "BossIntro" && lastAudioState !== "BossIntro") {
 			const id = boss.defFor(run.round).id;
 			audio.play(`sfx_boss_${id}_entry`, { priority: "boss", maxVoices: 1 });

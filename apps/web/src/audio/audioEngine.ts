@@ -23,6 +23,8 @@ export interface GainLike extends NodeLike {
 export interface SourceLike extends NodeLike {
 	buffer: unknown;
 	playbackRate: { value: number };
+	/** Plays the buffer again and again until `stop`. */
+	loop?: boolean;
 	onended: (() => void) | null;
 	start(when?: number): unknown;
 	stop(): unknown;
@@ -63,6 +65,14 @@ export interface AudioDeps {
 
 export type Bus = "master" | "music" | "sfx";
 export type Priority = "hero" | "boss" | "elite" | "ui" | "enemy";
+
+export interface LoopOptions {
+	/**
+	 * Seconds without another `playLoop(id)` after which the loop fades out by itself (a weapon that keeps firing
+	 * calls it on every shot). Omit for a loop that runs until `stop`.
+	 */
+	hold?: number;
+}
 
 export interface PlayOptions {
 	priority?: Priority;
@@ -112,6 +122,7 @@ export type SoundGroup = keyof typeof GROUP_VOICES;
 export const groupOf = (id: string): SoundGroup =>
 	id.startsWith("voice_") ? "voice" : id.startsWith("sfx_ui_") ? "ui" : "sfx";
 const DUCK_SECONDS = 0.2;
+const LOOP_FADE_SECONDS = 0.25;
 
 const LOW_PRIORITY: ReadonlySet<Priority> = new Set(["ui", "enemy"]);
 
@@ -126,6 +137,13 @@ export interface AudioEngine {
 	play(ids: string | readonly string[], options?: PlayOptions): boolean;
 	/** The music wanted now: the first candidate whose file exists plays, with a crossfade from the previous one. */
 	setMusic(candidates: readonly string[]): void;
+	/**
+	 * Starts a looping sound (a machine gun, the ambience of a biome) on the sfx bus with a short fade in, or keeps it
+	 * alive when it already plays. Asked before the unlock it starts at the unlock. A missing file is silence.
+	 */
+	playLoop(id: string, options?: LoopOptions): void;
+	/** Fades the loop `id` out and drops it; nothing happens if it is not looping. */
+	stop(id: string): void;
 	/** Dips the music for 200 ms. */
 	duck(): void;
 	readonly activeVoices: number;
@@ -248,6 +266,55 @@ export function createAudioEngine(deps: AudioDeps): AudioEngine {
 		source.start();
 	}
 
+	// Loops: one entry per looping id, started once the file is decoded.
+	interface Loop {
+		id: string;
+		gain: GainLike;
+		source: SourceLike | null;
+		/** `currentTime` after which the loop stops by itself; infinity for a loop that runs until `stop`. */
+		until: number;
+	}
+	const loops = new Map<string, Loop>();
+
+	function beginLoop(loop: Loop): void {
+		void load(loop.id).then((buffer) => {
+			// Stopped, or replaced by a newer loop of the same id, while the file was loading.
+			if (!buffer || loops.get(loop.id) !== loop) return;
+			const source = ctx.createBufferSource();
+			source.buffer = buffer;
+			source.loop = true;
+			source.connect(loop.gain);
+			const now = ctx.currentTime;
+			loop.gain.gain.setValueAtTime(0, now);
+			loop.gain.gain.linearRampToValueAtTime(1, now + LOOP_FADE_SECONDS);
+			source.start();
+			loop.source = source;
+		});
+	}
+
+	function stopLoop(id: string): void {
+		const loop = loops.get(id);
+		if (!loop) return;
+		loops.delete(id);
+		const { source, gain } = loop;
+		if (!source) {
+			gain.disconnect();
+			return;
+		}
+		const now = ctx.currentTime;
+		gain.gain.cancelScheduledValues(now);
+		gain.gain.setValueAtTime(gain.gain.value, now);
+		gain.gain.linearRampToValueAtTime(0, now + LOOP_FADE_SECONDS);
+		setTimeout(
+			() => {
+				source.stop();
+				source.disconnect();
+				gain.disconnect();
+			},
+			LOOP_FADE_SECONDS * 1000 + 50,
+		);
+	}
+
 	// Music: one live track plus the one fading out. Each track has its own gain under the music bus.
 	interface Track {
 		key: string;
@@ -320,12 +387,16 @@ export function createAudioEngine(deps: AudioDeps): AudioEngine {
 			await ctx.resume();
 			unlocked = true;
 			applyMusic();
+			for (const loop of loops.values()) if (!loop.source) beginLoop(loop);
 		},
 		setVolume(bus, percent): void {
 			buses[bus].gain.value = Math.min(1, Math.max(0, percent / 100));
 		},
 		beginFrame(): void {
 			newThisFrame = 0;
+			if (loops.size === 0) return;
+			const now = ctx.currentTime;
+			for (const loop of [...loops.values()]) if (now > loop.until) stopLoop(loop.id);
 		},
 		play(ids, options = {}): boolean {
 			if (!unlocked) return false;
@@ -350,6 +421,23 @@ export function createAudioEngine(deps: AudioDeps): AudioEngine {
 			} else void load(id).then((buffer) => buffer && start(id, buffer, options));
 			return true;
 		},
+		playLoop(id, options = {}): void {
+			if (missing.has(id)) return;
+			const until =
+				options.hold === undefined ? Number.POSITIVE_INFINITY : ctx.currentTime + options.hold;
+			const running = loops.get(id);
+			if (running) {
+				running.until = until;
+				return;
+			}
+			const gain = ctx.createGain();
+			gain.gain.value = 0;
+			gain.connect(sfxBus);
+			const loop: Loop = { id, gain, source: null, until };
+			loops.set(id, loop);
+			if (unlocked) beginLoop(loop);
+		},
+		stop: stopLoop,
 		setMusic(candidates): void {
 			const key = candidates.join("|");
 			if (key === wantedKey) return;
