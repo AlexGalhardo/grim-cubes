@@ -65,16 +65,41 @@ export function parseDirectDeps(packageJson: string): DirectDeps {
 	};
 }
 
+/** CycloneDX `licenses` entry from a package.json `license` field: an SPDX id, an SPDX expression or a free name. */
+export function licenseEntries(field: unknown): Array<Record<string, unknown>> | undefined {
+	const text = (value: unknown): string | undefined => {
+		if (typeof value === "string") return value.trim() || undefined;
+		// Old packages: { type: "MIT", url } or [{ type, url }].
+		if (isRecord(value) && typeof value.type === "string") return value.type.trim() || undefined;
+		return undefined;
+	};
+	const list = Array.isArray(field) ? field : [field];
+	const entries = list.flatMap((item): Array<Record<string, unknown>> => {
+		const name = text(item);
+		if (!name) return [];
+		// An expression ("MIT OR Apache-2.0", "(A AND B)") is one entry; a single id or a free name is a license.
+		if (/\s(OR|AND|WITH)\s/.test(name)) return [{ expression: name.replace(/^\((.*)\)$/, "$1") }];
+		return [/^[A-Za-z0-9.+-]+$/.test(name) ? { license: { id: name } } : { license: { name } }];
+	});
+	return entries.length > 0 ? entries : undefined;
+}
+
 export function purl(name: string, version: string): string {
 	return `pkg:npm/${name.replace("@", "%40")}@${version}`;
 }
 
 /** Deterministic: no timestamp or serial number, so the same lock yields the same bytes. */
-export function buildSbom(root: DirectDeps, packages: LockPackage[]): Record<string, unknown> {
+/** `licenseOf` reads the `license` field of an installed package; without it no component carries a license. */
+export function buildSbom(
+	root: DirectDeps,
+	packages: LockPackage[],
+	licenseOf?: (name: string, version: string) => unknown,
+): Record<string, unknown> {
 	const directKind = (name: string): "prod" | "dev" | undefined =>
 		name in root.dependencies ? "prod" : name in root.devDependencies ? "dev" : undefined;
 	const components = packages.map((p) => {
 		const kind = directKind(p.name);
+		const licenses = licenseEntries(licenseOf?.(p.name, p.version));
 		return {
 			type: "library",
 			"bom-ref": purl(p.name, p.version),
@@ -89,6 +114,7 @@ export function buildSbom(root: DirectDeps, packages: LockPackage[]): Record<str
 					},
 				],
 			}),
+			...(licenses !== undefined && { licenses }),
 			...(kind !== undefined && { properties: [{ name: "gc:direct", value: kind }] }),
 		};
 	});
