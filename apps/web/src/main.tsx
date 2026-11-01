@@ -114,6 +114,7 @@ import {
 	createCharacters,
 	createChunkRenderer,
 	createConsumableRenderer,
+	createContrastRings,
 	createDynamicScaler,
 	createEggRenderer,
 	createEliteAuras,
@@ -825,6 +826,7 @@ async function boot(): Promise<void> {
 	let frozenAt: number | null = null;
 	const eliteView = createEliteView(game);
 	const eggView = createEggRenderer(game);
+	const contrastRings = createContrastRings(game);
 	const eliteAuras = createEliteAuras(
 		game,
 		elitesData.modifiers.map((modifier) => modifier.aura),
@@ -1756,6 +1758,7 @@ async function boot(): Promise<void> {
 				game.hero.position.x,
 				game.hero.position.z,
 			);
+			contrastRings.sync(world, alpha);
 			eggView.sync(world, (frozenAt ?? performance.now()) / 1000);
 			eliteAuras.sync(world, alpha, (frozenAt ?? performance.now()) / 1000);
 			consumableView.sync(world, alpha, (frozenAt ?? performance.now()) / 1000);

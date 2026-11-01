@@ -45,6 +45,8 @@ export type { LoadedVat, VatMeta } from "./vat/loader";
 export { createVat, loadVat, parseVat, setVatClip } from "./vat/loader";
 export type { ConsumableRenderer } from "./vfx/consumables";
 export { createConsumableRenderer } from "./vfx/consumables";
+export type { ContrastRings } from "./vfx/contrastRings";
+export { createContrastRings } from "./vfx/contrastRings";
 export type { DecalPool } from "./vfx/decals";
 export type { DamageNumbers } from "./vfx/digits";
 export { createEggRenderer } from "./vfx/eggs";
