@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { ATLAS_SIZE, EXTRUDE, fitAtlas, packSprites, renderAtlas } from "./atlas";
 import { buildAssets } from "./build";
 import { packGlb } from "./glb";
-import { type Category, REQUIRED_CLIPS } from "./rules";
+import { type Category, REQUIRED_CLIPS, RuleError } from "./rules";
 
 interface FixtureOptions {
 	category?: Category;
@@ -277,11 +277,37 @@ describe("buildAssets", () => {
 		await expect(build()).rejects.toThrow("[emissive-size]");
 	});
 
+	test("audio generated on the free plan, or with no plan recorded, stops the build with the file names", async () => {
+		mkdirSync(join(src, "audio", "sfx"), { recursive: true });
+		mkdirSync(join(src, "audio", "voice"), { recursive: true });
+		for (const [kind, id, meta] of [
+			["sfx", "sfx_ok", '{"plan":"Creator"}'],
+			["sfx", "sfx_free", '{"plan":"free"}'],
+			["sfx", "sfx_noplan", "{}"],
+			["voice", "voice_broken", "{not json"],
+			["voice", "voice_nometa", null],
+		] as const) {
+			writeFileSync(join(src, "audio", kind, `${id}.mp3`), new Uint8Array([1]));
+			if (meta !== null) writeFileSync(join(src, "audio", kind, `${id}.meta.json`), meta);
+		}
+		const error = await buildAssets({ srcDir: src, outDir: out, version: "0.0.0" }).catch(
+			(e: unknown) => e,
+		);
+		expect(error).toBeInstanceOf(RuleError);
+		const message = (error as Error).message;
+		expect(message).toContain("[audio-plan]");
+		expect(message).toContain("sfx/sfx_free.mp3: generated on the free plan");
+		expect(message).toContain("sfx/sfx_noplan.mp3: no plan");
+		expect(message).toContain("voice/voice_broken.mp3");
+		expect(message).toContain("voice/voice_nometa.mp3");
+		expect(message).not.toContain("sfx_ok");
+	});
+
 	test("audio files are copied flat to audio/<id>.mp3", async () => {
 		await writeModel("prop_a", {}, 1);
 		mkdirSync(join(src, "audio", "sfx"), { recursive: true });
 		writeFileSync(join(src, "audio", "sfx", "sfx_hit.mp3"), new Uint8Array([1, 2, 3]));
-		writeFileSync(join(src, "audio", "sfx", "sfx_hit.meta.json"), "{}");
+		writeFileSync(join(src, "audio", "sfx", "sfx_hit.meta.json"), '{"plan":"creator"}');
 		await build();
 		expect([...readFileSync(join(out, "audio", "sfx_hit.mp3"))]).toEqual([1, 2, 3]);
 		expect(existsSync(join(out, "audio", "sfx_hit.meta.json"))).toBe(false);
