@@ -47,6 +47,7 @@ import {
 	chooseDifficulty,
 	createGameSession,
 	createLoop,
+	createTargetingSystem,
 	createTips,
 	createTutorial,
 	cullDistantEnemies,
@@ -698,13 +699,26 @@ async function boot(): Promise<void> {
 			}
 		}
 	}
+	// The sword only targets inside its own reach (about 3 u), so the hero would face where it runs until the last
+	// moment. This render-only aim looks as far as a gun does, so every weapon turns to the nearest enemy while moving;
+	// it reads the spatial hash and never touches the simulation (PO request, 2026-10-31).
+	const FACE_RANGE = 10;
+	const faceAim = createTargetingSystem(
+		{ priorityDistanceMult: heroData.combat.targetPriorityDistanceMult, retargetEvery: 3 },
+		separation.hash,
+	);
+	const faceTarget = (): number => {
+		if (targeting.target >= 0) return targeting.target;
+		faceAim.run(world, hero, Math.max(FACE_RANGE, weapon.range));
+		return faceAim.target;
+	};
 	const characters = heroRig
 		? createCharacters(game, {
 				hero: heroRig,
 				merchant: merchantRig,
 				merchantView: () => session.merchant.view,
 				bosses: bossRigs,
-				heroTarget: () => targeting.target,
+				heroTarget: faceTarget,
 				executionZoom: renderData.character.executionZoom,
 				executionSeconds: renderData.character.executionSeconds,
 			})
