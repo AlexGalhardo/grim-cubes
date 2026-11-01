@@ -62,7 +62,7 @@ pre-push:
       run: bunx vitest run --project unit
 ```
 
-`tools/secrets-scan`: regex para chaves com formato real (`sk_` com ≥ 20 caracteres, inclusive `sk_live_`/`sk_test_`; `ELEVENLABS_API_KEY=` com valor de ≥ 20; header `xi-api-key` com literal; `ghp_`/`github_pat_`; `AKIA…`; PEM de chave privada) nos arquivos staged; bloqueia o commit sem imprimir o valor. Placeholders, comparações e headers vindos de variável não disparam. O hook lê o arquivo do disco, não o conteúdo staged (limite conhecido). `tools/commitlint`: valida `type(scope)!: description` com tipos `feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert` (sem dependência).
+`tools/secrets-scan`: regex para chaves com formato real (`sk_` com ≥ 20 caracteres, inclusive `sk_live_`/`sk_test_`; `ELEVENLABS_API_KEY=` com valor de ≥ 20; header `xi-api-key` com literal; `ghp_`/`github_pat_`; `AKIA…`; PEM de chave privada) nos arquivos staged; bloqueia o commit sem imprimir o valor. Placeholders, comparações e headers vindos de variável não disparam. O hook lê o arquivo do disco, não o conteúdo staged (limite conhecido). `tools/commitlint`: valida `type(scope)!: description` com tipos `feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert` (sem dependência). O CI passa o nome da branch (`--branch`); em `release/*` só entram `fix:`, `docs:` e `chore:`.
 
 ## 5. Definition of Done (por tarefa)
 

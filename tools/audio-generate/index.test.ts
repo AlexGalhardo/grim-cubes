@@ -62,9 +62,9 @@ async function runWith(
 }
 
 describe("audio-generate", () => {
-	it("ships 70 sfx, 10 music and 40 voice prompts (every id the audio engine asks for)", async () => {
+	it("ships 82 sfx, 10 music and 40 voice prompts (every id the audio engine asks for)", async () => {
 		const prompts = await loadPrompts();
-		expect(prompts.filter((p) => p.kind === "sfx")).toHaveLength(70);
+		expect(prompts.filter((p) => p.kind === "sfx")).toHaveLength(82);
 		expect(prompts.filter((p) => p.kind === "music")).toHaveLength(10);
 		expect(prompts.filter((p) => p.kind === "voice")).toHaveLength(40);
 	});
@@ -74,7 +74,7 @@ describe("audio-generate", () => {
 		const music = prompts.filter((p) => p.kind === "music").reduce((n, p) => n + p.durationSeconds, 0);
 		const voice = prompts.filter((p) => p.kind === "voice").reduce((n, p) => n + p.prompt.length, 0);
 		expect(prompts.reduce((s, p) => s + estimateCredits(p), 0)).toBe(
-			70 * 200 + Math.round((music / 60) * 900) + voice,
+			82 * 200 + Math.round((music / 60) * 900) + voice,
 		);
 	});
 
@@ -114,8 +114,9 @@ describe("audio-generate", () => {
 
 	it("generates with a mocked fetch, writes meta and skips on the second run", async () => {
 		const env = { ELEVENLABS_PLAN: "creator", ELEVENLABS_API_KEY: SECRET };
+		const ui = (await loadPrompts()).filter((p) => p.file.startsWith("sfx_ui_")).length;
 		expect(await runWith(env, { only: "sfx_ui_*" })).toBe(0);
-		expect(calls).toBe(6);
+		expect(calls).toBe(ui);
 		const meta = JSON.parse(await readFile(join(outDir, "sfx", "sfx_ui_hover.meta.json"), "utf8")) as {
 			plan: string;
 			hash: string;
@@ -125,8 +126,8 @@ describe("audio-generate", () => {
 
 		lines = [];
 		expect(await runWith(env, { only: "sfx_ui_*" })).toBe(0);
-		expect(calls).toBe(6);
-		expect(lines).toContain("to generate: 0, up to date: 6");
+		expect(calls).toBe(ui);
+		expect(lines).toContain(`to generate: 0, up to date: ${ui}`);
 	});
 
 	it("retries with backoff and fails after 3 attempts", async () => {

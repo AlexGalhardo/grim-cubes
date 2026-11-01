@@ -461,7 +461,7 @@ Tabela resumida; a tabela completa com todos os valores vive em `data/items.json
 | `cursed_coin` | Moeda Maldita | 2 | −10% preços na loja | −5 sorte |
 | `war_drum` | Tambor de Guerra | 2 | +10% velocidade de ataque | — |
 | `heavy_gauntlet` | Manopla Pesada | 2 | +12% dano | −4% velocidade de ataque |
-| `grim_pact` | Pacto Sombrio | 3 | +30% dano | −20 HP máx |
+| `grim_pact` | Pacto Sombrio (en: Grim Bargain) | 3 | +30% dano | −20 HP máx |
 | `iron_lung` | Pulmão de Ferro | 3 | +40 HP máx | — |
 | `vampire_fang` | Presa Vampírica | 3 | +6% roubo de vida | — |
 | `shadow_cloak` | Manto de Sombra | 3 | +12% esquiva | — |
@@ -493,6 +493,18 @@ Acréscimos de 2026-10-31 (pedido do PO):
 | `void_cloak` | Manto do Vazio | 5 | 240 | +25% esquiva, +20% velocidade | HP máx ×0,75, −15% dano |
 
 O Ímã de Ossos é o item comprável do consumível `bone_magnet` (§15.4, que só dropa); a lógica de puxar a cada 8 s é do S2 (`ItemEffects.pullFragmentsEverySeconds`). Os quatro Míticos seguem o padrão do pool (um ganho grande com um custo claro) e valem de 240 a 320 de preço base.
+
+Magias automáticas (pedido do PO, 2026-11-01): cinco itens de tier 4, sem modificador de stat, que disparam sozinhos no round, no estilo das armas passivas do Brotato. Cada cópia soma um feitiço. O preço fica entre 150 e 190 para o bot greedy, que valoriza qualquer efeito especial em 18, não preferi-los ao Coração de Enxofre (preço 80).
+
+| ID | Nome | Tier | Preço | Efeito |
+| --- | --- | --- | --- | --- |
+| `ossuary_bolt` | Seta do Ossuário | 4 | 160 | `auto_bolt`: a cada 1,2 s um projétil no inimigo mais próximo (8 + 2N, alcance 12) |
+| `bone_orbit` | Círculo de Ossos | 4 | 170 | `orbit_blades`: 2 estilhaços giram a 1,6 u e cortam no contato (4 + N, recarga 0,4 s por inimigo) |
+| `soul_chain` | Relâmpago de Almas | 4 | 180 | `chain_lightning`: a cada 2,5 s salta até 3 inimigos próximos (6 + 1,5N, alcance 10) |
+| `grave_mine` | Minas Sepulcrais | 4 | 150 | `drop_mine`: a cada 4 s larga uma mina (12 + 3N, raio 1,8, pavio 6 s) |
+| `ash_nova` | Pulso de Cinzas | 4 | 190 | `nova_pulse`: a cada 5 s fere quem está a até 3,2 u (10 + 2N) |
+
+O VFX usa o evento `SpellCast` (seta, estilhaços, relâmpago, disco de aviso da mina, anel do pulso). A explosão da mina reusa `Exploded`.
 
 Exclusivos do Ossuário (entram no pool Lendário só com o nó `ruin_6`, `exclusiveTo` em `data/items.json`; não contam nos 40):
 
@@ -677,6 +689,8 @@ Decisões D24, D25: SFX e música via ElevenLabs, voz via ElevenLabs TTS, tudo g
 Polifonia: `maxInstances` por som (hits 8, mortes 6, pickups 4) e teto por grupo (falas 2, UI 4, demais efeitos 24). Mixer: buses `master`, `sfx`, `music`, `voice`, `ui`; hoje o código usa `master`, `music` e `sfx`, e a música cai −6 dB sob uma fala.
 
 **Metas de áudio (decisão do Orq, 2026-10-31, B-03-03):** 70 efeitos sonoros (eram 82; os 30 sons de chefe da lista acima viram sons genéricos de evento), 12 músicas (menu, ondas, chefe, 4 biomas e 5 chefes) e 40 falas (20 do Mercador e 4 de cada chefe: entrada, fase, fúria e morte).
+
+**Catálogo em 2026-11-01:** 82 SFX, 10 músicas e 40 falas. Os 12 efeitos que faltavam para a lista mínima desta seção voltaram ao catálogo: coleta `02` e `03`, upgrade de arma, disparo da bazuca, aura de elite, UI de cancelar, carta e almas, vento, e um ataque do Coveiro, da Matriarca e do Forjador. As faixas próprias da Matriarca e do Forjador continuam de fora.
 
 ### 22.2 Música
 

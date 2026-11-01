@@ -1,0 +1,14 @@
+{
+	"prompt": "a cold gust of wind across open graves, low whoosh with a faint iron creak, no voices, medium distance, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 2,
+	"generatedAt": "2026-11-01T10:39:33.016Z",
+	"plan": "creator",
+	"hash": "d11a851647fc64eab0db1ae2850e9e504185633391d302226c78a7f0131da50e",
+	"promptInfluence": 0.5,
+	"loudness": {
+		"target": -16,
+		"before": -19.4,
+		"after": -17.1
+	}
+}

@@ -1,6 +1,7 @@
 import { copyFileSync, readdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { matchesOnly } from "./lib";
 import {
 	applyGain,
 	gainFor,
@@ -18,6 +19,8 @@ import {
  */
 const root = fileURLToPath(new URL("../../assets/src/audio", import.meta.url));
 const apply = process.argv.includes("--apply");
+const onlyFlag = process.argv.indexOf("--only");
+const only = onlyFlag >= 0 ? process.argv[onlyFlag + 1] : undefined;
 
 let off = 0;
 let fixed = 0;
@@ -29,6 +32,7 @@ for (const kind of Object.keys(TARGET_LUFS) as LoudnessKind[]) {
 		.sort()) {
 		const file = join(dir, name);
 		const id = name.slice(0, -4);
+		if (only !== undefined && !matchesOnly(id, only)) continue;
 		const before = measureLufs(file);
 		if (before === null) {
 			skipped++;

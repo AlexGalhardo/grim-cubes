@@ -15,6 +15,7 @@ import {
 	queryBleeding,
 	renderData,
 	roundsData,
+	SpellVfx,
 	weaponsData,
 } from "@gc/game";
 import { CAMERA } from "../scene/camera";
@@ -231,6 +232,10 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 		nest_queen: [rgb(PALETTE.bloodLight), rgb(PALETTE.bone), rgb(PALETTE.boneDark), emberLight],
 	};
 	const spikeColors: readonly Rgb[] = [rgb(PALETTE.ironLight), rgb(PALETTE.iron), rgb(PALETTE.emberLight)];
+	const spellBolt: readonly Rgb[] = [ember, emberLight];
+	const spellBone: readonly Rgb[] = [rgb(PALETTE.bone), rgb(PALETTE.boneDark)];
+	const spellSoul: readonly Rgb[] = [rgb(PALETTE.mist), rgb(PALETTE.bone), emberLight];
+	const spellAsh: readonly Rgb[] = [rgb(PALETTE.boneDark), rgb(PALETTE.rust), ember];
 	const fleshBurst: readonly Rgb[] = [rgb(PALETTE.flesh), rgb(PALETTE.bloodLight), rgb(PALETTE.bone)];
 	const biomeDust: readonly (readonly Rgb[])[] = [
 		[rgb(PALETTE.boneDark), rgb(PALETTE.rust)],
@@ -476,6 +481,18 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 				executionX = a;
 				executionZ = b;
 				executionNext = 0;
+			} else if (type === EventType.SpellCast) {
+				// Bonus spells. Exploded is not reused here: that event shakes the camera.
+				if (entity === SpellVfx.Bolt) burst(a, b, 4, spellBolt, 3, 2, false);
+				else if (entity === SpellVfx.Orbit) burst(a, b, 3, spellBone, 1.5, 1, false, 0.6);
+				else if (entity === SpellVfx.Chain) burst(a, b, 6, spellSoul, 6, 2, false);
+				else if (entity === SpellVfx.Mine) {
+					const fuse = Math.floor(c / 100);
+					zones.warn(a, b, c - fuse * 100, fuse > 0 ? fuse : 1);
+				} else if (entity === SpellVfx.Nova) {
+					zones.ring(a, b, c, 0.45);
+					burst(a, b, 8, spellAsh, 3, 4, false);
+				}
 			} else if (type === EventType.Exploded) {
 				burst(a, b, count(config.explosionCubes), explosionColors, 3 + c, 7, false);
 				shake(config.shakeExplosion);

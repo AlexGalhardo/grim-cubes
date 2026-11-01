@@ -1,3 +1,5 @@
+import { SpellVfx } from "../ecs/events";
+
 /** The slice of an `items.json` entry that effects read. */
 export interface EffectSource {
 	id: string;
@@ -24,6 +26,27 @@ export interface AuraEffect {
 	radius: number;
 	damageBase: number;
 	damagePerRound: number;
+}
+
+/**
+ * One automatic spell from an owned copy (Brotato-style). Fields that a kind does not use stay 0.
+ * `radius` is the bolt's body, the orbit distance, the mine's blast or the nova's reach, depending on `kind`.
+ */
+export interface SpellEffect {
+	kind: number;
+	interval: number;
+	damageBase: number;
+	damagePerRound: number;
+	radius: number;
+	range: number;
+	speed: number;
+	count: number;
+	hitRadius: number;
+	spin: number;
+	jumps: number;
+	jumpRadius: number;
+	fuse: number;
+	cooldown: number;
 }
 
 /**
@@ -62,6 +85,8 @@ export interface ItemEffects {
 	pullInterval: number;
 	/** How long each pull lasts, in seconds. */
 	pullSeconds: number;
+	/** Automatic spells, one entry per owned copy. */
+	spells: SpellEffect[];
 }
 
 export function createItemEffects(): ItemEffects {
@@ -83,7 +108,29 @@ export function createItemEffects(): ItemEffects {
 		shockwaves: [],
 		pullInterval: 0,
 		pullSeconds: 0,
+		spells: [],
 	};
+}
+
+function pushSpell(out: ItemEffects, kind: number, count: number, p: Record<string, number | boolean>): void {
+	for (let copy = 0; copy < count; copy++) {
+		out.spells.push({
+			kind,
+			interval: num(p, "intervalSeconds"),
+			damageBase: num(p, "damageBase"),
+			damagePerRound: num(p, "damagePerRound"),
+			radius: num(p, "radius"),
+			range: num(p, "range"),
+			speed: num(p, "speed"),
+			count: num(p, "count") || 1,
+			hitRadius: num(p, "hitRadius"),
+			spin: num(p, "spin"),
+			jumps: num(p, "jumps"),
+			jumpRadius: num(p, "jumpRadius"),
+			fuse: num(p, "fuseSeconds"),
+			cooldown: num(p, "cooldownSeconds"),
+		});
+	}
 }
 
 const num = (params: Record<string, number | boolean>, key: string): number => {
@@ -127,6 +174,7 @@ export function computeEffects(
 	out.shockwaves.length = 0;
 	out.pullInterval = 0;
 	out.pullSeconds = 0;
+	out.spells.length = 0;
 	let revives = 0;
 
 	for (const item of items) {
@@ -208,6 +256,21 @@ export function computeEffects(
 					out.pullSeconds = Math.max(out.pullSeconds, num(p, "pullSeconds") || 2);
 					break;
 				}
+				case "auto_bolt":
+					pushSpell(out, SpellVfx.Bolt, count, p);
+					break;
+				case "orbit_blades":
+					pushSpell(out, SpellVfx.Orbit, count, p);
+					break;
+				case "chain_lightning":
+					pushSpell(out, SpellVfx.Chain, count, p);
+					break;
+				case "drop_mine":
+					pushSpell(out, SpellVfx.Mine, count, p);
+					break;
+				case "nova_pulse":
+					pushSpell(out, SpellVfx.Nova, count, p);
+					break;
 				default:
 					// An id nobody implemented would silently do nothing; mark the item `status: "alpha"` instead.
 					throw new RangeError(`unknown effect "${effect.id}" on item "${item.id}"`);

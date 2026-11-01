@@ -1,0 +1,14 @@
+{
+	"prompt": "giant iron shovel slamming into stone, a deep impact and a spray of dirt and bone, heavy dry tone, medium distance, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 1.2,
+	"generatedAt": "2026-11-01T10:39:33.039Z",
+	"plan": "creator",
+	"hash": "1d7c3bd8890bf2426aed459e49af4bda224dcc64bda920d05ee3814eca86421d",
+	"promptInfluence": 0.5,
+	"loudness": {
+		"target": -16,
+		"before": -19.4,
+		"after": -20.8
+	}
+}

@@ -1,0 +1,14 @@
+{
+	"prompt": "bone chip flicked into a pouch, a brighter dry clink than a heavy drop, close, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 0.5,
+	"generatedAt": "2026-11-01T10:39:26.103Z",
+	"plan": "creator",
+	"hash": "4edb235923b7b139a58473e955fa83ea09e215a0feabc2197069b8c1a9b43961",
+	"promptInfluence": 0.5,
+	"loudness": {
+		"target": -16,
+		"before": -13.9,
+		"after": -16.4
+	}
+}

@@ -99,8 +99,22 @@ export const EventType = {
 	 * before the shop opens by itself. His state is on `session.merchant` (arriving, waiting, leaving).
 	 */
 	MerchantArrived: 43,
+	/**
+	 * A bonus spell cast itself. a, b = x, z; entity = `SpellVfx` kind.
+	 * Mine packs c = fuseSeconds * 100 + radius (radius stays under 100). Nova puts the radius in c.
+	 */
+	SpellCast: 44,
 	/** a = new level. The run paused and a card offer is waiting. */
 	LevelUp: 11,
+} as const;
+
+/** Kind carried in the entity field of `EventType.SpellCast` (that field is a u16). */
+export const SpellVfx = {
+	Bolt: 1,
+	Orbit: 2,
+	Chain: 3,
+	Mine: 4,
+	Nova: 5,
 } as const;
 
 export const EVENT_CAPACITY = 1024;

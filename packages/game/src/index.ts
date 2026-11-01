@@ -89,7 +89,7 @@ export type { RenderPort } from "./ecs/contract";
 export type { EnemyShotPool } from "./ecs/enemyShot";
 export { createEnemyShotPool, ENEMY_SHOT_POOL_SIZE } from "./ecs/enemyShot";
 export type { EventBuffer, EventVisitor } from "./ecs/events";
-export { consumeEvents, createEventBuffer, EVENT_CAPACITY, EventType } from "./ecs/events";
+export { consumeEvents, createEventBuffer, EVENT_CAPACITY, EventType, SpellVfx } from "./ecs/events";
 export { dropFragment } from "./ecs/fragments";
 export type { HeroSpec } from "./ecs/hero";
 export { spawnHero } from "./ecs/hero";
@@ -216,6 +216,8 @@ export type {
 	SpawnWeight,
 } from "./systems/spawn";
 export { createSpawnSystem, spawnBurst, spawnIntervalSeconds, spawnTotal } from "./systems/spawn";
+export type { SpellSystem, SpellSystemDeps } from "./systems/spells";
+export { createSpellSystem } from "./systems/spells";
 export type { StatsSystem } from "./systems/stats";
 export { createStatsSystem } from "./systems/stats";
 export type { TargetingConfig, TargetingSystem } from "./systems/targeting";

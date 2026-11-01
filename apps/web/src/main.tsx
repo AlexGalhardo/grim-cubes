@@ -1060,6 +1060,8 @@ async function boot(): Promise<void> {
 	let lastChestSource: unknown = null;
 	let lastHud = Number.NEGATIVE_INFINITY;
 	let settled = false;
+	// Each save copies a snapshot back into `meta`. A slow one must not overwrite a save that started later.
+	let metaRevision = 0;
 	let results: HudState["results"] = null;
 	let lastShopJson = "";
 	let lastShop: HudState["shop"] = null;
@@ -1098,8 +1100,10 @@ async function boot(): Promise<void> {
 		telemetry.flush();
 		if (!loaded.readOnly) {
 			// The stored save is re-read and the run added to it, so progress from another tab is kept.
+			const revision = ++metaRevision;
 			persistRun(saveIO, slot, result, __APP_VERSION__)
 				.then((merged) => {
+					if (revision !== metaRevision) return;
 					Object.assign(meta, merged);
 					if (results)
 						results = {
@@ -1393,8 +1397,10 @@ async function boot(): Promise<void> {
 	/** Applies a tree change to the stored save under the lock, then mirrors it in memory. */
 	function changeOssuary(mutate: (m: MetaState) => void): void {
 		if (loaded.readOnly) return;
+		const revision = ++metaRevision;
 		updateMeta(saveIO, slot, mutate, __APP_VERSION__)
 			.then((merged) => {
+				if (revision !== metaRevision) return;
 				Object.assign(meta, merged);
 				publishNow();
 			})

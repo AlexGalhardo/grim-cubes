@@ -825,5 +825,103 @@
 			}
 		],
 		"effects": []
+	},
+	{
+		"id": "ossuary_bolt",
+		"name": "Seta do Ossuário",
+		"tier": 4,
+		"price": 160,
+		"modifiers": [],
+		"effects": [
+			{
+				"id": "auto_bolt",
+				"params": {
+					"intervalSeconds": 1.2,
+					"damageBase": 8,
+					"damagePerRound": 2,
+					"range": 12,
+					"speed": 16,
+					"radius": 0.2
+				}
+			}
+		]
+	},
+	{
+		"id": "bone_orbit",
+		"name": "Círculo de Ossos",
+		"tier": 4,
+		"price": 170,
+		"modifiers": [],
+		"effects": [
+			{
+				"id": "orbit_blades",
+				"params": {
+					"radius": 1.6,
+					"hitRadius": 0.45,
+					"damageBase": 4,
+					"damagePerRound": 1,
+					"cooldownSeconds": 0.4,
+					"spin": 2,
+					"count": 2
+				}
+			}
+		]
+	},
+	{
+		"id": "soul_chain",
+		"name": "Relâmpago de Almas",
+		"tier": 4,
+		"price": 180,
+		"modifiers": [],
+		"effects": [
+			{
+				"id": "chain_lightning",
+				"params": {
+					"intervalSeconds": 2.5,
+					"damageBase": 6,
+					"damagePerRound": 1.5,
+					"range": 10,
+					"jumpRadius": 4,
+					"jumps": 3
+				}
+			}
+		]
+	},
+	{
+		"id": "grave_mine",
+		"name": "Minas Sepulcrais",
+		"tier": 4,
+		"price": 150,
+		"modifiers": [],
+		"effects": [
+			{
+				"id": "drop_mine",
+				"params": {
+					"intervalSeconds": 4,
+					"damageBase": 12,
+					"damagePerRound": 3,
+					"radius": 1.8,
+					"fuseSeconds": 6
+				}
+			}
+		]
+	},
+	{
+		"id": "ash_nova",
+		"name": "Pulso de Cinzas",
+		"tier": 4,
+		"price": 190,
+		"modifiers": [],
+		"effects": [
+			{
+				"id": "nova_pulse",
+				"params": {
+					"intervalSeconds": 5,
+					"damageBase": 10,
+					"damagePerRound": 2,
+					"radius": 3.2
+				}
+			}
+		]
 	}
 ]

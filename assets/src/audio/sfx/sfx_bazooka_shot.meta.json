@@ -1,0 +1,14 @@
+{
+	"prompt": "old iron bazooka firing, a deep launch thump and a short rocket whoosh, heavy dry tone, close, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 0.8,
+	"generatedAt": "2026-11-01T10:39:27.667Z",
+	"plan": "creator",
+	"hash": "ef54998fa1a41e9d4e9a0c1146c576076c921709b124b33589630ed3ab2c849f",
+	"promptInfluence": 0.5,
+	"loudness": {
+		"target": -16,
+		"before": -10.1,
+		"after": -16.4
+	}
+}

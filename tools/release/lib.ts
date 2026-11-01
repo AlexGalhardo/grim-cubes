@@ -28,6 +28,16 @@ export function parseVersion(version: string): ParsedVersion {
  * patch's rc line (0.9.0 -> 0.9.1-rc.1) and `rc-major` the next major's (0.9.0 -> 1.0.0-rc.1); from an rc both
  * just count the next candidate.
  */
+/**
+ * `major --rc` and `rc --major` are the same bump as `rc-major`: the next major's first candidate
+ * (0.9.0 -> 1.0.0-rc.1). A plain `major` from an rc still finalizes it.
+ */
+export function parseBump(command: string, argv: readonly string[]): Bump {
+	if (command === "major" && argv.includes("--rc")) return "rc-major";
+	if (command === "rc" && argv.includes("--major")) return "rc-major";
+	return command as Bump;
+}
+
 export function nextVersion(current: string, bump: Bump): string {
 	const v = parseVersion(current);
 	if (bump === "rc-major" && v.rc === undefined) return `${v.major + 1}.0.0-rc.1`;

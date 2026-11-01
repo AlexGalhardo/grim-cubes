@@ -1,0 +1,14 @@
+{
+	"prompt": "iron latch released, a short dull metal clack, dry tone, close, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 0.5,
+	"generatedAt": "2026-11-01T10:39:29.256Z",
+	"plan": "creator",
+	"hash": "d96365bc7036ce018994d8c6d85f92ee63fc4319e27a252279fa7eedafde6521",
+	"promptInfluence": 0.5,
+	"loudness": {
+		"target": -16,
+		"before": -21.6,
+		"after": -21.6
+	}
+}

@@ -1,0 +1,14 @@
+{
+	"prompt": "colossal forge hammer striking an anvil, a ringing iron crash with a short furnace hiss, heavy dry tone, medium distance, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 1.2,
+	"generatedAt": "2026-11-01T10:39:34.932Z",
+	"plan": "creator",
+	"hash": "bf490599d9434693dc9f4e1191d1fad006458a3ae0f8ab1fe85221dd26023ed9",
+	"promptInfluence": 0.5,
+	"loudness": {
+		"target": -16,
+		"before": -8.3,
+		"after": -16.5
+	}
+}

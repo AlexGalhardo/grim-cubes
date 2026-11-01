@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { extractNotes, nextVersion, type ReleaseIo, runRelease, transformChangelog } from "./lib";
+import { extractNotes, nextVersion, parseBump, type ReleaseIo, runRelease, transformChangelog } from "./lib";
 
 const CHANGELOG = `# Changelog
 
@@ -54,6 +54,16 @@ function memoryIo(files: Record<string, string>): {
 		},
 	};
 }
+
+describe("parseBump", () => {
+	it("treats major --rc and rc --major as the next major candidate", () => {
+		expect(parseBump("major", ["major", "--rc"])).toBe("rc-major");
+		expect(parseBump("rc", ["rc", "--major"])).toBe("rc-major");
+		expect(nextVersion("0.9.0", parseBump("major", ["--rc"]))).toBe("1.0.0-rc.1");
+		expect(nextVersion("0.9.0", parseBump("rc", ["--major"]))).toBe("1.0.0-rc.1");
+		expect(nextVersion("1.0.0-rc.4", parseBump("major", []))).toBe("1.0.0");
+	});
+});
 
 describe("nextVersion", () => {
 	it("bumps stable versions", () => {

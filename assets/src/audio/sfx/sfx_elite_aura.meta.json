@@ -1,0 +1,14 @@
+{
+	"prompt": "low pulsing dark energy around a powerful monster, a slow muffled throb with a faint metal hum, seamless loop, medium distance, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 2,
+	"generatedAt": "2026-11-01T10:39:29.716Z",
+	"plan": "creator",
+	"hash": "489e5e264bc871ee2745d2dddc569c10e9e47f37af0da7be1915bd649645fc22",
+	"promptInfluence": 0.5,
+	"loudness": {
+		"target": -16,
+		"before": -11,
+		"after": -16.4
+	}
+}

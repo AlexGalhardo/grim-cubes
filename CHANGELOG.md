@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **tools:** `bun run release major --rc` (and `rc --major`) opens the next major's release candidate (`0.9.0` → `1.0.0-rc.1`); on a `release/*` branch commitlint accepts only `fix:`, `docs:` and `chore:`, and CI passes the branch name (R-01-01 tooling; no tag is cut)
+- **audio:** Twelve SFX from the GDD §22.1 minimum list, bringing the catalog to 82 SFX, 10 music and 40 voice lines, each with measured loudness; the ElevenLabs credit total is in `docs/audio/credits.md` (A-05-02, B-03-03)
 - **fix:** The first Esc after choosing a level-up card opens the pause menu (it looked at the dialog still in the page for a moment; it now reads the game state)
 - **tests:** `?bench=soak` in debug builds: the greedy bot plays whole runs on an immortal hero in the browser, one page load per run, and a downloadable report records fps, frame-time percentiles, JS heap and errors (R-01-02)
 - **game:** The simulator's bot (`createBot`, the greedy and tank policies) now lives in `packages/game/src/bot` so the browser soak can play with it too; it can sidestep a prop it is stuck against (`unstick`, on in the soak only, so the balance reports are unchanged)
@@ -19,6 +21,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **tests:** A virtual gamepad for debug builds (`?gamepad=1`, `gc.debug.gamepad`) and an e2e spec that walks menu, slots, difficulty and pause with it (B-04-02)
 - **ui:** Five rarities in the UI: Normal (bone), Rare (blue), Epic (purple), Legendary (orange) and Mythic (yellow) with `rarity-1..5` tokens and a distinct shape for each in colour-blind mode (Art Bible 3.3, GDD 15.1)
 - **game:** The `pull_fragments` item effect (XP magnet): every N seconds of fighting the fragments on the floor fly to the hero, more often with more copies
+- **game:** Five automatic spells bought as tier-4 items (Ossuary Bolt, Bone Circle, Soul Lightning, Grave Mines, Ash Pulse) fire on their own during a round, each with a `SpellCast` VFX
+- **tests:** Playwright baselines for the key-art menu, save slots, Options, pause, Ossuary and shop at the four viewports (A-07-03). The e2e job stays out of required CI
+- **fix:** A save that finishes after a newer Ossuary edit no longer overwrites those souls; the write keeps the revision it started with
+- **ui:** The English name of `grim_pact` is Grim Bargain, so it does not read as the Grim difficulty
+- **ci:** The perf bench runs only on `workflow_dispatch` or on a pull request labeled `perf`, and fails when draw calls, active meshes, or the median frame time grow past the baseline (A-01-03)
+- **docs:** KTX2 stays out of the 1.0 CI (ADR-0027). The Windows build stays unsigned in 1.0 (ADR-0008). Capacitor dependencies are approved for the BETA opening and are not installed in this release (ADR-0028)
+
+### Fixed
+
+- **game:** Soul Lightning hits at most `jumps` enemies, counting the first. Two Bone Circle copies share one spin instead of turning the ring twice as fast
 
 ## [0.4.0] - 2026-10-31
 

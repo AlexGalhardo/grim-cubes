@@ -1,0 +1,14 @@
+{
+	"prompt": "rusted weapon locking into a higher tier, a heavy metal ratchet and a short rising iron ring, close, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 0.8,
+	"generatedAt": "2026-11-01T10:39:27.422Z",
+	"plan": "creator",
+	"hash": "f5025d59a0d4070c99e461603a0707c533ee5bc3a814c355e884c1c0d3c45fc8",
+	"promptInfluence": 0.5,
+	"loudness": {
+		"target": -16,
+		"before": -16.2,
+		"after": -16.2
+	}
+}

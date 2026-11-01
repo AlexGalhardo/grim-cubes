@@ -318,10 +318,10 @@ Pedido: aprovar entrada na FASE <N+1>? (sim/não)
 
 ### 15.4 Pendências do PO
 
-- Job de perf no CI (`feat/A-01-03-perf-ci`, a3bf307): +10 a 15 min por run; aprovar ou recusar.
-- `toktx` e os 3 arquivos do decoder KTX2 (A-01-02): aprovar a dependência.
-- Nome do item "Grim Pact" (convive com a dificuldade "Grim"; alternativa "Grim Bargain").
-- Bench com GPU real (`BENCH_GPU=1 bun run test:perf`), deps do Capacitor, secrets do ElevenLabs e de bypass da Vercel, Steamworks, proteção da `main`.
+- Bench com GPU real (`BENCH_GPU=1 bun run test:perf`) e Chrome mobile.
+- Secret `ELEVENLABS_API_KEY` no ambiente `audio` e secret `VERCEL_AUTOMATION_BYPASS_SECRET`.
+- Conta Steamworks (US$ 100), App IDs, domínios, silhuetas, vídeos, checklist de Xbox/DualSense e uma run no executável Windows.
+- Proteção da `main`: o PO escolheu manter sem proteção enquanto a integração é direta (2026-11-01).
 
 ### 15.5 Mensagem para abrir a próxima sessão
 

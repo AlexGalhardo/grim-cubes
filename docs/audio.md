@@ -238,3 +238,19 @@ Levantamento contra as metas do ROADMAP (82 SFX, 10 músicas, 40 falas), com o q
 - **Primeira música de chefe**: `mus_boss_gravedigger` (150 s, instrumental, 100 BPM), estimada em 2.250 créditos pelo script, contra o teto de 5.000 da rodada (saldo conferido antes: 63.588 de 124.333). O contador da conta não registrou o consumo na leitura imediata. Faltam as faixas da Matriarca e do Forjador (`mus_boss_swamp_matriarch` e `mus_boss_forgemaster`) para as 12 músicas.
 - **Ligação no jogo**: o motor passa a tocar `mus_boss_<id do chefe>` e cai em `mus_boss` quando a faixa não existe. As faixas do Caçador Alfa e da Rainha, geradas antes, nunca estavam ligadas.
 - `bun run audio:generate --dry-run` lista 0 arquivos a gerar (120 em dia).
+
+## 12. Os 12 efeitos que fecham os 82 (2026-11-01)
+
+Gerados no plano `creator` (estimativa do script: 2.400 créditos, 12 × 200; o contador da conta não registra SFX). Loudness medido com `normalize.ts --apply --only <id>` e gravado em cada `meta.json`. Nenhum `plan` é `free`.
+
+| Id | Por que existe |
+| --- | --- |
+| `sfx_pickup_fragment_02`, `sfx_pickup_fragment_03` | variações de coleta da lista mínima (GDD §22.1) |
+| `sfx_weapon_upgrade` | upgrade de tier da arma |
+| `sfx_bazooka_shot` | disparo da bazuca (a explosão já era `sfx_explosion_01`) |
+| `sfx_elite_aura` | loop da aura de elite |
+| `sfx_ui_cancel`, `sfx_ui_card`, `sfx_ui_souls` | cancelar, carta escolhida e almas contando |
+| `sfx_wind` | vento, à parte dos loops de bioma |
+| `sfx_boss_gravedigger_slam`, `sfx_boss_swamp_spit`, `sfx_boss_forgemaster_hammer` | um ataque próprio dos chefes que só tinham a entrada, ou só a investida |
+
+O total de créditos fica em `docs/audio/credits.md`. `bun run audio:generate --dry-run` lista 0 pendentes (132 em dia).

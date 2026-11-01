@@ -16,6 +16,7 @@ import {
 	Position,
 	Radius,
 	renderData,
+	SpellVfx,
 	spawnBody,
 } from "@gc/game";
 import { addComponent, removeEntity } from "bitecs";
@@ -704,6 +705,28 @@ describe("bleed and thorns looks", () => {
 		vfx.onEvent(EventType.ThornsHit, 3, 0, 3, e);
 		expect(vfx.particles.stats.peak).toBe(6);
 		dispose();
+	});
+
+	it("draws each bonus spell without the explosion shake", () => {
+		const { vfx, dispose } = setup();
+		vfx.onEvent(EventType.SpellCast, 1, 2, 0, SpellVfx.Bolt);
+		expect(vfx.particles.stats.live).toBeGreaterThan(0);
+		expect(vfx.zones.ringsLive).toBe(0);
+		expect(vfx.zones.warnsLive).toBe(0);
+		dispose();
+	});
+
+	it("warns where a mine will sit and rings a nova", () => {
+		const mine = setup();
+		mine.vfx.onEvent(EventType.SpellCast, 1, 2, 6 * 100 + 1.8, SpellVfx.Mine);
+		expect(mine.vfx.zones.warnsLive).toBe(1);
+		expect(mine.vfx.particles.stats.live).toBe(0);
+		mine.dispose();
+		const nova = setup();
+		nova.vfx.onEvent(EventType.SpellCast, 0, 0, 3.2, SpellVfx.Nova);
+		expect(nova.vfx.zones.ringsLive).toBe(1);
+		expect(nova.vfx.particles.stats.live).toBeGreaterThan(0);
+		nova.dispose();
 	});
 });
 

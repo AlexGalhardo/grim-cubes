@@ -1,0 +1,14 @@
+{
+	"prompt": "a stiff bone card slapped onto a stone table, a dry snap and a short scrape, close, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 0.5,
+	"generatedAt": "2026-11-01T10:39:31.411Z",
+	"plan": "creator",
+	"hash": "9f867dfca9d1572ebe79054f4ec0c634961d498fdec8d4dbf367eaedd8f2aef5",
+	"promptInfluence": 0.5,
+	"loudness": {
+		"target": -16,
+		"before": -20.2,
+		"after": -21.8
+	}
+}

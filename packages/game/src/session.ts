@@ -66,6 +66,7 @@ import { createRunSystem } from "./systems/round";
 import { createSeparationSystem } from "./systems/separation";
 import { createShopSystem } from "./systems/shop";
 import { createSpawnSystem } from "./systems/spawn";
+import { createSpellSystem } from "./systems/spells";
 import { createStatsSystem } from "./systems/stats";
 import { createTargetingSystem } from "./systems/targeting";
 import { createWeaponSystem } from "./systems/weapon";
@@ -327,6 +328,14 @@ function build(options: GameSessionOptions) {
 		cooldownSeconds: heroData.combat.contactCooldownSeconds,
 		events,
 	});
+	const spells = createSpellSystem({
+		effects: itemEffects.effects,
+		queue: damage.queue,
+		enemies: separation.hash,
+		projectiles,
+		events,
+		round: () => run.round,
+	});
 	// Declared after `death` only for readability: the death hook calls it once the loop runs.
 	const killEffects = createKillEffectsSystem({
 		effects: itemEffects.effects,
@@ -457,6 +466,7 @@ function build(options: GameSessionOptions) {
 			projectileSystem.run(world);
 			enemyShotSystem.run(world, hero);
 			aura.run(world, hero);
+			spells.run(world, hero);
 			magnet.run();
 			thorns.run(world, hero);
 			bleed.run(world);

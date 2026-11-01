@@ -2,12 +2,12 @@
 
 Lista única para o PO acompanhar o que fica para depois fora do código. Este arquivo é mantido junto com o desenvolvimento: quem fecha ou cria um item num dos documentos linkados atualiza a linha aqui no mesmo commit. O detalhe fica no documento linkado; aqui fica só o item, o dono e o gatilho.
 
-Atualizado: 2026-10-31.
+Atualizado: 2026-11-01.
 
 ## 1. Jurídico e legal
 
 - [ ] **Marca "Grim Cubes":** registrar números de processo ou capturas das buscas (INPI classes 9 e 41, USPTO, EUIPO). Dono: PO. Gatilho: antes do anúncio público (Next Fest, fev/2027). [`docs/legal/trademark-screening.md`](docs/legal/trademark-screening.md)
-- [ ] **Nome do item "Grim Pact":** decidir (recomendação: "Grim Bargain", para não confundir com a dificuldade Grim). Dono: PO. Gatilho: antes da página da Steam. [`docs/PROGRESS.md`](docs/PROGRESS.md), Bloqueios, item 10
+- [x] **Nome do item "Grim Pact":** o PO escolheu "Grim Bargain" (2026-11-01). O id continua `grim_pact`; o nome em inglês na UI mudou. [`locales/en.json`](locales/en.json)
 - [ ] **Domínios** `grimcubes.com` e `grimcubes.com.br`: registrar e anotar em `docs/legal/domains.md`. Dono: PO. Gatilho: antes da página da Steam. [`ROADMAP.md`](ROADMAP.md) E-05-02
 - [ ] **Termos de uso e política de privacidade** (com LGPD e GDPR): a telemetria é opt-in e sem dados pessoais (ADR-0023), mas a Steam pede o link da política quando o jogo coleta dados. Dono: PO. Gatilho: antes de ligar o envio da telemetria e antes da página da Steam. [`docs/release/steam-launch-checklist.md`](docs/release/steam-launch-checklist.md) §3, [`docs/adrs/0023-telemetry-opt-in-local-sink.md`](docs/adrs/0023-telemetry-opt-in-local-sink.md)
 - [ ] **EULA:** usar o padrão da Steam ou escrever uma própria (a `LICENSE` é proprietária, "All rights reserved"). Dono: PO. Gatilho: antes do envio da build 1.0 para revisão. [`LICENSE`](LICENSE)
@@ -34,7 +34,7 @@ Detalhe completo, com prazos e o passo a passo do upload: [`docs/release/steam-l
 - [ ] **Demo e Next Fest** (fev/2027): build da demo, botões da `DemoEnd` com URLs reais, inscrição. Dono: Orq + PO. ROADMAP A-06-03, checklist §9
 - [ ] **`steam-upload`:** conta de build e `config.vdf` em secret. Dono: PO + Orq. Checklist §2
 - [ ] **Revisão da Valve:** página e build 1.0 enviadas ≥ 7 dias antes do lançamento, com captura da confirmação. Dono: PO. ROADMAP B-05-03, checklist §10
-- [ ] **Assinatura do `.exe`:** comprar certificado ou distribuir só pela Steam (recomendação: só Steam até a 1.0). Dono: PO. ROADMAP B-04-01, PROGRESS Bloqueios item 9
+- [x] **Assinatura do `.exe`:** o PO escolheu distribuir pela Steam e deixar o build não assinado na 1.0 (2026-11-01, ADR-0008). ROADMAP B-04-01
 
 ## 3. Google Play (versão 1.1)
 

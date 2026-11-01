@@ -6,15 +6,20 @@
 export const EFFECT_HANDLERS = {
 	/** `computeEffects` in rules/effects.ts. */
 	item: [
+		"auto_bolt",
 		"bleed_on_crit",
 		"bonus_damage_vs_elites",
+		"chain_lightning",
 		"contact_damage",
 		"damage_per_missing_hp",
 		"double_fragment_chance",
+		"drop_mine",
 		"end_of_round_fragment_bonus",
 		"extra_pierce",
 		"fragment_gain",
+		"nova_pulse",
 		"on_kill_explode",
+		"orbit_blades",
 		"pull_fragments",
 		"proximity_aura_damage",
 		"revive_once",

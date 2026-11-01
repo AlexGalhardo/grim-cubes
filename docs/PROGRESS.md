@@ -1,6 +1,6 @@
 # PROGRESS
 
-Atualizado: 2026-10-31 (fuso do PO) | Versão: 0.4.0 (publicada, tag `v0.4.0` em 2c87269; `main` 49039f2) | Fase: 2 — PROTÓTIPO (ALPHA e BETA adiantadas em paralelo) | Sessão: #2
+Atualizado: 2026-11-01 (fuso do PO) | Versão: 0.4.0 (publicada, tag `v0.4.0` em 2c87269; `main` 49039f2) | Fase: 2 — PROTÓTIPO (ALPHA e BETA adiantadas em paralelo) | Sessão: #2
 
 Meta do PO (2026-10-31): implementar o ROADMAP até o fim sem interrupções; tarefas `Resp: PO` ficam em Bloqueios e os agentes seguem com o resto. Hooks lefthook instalados em `.git` (valem para todos os worktrees).
 
@@ -17,7 +17,7 @@ Meta do PO (2026-10-31): implementar o ROADMAP até o fim sem interrupções; ta
 
 As linhas refletem as últimas mensagens do Orq; o Orq confirma ao integrar.
 
-Estado (2026-10-31): a **v0.4.0** está publicada (GitHub Release `v0.4.0`, 2c87269), com SBOM, checksums e o build Windows. Desde a v0.3.0 entraram: Mercador num ponto fixo com anel, chegada sonora e 20 falas legendadas; loja ARPG, `Options` em três colunas e Ossuário em colunas a partir dos mockups do PO; retratos pintados; menu com key art; 3 slots de save e checkpoint no início de cada round (Continuar); menu de pausa; Fácil, Normal e Difícil abertas desde o início e barras de vida ligáveis; save em arquivo no Electron com pasta fixa e alvo `dir`; glifos por controle, foco por D-pad e remap completo do gamepad; telas baixas compactas com o HUD escondido sob os diálogos; herói novo igual à key art, revisão do §14 com capturas em jogo e tiles irregulares; luz nova e `atlas_terrain`; áudio final em duas rodadas com loudness; `--check` com duas seeds e faixas por dificuldade e política (`tank`); 5 raridades com Mítico e o Ímã de Ossos; espada de 3,25 u e 130°. **O e2e (Playwright) segue fora do CI por decisão do PO.**
+Estado (2026-10-31): a **v0.4.0** está publicada (GitHub Release `v0.4.0`, 2c87269), com SBOM, checksums e o build Windows. Desde a v0.3.0 entraram: Mercador num ponto fixo com anel, chegada sonora e 20 falas legendadas; loja ARPG, `Options` em três colunas e Ossuário em colunas a partir dos mockups do PO; retratos pintados; menu com key art; 3 slots de save e checkpoint no início de cada round (Continuar); menu de pausa; Fácil, Normal e Difícil abertas desde o início e barras de vida ligáveis; save em arquivo no Electron com pasta fixa e alvo `dir`; glifos por controle, foco por D-pad e remap completo do gamepad; telas baixas compactas com o HUD escondido sob os diálogos; herói novo igual à key art, revisão do §14 com capturas em jogo e tiles irregulares; luz nova e `atlas_terrain`; áudio final em duas rodadas com loudness; `--check` com duas seeds e faixas por dificuldade e política (`tank`); 5 raridades com Mítico e o Ímã de Ossos; espada de 3,25 u e 130°. **O e2e (Playwright) segue fora do CI por decisão do PO.** Em 2026-11-01 entraram cinco magias automáticas de tier 4 (Seta do Ossuário, Círculo de Ossos, Relâmpago de Almas, Minas Sepulcrais, Pulso de Cinzas), que disparam sozinhas na run, e as baselines Playwright de menu, slots, Options, pausa, Ossuário e loja nos quatro viewports. O que resta no ROADMAP está na lista de asserts abertos abaixo; nada disso fecha sem o PO, hardware, loja ou uma tag.
 
 Dívida operacional: com vários agentes rodando testes ao mesmo tempo, a CPU satura e o `pre-push` pode estourar timeout (a suíte isolada passa). Janela de push (um agente por vez) e timeouts maiores nos testes pesados; não contornar o hook. Cherry-pick de base antiga já apagou correções duas vezes (59eb086, restaurado em fdddb95 e 78ae69b): o Esp roda a cada auditoria um script que procura linhas adicionadas que sumiram do HEAD.
 
@@ -54,18 +54,65 @@ Fonte: IDs dos rodapés `Refs: ROADMAP#` de eb12bc2 a 49039f2, do commit mais re
 
 ### Decisões pendentes
 
-1. **Steamworks (E-05-03, US$ 100).** Bloqueia A-06 e a demo na Steam. Recomendação do Orq: abrir a conta já; a aprovação leva até 21 dias e a demo é em 2027-01-24.
-2. **`toktx` no CI (A-01-02).** O orçamento de memória do Android fechou sem KTX2 (texturas ≈ 5 MB contra 160 MB). Recomendação do Orq (revista em 2026-10-31 com a medição nova): B) adiar KTX2 para a 1.1 e emendar o assert da A-01-02 para o orçamento medido; KTX2 passa a ser só ganho de tempo de carga.
-3. **Capacitor 8 (B-04-04, M-01-*).** Recomendação do Orq: A) aprovar na abertura da fase BETA, versões estáveis exatas.
-4. **Secret `VERCEL_AUTOMATION_BYPASS_SECRET` (E-04-02, E-04-04).** Recomendação do Orq: criar o secret agora, para o smoke de produção rodar; a proteção SSO continua até a demo.
-5. **Job de perf no CI (A-01-03).** Recomendação: A) só em `workflow_dispatch` e em PR com rótulo `perf`, sem pesar no CI de cada push.
-6. **Bench com GPU real e relatório Android (E-03-02, P-03-04, P-07-05, A-01-01, B-03-02).** Recomendação: o PO roda `BENCH_GPU=1 bun run test:perf` e o Chrome mobile uma vez por release.
-7. **Endpoint e armazenamento da telemetria (A-06-04).** Recomendação: Vercel Function com Blob, decidido antes do Next Fest; até lá a telemetria fica só no log local (ADR-0023).
-8. **Proteção da `main` (E-01-06).** Recomendação: A) manter sem proteção enquanto os agentes integram direto (`prompt-workers.md` §6).
-9. **Assinatura do build Windows (B-04-01).** Recomendação: B) distribuir pela Steam, que não mostra o SmartScreen, e decidir o certificado antes da 1.0.
-10. **Nome do item "Grim Pact".** Recomendação: "Grim Bargain", para não confundir com a dificuldade Grim.
-11. **Regen de vida.** Recomendação do Orq: manter os valores atuais (itens +0,5 e carta +0,25) até o playtest e decidir depois dele.
-12. **Ações manuais do PO.** Aprovar as silhuetas pela folha numerada (59d5a42); vídeos (P-01-04, P-04-05, A-03-01); teste do gamepad (P-02-02); uma run completa no executável Windows (P-07-02); domínios (E-05-02).
+O PO aprovou em 2026-11-01 as recomendações. O que cabia no repositório foi feito. O que exige conta, pagamento, segredo, hardware ou playtest continua aqui.
+
+Fechadas no repositório:
+
+1. **`toktx` (A-01-02), opção B.** KTX2 adiado à 1.1 (ADR-0027). O assert passou a ser o orçamento já medido.
+2. **Capacitor 8, opção A.** Dependências aprovadas para a abertura da BETA, versões estáveis exatas, sem instalar nesta release (ADR-0028). O scaffold (B-04-04) e o billing (M-01-03) esperam essa fase.
+3. **Job de perf (A-01-03), opção A.** `.github/workflows/perf.yml` só em `workflow_dispatch` e em PR com rótulo `perf`.
+4. **Telemetria (A-06-04).** Continua só no log local até antes do Next Fest (ADR-0023). O endpoint não foi criado.
+5. **Proteção da `main` (E-01-06), opção A.** Segue sem proteção enquanto a integração é direta na `main`.
+6. **Assinatura Windows (B-04-01), opção B.** ADR-0008 emendado: não assinado na 1.0; distribuição pela Steam.
+7. **Nome "Grim Bargain".** O id `grim_pact` permanece; o nome em inglês na UI passou a ser Grim Bargain.
+8. **Regen de vida.** Valores atuais mantidos até o playtest.
+
+Ainda manuais:
+
+1. **Steamworks (E-05-03, US$ 100).** Abrir a conta, pagar e registrar os App IDs. Bloqueia A-06 e a demo na Steam.
+2. **Secret `VERCEL_AUTOMATION_BYPASS_SECRET`.** Criar na Vercel e no GitHub para o smoke de produção.
+3. **Bench com GPU real e Chrome mobile (P-07-05).** `BENCH_GPU=1 bun run test:perf` na máquina do desenvolvedor, uma vez por release.
+4. **Ações manuais.** Silhuetas (59d5a42); vídeos (P-01-04, P-04-05, A-03-01); Xbox e DualSense (B-04-02); uma run no executável Windows (P-07-02); domínios (E-05-02); secret `ELEVENLABS_API_KEY` no ambiente `audio`.
+
+### Asserts ainda abertos (2026-11-01)
+
+Cada id abaixo continua `[ ]` ou `[~]` no ROADMAP. O assert que falta depende do PO, de hardware, de loja ou de publicar uma tag. Não há JSON de perf, playtest nem App ID inventado para fechá-los.
+
+- **E-01-06** `[~]`: o PO escolheu manter a `main` sem proteção (2026-11-01) enquanto os agentes integram direto. `dependabot.yml` existe; a proteção com o check `ci` continua desligada de propósito.
+- **E-05-02**: RDAP de `grimcubes.com` com o registrante e `docs/legal/domains.md`.
+- **E-05-03**: `docs/legal/accounts.md` com App IDs da Steam e os secrets `STEAM_APP_ID` / `STEAM_DEMO_APP_ID`.
+- **E-05-04** `[~]`: secret `ELEVENLABS_API_KEY` no ambiente `audio` do GitHub (`gh secret list --env audio`).
+- **P-07-05** `[~]`: bench com GPU real e relatório Android no Chrome mobile do PO.
+- **P-07-06**: `docs/playtests/2026-12-protótipo.md` (3 sessões).
+- **A-01-03** `[~]`: job `perf` escrito (dispatch ou rótulo `perf`); falta o PR com sleep de 5 ms que o job bloqueia, e o revert.
+- **A-06-01**: Steamworks real, 10 achievements, Auto-Cloud e os dois builds Electron.
+- **A-06-02**: página Steam (capsules, 5 capturas, trailer, preço).
+- **A-06-03**: demo pública em 2027-01-24 e inscrição no Next Fest.
+- **A-06-04** `[~]`: endpoint e envio em lote da telemetria (hoje só log local).
+- **A-07-04**: `docs/playtests/2027-01-alpha.md` e `2027-02-alpha.md`.
+- **A-07-05** `[~]`: releases `v0.5.0` e `v0.6.0` (`v0.4.0` já publicada).
+- **B-03-04** `[~]`: calibração de juice por playtest no bloco `vfx` de `data/render.json`.
+- **B-04-02** `[~]`: checklist manual de Xbox e DualSense e a nota de Steam Deck na página.
+- **B-04-03**: `docs/playtests/2027-03-beta.md` com ≥ 50 runs e crash-free ≥ 99,5%.
+- **B-04-04**: aprovação das deps Capacitor e `reports/perf-android-<device>.json`.
+- **B-05-03** `[~]`: submissão do build à Valve (o checklist existe; o envio não).
+- **B-05-04**: releases `v0.7.0`, `v0.8.0` e `v0.9.0`.
+- **R-01-01** `[~]`: ferramenta pronta (`major --rc`, commitlint em `release/*`); falta publicar a tag `v1.0.0-rc.1` (`gh release view`).
+- **R-01-02**: `reports/soak-1.0.json` (GPU, 10×60) e `reports/soak-1.0-fps.json` (2 h, fps ≥ 60) na máquina do PO.
+- **R-01-03** `[~]`: `reports/perf-final-*.json` nos 4 alvos com GPU real.
+- **R-01-05** `[~]`: pendências da `docs/release/audit-1.0.md` que só fecham na RC (tag, `.exe`, URL de produção) e o registro de licenças no SBOM.
+- **R-02-01**: tag `v1.0.0` e GitHub Release com os binários.
+- **R-02-02**: upload Steam da 1.0 no branch `default`.
+- **R-02-03**: deploy da demo 1.0 com o botão "Comprar na Steam".
+- **R-02-04**: monitoramento dos 7 dias pós-lançamento.
+- **R-02-05**: `docs/retro/1.0.md`.
+- **M-01-01**: conta Google Play, secrets `android` e Data safety.
+- **M-01-02**: Capacitor 8 completo e AAB assinado.
+- **M-01-02b**: `flags.fullVersion` no app Android.
+- **M-01-03**: Play Billing do produto `full_version`.
+- **M-01-04**: preset Baixo, KTX2 e capturas nos 2 alvos mobile.
+- **M-01-05**: closed test com ≥ 12 testers por 14 dias.
+- **M-01-06**: produção no Google Play e `v1.1.0`.
 
 ### Registro
 
@@ -78,10 +125,10 @@ Fonte: IDs dos rodapés `Refs: ROADMAP#` de eb12bc2 a 49039f2, do commit mais re
 - [x] 2026-10-31 — Projeto Vercel criado pelo PO: `galhardos-projects/grim-cubes` (`prj_mv76W0cMpGLPnJAZEq7secqZK8Z1`), já conectado ao Git (domínio `grim-cubes-git-main-…`); repositório local ligado com `vercel link`. Último deploy de produção em `ERROR` (esperado: sem `vercel.json`/build até E-02-04/E-04-02).
 - [x] 2026-10-31 — ElevenLabs: PO colocou `ELEVENLABS_API_KEY` em `.env` local.
 - [x] 2026-10-31 — E-05-01 marca: **manter "Grim Cubes"** (PO consultou; recomendação aceita). Registrado em `docs/legal/trademark-screening.md`; números de processo pendentes antes do anúncio público.
-- [ ] 2026-10-31 — Regeneração de vida (pergunta ao PO, sem bloqueio): para o `--check` voltar a passar com a cura de `hp_regen` real, itens e carta ficaram fracos (+0,5 regen nos três itens, +0,25 na carta). A alternativa é manter itens maiores e subir o `hpRegenFirstPoint` em `data/hero.json` (hoje 0,2 HP/s, GDD §8); o jogador sentiria mais cada ponto, mas o balanço muda de novo. Fica como está até o playtest; decidir depois dele.
+- [x] 2026-11-01 — Regeneração de vida: **PO manteve os valores atuais** (+0,5 nos itens, +0,25 na carta) até o playtest.
 - [ ] 2026-10-31 — E-05-03 Steamworks (US$ 100): ação manual do PO, depois. — bloqueia: ALPHA (A-06). Única pendência que só o PO pode fazer.
-- [ ] 2026-10-31 — A-01-02 (KTX2 para mobile) precisa do binário `toktx` (KTX-Software, Apache-2.0) instalado no runner do CI (não é pacote npm). Opções: A) instalar `toktx` com versão fixa no job `build-web` (recomendado; só CI, sem dependência de runtime); B) adiar KTX2 para a fase 1.1 (Android) e manter PNG. — bloqueia: A-01-02. Continua aberto em 2026-10-31 08:51: o ADR do `toktx` está na B-05-02, e a M-01-04 (KTX2 no Android) depende dele.
-- [ ] 2026-10-31 — B-04-04 (Android, fase 1.1): Capacitor 8 (`@capacitor/core`, `@capacitor/cli`, `@capacitor/android` e plugins do SDD 10 §3) são dependências novas fora da lista aprovada na E-02-01. Opções: A) aprovar na abertura da fase BETA, versões estáveis exatas (recomendado); B) adiar para a 1.1 conforme o calendário. — bloqueia: B-04-04, M-01-*. Continua aberto em 2026-10-31 08:51: o critério de entrada do apêndice Android (ROADMAP) exige essa aprovação e também a da biblioteca de billing.
+- [x] 2026-11-01 — A-01-02 `toktx`: **PO escolheu B.** KTX2 adiado à 1.1 (ADR-0027). O assert passou a ser o orçamento medido sem KTX2. A M-01-04 continua aberta.
+- [x] 2026-11-01 — B-04-04 Capacitor: **PO escolheu A.** Dependências aprovadas para a abertura da BETA, versões estáveis exatas (ADR-0028). Não foram instaladas nesta release. A biblioteca de billing continua sem escolha (M-01-03).
 - [x] 2026-10-31 — E-05-04: **plano Creator** (recomendação aceita). Ambiente `audio` criado no GitHub com a variável `ELEVENLABS_PLAN=creator`. Falta o secret: a leitura de `.env` é bloqueada por regra do PO, então o PO roda `! bun -e "process.stdout.write(process.env.ELEVENLABS_API_KEY ?? '')" | gh secret set ELEVENLABS_API_KEY --env audio` e acrescenta `ELEVENLABS_PLAN=creator` ao `.env`. Geração real (8.500 créditos estimados) só sob pedido.
 - [x] 2026-10-31 — Vercel: **B escolhida (recomendação aceita): manter a proteção; o smoke usa bypass token (E-04-04); desligar só em produção ao publicar a demo.** `ssoProtection` está em `all_except_custom_domains`, o que exige login Vercel até no domínio de produção `*.vercel.app`; a demo pública e o smoke (E-04-04) precisam de acesso anônimo. Opções: A) desligar proteção só em produção (`prod_deployment_urls_and_all_previews` → manter previews protegidos); B) manter e usar bypass token no smoke; C) domínio próprio. Recomendação: B agora (nada público antes da demo), A ao publicar a demo. — bloqueia: E-04-02 assert de produção, E-04-04.
 - [x] 2026-10-31 — D1 câmera (GDD §5, ADR-0017): **PO escolheu A (2026-10-31).** `beta` do `ArcRotateCamera` é medido do zênite; 0,96 rad = 35° de elevação, não 55°. A) beta 0,611 rad (55°, intenção do GDD; anel de spawn 22–30 u fica fora da tela) — recomendado; B) manter 0,96 (35°; inimigos nascem à vista). — bloqueia: P-02-01.
@@ -91,12 +138,12 @@ Fonte: IDs dos rodapés `Refs: ROADMAP#` de eb12bc2 a 49039f2, do commit mais re
 - [x] 2026-10-31 — Aprovação retroativa: **A aprovada.** `@types/pngjs` 6.0.5 (dev, só tipos do `pngjs` já aprovado) entrou em `main` com a P-06-02 sem aprovação explícita (achado do Esp). Opções: A) aprovar (recomendado); B) remover e declarar tipos mínimos em `tools/assets-build`. — não bloqueia nada.
 - [x] 2026-10-31 — Concept arts novas (`references/concept-arts/*.png`, 17 MB): **fora do git** (repositório público; sem Git LFS para não adicionar ferramenta). Ficam locais; `.gitignore` ignora os PNG da pasta, o `README.md` dela continua versionado.
 - [ ] 2026-10-31 — Secret `VERCEL_AUTOMATION_BYPASS_SECRET` (Vercel → Deployment Protection → Protection Bypass for Automation; `gh secret set VERCEL_AUTOMATION_BYPASS_SECRET`) para o smoke pós-deploy medir o 200 da produção. — bloqueia: assert de produção da E-04-02 e o smoke da E-04-04.
-- [ ] 2026-10-31 — Job de perf no CI (`feat/A-01-03-perf-ci`, a3bf307): +10 a 15 min por run. Opções: A) aprovar só em `workflow_dispatch` e em PR com rótulo `perf`; B) recusar e manter o bench manual. — bloqueia: A-01-03.
+- [x] 2026-11-01 — Job de perf: **PO escolheu A.** `.github/workflows/perf.yml` só em `workflow_dispatch` e em PR com rótulo `perf`. O PR de demonstração (sleep de 5 ms) ainda não rodou.
 - [ ] 2026-10-31 — Bench com GPU real na máquina do PO (`BENCH_GPU=1 bun run test:perf`) e relatório Android pelo Chrome mobile. — bloqueia: asserts de fps da E-03-02, P-03-04, P-07-05 e A-01-01.
-- [ ] 2026-10-31 — Endpoint e armazenamento da telemetria (Vercel Function + Blob/KV; plano Pro se exigido). Hoje a telemetria opt-in só escreve no log local. — bloqueia: A-06-04 (envio em lote).
-- [ ] 2026-10-31 — Proteção da `main` no GitHub (E-01-06): exige mudar o fluxo de integração sem PR (`prompt-workers.md` §6). Opções: A) manter sem proteção enquanto os agentes integram direto; B) proteger e passar a integrar por PR.
-- [ ] 2026-10-31 — Assinatura de código do build Windows (certificado pago). Os .exe da v0.2.0 saem sem assinatura e o SmartScreen avisa. Opções: A) assinar antes da demo pública; B) depender só do Steam (sem aviso pelo cliente Steam). — bloqueia: distribuição fora da Steam.
-- [ ] 2026-10-31 — Nome do item "Grim Pact" (convive com a dificuldade "Grim"; alternativa "Grim Bargain").
+- [x] 2026-11-01 — Telemetria: **PO confirmou o log local** até antes do Next Fest (ADR-0023). O endpoint em lote (A-06-04) continua aberto.
+- [x] 2026-11-01 — Proteção da `main` (E-01-06): **PO escolheu A.** Sem proteção enquanto os agentes integram direto. Ligar a proteção continua sendo ação manual, se o fluxo passar a ser por PR.
+- [x] 2026-11-01 — Assinatura Windows (B-04-01): **PO escolheu B.** Não assinado na 1.0 (ADR-0008). Distribuição pela Steam.
+- [x] 2026-11-01 — Nome do item: **PO escolheu "Grim Bargain".** O id continua `grim_pact`.
 - [ ] 2026-10-31 — Ações manuais pendentes: aprovação das silhuetas (P-06-01), vídeos dos itens (P-01-04, P-04-05, A-03-01), teste manual do gamepad (P-02-02) e checklist de uma run completa no Electron (P-07-02).
 
 ## Próximos
@@ -104,7 +151,7 @@ Fonte: IDs dos rodapés `Refs: ROADMAP#` de eb12bc2 a 49039f2, do commit mais re
 1. Orq: distribuir as pendências sem dependência do PO da reconciliação de 2026-10-31 (tabela no relatório do Esp).
 2. Orq + S2: ADR de emenda do ADR-0009 para os 3 slots e o checkpoint por round, e um item do ROADMAP para slots, checkpoint e pausa (hoje com `Refs` na P-07-03).
 3. Orq: `v0.5.0` (A-07-05).
-4. PO: as decisões numeradas em Bloqueios e a aprovação das silhuetas (B-03-01).
+4. PO: o que ficou manual em Bloqueios (Steamworks, secrets, bench na GPU, silhuetas, domínios, gamepad físico, run no executável).
 
 ## Dívidas e observações
 

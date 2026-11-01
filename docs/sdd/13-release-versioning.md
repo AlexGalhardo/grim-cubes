@@ -46,7 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Regras: item = `- **escopo:** Descrição em inglês (#PR) ([hash7](url do commit))`; o `(#PR)` só aparece quando a mudança entrou por PR (hoje a maioria entra direto em `main` pelo Orq, então é omitido); grupos na ordem Added, Changed, Deprecated, Removed, Fixed, Security; `**BREAKING:**` no início do item quando aplicável; `[Unreleased]` sempre presente; rodapé com links de compare. Antes da 1ª release, o rodapé é `[Unreleased]: …/compare/2775e6e...HEAD` (commit raiz); na 1ª release, `tools/release` o troca por `[Unreleased]: …/compare/vX.Y.Z...HEAD` + `[X.Y.Z]: …/compare/2775e6e...vX.Y.Z`. Mantido manualmente por quem fecha a tarefa (DoD). A verificação por `tools/changelog-check` roda no job `changelog` do CI (só em PR): falha se houver commit `feat`/`fix` e nenhum item novo em `[Unreleased]`, salvo o rótulo `skip-changelog`.
 
-## 4. Fluxo de release (`bun run release <patch|minor|major|rc>`)
+## 4. Fluxo de release (`bun run release <patch|minor|major|rc|rc-major>`)
 
 `tools/release` (`index.ts` + `lib.ts`, sem dependência). Opções:
 
@@ -59,7 +59,8 @@ Regras: item = `- **escopo:** Descrição em inglês (#PR) ([hash7](url do commi
 Versões:
 
 - `rc` a partir de uma estável abre `X.Y.(Z+1)-rc.1`; a partir de uma rc incrementa N.
-- `patch`/`minor`/`major` a partir de uma rc a finalizam.
+- `rc-major`, `major --rc` e `rc --major` a partir de uma estável abrem `(X+1).0.0-rc.1` (0.9.0 → 1.0.0-rc.1); a partir de uma rc incrementam N.
+- `patch`/`minor`/`major` a partir de uma rc a finalizam (`1.0.0-rc.N` com `major` → `1.0.0`).
 - A data é a local (`toLocaleDateString("sv-SE")`), não UTC.
 
 1. Com `--publish`, verifica (antes de escrever qualquer arquivo) branch `main`, working tree limpo e `ci.yml` com `conclusion: success` no SHA do HEAD (`gh run list --commit`).

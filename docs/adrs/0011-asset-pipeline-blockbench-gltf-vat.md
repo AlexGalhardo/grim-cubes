@@ -1,6 +1,6 @@
 # ADR-0011 — Pipeline de assets: Blockbench → glTF → atlas, VAT e KTX2 em script próprio
 
-Status: aceito. Data: 2026-10-31.
+Status: aceito. Data: 2026-10-31. O `toktx` no CI foi adiado à 1.1 pelo ADR-0027.
 
 ## Contexto
 
@@ -18,7 +18,7 @@ Fonte `.bbmodel` + `.glb` exportado manualmente; `tools/assets-build` valida reg
 
 ## Consequências
 
-Exportação manual do glTF até existir CLI validada; `toktx` precisa estar no CI (imagem com KTX-Software).
+Exportação manual do glTF até existir CLI validada. `toktx` não entra no CI da 1.0 (ADR-0027); o pipeline marca `ktx2: false` até a M-01-04.
 
 ## Referências
 

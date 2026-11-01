@@ -1,9 +1,9 @@
 import { readFileSync, writeFileSync } from "node:fs";
-import { type Bump, extractNotes, runRelease } from "./lib";
+import { extractNotes, parseBump, runRelease } from "./lib";
 
 const BUMPS: readonly string[] = ["patch", "minor", "major", "rc", "rc-major"];
 const USAGE =
-	"usage: bun run release <patch|minor|major|rc|rc-major> [--major (with rc)] [--version X.Y.Z] [--dry-run] [--publish]\n       bun tools/release/index.ts notes <X.Y.Z>";
+	"usage: bun run release <patch|minor|major|rc|rc-major> [--rc (with major) | --major (with rc)] [--version X.Y.Z] [--dry-run] [--publish]\n       bun tools/release/index.ts notes <X.Y.Z>";
 
 function flagValue(argv: string[], name: string): string | undefined {
 	const i = argv.indexOf(name);
@@ -32,7 +32,7 @@ function main(argv: string[]): number {
 	const versionOverride = flagValue(argv, "--version");
 	return runRelease(
 		{
-			bump: (command === "rc" && argv.includes("--major") ? "rc-major" : command) as Bump,
+			bump: parseBump(command, argv),
 			dryRun: argv.includes("--dry-run"),
 			publish: argv.includes("--publish"),
 			// Local date: toISOString() is UTC and rolls over to the next day after 21:00 at UTC-3.

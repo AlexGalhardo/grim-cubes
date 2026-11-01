@@ -11,10 +11,10 @@ Um arquivo por decisão relevante, numerado sequencialmente. Formato: contexto, 
 | [ADR-0005](0005-bitecs-ecs.md) | ECS com bitecs 0.4.0 | aceito |
 | [ADR-0006](0006-fixed-timestep-simulation-caps.md) | Simulação separada do render com passo fixo, caps e pools | aceito |
 | [ADR-0007](0007-infinite-world-chunks-origin-shifting.md) | Mundo infinito com chunks, PRNG por chunk e origin shifting próprio | aceito |
-| [ADR-0008](0008-electron-builder-steam-signing.md) | Desktop via Electron 45 + electron-builder; overlay e assinatura | aceito (complementado pelo ADR-0021) |
+| [ADR-0008](0008-electron-builder-steam-signing.md) | Desktop via Electron 45 + electron-builder; overlay e assinatura | aceito (complementado pelo ADR-0021; não assinado na 1.0) |
 | [ADR-0009](0009-persistence-no-run-save-auto-cloud.md) | Persistência: sem save de run; Steam Auto-Cloud; IndexedDB direto | aceito (emendado pelo ADR-0025) |
 | [ADR-0010](0010-audio-babylon-v2-elevenlabs-offline.md) | Áudio: Babylon Audio Engine v2; ElevenLabs via fetch em script de build | runtime substituído pelo ADR-0022; geração ElevenLabs em vigor |
-| [ADR-0011](0011-asset-pipeline-blockbench-gltf-vat.md) | Pipeline de assets: Blockbench → glTF → atlas, VAT e KTX2 em script próprio | aceito |
+| [ADR-0011](0011-asset-pipeline-blockbench-gltf-vat.md) | Pipeline de assets: Blockbench → glTF → atlas, VAT e KTX2 em script próprio | aceito (KTX2 adiado à 1.1 pelo ADR-0027) |
 | [ADR-0012](0012-demo-gating-at-build-time.md) | Demo definida em build time; web é só demo | aceito |
 | [ADR-0013](0013-ui-react-overlay-external-store-tailwind.md) | UI: React 19 overlay com store próprio e useSyncExternalStore; Tailwind v4 com tokens; fonte pixel OFL | aceito |
 | [ADR-0014](0014-rendering-webgl2-thin-instances-vat.md) | Renderização: WebGL2 padrão, WebGPU opt-in; thin instances + VAT; materiais sem PBR | aceito |
@@ -30,3 +30,5 @@ Um arquivo por decisão relevante, numerado sequencialmente. Formato: contexto, 
 | [ADR-0024](0024-e2e-out-of-ci.md) | e2e (Playwright) fora do CI e dos gates | aceito |
 | [ADR-0025](0025-save-slots-round-checkpoint-pause.md) | Slots de save, checkpoint por round e pausa | aceito |
 | [ADR-0026](0026-vercel-manual-rollback.md) | Rollback manual do deploy da Vercel | aceito |
+| [ADR-0027](0027-ktx2-deferred-to-1-1.md) | KTX2 e `toktx` adiados para a 1.1 | aceito |
+| [ADR-0028](0028-capacitor-approved-for-beta.md) | Capacitor aprovado para a abertura da BETA; billing ainda sem biblioteca | aceito |

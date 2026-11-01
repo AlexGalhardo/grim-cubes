@@ -974,5 +974,102 @@
 		"loop": true,
 		"instrumental": true,
 		"model": "music_v1"
+	},
+	{
+		"file": "sfx_pickup_fragment_02",
+		"kind": "sfx",
+		"prompt": "bone chip flicked into a pouch, a brighter dry clink than a heavy drop, close, no music, game sound effect",
+		"durationSeconds": 0.5,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_pickup_fragment_03",
+		"kind": "sfx",
+		"prompt": "two small bone fragments clicking together as they land in a leather pouch, dry and short, close, no music, game sound effect",
+		"durationSeconds": 0.5,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_weapon_upgrade",
+		"kind": "sfx",
+		"prompt": "rusted weapon locking into a higher tier, a heavy metal ratchet and a short rising iron ring, close, no music, game sound effect",
+		"durationSeconds": 0.8,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_bazooka_shot",
+		"kind": "sfx",
+		"prompt": "old iron bazooka firing, a deep launch thump and a short rocket whoosh, heavy dry tone, close, no music, game sound effect",
+		"durationSeconds": 0.8,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_elite_aura",
+		"kind": "sfx",
+		"prompt": "low pulsing dark energy around a powerful monster, a slow muffled throb with a faint metal hum, seamless loop, medium distance, no music, game sound effect",
+		"durationSeconds": 2.0,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2",
+		"loop": true
+	},
+	{
+		"file": "sfx_ui_cancel",
+		"kind": "sfx",
+		"prompt": "iron latch released, a short dull metal clack, dry tone, close, no music, game sound effect",
+		"durationSeconds": 0.5,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_ui_card",
+		"kind": "sfx",
+		"prompt": "a stiff bone card slapped onto a stone table, a dry snap and a short scrape, close, no music, game sound effect",
+		"durationSeconds": 0.5,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_ui_souls",
+		"kind": "sfx",
+		"prompt": "small soul motes ticking into a counter, a rapid dry bone click that slows and stops, close, no music, game sound effect",
+		"durationSeconds": 0.8,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_wind",
+		"kind": "sfx",
+		"prompt": "a cold gust of wind across open graves, low whoosh with a faint iron creak, no voices, medium distance, no music, game sound effect",
+		"durationSeconds": 2.0,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_boss_gravedigger_slam",
+		"kind": "sfx",
+		"prompt": "giant iron shovel slamming into stone, a deep impact and a spray of dirt and bone, heavy dry tone, medium distance, no music, game sound effect",
+		"durationSeconds": 1.2,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_boss_swamp_spit",
+		"kind": "sfx",
+		"prompt": "huge swamp creature spitting a glob of mud, a wet cough and a heavy splat, heavy tone, medium distance, no music, game sound effect",
+		"durationSeconds": 1.0,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_boss_forgemaster_hammer",
+		"kind": "sfx",
+		"prompt": "colossal forge hammer striking an anvil, a ringing iron crash with a short furnace hiss, heavy dry tone, medium distance, no music, game sound effect",
+		"durationSeconds": 1.2,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
 	}
 ]

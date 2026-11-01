@@ -1,0 +1,14 @@
+{
+	"prompt": "two small bone fragments clicking together as they land in a leather pouch, dry and short, close, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 0.5,
+	"generatedAt": "2026-11-01T10:39:25.825Z",
+	"plan": "creator",
+	"hash": "470aef86a770d5ebe3e6c404fb29eb36d5e0c49587dce9b6d79dcb712c85f730",
+	"promptInfluence": 0.5,
+	"loudness": {
+		"target": -16,
+		"before": -26.2,
+		"after": -23.5
+	}
+}

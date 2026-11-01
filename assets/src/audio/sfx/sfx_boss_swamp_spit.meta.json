@@ -1,0 +1,14 @@
+{
+	"prompt": "huge swamp creature spitting a glob of mud, a wet cough and a heavy splat, heavy tone, medium distance, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 1,
+	"generatedAt": "2026-11-01T10:39:34.825Z",
+	"plan": "creator",
+	"hash": "0c964b47670741c72e73a48b6bee630d3840e96da018b17081672b060eed217b",
+	"promptInfluence": 0.5,
+	"loudness": {
+		"target": -16,
+		"before": -12.3,
+		"after": -16.4
+	}
+}
