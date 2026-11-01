@@ -508,6 +508,21 @@ const props: ModelDef[] = [
 		box("root", "boneDark", 8, 10, 8, -9, 0, 0),
 		box("root", "boneDark", 8, 10, 8, 9, 0, 0),
 	]),
+	prop("prop_torch_01", "props", [
+		box("root", "iron", 14, 4, 14, 0, 0, 0),
+		box("root", "ironDark", 6, 42, 6, 0, 4, 0),
+		box("root", "iron", 14, 6, 14, 0, 46, 0),
+		box("root", "ember", 8, 8, 8, 0, 52, 0),
+		box("root", "emberLight", 4, 6, 4, 0, 60, 0),
+	]),
+	prop("prop_bonfire_01", "props", [
+		box("root", "rust", 40, 6, 6, 0, 0, 0),
+		box("root", "rust", 40, 6, 6, 0, 0, 0, [0, 60, 0]),
+		box("root", "rust", 40, 6, 6, 0, 6, 0, [0, 120, 0]),
+		box("root", "bone", 8, 6, 8, -18, 0, 12),
+		box("root", "ember", 14, 14, 14, 0, 6, 0),
+		box("root", "emberLight", 8, 10, 8, 0, 16, 0),
+	]),
 	prop("prop_grass_01", "props", [
 		box("root", "graveGreen", 3, 12, 3, -4, 0, 0),
 		box("root", "graveGreenLight", 3, 16, 3, 0, 0, 2),

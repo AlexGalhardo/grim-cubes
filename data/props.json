@@ -285,5 +285,19 @@
 		"radius": 0.28,
 		"height": 0.88,
 		"hp": 12
+	},
+	{
+		"id": "prop_torch_01",
+		"sizeClass": "medium",
+		"kind": "decor",
+		"radius": 0.15,
+		"height": 2.0
+	},
+	{
+		"id": "prop_bonfire_01",
+		"sizeClass": "medium",
+		"kind": "blocking",
+		"radius": 0.45,
+		"height": 0.94
 	}
 ]

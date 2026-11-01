@@ -25,6 +25,8 @@ const HEIGHTS: Record<string, readonly [number, number]> = {
 	prop_dead_tree_01: [2.5, 4],
 	prop_crypt_01: [2.5, 4],
 	prop_bone_01: [0.3, 0.8],
+	prop_torch_01: [1.8, 2.4],
+	prop_bonfire_01: [0.8, 1.2],
 	prop_grass_01: [0.3, 0.8],
 	prop_urn_01: [0.3, 0.8],
 	prop_cross_01: [1, 1.5],
@@ -52,7 +54,7 @@ describe("assets-gen catalog", () => {
 		rmSync(root, { recursive: true, force: true });
 	});
 
-	it("contains the roster: hero, 8 enemies, 5 bosses, merchant, 40 props (10 per biome), 16 tiles, 5 weapons", () => {
+	it("contains the roster: hero, 8 enemies, 5 bosses, merchant, 42 props (10 per biome plus the torch and the bonfire), 16 tiles, 5 weapons", () => {
 		const byCategory = new Map<string, number>();
 		for (const { category } of buildCatalog())
 			byCategory.set(category, (byCategory.get(category) ?? 0) + 1);
@@ -61,7 +63,7 @@ describe("assets-gen catalog", () => {
 			enemies: 8,
 			bosses: 5,
 			npc: 1,
-			props: 40,
+			props: 42,
 			weapons: 5,
 			tiles: 16,
 		});

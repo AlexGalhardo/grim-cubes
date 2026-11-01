@@ -1,6 +1,6 @@
 # B-03-01: checklist do Art Bible §14
 
-Gerado em 2026-10-31 por `tools/assets-gen/checklist.ts` sobre os 78 modelos de `assets/src/models/`. Uma linha por modelo; ✔ cumpre, ✘ não cumpre, n/a não se aplica (grupos e clipes de modelos estáticos; áudio).
+Gerado em 2026-11-01 por `tools/assets-gen/checklist.ts` sobre os 80 modelos de `assets/src/models/`. Uma linha por modelo; ✔ cumpre, ✘ não cumpre, n/a não se aplica (grupos e clipes de modelos estáticos; áudio).
 
 ## Itens
 
@@ -41,6 +41,7 @@ Gerado em 2026-10-31 por `tools/assets-gen/checklist.ts` sobre os 78 modelos de 
 | `props/prop_barrel_01` | 4/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✔ | n/a |
 | `props/prop_bone_01` | 4/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✔ | n/a |
 | `props/prop_bonepile_01` | 6/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✔ | n/a |
+| `props/prop_bonfire_01` | 8/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✔ | n/a |
 | `props/prop_cable_01` | 3/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✔ | n/a |
 | `props/prop_canister_01` | 4/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✔ | n/a |
 | `props/prop_chain_01` | 4/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✔ | n/a |
@@ -75,6 +76,7 @@ Gerado em 2026-10-31 por `tools/assets-gen/checklist.ts` sobre os 78 modelos de 
 | `props/prop_tank_01` | 9/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✔ | n/a |
 | `props/prop_tombstone_01` | 5/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✔ | n/a |
 | `props/prop_tombstone_02` | 6/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✔ | n/a |
+| `props/prop_torch_01` | 7/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✔ | n/a |
 | `props/prop_urn_01` | 4/16 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✔ | n/a |
 | `tiles/tile_cemetery_01` | 1/8 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✔ | n/a |
 | `tiles/tile_cemetery_02` | 1/8 | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | n/a | n/a | ✔ | ✔ | ✔ | n/a |
