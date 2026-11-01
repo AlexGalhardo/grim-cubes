@@ -35,6 +35,7 @@ export {
 	choosePresetId,
 	createDynamicScaler,
 	hardwareInfo,
+	NO_RINGS_PRESETS,
 	pickAutoPreset,
 } from "./scene/quality";
 export type { GameScene } from "./scene/scene";

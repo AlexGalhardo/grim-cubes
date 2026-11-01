@@ -134,6 +134,7 @@ import {
 	importModelMesh,
 	loadCharacter,
 	loadGameAssets,
+	NO_RINGS_PRESETS,
 	PALETTE,
 	PLACEHOLDER_PROPS,
 	type PropTypeDef,
@@ -830,6 +831,8 @@ async function boot(): Promise<void> {
 	const hpBars = createHpBars(game);
 	applyHpBars();
 	const contrastRings = createContrastRings(game);
+	const applyRings = (): void => contrastRings.setEnabled(!NO_RINGS_PRESETS.includes(applied.id));
+	applyRings();
 	const eliteAuras = createEliteAuras(
 		game,
 		elitesData.modifiers.map((modifier) => modifier.aura),
@@ -1306,6 +1309,7 @@ async function boot(): Promise<void> {
 		if (!next) return;
 		void changeSettings((s) => (s.preset = id));
 		applied = applyPreset(game, render.engine, next);
+		applyRings();
 		spawn.setCap(next.enemyCap);
 		vfx.setPools(next.particlePool, next.decalPool);
 	}
@@ -1820,6 +1824,11 @@ async function boot(): Promise<void> {
 			merchant: () => session.merchant.view,
 			/** Rim light on or off (the perf cost check). */
 			setRim: (on: boolean) => game.setRim(on),
+			/** Overlay cost check: the contrast rings and the health bars on or off together. */
+			setOverlays: (on: boolean) => {
+				contrastRings.setEnabled(on);
+				hpBars.setHpBars({ hero: on, enemies: on });
+			},
 			/** Game speed 1, 2 or 3 (perf margin check). */
 			setSpeed: (speed: number) => loop.setSpeed(speed),
 			/**
@@ -1932,6 +1941,7 @@ async function boot(): Promise<void> {
 				const next = presetsData.presets.find((p) => p.id === id);
 				if (!next) return null;
 				applied = applyPreset(game, render.engine, next);
+				applyRings();
 				spawn.setCap(next.enemyCap);
 				vfx.setPools(next.particlePool, next.decalPool);
 				return applied.id;

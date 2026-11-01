@@ -24,6 +24,8 @@ export interface QualityEngine {
  */
 /** Presets that draw without the camera rim light: a third light is ~15% of a frame on a software rasteriser (SDD 14). */
 export const NO_RIM_PRESETS: readonly string[] = ["low", "minimum"];
+/** Presets that draw without the ground contrast rings (SDD 14: rings and health bars cost 10 to 16% of a frame in software). */
+export const NO_RINGS_PRESETS: readonly string[] = ["minimum"];
 
 export function applyPreset(game: GameScene, engine: QualityEngine, preset: VideoPreset): AppliedPreset {
 	game.scene.shadowsEnabled = preset.shadows !== "none";
