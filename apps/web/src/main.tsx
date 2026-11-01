@@ -124,6 +124,7 @@ import {
 	createGameScene,
 	createHitStop,
 	createHordeRenderer,
+	createHpBars,
 	createProjectileRenderer,
 	createRenderPort,
 	createVfx,
@@ -825,6 +826,8 @@ async function boot(): Promise<void> {
 	let frozenAt: number | null = null;
 	const eliteView = createEliteView(game);
 	const eggView = createEggRenderer(game);
+	const hpBars = createHpBars(game);
+	applyHpBars();
 	const eliteAuras = createEliteAuras(
 		game,
 		elitesData.modifiers.map((modifier) => modifier.aura),
@@ -1287,7 +1290,7 @@ async function boot(): Promise<void> {
 
 	/** Tells the render which health bars to draw; the saved choice applies at boot too. */
 	function applyHpBars(): void {
-		// shortcut: the render has no health bar switch yet (S1 exposes `setHpBars`); wire it here when it lands.
+		hpBars.setHpBars({ hero: meta.settings.hpBarHero, enemies: meta.settings.hpBarEnemies });
 	}
 
 	function setSpeed(speed: number): void {
@@ -1756,6 +1759,7 @@ async function boot(): Promise<void> {
 				game.hero.position.x,
 				game.hero.position.z,
 			);
+			hpBars.sync(world, alpha);
 			eggView.sync(world, (frozenAt ?? performance.now()) / 1000);
 			eliteAuras.sync(world, alpha, (frozenAt ?? performance.now()) / 1000);
 			consumableView.sync(world, alpha, (frozenAt ?? performance.now()) / 1000);
