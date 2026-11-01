@@ -145,6 +145,7 @@ import { createEventAudio } from "./audio/eventSounds";
 import { createFootsteps } from "./audio/footsteps";
 import { createMerchantVoice } from "./audio/merchantVoice";
 import { createWebAudioDeps, musicFor } from "./audio/webAudio";
+import { createDebugGamepad } from "./debugGamepad";
 import { applyLocale, initLocale } from "./locale";
 import "./main.css";
 
@@ -1757,9 +1758,15 @@ async function boot(): Promise<void> {
 		},
 	});
 
+	// `?gamepad=1` (debug builds): a virtual pad the tests drive, available with or without `?debug` (the menu skips on `?debug`).
+	if (__DEBUG_API__ && params.has("gamepad")) {
+		window.gc.debug = { ...window.gc.debug, gamepad: createDebugGamepad(navigator) };
+	}
+
 	let faceDummy = -1;
 	if (__DEBUG_API__ && new URLSearchParams(location.search).has("debug")) {
 		window.gc.debug = {
+			...window.gc.debug,
 			hero: () => ({ x: Position.x[hero] ?? 0, z: Position.z[hero] ?? 0 }),
 			/** Yaw the hero rig is drawn with (radians, 0 looks along +z), or null without the skeleton rig. */
 			heroYaw: () => characters?.heroYaw ?? null,
