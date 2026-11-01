@@ -14,6 +14,7 @@ import {
 import { type JSX, type ReactNode, useEffect, useState } from "react";
 import { keyLabel } from "../../keys";
 import { useDialogNav } from "../../nav/useDialogNav";
+import { LeaveConfirm } from "../LeaveConfirm/LeaveConfirm";
 
 export type VolumeBus = "master" | "music" | "sfx";
 const COLORBLIND = ["off", "protanopia", "deuteranopia", "tritanopia"] as const;
@@ -47,6 +48,8 @@ export interface OptionsViewModel {
 	subtitles: boolean;
 	/** Health bars over the hero and over the enemies (render). */
 	hpBars?: { hero: boolean; enemies: boolean } | undefined;
+	/** Set while a run is in progress: the button back to the title menu shows, and `round` is where the run resumes. */
+	leave?: { round: number } | undefined;
 	locale: string;
 	locales: readonly { id: string; name: string }[];
 }
@@ -65,6 +68,8 @@ export interface OptionsActions {
 	setGore(full: boolean): void;
 	setSubtitles(on: boolean): void;
 	setHpBars?: ((part: "hero" | "enemies", on: boolean) => void) | undefined;
+	/** Back to the title menu (the run stays saved at the start of its round). */
+	toMenu?: (() => void) | undefined;
 	/** Tries to bind `code` to `action`; the answer says why not (conflict, reserved, invalid). */
 	setKey(action: KeyAction, code: string): KeyCheck;
 	resetKeys(): void;
@@ -232,6 +237,7 @@ export function Options({ view, actions, getPad }: OptionsProps): JSX.Element {
 	const [problem, setProblem] = useState("");
 
 	const [padCapturing, setPadCapturing] = useState<PadAction | null>(null);
+	const [leaving, setLeaving] = useState(false);
 
 	useEffect(() => {
 		if (!padCapturing) return;
@@ -311,7 +317,7 @@ export function Options({ view, actions, getPad }: OptionsProps): JSX.Element {
 		return () => window.removeEventListener("keydown", onKey, true);
 	}, [capturing, actions]);
 
-	const nav = useDialogNav<HTMLDivElement>({ onCancel: actions.close });
+	const nav = useDialogNav<HTMLDivElement>({ onCancel: leaving ? () => setLeaving(false) : actions.close });
 	const presetIds = ["auto", ...view.presets.map((preset) => preset.id)];
 	const presetName = (id: string): string =>
 		id === "auto" ? t("options.auto") : (view.presets.find((preset) => preset.id === id)?.name ?? id);
@@ -359,6 +365,27 @@ export function Options({ view, actions, getPad }: OptionsProps): JSX.Element {
 			</button>
 		</div>
 	);
+	if (leaving && view.leave && actions.toMenu) {
+		return (
+			<div
+				ref={nav}
+				role="dialog"
+				aria-modal="true"
+				aria-label={t("options.title")}
+				className="pointer-events-auto absolute inset-0 z-40 flex overflow-y-auto bg-night/90 p-2 mobile-l:p-4"
+			>
+				<div className={`${PLATE} m-auto w-full max-w-md p-4`}>
+					<LeaveConfirm
+						question={t("leave.toMenuSaved", { round: view.leave.round })}
+						stayLabel={t("leave.stay")}
+						leaveLabel={t("leave.toMenu")}
+						onStay={() => setLeaving(false)}
+						onLeave={actions.toMenu}
+					/>
+				</div>
+			</div>
+		);
+	}
 	return (
 		<div
 			ref={nav}
@@ -565,7 +592,19 @@ export function Options({ view, actions, getPad }: OptionsProps): JSX.Element {
 						</button>
 					</Section>
 				</div>
-				<div className="flex justify-end">
+				<div className="flex items-center justify-between gap-3">
+					{view.leave && actions.toMenu ? (
+						<button
+							type="button"
+							data-testid="options-to-menu"
+							onClick={() => setLeaving(true)}
+							className={`min-h-12 px-6 text-lg ${IRON_BUTTON}`}
+						>
+							{t("menu.toMenu")}
+						</button>
+					) : (
+						<span />
+					)}
 					<button
 						type="button"
 						onClick={actions.close}

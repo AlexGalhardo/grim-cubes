@@ -49,3 +49,12 @@ test("the pinned folder is the one earlier builds already used: the package name
 	expect(readFileSync("electron-builder.yml", "utf8")).toContain("productName: Grim Cubes");
 	expect(USER_DATA_FOLDER).not.toBe("Grim Cubes");
 });
+
+test("the title menu's quit goes through an IPC channel that checks the sender before it quits", () => {
+	const ipc = readFileSync("apps/electron/src/ipc.ts", "utf8");
+	const handler = ipc.slice(ipc.indexOf('ipcMain.handle("app:quit"'));
+	expect(handler.indexOf("isTrustedSender")).toBeGreaterThan(-1);
+	expect(handler.indexOf("isTrustedSender")).toBeLessThan(handler.indexOf("app.quit()"));
+	expect(readFileSync("apps/electron/src/preload.ts", "utf8")).toContain('ipcRenderer.invoke("app:quit")');
+	expect(readFileSync("apps/electron/src/main.ts", "utf8")).toContain("registerQuitIpc()");
+});

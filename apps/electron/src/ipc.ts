@@ -1,6 +1,14 @@
-import { ipcMain } from "electron";
+import { app, ipcMain } from "electron";
 import { isTrustedSender } from "./paths";
 import { createSaveFiles } from "./saveFiles";
+
+/** Registers `app:quit`, the title menu's "Sair do jogo": the same sender check as the save channels, then `app.quit()`. */
+export function registerQuitIpc(): void {
+	ipcMain.handle("app:quit", (event) => {
+		if (!isTrustedSender(event.senderFrame?.url)) throw new Error("untrusted sender");
+		app.quit();
+	});
+}
 
 /** Registers the save channels the preload calls (`storage:read`, `storage:write`, `storage:backup`). */
 export function registerStorageIpc(dir: string): void {

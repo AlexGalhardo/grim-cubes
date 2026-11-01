@@ -1,8 +1,9 @@
 import { t } from "@gc/core";
-import { type JSX, useEffect, useRef } from "react";
+import { type JSX, useEffect, useRef, useState } from "react";
 import { useShortScreen } from "../../hooks/useViewport";
 import { useDialogNav } from "../../nav/useDialogNav";
 import { Button } from "../Button/Button";
+import { LeaveConfirm } from "../LeaveConfirm/LeaveConfirm";
 
 export interface MenuViewModel {
 	/** Best round per difficulty, in the order they unlock. 0 means none yet. */
@@ -18,6 +19,8 @@ export interface MenuActions {
 	play(): void;
 	ossuary(): void;
 	options(): void;
+	/** Closes the app. Only the desktop build offers it: the web page and the phone have nothing to quit to. */
+	quit?: (() => void) | undefined;
 }
 
 export interface MenuProps {
@@ -31,10 +34,12 @@ export interface MenuProps {
 /** The title screen: shown once when the game opens, before the difficulty choice (GDD 17). */
 export function Menu({ view, actions, version, demo }: MenuProps): JSX.Element {
 	const first = useRef<HTMLButtonElement>(null);
+	const [asking, setAsking] = useState(false);
+	// On open, and again when the quit question is answered "stay".
 	useEffect(() => {
-		first.current?.focus();
-	}, []);
-	const nav = useDialogNav<HTMLDivElement>();
+		if (!asking) first.current?.focus();
+	}, [asking]);
+	const nav = useDialogNav<HTMLDivElement>({ onCancel: () => setAsking(false) });
 	// Short landscape phones: buttons only, under the logo, so the art's title stays readable.
 	const short = useShortScreen();
 	// Room for four buttons (Continue and New game join Play, Ossuary and Options) on a 360 px screen.
@@ -63,7 +68,17 @@ export function Menu({ view, actions, version, demo }: MenuProps): JSX.Element {
 				{demo ? (
 					<div className="text-center font-display text-sm text-ember-light">{t("demo.badge")}</div>
 				) : null}
-				{view.continue ? (
+				{asking ? (
+					<LeaveConfirm
+						testId="menu-quit-confirm"
+						question={t("menu.quitConfirm")}
+						stayLabel={t("leave.stay")}
+						leaveLabel={t("leave.quit")}
+						onStay={() => setAsking(false)}
+						onLeave={() => actions.quit?.()}
+					/>
+				) : null}
+				{asking ? null : view.continue ? (
 					<Button
 						size={buttonSize}
 						variant="primary"
@@ -84,21 +99,32 @@ export function Menu({ view, actions, version, demo }: MenuProps): JSX.Element {
 						</span>
 					</Button>
 				) : null}
-				<Button
-					size={buttonSize}
-					variant={view.continue ? "plate" : "primary"}
-					testId="menu-play"
-					{...(view.continue ? {} : { buttonRef: first })}
-					onClick={actions.play}
-				>
-					{t("menu.play")}
-				</Button>
-				<Button size={buttonSize} onClick={actions.ossuary}>
-					{t("menu.ossuary")}
-				</Button>
-				<Button size={buttonSize} onClick={actions.options}>
-					{t("menu.options")}
-				</Button>
+				{asking ? null : (
+					<Button
+						size={buttonSize}
+						variant={view.continue ? "plate" : "primary"}
+						testId="menu-play"
+						{...(view.continue ? {} : { buttonRef: first })}
+						onClick={actions.play}
+					>
+						{t("menu.play")}
+					</Button>
+				)}
+				{asking ? null : (
+					<Button size={buttonSize} onClick={actions.ossuary}>
+						{t("menu.ossuary")}
+					</Button>
+				)}
+				{asking ? null : (
+					<Button size={buttonSize} onClick={actions.options}>
+						{t("menu.options")}
+					</Button>
+				)}
+				{!asking && actions.quit ? (
+					<Button size={buttonSize} testId="menu-quit" onClick={() => setAsking(true)}>
+						{t("menu.quit")}
+					</Button>
+				) : null}
 			</div>
 			{version ? (
 				<div
