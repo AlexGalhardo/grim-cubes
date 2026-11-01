@@ -29,11 +29,14 @@ export interface MusicState {
 	menu: boolean;
 	/** Track of the biome under the hero (`onMusic`), if any. */
 	biomeTrack: string | null;
+	/** The boss of the round (`bosses.json` id), for its own track. */
+	bossId?: string | undefined;
 }
 
 /** The tracks to try, best first: menu screens, the boss fight, or the biome with the generic round track behind. */
-export function musicFor({ state, menu, biomeTrack }: MusicState): readonly string[] {
+export function musicFor({ state, menu, biomeTrack, bossId }: MusicState): readonly string[] {
 	if (menu || state === "Results") return ["mus_menu"];
-	if (state === "BossIntro" || state === "BossRound") return ["mus_boss"];
+	if (state === "BossIntro" || state === "BossRound")
+		return bossId ? [`mus_boss_${bossId}`, "mus_boss"] : ["mus_boss"];
 	return biomeTrack ? [biomeTrack, "mus_round"] : ["mus_round"];
 }

@@ -53,4 +53,20 @@ describe("regression guards (see README.md)", () => {
 			expect(missing, locale).toEqual([]);
 		}
 	});
+
+	it("records the measured loudness of every generated sound in its meta.json (A-05-02)", () => {
+		const prompts = JSON.parse(readFileSync(`${root}assets/src/audio/prompts.json`, "utf8")) as {
+			file: string;
+			kind: string;
+		}[];
+		const missing = prompts.filter((p) => {
+			const meta = JSON.parse(
+				readFileSync(`${root}assets/src/audio/${p.kind}/${p.file}.meta.json`, "utf8"),
+			) as {
+				loudness?: { target?: number; before?: number };
+			};
+			return typeof meta.loudness?.target !== "number" || typeof meta.loudness?.before !== "number";
+		});
+		expect(missing.map((p) => p.file)).toEqual([]);
+	});
 });

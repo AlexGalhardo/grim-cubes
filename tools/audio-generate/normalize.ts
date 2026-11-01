@@ -43,7 +43,26 @@ for (const kind of Object.keys(TARGET_LUFS) as LoudnessKind[]) {
 		console.log(
 			`${bad ? "off " : "ok  "} ${id}: ${before.lufs.toFixed(1)} LUFS, ${before.peak.toFixed(1)} dBTP (target ${target}, gain ${gain} dB${reach})`,
 		);
-		if (!apply || !bad) continue;
+		if (!apply) continue;
+		const metaPath = join(dir, `${id}.meta.json`);
+		const record = (after: number | null): void => {
+			const meta = JSON.parse(readFileSync(metaPath, "utf8")) as Record<string, unknown>;
+			meta.loudness = {
+				target,
+				before: Math.round(before.lufs * 10) / 10,
+				after: after === null ? null : Math.round(after * 10) / 10,
+			};
+			writeFileSync(
+				metaPath,
+				`${JSON.stringify(meta, null, "	")}
+`,
+			);
+		};
+		// Already within a LU of the target: nothing to rewrite, but the meta still records the measurement.
+		if (!bad) {
+			if (!("loudness" in (JSON.parse(readFileSync(metaPath, "utf8")) as object))) record(before.lufs);
+			continue;
+		}
 		const tmp = `${file}.tmp.mp3`;
 		copyFileSync(file, `${file}.bak`);
 		if (!applyGain(file, gain, tmp)) {
@@ -55,14 +74,7 @@ for (const kind of Object.keys(TARGET_LUFS) as LoudnessKind[]) {
 		renameSync(tmp, file);
 		rmSync(`${file}.bak`);
 		const after = measureLufs(file);
-		const metaPath = join(dir, `${id}.meta.json`);
-		const meta = JSON.parse(readFileSync(metaPath, "utf8")) as Record<string, unknown>;
-		meta.loudness = {
-			target,
-			before: Math.round(before.lufs * 10) / 10,
-			after: after === null ? null : Math.round(after.lufs * 10) / 10,
-		};
-		writeFileSync(metaPath, `${JSON.stringify(meta, null, "\t")}\n`);
+		record(after?.lufs ?? null);
 		fixed++;
 		console.log(`  -> ${after === null ? "n/a" : after.lufs.toFixed(1)} LUFS`);
 	}

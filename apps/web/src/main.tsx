@@ -963,10 +963,12 @@ async function boot(): Promise<void> {
 	let musicKey = "";
 	let lastAudioState = "";
 	const updateAudioState = (): void => {
-		const key = `${run.state}|${difficultyOpen || menuOpen}|${biomeTrack}`;
+		const bossId =
+			run.state === "BossIntro" || run.state === "BossRound" ? boss.defFor(run.round).id : undefined;
+		const key = `${run.state}|${difficultyOpen || menuOpen}|${biomeTrack}|${bossId ?? ""}`;
 		if (key === musicKey) return;
 		musicKey = key;
-		audio.setMusic(musicFor({ state: run.state, menu: difficultyOpen || menuOpen, biomeTrack }));
+		audio.setMusic(musicFor({ state: run.state, menu: difficultyOpen || menuOpen, biomeTrack, bossId }));
 		if (run.state === "BossIntro" && lastAudioState !== "BossIntro") {
 			const id = boss.defFor(run.round).id;
 			audio.play(`sfx_boss_${id}_entry`, { priority: "boss", maxVoices: 1 });

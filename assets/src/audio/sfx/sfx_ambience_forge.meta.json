@@ -8,7 +8,7 @@
 	"promptInfluence": 0.5,
 	"loudness": {
 		"target": -24,
-		"before": -20,
-		"after": -25.1
+		"before": -25.1,
+		"after": -24.9
 	}
 }
