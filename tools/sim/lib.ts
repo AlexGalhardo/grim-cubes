@@ -31,6 +31,8 @@ export interface SimOptions {
 	ossuary?: readonly string[];
 	/** Who plays: the damage-first `greedy` bot (default) or the survival-first `tank` (B-02-02). */
 	policy?: PolicyId;
+	/** Soak test: the hero's HP is refilled every step so the run keeps going to the requested round. */
+	immortal?: boolean;
 }
 
 export interface RoundReport {
@@ -327,6 +329,7 @@ export function runSim(options: SimOptions): SimReport {
 		if (run.state === "Round" || run.state === "BossRound") steer();
 		else input.dash = false;
 		session.step(input);
+		if (options.immortal) Health.hp[hero] = Health.max[hero] ?? 0;
 		// A level-up or chest pauses the round mid-fight, so the fight is told apart by its round, not by the state.
 		if (run.state === "BossRound" && bosses.at(-1)?.round !== run.round) {
 			bossStartStep = steps;
