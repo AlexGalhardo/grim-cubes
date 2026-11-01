@@ -15,7 +15,7 @@ import {
 } from "./audioEngine";
 import { captionKeyFor, createEventAudio, type SoundContext, soundFor } from "./eventSounds";
 import { createMerchantVoice } from "./merchantVoice";
-import { musicFor } from "./webAudio";
+import { ambienceFor, musicFor, weaponLoopFor } from "./webAudio";
 
 afterEach(() => vi.useRealTimers());
 
@@ -48,7 +48,7 @@ function fakeGain(): FakeGain {
 	};
 }
 
-type FakeSource = SourceLike & { started: boolean };
+type FakeSource = SourceLike & { started: boolean; stopped: boolean };
 type FakeMedia = MediaLike & { id: string };
 
 function setup(
@@ -81,12 +81,15 @@ function setup(
 				playbackRate: { value: 1 },
 				onended: null,
 				started: false,
+				stopped: false,
 				connect: () => undefined,
 				disconnect: () => undefined,
 				start() {
 					source.started = true;
 				},
-				stop: () => undefined,
+				stop: () => {
+					source.stopped = true;
+				},
 			};
 			sources.push(source);
 			return source;
@@ -307,7 +310,7 @@ test("a voice id maps to its caption key and other sounds have none", () => {
 
 test("every boss has an entry, phase and death caption in both languages", () => {
 	for (const boss of bossesData) {
-		for (const moment of ["entry", "phase", "death"]) {
+		for (const moment of ["entry", "phase", "death", "enrage"]) {
 			const key = `voice.${boss.id}.${moment}`;
 			expect((en as Record<string, string>)[key], key).toBeTruthy();
 			expect((ptBR as Record<string, string>)[key], key).toBeTruthy();
@@ -336,6 +339,108 @@ test("the event audio reports the caption of a boss voice, with or without the f
 		"sfx_sword_swing_01",
 	]);
 	expect(captions).toEqual(["voice.gravedigger.death", "voice.gravedigger.phase"]);
+});
+
+test("a loop starts once its file is decoded, keeps playing, and fades out and stops on request", async () => {
+	vi.useFakeTimers();
+	const { engine, sources } = setup(["sfx_smg_loop"]);
+	await engine.unlock();
+	engine.playLoop("sfx_smg_loop");
+	engine.playLoop("sfx_smg_loop");
+	await vi.advanceTimersByTimeAsync(1);
+	expect(sources).toHaveLength(1);
+	expect(sources[0]?.loop).toBe(true);
+	expect(sources[0]?.started).toBe(true);
+	engine.stop("sfx_smg_loop");
+	expect(sources[0]?.stopped).toBe(false);
+	await vi.advanceTimersByTimeAsync(400);
+	expect(sources[0]?.stopped).toBe(true);
+	engine.stop("sfx_smg_loop");
+	engine.playLoop("sfx_smg_loop");
+	await vi.advanceTimersByTimeAsync(1);
+	expect(sources).toHaveLength(2);
+});
+
+test("a loop asked for before the unlock starts at the unlock, and a stop before the file arrives cancels it", async () => {
+	const { engine, sources } = setup(["amb", "gone"]);
+	engine.playLoop("amb");
+	engine.playLoop("gone");
+	engine.stop("gone");
+	expect(sources).toHaveLength(0);
+	await engine.unlock();
+	await flush();
+	expect(sources).toHaveLength(1);
+});
+
+test("a loop with a hold dies by itself unless it is kept alive, and a missing file is only silence", async () => {
+	const { engine, sources, clock, warnings } = setup(["mg"]);
+	await engine.unlock();
+	engine.playLoop("mg", { hold: 0.3 });
+	await flush();
+	clock.now = 0.2;
+	engine.playLoop("mg", { hold: 0.3 });
+	clock.now = 0.4;
+	engine.beginFrame();
+	expect(sources[0]?.stopped).toBe(false);
+	clock.now = 0.6;
+	engine.beginFrame();
+	// The fade-out timer has not run yet, but the loop is gone from the engine: a new one is a new source.
+	engine.playLoop("mg", { hold: 0.3 });
+	await flush();
+	expect(sources).toHaveLength(2);
+	engine.playLoop("absent");
+	await flush();
+	expect(warnings.some((w) => w.includes("absent"))).toBe(true);
+	expect(sources).toHaveLength(2);
+});
+
+test("a machine gun is heard through its loop, shot by shot only when it has none", () => {
+	const played: string[] = [];
+	const loops: [string, number | undefined][] = [];
+	const engine = {
+		play: (ids: string | readonly string[]) => {
+			played.push(String(ids));
+			return true;
+		},
+		playLoop: (id: string, options?: { hold?: number }) => loops.push([id, options?.hold]),
+		duck: () => undefined,
+	};
+	const withLoop = { ...ctx, weaponLoop: () => "sfx_smg_loop" };
+	createEventAudio(engine as never, withLoop)(EventType.Fired, 1, 0, 0, 1);
+	expect(played).toEqual([]);
+	expect(loops).toEqual([["sfx_smg_loop", 0.3]]);
+	createEventAudio(engine as never, ctx)(EventType.Fired, 1, 0, 0, 1);
+	expect(played).toEqual(["sfx_pistol_shot_01"]);
+	expect(weaponLoopFor("smg")).toBe("sfx_smg_loop");
+	expect(weaponLoopFor("mg")).toBe("sfx_mg_loop");
+	expect(weaponLoopFor("pistol")).toBeNull();
+});
+
+test("the first rage of a boss is shouted with its caption, the next ones are only the sound", () => {
+	const played: string[] = [];
+	const captions: string[] = [];
+	const engine = {
+		play: (ids: string | readonly string[]) => {
+			played.push(String(ids));
+			return true;
+		},
+		duck: () => undefined,
+	};
+	const visit = createEventAudio(engine as never, ctx, (key) => captions.push(key));
+	visit(EventType.BossEnraged, 1, 0, 0, 9);
+	visit(EventType.BossEnraged, 2, 0, 0, 9);
+	expect(played).toEqual(["sfx_boss_enrage", "voice_gravedigger_enrage", "sfx_boss_enrage"]);
+	expect(captions).toEqual(["voice.gravedigger.enrage"]);
+	expect(captionKeyFor("voice_nest_queen_enrage")).toBe("voice.nest_queen.enrage");
+});
+
+test("the biome ambience follows the music track and is silent on menus and results", () => {
+	const playing = { state: "Round", menu: false, biomeTrack: "mus_biome_swamp" };
+	expect(ambienceFor(playing)).toBe("sfx_ambience_swamp");
+	expect(ambienceFor({ ...playing, biomeTrack: "mus_biome_forge" })).toBe("sfx_ambience_forge");
+	expect(ambienceFor({ ...playing, menu: true })).toBeNull();
+	expect(ambienceFor({ ...playing, state: "Results" })).toBeNull();
+	expect(ambienceFor({ ...playing, biomeTrack: null })).toBeNull();
 });
 
 test("rarely heard sounds share a decoded-audio budget and the least recently played is dropped", async () => {

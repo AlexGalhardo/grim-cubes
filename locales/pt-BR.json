@@ -357,5 +357,10 @@
 	"item.blood_crown": "Coroa de Sangue",
 	"item.storm_gauntlet": "Manopla da Tempestade",
 	"item.void_cloak": "Manto do Vazio",
-	"effect.pull_fragments": "A cada {intervalSeconds} s puxa todos os fragmentos do chão até você"
+	"effect.pull_fragments": "A cada {intervalSeconds} s puxa todos os fragmentos do chão até você",
+	"voice.gravedigger.enrage": "A terra está faminta, e eu também!",
+	"voice.swamp_matriarch.enrage": "Você ousa me enfurecer, pequenina?",
+	"voice.forgemaster.enrage": "Queimem! Queimem na minha forja!",
+	"voice.alpha_hunter.enrage": "Agora a caçada fica selvagem.",
+	"voice.nest_queen.enrage": "Chega! Despedacem todos!"
 }

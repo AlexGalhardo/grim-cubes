@@ -31,6 +31,18 @@ export interface MusicState {
 	biomeTrack: string | null;
 }
 
+/** The ambience loop of the biome under the hero while a run is on screen; none on the menus and the results. */
+export function ambienceFor({ state, menu, biomeTrack }: MusicState): string | null {
+	if (menu || state === "Results" || state === "Idle") return null;
+	const biome = biomeTrack ? /^mus_biome_(\w+)$/.exec(biomeTrack)?.[1] : undefined;
+	return biome ? `sfx_ambience_${biome}` : null;
+}
+
+/** The loop heard while a weapon keeps firing (the machine guns), or null for a weapon of one-off shots. */
+export function weaponLoopFor(weaponId: string | undefined): string | null {
+	return weaponId === "smg" || weaponId === "mg" ? `sfx_${weaponId}_loop` : null;
+}
+
 /** The tracks to try, best first: menu screens, the boss fight, or the biome with the generic round track behind. */
 export function musicFor({ state, menu, biomeTrack }: MusicState): readonly string[] {
 	if (menu || state === "Results") return ["mus_menu"];

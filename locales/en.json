@@ -357,5 +357,10 @@
 	"item.blood_crown": "Blood Crown",
 	"item.storm_gauntlet": "Storm Gauntlet",
 	"item.void_cloak": "Void Cloak",
-	"effect.pull_fragments": "Every {intervalSeconds} s pulls every fragment on the floor to you"
+	"effect.pull_fragments": "Every {intervalSeconds} s pulls every fragment on the floor to you",
+	"voice.gravedigger.enrage": "The earth is hungry, and so am I!",
+	"voice.swamp_matriarch.enrage": "You dare make me rage, little one?",
+	"voice.forgemaster.enrage": "Burn! Burn in my forge!",
+	"voice.alpha_hunter.enrage": "Now the hunt turns savage.",
+	"voice.nest_queen.enrage": "Enough! Tear them apart!"
 }

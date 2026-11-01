@@ -8,6 +8,8 @@ export interface SoundContext {
 	enemyDeath(entity: number): string;
 	/** The id of a boss entity from bosses.json ("gravedigger"), or "" when unknown. */
 	bossId(entity: number): string;
+	/** The looping sound of the weapon in hand (a machine gun), or null when each shot is a one-off sound. */
+	weaponLoop?(): string | null;
 }
 
 interface Sound {
@@ -19,6 +21,8 @@ const HIT: PlayOptions = { priority: "enemy", maxVoices: 8 };
 const HERO: PlayOptions = { priority: "hero", maxVoices: 2 };
 const BOSS: PlayOptions = { priority: "boss", maxVoices: 2 };
 const ELITE: PlayOptions = { priority: "elite", maxVoices: 2 };
+/** A loop of a weapon stops this long after its last shot. */
+const WEAPON_LOOP_HOLD_SECONDS = 0.3;
 const VOICE: PlayOptions = { priority: "boss", maxVoices: 1, pitchSpread: 0 };
 
 /**
@@ -56,6 +60,8 @@ export function soundFor(
 		case EventType.Swung:
 			return { ids: "sfx_sword_swing_01", options: { priority: "hero", maxVoices: 4 } };
 		case EventType.Fired:
+			// A weapon with a loop is heard through it (see `createEventAudio`), not shot by shot.
+			if (ctx.weaponLoop?.()) return null;
 			return { ids: "sfx_pistol_shot_01", options: { priority: "hero", maxVoices: 6 } };
 		case EventType.Exploded:
 			return { ids: "sfx_explosion_01", options: { priority: "hero", maxVoices: 4 } };
@@ -133,7 +139,7 @@ export function soundFor(
 
 /** `voice_gravedigger_entry` -> `voice.gravedigger.entry`, the locale key of its caption; null for any other sound. */
 export function captionKeyFor(soundId: string): string | null {
-	const match = /^voice_([a-z][a-z_]*)_(entry|phase|death)$/.exec(soundId);
+	const match = /^voice_([a-z][a-z_]*)_(entry|phase|death|enrage)$/.exec(soundId);
 	return match ? `voice.${match[1]}.${match[2]}` : null;
 }
 
@@ -145,6 +151,11 @@ export function createEventAudio(
 	onCaption?: ((key: string) => void) | undefined,
 ): (type: number, a: number, b: number, c: number, entity: number) => void {
 	return (type, a, b, c, entity) => {
+		if (type === EventType.Fired) {
+			const loop = ctx.weaponLoop?.();
+			// The loop dies by itself a moment after the last shot.
+			if (loop) engine.playLoop(loop, { hold: WEAPON_LOOP_HOLD_SECONDS });
+		}
 		const sound = soundFor(type, a, b, c, entity, ctx);
 		if (!sound) return;
 		engine.play(sound.ids, sound.options);
@@ -153,5 +164,15 @@ export function createEventAudio(
 		if (type === EventType.PlayerHit) engine.duck();
 		// The boss also falls with a sound of its own, under its last words.
 		if (type === EventType.BossDied) engine.play("sfx_boss_death", BOSS);
+		// The first rage of a fight is shouted; the later ones are only the sound.
+		if (type === EventType.BossEnraged && a <= 1) {
+			const id = ctx.bossId(entity);
+			if (id) {
+				const line = `voice_${id}_enrage`;
+				engine.play(line, VOICE);
+				const key = captionKeyFor(line);
+				if (key) onCaption?.(key);
+			}
+		}
 	};
 }
