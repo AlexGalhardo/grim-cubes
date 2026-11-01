@@ -63,6 +63,8 @@ export { createHpBars } from "./vfx/hpBars";
 export type { ParticlePool, ParticlePoolStats } from "./vfx/particles";
 export type { ProjectileRenderer } from "./vfx/projectiles";
 export { createEnemyShotRenderer, createProjectileRenderer } from "./vfx/projectiles";
+export type { GlowSource, TorchGlow } from "./vfx/torchGlow";
+export { createTorchGlow } from "./vfx/torchGlow";
 export type { Vfx, VfxConfig, VfxOptions } from "./vfx/vfx";
 export { createVfx } from "./vfx/vfx";
 export type {

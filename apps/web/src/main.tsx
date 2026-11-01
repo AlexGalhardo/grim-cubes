@@ -128,6 +128,7 @@ import {
 	createHpBars,
 	createProjectileRenderer,
 	createRenderPort,
+	createTorchGlow,
 	createVfx,
 	createVision,
 	hardwareInfo,
@@ -831,6 +832,15 @@ async function boot(): Promise<void> {
 	const hpBars = createHpBars(game);
 	applyHpBars();
 	const contrastRings = createContrastRings(game);
+	// Torches and bonfires glow: a flickering halo and a pool of light each (SDD 14: no point lights).
+	const glowSources = [
+		{ id: "prop_torch_01", flameHeight: 1.75, halo: 1.8 },
+		{ id: "prop_bonfire_01", flameHeight: 0.7, halo: 2.8 },
+	].flatMap((fire) => {
+		const type = chunkGen.propTypes.indexOf(fire.id);
+		return type < 0 ? [] : [{ type, flameHeight: fire.flameHeight, halo: fire.halo }];
+	});
+	const torchGlow = createTorchGlow(game, glowSources, (type) => chunkRenderer.instances(type));
 	const applyRings = (): void => contrastRings.setEnabled(!NO_RINGS_PRESETS.includes(applied.id));
 	applyRings();
 	const eliteAuras = createEliteAuras(
@@ -1767,6 +1777,11 @@ async function boot(): Promise<void> {
 			);
 			hpBars.sync(world, alpha);
 			contrastRings.sync(world, alpha);
+			torchGlow.sync(
+				(frozenAt ?? performance.now()) / 1000,
+				game.hero.position.x,
+				game.hero.position.z,
+			);
 			eggView.sync(world, (frozenAt ?? performance.now()) / 1000);
 			eliteAuras.sync(world, alpha, (frozenAt ?? performance.now()) / 1000);
 			consumableView.sync(world, alpha, (frozenAt ?? performance.now()) / 1000);
@@ -1829,6 +1844,17 @@ async function boot(): Promise<void> {
 				contrastRings.setEnabled(on);
 				hpBars.setHpBars({ hero: on, enemies: on });
 			},
+			/** Scene positions of the torches and bonfires in the loaded chunks (glow captures). */
+			fires: () =>
+				glowSources.flatMap((source) => {
+					const { buffer, count } = chunkRenderer.instances(source.type);
+					return Array.from({ length: count }, (_, i) => ({
+						x: -(buffer[i * 16 + 12] ?? 0),
+						z: buffer[i * 16 + 14] ?? 0,
+					}));
+				}),
+			/** Torch and bonfire glow on or off (the cost check). */
+			setGlow: (on: boolean) => torchGlow.setEnabled(on),
 			/** Game speed 1, 2 or 3 (perf margin check). */
 			setSpeed: (speed: number) => loop.setSpeed(speed),
 			/**
