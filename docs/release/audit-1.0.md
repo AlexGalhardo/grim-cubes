@@ -14,8 +14,8 @@ Assert da R-01-05: itens verificados com os comandos usados; `secrets-scan` em t
 | Save | validação completa (schema 12) | repetir na RC |
 | Telemetria | sem PII, opt-in | serviço e armazenamento (decisão do PO) |
 | Dependências | 3 vulnerabilidades só em ferramentas de dev | bump quando houver correção estável |
-| Licenças | áudio 119/119 pago; SBOM sem licenças | licenças no SBOM; origem da key art e dos retratos; fontes |
-| Art Bible §13 | sem IP de terceiros visto nos modelos | decisão sobre imagens geradas por IA |
+| Licenças | áudio 119/119 pago; imagens de IA registradas; SBOM sem licenças | licenças no SBOM; fontes |
+| Art Bible §13 | sem IP de terceiros visto nos modelos; exceção para imagens 2D de IA registrada | revisar a key art contra a §13 na RC |
 
 ## 1. Segredos
 
@@ -68,7 +68,8 @@ Assert da R-01-05: itens verificados com os comandos usados; `secrets-scan` em t
 - [x] SBOM: `bun tools/sbom/index.ts --out <pasta>` gera `grim-cubes_0.4.0.sbom.json` com 734 componentes.
 - [ ] O SBOM não traz a licença de nenhum componente (734 sem `licenses`). Preencher a partir do `package.json` de cada pacote, para o inventário de licenças da 1.0 (Est).
 - [x] Modelos e texturas: gerados por `tools/assets-gen` e refinados no Blockbench pelo projeto (sem asset de terceiros).
-- [ ] **Imagens 2D geradas por IA:** a key art do menu (`public/menu/menu-1.webp`) e os retratos da loja (`public/portraits/*.webp`) vêm de prompts para o gerador de imagens do ChatGPT (`prompt-concept-art-menu.md` e os prompts da loja na raiz do repositório). A Art Bible §13 proíbe "assets gerados por IA de imagem sem passar pelo pipeline Blockbench (consistência e licença)", e o `docs/legal/third-party.md` não os registra. Decisão do PO: emendar a §13 para permitir arte 2D gerada por IA com registro de origem, ou substituir. Se ficarem, registrar a origem e os termos de uso no `third-party.md` e declarar o conteúdo gerado por IA no questionário da Steam.
+- [x] **Imagens 2D geradas por IA** (decisão do PO de 2026-10-31: aceitar e registrar a origem): a key art do menu (`public/menu/menu-1.webp`) e os retratos da loja (`public/portraits/hero.webp`, `public/portraits/merchant.webp`) vêm do gerador de imagens do ChatGPT, com os prompts versionados (`prompt-concept-art-menu.md`, `prompt-settings.md`). A Art Bible §13 foi emendada para permitir imagens 2D de UI e marketing geradas por IA com registro; os três arquivos estão em `docs/legal/third-party.md` com origem, ferramenta, prompt, data e o resumo dos termos da OpenAI sobre o output; o checklist da Steam tem o item de declarar o conteúdo gerado por IA.
+- [ ] Transcrever no `docs/legal/third-party.md` a cláusula de titularidade do output e a data de vigência dos termos de uso da OpenAI (<https://openai.com/policies/terms-of-use/>); a página não pôde ser lida pelos agentes em 2026-10-31 (HTTP 403).
 - [ ] **Fontes:** o `theme.css` pede "PixelFont" e "Inter", mas nenhum arquivo de fonte é embarcado; a UI cai na monoespaçada e na sans do sistema. Escolher e embarcar fontes OFL (ADR-0013) e registrá-las no `third-party.md`.
 
 ## 8. Art Bible §13 (IP e tom)

@@ -69,6 +69,7 @@ Fonte: IDs dos rodapés `Refs: ROADMAP#` de eb12bc2 a 49039f2, do commit mais re
 
 ### Registro
 
+- [x] 2026-10-31 — Imagens 2D geradas por IA (key art do menu, retratos da loja e mockups em `references/concept-arts/`): **PO escolheu aceitar e registrar a origem.** Art Bible §13 emendada (UI e marketing podem ser 2D de IA com o prompt versionado em `prompt-*.md`; modelos 3D só no Blockbench), registro em `docs/legal/third-party.md`, item de declaração no checklist da Steam e na auditoria `docs/release/audit-1.0.md`.
 - [x] 2026-10-31 — Dependências de dev `@gltf-transform/core`, `fake-indexeddb`, `axe-core`, `jsdom`, `@testing-library/react`: **aprovadas** (versão estável atual, exata, ao instalar em E-02-01).
 - [x] 2026-10-31 — Worktrees permanentes `../grim-cubes-s1|s2|est` e execução paralela de S1, S2 e Est: **aprovados** (autorização durável; ver `prompt-workers.md` §6).
 - [x] 2026-10-31 — `LICENSE` proprietária ("All rights reserved", com nota de terceiros em `docs/legal/third-party.md`): **aprovada e criada na raiz**; E-01-02 só valida.

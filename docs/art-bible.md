@@ -309,7 +309,7 @@ Obrigatório (IP, tom e legibilidade):
 - Sem elementos com mais de 48 cubos num único modelo (exceto chefes).
 - Sem luz pontual em projéteis ou partículas.
 - Sem fontes com licença restritiva; só OFL/CC0.
-- Sem assets gerados por IA de imagem sem passar pelo pipeline Blockbench (consistência e licença).
+- Sem assets gerados por IA de imagem sem passar pelo pipeline Blockbench (consistência e licença). **Exceção (decisão do PO de 2026-10-31):** imagens 2D de UI e marketing (key art do menu, retratos da loja, capas e capsules) podem ser geradas por IA (gerador de imagens do ChatGPT, da OpenAI), desde que o prompt fique versionado no repositório (`prompt-*.md`) e o arquivo seja registrado em `docs/legal/third-party.md` com origem, ferramenta, prompt e data; os mockups de UI em `references/concept-arts/` também, como referência. Os modelos 3D do jogo continuam só no Blockbench, pelo pipeline do §10.
 
 ## 14. Checklist de aprovação de asset
 

@@ -66,6 +66,7 @@ Roda num workflow manual (`environment: steam`, aprovado pelo PO) ou localmente 
 ## 5. Classificação etária e conteúdo
 
 - [ ] **PO** — Content survey da Steam: violência frequente contra criaturas não humanas, sangue e desmembramento em cubos (gore ligável nas `Options`), sem conteúdo sexual, sem apostas. Data: ____
+- [ ] **PO** — Declarar conteúdo gerado por IA (pré-gerado: key art do menu e retratos de UI, registrados em `docs/legal/third-party.md`) no questionário de conteúdo da Steam. Data: ____
 - [ ] **PO** — Questionário IARC no Steamworks, para as classificações regionais (inclui ClassInd no Brasil, PEGI e ESRB quando aplicável). Registrar as classificações recebidas. Data: ____
 
 ## 6. Conquistas
