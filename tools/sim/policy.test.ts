@@ -1,7 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { cardsData, itemsData, type Modifier } from "../../packages/game/src/index";
+import {
+	cardsData,
+	itemsData,
+	type Modifier,
+	parsePolicy,
+	policyFor,
+	TANK_WEIGHTS,
+	tankSteer,
+} from "../../packages/game/src/index";
 import { runSim } from "./lib";
-import { parsePolicy, policyFor, TANK_WEIGHTS, tankSteer } from "./policy";
 
 const add = (stat: string, value: number): Modifier => ({ stat, op: "add", value });
 const DEFENSIVE = new Set(["max_hp", "armor", "hp_regen", "life_steal", "dodge"]);

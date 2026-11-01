@@ -1,3 +1,15 @@
+export { type Bot, type BotHooks, createBot } from "./bot/bot";
+export {
+	GREEDY_WEIGHTS,
+	POLICIES,
+	POLICY_LABEL,
+	type Policy,
+	type PolicyId,
+	parsePolicy,
+	policyFor,
+	TANK_WEIGHTS,
+	tankSteer,
+} from "./bot/policy";
 export { captureCheckpoint, type RunIdentity, restoreCheckpoint } from "./checkpoint";
 export type {
 	BiomeData,

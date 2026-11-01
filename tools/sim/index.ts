@@ -1,9 +1,9 @@
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { cpus } from "node:os";
 import { dirname } from "node:path";
+import { parsePolicy } from "../../packages/game/src/index";
 import type { SimOptions, SimReport } from "./lib";
 import { runSim } from "./lib";
-import { parsePolicy } from "./policy";
 import { checkTargets, type Difficulty, summarize } from "./report";
 
 function flag(argv: string[], name: string): string | undefined {

@@ -34,7 +34,7 @@ const errors: string[] = [];
 for (let seed = 1; seed <= runs; seed++) {
 	const started = performance.now();
 	try {
-		const report = runSim({ seed, rounds, difficulty: "normal", immortal: true });
+		const report = runSim({ seed, rounds, difficulty: "normal", immortal: true, unstick: true });
 		perRun.push({
 			seed,
 			outcome: report.outcome,
