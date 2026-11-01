@@ -362,5 +362,13 @@
 	"voice.swamp_matriarch.enrage": "You dare make me rage, little one?",
 	"voice.forgemaster.enrage": "Burn! Burn in my forge!",
 	"voice.alpha_hunter.enrage": "Now the hunt turns savage.",
-	"voice.nest_queen.enrage": "Enough! Tear them apart!"
+	"voice.nest_queen.enrage": "Enough! Tear them apart!",
+	"menu.quit": "Quit game",
+	"menu.quitConfirm": "Quit Grim Cubes?",
+	"menu.toMenu": "Back to menu",
+	"leave.stay": "Stay",
+	"leave.quit": "Quit",
+	"leave.toMenu": "Back to menu",
+	"leave.toMenuSaved": "Back to the title menu? The run stays saved at the start of round {round}; Continue picks it up.",
+	"leave.toMenuOver": "Back to the title menu?"
 }

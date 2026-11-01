@@ -457,6 +457,7 @@ async function boot(): Promise<void> {
 			if (!on) captionText = null;
 		},
 		setLocale: (id: string): void => setLocaleOption(id),
+		toMenu: (): void => reloadWith(() => undefined),
 		close: (): void => {
 			optionsOpen = false;
 			// Back in the pause menu the game stays frozen.
@@ -487,7 +488,10 @@ async function boot(): Promise<void> {
 				publishNow();
 			}}
 			optionsActions={optionsActions}
+			onMenu={() => reloadWith(() => undefined)}
 			menuActions={{
+				// Only the desktop build can close the app; the main process checks who is asking.
+				quit: window.gcDesktop ? () => void window.gcDesktop?.quit() : undefined,
 				resume: () => {
 					if (meta.run) reloadWith((query) => query.set("resume", "1"));
 					else {
@@ -1150,6 +1154,11 @@ async function boot(): Promise<void> {
 		publishNow();
 	}
 
+	/** A run is on screen: not the title, not the results or the death. */
+	function runInProgress(): boolean {
+		return !menuOpen && run.state !== "Idle" && run.state !== "Results" && run.state !== "Dying";
+	}
+
 	function closePause(): void {
 		pauseOpen = false;
 		loop.resume();
@@ -1288,6 +1297,8 @@ async function boot(): Promise<void> {
 			padStyle,
 			subtitles: meta.settings.subtitles,
 			hpBars: { hero: meta.settings.hpBarHero, enemies: meta.settings.hpBarEnemies },
+			// Back to the title menu is offered while a run is on; the run stays saved at the start of its round.
+			...(runInProgress() ? { leave: { round: checkpointRound || run.round } } : {}),
 			locale: meta.settings.locale,
 			locales: [
 				{ id: "pt-BR", name: "Português" },

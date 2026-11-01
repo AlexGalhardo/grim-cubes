@@ -8,6 +8,8 @@ interface Window {
 	gcDesktop?: {
 		platform: string;
 		steam: boolean;
+		/** Closes the app (the main process checks the sender). */
+		quit(): Promise<void>;
 		storage: import("@gc/platform").ElectronStorageBridge;
 	};
 }

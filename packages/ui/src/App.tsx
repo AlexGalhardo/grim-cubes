@@ -103,6 +103,8 @@ export interface AppProps {
 	onChooseChest?: ((index: number) => void) | undefined;
 	shopActions?: ShopActions | undefined;
 	onRestart?: (() => void) | undefined;
+	/** Back to the title menu from the results and the demo end (the host asks nothing more). */
+	onMenu?: (() => void) | undefined;
 	difficultyActions?: DifficultyActions | undefined;
 	slotsActions?: SlotsActions | undefined;
 	pauseActions?: PauseActions | undefined;
@@ -132,6 +134,7 @@ export function App({
 	onChooseChest,
 	shopActions,
 	onRestart,
+	onMenu,
 	ossuaryActions,
 	onDashHold,
 	difficultyActions,
@@ -209,10 +212,15 @@ export function App({
 				<Menu view={hud.menu} actions={menuActions} version={version} demo={demo} />
 			) : null}
 			{hud.demoEnd && onRestart && !hud.difficulty && !hud.ossuary ? (
-				<DemoEnd onRestart={onRestart} onOssuary={ossuaryActions?.open} />
+				<DemoEnd onRestart={onRestart} onOssuary={ossuaryActions?.open} onMenu={onMenu} />
 			) : null}
 			{hud.results && onRestart && !hud.demoEnd && !hud.difficulty && !hud.ossuary ? (
-				<Results view={hud.results} onRestart={onRestart} onOssuary={ossuaryActions?.open} />
+				<Results
+					view={hud.results}
+					onRestart={onRestart}
+					onOssuary={ossuaryActions?.open}
+					onMenu={onMenu}
+				/>
 			) : null}
 			{hud.pause && !hud.options && pauseActions ? (
 				<PauseMenu view={hud.pause} actions={pauseActions} />

@@ -2,6 +2,7 @@ import { t } from "@gc/core";
 import { type JSX, useEffect, useState } from "react";
 import { useDialogNav } from "../../nav/useDialogNav";
 import { Button } from "../Button/Button";
+import { LeaveConfirm } from "../LeaveConfirm/LeaveConfirm";
 import { Panel } from "../Panel/Panel";
 
 export interface ResultsViewModel {
@@ -26,6 +27,8 @@ export interface ResultsProps {
 	onRestart: () => void;
 	/** Opens the Ossuary so the souls just earned can be spent before the next run. */
 	onOssuary?: (() => void) | undefined;
+	/** Back to the title menu; asks first. */
+	onMenu?: (() => void) | undefined;
 }
 
 const COUNT_STEPS = 20;
@@ -46,17 +49,18 @@ function useCountUp(target: number): number {
 	return shown;
 }
 
-export function Results({ view, onRestart, onOssuary }: ResultsProps): JSX.Element {
+export function Results({ view, onRestart, onOssuary, onMenu }: ResultsProps): JSX.Element {
 	const souls = useCountUp(view.souls);
+	const [leaving, setLeaving] = useState(false);
 	useEffect(() => {
 		const onKey = (e: KeyboardEvent): void => {
-			if (e.key === "Enter") onRestart();
+			if (e.key === "Enter" && !leaving) onRestart();
 		};
 		window.addEventListener("keydown", onKey);
 		return () => window.removeEventListener("keydown", onKey);
-	}, [onRestart]);
+	}, [onRestart, leaving]);
 
-	const nav = useDialogNav<HTMLDivElement>();
+	const nav = useDialogNav<HTMLDivElement>({ onCancel: leaving ? () => setLeaving(false) : undefined });
 	return (
 		<div
 			ref={nav}
@@ -70,48 +74,70 @@ export function Results({ view, onRestart, onOssuary }: ResultsProps): JSX.Eleme
 					<h1 id="results-title" className="sr-only">
 						{t("results.title")}
 					</h1>
-					<dl className="grid grid-cols-2 gap-x-4 gap-y-1 font-body text-sm mobile-l:text-base">
-						<dt className="text-bone-dark">{t("results.round")}</dt>
-						<dd className="text-right" data-testid="results-round">
-							{view.round}
-						</dd>
-						<dt className="text-bone-dark">{t("results.record")}</dt>
-						<dd className="text-right" data-testid="results-record">
-							{view.record}
-							{view.newRecord ? t("results.newRecord") : ""}
-						</dd>
-						<dt className="text-bone-dark">{t("results.kills")}</dt>
-						<dd className="text-right" data-testid="results-kills">
-							{view.kills}
-						</dd>
-						<dt className="text-bone-dark">{t("results.damage")}</dt>
-						<dd className="text-right">{view.damage}</dd>
-						<dt className="text-bone-dark">{t("results.cause")}</dt>
-						<dd className="text-right" data-testid="results-cause">
-							{view.cause}
-						</dd>
-						<dt className="text-bone-dark">{t("results.seed")}</dt>
-						<dd className="text-right" data-testid="results-seed">
-							{view.seed}
-						</dd>
-					</dl>
-					<ul className="my-3 font-body text-sm text-bone-dark" aria-label={t("results.build")}>
-						{view.build.map((line) => (
-							<li key={line}>{line}</li>
-						))}
-					</ul>
-					<p className="mb-4 text-ember-light">
-						{t("results.souls")} <span data-testid="results-souls">{souls}</span>
-						<span className="text-bone-dark">
-							{t("results.totalSouls", { total: view.totalSouls })}
-						</span>
-					</p>
-					<div className="flex flex-wrap justify-end gap-3">
-						{onOssuary ? <Button onClick={onOssuary}>{t("results.ossuary")}</Button> : null}
-						<Button size="lg" onClick={onRestart}>
-							{t("results.restart")}
-						</Button>
-					</div>
+					{leaving && onMenu ? (
+						<LeaveConfirm
+							question={t("leave.toMenuOver")}
+							stayLabel={t("leave.stay")}
+							leaveLabel={t("leave.toMenu")}
+							onStay={() => setLeaving(false)}
+							onLeave={onMenu}
+						/>
+					) : (
+						<>
+							<dl className="grid grid-cols-2 gap-x-4 gap-y-1 font-body text-sm mobile-l:text-base">
+								<dt className="text-bone-dark">{t("results.round")}</dt>
+								<dd className="text-right" data-testid="results-round">
+									{view.round}
+								</dd>
+								<dt className="text-bone-dark">{t("results.record")}</dt>
+								<dd className="text-right" data-testid="results-record">
+									{view.record}
+									{view.newRecord ? t("results.newRecord") : ""}
+								</dd>
+								<dt className="text-bone-dark">{t("results.kills")}</dt>
+								<dd className="text-right" data-testid="results-kills">
+									{view.kills}
+								</dd>
+								<dt className="text-bone-dark">{t("results.damage")}</dt>
+								<dd className="text-right">{view.damage}</dd>
+								<dt className="text-bone-dark">{t("results.cause")}</dt>
+								<dd className="text-right" data-testid="results-cause">
+									{view.cause}
+								</dd>
+								<dt className="text-bone-dark">{t("results.seed")}</dt>
+								<dd className="text-right" data-testid="results-seed">
+									{view.seed}
+								</dd>
+							</dl>
+							<ul
+								className="my-3 font-body text-sm text-bone-dark"
+								aria-label={t("results.build")}
+							>
+								{view.build.map((line) => (
+									<li key={line}>{line}</li>
+								))}
+							</ul>
+							<p className="mb-4 text-ember-light">
+								{t("results.souls")} <span data-testid="results-souls">{souls}</span>
+								<span className="text-bone-dark">
+									{t("results.totalSouls", { total: view.totalSouls })}
+								</span>
+							</p>
+							<div className="flex flex-wrap justify-end gap-3">
+								{onOssuary ? (
+									<Button onClick={onOssuary}>{t("results.ossuary")}</Button>
+								) : null}
+								<Button size="lg" onClick={onRestart}>
+									{t("results.restart")}
+								</Button>
+								{onMenu ? (
+									<Button testId="results-menu" onClick={() => setLeaving(true)}>
+										{t("menu.toMenu")}
+									</Button>
+								) : null}
+							</div>
+						</>
+					)}
 				</Panel>
 			</div>
 		</div>

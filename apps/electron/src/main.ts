@@ -1,7 +1,7 @@
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { app, BrowserWindow, Menu, net, protocol, session } from "electron";
-import { registerStorageIpc } from "./ipc";
+import { registerQuitIpc, registerStorageIpc } from "./ipc";
 import { resolveAppPath, userDataDir } from "./paths";
 
 /**
@@ -90,6 +90,7 @@ if (!app.requestSingleInstanceLock()) {
 		session.defaultSession.setPermissionRequestHandler((_contents, _permission, done) => done(false));
 		session.defaultSession.setPermissionCheckHandler(() => false);
 		registerStorageIpc(join(app.getPath("userData"), "saves"));
+		registerQuitIpc();
 		serveDist();
 		openWindow();
 	});

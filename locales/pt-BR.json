@@ -362,5 +362,13 @@
 	"voice.swamp_matriarch.enrage": "Você ousa me enfurecer, pequenina?",
 	"voice.forgemaster.enrage": "Queimem! Queimem na minha forja!",
 	"voice.alpha_hunter.enrage": "Agora a caçada fica selvagem.",
-	"voice.nest_queen.enrage": "Chega! Despedacem todos!"
+	"voice.nest_queen.enrage": "Chega! Despedacem todos!",
+	"menu.quit": "Sair do jogo",
+	"menu.quitConfirm": "Sair do Grim Cubes?",
+	"menu.toMenu": "Voltar ao menu",
+	"leave.stay": "Ficar",
+	"leave.quit": "Sair",
+	"leave.toMenu": "Voltar ao menu",
+	"leave.toMenuSaved": "Voltar ao menu inicial? A run fica salva no início do round {round}; Continuar retoma de lá.",
+	"leave.toMenuOver": "Voltar ao menu inicial?"
 }

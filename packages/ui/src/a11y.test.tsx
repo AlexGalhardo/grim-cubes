@@ -83,6 +83,31 @@ test("the pause menu has no serious violations", async () => {
 	).toEqual([]);
 });
 
+test("the quit and back-to-menu questions have no serious violations", async () => {
+	const { fireEvent } = await import("@testing-library/react");
+	const axeRun = async (container: HTMLElement): Promise<string[]> => {
+		const result = await axe.run(container, {
+			rules: { "color-contrast": { enabled: false }, region: { enabled: false } },
+		});
+		return result.violations
+			.filter((v) => v.impact === "serious" || v.impact === "critical")
+			.map((v) => v.id);
+	};
+	const menu = render(
+		<Menu
+			view={{ records: [], continue: null }}
+			actions={{ resume: vi.fn(), play: vi.fn(), ossuary: vi.fn(), options: vi.fn(), quit: vi.fn() }}
+		/>,
+	);
+	fireEvent.click(menu.getByTestId("menu-quit"));
+	expect(await axeRun(menu.container)).toEqual([]);
+	cleanup();
+	const end = render(<DemoEnd onRestart={vi.fn()} onMenu={vi.fn()} />);
+	expect(await axeRun(end.container)).toEqual([]);
+	fireEvent.click(end.getByTestId("demo-end-menu"));
+	expect(await axeRun(end.container)).toEqual([]);
+});
+
 test("the slot screen has no serious violations", async () => {
 	expect(
 		await violations(
