@@ -62,10 +62,10 @@ async function runWith(
 }
 
 describe("audio-generate", () => {
-	it("ships 70 sfx, 9 music and 40 voice prompts (every id the audio engine asks for)", async () => {
+	it("ships 70 sfx, 10 music and 40 voice prompts (every id the audio engine asks for)", async () => {
 		const prompts = await loadPrompts();
 		expect(prompts.filter((p) => p.kind === "sfx")).toHaveLength(70);
-		expect(prompts.filter((p) => p.kind === "music")).toHaveLength(9);
+		expect(prompts.filter((p) => p.kind === "music")).toHaveLength(10);
 		expect(prompts.filter((p) => p.kind === "voice")).toHaveLength(40);
 	});
 

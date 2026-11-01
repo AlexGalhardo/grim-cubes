@@ -965,5 +965,14 @@
 		"promptInfluence": 0.5,
 		"model": "eleven_text_to_sound_v2",
 		"loop": true
+	},
+	{
+		"file": "mus_boss_gravedigger",
+		"kind": "music",
+		"prompt": "instrumental only, no vocals, no choir, no singing, no humming, no voices, slow crushing heavy metal boss music, 100 BPM, huge detuned low guitars, tolling church bell, slow pounding war drums, grave digging rhythm of shovel and iron, graveyard horror mood, grimdark, no cheerful synthesizers, seamless loop",
+		"durationSeconds": 150,
+		"loop": true,
+		"instrumental": true,
+		"model": "music_v1"
 	}
 ]

@@ -1,0 +1,14 @@
+{
+	"prompt": "instrumental only, no vocals, no choir, no singing, no humming, no voices, slow crushing heavy metal boss music, 100 BPM, huge detuned low guitars, tolling church bell, slow pounding war drums, grave digging rhythm of shovel and iron, graveyard horror mood, grimdark, no cheerful synthesizers, seamless loop",
+	"model": "music_v1",
+	"durationSeconds": 150,
+	"generatedAt": "2026-11-01T00:08:59.328Z",
+	"plan": "creator",
+	"hash": "e33d30581bfabdbb5a2d75c1fe1f004825b5b1130d9244bd49a2ce0551e679d2",
+	"instrumental": true,
+	"loudness": {
+		"target": -14,
+		"before": -10.6,
+		"after": -14.4
+	}
+}

@@ -256,6 +256,9 @@ test("music follows the game state", () => {
 		"mus_round",
 	]);
 	expect(musicFor({ state: "Round", menu: false, biomeTrack: null })).toEqual(["mus_round"]);
+	expect(
+		musicFor({ state: "BossRound", menu: false, biomeTrack: "mus_biome_forge", bossId: "alpha_hunter" }),
+	).toEqual(["mus_boss_alpha_hunter", "mus_boss"]);
 });
 
 const ctx: SoundContext = {

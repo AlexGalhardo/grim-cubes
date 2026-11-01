@@ -1,7 +1,7 @@
 {
 	"audio": {
 		"sfx": 70,
-		"music": 9,
+		"music": 10,
 		"voice": 40
 	},
 	"tests": {
@@ -10,7 +10,7 @@
 		"packages/platform": 27,
 		"packages/render": 154,
 		"packages/ui": 108,
-		"apps": 40,
-		"tools": 165
+		"apps": 43,
+		"tools": 166
 	}
 }
