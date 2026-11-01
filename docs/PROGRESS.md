@@ -1,6 +1,6 @@
 # PROGRESS
 
-Atualizado: 2026-11-01 (fuso do PO) | Versão: 0.4.0 (publicada, tag `v0.4.0` em 2c87269; `main` 49039f2) | Fase: 2 — PROTÓTIPO (ALPHA e BETA adiantadas em paralelo) | Sessão: #2
+Atualizado: 2026-11-01 (fuso do PO) | Versão: 0.5.0 (publicada, tag `v0.5.0` em ce352ff) | Fase: 2 — PROTÓTIPO (ALPHA e BETA adiantadas em paralelo) | Sessão: #2
 
 Meta do PO (2026-10-31): implementar o ROADMAP até o fim sem interrupções; tarefas `Resp: PO` ficam em Bloqueios e os agentes seguem com o resto. Hooks lefthook instalados em `.git` (valem para todos os worktrees).
 
@@ -17,7 +17,7 @@ Meta do PO (2026-10-31): implementar o ROADMAP até o fim sem interrupções; ta
 
 As linhas refletem as últimas mensagens do Orq; o Orq confirma ao integrar.
 
-Estado (2026-10-31): a **v0.4.0** está publicada (GitHub Release `v0.4.0`, 2c87269), com SBOM, checksums e o build Windows. Desde a v0.3.0 entraram: Mercador num ponto fixo com anel, chegada sonora e 20 falas legendadas; loja ARPG, `Options` em três colunas e Ossuário em colunas a partir dos mockups do PO; retratos pintados; menu com key art; 3 slots de save e checkpoint no início de cada round (Continuar); menu de pausa; Fácil, Normal e Difícil abertas desde o início e barras de vida ligáveis; save em arquivo no Electron com pasta fixa e alvo `dir`; glifos por controle, foco por D-pad e remap completo do gamepad; telas baixas compactas com o HUD escondido sob os diálogos; herói novo igual à key art, revisão do §14 com capturas em jogo e tiles irregulares; luz nova e `atlas_terrain`; áudio final em duas rodadas com loudness; `--check` com duas seeds e faixas por dificuldade e política (`tank`); 5 raridades com Mítico e o Ímã de Ossos; espada de 3,25 u e 130°. **O e2e (Playwright) segue fora do CI por decisão do PO.** Em 2026-11-01 entraram cinco magias automáticas de tier 4 (Seta do Ossuário, Círculo de Ossos, Relâmpago de Almas, Minas Sepulcrais, Pulso de Cinzas), que disparam sozinhas na run, e as baselines Playwright de menu, slots, Options, pausa, Ossuário e loja nos quatro viewports. O que resta no ROADMAP está na lista de asserts abertos abaixo; nada disso fecha sem o PO, hardware, loja ou uma tag.
+Estado (2026-10-31): a **v0.4.0** está publicada (GitHub Release `v0.4.0`, 2c87269), com SBOM, checksums e o build Windows. Desde a v0.3.0 entraram: Mercador num ponto fixo com anel, chegada sonora e 20 falas legendadas; loja ARPG, `Options` em três colunas e Ossuário em colunas a partir dos mockups do PO; retratos pintados; menu com key art; 3 slots de save e checkpoint no início de cada round (Continuar); menu de pausa; Fácil, Normal e Difícil abertas desde o início e barras de vida ligáveis; save em arquivo no Electron com pasta fixa e alvo `dir`; glifos por controle, foco por D-pad e remap completo do gamepad; telas baixas compactas com o HUD escondido sob os diálogos; herói novo igual à key art, revisão do §14 com capturas em jogo e tiles irregulares; luz nova e `atlas_terrain`; áudio final em duas rodadas com loudness; `--check` com duas seeds e faixas por dificuldade e política (`tank`); 5 raridades com Mítico e o Ímã de Ossos; espada de 3,25 u e 130°. **O e2e (Playwright) segue fora do CI por decisão do PO.** Em 2026-11-01 entraram cinco magias automáticas de tier 4 (Seta do Ossuário, Círculo de Ossos, Relâmpago de Almas, Minas Sepulcrais, Pulso de Cinzas), que disparam sozinhas na run, e as baselines Playwright de menu, slots, Options, pausa, Ossuário e loja nos quatro viewports. A tag `v0.5.0` (ce352ff) fecha essa leva. O que resta no ROADMAP está na lista de asserts abertos abaixo; nada disso fecha sem o PO, hardware, loja ou uma tag.
 
 Dívida operacional: com vários agentes rodando testes ao mesmo tempo, a CPU satura e o `pre-push` pode estourar timeout (a suíte isolada passa). Janela de push (um agente por vez) e timeouts maiores nos testes pesados; não contornar o hook. Cherry-pick de base antiga já apagou correções duas vezes (59eb086, restaurado em fdddb95 e 78ae69b): o Esp roda a cada auditoria um script que procura linhas adicionadas que sumiram do HEAD.
 
@@ -90,7 +90,7 @@ Cada id abaixo continua `[ ]` ou `[~]` no ROADMAP. O assert que falta depende do
 - **A-06-03**: demo pública em 2027-01-24 e inscrição no Next Fest.
 - **A-06-04** `[~]`: endpoint e envio em lote da telemetria (hoje só log local).
 - **A-07-04**: `docs/playtests/2027-01-alpha.md` e `2027-02-alpha.md`.
-- **A-07-05** `[~]`: releases `v0.5.0` e `v0.6.0` (`v0.4.0` já publicada).
+- **A-07-05** `[~]`: `v0.5.0` publicada (ce352ff). Falta `v0.6.0` (demo pública).
 - **B-03-04** `[~]`: calibração de juice por playtest no bloco `vfx` de `data/render.json`.
 - **B-04-02** `[~]`: checklist manual de Xbox e DualSense e a nota de Steam Deck na página.
 - **B-04-03**: `docs/playtests/2027-03-beta.md` com ≥ 50 runs e crash-free ≥ 99,5%.
@@ -150,7 +150,7 @@ Cada id abaixo continua `[ ]` ou `[~]` no ROADMAP. O assert que falta depende do
 
 1. Orq: distribuir as pendências sem dependência do PO da reconciliação de 2026-10-31 (tabela no relatório do Esp).
 2. Orq + S2: ADR de emenda do ADR-0009 para os 3 slots e o checkpoint por round, e um item do ROADMAP para slots, checkpoint e pausa (hoje com `Refs` na P-07-03).
-3. Orq: `v0.5.0` (A-07-05).
+3. Orq: `v0.6.0`, a demo pública (A-07-05), quando o conteúdo dela estiver fechado.
 4. PO: o que ficou manual em Bloqueios (Steamworks, secrets, bench na GPU, silhuetas, domínios, gamepad físico, run no executável).
 
 ## Dívidas e observações
