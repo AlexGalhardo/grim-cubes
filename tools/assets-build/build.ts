@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { basename, join } from "node:path";
 import { type Document, Logger, NodeIO } from "@gltf-transform/core";
 import { PNG } from "pngjs";
 import { bakeVat } from "../bake-vat/bake";
@@ -339,6 +339,24 @@ function buildIconAtlas(options: BuildOptions, entries: Record<string, ManifestE
  * `assets/src/audio/<kind>/<id>.mp3` -> `<outDir>/audio/<id>.mp3`, the flat path the audio engine fetches
  * (apps/web/src/audio/webAudio.ts). Not hashed: vercel.json gives `/assets/audio/` a short revalidating cache.
  */
+/**
+ * Shipped audio must come from a paid ElevenLabs plan (commercial licence): the `<name>.meta.json` next to each mp3
+ * names it in `plan`, and the free plan, a missing sidecar or a missing `plan` fail the build (A-05-02).
+ */
+function assertPaidAudio(mp3Path: string): void {
+	const name = basename(mp3Path, ".mp3");
+	const metaPath = mp3Path.replace(/\.mp3$/, ".meta.json");
+	if (!existsSync(metaPath))
+		throw new RuleError("audio-meta-missing", name, "no <name>.meta.json next to the mp3");
+	const plan = (JSON.parse(readFileSync(metaPath, "utf8")) as { plan?: unknown }).plan;
+	if (typeof plan !== "string" || plan === "" || plan === "free")
+		throw new RuleError(
+			"audio-plan-free",
+			name,
+			`plan "${String(plan)}" is not a paid plan; regenerate it`,
+		);
+}
+
 function copyAudio(options: BuildOptions): void {
 	const root = join(options.srcDir, "audio");
 	const out = join(options.outDir, "audio");
@@ -348,8 +366,9 @@ function copyAudio(options: BuildOptions): void {
 	for (const kind of readdirSync(root, { withFileTypes: true })) {
 		if (!kind.isDirectory()) continue;
 		for (const file of readdirSync(join(root, kind.name))) {
-			if (file.endsWith(".mp3"))
-				writeFileSync(join(out, file), readFileSync(join(root, kind.name, file)));
+			if (!file.endsWith(".mp3")) continue;
+			assertPaidAudio(join(root, kind.name, file));
+			writeFileSync(join(out, file), readFileSync(join(root, kind.name, file)));
 		}
 	}
 }

@@ -277,11 +277,26 @@ describe("buildAssets", () => {
 		await expect(build()).rejects.toThrow("[emissive-size]");
 	});
 
+	test("audio with a paid plan builds, and the free plan, a missing plan or a missing sidecar fail", async () => {
+		const dir = join(src, "audio", "sfx");
+		mkdirSync(dir, { recursive: true });
+		writeFileSync(join(dir, "sfx_a.mp3"), "mp3");
+		writeFileSync(join(dir, "sfx_a.meta.json"), JSON.stringify({ plan: "creator" }));
+		await build();
+		expect(existsSync(join(out, "audio", "sfx_a.mp3"))).toBe(true);
+		writeFileSync(join(dir, "sfx_a.meta.json"), JSON.stringify({ plan: "free" }));
+		await expect(build()).rejects.toThrow("[audio-plan-free]");
+		writeFileSync(join(dir, "sfx_a.meta.json"), JSON.stringify({}));
+		await expect(build()).rejects.toThrow("[audio-plan-free]");
+		rmSync(join(dir, "sfx_a.meta.json"));
+		await expect(build()).rejects.toThrow("[audio-meta-missing]");
+	});
+
 	test("audio files are copied flat to audio/<id>.mp3", async () => {
 		await writeModel("prop_a", {}, 1);
 		mkdirSync(join(src, "audio", "sfx"), { recursive: true });
 		writeFileSync(join(src, "audio", "sfx", "sfx_hit.mp3"), new Uint8Array([1, 2, 3]));
-		writeFileSync(join(src, "audio", "sfx", "sfx_hit.meta.json"), "{}");
+		writeFileSync(join(src, "audio", "sfx", "sfx_hit.meta.json"), JSON.stringify({ plan: "creator" }));
 		await build();
 		expect([...readFileSync(join(out, "audio", "sfx_hit.mp3"))]).toEqual([1, 2, 3]);
 		expect(existsSync(join(out, "audio", "sfx_hit.meta.json"))).toBe(false);
