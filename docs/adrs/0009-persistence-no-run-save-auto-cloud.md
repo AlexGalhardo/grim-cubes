@@ -1,6 +1,6 @@
 # ADR-0009 — Persistência: sem save de run; Steam Auto-Cloud; IndexedDB direto
 
-Status: aceito. Data: 2026-10-31.
+Status: aceito; emendado pelo ADR-0025 (slots, checkpoint por round e pausa, decisões do PO de 2026-10-31). Data: 2026-10-31.
 
 ## Contexto
 
