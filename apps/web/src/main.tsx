@@ -45,6 +45,7 @@ import {
 	buyNode,
 	captureCheckpoint,
 	chooseDifficulty,
+	createBot,
 	createGameSession,
 	createLoop,
 	createTargetingSystem,
@@ -148,6 +149,7 @@ import { createMerchantVoice } from "./audio/merchantVoice";
 import { ambienceFor, createWebAudioDeps, musicFor, weaponLoopFor } from "./audio/webAudio";
 import { createDebugGamepad } from "./debugGamepad";
 import { applyLocale, initLocale } from "./locale";
+import { createSoak, soakOptionsFrom } from "./soak";
 import "./main.css";
 
 const log = createLogger("boot");
@@ -215,7 +217,25 @@ async function boot(): Promise<void> {
 	const stick = platform.touch ? createVirtualStick() : undefined;
 
 	// Bench scenarios (P-03-06) are debug-only and always run on the same seed.
-	const bench = __DEBUG_API__ ? params.get("bench") : null;
+	const rawBench = __DEBUG_API__ ? params.get("bench") : null;
+	// `?bench=soak` (R-01-02) is not a fixed-horde bench: the greedy bot plays whole runs and `soak` records them.
+	const soakOn = rawBench === "soak";
+	const bench = soakOn ? null : rawBench;
+	const soak = soakOn
+		? createSoak(
+				sessionStorage,
+				soakOptionsFrom(params),
+				{
+					userAgent: navigator.userAgent,
+					now: () => Date.now(),
+					heapMB: () => {
+						const memory = (performance as { memory?: { usedJSHeapSize?: number } }).memory;
+						return memory?.usedJSHeapSize === undefined ? null : memory.usedJSHeapSize / 1048576;
+					},
+				},
+				params.get("reset") === "1",
+			)
+		: null;
 
 	// Account progress lives in IndexedDB on the web and in files under the app data folder in Electron (SDD 06,
 	// ADR-0009). A corrupt or unreadable save starts a fresh one.
@@ -248,7 +268,7 @@ async function boot(): Promise<void> {
 	const meta: MetaState = loaded.meta;
 	// "Continuar" with a run in progress reloads with `?resume=1`: that run's seed and difficulty win over the URL.
 	const resumeRun = params.get("resume") === "1" && !bench ? meta.run : null;
-	const seed = resumeRun?.seed ?? (bench ? 42 : runSeed());
+	const seed = resumeRun?.seed ?? (soak ? soak.seed : bench ? 42 : runSeed());
 	if (loaded.notice) log.warn("save problem", loaded.notice);
 	// The saved language applies unless `?lang=` forces one for this session.
 	if (!params.has("lang")) applyLocale(meta.settings.locale);
@@ -268,7 +288,7 @@ async function boot(): Promise<void> {
 		seed,
 		difficulty,
 		meta,
-		autoShop: __IS_DEMO__ ? (round: number) => round >= demoLastRound : false,
+		autoShop: soakOn ? true : __IS_DEMO__ ? (round: number) => round >= demoLastRound : false,
 	});
 	const {
 		events,
@@ -635,7 +655,7 @@ async function boot(): Promise<void> {
 		navigator as { hardwareConcurrency?: number; deviceMemory?: number },
 		render.engine.getGlInfo().renderer,
 	);
-	const pinned = __DEBUG_API__ && (bench !== null || params.has("debug"));
+	const pinned = __DEBUG_API__ && (bench !== null || soakOn || params.has("debug"));
 	const autoId = choosePresetId(
 		forced,
 		pinned,
@@ -1134,7 +1154,7 @@ async function boot(): Promise<void> {
 	if (landing === "difficulty") difficultyOpen = true;
 
 	// The run is saved into the slot when a round is about to start (GDD 21.4); debug and bench runs never touch it.
-	const checkpointsOn = !menuOpen && !loaded.readOnly && !bench && !params.has("debug");
+	const checkpointsOn = !menuOpen && !loaded.readOnly && !bench && !soakOn && !params.has("debug");
 	let checkpointRound = resumeRun?.round ?? 0;
 
 	function storeRun(next: MetaState["run"]): void {
@@ -1680,6 +1700,42 @@ async function boot(): Promise<void> {
 		}
 	};
 
+	// Soak (R-01-02): the greedy bot at the controls on an immortal hero, a page load per run.
+	const soakBot = soak ? createBot(session, "greedy", { unstick: true }) : null;
+	let soakSteps = 0;
+	let soakDone = false;
+	function soakTick(): void {
+		if (!soak || !soakBot || soakDone) return;
+		soakSteps++;
+		Health.hp[hero] = Health.max[hero] ?? 0;
+		let outcome: "completed" | "died" | "stalled" | null = null;
+		if (run.state === "Shop") {
+			soakBot.shop();
+			if (run.round >= soak.options.rounds) outcome = "completed";
+			else run.closeShop();
+		} else if (run.state === "Results") outcome = "died";
+		else if (soakSteps > (soak.options.rounds * 90) / STEP) outcome = "stalled";
+		if (outcome === null) return;
+		soakDone = true;
+		const { next } = soak.finishRun({ outcome, roundReached: run.round, steps: soakSteps });
+		if (next) {
+			const query = new URLSearchParams(location.search);
+			query.delete("reset");
+			query.set("seed", String(soak.seed + 1));
+			location.search = query.toString();
+		} else downloadSoakReport();
+	}
+
+	function downloadSoakReport(): void {
+		if (!soak) return;
+		const link = document.createElement("a");
+		link.href = URL.createObjectURL(
+			new Blob([`${JSON.stringify(soak.report(), null, "\t")}\n`], { type: "application/json" }),
+		);
+		link.download = "soak-report.json";
+		link.click();
+	}
+
 	const loop = createLoop({
 		simulate: () => {
 			// Behind the title screen the world stands still.
@@ -1719,7 +1775,9 @@ async function boot(): Promise<void> {
 				pickup.run(world, hero);
 				return;
 			}
+			soakBot?.prepare(input);
 			session.step(input);
+			if (soak && soakBot) soakTick();
 			checkpointTick();
 			// No results screen yet (P-05-08): a finished run starts over.
 			if (run.state === "Results" && !settled) settleRun();
@@ -2221,7 +2279,37 @@ async function boot(): Promise<void> {
 	let wasDashing = false;
 	let wasPause = false;
 	let wasSpeedButton = false;
+	if (soak) {
+		soak.setGpu(render.engine.getGlInfo().renderer);
+		loop.setSpeed(soak.options.speed);
+		for (const type of ["error", "unhandledrejection"])
+			window.addEventListener(type, (event) => {
+				const reason = (event as PromiseRejectionEvent).reason as unknown;
+				soak.noteError(
+					event instanceof ErrorEvent
+						? event.message
+						: reason instanceof Error
+							? reason.message
+							: String(reason),
+				);
+			});
+		window.gc.debug = {
+			...window.gc.debug,
+			soak: { report: () => soak.report(), download: downloadSoakReport, reset: () => soak.reset() },
+		};
+		// A plain status line so a person watching sees where the run is, and the report once it is all done.
+		const status = document.createElement("div");
+		status.style.cssText =
+			"position:fixed;left:8px;bottom:8px;z-index:99;padding:4px 8px;background:#000c;color:#d9c9a3;font:12px monospace;pointer-events:none";
+		document.body.append(status);
+		window.setInterval(() => {
+			status.textContent = soak.done
+				? `soak done: ${soak.report().runs.length} runs, ${soak.report().errors.length} errors (gc.debug.soak.download())`
+				: `soak run ${soak.runIndex + 1}/${soak.options.runs} seed ${soak.seed} round ${run.round} errors ${soak.report().errors.length}`;
+		}, 1000);
+	}
 	render.engine.runRenderLoop(() => {
+		soak?.frame();
 		// Once per frame: getGamepads() allocates, and several steps may run per frame.
 		sources.poll(input);
 		if (touchDash) input.dash = true;
