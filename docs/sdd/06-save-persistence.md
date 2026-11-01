@@ -24,7 +24,7 @@ O exemplo acima é ilustrativo; hoje `SAVE_SCHEMA_VERSION = 12` (`packages/core/
 - Migração 10→11 (dificuldade Fácil): `records` ganhou `easy` (primeira chave; ausente nos arquivos antigos vale 0). Como o `data` não é reescrito, o checksum dos schemas 1 a 10 é conferido sem `easy` (`withoutEasy`). Os recordes de `normal`, `grim` e `nightmare` não mudam de chave; só o nome exibido de `grim` virou "Difícil".
 - Migração 9→10 (slots): o save único dos schemas 1 a 9 vira o slot 1 (ver 2.1). O schema 10 não muda o formato de cada campo, só onde ficam; as migrações abaixo valem para o save único antigo, que `parseSave` ainda lê.
 - Migrações: as três mudanças de schema (1→2→3→4) só acrescentam campos de `settings`, então não reescrevem o `data`: `validateMeta` preenche o que faltava com o padrão (`createSettings`) e `parseSave` confere o checksum contra o `data` como a versão antiga o enxergava (`coveredBy`: sem `settings` na v1 e só as chaves de `settings` que cada versão escrevia, nesta ordem, nas v2 a v4; a v5 acrescentou as opções visuais a v6 as teclas a v7 os botões do controle a v8 as legendas e a v9 os botões de reroll e velocidade; saves 7 e 8 só tinham dash e pausa em `pad`, e o checksum antigo é conferido assim). Migrações que reescrevam dados ficam em `packages/core/src/save/` e rodam em cadeia dentro de `parseSave`, antes da validação, com testes de fixtures de cada versão (`save.test.ts` monta um save de cada schema de 1 a 4 e confere os padrões e a recusa de checksum adulterado).
-- Escrita e backup: no desktop e no Android, grava em `save.json.tmp`, depois renomeia, e mantém `save.json.bak` (última versão válida). Na web, cada `put` do IndexedDB já é atômico; o `.bak` vira uma segunda chave. Load tenta `save`, depois `.bak`; se os dois falharem, guarda o texto ilegível sem sobrescrever, cria um novo e avisa na UI. Save de versão mais nova nunca é sobrescrito. Hoje `apps/web` só tenta `save` e começa do zero em qualquer erro, sobrescrevendo no fim da run seguinte (provisório até P-05-08).
+- Escrita e backup: no Electron cada chave é um arquivo em `saves/` (`<chave>.json`, escrito em `.tmp` e renomeado, fila por arquivo); na web, cada `put` do IndexedDB já é atômico; o `.bak` é uma segunda chave, um por arquivo (`save.bak`, `slotN.bak`). Load tenta o arquivo, depois o `.bak`; se os dois falharem, guarda o texto ilegível em `save.corrupt` (e o anterior em `save.corrupt.old`) sem sobrescrever, começa do zero e avisa na UI. Save de versão mais nova nunca é sobrescrito e deixa a sessão em somente leitura. O Android ainda não existe.
 
 ## 2.1 Slots e checkpoint (schema 10)
 
@@ -53,7 +53,7 @@ O exemplo acima é ilustrativo; hoje `SAVE_SCHEMA_VERSION = 12` (`packages/core/
 | Plataforma | Implementação | Caminho |
 | --- | --- | --- |
 | Web | `createWebStorage` (`storage/web.ts`): `indexedDB` direto, banco `grim-cubes`, 1 store `kv`, sem dependência | origem do site |
-| Electron | `fs` no main process via IPC (`storage:read`, `storage:write`); hoje é stub que lança `NotImplementedError` (provisório até P-07-02) | `app.getPath("userData")/saves/save.json` |
+| Electron | `fs` no main process via IPC (`storage:read`, `storage:write`, `storage:backup`), só para as chaves de `STORAGE_KEYS`; escrita atômica com fila por arquivo (`apps/electron/src/saveFiles.ts`) | `app.getPath("userData")/saves/<chave>.json` (pasta fixada em `%APPDATA%\grim-cubes`) |
 | Steam Cloud | Auto-Cloud configurado no Steamworks para a pasta `saves/` (sem código; ADR-0009) | gerenciado pela Steam |
 | Android | `@capacitor/filesystem` em `Directory.Data`; hoje é stub que lança `NotImplementedError` (provisório até M-01-02) | `saves/save.json` |
 
@@ -76,9 +76,9 @@ Fronteira de confiança: chaves fora de `STORAGE_KEYS` lançam `RangeError`. O v
 ## 4. Quando salvar
 
 - Checkpoint: a cada início de round (seção 2.1), uma escrita pequena do slot; nunca por frame.
-- `MetaState`: ao fim da run (resultado), ao comprar nó, ao mudar desbloqueio, ao sair do jogo. Nunca por frame. Hoje só no fim da run, quando `apps/web` liquida a run em `meta` e grava `serializeSave(meta)` (os outros gatilhos entram com o Ossuário e as opções).
-- `Options`: ao fechar a tela de opções (provisório até a tarefa de opções).
-- Debounce de 500 ms; fila única para evitar escritas concorrentes (provisório: hoje há uma escrita por run, sem fila).
+- Perfil do slot: ao fim da run (resultado), ao comprar ou resetar nó do Ossuário e a cada início de round (checkpoint). Nunca por frame. Sempre por `updateMeta`, que relê o arquivo sob o lock e grava só o que mudou.
+- Settings globais: a cada mudança na tela de Opções (aplicada na hora em memória e gravada em `save`).
+- Sem debounce: as escritas são raras (opções, compras, início de round, fim de run) e passam todas pelo lock compartilhado (`navigator.locks` na web), que serializa o ler-e-gravar.
 
 ## 5. Demo → jogo completo
 
@@ -90,7 +90,7 @@ Fronteira de confiança: chaves fora de `STORAGE_KEYS` lançam `RangeError`. O v
 
 - Slots e checkpoint: migração 9→10 com checksum conferido (`save.test.ts`, `saveStore.test.ts`), isolamento entre slots, escrita só do arquivo que mudou, apagar slot, slot ilegível preservado, validação do checkpoint campo a campo, chaves de slot no storage web e no Electron, determinismo da retomada (`checkpoint.test.ts`), tela de slots com axe e foco por D-pad.
 - Existentes: round-trip de serialização com `schemaVersion` 1; checksum adulterado, versão nova, tipos errados e campos faltando recusados; adaptador web com `fake-indexeddb` (chave inválida, valor não string, limite de tamanho); e2e `results.spec` (almas e recorde sobrevivem ao reload).
-- A fazer: corrupção cai no `.bak` e versão nova não é sobrescrita (provisório até P-05-08); migrações com fixtures (quando houver v2); escrita atômica simulada com falha no meio (Electron/Android); importação de save da demo.
+- A fazer: escrita atômica simulada com falha no meio (Electron/Android); importação de save da demo. Já cobertos: corrupção cai no `.bak`, versão nova não é sobrescrita, migrações 1 a 12 com checksum.
 
 ## 7. Telemetria opt-in (A-06-04)
 

@@ -13,7 +13,7 @@ interface DebugGc {
 }
 
 // Needs a build made with GC_DEBUG_API=1 (the debug API is compiled out of release builds).
-test("a Normal record of 20 unlocks Grim, and the typed seed and difficulty reach the next run", async ({
+test("Nightmare stays locked below a Grim record of 20, Grim is open, and the typed seed and difficulty reach the next run", async ({
 	page,
 }, testInfo) => {
 	test.slow();
