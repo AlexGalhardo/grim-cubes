@@ -134,9 +134,11 @@ describe("sim report fields", () => {
 	});
 
 	it("an immortal hero keeps going where a mortal one dies (soak mode)", () => {
-		const mortal = runSim({ seed: 3, rounds: 12, difficulty: "nightmare" });
+		// Nightmare seed 3 dies on round 14. A cap of 12 stops at the shop and counts as completed,
+		// because the spell items changed which offers the bot buys before it ever takes one.
+		const mortal = runSim({ seed: 3, rounds: 16, difficulty: "nightmare" });
 		expect(mortal.outcome).toBe("died");
-		const immortal = runSim({ seed: 3, rounds: 12, difficulty: "nightmare", immortal: true });
+		const immortal = runSim({ seed: 3, rounds: 16, difficulty: "nightmare", immortal: true });
 		expect(immortal.outcome).not.toBe("died");
 		expect(immortal.roundReached).toBeGreaterThan(mortal.roundReached);
 	});
