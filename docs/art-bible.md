@@ -243,6 +243,8 @@ Mudanças (`LIGHTING` em `packages/render/src/scene/palette.ts`, o grimdark do c
 | Diferença média | -14 | +28 |
 | Modelos com diferença menor que 10 | 18 | 2 (`bone_merchant`, `prop_furnace_01`, cuja brasa já brilha) |
 
+Anéis claros no chão sob o herói (forte) e os inimigos (fraco) e barras de vida desenhadas pelo render reforçam o contraste dos personagens contra o mapa; os anéis ficam desligados no preset `minimum` (custo no SDD 14).
+
 O chão da Forja e do Ninho é emissivo (anéis de brasa e veios nos tiles), por isso a sombra do chão quase não os mexe.
 
 ## 10. Pipeline de assets e nomenclatura

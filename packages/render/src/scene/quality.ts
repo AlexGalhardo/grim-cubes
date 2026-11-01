@@ -22,6 +22,9 @@ export interface QualityEngine {
  * the pool sizes are the caller's to apply (the spawner and the VFX pools live outside this module). Shadow
  * generators do not exist yet; the cascade/blob choice is kept in `AppliedPreset` for when they do.
  */
+/** Presets that draw without the ground contrast rings (SDD 14: rings and health bars cost 10 to 16% of a frame in software). */
+export const NO_RINGS_PRESETS: readonly string[] = ["minimum"];
+
 export function applyPreset(game: GameScene, engine: QualityEngine, preset: VideoPreset): AppliedPreset {
 	game.scene.shadowsEnabled = preset.shadows !== "none";
 	const hardwareScalingLevel = 1 / preset.renderScale;
