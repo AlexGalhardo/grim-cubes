@@ -132,4 +132,12 @@ describe("sim report fields", () => {
 		expect(secondsInBossRound).toBeLessThan(report.steps / 60);
 		expect(fight?.enrageStacks).toBeGreaterThanOrEqual(0);
 	});
+
+	it("an immortal hero keeps going where a mortal one dies (soak mode)", () => {
+		const mortal = runSim({ seed: 3, rounds: 12, difficulty: "nightmare" });
+		expect(mortal.outcome).toBe("died");
+		const immortal = runSim({ seed: 3, rounds: 12, difficulty: "nightmare", immortal: true });
+		expect(immortal.outcome).not.toBe("died");
+		expect(immortal.roundReached).toBeGreaterThan(mortal.roundReached);
+	});
 });

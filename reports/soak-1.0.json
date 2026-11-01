@@ -1,0 +1,113 @@
+{
+	"gpu": null,
+	"headless": true,
+	"runs": 10,
+	"rounds": 60,
+	"heapDeltaMB": 2.4,
+	"errors": 0,
+	"errorMessages": [],
+	"eventsDropped": 0,
+	"allReachedRound": false,
+	"timeouts": [
+		{
+			"seed": 7,
+			"round": 20
+		},
+		{
+			"seed": 10,
+			"round": 60
+		}
+	],
+	"perRun": [
+		{
+			"seed": 1,
+			"outcome": "completed",
+			"roundReached": 60,
+			"steps": 228746,
+			"eventsDropped": 0,
+			"heapMB": 4.4,
+			"seconds": 14.7
+		},
+		{
+			"seed": 2,
+			"outcome": "completed",
+			"roundReached": 60,
+			"steps": 222838,
+			"eventsDropped": 0,
+			"heapMB": 5,
+			"seconds": 12.9
+		},
+		{
+			"seed": 3,
+			"outcome": "completed",
+			"roundReached": 60,
+			"steps": 249724,
+			"eventsDropped": 0,
+			"heapMB": 5.2,
+			"seconds": 18.3
+		},
+		{
+			"seed": 4,
+			"outcome": "completed",
+			"roundReached": 60,
+			"steps": 228125,
+			"eventsDropped": 0,
+			"heapMB": 5.3,
+			"seconds": 14.3
+		},
+		{
+			"seed": 5,
+			"outcome": "completed",
+			"roundReached": 60,
+			"steps": 220493,
+			"eventsDropped": 0,
+			"heapMB": 6.3,
+			"seconds": 16.9
+		},
+		{
+			"seed": 6,
+			"outcome": "completed",
+			"roundReached": 60,
+			"steps": 219354,
+			"eventsDropped": 0,
+			"heapMB": 6.6,
+			"seconds": 14.3
+		},
+		{
+			"seed": 7,
+			"outcome": "timeout",
+			"roundReached": 20,
+			"steps": 324000,
+			"eventsDropped": 0,
+			"heapMB": 6.5,
+			"seconds": 7.6
+		},
+		{
+			"seed": 8,
+			"outcome": "completed",
+			"roundReached": 60,
+			"steps": 211610,
+			"eventsDropped": 0,
+			"heapMB": 6.6,
+			"seconds": 8.5
+		},
+		{
+			"seed": 9,
+			"outcome": "completed",
+			"roundReached": 60,
+			"steps": 210561,
+			"eventsDropped": 0,
+			"heapMB": 6.8,
+			"seconds": 9.3
+		},
+		{
+			"seed": 10,
+			"outcome": "timeout",
+			"roundReached": 60,
+			"steps": 324000,
+			"eventsDropped": 0,
+			"heapMB": 6.8,
+			"seconds": 13.4
+		}
+	]
+}
