@@ -17,9 +17,9 @@ O PO aprova as dependências do Capacitor 8 e dos plugins do SDD 10 §3. A insta
 
 ## Consequências
 
-- `v0.5.0` não adiciona pacote Capacitor nem projeto `apps/android`.
-- B-04-04, M-01-02 e M-01-03 seguem abertos: o scaffold, o AAB e a compra dependem da instalação e de conta, keystore e device do PO.
-- Nenhuma dependência nova entra por causa deste ADR.
+- Emenda (2026-11-01): o PO pediu um APK na GitHub Release `v0.5.0` para testar no celular. Entram `@capacitor/core`, `@capacitor/cli` e `@capacitor/android` em 8.6.0 exato, e o projeto `apps/android`. `bun run build:android` gera um APK de debug para sideload. Não é build de loja.
+- B-04-04 segue parcial: falta `reports/perf-android-<device>.json` no aparelho do PO. M-01-02 (plugins, AAB assinado) e M-01-03 (billing) seguem abertos.
+- Nenhuma outra dependência entra por causa deste ADR.
 
 ## Referências
 

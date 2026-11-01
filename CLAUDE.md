@@ -20,7 +20,7 @@ Roguelite de sobrevivência em ondas, 3D voxel grimdark, Babylon.js 9 + TypeScri
 | `bun run dev` | Vite dev server (web) |
 | `bun run build` | `data:check` + `assets:build` + build web-demo |
 | `bun run build:electron` | build Windows (electron-builder) |
-| `bun run build:android` | build AAB (fase 1.1) |
+| `bun run build:android` | APK de debug (Capacitor); o AAB assinado continua na fase 1.1 |
 | `bun run typecheck` | `bun check -b` (type checker nativo do Bun 1.4.4, mesmos erros do `tsc -b`) |
 | `bun run lint` | `biome ci .` |
 | `bun run lint:md` | markdownlint-cli2 |

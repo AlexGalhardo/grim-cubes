@@ -94,7 +94,7 @@ Cada id abaixo continua `[ ]` ou `[~]` no ROADMAP. O assert que falta depende do
 - **B-03-04** `[~]`: calibração de juice por playtest no bloco `vfx` de `data/render.json`.
 - **B-04-02** `[~]`: checklist manual de Xbox e DualSense e a nota de Steam Deck na página.
 - **B-04-03**: `docs/playtests/2027-03-beta.md` com ≥ 50 runs e crash-free ≥ 99,5%.
-- **B-04-04**: aprovação das deps Capacitor e `reports/perf-android-<device>.json`.
+- **B-04-04** `[~]`: APK de debug na GitHub Release `v0.5.0`. Falta `reports/perf-android-<device>.json` no aparelho do PO.
 - **B-05-03** `[~]`: submissão do build à Valve (o checklist existe; o envio não).
 - **B-05-04**: releases `v0.7.0`, `v0.8.0` e `v0.9.0`.
 - **R-01-01** `[~]`: ferramenta pronta (`major --rc`, commitlint em `release/*`); falta publicar a tag `v1.0.0-rc.1` (`gh release view`).

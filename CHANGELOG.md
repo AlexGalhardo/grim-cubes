@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **android:** Debug APK for sideloading (`bun run build:android`, Capacitor 8.6.0), attached to the v0.5.0 GitHub Release. Not a Play build (B-04-04)
+
 ## [0.5.0] - 2026-11-01
 
 ### Added

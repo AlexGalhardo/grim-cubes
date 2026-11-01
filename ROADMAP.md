@@ -451,8 +451,9 @@ Ritmo: ~20 h/semana do PO + agentes. Datas escorregam; a ordem e os critérios n
   - Estado (2026-11-01): `gc.debug.gamepad` e o e2e com gamepad virtual estão no repositório. Continuam com o PO o checklist manual de Xbox e DualSense e a nota de Steam Deck não suportado na página (A-06-02).
 - [ ] **B-04-03** Beta fechado na Steam (branch `beta`, ≥ 10 testers com keys), coleta de telemetria e crashes (relatório de `window.onerror` + `unhandledrejection` no JSONL). Deps: B-02-02, B-03-01, A-06-01, A-06-04. Resp: PO + Est. Prio: P0.
   - Asserts: `docs/playtests/2027-03-beta.md` com ≥ 50 runs, crash-free ≥ 99,5%, lista de bugs com IDs (copiados para `docs/PROGRESS.md` §Dívidas com tag `[bug P0]`/`[bug P1]`); todos P0/P1 fechados antes do RC.
-- [ ] **B-04-04** Capacitor 8 scaffold (`apps/android`, `cap sync`, build debug) para medir performance real em device Galaxy A (sem publicar). Deps: A-01-01, aprovação do PO das deps Capacitor (Bloqueios). Resp: S2. Prio: P2 (não bloqueia a 1.0).
+- [~] **B-04-04** Capacitor 8 scaffold (`apps/android`, `cap sync`, build debug) para medir performance real em device Galaxy A (sem publicar). Deps: A-01-01, aprovação do PO das deps Capacitor (Bloqueios). Resp: S2. Prio: P2 (não bloqueia a 1.0).
   - Asserts: `bun run build:android` gera `app-debug.apk`; `reports/perf-android-<device>.json` com preset Baixo `fpsAvg ≥ 30` em 896×414 e 800×360.
+  - Estado (2026-11-01): Capacitor 8.6.0 e `apps/android` no repositório. `bun run build:android` gera o APK de debug (paisagem, sem assinatura de loja) e o arquivo vai na GitHub Release `v0.5.0` para o PO testar no celular. Falta o relatório de fps no aparelho.
 
 ### B-05 Localização, docs e qualidade
 

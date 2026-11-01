@@ -36,7 +36,7 @@ Implementado em P-07-02 sem Steam (não há App ID; o `steamworks.js` e o preloa
 
 ## 3. Android (Capacitor 8) — versão 1.1
 
-Nada desta seção existe ainda: não há `apps/android` e `bun run build:android` é um stub (`tools/build-android`). Tudo provisório até B-04-04 (scaffold de medição) e M-01-02 (versão completa).
+O scaffold de medição (B-04-04) existe: `apps/android` com Capacitor 8.6.0 e `bun run build:android`, que gera um APK de debug (`release/grim-cubes_<versão>_android.apk`) para sideload. Os plugins, o AAB assinado e o billing continuam provisórios até M-01-02 e M-01-03.
 
 - `apps/android/capacitor.config.ts`: `appId: com.alexgalhardo.grimcubes`, `webDir: ../../dist` (o Vite gera o `dist` na raiz), `android: { allowMixedContent: false, backgroundColor: "#14121C" }`, `server: undefined` (assets locais).
 - Plugins: `@capacitor/app`, `@capacitor/haptics`, `@capacitor/screen-orientation` (lock landscape), `@capacitor/filesystem` (save), `@capacitor/status-bar` (immersive). Billing: `@capacitor-community/in-app-purchases` ou `@revenuecat/purchases-capacitor` `[decidir em ADR na fase BETA, após checar manutenção]`.
@@ -53,7 +53,7 @@ Nada desta seção existe ainda: não há `apps/android` e `bun run build:androi
 | `dev` | `vite --config apps/web/vite.config.ts` |
 | `build` | `bun run data:check && bun run assets:build && vite build --config apps/web/vite.config.ts --mode web-demo` |
 | `build:electron` | `bun tools/build-electron/index.ts` (a cadeia do §2) |
-| `build:android` | `bun tools/build-android/index.ts` (stub; `vite build --mode android && cap sync android && cd apps/android && ./gradlew bundleRelease` é provisório até M-01-02) |
+| `build:android` | `bun tools/build-android/index.ts`: `data:check`, `assets:build`, `vite build --mode android`, `cap sync`, `gradlew assembleDebug`. O `bundleRelease` assinado fica para a M-01-02 |
 | `typecheck` | `bun check -b` |
 | `lint` | `biome ci .` |
 | `lint:md` | `markdownlint-cli2 "**/*.md"` |

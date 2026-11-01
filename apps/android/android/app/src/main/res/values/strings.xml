@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Grim Cubes</string>
+    <string name="title_activity_main">Grim Cubes</string>
+    <string name="package_name">com.alexgalhardo.grimcubes</string>
+    <string name="custom_url_scheme">com.alexgalhardo.grimcubes</string>
+</resources>
