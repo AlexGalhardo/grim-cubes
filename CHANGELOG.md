@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **tools:** `assets:build` refuses audio whose `meta.json` says the free ElevenLabs plan or has no plan, listing the files (A-05-02)
 - **audio:** The engine can loop a sound (`playLoop`/`stop`, with a hold that ends it a moment after the last call): the SMG and MG loops while they fire and the biome ambience under the hero; the first rage of a boss is shouted (`voice_<boss>_enrage`, captioned in both languages)
 - **ui:** Embedded fonts: Pixelify Sans (display) and Inter (text), self-hosted `.woff2` in `public/fonts` (latin and latin-ext, `font-display: swap`, latin preloaded) under the SIL OFL, registered in `docs/legal/third-party.md`; the UI no longer falls back to system fonts
 - **tests:** A virtual gamepad for debug builds (`?gamepad=1`, `gc.debug.gamepad`) and an e2e spec that walks menu, slots, difficulty and pause with it (B-04-02)

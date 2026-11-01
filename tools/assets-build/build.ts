@@ -338,8 +338,43 @@ function buildIconAtlas(options: BuildOptions, entries: Record<string, ManifestE
 /**
  * `assets/src/audio/<kind>/<id>.mp3` -> `<outDir>/audio/<id>.mp3`, the flat path the audio engine fetches
  * (apps/web/src/audio/webAudio.ts). Not hashed: vercel.json gives `/assets/audio/` a short revalidating cache.
+ * Every file must carry the ElevenLabs plan it was generated on in its `.meta.json`: the free plan has no commercial
+ * licence (docs/legal/third-party.md), so a file generated on it, or with no plan recorded, stops the build.
  */
+export function auditAudioPlans(srcDir: string): string[] {
+	const root = join(srcDir, "audio");
+	const bad: string[] = [];
+	if (!existsSync(root)) return bad;
+	for (const kind of readdirSync(root, { withFileTypes: true })) {
+		if (!kind.isDirectory()) continue;
+		for (const file of readdirSync(join(root, kind.name))) {
+			if (!file.endsWith(".mp3")) continue;
+			const metaPath = join(root, kind.name, file.replace(/\.mp3$/, ".meta.json"));
+			let plan = "";
+			if (existsSync(metaPath)) {
+				try {
+					const meta = JSON.parse(readFileSync(metaPath, "utf8")) as { plan?: unknown };
+					plan = typeof meta.plan === "string" ? meta.plan.trim().toLowerCase() : "";
+				} catch {
+					plan = "";
+				}
+			}
+			if (plan === "") bad.push(`${kind.name}/${file}: no plan in its meta.json`);
+			else if (plan === "free") bad.push(`${kind.name}/${file}: generated on the free plan`);
+		}
+	}
+	return bad;
+}
+
 function copyAudio(options: BuildOptions): void {
+	const offenders = auditAudioPlans(options.srcDir);
+	if (offenders.length > 0) {
+		throw new RuleError(
+			"audio-plan",
+			"assets/src/audio",
+			`no commercial licence (the ElevenLabs free plan has none): regenerate on a paid plan with \`bun run audio:generate --force --only <id>\` or remove the file\n  ${offenders.join("\n  ")}`,
+		);
+	}
 	const root = join(options.srcDir, "audio");
 	const out = join(options.outDir, "audio");
 	rmSync(out, { recursive: true, force: true });
