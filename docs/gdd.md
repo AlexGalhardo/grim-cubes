@@ -246,7 +246,7 @@ Decisão D07/D08: uma arma por vez. Comprar outra substitui (a antiga é vendida
 
 | ID | Nome | Tipo | Alcance (u) | Ataques/s | Dano base T1 | Projétil | Knockback | Especial |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `sword` | Espada Enferrujada | corpo a corpo, arco 130° | 3,25 | 1,4 | 12 | — | 1,5 u | Acerta todos no arco |
+| `sword` | Espada Enferrujada | corpo a corpo, arco 130° | 3,2 | 1,4 | 12 | — | 1,5 u | Acerta todos no arco |
 | `pistol` | Pistola de Ferro | tiro único | 12 | 2,0 | 10 | 1, perfura 0 | 0,5 u | +15% crítico |
 | `smg` | Submetralhadora | rajada | 10 | 8,0 | 4 | 1, dispersão 6° | 0,2 u | Dano ×1,3 em alvo < 4 u |
 | `mg` | Metralhadora Pesada | contínuo | 14 | 12,0 | 3 | 1, dispersão 10° | 0,3 u | −20% velocidade do herói enquanto atira |
@@ -486,7 +486,7 @@ Acréscimos de 2026-10-31 (pedido do PO):
 
 | ID | Nome | Tier | Preço | Efeito | Contra-efeito |
 | --- | --- | --- | --- | --- | --- |
-| `bone_lodestone` | Ímã de Ossos | 2 | 40 | efeito `pull_fragments`: a cada 8 s puxa todos os fragmentos do chão até o herói (cada cópia tem o seu relógio) | — |
+| `bone_lodestone` | Ímã de Ossos | 3 | 120 | efeito `pull_fragments`: a cada 8 s puxa todos os fragmentos do chão até o herói (cada cópia tem o seu relógio) | — |
 | `titan_core` | Núcleo do Titã | 5 | 280 | +200 HP máx, +12 armadura | −20% velocidade, −15% velocidade de ataque |
 | `blood_crown` | Coroa de Sangue | 5 | 300 | +60% dano, +8% roubo de vida | HP máx ×0,6 |
 | `storm_gauntlet` | Manopla da Tempestade | 5 | 320 | +50% velocidade de ataque, +25% crítico | −6 armadura |
@@ -772,7 +772,22 @@ Faixas aprovadas para o bot greedy (decisão do Orq, 2026-10-31, revisável pelo
 
 Faixas aprovadas para o bot **tank** (política de sobrevivência: prioriza HP, armadura, regeneração e roubo de vida, recua e usa o dash), também decisão do Orq de 2026-10-31: ele é a build segura e lenta, então vale o contrário do greedy: p50 **26–35** em Normal e Grim e ≥ 30 em Nightmare; fração de vivas ≤ 65% (≤ 70% em Nightmare); tempo de kill dos chefes ≤ 150 s em Normal e Grim e ≤ 190 s em Nightmare (limite de 180 s do B-01-03 vale para Normal e Grim); fúria < 3 em Normal e Grim, ≤ 3 em Nightmare. Hoje o tank passa em todas, exceto o tempo do Forjador em Grim (172 s, acima de 150 s mas dentro do limite de 180 s do B-01-03); a Matriarca em Nightmare (186 s) passa pelo limite de 190 s.
 
-**Alcance da espada (pedido do PO, 2026-10-31):** a Espada Enferrujada passou de alcance 2,5 u para **3,25 u** (+30%) e de arco 120° para **130°** (golpe mais horizontal); cada tier soma +0,5 u como antes (tier 4: 4,75 u). Medido: 64 × 35 com seeds 1 e 1001 deu p50 23,5 e 26; 500 × 30 deu p50 22 (35% vivas). Com 3,4 u e arco 140° o p50 subia para 27 e 27,5 e saía da faixa; 3,25 u e 130° é o maior alcance que fica nela.
+**Alcance da espada (pedido do PO, 2026-10-31):** a Espada Enferrujada passou de alcance 2,5 u para **3,2 u** (+28%; era 3,25 u até o rebalanceamento do Ímã, ver abaixo) e de arco 120° para **130°** (golpe mais horizontal); cada tier soma +0,5 u como antes (tier 4: 4,7 u). Medido: 64 × 35 com seeds 1 e 1001 deu p50 23,5 e 26; 500 × 30 deu p50 22 (35% vivas). Com 3,4 u e arco 140° o p50 subia para 27 e 27,5 e saía da faixa; 3,25 u e 130° é o maior alcance que fica nela.
+
+**Rebalanceamento do Ímã de Ossos (decisão do Orq, 2026-10-31):** com o `pull_fragments` do S2 puxando de verdade, o bot greedy passou a recolher todos os fragmentos do chão e o sim saiu da faixa: 64 × 35 com p50 35, 58–67% vivas e ouro por preço de 2,2 (alvos 18–26, ≤ 45% e 1,2–1,8). O que importou foi **quanto o bot compra o ímã**, não o intervalo nem a duração: intervalos de 8 a 45 s e `pullSeconds` 1 ou 2, no tier 2 a 40 de preço, deram todos o mesmo ouro (2,2 a 2,3). Tabela do que foi testado (64 × 35, seeds 1 e 1001):
+
+| Ímã | Espada | p50 s1 / s1001 | Vivas s1 / s1001 | Ouro por preço |
+| --- | --- | --- | --- | --- |
+| tier 2, preço 40, a cada 8 s (como entrou) | 3,25 u | 35 / 35 | 67% / 58% | 2,25 / 2,22 |
+| tier 2, preço 40, a cada 20, 30 ou 45 s, ou puxada de 1 s | 3,25 u | 35 / 32,5–35 | 52–67% | 2,19–2,33 |
+| tier 4, preço 160, a cada 20 s | 3,25 u | 28,5 / 35 | 45% / 52% | 1,83 / 1,68 |
+| **tier 3, preço 120, a cada 8 s** | 3,25 u | 21,5 / 26,5 | 33% / 42% | 1,49 / 1,46 |
+| tier 3, preço 120 | 3,1 u | 31 / 22 | 48% / 39% | — |
+| tier 3, preço 120 | 3,0 u | 27 / 24,5 | 44% / 45% | — |
+| tier 3, preço 120 | arco 125° | 25,5 / 18,5 | IQR 26 (falha) | — |
+| **tier 3, preço 120, a cada 8 s (escolhido)** | **3,2 u** | **23 / 22,5** | **41% / 42%** | dentro da faixa |
+
+Escolhido: o Ímã sobe do tier 2 (preço 40) para o **tier 3 (Épico), preço 120**, com intervalo de 8 s e a espada em **3,2 u** (130°). O 500 × 30 final deu p50 22,5 com 40% vivas, e todos os alvos passaram. Cada tabela de 64 runs oscila alguns rounds com qualquer mudança de dados (o bot fica na beira do penhasco de censura), por isso a escolha olhou as duas seeds e o 500 × 30. `pullFragmentsEverySeconds` do Est foi removido a favor da implementação do S2.
 
 **Dificuldade Fácil (proposta, ainda não implementada):** inimigos ×0,75 de HP e dano e almas ×0,75. Simulada por parâmetro (Normal com `hpDamageMult` 0,75; 128 × 35): greedy p50 35 com 79% vivas (kill 59 / 65 / 80 s), tank p50 35 com 85% vivas (kill 85 / 92 / 121 s). Faixas propostas, decisão do Orq: p50 30–35 nas duas políticas, vivas ≤ 85% (greedy) e ≤ 90% (tank), kill dos chefes nas mesmas faixas do Normal (≤ 150 s para o tank), ouro por preço ≥ 1,1 em vez de 1,2 (o Fácil rende menos ouro por preço) e IQR ≤ 25. Já estão em `rangesFor` para a dificuldade `easy`; falta medir com a branch real do S2.
 
