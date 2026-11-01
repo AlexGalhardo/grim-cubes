@@ -143,8 +143,6 @@ interface Ranges {
 	killMax: { gravedigger: number; other: number };
 	/** Boss enrage stacks must stay below this (a Nightmare tank may reach 3). */
 	enrageBelow: number;
-	/** Lowest gold per item price: Easy hands out less gold per price because its hordes are weaker. */
-	goldMin: number;
 }
 
 /**
@@ -159,7 +157,6 @@ export function rangesFor({ difficulty, policy }: Profile): Ranges {
 			alive: difficulty === "easy" ? 0.85 : ALIVE_LIMIT,
 			killMax: { gravedigger: 90, other: 120 },
 			enrageBelow: 3,
-			goldMin: difficulty === "easy" ? 1.1 : 1.2,
 		};
 	}
 	const nightmare = difficulty === "nightmare";
@@ -169,7 +166,6 @@ export function rangesFor({ difficulty, policy }: Profile): Ranges {
 		alive: nightmare ? 0.7 : easy ? 0.9 : 0.65,
 		killMax: nightmare ? { gravedigger: 190, other: 190 } : { gravedigger: 150, other: 150 },
 		enrageBelow: nightmare ? 4 : 3,
-		goldMin: easy ? 1.1 : 1.2,
 	};
 }
 
@@ -205,7 +201,8 @@ export function checkTargets(
 		skipped: !longEnough || alive === null,
 	});
 	for (const [id, entry] of Object.entries(metrics.bosses)) {
-		const lo = id === "gravedigger" ? 45 : 60;
+		// Easy bosses have 75% of the HP, so they may die 25% sooner.
+		const lo = (id === "gravedigger" ? 45 : 60) * (profile.difficulty === "easy" ? 0.75 : 1);
 		const hi = id === "gravedigger" ? ranges.killMax.gravedigger : ranges.killMax.other;
 		checks.push({
 			id: `boss-kill-seconds:${id}`,
@@ -224,9 +221,9 @@ export function checkTargets(
 	}
 	checks.push({
 		id: "gold-per-item-price",
-		target: `${ranges.goldMin}-1.8`,
+		target: "1.2-1.8",
 		value: metrics.goldPerPrice,
-		ok: within(metrics.goldPerPrice, ranges.goldMin, 1.8),
+		ok: within(metrics.goldPerPrice, 1.2, 1.8),
 		skipped: metrics.goldPerPrice === null,
 	});
 	checks.push({

@@ -49,14 +49,25 @@ test("the tank may leave more runs alive and take longer on the bosses than the 
 	expect(rangesFor({ difficulty: "nightmare", policy: "tank" }).enrageBelow).toBe(4);
 });
 
-test("Easy expects a late p50 with most runs alive and accepts a little less gold per price", () => {
+test("Easy expects a late p50 with most runs alive and lets its bosses die sooner", () => {
 	const greedy = rangesFor({ difficulty: "easy", policy: "greedy" });
 	const tank = rangesFor({ difficulty: "easy", policy: "tank" });
 	expect(greedy.p50).toEqual([30, 35]);
 	expect(greedy.alive).toBe(0.85);
 	expect(tank.alive).toBe(0.9);
-	expect(greedy.goldMin).toBe(1.1);
-	expect(rangesFor({ difficulty: "normal", policy: "greedy" }).goldMin).toBe(1.2);
+	const killTarget = (difficulty: "easy" | "normal"): string | undefined =>
+		checkTargets(
+			{
+				...metrics(100, 10),
+				bosses: {
+					swamp_matriarch: { fought: 10, killed: 10, medianKillSeconds: 50, medianEnrageStacks: 0 },
+				},
+			},
+			35,
+			{ difficulty, policy: "greedy" },
+		).find((c) => c.id === "boss-kill-seconds:swamp_matriarch")?.target;
+	expect(killTarget("normal")).toBe("60-120");
+	expect(killTarget("easy")).toBe("45-120");
 	expect(p50Check(32, { difficulty: "easy", policy: "greedy" })).toBe(true);
 	expect(p50Check(24, { difficulty: "easy", policy: "greedy" })).toBe(false);
 });
