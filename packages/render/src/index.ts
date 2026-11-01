@@ -55,6 +55,8 @@ export type { FragmentRenderer } from "./vfx/fragments";
 export { createFragmentRenderer } from "./vfx/fragments";
 export type { HitStop, HitStopDeps } from "./vfx/hitStop";
 export { createHitStop } from "./vfx/hitStop";
+export type { HpBarSwitch, HpBars } from "./vfx/hpBars";
+export { createHpBars } from "./vfx/hpBars";
 export type { ParticlePool, ParticlePoolStats } from "./vfx/particles";
 export type { ProjectileRenderer } from "./vfx/projectiles";
 export { createEnemyShotRenderer, createProjectileRenderer } from "./vfx/projectiles";
