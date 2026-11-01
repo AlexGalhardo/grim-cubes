@@ -1,4 +1,4 @@
-import type { Modifier } from "../../packages/game/src/index";
+import type { Modifier } from "../rules/stats";
 
 /**
  * The simulated player's habits (GDD 25). `greedy` buys and picks for damage and keeps the weapon's range; `tank`

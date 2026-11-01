@@ -5,6 +5,7 @@ import {
 	type Difficulty,
 } from "../../packages/core/src/index";
 import {
+	createBot,
 	createGameSession,
 	difficultyData,
 	EventType,
@@ -12,13 +13,12 @@ import {
 	Health,
 	hashWorld,
 	heroData,
-	Position,
-	queryEnemies,
+	POLICY_LABEL,
+	type PolicyId,
 	roundsData,
 	STEP,
 	weaponsData,
 } from "../../packages/game/src/index";
-import { POLICY_LABEL, type PolicyId, policyFor, tankSteer } from "./policy";
 
 export interface SimOptions {
 	seed: number;
@@ -33,6 +33,8 @@ export interface SimOptions {
 	policy?: PolicyId;
 	/** Soak test: the hero's HP is refilled every step so the run keeps going to the requested round. */
 	immortal?: boolean;
+	/** The bot sidesteps props it is stuck against (the soak needs it to reach every boss). */
+	unstick?: boolean;
 }
 
 export interface RoundReport {
@@ -104,7 +106,6 @@ export function runSim(options: SimOptions): SimReport {
 	const meta = createMetaState();
 	for (const node of options.ossuary ?? []) meta.ossuary[node] = true;
 	// The same wiring the game runs (P-07-05): shop, cards, elites, bosses, props, hero status, item effects.
-	const policy = policyFor(options.policy ?? "greedy");
 	const session = createGameSession({
 		seed: options.seed,
 		difficulty,
@@ -113,21 +114,7 @@ export function runSim(options: SimOptions): SimReport {
 		autoShop: true,
 		...(options.weapon !== undefined && { weapon: options.weapon }),
 	});
-	const {
-		world,
-		hero,
-		events,
-		progress,
-		run,
-		shop,
-		levelUp,
-		chest,
-		weapon,
-		boss,
-		poolItems,
-		origin,
-		dash,
-	} = session;
+	const { world, hero, events, progress, run, shop, boss } = session;
 
 	const input = createInputState();
 	const bosses: BossFight[] = [];
@@ -196,128 +183,22 @@ export function runSim(options: SimOptions): SimReport {
 		}
 	};
 
-	let dashHeld = false;
-
-	/** The policy's move: hold the weapon's range from the nearest enemy, backing off when it is closer (the tank also runs and dashes). */
-	function steer(): void {
-		const hx = Position.x[hero] ?? 0;
-		const hz = Position.z[hero] ?? 0;
-		// The bot roams outwards as the run goes on (20 u + 8 u per round): ring 1 starts at 120 u, so a median run
-		// meets the Swamp from round ~13, the Forge from ~30. Beyond that radius it walks back towards the centre.
-		const fromCentreX = origin.x + hx;
-		const fromCentreZ = origin.z + hz;
-		const fromCentre = Math.hypot(fromCentreX, fromCentreZ);
-		if (fromCentre > 20 + 8 * run.round) {
-			input.moveX = -fromCentreX / fromCentre;
-			input.moveZ = -fromCentreZ / fromCentre;
-			return;
-		}
-		if (policy.id === "tank") {
-			const spots: { x: number; z: number }[] = [];
-			for (const e of queryEnemies(world)) spots.push({ x: Position.x[e] ?? 0, z: Position.z[e] ?? 0 });
-			const move = tankSteer({
-				hero: { x: hx, z: hz },
-				hpFraction: (Health.hp[hero] ?? 0) / Math.max(1, Health.max[hero] ?? 1),
-				range: weapon.range,
-				enemies: spots,
-				canDash: dash.unlocked && dash.charges > 0,
-			});
-			input.moveX = move.moveX;
-			input.moveZ = move.moveZ;
-			// The dash fires on the press edge: hold it one step, then let go.
-			input.dash = move.dash && !dashHeld;
-			dashHeld = move.dash;
-			return;
-		}
-		let best = Number.POSITIVE_INFINITY;
-		let dx = 0;
-		let dz = 0;
-		const list = queryEnemies(world);
-		for (let i = 0; i < list.length; i++) {
-			const e = list[i] ?? 0;
-			const ex = (Position.x[e] ?? 0) - hx;
-			const ez = (Position.z[e] ?? 0) - hz;
-			const d = ex * ex + ez * ez;
-			if (d < best) {
-				best = d;
-				dx = ex;
-				dz = ez;
-			}
-		}
-		const length = Math.sqrt(best);
-		if (!(length > 0) || !Number.isFinite(length)) {
-			input.moveX = 0;
-			input.moveZ = 0;
-			return;
-		}
-		const want = Math.max(1, weapon.range * 0.8);
-		const sign = length > want + 0.5 ? 1 : length < want - 0.5 ? -1 : 0;
-		input.moveX = (sign * dx) / length;
-		input.moveZ = (sign * dz) / length;
-	}
-
-	function pickBest(count: number, scoreOf: (index: number) => number): number {
-		let best = 0;
-		for (let i = 1; i < count; i++) if (scoreOf(i) > scoreOf(best)) best = i;
-		return best;
-	}
-
-	/** Takes the pending level-up card and chest item with the highest policy value. */
-	function choose(): void {
-		while (levelUp.offer) {
-			const offer = levelUp.offer;
-			if (
-				!levelUp.choose(
-					pickBest(offer.length, (i) => policy.modifierValue(offer[i]?.modifiers ?? [])),
-				)
-			)
-				break;
-		}
-		while (chest.offer) {
-			const offer = chest.offer;
-			const index = pickBest(
-				offer.length,
-				(i) =>
-					policy.modifierValue(offer[i]?.modifiers ?? []) +
-					policy.chestBonus(poolItems.find((it) => it.id === offer[i]?.id)?.effects),
-			);
-			if (!chest.choose(index)) break;
-		}
-	}
-
-	/** Buys by value per gold until nothing worth it is affordable. */
-	function shopGreedy(): void {
-		const prices = shop.slots.filter((s) => s.kind === "item").map((s) => s.price);
-		avgPriceOfNextShop = prices.length > 0 ? prices.reduce((a, b) => a + b, 0) / prices.length : 0;
-		for (;;) {
-			let bestIndex = -1;
-			let bestRatio = 0;
-			for (const [i, slot] of shop.slots.entries()) {
-				if (slot.sold || slot.price > progress.gold) continue;
-				let benefit = 0;
-				if (slot.kind === "item") {
-					const item = poolItems.find((it) => it.id === slot.id);
-					benefit =
-						policy.modifierValue(item?.modifiers ?? []) +
-						(item ? policy.effectValue(item.effects) : 0);
-				} else if (slot.kind === "upgrade") {
-					benefit = policy.upgradeValue;
-				}
-				const ratio = benefit / Math.max(1, slot.price);
-				if (benefit > 0 && ratio > bestRatio) {
-					bestRatio = ratio;
-					bestIndex = i;
-				}
-			}
-			if (bestIndex < 0 || !shop.buy(bestIndex)) return;
+	const bot = createBot(session, options.policy ?? "greedy", {
+		unstick: options.unstick === true,
+		onShopOpened: (average) => {
+			avgPriceOfNextShop = average;
+		},
+		onItemBought: () => {
 			report.itemsBought++;
-		}
-	}
+		},
+	});
 
 	const maxSteps =
 		options.maxSteps ??
 		Math.ceil(
-			(options.rounds * (policy.id === "tank" ? TANK_SECONDS_PER_ROUND : MAX_SECONDS_PER_ROUND)) / STEP,
+			(options.rounds *
+				((options.policy ?? "greedy") === "tank" ? TANK_SECONDS_PER_ROUND : MAX_SECONDS_PER_ROUND)) /
+				STEP,
 		);
 	run.newRun();
 	while (steps < maxSteps) {
@@ -325,9 +206,7 @@ export function runSim(options: SimOptions): SimReport {
 			report.outcome = "died";
 			break;
 		}
-		choose();
-		if (run.state === "Round" || run.state === "BossRound") steer();
-		else input.dash = false;
+		bot.prepare(input);
 		session.step(input);
 		if (options.immortal) Health.hp[hero] = Health.max[hero] ?? 0;
 		// A level-up or chest pauses the round mid-fight, so the fight is told apart by its round, not by the state.
@@ -345,7 +224,7 @@ export function runSim(options: SimOptions): SimReport {
 		events.consume(visit);
 		steps++;
 		if (run.state === "Shop") {
-			shopGreedy();
+			bot.shop();
 			const last = report.perRound.at(-1);
 			if (last) last.avgItemPrice = avgPriceOfNextShop;
 			lastGold = progress.gold;
