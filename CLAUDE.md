@@ -51,6 +51,7 @@ Até a fase ESTRUTURA concluir E-02, alguns scripts são stubs.
 - Camadas: `core` ← `game` ← `render`; `ui` lê só o store; `platform` é o único lugar com Electron/Capacitor/Steam.
 - Alvos de tela obrigatórios em UI: 1920×1080, 2560×1440, 896×414, 800×360 (landscape).
 - Toda alteração relevante: atualizar SDD/ADR/GDD/Art Bible afetados e `CHANGELOG.md` `[Unreleased]`; atualizar `docs/PROGRESS.md`.
+- Pendências legais, jurídicas, de contas, custos e de lançamento nas lojas (Steam, Google Play, Vercel) vivem em `todo-later.md`: toda entrega que cria, muda ou resolve uma delas atualiza o arquivo no mesmo commit.
 - Nunca commitar segredos (`.env`); nunca `push --force`; nunca apagar histórico sem aprovação do PO.
 
 ## Memória e contexto

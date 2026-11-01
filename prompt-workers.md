@@ -145,6 +145,7 @@ Uma microtarefa só vira `[x]` quando **todos** valem:
 6. Docs afetadas atualizadas (SDD/GDD/Art Bible/ADR); `CHANGELOG.md` `[Unreleased]` com o item no formato vukem.
 7. Revisão do Especialista aprovada (quando atribuída); integração pelo Orq na `main`; CI verde (lint, typecheck, unit, integration, build-web; o `balance.yml` roda `sim --runs 64 --rounds 35 --check` quando `data/`, `tools/sim` ou `packages/game` mudam).
 8. `docs/PROGRESS.md` atualizado.
+9. Se a entrega cria, muda ou resolve algo legal, jurídico, de conta, custo ou de lançamento nas lojas (Steam, Google Play, Vercel; licenças, termos, privacidade, classificação etária, conteúdo de IA, secrets, assinatura): `todo-later.md` atualizado no mesmo commit (item novo `[ ]`, marcado `[x]` com a evidência ou removido com o motivo). Pedido do PO de 2026-10-31.
 
 ## 9. Arquivo de estado compartilhado: `docs/PROGRESS.md`
 

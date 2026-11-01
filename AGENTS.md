@@ -35,6 +35,7 @@ Lista completa em `CLAUDE.md`; até a fase ESTRUTURA concluir E-02, alguns scrip
 | `docs/brainstorming.md` | decisões do PO D01–D33 |
 | `docs/web-search.md` | pesquisa com fontes |
 | `docs/PROGRESS.md` | estado compartilhado dos agentes |
+| `todo-later.md` | pendências legais, de contas e de lançamento (Steam, Google Play, Vercel); atualizado junto com o desenvolvimento |
 | `ROADMAP.md` | fases e microtarefas com asserts |
 | `prompt-workers.md` | protocolo dos agentes de implementação |
 | `prompt-concept-arts.md` | prompts de concept art |
