@@ -107,8 +107,6 @@ Fonte: IDs dos rodapés `Refs: ROADMAP#` de eb12bc2 a 49039f2, do commit mais re
 
 ## Dívidas e observações
 
-- Áudio (S2): o motor só toca efeitos de uma vez, sem loop. Faltam `playLoop`/`stop` para os loops de `sfx_smg_loop`, `sfx_mg_loop` e os 4 `sfx_ambience_*` (já gerados), e o `soundFor` não liga `BossEnraged` à fala `voice_<chefe>_enrage` (gerada para os 5 chefes).
-
 - `.env` existe localmente com `ELEVENLABS_API_KEY`; está no `.gitignore`. Nunca commitar.
 - Fontes dos percentuais de tela (D31) são secundárias e não verificadas; revisar antes de citar publicamente.
 - `reports/` guarda evidência de asserts (`perf-*.json`, `balance-*.json`); os `sim-*.json` regenerados por run ficam no `.gitignore`.
