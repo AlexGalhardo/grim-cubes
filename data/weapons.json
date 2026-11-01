@@ -3,7 +3,7 @@
 		"id": "sword",
 		"name": "Espada Enferrujada",
 		"kind": "melee",
-		"range": 3.25,
+		"range": 3.2,
 		"attacksPerSecond": 1.4,
 		"damage": 12,
 		"knockback": 1.5,

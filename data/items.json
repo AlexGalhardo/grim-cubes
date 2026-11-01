@@ -708,8 +708,8 @@
 	{
 		"id": "bone_lodestone",
 		"name": "Ímã de Ossos",
-		"tier": 2,
-		"price": 40,
+		"tier": 3,
+		"price": 120,
 		"modifiers": [],
 		"effects": [
 			{
