@@ -152,6 +152,7 @@ import { createMerchantVoice } from "./audio/merchantVoice";
 import { ambienceFor, createWebAudioDeps, musicFor, weaponLoopFor } from "./audio/webAudio";
 import { createDebugGamepad } from "./debugGamepad";
 import { applyLocale, initLocale } from "./locale";
+import { canOpenPause } from "./pauseGate";
 import { createSoak, soakOptionsFrom } from "./soak";
 import "./main.css";
 
@@ -1147,8 +1148,15 @@ async function boot(): Promise<void> {
 
 	/** Esc, Start or the pause button: freezes the game under the pause menu. Not on the title or while a screen is up. */
 	function openPause(): void {
-		const idle = run.state === "Idle" || run.state === "Results" || run.state === "Dying";
-		if (pauseOpen || menuOpen || idle || document.querySelector('[role="dialog"]')) return;
+		const open = canOpenPause({
+			pauseOpen,
+			menuOpen,
+			runState: run.state,
+			levelUpOffer: levelUp.offer !== null,
+			chestOffer: chest.offer !== null,
+			screenOpen: optionsOpen || difficultyOpen || ossuaryOpen || slotsView !== null,
+		});
+		if (!open) return;
 		pauseOpen = true;
 		loop.pause();
 		publishNow();

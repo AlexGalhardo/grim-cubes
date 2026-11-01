@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **fix:** The first Esc after choosing a level-up card opens the pause menu (it looked at the dialog still in the page for a moment; it now reads the game state)
 - **tests:** `?bench=soak` in debug builds: the greedy bot plays whole runs on an immortal hero in the browser, one page load per run, and a downloadable report records fps, frame-time percentiles, JS heap and errors (R-01-02)
 - **game:** The simulator's bot (`createBot`, the greedy and tank policies) now lives in `packages/game/src/bot` so the browser soak can play with it too; it can sidestep a prop it is stuck against (`unstick`, on in the soak only, so the balance reports are unchanged)
 - **ui:** "Sair do jogo" at the end of the title menu on the desktop build (confirmed, closes the app through a sender-checked IPC channel), and a confirmed "Voltar ao menu" in Options during a run, on the results and on the demo end, next to the one in the pause menu; the run stays saved at the start of its round and Continue resumes it
