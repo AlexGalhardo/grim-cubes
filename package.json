@@ -36,15 +36,15 @@
 		"release": "bun tools/release/index.ts"
 	},
 	"dependencies": {
-		"@babylonjs/core": "9.33.1",
-		"@babylonjs/loaders": "9.33.1",
+		"@babylonjs/core": "9.33.2",
+		"@babylonjs/loaders": "9.33.2",
 		"bitecs": "0.4.0",
 		"react": "19.3.1",
 		"react-dom": "19.3.1",
 		"simplex-noise": "4.0.3"
 	},
 	"devDependencies": {
-		"@babylonjs/inspector": "9.33.1",
+		"@babylonjs/inspector": "9.33.2",
 		"@biomejs/biome": "2.6.4",
 		"@capacitor/android": "8.6.0",
 		"@capacitor/cli": "8.6.0",
