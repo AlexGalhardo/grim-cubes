@@ -31,6 +31,20 @@ export interface MenuProps {
 	demo?: boolean | undefined;
 }
 
+/** Fixed so the embers do not flicker between renders: horizontal position (%), rise start (% from the bottom) and delay (s). */
+const EMBERS: readonly { left: number; bottom: number; delay: number }[] = [
+	{ left: 8, bottom: 4, delay: 0 },
+	{ left: 17, bottom: 12, delay: 2.4 },
+	{ left: 27, bottom: 2, delay: 4.1 },
+	{ left: 36, bottom: 9, delay: 1.2 },
+	{ left: 46, bottom: 3, delay: 5.3 },
+	{ left: 55, bottom: 14, delay: 3.2 },
+	{ left: 64, bottom: 5, delay: 0.7 },
+	{ left: 73, bottom: 10, delay: 4.8 },
+	{ left: 82, bottom: 1, delay: 2.0 },
+	{ left: 91, bottom: 8, delay: 5.9 },
+];
+
 /** The title screen: shown once when the game opens, before the difficulty choice (GDD 17). */
 export function Menu({ view, actions, version, demo }: MenuProps): JSX.Element {
 	const first = useRef<HTMLButtonElement>(null);
@@ -42,7 +56,7 @@ export function Menu({ view, actions, version, demo }: MenuProps): JSX.Element {
 	const nav = useDialogNav<HTMLDivElement>({ onCancel: () => setAsking(false) });
 	// Short landscape phones: buttons only, under the logo, so the art's title stays readable.
 	const short = useShortScreen();
-	// Room for four buttons (Continue and New game join Play, Ossuary and Options) on a 360 px screen.
+	// The main action (Continue, or New game without a save) is the large plate; the rest are "md". Short screens use "md" for all.
 	const buttonSize = short ? "md" : "lg";
 	return (
 		<div
@@ -53,6 +67,23 @@ export function Menu({ view, actions, version, demo }: MenuProps): JSX.Element {
 			data-testid="menu"
 			className="pointer-events-auto absolute inset-0 z-30 flex overflow-y-auto bg-night bg-[url(/menu/menu-1.webp)] bg-cover bg-top p-2 mobile-l:p-4"
 		>
+			<div
+				aria-hidden="true"
+				data-testid="menu-embers"
+				className="pointer-events-none fixed inset-0 overflow-hidden"
+			>
+				{EMBERS.map((ember) => (
+					<span
+						key={ember.left}
+						className="absolute bottom-0 block size-1 animate-ember bg-ember-light"
+						style={{
+							left: `${ember.left}%`,
+							animationDelay: `${ember.delay}s`,
+							bottom: `${ember.bottom}%`,
+						}}
+					/>
+				))}
+			</div>
 			{/* The key art carries the logo at the top centre; the dark left side holds the buttons. */}
 			<div
 				aria-hidden="true"
@@ -66,7 +97,12 @@ export function Menu({ view, actions, version, demo }: MenuProps): JSX.Element {
 					{t("menu.title")}
 				</h1>
 				{demo ? (
-					<div className="text-center font-display text-sm text-ember-light">{t("demo.badge")}</div>
+					<div
+						data-testid="menu-demo"
+						className="fixed top-2 right-2 border-2 border-ember bg-night/80 px-3 py-0.5 font-display text-base text-ember-light uppercase shadow-plate"
+					>
+						{t("demo.badge")}
+					</div>
 				) : null}
 				{asking ? (
 					<LeaveConfirm
@@ -101,7 +137,7 @@ export function Menu({ view, actions, version, demo }: MenuProps): JSX.Element {
 				) : null}
 				{asking ? null : (
 					<Button
-						size={buttonSize}
+						size={view.continue ? "md" : buttonSize}
 						variant={view.continue ? "plate" : "primary"}
 						testId="menu-play"
 						{...(view.continue ? {} : { buttonRef: first })}
@@ -111,21 +147,42 @@ export function Menu({ view, actions, version, demo }: MenuProps): JSX.Element {
 					</Button>
 				)}
 				{asking ? null : (
-					<Button size={buttonSize} onClick={actions.ossuary}>
+					<Button size="md" onClick={actions.ossuary}>
 						{t("menu.ossuary")}
 					</Button>
 				)}
 				{asking ? null : (
-					<Button size={buttonSize} onClick={actions.options}>
+					<Button size="md" onClick={actions.options}>
 						{t("menu.options")}
 					</Button>
 				)}
 				{!asking && actions.quit ? (
-					<Button size={buttonSize} testId="menu-quit" onClick={() => setAsking(true)}>
+					<Button size="md" testId="menu-quit" onClick={() => setAsking(true)}>
 						{t("menu.quit")}
 					</Button>
 				) : null}
 			</div>
+			{view.records.length > 0 ? (
+				<section
+					data-testid="menu-records"
+					aria-label={t("menu.records")}
+					className={`border-2 border-iron-dark bg-night/80 shadow-plate ${short ? "fixed right-2 bottom-2 px-2 py-1" : "fixed right-4 bottom-4 px-4 py-2"}`}
+				>
+					<h2 className="font-display text-bone text-xs uppercase">{t("menu.records")}</h2>
+					<ul className={`font-body text-bone ${short ? "text-xs" : "text-sm"}`}>
+						{view.records.map((record) => (
+							<li key={record.id} className="flex justify-between gap-4">
+								<span className="text-bone-dark">{record.name}</span>
+								<span data-testid={`menu-record-${record.id}`}>
+									{record.round > 0
+										? t("menu.recordRound", { round: record.round })
+										: t("menu.noRecord")}
+								</span>
+							</li>
+						))}
+					</ul>
+				</section>
+			) : null}
 			{version ? (
 				<div
 					className="pointer-events-none fixed bottom-1 left-2 text-xs opacity-70"

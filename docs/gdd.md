@@ -658,7 +658,7 @@ Recordes mostrados no menu: maior round por dificuldade, total de kills, total d
 | Tela | Conteúdo | Fase |
 | --- | --- | --- |
 | Boot/Título | logo, "pressione para começar" (unlock de áudio), versão | PROTÓTIPO |
-| Menu principal | Continuar (só se já houve um slot usado), Novo jogo, Ossuário, Recordes, Opções, Sair; selo "DEMO" quando aplicável | PROTÓTIPO |
+| Menu principal | Continuar (só se já houve um slot usado), Novo jogo, Ossuário, Opções, Sair, com o botão principal maior; bloco de recordes por dificuldade; brasas animadas sobre a arte (paradas com redução de movimento); selo "DEMO" em destaque quando aplicável | PROTÓTIPO |
 | Slots de save | 3 slots: nome, último jogo, melhor round, almas e se há run em andamento; slot ocupado pede confirmação para sobrescrever; "Apagar" com confirmação | ALPHA |
 | Seleção de dificuldade | Fácil/Normal/Difícil abertas, Nightmare com cadeado; uma linha de sabor por dificuldade; escolha (preenchimento âmbar e losango) e foco (contorno osso) nunca se parecem; seed e tutorial opcionais (S-08-01) | ALPHA |
 | HUD in-run | ver 21.2 | PROTÓTIPO |

@@ -117,6 +117,23 @@
 	/* A level-up card rises into place; three cards stagger by 60 ms, so the last one ends at 300 ms. */
 	--animate-card-in: card-in 180ms var(--ease-step) backwards;
 
+	/* Embers over the title art: they drift up and fade in steps, off (and still) under reduced motion. */
+	--animate-ember: ember-rise 7s steps(14) infinite;
+
+	@keyframes ember-rise {
+		from {
+			opacity: 0;
+			translate: 0 0;
+		}
+		15% {
+			opacity: 0.9;
+		}
+		to {
+			opacity: 0;
+			translate: 24px -70vh;
+		}
+	}
+
 	@keyframes low-pulse {
 		50% {
 			opacity: 0.5;
@@ -155,6 +172,7 @@
 	:root {
 		--animate-low: none;
 		--animate-card-in: none;
+		--animate-ember: none;
 		--duration-fast: 0ms;
 		--duration-base: 0ms;
 		--duration-slow: 0ms;

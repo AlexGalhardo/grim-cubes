@@ -111,7 +111,7 @@ A Parte 1B (arte medium poly) começa depois da `v0.6.0` e tem pontos de parada 
 
 ### S-07 Menu e chamada comercial
 
-- [ ] **S-07-01** Menu com hierarquia: botão principal de destaque, recordes por dificuldade legíveis, selo "DEMO" visível e brasas animadas em CSS sobre a key art (paradas com `prefers-reduced-motion`).
+- [x] **S-07-01** Menu com hierarquia: botão principal de destaque, recordes por dificuldade legíveis, selo "DEMO" visível e brasas animadas em CSS sobre a key art (paradas com `prefers-reduced-motion`).
   - Asserts: teste de `Menu`; capturas `menu` nos quatro alvos; navegação por controle intacta.
 - [ ] **S-07-02** Botão "Wishlist na Steam" no menu, no fim da demo e nos resultados da demo, ligado por uma URL de configuração de build. Sem URL, o botão não aparece.
   - Asserts: teste com e sem a URL; no Electron o link abre no navegador do sistema pelo canal já validado; `todo-later.md` registra que a URL depende do App ID (E-05-03).
