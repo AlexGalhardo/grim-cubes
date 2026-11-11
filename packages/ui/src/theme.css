@@ -42,6 +42,20 @@
 		U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
+/*
+ * Digits never come from the pixel font: its 5 reads as an S and its 2 as a Z (PO decision of 2026-11-11). This face
+ * holds only the digits and the signs written next to them, cut from Inter, and sits first in the display stack, so
+ * the browser takes every number from it and every letter from Pixelify Sans, with no class on the components.
+ */
+@font-face {
+	font-family: "GC Digits";
+	font-style: normal;
+	font-weight: 400 700;
+	font-display: swap;
+	src: url("/fonts/inter-latin.woff2") format("woff2");
+	unicode-range: U+0025, U+002B-002C, U+002E-003A, U+00D7, U+2212;
+}
+
 @theme {
 	--color-night: #14121c;
 	--color-night-2: #1c1926;
@@ -80,9 +94,10 @@
 	--color-danger: var(--color-blood-light);
 	--color-currency: var(--color-ember-light);
 
-	--font-display: "Pixelify Sans", ui-monospace, monospace;
+	--font-num: "GC Digits", "Inter", system-ui, sans-serif;
+	--font-display: "GC Digits", "Pixelify Sans", ui-monospace, monospace;
 	--font-body: "Inter", system-ui, sans-serif;
-	--font-mono: "Pixelify Sans", ui-monospace, monospace;
+	--font-mono: "GC Digits", "Pixelify Sans", ui-monospace, monospace;
 
 	--spacing: 4px;
 	--radius-*: initial;
@@ -114,6 +129,8 @@
 	--z-toast: 40;
 	--z-debug: 50;
 	--ui-scale: 1;
+	/* Fixed-width digits everywhere: a counter that changes does not shift the text beside it. */
+	font-variant-numeric: tabular-nums;
 }
 
 /* The HUD root carries `data-theme="cb"` in colour-blind mode (Options); the rule also keeps working on `:root`. */

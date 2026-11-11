@@ -381,6 +381,8 @@ Modo daltônico: `data-theme="cb"` no `<html>` troca as variáveis semânticas d
 | `--font-body` | Inter (OFL) | 13, 14, 16, 18 | descrições, tooltips, opções |
 | `--font-mono` | fonte pixel | 8, 16 | seed, versão, debug |
 
+Números (decisão do PO de 2026-11-11): nenhum dígito sai da fonte pixel, porque nela o 5 lê como S e o 2 como Z. A face `GC Digits` em `theme.css` recorta da Inter só os dígitos e os sinais que andam com eles (`%`, `+`, `−`, `×`, `/`, `.`, `,`, `:`) por `unicode-range` e vem primeiro em `--font-display`, `--font-mono` e `--font-num`; o navegador pega cada número dela e cada letra da Pixelify Sans, sem classe nos componentes. `font-variant-numeric: tabular-nums` vale para a UI inteira, para um contador que muda não empurrar o texto ao lado.
+
 Regras: `line-height` 1,25 no display e 1,45 no body; sombra de texto `1px 1px 0 var(--color-night)` em todo texto sobre o jogo; `letter-spacing` 0 (fontes pixel quebram com tracking); nunca itálico; caixa alta só em títulos de tela e nome de chefe.
 
 ### 16.3 Espaçamento, bordas, raio, elevação

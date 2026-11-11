@@ -71,8 +71,8 @@ A Parte 2 não entra na meta: depende do PO, de hardware, de loja ou de data.
 
 ### S-02 Números legíveis
 
-- [ ] **S-02-01** Token `--font-num` (Inter, `font-variant-numeric: tabular-nums`) em `theme.css` e a classe utilitária correspondente em todo número da UI: barras, round, timer, ouro, almas, preços, atributos, resultados, custos do Ossuário e contadores.
-  - Asserts: teste de componente verifica a classe em `hud-gold`, `shop-gold`, preço de slot, valor de `Bar` e linhas de `Results`; nenhuma captura mostra dígito em Pixelify Sans; Art Bible §16.2 atualizada.
+- [x] **S-02-01** Todo número da UI sai da Inter com dígitos tabulares: a face `GC Digits` em `theme.css` recorta da Inter os dígitos e os sinais que andam com eles e vem primeiro em `--font-display`, `--font-mono` e no token novo `--font-num`, de modo que nenhum componente precisa de classe e nenhum número novo escapa.
+  - Asserts: `packages/ui/src/fonts.test.ts` prova que a face cobre `0-9 % + , . / : × −`, não cobre letras e vem primeiro nas três pilhas; captura da loja mostra preços e ouro em Inter; Art Bible §16.2 atualizada. (Mecanismo trocado em 2026-11-11: a classe por componente do texto original deixava de fora os números dentro de frases, como "+4% dano".)
 
 ### S-03 HUD in-run
 
