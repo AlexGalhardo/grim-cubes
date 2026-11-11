@@ -59,3 +59,12 @@ test("the buttons call their actions", () => {
 	expect(a.play).toHaveBeenCalledTimes(1);
 	expect(a.options).toHaveBeenCalledTimes(1);
 });
+
+test("the Steam wishlist button shows only when the build has a URL", () => {
+	const wishlist = vi.fn();
+	const { rerender } = render(<Menu view={view} actions={actions()} />);
+	expect(screen.queryByTestId("menu-wishlist")).toBeNull();
+	rerender(<Menu view={view} actions={{ ...actions(), wishlist }} />);
+	fireEvent.click(screen.getByRole("button", { name: "Wishlist na Steam" }));
+	expect(wishlist).toHaveBeenCalledTimes(1);
+});

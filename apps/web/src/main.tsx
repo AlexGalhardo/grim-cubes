@@ -269,6 +269,13 @@ async function boot(): Promise<void> {
 	// Account progress lives in IndexedDB on the web and in files under the app data folder in Electron (SDD 06,
 	// ADR-0009). A corrupt or unreadable save starts a fresh one.
 	const desktop = window.gcDesktop;
+	// No build-time URL, no button. The desktop shell opens the system browser itself; the web page opens a tab.
+	const openWishlist: (() => void) | undefined = __WISHLIST_URL__
+		? () => {
+				if (desktop) void desktop.openExternal(__WISHLIST_URL__);
+				else window.open(__WISHLIST_URL__, "_blank", "noopener,noreferrer");
+			}
+		: undefined;
 	const storage = desktop ? createElectronStorage(desktop.storage) : createWebStorage();
 	if (desktop) {
 		// First run with files: the save the same origin kept in IndexedDB before moves over once.
@@ -520,7 +527,9 @@ async function boot(): Promise<void> {
 			}}
 			optionsActions={optionsActions}
 			onMenu={() => reloadWith(() => undefined)}
+			onWishlist={openWishlist}
 			menuActions={{
+				wishlist: openWishlist,
 				// Only the desktop build can close the app; the main process checks who is asking.
 				quit: window.gcDesktop ? () => void window.gcDesktop?.quit() : undefined,
 				resume: () => {

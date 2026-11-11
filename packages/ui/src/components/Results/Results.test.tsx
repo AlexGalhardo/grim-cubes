@@ -90,3 +90,12 @@ test("the button and Enter restart the run", () => {
 	fireEvent.keyDown(window, { key: "Enter" });
 	expect(onRestart).toHaveBeenCalledTimes(2);
 });
+
+test("the wishlist button shows only when a handler is given", () => {
+	const onWishlist = vi.fn();
+	const { rerender } = render(<Results view={view} onRestart={() => {}} />);
+	expect(screen.queryByTestId("results-wishlist")).toBeNull();
+	rerender(<Results view={view} onRestart={() => {}} onWishlist={onWishlist} />);
+	fireEvent.click(screen.getByTestId("results-wishlist"));
+	expect(onWishlist).toHaveBeenCalledTimes(1);
+});

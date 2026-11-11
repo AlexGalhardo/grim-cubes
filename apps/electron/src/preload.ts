@@ -8,6 +8,7 @@ contextBridge.exposeInMainWorld("gcDesktop", {
 	platform: process.platform,
 	steam: false,
 	quit: (): Promise<void> => ipcRenderer.invoke("app:quit"),
+	openExternal: (url: string): Promise<void> => ipcRenderer.invoke("app:openExternal", url),
 	storage: {
 		read: (key: string): Promise<string | null> => ipcRenderer.invoke("storage:read", key),
 		write: (key: string, value: string): Promise<void> => ipcRenderer.invoke("storage:write", key, value),

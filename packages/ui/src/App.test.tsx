@@ -1,5 +1,6 @@
 import { createKeyMap, createPadMap, createStore } from "@gc/core";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import type { ComponentProps } from "react";
 import { afterEach, expect, test, vi } from "vitest";
 import { App, type HudState } from "./App";
 import { announcedSeconds } from "./components/MerchantPrompt/MerchantPrompt";
@@ -472,4 +473,16 @@ test("the hints name the buttons of the connected controller: PlayStation symbol
 		/>,
 	);
 	expect(screen.getByTestId("merchant-prompt").textContent).toContain("Fale com o Mercador [A]");
+});
+
+test("the wishlist button is on the demo end, on the demo results and on the menu only with a handler", () => {
+	const onWishlist = vi.fn();
+	const withEnd = (props: Partial<ComponentProps<typeof App>>) =>
+		render(<App store={createStore({ ...hud(1), demoEnd: true })} onRestart={() => {}} {...props} />);
+	withEnd({});
+	expect(screen.queryByTestId("demo-end-wishlist")).toBeNull();
+	cleanup();
+	withEnd({ onWishlist });
+	fireEvent.click(screen.getByTestId("demo-end-wishlist"));
+	expect(onWishlist).toHaveBeenCalledTimes(1);
 });

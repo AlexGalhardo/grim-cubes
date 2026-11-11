@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **ui:** "Wishlist na Steam" button on the title menu, the demo end and the demo's results, shown only when the build has `GC_WISHLIST_URL` (`__WISHLIST_URL__`); the web opens a new tab and Electron opens the system browser through a new sender-checked `app:openExternal` channel that accepts only `https://store.steampowered.com/app/<id>`; `todo-later.md` records that the URL waits for the App ID (S-07-02)
 - **ui:** Results screen at desktop scale: a wider panel (`max-w-6xl`) with the counters, the killer, the damage bars and the soul count in larger type, and tighter rows on short screens (S-06-01)
 - **ui:** Title menu with a hierarchy: the main action (Continue, or New game without a save) is the large primary plate and the rest are one size smaller, a records block lists the best round of each difficulty, the DEMO seal is a boxed ember badge in the corner, and ten CSS embers drift up over the key art in `steps()` (`--animate-ember`, off under `prefers-reduced-motion`); the menu gets its first component test (S-07-01)
 - **balance:** Synergy bonuses tuned so `bun run sim --check` passes with them on (seeds 1 and 1001, 64 runs x 35 rounds): small 2 and 4 item tiers and a 6 item tier that trades power for a cost; reports in `reports/balance-synergies-64x35-seed*.json` (S-14-03)

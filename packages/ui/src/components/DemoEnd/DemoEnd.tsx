@@ -10,10 +10,12 @@ export interface DemoEndProps {
 	onOssuary?: (() => void) | undefined;
 	/** Back to the title menu; asks first. */
 	onMenu?: (() => void) | undefined;
+	/** Opens the Steam page; the button is absent without it. */
+	onWishlist?: (() => void) | undefined;
 }
 
 /** End of the web demo: the Gravedigger is down and round 11 never starts (P-07-01). */
-export function DemoEnd({ onRestart, onOssuary, onMenu }: DemoEndProps): JSX.Element {
+export function DemoEnd({ onRestart, onOssuary, onMenu, onWishlist }: DemoEndProps): JSX.Element {
 	const [leaving, setLeaving] = useState(false);
 	const nav = useDialogNav<HTMLDivElement>({ onCancel: leaving ? () => setLeaving(false) : undefined });
 	return (
@@ -42,6 +44,11 @@ export function DemoEnd({ onRestart, onOssuary, onMenu }: DemoEndProps): JSX.Ele
 							<p className="mt-2 font-body text-sm text-bone-dark">{t("demoEnd.body")}</p>
 							<div className="mt-4 flex flex-wrap gap-3">
 								{/* Disabled until the store pages and the full-game URL exist. */}
+								{onWishlist ? (
+									<Button variant="primary" testId="demo-end-wishlist" onClick={onWishlist}>
+										{t("wishlist.steam")}
+									</Button>
+								) : null}
 								<Button disabled>{t("demoEnd.steam")}</Button>
 								<Button disabled>{t("demoEnd.play")}</Button>
 							</div>

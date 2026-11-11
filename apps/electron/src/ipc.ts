@@ -1,5 +1,5 @@
-import { app, ipcMain } from "electron";
-import { isTrustedSender } from "./paths";
+import { app, ipcMain, shell } from "electron";
+import { isSteamStoreUrl, isTrustedSender } from "./paths";
 import { createSaveFiles } from "./saveFiles";
 
 /** Registers `app:quit`, the title menu's "Sair do jogo": the same sender check as the save channels, then `app.quit()`. */
@@ -7,6 +7,15 @@ export function registerQuitIpc(): void {
 	ipcMain.handle("app:quit", (event) => {
 		if (!isTrustedSender(event.senderFrame?.url)) throw new Error("untrusted sender");
 		app.quit();
+	});
+}
+
+/** Registers `app:openExternal`, the "Wishlist na Steam" button: same sender check, and only the Steam store page opens, in the system browser. */
+export function registerExternalIpc(): void {
+	ipcMain.handle("app:openExternal", (event, url: unknown) => {
+		if (!isTrustedSender(event.senderFrame?.url)) throw new Error("untrusted sender");
+		if (!isSteamStoreUrl(url)) throw new Error("url not allowed");
+		return shell.openExternal(url);
 	});
 }
 

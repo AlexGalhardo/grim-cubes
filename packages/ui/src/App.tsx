@@ -117,6 +117,8 @@ export interface AppProps {
 	onRestart?: (() => void) | undefined;
 	/** Back to the title menu from the results and the demo end (the host asks nothing more). */
 	onMenu?: (() => void) | undefined;
+	/** Opens the Steam store page (menu, demo end and the demo's results); the buttons are absent without it. */
+	onWishlist?: (() => void) | undefined;
 	difficultyActions?: DifficultyActions | undefined;
 	slotsActions?: SlotsActions | undefined;
 	pauseActions?: PauseActions | undefined;
@@ -147,6 +149,7 @@ export function App({
 	shopActions,
 	onRestart,
 	onMenu,
+	onWishlist,
 	ossuaryActions,
 	onDashHold,
 	difficultyActions,
@@ -230,7 +233,12 @@ export function App({
 				<Menu view={hud.menu} actions={menuActions} version={version} demo={demo} />
 			) : null}
 			{hud.demoEnd && onRestart && !hud.difficulty && !hud.ossuary ? (
-				<DemoEnd onRestart={onRestart} onOssuary={ossuaryActions?.open} onMenu={onMenu} />
+				<DemoEnd
+					onRestart={onRestart}
+					onOssuary={ossuaryActions?.open}
+					onMenu={onMenu}
+					onWishlist={onWishlist}
+				/>
 			) : null}
 			{hud.results && onRestart && !hud.demoEnd && !hud.difficulty && !hud.ossuary ? (
 				<Results
@@ -238,6 +246,7 @@ export function App({
 					onRestart={onRestart}
 					onOssuary={ossuaryActions?.open}
 					onMenu={onMenu}
+					onWishlist={demo ? onWishlist : undefined}
 				/>
 			) : null}
 			{hud.pause && !hud.options && pauseActions ? (

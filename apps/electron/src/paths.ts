@@ -25,3 +25,18 @@ export const USER_DATA_FOLDER = "grim-cubes";
 export function userDataDir(appData: string): string {
 	return join(appData, USER_DATA_FOLDER);
 }
+
+/** The only external page the page may ask the shell to open: the game's Steam store page (https, `/app/<id>`). */
+export function isSteamStoreUrl(url: unknown): url is string {
+	if (typeof url !== "string") return false;
+	try {
+		const parsed = new URL(url);
+		return (
+			parsed.protocol === "https:" &&
+			parsed.hostname === "store.steampowered.com" &&
+			/^\/app\/\d+(\/|$)/.test(parsed.pathname)
+		);
+	} catch {
+		return false;
+	}
+}

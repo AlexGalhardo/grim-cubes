@@ -43,6 +43,8 @@ export interface ResultsProps {
 	onOssuary?: (() => void) | undefined;
 	/** Back to the title menu; asks first. */
 	onMenu?: (() => void) | undefined;
+	/** Opens the Steam page (the demo's results only); the button is absent without it. */
+	onWishlist?: (() => void) | undefined;
 }
 
 const COUNT_STEPS = 20;
@@ -107,7 +109,7 @@ function Stat({
 	);
 }
 
-export function Results({ view, onRestart, onOssuary, onMenu }: ResultsProps): JSX.Element {
+export function Results({ view, onRestart, onOssuary, onMenu, onWishlist }: ResultsProps): JSX.Element {
 	const souls = useCountUp(view.souls);
 	const short = useShortScreen();
 	const [leaving, setLeaving] = useState(false);
@@ -312,6 +314,11 @@ export function Results({ view, onRestart, onOssuary, onMenu }: ResultsProps): J
 								</div>
 							</div>
 							<div className="grid auto-cols-fr grid-flow-col items-end gap-3 [&>button]:w-full">
+								{onWishlist ? (
+									<Button size="lg" testId="results-wishlist" onClick={onWishlist}>
+										{t("wishlist.steam")}
+									</Button>
+								) : null}
 								{onOssuary ? (
 									<Button size="lg" onClick={onOssuary}>
 										{t("results.ossuary")}

@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, test } from "vitest";
-import { resolveAppPath, USER_DATA_FOLDER, userDataDir } from "./paths";
+import { isSteamStoreUrl, resolveAppPath, USER_DATA_FOLDER, userDataDir } from "./paths";
 
 const root = join("C:", "game", "dist");
 
@@ -57,4 +57,33 @@ test("the title menu's quit goes through an IPC channel that checks the sender b
 	expect(handler.indexOf("isTrustedSender")).toBeLessThan(handler.indexOf("app.quit()"));
 	expect(readFileSync("apps/electron/src/preload.ts", "utf8")).toContain('ipcRenderer.invoke("app:quit")');
 	expect(readFileSync("apps/electron/src/main.ts", "utf8")).toContain("registerQuitIpc()");
+});
+
+test("only an https Steam store app page may be opened in the system browser", () => {
+	expect(isSteamStoreUrl("https://store.steampowered.com/app/123456/Grim_Cubes/")).toBe(true);
+	expect(isSteamStoreUrl("https://store.steampowered.com/app/123456")).toBe(true);
+	for (const bad of [
+		"http://store.steampowered.com/app/1/",
+		"https://store.steampowered.com.evil.test/app/1/",
+		"https://evil.test/app/1/",
+		"https://store.steampowered.com/search/",
+		"file:///C:/Windows/System32/calc.exe",
+		"javascript:alert(1)",
+		"not a url",
+		42,
+		undefined,
+	]) {
+		expect(isSteamStoreUrl(bad)).toBe(false);
+	}
+});
+
+test("the external-open channel checks the sender and the URL before it opens anything", () => {
+	const ipc = readFileSync("apps/electron/src/ipc.ts", "utf8");
+	const handler = ipc.slice(ipc.indexOf('ipcMain.handle("app:openExternal"'));
+	expect(handler.indexOf("isTrustedSender")).toBeLessThan(handler.indexOf("isSteamStoreUrl"));
+	expect(handler.indexOf("isSteamStoreUrl")).toBeLessThan(handler.indexOf("shell.openExternal"));
+	expect(readFileSync("apps/electron/src/preload.ts", "utf8")).toContain(
+		'ipcRenderer.invoke("app:openExternal"',
+	);
+	expect(readFileSync("apps/electron/src/main.ts", "utf8")).toContain("registerExternalIpc()");
 });

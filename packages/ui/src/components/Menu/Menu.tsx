@@ -19,6 +19,8 @@ export interface MenuActions {
 	play(): void;
 	ossuary(): void;
 	options(): void;
+	/** Opens the Steam page; the button is absent when the build has no URL. */
+	wishlist?: (() => void) | undefined;
 	/** Closes the app. Only the desktop build offers it: the web page and the phone have nothing to quit to. */
 	quit?: (() => void) | undefined;
 }
@@ -156,6 +158,11 @@ export function Menu({ view, actions, version, demo }: MenuProps): JSX.Element {
 						{t("menu.options")}
 					</Button>
 				)}
+				{!asking && actions.wishlist ? (
+					<Button size="md" testId="menu-wishlist" onClick={actions.wishlist}>
+						{t("wishlist.steam")}
+					</Button>
+				) : null}
 				{!asking && actions.quit ? (
 					<Button size="md" testId="menu-quit" onClick={() => setAsking(true)}>
 						{t("menu.quit")}
