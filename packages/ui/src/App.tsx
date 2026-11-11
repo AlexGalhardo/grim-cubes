@@ -19,8 +19,9 @@ import { Options, type OptionsActions, type OptionsViewModel } from "./component
 import { Ossuary, type OssuaryActions, type OssuaryViewModel } from "./components/Ossuary/Ossuary";
 import { type PauseActions, PauseMenu, type PauseViewModel } from "./components/PauseMenu/PauseMenu";
 import { Results, type ResultsViewModel } from "./components/Results/Results";
-import { Shop, type ShopActions, type ShopViewModel, type StatLineView } from "./components/Shop/Shop";
+import { Shop, type ShopActions, type ShopViewModel } from "./components/Shop/Shop";
 import { Slots, type SlotsActions, type SlotsViewModel } from "./components/Slots/Slots";
+import type { StatLineView } from "./components/StatList/StatList";
 import { Tip, type TipId } from "./components/Tip/Tip";
 import { VirtualJoystick } from "./components/VirtualJoystick/VirtualJoystick";
 import { effectiveUiScale, useViewportHeight } from "./hooks/useViewport";
@@ -198,6 +199,7 @@ export function App({
 			{hud.cards.length > 0 && onChooseCard ? (
 				<LevelUp
 					cards={hud.cards}
+					stats={hud.stats}
 					onChoose={onChooseCard}
 					rerollsLeft={hud.cardRerolls}
 					onReroll={onRerollCards}
@@ -207,7 +209,12 @@ export function App({
 				/>
 			) : null}
 			{hud.chest.length > 0 && onChooseChest ? (
-				<LevelUp cards={hud.chest} onChoose={onChooseChest} title={t("chest.title")} />
+				<LevelUp
+					cards={hud.chest}
+					stats={hud.stats}
+					onChoose={onChooseChest}
+					title={t("chest.title")}
+				/>
 			) : null}
 			{hud.shop && shopActions ? (
 				<Shop

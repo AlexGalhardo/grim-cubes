@@ -1,9 +1,10 @@
 import { t } from "@gc/core";
-import { type JSX, useEffect } from "react";
+import { type JSX, useEffect, useState } from "react";
 import { isDesktopWidth, useShortScreen } from "../../hooks/useViewport";
 import { useDialogNav } from "../../nav/useDialogNav";
 import { Icon, type IconRef } from "../Icon/Icon";
-import { TIER_BORDER, TIER_TEXT } from "../styles";
+import { type StatLineView, StatList } from "../StatList/StatList";
+import { PLATE, TIER_BORDER, TIER_TEXT } from "../styles";
 
 /** One stat a card changes: its value now and after picking the card, already formatted. */
 export interface CardChange {
@@ -30,10 +31,12 @@ export interface CardView {
 
 export interface LevelUpProps {
 	cards: readonly CardView[];
+	/** The hero's current stats, listed on the left of the cards on desktop screens; the focused card's changes show `now → after`. */
+	stats?: readonly StatLineView[];
 	onChoose: (index: number) => void;
 	/** Heading; defaults to the level-up title. The elite chest reuses this screen. */
 	title?: string;
-	/** Ossuary card rerolls left; the button is hidden when 0 or when there is no handler. */
+	/** Ossuary card rerolls left; the button stays visible but disabled at 0, and is absent without a handler. */
 	rerollsLeft?: number;
 	onReroll?: (() => void) | undefined;
 	/** `KeyboardEvent.code` of the reroll key (Options remap); defaults to R. */
@@ -47,6 +50,7 @@ export interface LevelUpProps {
 /** Level-up overlay (Art Bible 16.5 `LevelUpCard`): pick 1 of up to 3 cards with a click, a tap or keys 1-3. */
 export function LevelUp({
 	cards,
+	stats = [],
 	onChoose,
 	title = t("levelUp.title"),
 	rerollsLeft = 0,
@@ -71,6 +75,10 @@ export function LevelUp({
 	});
 	const short = useShortScreen();
 	const desktopWide = isDesktopWidth();
+	const [focused, setFocused] = useState<number | null>(null);
+	const changes = focused === null ? undefined : cards[focused]?.changes;
+	const preview = changes ? Object.fromEntries(changes.map((c) => [c.id, c.next])) : undefined;
+	const showStats = !short && desktopWide && stats.length > 0;
 	return (
 		<div
 			ref={nav}
@@ -79,85 +87,100 @@ export function LevelUp({
 			aria-labelledby="levelup-title"
 			className={`pointer-events-auto absolute inset-0 z-20 flex overflow-y-auto bg-night/80 ${short ? "p-2" : "p-4"}`}
 		>
-			<div className={`m-auto flex flex-col items-center ${short ? "gap-2" : "gap-6"}`}>
-				<h1
-					id="levelup-title"
-					className={`font-display text-ember-light ${short ? "text-lg" : "text-2xl"}`}
-				>
-					{title}
-				</h1>
-				<div
-					data-testid="levelup-cards"
-					className={`flex w-full flex-wrap justify-center ${short ? "gap-2" : "gap-4"}`}
-				>
-					{cards.map((card, i) => (
-						<button
-							key={card.id}
-							type="button"
-							data-testid={`levelup-card-${i}`}
-							onClick={() => onChoose(i)}
-							style={{ animationDelay: `${i * 60}ms` }}
-							className={`group panel-riveted flex h-55 w-40 animate-card-in flex-col items-center overflow-hidden border-2 bg-linear-to-b from-iron-black to-night-2 p-2 text-center font-display text-bone shadow-plate transition-[translate,border-color] duration-fast hover:-translate-y-1 hover:border-ember focus-visible:-translate-y-1 focus-visible:border-ember focus-visible:outline-2 focus-visible:outline-ember focus-visible:outline-offset-2 active:translate-y-0 mobile-l:h-60 mobile-l:w-45 desktop:h-75 desktop:w-55 desktop:p-3 ${TIER_BORDER[card.rarity] ?? "border-iron-dark"}`}
-						>
-							<span className="flex w-full items-center justify-between text-xs">
-								<span className="border-2 border-iron-dark bg-night px-1.5 text-bone-dark">
-									{i + 1}
-								</span>
-								<span className={`uppercase ${TIER_TEXT[card.rarity] ?? "text-bone-dark"}`}>
-									<span
-										className="rarity-mark"
-										data-tier={card.rarity}
-										data-testid={`levelup-rarity-mark-${i}`}
-										aria-hidden="true"
-									/>
-									{t(`rarity.${card.rarity}`)}
-								</span>
-							</span>
-							<span
-								className={`my-1 flex shrink-0 items-center justify-center border-2 bg-night desktop:my-3 ${short ? "size-14" : "size-14 desktop:size-24"} ${TIER_BORDER[card.rarity] ?? "border-iron-dark"}`}
+			<div className={`m-auto flex items-center ${short ? "gap-2" : "gap-6"}`}>
+				{showStats ? (
+					<aside data-testid="levelup-stats" className={`${PLATE} w-64 shrink-0 self-start p-3`}>
+						<h2 className="mb-2 font-display text-base text-bone uppercase">{t("shop.stats")}</h2>
+						<StatList stats={stats} columns={1} preview={preview} />
+					</aside>
+				) : null}
+				<div className={`flex flex-col items-center ${short ? "gap-2" : "gap-6"}`}>
+					<h1
+						id="levelup-title"
+						className={`font-display text-ember-light ${short ? "text-lg" : "text-2xl"}`}
+					>
+						{title}
+					</h1>
+					<div
+						data-testid="levelup-cards"
+						className={`flex w-full flex-wrap justify-center ${short ? "gap-2" : "gap-4"}`}
+					>
+						{cards.map((card, i) => (
+							<button
+								key={card.id}
+								type="button"
+								data-testid={`levelup-card-${i}`}
+								onClick={() => onChoose(i)}
+								onMouseEnter={() => setFocused(i)}
+								onMouseLeave={() => setFocused(null)}
+								onFocus={() => setFocused(i)}
+								onBlur={() => setFocused(null)}
+								style={{ animationDelay: `${i * 60}ms` }}
+								className={`group panel-riveted flex h-55 w-40 animate-card-in flex-col items-center overflow-hidden border-2 bg-linear-to-b from-iron-black to-night-2 p-2 text-center font-display text-bone shadow-plate transition-[translate,border-color] duration-fast hover:-translate-y-1 hover:border-ember focus-visible:-translate-y-1 focus-visible:border-ember focus-visible:outline-2 focus-visible:outline-ember focus-visible:outline-offset-2 active:translate-y-0 mobile-l:h-60 mobile-l:w-45 desktop:h-75 desktop:w-55 desktop:p-3 ${TIER_BORDER[card.rarity] ?? "border-iron-dark"}`}
 							>
-								{card.icon ? (
-									<Icon icon={card.icon} size={short ? 48 : desktopWide ? 64 : 48} />
-								) : null}
-							</span>
-							<span className="text-base leading-tight text-bone group-hover:text-ember-light group-focus-visible:text-ember-light desktop:text-2xl">
-								{card.name}
-							</span>
-							<span className="mt-1 flex flex-col font-body text-heal text-xs desktop:text-base">
-								{card.lines.map((line) => (
-									<span key={line}>{line}</span>
-								))}
-							</span>
-							{card.changes.length > 0 ? (
-								<span className="mt-auto flex w-full flex-col gap-0.5 border-iron-dark border-t-2 pt-1 font-body text-xs desktop:text-base">
-									{card.changes.map((change) => (
+								<span className="flex w-full items-center justify-between text-xs">
+									<span className="border-2 border-iron-dark bg-night px-1.5 text-bone-dark">
+										{i + 1}
+									</span>
+									<span
+										className={`uppercase ${TIER_TEXT[card.rarity] ?? "text-bone-dark"}`}
+									>
 										<span
-											key={change.id}
-											data-testid={`levelup-change-${i}-${change.id}`}
-											className="flex flex-wrap justify-between gap-x-2"
-										>
-											<span className="text-bone-dark">{change.stat}</span>
-											<span className="ml-auto whitespace-nowrap text-bone">
-												{change.current} →{" "}
-												<span className="text-heal">{change.next}</span>
-											</span>
-										</span>
+											className="rarity-mark"
+											data-tier={card.rarity}
+											data-testid={`levelup-rarity-mark-${i}`}
+											aria-hidden="true"
+										/>
+										{t(`rarity.${card.rarity}`)}
+									</span>
+								</span>
+								<span
+									className={`my-1 flex shrink-0 items-center justify-center border-2 bg-night desktop:my-3 ${short ? "size-14" : "size-14 desktop:size-24"} ${TIER_BORDER[card.rarity] ?? "border-iron-dark"}`}
+								>
+									{card.icon ? (
+										<Icon icon={card.icon} size={short ? 48 : desktopWide ? 64 : 48} />
+									) : null}
+								</span>
+								<span className="text-base leading-tight text-bone group-hover:text-ember-light group-focus-visible:text-ember-light desktop:text-2xl">
+									{card.name}
+								</span>
+								<span className="mt-1 flex flex-col font-body text-heal text-xs desktop:text-base">
+									{card.lines.map((line) => (
+										<span key={line}>{line}</span>
 									))}
 								</span>
-							) : null}
+								{card.changes.length > 0 ? (
+									<span className="mt-auto flex w-full flex-col gap-0.5 border-iron-dark border-t-2 pt-1 font-body text-xs desktop:text-base">
+										{card.changes.map((change) => (
+											<span
+												key={change.id}
+												data-testid={`levelup-change-${i}-${change.id}`}
+												className="flex flex-wrap justify-between gap-x-2"
+											>
+												<span className="text-bone-dark">{change.stat}</span>
+												<span className="ml-auto whitespace-nowrap text-bone">
+													{change.current} →{" "}
+													<span className="text-heal">{change.next}</span>
+												</span>
+											</span>
+										))}
+									</span>
+								) : null}
+							</button>
+						))}
+					</div>
+					{onReroll ? (
+						<button
+							type="button"
+							data-testid="levelup-reroll"
+							disabled={rerollsLeft <= 0}
+							onClick={onReroll}
+							className="min-h-12 border-2 border-iron-dark bg-night-2 px-4 font-display text-base text-bone hover:border-ember hover:text-ember-light focus-visible:outline-2 focus-visible:outline-ember disabled:opacity-50 disabled:hover:border-iron-dark disabled:hover:text-bone"
+						>
+							{t("levelUp.reroll", { left: rerollsLeft, key: rerollHint })}
 						</button>
-					))}
+					) : null}
 				</div>
-				{onReroll && rerollsLeft > 0 ? (
-					<button
-						type="button"
-						data-testid="levelup-reroll"
-						onClick={onReroll}
-						className="min-h-12 border-2 border-iron-dark bg-night-2 px-4 font-display text-base text-bone hover:border-ember hover:text-ember-light focus-visible:outline-2 focus-visible:outline-ember"
-					>
-						{t("levelUp.reroll", { left: rerollsLeft, key: rerollHint })}
-					</button>
-				) : null}
 			</div>
 		</div>
 	);

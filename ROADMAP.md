@@ -92,7 +92,7 @@ A Parte 1B (arte medium poly) começa depois da `v0.6.0` e tem pontos de parada 
 
 - [x] **S-04-01** Cartas no tamanho do Art Bible (220×300 no desktop, 180×240 em 896×414, 160×220 em 800×360) com ícone grande, nome, valor atual → novo, moldura de raridade e tecla no canto. Entrada em `steps`, no máximo 300 ms, desligada com `prefers-reduced-motion`.
   - Asserts: `CardView` com nome, valor atual, valor novo e raridade; testes de `LevelUp` para teclado, controle e toque; capturas `levelup` e `chest` nos quatro alvos.
-- [ ] **S-04-02** Painel de atributos atuais à esquerda no desktop (GDD §21.1) e botão de troca de cartas visível com a dica da tecla ou do botão.
+- [x] **S-04-02** Painel de atributos atuais à esquerda no desktop (GDD §21.1) e botão de troca de cartas visível com a dica da tecla ou do botão.
   - Asserts: teste de componente; painel some nos alvos mobile sem cortar as cartas.
 
 ### S-05 Loja

@@ -1692,13 +1692,14 @@ async function boot(): Promise<void> {
 			cardRerolls: levelUp.rerollsLeft,
 			chest: lastChest,
 			shop: shopView,
-			stats: shopView
-				? describeStats(stats.stats).map((line) => ({
-						id: line.key,
-						label: t(line.key),
-						value: formatStat(line.value, line.percent),
-					}))
-				: NO_STATS,
+			stats:
+				shopView || lastOffer.length > 0 || lastChest.length > 0
+					? describeStats(stats.stats).map((line) => ({
+							id: line.key,
+							label: t(line.key),
+							value: formatStat(line.value, line.percent),
+						}))
+					: NO_STATS,
 			results,
 			notice: loaded.notice,
 			boss: bossView,

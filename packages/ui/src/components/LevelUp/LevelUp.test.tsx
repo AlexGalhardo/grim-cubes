@@ -61,7 +61,7 @@ test("a custom title replaces the default heading", () => {
 	expect(screen.getByRole("heading", { name: "Baú Lendário" })).toBeTruthy();
 });
 
-test("the reroll button and the R key appear only with rerolls left", () => {
+test("the reroll button is always visible with its key hint and disabled without rerolls", () => {
 	const onReroll = vi.fn();
 	const { rerender } = render(
 		<LevelUp cards={cards} onChoose={() => {}} rerollsLeft={1} onReroll={onReroll} />,
@@ -70,7 +70,13 @@ test("the reroll button and the R key appear only with rerolls left", () => {
 	fireEvent.keyDown(window, { code: "KeyR" });
 	expect(onReroll).toHaveBeenCalledTimes(2);
 	rerender(<LevelUp cards={cards} onChoose={() => {}} rerollsLeft={0} onReroll={onReroll} />);
-	expect(screen.queryByTestId("levelup-reroll")).toBeNull();
+	const button = screen.getByTestId("levelup-reroll") as HTMLButtonElement;
+	expect(button.disabled).toBe(true);
+	expect(button.textContent).toContain("[R]");
+	rerender(
+		<LevelUp cards={cards} onChoose={() => {}} rerollsLeft={1} onReroll={onReroll} rerollHint="X" />,
+	);
+	expect(screen.getByTestId("levelup-reroll").textContent).toContain("[X]");
 });
 
 test("arrows move the focus between the cards and Enter picks the focused one", () => {
@@ -130,5 +136,33 @@ test("on a desktop screen the icons are 64 px", () => {
 	stubScreen({ short: false, wide: true });
 	render(<LevelUp cards={cards.map((c) => ({ ...c, icon: iconRef }))} onChoose={() => {}} />);
 	expect(screen.getAllByTestId("icon")[0]?.style.width).toBe("64px");
+	vi.unstubAllGlobals();
+});
+
+const heroStats = [
+	{ id: "statLine.armor", label: "Armor", value: "3" },
+	{ id: "statLine.damage", label: "Damage", value: "12%" },
+];
+
+test("a desktop screen lists the current stats on the left and previews the focused card", () => {
+	stubScreen({ short: false, wide: true });
+	render(<LevelUp cards={cards} stats={heroStats} onChoose={() => {}} />);
+	const panel = screen.getByTestId("levelup-stats");
+	expect(panel.textContent).toContain("Armor");
+	expect(panel.textContent).toContain("12%");
+	expect(panel.textContent).not.toContain("→");
+	fireEvent.focus(screen.getByTestId("levelup-card-1"));
+	expect(panel.textContent).toContain("12% → 16%");
+	expect(screen.getAllByTestId("stat-preview")).toHaveLength(1);
+	fireEvent.blur(screen.getByTestId("levelup-card-1"));
+	expect(panel.textContent).not.toContain("→");
+	vi.unstubAllGlobals();
+});
+
+test("the stats panel is absent on the mobile targets so the cards are not cut", () => {
+	stubScreen({ short: true, wide: false });
+	render(<LevelUp cards={cards} stats={heroStats} onChoose={() => {}} />);
+	expect(screen.queryByTestId("levelup-stats")).toBeNull();
+	expect(screen.getAllByTestId(/^levelup-card-/)).toHaveLength(3);
 	vi.unstubAllGlobals();
 });

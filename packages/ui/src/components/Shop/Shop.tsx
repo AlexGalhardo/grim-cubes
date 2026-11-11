@@ -3,6 +3,7 @@ import { type JSX, type ReactNode, useEffect, useState } from "react";
 import { isDesktopWidth, useShortScreen } from "../../hooks/useViewport";
 import { useDialogNav } from "../../nav/useDialogNav";
 import { Icon, type IconRef } from "../Icon/Icon";
+import { type StatLineView, StatList } from "../StatList/StatList";
 import { PLATE, TIER_BORDER, TIER_TEXT } from "../styles";
 
 export interface ShopSlotView {
@@ -30,13 +31,6 @@ export interface ShopViewModel {
 	items?: readonly OwnedItemView[] | undefined;
 	/** One Merchant line under its name. */
 	quote?: string | undefined;
-}
-
-export interface StatLineView {
-	label: string;
-	value: string;
-	/** Matches the keys of `ShopSlotView.preview`. */
-	id?: string | undefined;
 }
 
 /** The hero header of the shop: level, XP, HP and the run counters. */
@@ -164,8 +158,6 @@ export function Shop({
 	const desktopWide = isDesktopWidth();
 	const [hovered, setHovered] = useState<number | null>(null);
 	const preview = hovered === null ? undefined : view.slots[hovered]?.preview;
-	const half = Math.ceil(stats.length / 2);
-	const columns = [stats.slice(0, half), stats.slice(half)];
 
 	return (
 		<div
@@ -287,37 +279,7 @@ export function Shop({
 					) : null}
 					<div data-testid="shop-side" className={`${PLATE} flex-1 ${short ? "p-1.5" : "p-3"}`}>
 						<h2 className="mb-2 font-display text-base text-bone uppercase">{t("shop.stats")}</h2>
-						<div className="grid grid-cols-1 gap-x-4 mobile-l:grid-cols-2">
-							{columns.map((column, c) => (
-								<dl
-									key={c === 0 ? "left" : "right"}
-									className={`font-body text-sm desktop:text-base ${c === 1 ? "mobile-l:border-iron-dark mobile-l:border-l-2 mobile-l:pl-4" : ""}`}
-								>
-									{column.map((line) => {
-										const after = line.id ? preview?.[line.id] : undefined;
-										return (
-											<div
-												key={line.label}
-												data-testid={after ? "stat-preview" : undefined}
-												className={`flex justify-between gap-2 border-iron-dark border-b py-0.5 desktop:py-1 ${after ? "-mx-1 border-2 border-ember bg-iron-black px-1" : ""}`}
-											>
-												<dt className="text-bone">{line.label}</dt>
-												<dd
-													className={
-														line.value.startsWith("-") ||
-														line.value.startsWith("−")
-															? "text-danger"
-															: "text-heal"
-													}
-												>
-													{after ? `${line.value} → ${after}` : line.value}
-												</dd>
-											</div>
-										);
-									})}
-								</dl>
-							))}
-						</div>
+						<StatList stats={stats} preview={preview} />
 					</div>
 				</section>
 
