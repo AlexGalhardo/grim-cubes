@@ -1,7 +1,9 @@
+import { createPlayerStats, createStatsSystem, heroData } from "@gc/game";
 import { describe, expect, it } from "vitest";
 import {
 	buildResults,
 	createLoadoutView,
+	currentStats,
 	describeCause,
 	itemLines,
 	type ResultsSource,
@@ -172,5 +174,16 @@ describe("item lines", () => {
 			),
 		).toHaveLength(2);
 		expect(itemLines({ modifiers: [] }, text)).toEqual([]);
+	});
+});
+
+describe("current stats", () => {
+	it("includes a pick the sim has not recomputed yet, so a second offer in a row starts from the right values", () => {
+		const system = createStatsSystem(heroData, createPlayerStats());
+		const scratch = createPlayerStats();
+		expect(currentStats(system, heroData, [], scratch)).toBe(system.stats);
+		system.add([{ stat: "armor", op: "add", value: 3 }]);
+		expect(system.stats.armor).toBe(0);
+		expect(currentStats(system, heroData, [], scratch).armor).toBe(3);
 	});
 });

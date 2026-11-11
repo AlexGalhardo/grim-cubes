@@ -1,5 +1,12 @@
 import type { Described } from "@gc/core";
-import { describeEffect, describeModifier, type Modifier } from "@gc/game";
+import {
+	computeStats,
+	describeEffect,
+	describeModifier,
+	type HeroStatsData,
+	type Modifier,
+	type PlayerStats,
+} from "@gc/game";
 import type { HudItem, HudWeapon, IconRef, ResultsViewModel } from "@gc/ui";
 
 export interface LoadoutSource {
@@ -192,4 +199,20 @@ export function itemLines(
 		...item.modifiers.map((m) => text(describeModifier(m))),
 		...(item.effects ?? []).map((e) => text(describeEffect(e.id, e.params))),
 	];
+}
+
+/**
+ * The hero's stats as they stand now. `system.stats` is recomputed by the next simulation step, and the sim is paused
+ * while a card or chest is open, so after a pick that opens another offer at once it would still miss that pick.
+ * Returns `system.stats` when it is clean, else `scratch` filled from the modifiers.
+ */
+export function currentStats(
+	system: { readonly stats: PlayerStats; readonly modifiers: readonly Modifier[] },
+	data: HeroStatsData,
+	bonus: readonly Modifier[],
+	scratch: PlayerStats,
+): PlayerStats {
+	if (!system.stats.dirty) return system.stats;
+	computeStats(data, system.modifiers, scratch, undefined, bonus);
+	return scratch;
 }

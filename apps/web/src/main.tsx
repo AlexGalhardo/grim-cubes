@@ -80,6 +80,7 @@ import {
 	nextSpeed,
 	nodeState,
 	ossuaryData,
+	type PlayerStats,
 	Position,
 	PrevPosition,
 	parseSeed,
@@ -171,7 +172,7 @@ import { createMerchantVoice } from "./audio/merchantVoice";
 import { uiSounds } from "./audio/uiSounds";
 import { ambienceFor, createWebAudioDeps, musicFor, weaponLoopFor } from "./audio/webAudio";
 import { createDebugGamepad } from "./debugGamepad";
-import { buildResults, createLoadoutView, itemLines, roundSecondsLeft } from "./hudView";
+import { buildResults, createLoadoutView, currentStats, itemLines, roundSecondsLeft } from "./hudView";
 import { applyLocale, initLocale } from "./locale";
 import { canOpenPause } from "./pauseGate";
 import { createSoak, soakOptionsFrom } from "./soak";
@@ -1508,6 +1509,19 @@ async function boot(): Promise<void> {
 		value,
 		percent: false,
 	});
+	const currentScratch = createPlayerStats();
+	/**
+	 * The hero's stats as they stand now. `stats.stats` is recomputed by the next simulation step, and the sim is paused
+	 * while a card or chest is open, so after a pick that opens another offer at once it would still miss that pick.
+	 */
+	function freshStats(): PlayerStats {
+		return currentStats(
+			stats,
+			heroData,
+			stats.stats.dirty ? synergyModifiers(session.synergies.states, synergiesData) : [],
+			currentScratch,
+		);
+	}
 	function statChanges(mods: readonly Modifier[], bonus?: readonly Modifier[]): StatChange[] {
 		computeStats(
 			heroData,
@@ -1516,7 +1530,8 @@ async function boot(): Promise<void> {
 			undefined,
 			bonus ?? synergyModifiers(session.synergies.states, synergiesData),
 		);
-		const before = [...describeStats(stats.stats), rangeLine(stats.stats.range)];
+		const current = freshStats();
+		const before = [...describeStats(current), rangeLine(current.range)];
 		const after = [...describeStats(scratchStats), rangeLine(scratchStats.range)];
 		const out: StatChange[] = [];
 		before.forEach((line, i) => {
@@ -1822,7 +1837,7 @@ async function boot(): Promise<void> {
 			shop: shopView,
 			stats:
 				shopView || lastOffer.length > 0 || lastChest.length > 0
-					? describeStats(stats.stats).map((line) => ({
+					? describeStats(freshStats()).map((line) => ({
 							id: line.key,
 							label: t(line.key),
 							value: formatStat(line.value, line.percent),
