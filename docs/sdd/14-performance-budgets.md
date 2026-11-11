@@ -30,10 +30,10 @@ Pilar P5 (GDD §2) e Art Bible §5.4. Alvos de tela D31.
 | Sombras | 1 cascata 1024, só herói/elites/chefes | nenhuma (blob) |
 | Pós-processo | vinheta + bloom leve + grain | vinheta |
 | Partículas | ≤ 600 | ≤ 200 |
-| Decals | ≤ 200 | ≤ 60 |
+| Marcas de chão (sangue e corpos) | ≤ 600 | ≤ 100 |
 | Alocações no hot path | 0 por frame (verificado com heap snapshot: sem crescimento em 60 s) | idem |
 
-Estado no PROTÓTIPO: os testes de alocação usam contador (espião em `Array.prototype.filter/map/slice/concat/join` e nos construtores de TypedArray), não heap snapshot. O `heapMB` do bench fica como sinal complementar. Os props só são instanciados até Chebyshev ≤ `loadRadius` (49 chunks × no máximo 24 ≈ 1.176), para caber no limite de thin instances junto com a horda. Projéteis do herói, tiros inimigos (`EnemyShot`) e fragmentos já têm render, cada um em 1 mesh de thin instances com capacidade fixa (projéteis = pool do jogo, 512; tiros = `ENEMY_SHOT_POOL_SIZE`, 128; fragmentos 256 em `apps/web`). A P-04-05 trouxe os VFX dentro dos pools de `data/render.json` `vfx`: partículas cúbicas (`particlePool` 600), decals (`decalPool` 200), números de dano (32), hit-stop, vinheta no HUD (CSS, sem pós-processo) e shake por `targetScreenOffset`. Medição de referência (`reports/perf-desktop-1080.json`, P-03-05): 29 draw calls e 37 meshes ativos com VFX (P-03-05); após a R-01-03, com SwiftShader, `round20` mede 19 draw calls e 19 meshes ativos e `horde100` 15 e 15, contra os orçamentos de 120 draw calls (desktop), 70 (Android) e 60 meshes ativos. Entre 61 e 65 meshes ativos medidos antes dessa correção, 46 eram os `__root__` sem geometria dos glb importados (um por rig/modelo); `hideEmptyMeshes` os marca como invisíveis e o relatório do bench lista `activeMeshNames` para flagrar regressões. O orçamento não muda; os números servem de linha de base para o round20 representativo (§1).
+Estado no PROTÓTIPO: os testes de alocação usam contador (espião em `Array.prototype.filter/map/slice/concat/join` e nos construtores de TypedArray), não heap snapshot. O `heapMB` do bench fica como sinal complementar. Os props só são instanciados até Chebyshev ≤ `loadRadius` (49 chunks × no máximo 24 ≈ 1.176), para caber no limite de thin instances junto com a horda. Projéteis do herói, tiros inimigos (`EnemyShot`) e fragmentos já têm render, cada um em 1 mesh de thin instances com capacidade fixa (projéteis = pool do jogo, 512; tiros = `ENEMY_SHOT_POOL_SIZE`, 128; fragmentos 256 em `apps/web`). A P-04-05 trouxe os VFX dentro dos pools de `data/render.json` `vfx`: partículas cúbicas (`particlePool` 600), marcas de chão persistentes (`floorMarkCaps` de 600 a 50 por preset, descarte das mais antigas e distantes do herói), números de dano (32), hit-stop, vinheta no HUD (CSS, sem pós-processo) e shake por `targetScreenOffset`. Medição de referência (`reports/perf-desktop-1080.json`, P-03-05): 29 draw calls e 37 meshes ativos com VFX (P-03-05); após a R-01-03, com SwiftShader, `round20` mede 19 draw calls e 19 meshes ativos e `horde100` 15 e 15, contra os orçamentos de 120 draw calls (desktop), 70 (Android) e 60 meshes ativos. Entre 61 e 65 meshes ativos medidos antes dessa correção, 46 eram os `__root__` sem geometria dos glb importados (um por rig/modelo); `hideEmptyMeshes` os marca como invisíveis e o relatório do bench lista `activeMeshNames` para flagrar regressões. O orçamento não muda; os números servem de linha de base para o round20 representativo (§1).
 
 ### Memória de GPU e de áudio (A-01-02, medição de 2026-10-31)
 
@@ -83,14 +83,14 @@ Total de texturas e VATs: ≈ 5,2 MB, contra o teto de 160 MB do Android; o áud
 
 ## 5. Degradação controlada (opções de vídeo)
 
-| Preset | Inimigos cap | Sombras | Pós | Decals | Partículas | Render scale |
+| Preset | Inimigos cap | Sombras | Pós | Marcas de chão | Partículas | Render scale |
 | --- | --- | --- | --- | --- | --- | --- |
-| Ultra (1440p) | 100 | cascata 2048 | tudo | 200 | 600 | 1,0 |
-| Alto (1080p padrão) | 100 | cascata 1024 | tudo | 200 | 600 | 1,0 |
-| Médio | 100 | blob | vinheta | 100 | 300 | 1,0 |
-| Baixo / Android padrão | 60 | blob | vinheta | 60 | 200 | dinâmico |
-| Mínimo | 40 | nenhuma | nenhum | 30 | 100 | 0,5–0,75 |
+| Ultra (1440p) | 100 | cascata 2048 | tudo | 600 | 600 | 1,0 |
+| Alto (1080p padrão) | 100 | cascata 1024 | tudo | 400 | 600 | 1,0 |
+| Médio | 100 | blob | vinheta | 200 | 300 | 1,0 |
+| Baixo / Android padrão | 60 | blob | vinheta | 100 | 200 | dinâmico |
+| Mínimo | 40 | nenhuma | nenhum | 50 | 100 | 0,5–0,75 |
 
-Os valores da tabela vivem em `data/presets.json` (schema `presets.schema.json`, `presetsData` em `@gc/game`); `applyPreset` aplica sombras e escala de render, e o cap de inimigos e os tamanhos dos pools ficam com quem os possui (spawner e VFX). Não há gerador de sombras ainda, então `shadows` só liga `scene.shadowsEnabled`.
+Os valores da tabela vivem em `data/presets.json` (marcas de chão: `data/render.json` `vfx.floorMarkCaps`) (schema `presets.schema.json`, `presetsData` em `@gc/game`); `applyPreset` aplica sombras e escala de render, e o cap de inimigos e os tamanhos dos pools ficam com quem os possui (spawner e VFX). Não há gerador de sombras ainda, então `shadows` só liga `scene.shadowsEnabled`.
 
 O `cap` de inimigos afeta jogabilidade: abaixo de 100, os spawns excedentes são removidos (sem drop) como no cap padrão, e o `total(N)` do round não muda, então a pressão por tempo é a mesma. Registrado no GDD §10.3 como consequência aceita.

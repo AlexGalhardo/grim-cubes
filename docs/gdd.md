@@ -716,7 +716,7 @@ Valores iniciais (**proposta**; calibrar por playtest; todos com toggle onde ind
 | --- | --- |
 | Hit em inimigo | flash branco 2 frames; número de dano; partícula de sangue cúbica (3–6 cubos); knockback |
 | Crítico | número amarelo ×1,3; hit-stop 30 ms; som mais grave |
-| Morte de inimigo | desmembra em 4–8 cubos com física simples (0,8 s, sem colisão entre si); decal de sangue no chão (máx. 200 decals, FIFO); fragmento salta e cai |
+| Morte de inimigo | desmembra em 4–8 cubos com física simples (0,8 s, sem colisão entre si); decal de sangue e uma marca do corpo ficam no chão a run inteira (teto por preset em `data/render.json` `vfx.floorMarkCaps`: 600/400/200/100/50 do Ultra ao Mínimo; ao estourar, somem primeiro as marcas mais antigas e mais distantes do herói); fragmento salta e cai |
 | Hit no herói | flash vermelho na borda (vignette 0,2 s); shake 2 px (toggle); som de impacto; HUD de HP pulsa |
 | Level-up | pausa com zoom suave 5%; som ascendente; partículas sobem do herói |
 | Elite entra | som de alerta grave; marcador na borda; aura pulsante |

@@ -53,7 +53,7 @@ describe("vfx events", () => {
 		dispose();
 	});
 
-	it("a death throws 8-14 cubes and leaves a decal; a purged one does nothing", () => {
+	it("a death throws 8-14 cubes and leaves a blood decal and a corpse; a purged one does nothing", () => {
 		const { vfx, world, dispose } = setup();
 		const e = spawnBody(world, 2, 3);
 		vfx.onEvent(EventType.Died, 0, 1, 0, e);
@@ -61,7 +61,7 @@ describe("vfx events", () => {
 		vfx.onEvent(EventType.Died, 0, 0, 0, e);
 		expect(vfx.particles.stats.live).toBeGreaterThanOrEqual(config.bloodCubesPerDeath[0] ?? 0);
 		expect(vfx.particles.stats.live).toBeLessThanOrEqual(config.bloodCubesPerDeath[1] ?? 0);
-		expect(vfx.decals.live).toBe(1);
+		expect(vfx.decals.live).toBe(2);
 		dispose();
 	});
 
@@ -92,7 +92,7 @@ describe("vfx events", () => {
 });
 
 describe("pools", () => {
-	it("never exceed their capacity: the particle pool drops, the decal pool recycles FIFO", () => {
+	it("never exceed their capacity: the particle pool drops, the floor marks recycle oldest and farthest first", () => {
 		const { vfx, world, dispose } = setup();
 		const e = spawnBody(world, 0, 0);
 		for (let i = 0; i < 400; i++) {
@@ -121,7 +121,7 @@ describe("pools", () => {
 		const { vfx, world, dispose } = setup();
 		const e = spawnBody(world, 0, 0);
 		vfx.onEvent(EventType.Died, 0, 0, 0, e);
-		expect(vfx.decals.live).toBe(1);
+		expect(vfx.decals.live).toBe(2);
 		vfx.setGore(false);
 		expect(vfx.decals.live).toBe(0);
 		expect(vfx.gore).toBe(false);
@@ -139,7 +139,7 @@ describe("pools", () => {
 		vfx.onEvent(EventType.Died, 0, 0, 0, e);
 		vfx.shift(16, 0);
 		vfx.update(1 / 60);
-		expect(vfx.decals.live).toBe(1);
+		expect(vfx.decals.live).toBe(2);
 		dispose();
 	});
 });

@@ -15,7 +15,6 @@
 			"enemyCap": 100,
 			"shadows": "cascade2048",
 			"post": "all",
-			"decalPool": 200,
 			"particlePool": 600,
 			"renderScale": 1,
 			"dynamicScale": false
@@ -26,7 +25,6 @@
 			"enemyCap": 100,
 			"shadows": "cascade1024",
 			"post": "all",
-			"decalPool": 200,
 			"particlePool": 600,
 			"renderScale": 1,
 			"dynamicScale": false
@@ -37,7 +35,6 @@
 			"enemyCap": 100,
 			"shadows": "blob",
 			"post": "vignette",
-			"decalPool": 100,
 			"particlePool": 300,
 			"renderScale": 1,
 			"dynamicScale": false
@@ -48,7 +45,6 @@
 			"enemyCap": 60,
 			"shadows": "blob",
 			"post": "vignette",
-			"decalPool": 60,
 			"particlePool": 200,
 			"renderScale": 1,
 			"dynamicScale": true
@@ -59,7 +55,6 @@
 			"enemyCap": 40,
 			"shadows": "none",
 			"post": "none",
-			"decalPool": 30,
 			"particlePool": 100,
 			"renderScale": 0.75,
 			"dynamicScale": true

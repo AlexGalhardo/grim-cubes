@@ -1,4 +1,4 @@
-import type { DynamicScaleConfig, PresetsData, VideoPreset } from "@gc/game";
+import { type DynamicScaleConfig, type PresetsData, renderData, type VideoPreset } from "@gc/game";
 import { setContour } from "./contour";
 import type { GameScene } from "./scene";
 
@@ -30,6 +30,12 @@ export const NO_CONTOUR_PRESETS: readonly string[] = ["minimum"];
 /** Presets that draw without the ground contrast rings (SDD 14: rings and health bars cost 10 to 16% of a frame in software). */
 export const NO_RINGS_PRESETS: readonly string[] = ["minimum"];
 
+/** Blood stains and corpses a preset keeps on the floor (`data/render.json` `vfx.floorMarkCaps`). */
+export function floorMarkCap(presetId: string): number {
+	const caps: Readonly<Record<string, number>> = renderData.vfx.floorMarkCaps;
+	return caps[presetId] ?? 0;
+}
+
 export function applyPreset(game: GameScene, engine: QualityEngine, preset: VideoPreset): AppliedPreset {
 	game.scene.shadowsEnabled = preset.shadows !== "none";
 	game.setRim(!NO_RIM_PRESETS.includes(preset.id));
@@ -41,7 +47,7 @@ export function applyPreset(game: GameScene, engine: QualityEngine, preset: Vide
 		shadowsEnabled: game.scene.shadowsEnabled,
 		hardwareScalingLevel,
 		enemyCap: preset.enemyCap,
-		decalPool: preset.decalPool,
+		decalPool: floorMarkCap(preset.id),
 		particlePool: preset.particlePool,
 		post: preset.post,
 	};

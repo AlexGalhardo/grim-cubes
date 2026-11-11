@@ -137,7 +137,7 @@ A Parte 1B (arte medium poly) começa depois da `v0.6.0` e tem pontos de parada 
 
 ### S-11 Corpos e sangue persistentes
 
-- [ ] **S-11-01** Restos de inimigos e manchas de sangue ficam no chão a run inteira, dentro de um teto por preset definido em `data/render.json`; ao estourar o teto, os mais antigos e mais distantes do herói somem primeiro. O gore reduzido das Opções continua valendo. O sistema de teto e descarte não depende do estilo da arte: o visual em cubos é trocado por gore orgânico na S-18-08.
+- [x] **S-11-01** Restos de inimigos e manchas de sangue ficam no chão a run inteira, dentro de um teto por preset definido em `data/render.json`; ao estourar o teto, os mais antigos e mais distantes do herói somem primeiro. O gore reduzido das Opções continua valendo. O sistema de teto e descarte não depende do estilo da arte: o visual em cubos é trocado por gore orgânico na S-18-08.
   - Asserts: teste do teto e da ordem de descarte; `bun run test:perf` com `frameP99` dentro da tolerância de `tools/perf/compare.ts`; nada alocado por frame (teste de alocação existente verde); captura do round 10 com o chão marcado; GDD §23 e Art Bible §9 atualizados.
 
 ### S-12 Três heróis

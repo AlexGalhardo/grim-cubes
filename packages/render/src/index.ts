@@ -35,6 +35,7 @@ export {
 	applyPreset,
 	choosePresetId,
 	createDynamicScaler,
+	floorMarkCap,
 	hardwareInfo,
 	NO_RINGS_PRESETS,
 	pickAutoPreset,

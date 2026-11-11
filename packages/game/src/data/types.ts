@@ -139,6 +139,9 @@ export interface RenderData {
 	vfx: {
 		particlePool: number;
 		decalPool: number;
+		floorMarkCaps: Record<"ultra" | "high" | "medium" | "low" | "minimum", number>;
+		floorMarkFarDistance: number;
+		corpseSize: number;
 		damageNumberPool: number;
 		bloodCubesPerHit: number[];
 		bloodCubesPerDeath: number[];
@@ -355,7 +358,6 @@ export interface VideoPreset {
 	enemyCap: number;
 	shadows: ShadowQuality;
 	post: "all" | "vignette" | "none";
-	decalPool: number;
 	particlePool: number;
 	/** Render scale, 1 = native; `hardwareScalingLevel = 1 / renderScale`. */
 	renderScale: number;

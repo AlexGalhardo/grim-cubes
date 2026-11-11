@@ -165,6 +165,9 @@
 			"required": [
 				"particlePool",
 				"decalPool",
+				"floorMarkCaps",
+				"floorMarkFarDistance",
+				"corpseSize",
 				"damageNumberPool",
 				"bloodCubesPerHit",
 				"bloodCubesPerDeath",
@@ -208,7 +211,30 @@
 				"decalPool": {
 					"type": "integer",
 					"minimum": 0,
-					"description": "Blood decal pool, FIFO (200 desktop)."
+					"description": "Allocated size of the persistent floor-mark pool (the largest cap)."
+				},
+				"floorMarkCaps": {
+					"type": "object",
+					"description": "Blood stains and corpses kept on the floor per video preset id; past it the oldest and farthest from the hero go first (S-11-01).",
+					"additionalProperties": false,
+					"required": ["ultra", "high", "medium", "low", "minimum"],
+					"properties": {
+						"ultra": { "type": "integer", "minimum": 0 },
+						"high": { "type": "integer", "minimum": 0 },
+						"medium": { "type": "integer", "minimum": 0 },
+						"low": { "type": "integer", "minimum": 0 },
+						"minimum": { "type": "integer", "minimum": 0 }
+					}
+				},
+				"floorMarkFarDistance": {
+					"type": "number",
+					"exclusiveMinimum": 0,
+					"description": "Distance from the hero (u) at which a mark counts as fully far when picking what to discard."
+				},
+				"corpseSize": {
+					"type": "number",
+					"exclusiveMinimum": 0,
+					"description": "Side of the corpse mark (u)."
 				},
 				"damageNumberPool": { "type": "integer", "minimum": 1 },
 				"bloodCubesPerHit": {

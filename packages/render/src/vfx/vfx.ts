@@ -76,6 +76,8 @@ export interface VfxOptions {
 	flashReduced?: () => boolean;
 	/** Hero HP as a fraction of the maximum, for the low-HP vignette. */
 	heroHealth?: () => number;
+	/** The hero entity: the floor marks farthest from it are discarded first when the cap is hit. */
+	hero?: number;
 	seed?: number;
 }
 
@@ -122,9 +124,10 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 	const emberLight = rgb(PALETTE.emberLight);
 	const reducedBlood = rgb(PALETTE.ironDark);
 	const reducedCube = rgb(PALETTE.iron);
+	const corpse = rgb(PALETTE.ironDark);
 	let gore = true;
 
-	const decals = createDecalPool(game.scene, config.decalPool);
+	const decals = createDecalPool(game.scene, config.decalPool, config.floorMarkFarDistance);
 	const particles = createParticlePool(game.scene, config.particlePool, config.gravity, (x, z, micro) => {
 		if (gore) addDecal(x, z, micro ? MICRO_DECAL_SIZE : undefined);
 	});
@@ -323,6 +326,15 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 				if (gore) {
 					burst(x, z, count(config.bloodCubesPerDeath), bloodColors(), 5, 6, true);
 					addDecal(x, z);
+					decals.add(
+						x,
+						z,
+						config.corpseSize,
+						rng.next() * Math.PI * 2,
+						corpse[0],
+						corpse[1],
+						corpse[2],
+					);
 				} else {
 					burst(x, z, config.reducedDeathCubes, reducedCubeOnly, 4, 4, false);
 				}
@@ -538,6 +550,9 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 			}
 			particles.update(dt);
 			numbers.update(dt);
+			if (options.hero !== undefined) {
+				decals.setAnchor(Position.x[options.hero] ?? 0, Position.z[options.hero] ?? 0);
+			}
 		},
 		shift(dx, dz): void {
 			zones.shift(dx, dz);

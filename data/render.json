@@ -29,7 +29,10 @@
 	},
 	"vfx": {
 		"particlePool": 600,
-		"decalPool": 200,
+		"decalPool": 600,
+		"floorMarkCaps": { "ultra": 600, "high": 400, "medium": 200, "low": 100, "minimum": 50 },
+		"floorMarkFarDistance": 40,
+		"corpseSize": 0.7,
 		"damageNumberPool": 32,
 		"bloodCubesPerHit": [3, 6],
 		"bloodCubesPerDeath": [8, 14],

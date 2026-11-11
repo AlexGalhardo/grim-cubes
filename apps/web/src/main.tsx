@@ -135,6 +135,7 @@ import {
 	createRenderPort,
 	createVfx,
 	createVision,
+	floorMarkCap,
 	type GameAssets,
 	hardwareInfo,
 	importModelMesh,
@@ -867,7 +868,6 @@ async function boot(): Promise<void> {
 		// Allocated for the largest preset so a change in Options applies live (`vfx.setPools`).
 		config: {
 			...renderData.vfx,
-			decalPool: Math.max(...presetsData.presets.map((p) => p.decalPool)),
 			particlePool: Math.max(...presetsData.presets.map((p) => p.particlePool)),
 		},
 		onHitStop: (ms) => hitStop.request(ms),
@@ -875,6 +875,7 @@ async function boot(): Promise<void> {
 		// Elites get the long hit-stop of a boss kill too (GDD section 23).
 		reducedMotion: () =>
 			!meta.settings.screenShake || window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+		hero,
 		heroHealth: () => (Health.hp[hero] ?? 0) / Math.max(1, Health.max[hero] ?? 1),
 		isBoss: (entity) => (Boss.id[entity] ?? 0) > 0 || (Elite.modifier[entity] ?? 0) > 0,
 	});
@@ -889,7 +890,7 @@ async function boot(): Promise<void> {
 		vfx.setNumberScale(window.innerWidth <= SMALL_SCREEN_WIDTH ? SMALL_NUMBER_SCALE : 1);
 	fitNumbers();
 	window.addEventListener("resize", fitNumbers);
-	vfx.setPools(preset.particlePool, preset.decalPool);
+	vfx.setPools(preset.particlePool, floorMarkCap(preset.id));
 	const projectileView = createProjectileRenderer(
 		game,
 		projectiles.capacity,
@@ -1427,7 +1428,7 @@ async function boot(): Promise<void> {
 		applied = applyPreset(game, render.engine, next);
 		applyRings();
 		spawn.setCap(next.enemyCap);
-		vfx.setPools(next.particlePool, next.decalPool);
+		vfx.setPools(next.particlePool, floorMarkCap(next.id));
 	}
 
 	/** The catalog is picked at boot, so a language change reloads (`?lang=` is dropped so the saved one wins). */
@@ -2047,7 +2048,7 @@ async function boot(): Promise<void> {
 			openShop: () => run.enterShop(),
 			/** VFX budget check (P-04-05): off = no particles, no decals, no damage numbers. */
 			setVfx: (on: boolean) => {
-				vfx.setPools(on ? preset.particlePool : 0, on ? preset.decalPool : 0);
+				vfx.setPools(on ? preset.particlePool : 0, on ? floorMarkCap(preset.id) : 0);
 				vfx.setNumberScale(on ? 1 : 0);
 			},
 			/** Variant budget check: 0 draws no cosmetic variants, 30 is the default share. */
@@ -2175,7 +2176,7 @@ async function boot(): Promise<void> {
 				applied = applyPreset(game, render.engine, next);
 				applyRings();
 				spawn.setCap(next.enemyCap);
-				vfx.setPools(next.particlePool, next.decalPool);
+				vfx.setPools(next.particlePool, floorMarkCap(next.id));
 				return applied.id;
 			},
 			preset: () => ({

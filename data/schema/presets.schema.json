@@ -57,7 +57,6 @@
 					"enemyCap",
 					"shadows",
 					"post",
-					"decalPool",
 					"particlePool",
 					"renderScale",
 					"dynamicScale"
@@ -68,7 +67,6 @@
 					"enemyCap": { "type": "integer", "minimum": 1 },
 					"shadows": { "enum": ["cascade2048", "cascade1024", "blob", "none"] },
 					"post": { "enum": ["all", "vignette", "none"] },
-					"decalPool": { "type": "integer", "minimum": 0 },
 					"particlePool": { "type": "integer", "minimum": 0 },
 					"renderScale": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 },
 					"dynamicScale": { "type": "boolean" }

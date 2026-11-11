@@ -5,6 +5,7 @@ import {
 	applyPreset,
 	choosePresetId,
 	createDynamicScaler,
+	floorMarkCap,
 	hardwareInfo,
 	pickAutoPreset,
 	type QualityEngine,
@@ -32,12 +33,14 @@ const preset = (id: string) => {
 
 describe("presets data", () => {
 	it("follows the SDD 14 table: caps 100/100/100/60/40, shadows and pools shrink", () => {
-		expect(presetsData.presets.map((p) => [p.id, p.enemyCap, p.decalPool, p.particlePool])).toEqual([
-			["ultra", 100, 200, 600],
-			["high", 100, 200, 600],
-			["medium", 100, 100, 300],
-			["low", 60, 60, 200],
-			["minimum", 40, 30, 100],
+		expect(
+			presetsData.presets.map((p) => [p.id, p.enemyCap, floorMarkCap(p.id), p.particlePool]),
+		).toEqual([
+			["ultra", 100, 600, 600],
+			["high", 100, 400, 600],
+			["medium", 100, 200, 300],
+			["low", 60, 100, 200],
+			["minimum", 40, 50, 100],
 		]);
 		expect(presetsData.presets.some((p) => p.id === presetsData.default)).toBe(true);
 	});

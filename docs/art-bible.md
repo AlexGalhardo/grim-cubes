@@ -231,6 +231,7 @@ Decisão D23: gore alto estilizado, toggle para reduzir.
 - Sangue: partículas cúbicas (cubos de 0,08–0,15 u, cor Sangue `#5E0E14` com 20% em Sangue claro), 3–6 por hit, 8–14 por morte; gravidade simples; viram decal ao tocar o chão (quad 0,6–1,2 u, textura de respingo pixel art, 6 variantes).
 - Desmembramento: ao morrer, o modelo é substituído por 4–8 "pedaços" (cubos pré-definidos por classe, mesmo atlas) com velocidade radial e rotação, vida 0,8 s, fade sem colisão.
 - Execução de chefe: câmera aproxima, 1,5 s, chefe se parte em 12–20 pedaços grandes, flash Brasa clara.
+- Persistência (S-11-01): manchas de sangue e a marca do corpo ficam no chão a run inteira, sem fade nem limpeza no fim do round. O teto por preset está em `data/render.json` `vfx.floorMarkCaps`; ao estourar, sai a marca de maior soma de idade (0 a 1) e distância ao herói (0 a 1, saturando em `floorMarkFarDistance`). A regra vale para qualquer estilo de arte; só o visual muda na S-18-08.
 - Toggle de gore reduzido: sem decals, sem desmembramento (morte = fade + 4 cubos cinza), sangue em cor Ferro escuro.
 - Fogo/explosão: 2 sprites pixel art animados (8 frames) em billboard + 6–10 cubos Brasa; sem luz em mobile.
 - Auras de elite: anel de quads emissivos no chão + partículas lentas; forma varia por modificador (§3.3).
