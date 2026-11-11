@@ -182,7 +182,7 @@ Pré-condição: o MCP `blockbench` responde (Blockbench aberto pelo PO com o pl
 
 Pedido do PO em 2026-11-11: ao fim da Parte 1, uma release nova com o `.exe` e o `.apk` prontos para baixar e testar. É o único item que faz merge na `main`, push e tag; tudo antes dele fica na `feat/aaa-polish`.
 
-- [ ] **S-17-01** `release.yml` também gera e anexa o APK de debug (`bun run build:android`), para que a release saia completa sem passo manual. Deps: S-16-03.
+- [x] **S-17-01** `release.yml` também gera e anexa o APK de debug (`bun run build:android`), para que a release saia completa sem passo manual. Deps: S-16-03.
   - Asserts: o workflow tem o job do APK e inclui o arquivo em `checksums.txt`; `docs/sdd/12-ci-cd.md` e `docs/sdd/13-release-versioning.md` descrevem o asset.
 - [ ] **S-17-02** Merge da `feat/aaa-polish` na `main` (sem `--force`), push, CI verde e `bun run release minor --publish`, que publica a `v0.6.0`. Deps: S-17-01.
   - Asserts: `gh run list --branch main --limit 1` com `conclusion: success` no commit da tag; `gh release view v0.6.0 --json assets` lista `GrimCubes-Setup-0.6.0.exe`, `GrimCubes-0.6.0-portable.exe`, `grim-cubes_0.6.0_android.apk`, `checksums.txt` e o SBOM; o corpo da release segue o formato da S-00-01; `CHANGELOG.md` tem a seção `[0.6.0]`; `docs/PROGRESS.md` registra a release e os links de download.

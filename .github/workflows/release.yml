@@ -119,3 +119,42 @@ jobs:
           gh release download "$TAG" --pattern checksums.txt --dir . --clobber
           (cd release && sha256sum "GrimCubes-Setup-${version}.exe" "GrimCubes-${version}-portable.exe") >> checksums.txt
           gh release upload "$TAG" checksums.txt --clobber
+
+  # Runs after `desktop` because both jobs rewrite checksums.txt; side by side one of them would lose its lines.
+  android:
+    name: android debug apk
+    needs: desktop
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      - run: bun install --frozen-lockfile
+
+      # A sideload build for testing on a phone: debug key, no AAB, no Play upload (those belong to android.yml, 1.1).
+      # Capacitor 8 compiles with Java 21, which the runner image ships next to its Android SDK (ANDROID_HOME).
+      - name: Build the debug APK
+        run: JAVA_HOME="$JAVA_HOME_21_X64" bun run build:android
+
+      - name: Attach the APK to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+        run: gh release upload "$TAG" "release/grim-cubes_${TAG#v}_android.apk" --clobber
+
+      - name: Add the APK to checksums.txt
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          gh release download "$TAG" --pattern checksums.txt --dir . --clobber
+          (cd release && sha256sum "grim-cubes_${TAG#v}_android.apk") >> checksums.txt
+          gh release upload "$TAG" checksums.txt --clobber
