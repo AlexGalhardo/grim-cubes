@@ -128,6 +128,8 @@ export interface ResultsSource {
 	record: number;
 	newRecord: boolean;
 	seed: number;
+	/** Present for a daily challenge run: whether it entered the table or was a practice try. */
+	daily?: ResultsViewModel["daily"];
 	loadout: LoadoutView;
 	/** Every Ossuary node with its label, cost and state; the next unlock is the cheapest one still open. */
 	nodes: readonly { label: string; cost: number; state: string }[];
@@ -181,6 +183,7 @@ export function buildResults(source: ResultsSource, lookup: ResultsLookup): Resu
 		record: source.record,
 		newRecord: source.newRecord,
 		seed: source.seed,
+		...(source.daily && { daily: source.daily }),
 		nextUnlock: open ? { name: open.label, cost: open.cost } : null,
 	};
 }

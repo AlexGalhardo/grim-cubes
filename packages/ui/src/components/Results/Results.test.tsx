@@ -99,3 +99,12 @@ test("the wishlist button shows only when a handler is given", () => {
 	fireEvent.click(screen.getByTestId("results-wishlist"));
 	expect(onWishlist).toHaveBeenCalledTimes(1);
 });
+
+test("a daily challenge run says whether it scored or was practice; a normal run says nothing", () => {
+	const { rerender } = render(<Results view={view} onRestart={() => {}} />);
+	expect(screen.queryByTestId("results-daily")).toBeNull();
+	rerender(<Results view={{ ...view, daily: "scored" }} onRestart={() => {}} />);
+	expect(screen.getByTestId("results-daily").textContent).toContain("pontuou");
+	rerender(<Results view={{ ...view, daily: "practice" }} onRestart={() => {}} />);
+	expect(screen.getByTestId("results-daily").textContent).toContain("treino");
+});

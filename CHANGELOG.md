@@ -55,6 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **ui:** The results screen of a daily challenge run says whether it scored and entered the table or was a practice try (`ResultsViewModel.daily`, built in `buildResults`) (S-13-01)
 - **tools:** `bun run sim --hero <id>` plays any of the three heroes and the report records the hero. Balance of the two new heroes (S-12-03, partial): big base-stat bonuses, a wide pickup radius and a boss-damage penalty bring them from death at round 4 to the range of the Carrasco in some difficulties, but not all of the GDD 25 ranges (the table and the options are in GDD 25.2); reports in `reports/balance-heroes-*.json`
 - **game:** Daily challenge (S-13-01): the menu gets "Desafio diário", a screen with today's UTC date, the hero of the day, the status of the one scored attempt and a local table of the last 30 days (round, combat time, kills). The seed and the hero come from the UTC date (`dailySeed`, `dailyHero`, Normal difficulty); only the first finished attempt of a day scores, per slot, and the others count for the account but not the table. `runStats.seconds` counts combat time
 - **core:** Save schema 14: the slot profile gets the `daily` table and the checkpoint gets `run.seconds` and `run.daily`; saves from schemas 10 to 13 load with an empty table and their checksums still verify (S-13-01)

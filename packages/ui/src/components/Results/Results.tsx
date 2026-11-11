@@ -32,6 +32,8 @@ export interface ResultsViewModel {
 	record: number;
 	newRecord: boolean;
 	seed: number;
+	/** Set when the run was the daily challenge: `scored` entered the table, `practice` was a later try of the day. */
+	daily?: "scored" | "practice" | undefined;
 	/** The cheapest Ossuary node still open, or null when none is. */
 	nextUnlock: { name: string; cost: number } | null;
 }
@@ -170,6 +172,14 @@ export function Results({ view, onRestart, onOssuary, onMenu, onWishlist }: Resu
 									{view.seed}
 								</Stat>
 							</dl>
+							{view.daily ? (
+								<p
+									data-testid="results-daily"
+									className={`border-2 bg-night-2 px-2 py-1 font-body text-xs desktop:text-sm ${view.daily === "scored" ? "border-ember text-ember-light" : "border-iron-dark text-bone-dark"}`}
+								>
+									{t(`results.daily.${view.daily}`)}
+								</p>
+							) : null}
 							<div
 								className={`grid gap-3 ${short ? "grid-cols-2 gap-2" : "grid-cols-1 mobile-l:grid-cols-2"}`}
 							>

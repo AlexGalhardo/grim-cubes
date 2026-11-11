@@ -1224,6 +1224,12 @@ async function boot(): Promise<void> {
 		settled = true;
 		const souls = runSouls();
 		const newRecord = run.round > meta.records[difficultyId];
+		// Decided before `applyRun` adds the row: only the first finished attempt of the UTC day scores.
+		const dailyOutcome = dailyDate
+			? meta.daily.some((entry) => entry.date === dailyDate)
+				? "practice"
+				: "scored"
+			: undefined;
 		const result: RunResult = {
 			souls,
 			round: run.round,
@@ -1273,6 +1279,7 @@ async function boot(): Promise<void> {
 				record: meta.records[difficultyId],
 				newRecord,
 				seed,
+				...(dailyOutcome && { daily: dailyOutcome }),
 				loadout: loadout.update({
 					owned,
 					weaponId: weapon.weapon.id ?? "",

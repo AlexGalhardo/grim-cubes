@@ -478,5 +478,7 @@
 	"daily.col.time": "Time",
 	"daily.col.kills": "Kills",
 	"daily.back": "Back",
-	"daily.start": "Play"
+	"daily.start": "Play",
+	"results.daily.scored": "Daily challenge: this run scored and entered today's table.",
+	"results.daily.practice": "Daily challenge: practice. Only the first attempt of the day scores."
 }

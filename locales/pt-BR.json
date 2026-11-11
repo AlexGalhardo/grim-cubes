@@ -478,5 +478,7 @@
 	"daily.col.time": "Tempo",
 	"daily.col.kills": "Abates",
 	"daily.back": "Voltar",
-	"daily.start": "Jogar"
+	"daily.start": "Jogar",
+	"results.daily.scored": "Desafio diário: esta run pontuou e entrou na tabela de hoje.",
+	"results.daily.practice": "Desafio diário: treino. Só a primeira tentativa do dia pontua."
 }

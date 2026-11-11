@@ -154,6 +154,12 @@ describe("results view", () => {
 		expect(view.souls).toBe(30);
 	});
 
+	it("tells a daily challenge run apart: scored, practice, or not a daily at all", () => {
+		expect(buildResults({ ...source, daily: "scored" }, names).daily).toBe("scored");
+		expect(buildResults({ ...source, daily: "practice" }, names).daily).toBe("practice");
+		expect("daily" in buildResults(source, names)).toBe(false);
+	});
+
 	it("has no next unlock when every node is owned, locked or demo-gated", () => {
 		const view = buildResults({ ...source, nodes: [{ label: "x", cost: 1, state: "owned" }] }, names);
 		expect(view.nextUnlock).toBeNull();
