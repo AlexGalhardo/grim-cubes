@@ -27,14 +27,17 @@ Roguelite de sobrevivência em ondas, 3D voxel grimdark (medium poly pintado à 
 | `bun run test` | Vitest (unit + integration) |
 | `bun run test:e2e` | Playwright (4 viewports) |
 | `bun run test:smoke` | Playwright smoke contra uma URL (bypass da Vercel por secret) |
-| `bun run sim` | simulador de balanceamento |
-| `bun run ux:legibility` | mede o contraste herói/chão e inimigo/chão na captura de combate (`reports/legibility.json`) |
+| `bun run sim` | simulador de balanceamento (`--hero executioner\|riddled\|penitent`, `--difficulty`, `--policy`, `--ossuary`, `--check`) |
+| `bun run ux:legibility` | mede o contraste herói/chão e inimigo/chão na captura de combate (`reports/legibility.json`); `-- --biome <id>` teleporta o herói para outro bioma e grava `reports/legibility-<id>.json` |
+| `bun run test:perf` | bench de desempenho em Playwright (cenários `round20` e `gore-*` por preset); `reports/perf-*.json` |
 | `bun run assets:gen` | gera os `.bbmodel` placeholder por script |
 | `bun run assets:build` | pipeline `.bbmodel` → glTF (skin rígido) → atlas/VAT (KTX2 na ALPHA) |
 | `bun run audio:generate` | gera SFX/música/voz via ElevenLabs (chave em `.env`) |
 | `bun run release <patch\|minor\|major\|rc>` | release no padrão vukem |
 
 Até a fase ESTRUTURA concluir E-02, alguns scripts são stubs.
+
+Variável de build `GC_WISHLIST_URL` (`https://store.steampowered.com/app/<AppID>/...`): sem ela o botão "Wishlist na Steam" (menu, fim da demo e resultados da demo) não aparece. Com `GC_DEBUG_API=1` e `?debug=1` o `window.gc.debug` oferece atalhos de captura (`state()`, `killHero()`, `unlockHeroes()`, `grantGold()`, `openShop()` e outros; procure `window.gc.debug = {` em `apps/web/src/main.tsx`).
 
 ## Arte 3D
 
@@ -50,7 +53,7 @@ Até a fase ESTRUTURA concluir E-02, alguns scripts são stubs.
 - Versões exatas de dependências; nenhuma dependência nova sem aprovação do PO.
 - Tabs de largura 4 (Biome + `.editorconfig`); Markdown passa em `bun run lint:md`.
 - TypeScript estrito, sem `any`, sem `@ts-ignore`; `Math.random` proibido em `packages/game`; nada alocado por frame em `simulate`/`sync`.
-- Números de balanceamento só em `data/*.json`; cores só por tokens Tailwind (`packages/ui/src/theme.css`).
+- Números de balanceamento só em `data/*.json` (inclusive os três heróis, em `data/heroes.json`); cores só por tokens Tailwind (`packages/ui/src/theme.css`).
 - Camadas: `core` ← `game` ← `render`; `ui` lê só o store; `platform` é o único lugar com Electron/Capacitor/Steam.
 - Alvos de tela obrigatórios em UI: 1920×1080, 2560×1440, 896×414, 800×360 (landscape).
 - Toda alteração relevante: atualizar SDD/ADR/GDD/Art Bible afetados e `CHANGELOG.md` `[Unreleased]`; atualizar `docs/PROGRESS.md`.

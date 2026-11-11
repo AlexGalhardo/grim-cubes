@@ -192,7 +192,7 @@ A 1.0 tem três heróis (decisão do PO de 2026-11-11, trilha S-12; revisa a D11
 | O Fuzilado (`riddled`) | Pistola de Ferro | HP 200, armadura 8, regeneração 2, esquiva 10%, crítico 8%, dano +85%, velocidade de ataque +85%, raio de pickup 7 u | **Olho do Pelotão:** +10% de chance de crítico, −40% de dano em chefes | marco `round_10` (round 10 em qualquer dificuldade) |
 | A Penitente (`penitent`) | Submetralhadora | HP 150, armadura 4, velocidade 6,4 u/s, dano +40%, velocidade de ataque +40%, raio de pickup 7 u | **Carne Flagelada:** +1 ponto de regeneração, −30% de dano em chefes | marco `bosses_3` (3 chefes mortos) |
 
-**Proposta, aguarda confirmação do PO:** os nomes "O Fuzilado" e "A Penitente", as passivas e o desbloqueio dos dois (propostos pelo agente; o GDD §20 pós-1.0 citava a Bruxa do Pântano e o Forjado Renegado, que ficam como ideias futuras). Os números saem de `data/*.json` e foram ajustados no simulador (§25.2): armas de longo alcance sofrem muito mais que a espada contra o bot greedy, então os dois heróis recebem bônus grandes de stats base; o raio de pickup alto compensa o bot, que mantém distância e não pisa nos fragmentos, e o redutor de dano em chefes segura o tempo de kill dos chefes (sem ele a pistola mata o Coveiro em ~37 s).
+**Nomes, passivas e desbloqueios dos dois heróis novos (aceito pelo orquestrador por delegação do PO em 2026-11-11):** "O Fuzilado" e "A Penitente" (propostos pelo agente; o GDD §20 pós-1.0 citava a Bruxa do Pântano e o Forjado Renegado, que ficam como ideias futuras). Os números saem de `data/*.json` e foram ajustados no simulador (§25.2): armas de longo alcance sofrem muito mais que a espada contra o bot greedy, então os dois heróis recebem bônus grandes de stats base; o raio de pickup alto compensa o bot, que mantém distância e não pisa nos fragmentos, e o redutor de dano em chefes segura o tempo de kill dos chefes (sem ele a pistola mata o Coveiro em ~37 s).
 
 ### 7.1 Stats base (round 1, sem meta-árvore)
 
@@ -531,7 +531,7 @@ Caem de destrutíveis e de elites: Frasco de Sangue (cura 20% HP imediato), Ím�
 
 ### 15.5 Sinergias por etiqueta (S-14-01)
 
-Cada item de `data/items.json` leva uma ou duas etiquetas (`tags`) de um conjunto de seis, definidas em `data/synergies.json`. **Proposta, a confirmar pelo PO**: Ferro (placas, armas e metal), Osso (relíquias do Ossuário e mortos), Sangue (roubo de vida, sangramento, dano à custa de HP), Brasa (fogo, explosão, velocidade de ataque), Cova (terra, regeneração, vida máxima) e Maldição (sorte, crítico, pactos).
+Cada item de `data/items.json` leva uma ou duas etiquetas (`tags`) de um conjunto de seis, definidas em `data/synergies.json`. **Etiquetas e nomes aceito pelo orquestrador por delegação do PO em 2026-11-11**: Ferro (placas, armas e metal), Osso (relíquias do Ossuário e mortos), Sangue (roubo de vida, sangramento, dano à custa de HP), Brasa (fogo, explosão, velocidade de ataque), Cova (terra, regeneração, vida máxima) e Maldição (sorte, crítico, pactos).
 
 - A contagem é de **itens distintos** com a etiqueta (uma segunda cópia do mesmo item não conta), para a sinergia pedir coleção em vez de empilhar o item mais barato.
 - Ao chegar a 2, 4 e 6 itens da mesma etiqueta ativa-se o bônus do degrau; os degraus **acumulam** (com 6 valem os três). Perder o item (ou retomar a run de um checkpoint) recalcula tudo: os bônus saem e entram sozinhos, e não são gravados no save.
@@ -656,8 +656,8 @@ Decisão D09: árvore permanente fora da run, comprada com almas. Nome diegétic
 | 1.000 kills acumulados | item `cube_of_wrath` entra no pool |
 | 10.000 kills | item `warlord_banner` entra no pool |
 | 5 chefes mortos | item `executioner_mark` entra no pool |
-| Round 10 em qualquer dificuldade | herói O Fuzilado (proposta, §7) |
-| 3 chefes mortos | herói A Penitente (proposta, §7) |
+| Round 10 em qualquer dificuldade | herói O Fuzilado (§7) |
+| 3 chefes mortos | herói A Penitente (§7) |
 | Round 50 | skin "Carrasco de Ferro Negro" (cosmético) |
 | Pós-1.0 | personagens por marcos (Bruxa do Pântano: 3 Matriarcas mortas; Forjado Renegado: round 30 em Grim) |
 
@@ -676,25 +676,26 @@ Recordes mostrados no menu: maior round por dificuldade, total de kills, total d
 | Tela | Conteúdo | Fase |
 | --- | --- | --- |
 | Boot/Título | logo, "pressione para começar" (unlock de áudio), versão | PROTÓTIPO |
-| Menu principal | Continuar (só se já houve um slot usado), Novo jogo, Ossuário, Opções, Sair, com o botão principal maior; bloco de recordes por dificuldade; brasas animadas sobre a arte (paradas com redução de movimento); selo "DEMO" em destaque quando aplicável | PROTÓTIPO |
+| Menu principal | Continuar (só se já houve um slot usado), Novo jogo, Desafio diário, Ossuário, Opções, "Wishlist na Steam" (só quando o build recebe `GC_WISHLIST_URL`) e Sair (só no desktop), com o botão principal maior; em telas baixas os botões ficam em duas colunas; bloco de recordes por dificuldade; brasas animadas sobre a arte (paradas com redução de movimento); selo "DEMO" em destaque quando aplicável | PROTÓTIPO |
 | Slots de save | 3 slots: nome, último jogo, melhor round, almas e se há run em andamento; slot ocupado pede confirmação para sobrescrever; "Apagar" com confirmação | ALPHA |
+| Desafio diário | data UTC, herói e arma do dia, dificuldade Normal, se a tentativa pontuada de hoje já foi usada e a tabela local dos últimos 30 dias (data, round, tempo, abates); "Jogar" começa a run do dia (§20.1) | BETA |
 | Seleção de herói | 3 cartões: retrato (recolorido por token), arma inicial, passiva e, se bloqueado, a condição de desbloqueio; entre os slots e a dificuldade (novo jogo e "Jogar de novo"); o herói escolhido vai no checkpoint da run | BETA |
 | Seleção de dificuldade | Fácil/Normal/Difícil abertas, Nightmare com cadeado; uma linha de sabor por dificuldade; escolha (preenchimento âmbar e losango) e foco (contorno osso) nunca se parecem; seed e tutorial opcionais (S-08-01) | ALPHA |
 | HUD in-run | ver 21.2 | PROTÓTIPO |
-| Level-up | 3 cartas centrais, stats atuais à esquerda; pausa | PROTÓTIPO |
-| Loja | 4 slots (a melhoria da arma fica no painel da arma), stats com prévia do delta, reroll, lock, ouro uma vez só, almas do perfil rotuladas, "Próximo round" | PROTÓTIPO |
+| Level-up | 3 cartas centrais com raridade, ícone e `atributo atual → novo`; painel de atributos à esquerda, com o delta verde ou vermelho da carta em foco (só em telas largas de desktop; some em 896 × 414 e 800 × 360); botão de troca com o saldo de trocas, visível; pausa | PROTÓTIPO |
+| Loja | 4 slots (a melhoria da arma fica no painel da arma), stats com prévia do delta, ofertas de arma com dano e ataques por segundo e de item com os efeitos, etiquetas de sinergia com o progresso (§15.5; fora das telas baixas), reroll, lock, ouro uma vez só, almas do perfil rotuladas, "Próximo round" | PROTÓTIPO |
 | Chefe | barra de HP topo, nome, marcadores de fase | PROTÓTIPO (Coveiro) |
-| Morte/Resultado | round, tempo de luta, kills, dano por fonte em barras (arma, magias, itens, sangramento), causa da morte com nome e ícone, build final com ícones e contadores, almas ganhas (contador animado) com o progresso até o próximo desbloqueio do Ossuário, seed | PROTÓTIPO |
+| Morte/Resultado | round, tempo de luta, kills, dano por fonte em barras (arma, magias, itens, sangramento), causa da morte com nome e ícone, build final com ícones e contadores, almas ganhas (contador animado) com o progresso até o próximo desbloqueio do Ossuário, seed; numa run do desafio diário, um selo diz se ela pontuou ou foi treino; na demo, o botão de wishlist | PROTÓTIPO |
 | Ossuário | 5 ramos em colunas, nós com custo, saldo de almas, reset. Comprado ("✓ Comprado"), comprável (moldura sólida com brilho e preço) e bloqueado (moldura tracejada, ▣, texto AA) se distinguem sem cor; no desktop as colunas ocupam a altura da tela (S-08-02) | ALPHA |
 | Opções | áudio (3 sliders), vídeo (escala de renderização, qualidade, fullscreen, vsync), gameplay (gore, shake, flash, escala UI, daltônico), controles (remap). Qualidade numa linha só; brilho e contraste em % com 100% no neutro; três colunas no desktop e duas em paisagem abaixo de 1024 px (S-08-03) | ALPHA |
-| Fim da demo | após vencer o Coveiro: resumo + botões "Comprar na Steam" / "Google Play" / "Continuar no Ossuário (limitado)" | BETA |
+| Fim da demo | após vencer o Coveiro: resumo + botões "Comprar na Steam" / "Google Play" / "Continuar no Ossuário (limitado)" e "Wishlist na Steam" (quando há URL) | BETA |
 | Pausa | Esc (PC) ou Start (controle) abre; no celular, botão "‖" no canto superior direito, ao lado da velocidade. Continuar, Opções, Sair para o menu (confirmação; a run fica salva no início do round) | PROTÓTIPO |
 
 ### 21.4 Slots de save e retomar a run (decisão do PO, 2026-10-31)
 
 - **Três slots**, cada um um perfil completo (almas, Ossuário, recordes, estatísticas, marcos e skins). Opções e teclas são globais e não mudam de slot.
 - **Novo jogo** abre a escolha de slot, depois a do herói (§7) e depois a dificuldade. Um slot ocupado só é usado depois de confirmar que o perfil dele será apagado; um slot vazio entra direto. Cada slot ocupado também tem "Apagar", com confirmação.
-- **Continuar** aparece quando já houve um slot usado e abre o último: retoma a run em andamento dele; sem run, abre o perfil e vai para a escolha de dificuldade. O Ossuário e as Opções do menu valem para o slot atual.
+- **Continuar** aparece quando já houve um slot usado e abre o último: retoma a run em andamento dele; sem run, abre o perfil e vai para a escolha de herói e depois a de dificuldade. O Ossuário e as Opções do menu valem para o slot atual.
 - **Retomar a run:** o jogo salva o estado da run ao começar cada round (depois de sair da loja). Ao retomar, a run volta ao início desse round com a mesma economia, build, HP e sorteios; os inimigos não são salvos, o round recomeça limpo. Morrer ou terminar a run apaga o checkpoint. Ver SDD 06 seção 2.1.
 
 ### 21.2 HUD in-run
@@ -705,6 +706,7 @@ Recordes mostrados no menu: maior round por dificuldade, total de kills, total d
 - Base-esquerda: arma atual numa moldura de 56 px com 4 pips de tier, e a faixa de itens (ícones de 32 px em moldura da cor da raridade, contador quando maior que 1, no máximo 10 e depois um chip "+N"). Em tela de toque a arma vai para o lado dos vitais e a faixa some (o joystick ocupa a base-esquerda; os itens aparecem na loja e na pausa).
 - Margem de 24 px no desktop e de 12 px no mínimo (ou a safe area) no mobile. Nada cobre o herói nem o anel de 6 u ao redor dele (retângulo central de 600×400 px a 1080p, proporcional nos outros alvos).
 - Base-direita (mobile): botão de dash e pausa. Desktop: vazio.
+- Etiquetas de sinergia (§15.5): uma faixa pequena com o nome e a contagem de itens, acesa quando um degrau está ativo; só em telas sem toque.
 - Indicadores de borda: seta para elite e chefe fora da tela.
 - Atualização do HUD a 10–15 Hz via store externo (D21); números de dano são renderizados pela engine (não React).
 

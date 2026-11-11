@@ -418,7 +418,11 @@ Tailwind: `--breakpoint-mobile-l: 821px; --breakpoint-desktop: 1024px; --breakpo
 | `Button` | fundo `iron`, texto `bone` display 16, borda 2 px `iron-dark` | default, hover (borda `ember`, texto `ember-light`), active (translate 1 px), focus (outline 2 px `ember` offset 2), disabled (`mist`, 50%) | sm 32 px, md 40, lg 48 (mobile mínimo 48) |
 | `IconButton` | 40×40 (48 mobile), ícone 24 px | idem | — |
 | `Bar` (HP/XP/chefe) | trilho `night`, preenchimento 2 tons (base + luz 2 px no topo), número centralizado display 16 | normal, baixo (< 25%: pulso 0,8 s em `steps(2)` e moldura `blood-light`, número sempre legível), cheio | alto 20 px (HUD), 28 px (chefe) |
-| `StatList` | linhas `label … valor`, delta colorido (`sludge` +, `blood-light` −) | — | body 14 |
+| `StatList` | linhas `label … valor`; a oferta ou carta em foco troca o valor por `agora → depois` com o delta colorido (`sludge` +, `blood-light` −); uma ou duas colunas; compartilhada pela loja e pelo painel esquerdo do level-up | — | body 14 |
+| `HeroCard` (tela `Heroes`) | botão de 3 por linha: retrato (`/portraits/hero.webp`, 128 px no desktop, 96 px em `mobile-l`, 48 px em tela baixa) com sobreposição `mix-blend-color` do token de tema do herói, nome display, arma e passiva em body, linhas da passiva em `bone`, condição de desbloqueio em `ember` quando bloqueado | default, foco (outline), selecionado (borda `ember`, texto `ember-light`), bloqueado (desabilitado, 70%) | 3 colunas em todos os alvos |
+| `DailyTable` (tela `Daily`) | tabela de 4 colunas (data, round, tempo, abates) com cabeçalho `bone-dark` e rolagem interna; a linha de status acima usa `ember-light` | vazia (texto no lugar da tabela), pontuada | max-height 160 px (256 px no desktop) |
+| `DemoSeal` | selo "DEMO": caixa de 2 px `ember` com texto `ember-light`, no menu (canto superior direito, fundo `night` 80%, display 16 em caixa alta) e no HUD (base-esquerda, ao lado da versão) só no build da demo | — | display 16 (menu), body 12 (HUD) |
+| `ResultsBadge` | linha de 2 px sob os contadores da tela de resultados: `ember` quando a run do desafio diário pontuou, `iron-dark` quando foi treino | pontuou, treino | body 12 (14 no desktop) |
 | `ItemCard` | ícone 32 px em moldura de raridade, nome display 16, efeito body 14, preço com ícone de fragmento | default, hover (eleva 4 px), locked (cadeado `ember-light`), unaffordable (preço `blood-light`, 60%), selected | 220 × 300 (desktop), 180 × 240 (mobile) |
 | `LevelUpCard` | igual a `ItemCard` sem preço: tecla 1/2/3 no canto, raridade (nome e marca do modo daltônico) no outro, ícone grande (64 px no desktop) em moldura de raridade, nome display, efeito body e, embaixo, `atributo atual → novo` (o novo em `sludge`) | default, hover/foco (borda `ember`, eleva 4 px), entrada em `steps(4)` de 180 ms com 60 ms de defasagem por carta (desliga com `prefers-reduced-motion`) | 220 × 300 (desktop), 180 × 240 (896 × 414), 160 × 220 (800 × 360) |
 | `Modal` | `Panel` centralizado sobre overlay `night` 70%, título, corpo, 2 botões | — | max-width 560 (desktop), 90vw (mobile) |
@@ -508,5 +512,5 @@ Regras:
 
 - Nenhum elemento de HUD cobre o herói (centro) nem o anel de 6 u ao redor dele.
 - Em mobile, o canto inferior direito é reservado a dash/pausa; o esquerdo ao joystick flutuante (aparece onde o polegar toca).
-- Capturas obrigatórias em PR de UI: as 4 viewports × telas (HUD in-run, loja, level-up, chefe, resultado, Ossuário), geradas por Playwright e anexadas como artefato.
+- Capturas obrigatórias em PR de UI: as 4 viewports × telas (menu, slots, herói, desafio diário, dificuldade, HUD in-run, loja, level-up, chefe, resultado, Ossuário, Opções), geradas por Playwright e anexadas como artefato.
 - Benchmarks de performance (SDD 14) rodam em 1080p e 1440p no desktop e nos 2 viewports mobile em device real da classe Galaxy A.

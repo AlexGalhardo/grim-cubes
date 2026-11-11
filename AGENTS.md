@@ -19,8 +19,9 @@ Instruções para qualquer agente de código (Claude Code, Codex, Cursor, etc.) 
 | `bun run lint:md` | markdownlint-cli2 |
 | `bun run test` | Vitest (unit + integration) |
 | `bun run test:e2e` | Playwright (4 viewports) |
-| `bun run sim` | simulador de balanceamento |
-| `bun run ux:legibility` | mede o contraste herói/chão e inimigo/chão na captura de combate (`reports/legibility.json`) |
+| `bun run sim` | simulador de balanceamento (`--hero`, `--difficulty`, `--policy`, `--ossuary`, `--check`) |
+| `bun run ux:legibility` | mede o contraste herói/chão e inimigo/chão na captura de combate (`reports/legibility.json`; `-- --biome <id>` para outro bioma) |
+| `bun run test:perf` | bench de desempenho (cenários `round20` e `gore-*`) |
 | `bun run release <patch\|minor\|major\|rc>` | release no padrão vukem |
 
 Lista completa em `CLAUDE.md`; até a fase ESTRUTURA concluir E-02, alguns scripts são stubs.

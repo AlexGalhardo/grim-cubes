@@ -29,6 +29,7 @@ Detalhe completo, com prazos e o passo a passo do upload: [`docs/release/steam-l
 - [ ] **Conta Steamworks** (taxa de US$ 100; a Valve exige 30 dias entre o pagamento e o lançamento). Dono: PO. Gatilho: já (a aprovação pode levar até 21 dias e a demo é em 2027-01-24). ROADMAP E-05-03
 - [ ] **App IDs** do jogo e da demo, conta de build com Steam Guard e secrets no ambiente `steam`. Dono: PO. Gatilho: logo depois da conta. Checklist §1
 - [ ] **URL do botão "Wishlist na Steam":** o botão (menu, fim da demo e resultados da demo) só aparece quando o build recebe `GC_WISHLIST_URL=https://store.steampowered.com/app/<AppID>/...`; sem a variável ele some. A URL depende do App ID (E-05-03): definir a variável no build da demo na Vercel e no `release.yml` quando o App ID existir. O Electron só abre `https://store.steampowered.com/app/<id>`. Dono: PO. Gatilho: logo depois dos App IDs. ROADMAP S-07-02
+- [ ] **Ranking online do desafio diário:** a 1.0 guarda só a tabela local dos últimos 30 dias (S-13-01); o ranking global usa os Leaderboards da Steam e precisa do App ID (E-05-03). Dono: PO + Orq. Gatilho: logo depois dos App IDs. ROADMAP Parte 2
 - [ ] **Página da loja:** textos, capsules, 5 capturas em 1080p, trailer de 60 s, tags, requisitos; página "em breve" aprovada ≥ 2 semanas antes da demo. Dono: PO + Est + S1. ROADMAP A-06-02, checklist §3
 - [ ] **Preço e regiões:** US$ 9,99, preços regionais sugeridos pela Valve, desconto de lançamento. Dono: PO. Checklist §4
 - [ ] **Content survey, IARC e declaração de IA.** Dono: PO. Checklist §5
