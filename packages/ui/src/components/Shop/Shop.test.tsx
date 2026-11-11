@@ -172,3 +172,29 @@ test("hovering an offer previews the stats it changes", () => {
 	fireEvent.mouseEnter(screen.getByTestId("shop-slot-0"));
 	expect(screen.getByTestId("stat-preview").textContent).toContain("0 → 3");
 });
+
+const iconRef = { url: "a.png", x: 0, y: 0, w: 32, h: 32, atlasWidth: 64, atlasHeight: 64 };
+
+test("a weapon offer shows its own icon, damage and attacks per second; an item offer shows its effect", () => {
+	const offers: ShopViewModel = {
+		...view,
+		slots: [
+			{
+				...view.slots[1],
+				kind: "weapon",
+				lines: ["Dano 10", "2 ataques/s"],
+				icon: iconRef,
+			},
+			{ ...view.slots[0], kind: "item", lines: ["+3 armadura", "Dash: recarga −1 s"], icon: iconRef },
+		] as ShopViewModel["slots"],
+	};
+	render(<Shop view={offers} stats={stats} actions={actions()} />);
+	const weapon = screen.getByTestId("shop-slot-0");
+	expect(weapon.textContent).toContain("Dano 10");
+	expect(weapon.textContent).toContain("2 ataques/s");
+	const item = screen.getByTestId("shop-slot-1");
+	expect(item.textContent).toContain("+3 armadura");
+	expect(item.textContent).toContain("Dash: recarga −1 s");
+	expect(screen.getAllByTestId("icon")).toHaveLength(2);
+	expect(screen.getByTestId("shop-grid").textContent).not.toContain("⚔");
+});

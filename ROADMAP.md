@@ -97,7 +97,7 @@ A Parte 1B (arte medium poly) começa depois da `v0.6.0` e tem pontos de parada 
 
 ### S-05 Loja
 
-- [ ] **S-05-01** Ofertas de arma mostram ícone próprio, dano e ataques por segundo; ofertas de item mostram o efeito e a etiqueta de sinergia (depois da S-14).
+- [~] **S-05-01** Ofertas de arma mostram ícone próprio, dano e ataques por segundo; ofertas de item mostram o efeito e a etiqueta de sinergia (depois da S-14). Estado em 2026-11-11: ícone, dano, ataques por segundo (a melhoria mostra o nível seguinte) e o efeito do item, inclusive os efeitos sem modificador de atributo, estão prontos; falta a etiqueta de sinergia, que depende da S-14.
   - Asserts: teste de `Shop` com fixture de arma e de item; nenhuma oferta usa o ícone genérico.
 - [ ] **S-05-02** Prévia nos atributos: ao focar ou passar o mouse numa oferta, cada atributo afetado mostra o delta em verde ou vermelho antes da compra.
   - Asserts: `data-testid="shop-delta-<stat>"` aparece com o valor certo no teste; funciona por teclado e por controle.

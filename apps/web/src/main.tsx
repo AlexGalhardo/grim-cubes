@@ -90,10 +90,12 @@ import {
 	resetOssuary,
 	restoreCheckpoint,
 	roundsData,
+	type ShopSlotView,
 	Speed,
 	STEP,
 	soulsForRun,
 	unlockedSkins,
+	type WeaponDef,
 	weaponsData,
 	worldData,
 	xpForLevel,
@@ -1497,11 +1499,36 @@ async function boot(): Promise<void> {
 		const changes = statChanges(item.modifiers);
 		return changes.length > 0 ? Object.fromEntries(changes.map((c) => [c.id, c.after])) : undefined;
 	}
+	/** Damage and attacks per second of a weapon at `tier` (0-3), for the weapon panel and the weapon offers. */
+	function weaponLines(
+		def: Pick<WeaponDef, "damage" | "damageMult" | "attacksPerSecond" | "attackSpeedBonusPerTier">,
+		tier: number,
+	): string[] {
+		const round1 = (value: number): string => i18n.formatNumber(Math.round(value * 10) / 10);
+		return [
+			t("shop.weaponDamage", { value: round1(def.damage * (def.damageMult[tier] ?? 1)) }),
+			t("shop.weaponRate", {
+				value: round1(def.attacksPerSecond * (1 + def.attackSpeedBonusPerTier * tier)),
+			}),
+		];
+	}
+	/** The effect lines of a shop offer: stat modifiers and effects for an item, damage and rate for a weapon or an upgrade (the next tier). */
+	function offerLines(slot: ShopSlotView): string[] {
+		if (slot.kind === "item") {
+			const item = itemsData.find((entry) => entry.id === slot.id);
+			return [
+				...slot.lines.map(text),
+				...(item?.effects ?? []).map((e) => text(describeEffect(e.id, e.params))),
+			];
+		}
+		const def = weaponsData.find((entry) => entry.id === slot.id);
+		if (!def) return [];
+		return weaponLines(def, slot.kind === "upgrade" ? Math.min(weapon.maxTier, weapon.tier + 1) : 0);
+	}
 	/** The hero, weapon, items and Merchant line of the shop (ARPG layout, PO mockup of 2026-10-31). */
 	function shopPanels(): Pick<NonNullable<HudState["shop"]>, "hero" | "weapon" | "items" | "quote"> {
 		const def = weapon.weapon;
 		const tier = Math.min(4, weapon.tier + 1);
-		const damage = def.damage * (def.damageMult[weapon.tier] ?? 1);
 		return {
 			hero: {
 				level: progress.level,
@@ -1517,16 +1544,7 @@ async function boot(): Promise<void> {
 				name: t(`weapon.${def.id ?? ""}`),
 				tier,
 				icon: iconFor("weapon", def.id ?? ""),
-				lines: [
-					t("shop.weaponDamage", { value: i18n.formatNumber(Math.round(damage * 10) / 10) }),
-					t("shop.weaponRate", {
-						value: i18n.formatNumber(
-							Math.round(
-								def.attacksPerSecond * (1 + def.attackSpeedBonusPerTier * weapon.tier) * 10,
-							) / 10,
-						),
-					}),
-				],
+				lines: weaponLines(def, weapon.tier),
 			},
 			items: [...owned].map(([id, count]) => ({
 				id,
@@ -1635,7 +1653,7 @@ async function boot(): Promise<void> {
 								: slot.kind === "upgrade"
 									? t("shop.upgradeName", { name: t(`weapon.${slot.id}`) })
 									: t(`weapon.${slot.id}`),
-						lines: slot.lines.map(text),
+						lines: offerLines(slot),
 						icon: iconFor(slot.kind === "item" ? "item" : "weapon", slot.id),
 						preview: slot.kind === "item" ? statPreview(slot.id) : undefined,
 					})),

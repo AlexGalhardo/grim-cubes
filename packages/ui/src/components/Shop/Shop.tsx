@@ -357,7 +357,7 @@ export function Shop({
 											{t(`rarity.${slot.tier}`)} · {kindLabel(slot.kind)}
 										</div>
 										<ul
-											className={`mt-1 font-body text-bone-dark ${short ? "hidden" : "text-sm desktop:text-base"}`}
+											className={`mt-1 font-body text-bone-dark ${short ? "text-xs" : "text-sm desktop:text-base"}`}
 										>
 											{slot.lines.map((line) => (
 												<li key={line}>{line}</li>
