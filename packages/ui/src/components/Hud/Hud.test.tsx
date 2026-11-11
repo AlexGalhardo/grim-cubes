@@ -196,3 +196,15 @@ test("no synergy strip without a tagged item, and none on touch screens", () => 
 	);
 	expect(screen.queryByTestId("hud-synergies")).toBeNull();
 });
+
+test("on touch a boss bar sits in the space between the vitals and the wallet, so it keeps clear of both", () => {
+	const boss = { name: "B", hp: 5, maxHp: 10, phase: 0, phaseMarkers: [0.5], enrage: 0 };
+	const root = (): HTMLElement =>
+		screen.getByTestId("boss-bar").parentElement?.parentElement as HTMLElement;
+	const { rerender } = render(<Hud hud={view({ boss })} touch />);
+	expect(root().className).toContain("grid-cols-[auto_1fr_auto]");
+	rerender(<Hud hud={view({ boss })} />);
+	expect(root().className).toContain("grid-cols-[1fr_auto_1fr]");
+	rerender(<Hud hud={view()} touch />);
+	expect(screen.getByTestId("hud-round").closest(".grid")?.className).toContain("grid-cols-[1fr_auto_1fr]");
+});

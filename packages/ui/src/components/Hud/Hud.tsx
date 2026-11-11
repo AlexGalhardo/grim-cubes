@@ -339,7 +339,9 @@ export function Hud({
 			<Buttons hud={hud} onPause={onPause} onCycleSpeed={onCycleSpeed} onOpenOptions={onOpenOptions} />
 		) : null;
 	return (
-		<div className="pointer-events-none absolute inset-0 grid grid-cols-[1fr_auto_1fr] grid-rows-[auto_1fr_auto] gap-x-2 pt-[max(12px,env(safe-area-inset-top))] pr-[max(12px,env(safe-area-inset-right))] pb-[max(12px,env(safe-area-inset-bottom))] pl-[max(12px,env(safe-area-inset-left))] desktop:p-6">
+		<div
+			className={`pointer-events-none absolute inset-0 grid ${touch && hud.boss ? "grid-cols-[auto_1fr_auto]" : "grid-cols-[1fr_auto_1fr]"} grid-rows-[auto_1fr_auto] gap-x-2 pt-[max(12px,env(safe-area-inset-top))] pr-[max(12px,env(safe-area-inset-right))] pb-[max(12px,env(safe-area-inset-bottom))] pl-[max(12px,env(safe-area-inset-left))] desktop:p-6`}
+		>
 			<div className="col-start-1 row-start-1 flex items-start gap-2 justify-self-start">
 				<Vitals hud={hud} />
 				{touch ? (
