@@ -4,6 +4,8 @@ Versão 0.1.0 — 2026-10-31. Decisões de origem: `docs/brainstorming.md` (D22 
 
 Este documento define como o Grim Cubes deve parecer, soar e ser produzido. Toda regra marcada como **obrigatória** bloqueia a aprovação de um asset; regras marcadas como **guia** admitem exceção justificada no PR.
 
+> **Mudança de direção (ADR-0029, 2026-11-11).** Depois da `v0.6.0` o jogo inteiro troca o voxel por 3D medium poly pintado à mão, com modelos de IA image-to-3D a partir das concept arts (trilha S-18 do `ROADMAP.md`). Até lá este documento descreve o jogo que está na `main`. Continuam valendo depois da troca: paleta (§3), iluminação, contorno e separação de valor (§4), UI e HUD (§11), áudio (§12), design system (§16) e alvos de tela (§17). São reescritos na S-18-04: pilares (§1), escala e orçamento (§5), modelagem (§6), textura (§7), animação (§8), VFX e gore (§9), pipeline (§10), o que evitar (§13) e o checklist (§14). A regra do §13 de que modelo 3D só nasce no Blockbench deixa de valer na S-18.
+
 ## Sumário
 
 1. [Pilares visuais](#1-pilares-visuais)

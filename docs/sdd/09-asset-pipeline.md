@@ -65,3 +65,14 @@ Fontes OFL (`assets/src/ui/fonts/*.woff2`) com `LICENSE.txt` ao lado; carregadas
 - Skin rígido: fixture com 2 nós animados vira 1 mesh com skin de 2 ossos, `WEIGHTS_0` = 1 e posição de vértice igual à do glTF por nó no frame 5.
 - `assets-gen`: catálogo de 24 modelos, faixas de altura do Art Bible §5.1, bytes estáveis e conversão pelo `assets-build` com as classes reais.
 - Manifest e VAT: bytes idênticos entre duas execuções sem mudanças (build reprodutível, sem `generatedAt`).
+
+## 6. Caminho de GLB medium poly (planejado, trilha S-18)
+
+Decisão no ADR-0029. Nada desta seção existe no código até a S-18-02; até lá o pipeline é o das seções 1 a 5.
+
+- **Fonte:** `assets/src/models/<categoria>/<nome>.glb`, com `<nome>.provenance.json` ao lado (gerado pelo AssetFurnace, com a classificação de licença). Um GLB sem o sidecar ou com classificação diferente de `commercial-clear` falha no build.
+- **Origem do GLB:** concept art → image-to-3D (Pixal3D) → limpeza para o orçamento de triângulos → rig e animação no Blender → otimização com glTF Transform. O passo a passo é a skill `medium-poly-art`.
+- **Validações novas no `assets:build`:** triângulos por categoria (herói 3 a 6 mil, inimigo comum 400 a 1.200, elite 1.500 a 2.500, chefe 6 a 12 mil, prop 100 a 800), um albedo por modelo, lado da textura 512 ou 1024, clipes de `REQUIRED_CLIPS`, sockets `weapon_socket` e `hit_socket`, origem nos pés e escala do Art Bible §5.1.
+- **Saída:** a mesma de hoje para o runtime. Herói, chefes e NPC como malha com skin; inimigos comuns e elites em VAT com thin instances (ADR-0014); texturas num atlas por categoria. O manifest não muda de formato.
+- **O que sai:** o leitor de `.bbmodel`, o gerador `assets:gen` e as regras de 12 cores e de `KHR_materials_unlit` da seção 2, quando o último modelo voxel deixar a `main` (S-18-08).
+- **KTX2:** o ADR-0027 adiou o `toktx` para a 1.1. O PO autorizou a ferramenta em 2026-11-11; antecipar é decisão da S-18-02, medida pelo orçamento de memória.

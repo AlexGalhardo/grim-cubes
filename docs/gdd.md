@@ -9,6 +9,8 @@ Convenções deste documento:
 - Identificadores técnicos (`snake_case` ou `camelCase`) são os nomes que o código deve usar.
 - "Unidade" (u) = 1 metro no mundo = 1 cubo de terreno.
 
+> **Mudança de direção de arte (ADR-0029, 2026-11-11).** Depois da `v0.6.0` o jogo troca o voxel por 3D medium poly pintado à mão, e o gore em cubos por partículas e decals orgânicos (trilha S-18 do `ROADMAP.md`). As regras de jogo deste documento não mudam; onde o texto diz "voxel" ou "cubos", vale para a `main` até a S-18. A §1 é reescrita na S-18-04.
+
 ## Sumário
 
 1. [Visão](#1-visão)

@@ -1,5 +1,10 @@
 # Blockbench + MCP
 
+> **Legado (ADR-0029, 2026-11-11).** A arte do jogo troca o voxel por 3D medium poly depois da `v0.6.0` (trilha S-18 do
+> `ROADMAP.md`, skill `medium-poly-art`). Este documento vale só para a branch `voxel-legacy` e sai da `main` na S-18-08.
+> Na sessão de 2026-11-11 o plugin aceitou a conexão na porta 3000 e não respondeu ao handshake; a causa não foi apurada.
+> O `mcp.js` da raiz do repositório é outra build: o que funcionou antes foi o da release v1.10.1 (§2).
+
 Como o Claude Code conversa com o Blockbench instalado na máquina do PO para refinar os modelos do jogo (herói, armas,
 inimigos, chefes, NPC, props e tiles), e qual é o fluxo de trabalho do agente de arte.
 

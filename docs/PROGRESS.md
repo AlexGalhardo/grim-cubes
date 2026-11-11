@@ -21,6 +21,26 @@ Decisões do PO em 2026-11-11:
 
 Validação no início da sessão: `bun run typecheck` e `bun run lint` limpos; `bun run test` com 1023 de 1024, e o teste restante (`tools/sim/lib.test.ts`, soak) estourou o timeout com a CPU saturada e passou isolado em 28 s.
 
+Decisões de arte do fim da sessão (ADR-0029): medium poly pintado à mão; gore orgânico no lugar dos cubos; horda de 100 no desktop, redução só no preset Mínimo e no celular; instalação autorizada de AssetFurnace, glTF Transform e `toktx` com versão fixa. Máquina medida: RTX 4060 de 8 GB de VRAM, 32 GB de RAM, 25 GB livres no disco C, WSL Ubuntu. Nada foi instalado.
+
+Fechamento da sessão #3 (2026-11-11), branch `feat/aaa-polish`, sem push:
+
+| Item | Estado | Commit |
+| --- | --- | --- |
+| S-00-01 | concluído | 31a588a |
+| S-01-01 a S-01-04 | concluídos | f8a65cb, ed804a0, 020e1c7, bebaac2 |
+| S-02-01 | concluído | 78c3c19 |
+| S-03-01 a S-03-04 | concluídos | 19f7d80, 71b7d01, 1b6fc77, 355fc20, ec3cc6b |
+| S-04-01 | concluído | fd1a167 |
+| S-09-01 | concluído | 2af5777 |
+| S-10-01 | parcial: 11 SFX gerados (2.200 créditos estimados), falta ligar aos eventos | 21368ef |
+| S-17-01 | concluído | c1a6d2d |
+| S-15 | cancelada pelo PO (troca de arte) | 00b9548 |
+
+Não iniciados: S-04-02, S-05, S-06, S-07, S-08, S-11, S-12, S-13, S-14, S-16, S-17-02, S-17-03 e toda a S-18. A ordem e as dicas para retomar estão em `prompt-worker.md`.
+
+Pontas soltas: baselines do Playwright anteriores ao HUD novo; só o bioma do cemitério capturado depois da mudança de contraste; baú de elite, carta dupla e dano crítico sem captura; o MCP do Blockbench aceitou conexão e não respondeu (sem diagnóstico, agora legado).
+
 Ferramentas de arte na máquina do PO: Blender 5.2 e 5.3 e Blockbench instalados; Goxel e AssetFurnace não instalados; só o Blockbench tem MCP configurado.
 
 Meta do PO (2026-10-31): implementar o ROADMAP até o fim sem interrupções; tarefas `Resp: PO` ficam em Bloqueios e os agentes seguem com o resto. Hooks lefthook instalados em `.git` (valem para todos os worktrees).

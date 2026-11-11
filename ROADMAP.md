@@ -1,6 +1,6 @@
 # Grim Cubes — ROADMAP
 
-Versão 0.2.0 — 2026-11-11. Reescrito do zero para ser executado com `/goal`. A versão anterior (fases ESTRUTURA a 1.1 ANDROID, com todo o histórico de itens concluídos) está no git: `git show v0.5.0:ROADMAP.md`.
+Versão 0.3.0 — 2026-11-11. Reescrito do zero para ser executado com `/goal`; a Parte 1B (arte medium poly) entrou no mesmo dia. A versão anterior (fases ESTRUTURA a 1.1 ANDROID, com todo o histórico de itens concluídos) está no git: `git show v0.5.0:ROADMAP.md`.
 
 Estado de partida: `v0.5.0` publicada, protótipo jogável do round 1 ao chefe, demo web na Vercel, build Windows e APK de debug. Alvo comercial: demo pública em 2027-01-24 e Steam Next Fest de 2027-02-22 a 2027-03-01.
 
@@ -49,7 +49,7 @@ A Parte 1B (arte medium poly) começa depois da `v0.6.0` e tem pontos de parada 
 | Release de teste | ao fim da Parte 1, merge na `main`, push e `v0.6.0` com `.exe` e `.apk` para o PO baixar e testar (S-17) |
 | Releases | editar `v0.1.0` a `v0.5.0` para incluir o link de commit em cada linha |
 | PixelLab | assinatura expirada; nenhum asset depende dele |
-| Arte 3D | troca para medium poly depois da `v0.6.0`, jogo inteiro, modelos por IA image-to-3D a partir das concept arts; voxel só na branch `voxel-legacy` (S-18); S-15 cancelada |
+| Arte 3D | troca para medium poly pintado à mão depois da `v0.6.0`, jogo inteiro, modelos por IA image-to-3D (AssetFurnace, Pixal3D) a partir das concept arts; gore orgânico; voxel só na branch `voxel-legacy`; S-15 cancelada (Parte 1B, ADR-0029) |
 
 ---
 
@@ -132,12 +132,12 @@ A Parte 1B (arte medium poly) começa depois da `v0.6.0` e tem pontos de parada 
 
 ### S-10 Áudio de UI
 
-- [ ] **S-10-01** SFX de UI que faltam (abrir level-up, escolher carta, revelar raridade, compra, compra negada, transição de tela, contagem de almas, desbloqueio), gerados com `bun run audio:generate` dentro do teto de 5.000 créditos e ligados aos eventos da UI.
+- [~] **S-10-01** SFX de UI que faltam (abrir level-up, escolher carta, revelar raridade, compra, compra negada, transição de tela, contagem de almas, desbloqueio), gerados com `bun run audio:generate` dentro do teto de 5.000 créditos e ligados aos eventos da UI. Estado em 2026-11-11: os 11 SFX estão gerados, normalizados e no catálogo (commit `21368ef`, 2.200 créditos estimados); falta ligar cada um ao evento da UI e o teste dessa ligação.
   - Asserts: `docs/audio/credits.md` soma a rodada e o total da rodada é ≤ 5.000; cada arquivo tem `.meta.json` com plano `creator` e loudness medido; `bun run assets:build` exit 0; teste que cada evento de UI toca o SFX certo.
 
 ### S-11 Corpos e sangue persistentes
 
-- [ ] **S-11-01** Restos de inimigos e manchas de sangue ficam no chão a run inteira, dentro de um teto por preset definido em `data/render.json`; ao estourar o teto, os mais antigos e mais distantes do herói somem primeiro. O gore reduzido das Opções continua valendo.
+- [ ] **S-11-01** Restos de inimigos e manchas de sangue ficam no chão a run inteira, dentro de um teto por preset definido em `data/render.json`; ao estourar o teto, os mais antigos e mais distantes do herói somem primeiro. O gore reduzido das Opções continua valendo. O sistema de teto e descarte não depende do estilo da arte: o visual em cubos é trocado por gore orgânico na S-18-08.
   - Asserts: teste do teto e da ordem de descarte; `bun run test:perf` com `frameP99` dentro da tolerância de `tools/perf/compare.ts`; nada alocado por frame (teste de alocação existente verde); captura do round 10 com o chão marcado; GDD §23 e Art Bible §9 atualizados.
 
 ### S-12 Três heróis
@@ -194,27 +194,42 @@ Pedido do PO em 2026-11-11: ao fim da Parte 1, uma release nova com o `.exe` e o
 
 ## Parte 1B — Arte 3D medium poly (depois da v0.6.0)
 
-Decisão do PO em 2026-11-11: o jogo inteiro (personagens, cenário e props) troca o voxel por 3D medium poly; os modelos saem de IA image-to-3D a partir das concept arts de `references/concept-arts/`; o voxel fica preservado só na branch `voxel-legacy` (commit `355fc20`). Esta parte só começa com a `v0.6.0` publicada (S-17) e entra na meta do `/goal` depois dela.
+Decisão do PO em 2026-11-11, registrada no ADR-0029. Esta parte só começa com a `v0.6.0` publicada (S-17) e entra na meta do `/goal` depois dela. O passo a passo de cada asset é a skill `medium-poly-art`; o agente é o `medium-poly-artist`.
+
+| Tema | Decisão |
+| --- | --- |
+| Escopo | o jogo inteiro: heróis, inimigos, chefes, NPC, cenário, props, armas, projéteis e pickups |
+| Produção | IA image-to-3D a partir das concept arts de `references/concept-arts/`, com limpeza, rig e animação no Blender 5.3 já instalado |
+| Ferramenta | AssetFurnace (`github.com/Bingeljell/image-to-3dlab`, Apache-2.0), motor Pixal3D; Hunyuan3D proibido (pesos não licenciados para UE, Reino Unido e Coreia do Sul) |
+| Estilo | pintado à mão, material simples: um albedo por modelo com luz e sombra desenhadas |
+| Gore | partículas e decals orgânicos no lugar dos cubos de sangue |
+| Horda | 100 inimigos simultâneos no desktop; só o preset Mínimo e o celular podem baixar |
+| Voxel | preservado só na branch `voxel-legacy` (commit `355fc20`); sai da `main` na S-18-09 |
+| Instalações autorizadas | AssetFurnace, glTF Transform e KTX-Software (`toktx`), com versão fixa; cada download de pesos mostra origem, tamanho e licença ao PO antes |
+
+Fatos medidos em 2026-11-11 que condicionam o plano: a máquina do PO tem uma RTX 4060 com 8 GB de VRAM, 32 GB de RAM, 25 GB livres no disco C e WSL Ubuntu instalado. A ferramenta foi testada pelos autores com 16 a 24 GB de VRAM, tem "teste limitado" no Windows nativo e o MCP dela não foi testado no Windows. Os pesos do Pixal3D ocupam 8,4 GB. Por isso a trilha começa por um teste de viabilidade.
 
 ### S-18 Troca de arte
 
-- [ ] **S-18-01** ADR da troca de direção de arte, com orçamento de triângulos por tipo (herói 3 a 6 mil, inimigo comum 400 a 1.200, elite 1.500 a 2.500, chefe 6 a 12 mil, prop 100 a 800), o que muda no Art Bible (§1, §5 a §10, §13) e no GDD §1, e a ferramenta de image-to-3D escolhida com licença de uso comercial conferida. Instalar a ferramenta (AssetFurnace ou image-to-3dlab), baixar pesos de modelo e qualquer custo passam pelo PO antes. Deps: S-17-02.
-  - Asserts: `docs/adrs/` com o ADR novo; `docs/legal/third-party.md` registra a ferramenta e a licença dos modelos gerados; a pergunta de instalação e custo respondida em `docs/PROGRESS.md`.
-- [ ] **S-18-02** Pipeline de GLB: `assets/src/models/**/*.glb` entra no `assets:build` (malha com skin para herói e chefes, VAT para a horda, atlas de textura), sem dependência nova de runtime. Deps: S-18-01.
-  - Asserts: `bun run assets:build` exit 0 com um GLB de teste; teste do conversor; `docs/sdd/09-asset-pipeline.md` atualizado.
-- [ ] **S-18-03** Herói de prova: o Carrasco gerado a partir de `hero-headsman.png`, limpo, rigado e animado (idle, corrida, ataque, morte) no Blender e rodando no jogo. É o ponto de parada para o PO comparar com o voxel. Deps: S-18-02.
-  - Asserts: capturas nos quatro alvos; `bun run test:perf` dentro da tolerância; `reports/legibility.json` ainda passa; aprovação do PO registrada em `docs/PROGRESS.md` antes de seguir.
-- [ ] **S-18-04** Os 8 inimigos comuns e suas variantes em medium poly, na horda com VAT. Deps: S-18-03.
-  - Asserts: `bun run test:perf` com `frameP99` dentro da tolerância no cenário `round20`; capturas `enemy-*` e `horde-types`.
-- [ ] **S-18-05** Os 5 chefes, os elites e o Mercador de Ossos. Deps: S-18-03.
-  - Asserts: capturas dos chefes nos quatro alvos; animações de fase e de morte conferidas em captura.
-- [ ] **S-18-06** Cenário e props dos 5 biomas (chão, túmulos, árvores, ruínas, props quebráveis), com a separação de valor da S-01-03 mantida. Deps: S-18-03.
+- [ ] **S-18-01** Viabilidade e instalação. Mostrar ao PO a origem, o tamanho e a licença do instalador e dos pesos do Pixal3D; instalar o AssetFurnace numa versão fixa; conectar o MCP `assetfurnace`; gerar o Carrasco a partir de `hero-headsman.png` no Windows nativo e, se falhar, no WSL Ubuntu. Se não rodar em 8 GB de VRAM, parar: a nuvem da ferramenta e GPU alugada custam dinheiro e são decisão do PO. Deps: S-17-02.
+  - Asserts: `docs/art/medium-poly/feasibility.md` com a versão instalada, onde rodou, tempo por modelo, pico de VRAM e o caminho do GLB gerado; `docs/legal/third-party.md` com a versão e os hashes; a resposta do PO sobre a rota (local, nuvem ou GPU alugada) em `docs/PROGRESS.md`; ADR-0029 emendado com o resultado.
+- [ ] **S-18-02** Pipeline de GLB: `assets/src/models/**/*.glb` entra no `assets:build` com as validações do SDD 09 §6 (triângulos por categoria, um albedo, lado da textura, clipes obrigatórios, sockets, escala, `.provenance.json` com `commercial-clear`). Malha com skin para herói, chefes e NPC; VAT para a horda; atlas por categoria. glTF Transform entra como dependência de desenvolvimento em versão exata. Sem dependência nova de runtime. Deps: S-18-01.
+  - Asserts: `bun run assets:build` exit 0 com o GLB da S-18-01; testes do conversor e de cada validação; `docs/sdd/09-asset-pipeline.md` §6 deixa de dizer "planejado".
+- [ ] **S-18-03** Herói de prova: o Carrasco em medium poly, limpo para 3 a 6 mil triângulos, rigado e com os oito clipes de `REQUIRED_CLIPS` (idle, run, attack_melee, attack_ranged, hit, dash, death, victory), rodando no jogo. **Ponto de parada: o PO aprova ou reprova antes de qualquer outro modelo.** Reprovado, a `main` continua voxel e o ADR-0029 é revisto. Deps: S-18-02.
+  - Asserts: capturas nos quatro alvos, lado a lado com o voxel; `bun run test:perf` dentro da tolerância; `bun run ux:legibility` passa; aprovação do PO registrada em `docs/PROGRESS.md`.
+- [ ] **S-18-04** Guia de estilo escrito a partir do herói aprovado: Art Bible §1, §5 a §10, §13 e §14 e GDD §1 reescritos para o medium poly pintado à mão (proporções, orçamento, textura, animação, o que evitar, checklist de aprovação). Deps: S-18-03.
+  - Asserts: `bun run lint:md` exit 0; nenhuma seção do Art Bible descreve voxel como direção atual; a regra de que modelo 3D só nasce no Blockbench (§13) sai.
+- [ ] **S-18-05** Os 8 inimigos comuns e suas variantes, na horda com VAT. Inimigo não humanoide (sanguessuga, vigia) com rig manual. Teto da horda por preset: 100 no desktop; o preset Mínimo e o celular podem cair para cerca de 60 com mais vida por inimigo, se o `test:perf` exigir. Deps: S-18-04.
+  - Asserts: `bun run test:perf` com `frameP99` dentro da tolerância no cenário `round20`; `bun run sim --check` dentro das faixas se o teto mudar; capturas `enemy-*` e `horde-types`.
+- [ ] **S-18-06** Os 5 chefes, os elites, o Mercador de Ossos e os dois heróis novos da S-12. Deps: S-18-04.
+  - Asserts: capturas nos quatro alvos; clipes de fase, fúria e morte conferidos em captura; tela de escolha de herói com os três modelos.
+- [ ] **S-18-07** Cenário e props dos 5 biomas (chão, túmulos, árvores, ruínas, props quebráveis), com a separação de valor da S-01-03 mantida. Deps: S-18-04.
   - Asserts: capturas `biome-*` nos quatro alvos; `reports/legibility.json` passa nos 5 biomas.
-- [ ] **S-18-07** Armas, projéteis, pickups e gore coerentes com o estilo novo (o sangue em cubos fica, salvo decisão contrária do PO). Deps: S-18-04.
-  - Asserts: capturas de combate nos quatro alvos; Art Bible §9 atualizada.
-- [ ] **S-18-08** Limpeza: o caminho voxel (`.bbmodel`, `assets:gen`, skill e agente do Blockbench) sai da `main`; documentação, key art e textos da loja revisados; a pergunta sobre manter o nome "Grim Cubes" fica registrada em `todo-later.md` para o PO. Deps: S-18-04 a S-18-07.
+- [ ] **S-18-08** Armas, projéteis e pickups no estilo novo, e gore orgânico: partículas e decals de sangue e pedaços de malha no lugar dos cubos, inclusive nos corpos persistentes da S-11 e na opção de gore reduzido. Deps: S-18-05.
+  - Asserts: capturas de combate nos quatro alvos; `bun run test:perf` dentro da tolerância; nada alocado por frame; Art Bible §9 e GDD §23 atualizados.
+- [ ] **S-18-09** Limpeza: o caminho voxel (`.bbmodel`, `assets:gen`, skill e agente do Blockbench, `docs/blockbench.md`, `.mcp.json` do Blockbench) sai da `main`; documentação, key art e textos da loja revisados; a pergunta sobre manter o nome "Grim Cubes" respondida pelo PO (`todo-later.md`). Deps: S-18-05 a S-18-08.
   - Asserts: `bun run typecheck && bun run lint && bun run lint:md && bun run test && bun run build` exit 0; nenhum `.bbmodel` na `main`; a branch `voxel-legacy` continua existindo.
-- [ ] **S-18-09** Release `v0.7.0` com o `.exe` e o `.apk` da arte nova. Deps: S-18-08.
+- [ ] **S-18-10** Release `v0.7.0` com o `.exe` e o `.apk` da arte nova. Deps: S-18-09.
   - Asserts: os mesmos da S-17-02, para a `v0.7.0`.
 
 ---
@@ -278,6 +293,7 @@ Os IDs são os da versão anterior. O detalhe de cada assert está em `git show 
 | Marco | Data | Versão |
 | --- | --- | --- |
 | Parte 1 concluída e release de teste (S-17) | até 2026-12-13 | `v0.6.0` |
+| Viabilidade da ferramenta de image-to-3D (S-18-01) | logo depois da `v0.6.0` | — |
 | Herói de prova em medium poly (S-18-03) | até 2026-12-20 | — |
 | Página Steam no ar (A-06-02) | 2027-01-10 | — |
 | Demo pública (A-06-03) | 2027-01-24 | `v0.6.x` |
@@ -292,7 +308,9 @@ Os IDs são os da versão anterior. O detalhe de cada assert está em `git show 
 | --- | --- | --- |
 | ElevenLabs (Creator) | 42.910 créditos até 2026-11-14; 124.333 por mês depois | S-10: até 5.000. O resto fica de reserva para trailer e falas |
 | PixelLab | assinatura expirada, US$ 0,05 | nenhum |
-| Blockbench, Blender | instalados, sem custo | S-15 pelo Blockbench; Blender só se o PO pedir |
+| Blender 5.3 | instalado, sem custo | limpeza, rig e animação dos modelos da S-18 |
+| AssetFurnace (image-to-3D) | não instalado; grátis rodando local, cerca de US$ 0,20 por personagem na nuvem da ferramenta | S-18, local se a RTX 4060 de 8 GB aguentar; a nuvem só com o aval do PO |
+| Blockbench | instalado | legado da branch `voxel-legacy` |
 | Ícones 2D | gerados por script do repositório | S-09 |
 
 ## Riscos
@@ -302,6 +320,7 @@ Os IDs são os da versão anterior. O detalhe de cada assert está em `git show 
 | R1 | Câmera mais perto mostra inimigos nascendo na tela | teste de spawn da S-01-01 falha | aumentar o raio mínimo de spawn em `data/rounds.json`, nunca afrouxar o teste |
 | R2 | Corpos persistentes derrubam o fps | `frameP99` fora da tolerância | baixar o teto por preset; preset Mínimo sem persistência |
 | R3 | Três heróis e sinergias quebram o balanceamento | `sim --check` fora das faixas | ajustar só `data/*.json`; se não fechar, o item fica `[~]` com o relatório anexado |
+| R8 | A ferramenta de image-to-3D não roda na RTX 4060 de 8 GB do PO | teste da S-18-01 falha no Windows e no WSL | parar e levar ao PO as rotas pagas (nuvem da ferramenta ou GPU alugada); nenhum gasto sem o aval dele |
 | R4 | Modelos de IA image-to-3D saem inconsistentes ou pesados demais para a horda | herói de prova (S-18-03) reprovado ou `frameP99` fora da tolerância | parar na S-18-03; o voxel da `voxel-legacy` continua sendo a versão jogável; alternativas são pack comprado ou artista |
 | R7 | Troca de arte a 10 semanas da demo pública | S-18 não fecha até 2027-01-10 | a demo de 2027-01-24 sai com a arte que estiver completa; não misturar estilos numa mesma build pública |
 | R5 | Escopo cresce além deste arquivo | tarefa sem ID | não entra; vira pergunta ao PO |

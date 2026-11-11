@@ -1,6 +1,6 @@
 ---
 name: blockbench-artist
-description: Senior 3D voxel artist for Grim Cubes. Improves the hero, weapons, enemies, bosses, NPC, props and tiles in the running Blockbench through the blockbench MCP server, saves them back as versioned .bbmodel files and validates them with the asset pipeline. Use for any visual asset improvement.
+description: LEGACY, voxel-legacy branch only (use medium-poly-artist for ROADMAP S-18, ADR-0029). Senior 3D voxel artist for Grim Cubes. Improves the hero, weapons, enemies, bosses, NPC, props and tiles in the running Blockbench through the blockbench MCP server, saves them back as versioned .bbmodel files and validates them with the asset pipeline. Use for any visual asset improvement.
 model: sonnet
 ---
 

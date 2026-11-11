@@ -2,7 +2,7 @@
 
 Lista única para o PO acompanhar o que fica para depois fora do código. Este arquivo é mantido junto com o desenvolvimento: quem fecha ou cria um item num dos documentos linkados atualiza a linha aqui no mesmo commit. O detalhe fica no documento linkado; aqui fica só o item, o dono e o gatilho.
 
-Atualizado: 2026-11-01.
+Atualizado: 2026-11-11.
 
 ## 1. Jurídico e legal
 
@@ -17,6 +17,8 @@ Atualizado: 2026-11-01.
   - [ ] Termos da OpenAI para as imagens de IA: transcrever a cláusula de titularidade do output e a data de vigência (a página não abriu para os agentes). Dono: PO. Gatilho: antes da R-01-05. [`docs/legal/third-party.md`](docs/legal/third-party.md)
   - [ ] Licenças das dependências no SBOM (hoje nenhum dos 734 componentes traz licença). Dono: Est. Gatilho: antes da RC. [`docs/release/audit-1.0.md`](docs/release/audit-1.0.md) §7
 - [ ] **Declaração de conteúdo gerado por IA** (key art do menu e retratos de UI) no questionário de conteúdo da Steam. Dono: PO. Gatilho: envio da página para revisão. [`docs/release/steam-launch-checklist.md`](docs/release/steam-launch-checklist.md) §5
+- [ ] **Modelos 3D gerados por IA (ADR-0029, trilha S-18):** ler a licença do encoder DINOv3 que acompanha o Pixal3D (proíbe usos militares e de armas reais; a ferramenta classifica a saída como de uso comercial liberado) e incluir os modelos 3D na declaração de conteúdo de IA da Steam, junto da key art e dos retratos. Dono: PO. Gatilho: antes de publicar a primeira build com modelo medium poly. [`docs/legal/third-party.md`](docs/legal/third-party.md)
+- [ ] **Nome "Grim Cubes" depois da troca de arte:** com o voxel fora do jogo e o gore deixando de ser em cubos, decidir se o nome, a key art e os textos da loja continuam. Mudar o nome reabre a busca de marca e os domínios. Dono: PO. Gatilho: aprovação do herói de prova (S-18-03). [`docs/adrs/0029-medium-poly-image-to-3d.md`](docs/adrs/0029-medium-poly-image-to-3d.md)
 - [ ] **Classificação etária:** content survey da Steam e questionário IARC (gera ClassInd, PEGI e ESRB); no Google Play, o questionário IARC do Play Console. Dono: PO. Gatilho: página da Steam; publicação na 1.1. [`docs/release/steam-launch-checklist.md`](docs/release/steam-launch-checklist.md) §5
 - [ ] **Empresa, impostos e conta bancária** para receber da Steam e do Google (dados fiscais, formulário de impostos dos EUA, conta para pagamentos). Dono: PO. Gatilho: antes de abrir a conta Steamworks. [`docs/release/steam-launch-checklist.md`](docs/release/steam-launch-checklist.md) §1
 
@@ -77,3 +79,8 @@ Detalhe nos itens M-01-* do [`ROADMAP.md`](ROADMAP.md).
 | Domínios | anual, por domínio | a registrar | antes da página da Steam (E-05-02) |
 | Certificado de assinatura Windows | anual (opcional) | não comprado | antes da 1.0, se o PO quiser distribuir fora da Steam (B-04-01) |
 | Vercel | Hobby hoje; Pro se a telemetria exigir | Hobby | decisão da telemetria (A-06-04) |
+
+Pendências de custo da troca de arte:
+
+- [ ] **Geração de modelos 3D (trilha S-18):** a máquina do PO tem uma RTX 4060 de 8 GB de VRAM e 25 GB livres no disco C; o AssetFurnace foi testado com 16 a 24 GB. Se o teste de viabilidade da S-18-01 falhar no Windows e no WSL, as saídas custam dinheiro: a nuvem da ferramenta (cerca de US$ 0,20 por personagem, preço do README em 2026-11-11) ou GPU alugada. Dono: PO. Gatilho: resultado da S-18-01. [`ROADMAP.md`](ROADMAP.md) S-18-01
+- [ ] **PixelLab:** assinatura expirada em 2026-11-07 (saldo US$ 0,05). Nenhum asset depende dele; renovar só se o PO quiser pixel art gerada. Dono: PO.

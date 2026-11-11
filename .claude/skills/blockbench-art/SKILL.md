@@ -1,9 +1,13 @@
 ---
 name: blockbench-art
-description: Refine a Grim Cubes model (hero, weapon, enemy, boss, NPC, prop, tile) in the running Blockbench through the blockbench MCP server, then save it back as the versioned .bbmodel and validate it with the asset pipeline. Use for any visual asset improvement in this repository.
+description: LEGACY, voxel-legacy branch only (the game moves to medium-poly GLB models after v0.6.0, see the medium-poly-art skill and ADR-0029). Refine a Grim Cubes model (hero, weapon, enemy, boss, NPC, prop, tile) in the running Blockbench through the blockbench MCP server, then save it back as the versioned .bbmodel and validate it with the asset pipeline. Use for any visual asset improvement in this repository.
 ---
 
 # Blockbench art workflow (Grim Cubes)
+
+> Legacy. Since the PO decision of 2026-11-11 (ADR-0029) no voxel model is created or refined on `main`: the art moves
+> to medium-poly GLB models after `v0.6.0` (skill `medium-poly-art`). This workflow stays for the `voxel-legacy` branch
+> and leaves `main` in ROADMAP S-18-08.
 
 Full reference: `docs/blockbench.md`. Art rules: `docs/art-bible.md` §5, §6, §7, §8 and the §14 checklist.
 

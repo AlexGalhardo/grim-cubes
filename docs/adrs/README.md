@@ -14,7 +14,7 @@ Um arquivo por decisão relevante, numerado sequencialmente. Formato: contexto, 
 | [ADR-0008](0008-electron-builder-steam-signing.md) | Desktop via Electron 45 + electron-builder; overlay e assinatura | aceito (complementado pelo ADR-0021; não assinado na 1.0) |
 | [ADR-0009](0009-persistence-no-run-save-auto-cloud.md) | Persistência: sem save de run; Steam Auto-Cloud; IndexedDB direto | aceito (emendado pelo ADR-0025) |
 | [ADR-0010](0010-audio-babylon-v2-elevenlabs-offline.md) | Áudio: Babylon Audio Engine v2; ElevenLabs via fetch em script de build | runtime substituído pelo ADR-0022; geração ElevenLabs em vigor |
-| [ADR-0011](0011-asset-pipeline-blockbench-gltf-vat.md) | Pipeline de assets: Blockbench → glTF → atlas, VAT e KTX2 em script próprio | aceito (KTX2 adiado à 1.1 pelo ADR-0027) |
+| [ADR-0011](0011-asset-pipeline-blockbench-gltf-vat.md) | Pipeline de assets: Blockbench → glTF → atlas, VAT e KTX2 em script próprio | aceito (KTX2 adiado à 1.1 pelo ADR-0027; a fonte `.bbmodel` é substituída por GLB na trilha S-18, ADR-0029) |
 | [ADR-0012](0012-demo-gating-at-build-time.md) | Demo definida em build time; web é só demo | aceito |
 | [ADR-0013](0013-ui-react-overlay-external-store-tailwind.md) | UI: React 19 overlay com store próprio e useSyncExternalStore; Tailwind v4 com tokens; fonte pixel OFL | aceito |
 | [ADR-0014](0014-rendering-webgl2-thin-instances-vat.md) | Renderização: WebGL2 padrão, WebGPU opt-in; thin instances + VAT; materiais sem PBR | aceito |
@@ -32,3 +32,4 @@ Um arquivo por decisão relevante, numerado sequencialmente. Formato: contexto, 
 | [ADR-0026](0026-vercel-manual-rollback.md) | Rollback manual do deploy da Vercel | aceito |
 | [ADR-0027](0027-ktx2-deferred-to-1-1.md) | KTX2 e `toktx` adiados para a 1.1 | aceito |
 | [ADR-0028](0028-capacitor-approved-for-beta.md) | Capacitor aprovado para a abertura da BETA; billing ainda sem biblioteca | aceito |
+| [ADR-0029](0029-medium-poly-image-to-3d.md) | Arte 3D medium poly gerada por image-to-3D (AssetFurnace, Pixal3D) | aceito; execução na trilha S-18, depois da `v0.6.0` |

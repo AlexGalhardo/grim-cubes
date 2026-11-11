@@ -5,13 +5,13 @@ Este arquivo complementa as instruções globais do usuário. Em conflito, as re
 ## Início de toda sessão (obrigatório)
 
 1. Carregar as skills: `caveman`, `karpathy-guidelines`, `graphify`, `ponytail`. Se alguma não estiver disponível no Skill tool, avisar o PO (não inventar o conteúdo).
-2. Ler `docs/PROGRESS.md` e a fase atual de `ROADMAP.md`.
+2. Ler `docs/PROGRESS.md` e a fase atual de `ROADMAP.md`. Para retomar o trabalho numa sessão nova, o roteiro pronto está em `prompt-worker.md`.
 3. Se for sessão de implementação com agentes: seguir `prompt-workers.md` (papéis, fila, handoff, DoD, bloqueios).
 4. Rodar `git status`, `bun install --frozen-lockfile`, `bun run typecheck && bun run lint && bun run test` antes de começar; consertar primeiro se algo falhar.
 
 ## O projeto em uma linha
 
-Roguelite de sobrevivência em ondas, 3D voxel grimdark, Babylon.js 9 + TypeScript 7 + React 19 + Tailwind 4 + bitecs, Bun, Vite 8; Steam (Electron) + demo web (Vercel) na 1.0; Android (Capacitor) na 1.1. Detalhes: `docs/gdd.md`, `docs/art-bible.md`, `docs/sdd/`, `docs/adrs/`.
+Roguelite de sobrevivência em ondas, 3D voxel grimdark (medium poly pintado à mão depois da `v0.6.0`, ADR-0029), Babylon.js 9 + TypeScript 7 + React 19 + Tailwind 4 + bitecs, Bun, Vite 8; Steam (Electron) + demo web (Vercel) na 1.0; Android (Capacitor) na 1.1. Detalhes: `docs/gdd.md`, `docs/art-bible.md`, `docs/sdd/`, `docs/adrs/`.
 
 ## Comandos
 
@@ -28,6 +28,7 @@ Roguelite de sobrevivência em ondas, 3D voxel grimdark, Babylon.js 9 + TypeScri
 | `bun run test:e2e` | Playwright (4 viewports) |
 | `bun run test:smoke` | Playwright smoke contra uma URL (bypass da Vercel por secret) |
 | `bun run sim` | simulador de balanceamento |
+| `bun run ux:legibility` | mede o contraste herói/chão e inimigo/chão na captura de combate (`reports/legibility.json`) |
 | `bun run assets:gen` | gera os `.bbmodel` placeholder por script |
 | `bun run assets:build` | pipeline `.bbmodel` → glTF (skin rígido) → atlas/VAT (KTX2 na ALPHA) |
 | `bun run audio:generate` | gera SFX/música/voz via ElevenLabs (chave em `.env`) |
@@ -35,11 +36,13 @@ Roguelite de sobrevivência em ondas, 3D voxel grimdark, Babylon.js 9 + TypeScri
 
 Até a fase ESTRUTURA concluir E-02, alguns scripts são stubs.
 
-## Arte no Blockbench
+## Arte 3D
 
-- Assets visuais (herói, armas, inimigos, chefes, NPC, props, tiles) são refinados no Blockbench aberto, pelo MCP `blockbench` (`.mcp.json`); instalação, versão fixada e fluxo em `docs/blockbench.md`.
-- Use a skill `blockbench-art` e o agente `blockbench-artist` (papel Art). Sem conexão com o Blockbench, não editar `.bbmodel` à mão como substituto.
-- Modelo refinado vai para `assets/src/models/authored.json` no mesmo commit, para o `assets:gen` não sobrescrever.
+- **Direção (ADR-0029, decisão do PO de 2026-11-11):** depois da `v0.6.0` o jogo inteiro troca o voxel por 3D medium poly pintado à mão, com modelos de IA image-to-3D (AssetFurnace, motor Pixal3D) a partir das concept arts. É a trilha S-18 do `ROADMAP.md`.
+- **Até a `v0.6.0` sair:** a `main` continua voxel e ninguém cria nem refina modelo 3D. A arte voxel fica preservada na branch `voxel-legacy`.
+- **Na S-18:** use a skill `medium-poly-art` e o agente `medium-poly-artist` (papel Art). Só Pixal3D, nunca Hunyuan3D. Todo GLB entra com o `.provenance.json` ao lado. O herói de prova (S-18-03) para e espera a aprovação do PO.
+- **Nada baixa nem custa sem o PO:** instalar a ferramenta, baixar pesos de modelo, gerar na nuvem ou alugar GPU exigem o aval dele registrado em `docs/PROGRESS.md`. A máquina do PO tem uma RTX 4060 de 8 GB, abaixo do que a ferramenta testou.
+- **Legado:** a skill `blockbench-art`, o agente `blockbench-artist` e `docs/blockbench.md` valem só para a branch `voxel-legacy` e saem da `main` na S-18-08.
 
 ## Convenções
 

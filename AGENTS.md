@@ -5,7 +5,7 @@ Instruções para qualquer agente de código (Claude Code, Codex, Cursor, etc.) 
 ## Início de sessão
 
 1. Carregue as skills `caveman`, `karpathy-guidelines`, `graphify` e `ponytail` (se existirem no seu ambiente; se não existirem, informe o PO).
-2. Leia `docs/PROGRESS.md`, depois a fase atual em `ROADMAP.md`, depois `prompt-workers.md` se for implementar com agentes.
+2. Leia `docs/PROGRESS.md`, depois a fase atual em `ROADMAP.md`, depois `prompt-workers.md` se for implementar com agentes. Para retomar numa sessão nova, use o roteiro de `prompt-worker.md`.
 3. Verifique o ambiente: `bun install --frozen-lockfile`, `bun run typecheck`, `bun run lint`, `bun run test`.
 
 ## Comandos
@@ -20,6 +20,7 @@ Instruções para qualquer agente de código (Claude Code, Codex, Cursor, etc.) 
 | `bun run test` | Vitest (unit + integration) |
 | `bun run test:e2e` | Playwright (4 viewports) |
 | `bun run sim` | simulador de balanceamento |
+| `bun run ux:legibility` | mede o contraste herói/chão e inimigo/chão na captura de combate (`reports/legibility.json`) |
 | `bun run release <patch\|minor\|major\|rc>` | release no padrão vukem |
 
 Lista completa em `CLAUDE.md`; até a fase ESTRUTURA concluir E-02, alguns scripts são stubs.
@@ -31,22 +32,25 @@ Lista completa em `CLAUDE.md`; até a fase ESTRUTURA concluir E-02, alguns scrip
 | `docs/gdd.md` | Game Design Document |
 | `docs/art-bible.md` | Art Bible + design system (§16) + alvos de tela (§17) |
 | `docs/sdd/` | Software Design Documents (14) |
-| `docs/adrs/` | Architecture Decision Records (20) |
+| `docs/adrs/` | Architecture Decision Records (29) |
 | `docs/brainstorming.md` | decisões do PO D01–D33 |
 | `docs/web-search.md` | pesquisa com fontes |
 | `docs/PROGRESS.md` | estado compartilhado dos agentes |
 | `todo-later.md` | pendências legais, de contas e de lançamento (Steam, Google Play, Vercel); atualizado junto com o desenvolvimento |
 | `ROADMAP.md` | fases e microtarefas com asserts |
 | `prompt-workers.md` | protocolo dos agentes de implementação |
+| `prompt-worker.md` | roteiro pronto para abrir a próxima sessão de trabalho (estado, ordem das tarefas, regras) |
 | `prompt-concept-arts.md` | prompts de concept art |
 | `apps/`, `packages/`, `data/`, `assets/`, `tools/`, `tests/` | código (ver `docs/sdd/01-architecture.md`) |
 
-## Arte no Blockbench (MCP)
+## Arte 3D
 
-- O Blockbench desktop conversa com o Claude Code pelo plugin MCP fixado em `docs/blockbench.md` (servidor `blockbench` no `.mcp.json`, `http://localhost:3000/bb-mcp`, só com o Blockbench aberto).
-- Modelos refinados à mão entram em `assets/src/models/authored.json`; `bun run assets:gen` não os sobrescreve.
-- Fluxo: skill `.claude/skills/blockbench-art/SKILL.md`; agente `.claude/agents/blockbench-artist.md` (papel Art em `prompt-workers.md` §2).
-- Todo asset passa em `bun run assets:build`, nos testes de `tools/assets-gen`, `tools/assets-build` e `tools/bake-vat`, e no checklist do Art Bible §14.
+- Direção (ADR-0029): depois da `v0.6.0` o jogo inteiro troca o voxel por 3D medium poly pintado à mão, com modelos de IA image-to-3D (AssetFurnace, motor Pixal3D) a partir das concept arts. Trilha S-18 do `ROADMAP.md`.
+- Até a `v0.6.0` sair, a `main` continua voxel e ninguém cria nem refina modelo 3D. A arte voxel fica na branch `voxel-legacy`.
+- Na S-18: skill `.claude/skills/medium-poly-art/SKILL.md` e agente `.claude/agents/medium-poly-artist.md` (papel Art em `prompt-workers.md` §2). Só Pixal3D; todo GLB entra com o `.provenance.json`; o herói de prova (S-18-03) espera a aprovação do PO.
+- Instalar a ferramenta, baixar pesos, gerar na nuvem ou alugar GPU só com o aval do PO em `docs/PROGRESS.md`.
+- Todo asset passa em `bun run assets:build`, nos testes de `tools/assets-build` e `tools/bake-vat`, em `bun run ux:legibility` e em `bun run test:perf`.
+- Legado: a skill `blockbench-art`, o agente `blockbench-artist` e `docs/blockbench.md` valem só para a `voxel-legacy`.
 
 ## Regras resumidas
 
