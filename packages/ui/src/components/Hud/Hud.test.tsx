@@ -1,0 +1,124 @@
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { afterEach, expect, test, vi } from "vitest";
+import { formatClock, Hud, type HudView, MAX_VISIBLE_ITEMS } from "./Hud";
+import type { HudItem } from "./hudTypes";
+
+afterEach(cleanup);
+
+const item = (id: string, count = 1, tier = 1): HudItem => ({ id, name: `Item ${id}`, tier, count });
+
+const view = (over: Partial<HudView> = {}): HudView => ({
+	hp: 87,
+	maxHp: 100,
+	round: 3,
+	level: 4,
+	xp: 3,
+	xpNeeded: 8,
+	gold: 120,
+	secondsLeft: 45,
+	souls: 30,
+	kills: 12,
+	weapon: { id: "sword", name: "Rusted Sword", tier: 2 },
+	items: [],
+	boss: null,
+	speed: 1,
+	...over,
+});
+
+test("formats the clock as m:ss", () => {
+	expect(formatClock(45)).toBe("0:45");
+	expect(formatClock(125)).toBe("2:05");
+	expect(formatClock(-3)).toBe("0:00");
+});
+
+test("every cluster of the four corners is on screen", () => {
+	render(<Hud hud={view({ items: [item("a")] })} />);
+	for (const id of [
+		"hud-vitals",
+		"hud-hp",
+		"hud-xp",
+		"hud-round",
+		"hud-timer",
+		"hud-wallet",
+		"hud-gold",
+		"hud-souls",
+		"hud-kills",
+		"hud-loadout",
+		"hud-weapon",
+		"hud-items",
+	]) {
+		expect(screen.getByTestId(id), id).toBeTruthy();
+	}
+	expect(screen.getByTestId("hud-timer").textContent).toBe("0:45");
+	expect(screen.getByTestId("hud-gold").textContent).toContain("120");
+	expect(screen.getByTestId("hud-souls").textContent).toContain("30");
+	expect(screen.getByTestId("hud-kills").textContent).toContain("12");
+	expect(screen.getByTestId("hud-level").textContent).toContain("4");
+});
+
+test("the HP bar shows the number and the XP bar is a thin strip with the values in aria", () => {
+	render(<Hud hud={view()} />);
+	const hp = within(screen.getByTestId("hud-hp")).getByRole("progressbar");
+	expect(hp.textContent).toBe("87/100");
+	const xp = within(screen.getByTestId("hud-xp")).getByRole("progressbar");
+	expect(xp.textContent).toBe("");
+	expect(xp.getAttribute("aria-valuenow")).toBe("3");
+	expect(xp.getAttribute("aria-valuemax")).toBe("8");
+});
+
+test("the weapon frame lights as many pips as its tier", () => {
+	render(<Hud hud={view()} />);
+	const pips = screen.getByTestId("hud-weapon").querySelectorAll("[data-lit]");
+	expect([...pips].map((p) => p.getAttribute("data-lit"))).toEqual(["true", "true", "false", "false"]);
+});
+
+test("the item strip groups with a count badge, shows ten and a +N chip for the rest", () => {
+	const items = Array.from({ length: MAX_VISIBLE_ITEMS + 3 }, (_, i) => item(`i${i}`, i === 0 ? 3 : 1));
+	render(<Hud hud={view({ items })} />);
+	const strip = screen.getByTestId("hud-items");
+	expect(within(strip).getAllByRole("listitem")).toHaveLength(MAX_VISIBLE_ITEMS + 1);
+	expect(screen.getByTestId("hud-item-count").textContent).toBe("3");
+	expect(screen.getByTestId("hud-items-more").textContent).toContain("+3");
+});
+
+test("an empty item set draws no strip", () => {
+	render(<Hud hud={view()} />);
+	expect(screen.queryByTestId("hud-items")).toBeNull();
+});
+
+test("the timer is hidden from view outside a timed round, and the clock gives way to the boss bar", () => {
+	const { rerender } = render(<Hud hud={view({ secondsLeft: 0 })} />);
+	expect(screen.getByTestId("hud-timer").className).toContain("invisible");
+	rerender(<Hud hud={view({ boss: { name: "B", hp: 1, maxHp: 1, phase: 0, phaseMarkers: [0.5] } })} />);
+	expect(screen.queryByTestId("hud-timer")).toBeNull();
+	expect(screen.queryByTestId("hud-round")).toBeNull();
+});
+
+test("the corner buttons keep their test ids and call back", () => {
+	const onPause = vi.fn();
+	const onCycleSpeed = vi.fn();
+	const onOpenOptions = vi.fn();
+	render(<Hud hud={view()} onPause={onPause} onCycleSpeed={onCycleSpeed} onOpenOptions={onOpenOptions} />);
+	const corner = screen.getByTestId("hud-corner");
+	for (const id of ["pause-open", "speed-toggle", "options-open"]) {
+		const button = screen.getByTestId(id);
+		expect(corner.contains(button)).toBe(true);
+		expect(button.getAttribute("aria-label")).toBeTruthy();
+		fireEvent.click(button);
+	}
+	expect([onPause, onCycleSpeed, onOpenOptions].map((f) => f.mock.calls.length)).toEqual([1, 1, 1]);
+});
+
+test("no corner buttons while a dialog is open", () => {
+	render(<Hud hud={view()} showButtons={false} onPause={vi.fn()} />);
+	expect(screen.queryByTestId("hud-corner")).toBeNull();
+});
+
+test("on touch the weapon sits beside the vitals and the item strip is left to the shop and pause", () => {
+	render(<Hud hud={view({ items: [item("a")] })} touch />);
+	expect(screen.getByTestId("hud-weapon")).toBeTruthy();
+	expect(screen.queryByTestId("hud-items")).toBeNull();
+	expect(screen.getByTestId("hud-loadout").parentElement?.contains(screen.getByTestId("hud-vitals"))).toBe(
+		true,
+	);
+});

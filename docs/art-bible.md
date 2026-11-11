@@ -426,6 +426,7 @@ Tailwind: `--breakpoint-mobile-l: 821px; --breakpoint-desktop: 1024px; --breakpo
 | `CurrencyBadge` | ícone 16 + número display 16 `ember-light` | contagem animada (300 ms, `steps(8)`) | — |
 | `RarityFrame` | moldura 2 px na cor de raridade + canto superior esquerdo chanfrado 4 px | — | — |
 | `VirtualJoystick` (mobile) | base 96 px `iron` 50%, knob 40 px `bone` | flutuante no toque | — |
+| `Hud` (in-run) | quatro cantos sobre placas `night` 65% com borda 2 px `iron-dark`, sem raio nem sombra suave: vitais (retrato 64 px com selo de nível, `Bar` HP 22 px e XP 10 px sem texto), relógio (rótulo display `bone-dark`, timer 40 px), carteira (ouro `currency`, almas, abates) com botões quadrados 40 px (48 px em toque), arma 56 px com 4 pips e faixa de itens 36 px (ícone 32 px) | timer some na luta de chefe; em toque a arma vai ao lado dos vitais e a faixa de itens some | margem 24 px (desktop), 12 px mínimo + safe area (mobile) |
 | `BossBar` | `Bar` 28 px + nome display 24 + marcadores de fase | enrage: borda `blood-light` pulsa | largura 60% (desktop), 70% (mobile) |
 
 Ícones: pixel art 16/24/32 px, 1 cor + sombra, em sprite sheet `ui_icons.png`; nomes `icon_<nome>`. Nunca ícones vetoriais suavizados.

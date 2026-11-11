@@ -81,7 +81,7 @@ A Parte 2 não entra na meta: depende do PO, de hardware, de loja ou de data.
 
 - [x] **S-03-01** `HudState` ganha o que o GDD §21.2 pede e hoje falta: tempo restante do round, almas da run, arma atual com tier, itens agrupados com contador, abates e marcadores de fase do chefe. Publicado a 12 Hz, sem alocação por frame.
   - Asserts: teste do view model em `apps/web`; teste que o snapshot reaproveita arrays quando nada mudou; SDD 07 §2 atualizado.
-- [ ] **S-03-02** HUD em grade de quatro cantos. Topo-esquerda: retrato do herói, HP e XP com nível. Topo-centro: round e timer grandes, ou a barra do chefe. Topo-direita: ouro e almas com ícone, velocidade, pausa. Base-esquerda: arma com pips de tier e faixa de itens. Nada cobre o herói nem o anel de 6 u ao redor dele.
+- [x] **S-03-02** HUD em grade de quatro cantos. Topo-esquerda: retrato do herói, HP e XP com nível. Topo-centro: round e timer grandes, ou a barra do chefe. Topo-direita: ouro e almas com ícone, velocidade, pausa. Base-esquerda: arma com pips de tier e faixa de itens. Nada cobre o herói nem o anel de 6 u ao redor dele.
   - Asserts: `data-testid` `hud-hp`, `hud-xp`, `hud-round`, `hud-timer`, `hud-gold`, `hud-souls`, `hud-weapon`, `hud-items`, `hud-kills` presentes; teste de layout prova que nenhum elemento do HUD invade o retângulo central nos quatro alvos; `a11y.test.tsx` verde; capturas nos quatro alvos.
 - [ ] **S-03-03** HUD mobile: HP e XP compactos, round e timer no centro, joystick à esquerda, dash e pausa à direita, margens pela safe area, alvos de toque ≥ 48 px.
   - Asserts: capturas em 896×414 e 800×360 sem sobreposição; teste de componente dos tamanhos mínimos de toque.

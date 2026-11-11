@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **ui:** In-run HUD in four corners (`components/Hud/Hud.tsx`): hero portrait with level badge, HP and thin XP bars, round label over a large timer, gold, souls and kills with glyphs, square icon buttons, weapon frame with tier pips and the item strip with counters; plates behind the clusters, nothing in the hero area, with a Playwright layout spec (S-03-02)
 - **ui:** `HudState` carries the seconds left in the round, the run souls, kills, the weapon with its tier and the grouped items, and the boss view lists its phase markers; built by a pure `createLoadoutView` that reuses its arrays until the owned set changes (S-03-01)
 - **render:** Damage numbers are Inter digits painted into the atlas with a dark outline (the pixel digits read "125" as "I2I"), bigger for the closer camera, crits larger in ember-light; size, crit scale and outline come from `data/render.json` (S-01-04)
 - **ci:** `release.yml` builds the debug APK in a third job and attaches it with its checksum, so a release ships the `.exe` and the `.apk` without a manual upload; `gradlew` is executable in git (S-17-01)

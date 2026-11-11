@@ -59,7 +59,7 @@ Breakpoints e regras do Art Bible §16.4 e §17. Implementação:
 
 - `useViewport()` retorna `{ w, h, scale, target: "mobile-s" | "mobile-l" | "desktop" | "desktop-xl" }` a partir de `matchMedia`; `scale` aplica `--ui-scale` (1 / 1,25 / 1,5 conforme opção e auto em `desktop-xl`).
 - Safe area: `padding: env(safe-area-inset-*)` no `#ui` (Capacitor expõe via `viewport-fit=cover`).
-- HUD é um grid CSS 3×3 com áreas nomeadas (`tl tc tr / . . . / bl bc br`); mobile troca `br` por botões e `bl` por área do joystick.
+- O HUD da run é `components/Hud/Hud.tsx`: um grid CSS de três colunas (`1fr auto 1fr`) e três linhas (`auto 1fr auto`) com os quatro cantos (vitais, relógio, carteira com botões, arma e itens); a linha do meio fica vazia, onde estão o herói e o anel de 6 u. Em toque (`stick` presente) a arma sobe para ao lado dos vitais e a faixa de itens some, porque `bl` é da área do joystick e `br` dos botões de dash e pausa. `tests/e2e/hud-layout.spec.ts` mede os retângulos contra o centro proibido nos 4 projetos.
 - `useViewport`, `--ui-scale` automático e grid 3×3 do HUD: provisórios até A-07 (hoje o HUD é um bloco no canto superior esquerdo, e o `Button` usa `pointer-coarse:min-h-12` para o alvo de toque de 48 px).
 - Testes visuais: os specs ficam em `tests/e2e/*.spec.ts` (boot, levelup, shop, results, fade, world, art-review) e gravam baselines em `tests/visual/__screenshots__/` nos 4 projetos do `playwright.config.ts`. A tolerância é definida no config (hoje `maxDiffPixelRatio` 0,02; a redução para `maxDiffPixels` + máscara do canvas está com o Est).
 

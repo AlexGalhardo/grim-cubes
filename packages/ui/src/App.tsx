@@ -1,6 +1,5 @@
 import { type PadStyle, padButtonName, type SaveNotice, type Store, t, type VirtualStick } from "@gc/core";
 import { type CSSProperties, type JSX, useSyncExternalStore } from "react";
-import { Bar } from "./components/Bar/Bar";
 import { BossBar, BossIntro, type BossViewModel } from "./components/BossBar/BossBar";
 import { Caption } from "./components/Caption/Caption";
 import { DashButton, type DashView } from "./components/DashButton/DashButton";
@@ -10,6 +9,7 @@ import {
 	type DifficultyActions,
 	type DifficultyViewModel,
 } from "./components/Difficulty/Difficulty";
+import { Hud } from "./components/Hud/Hud";
 import type { HudItem, HudWeapon } from "./components/Hud/hudTypes";
 import { type CardView, LevelUp } from "./components/LevelUp/LevelUp";
 import { Menu, type MenuActions, type MenuViewModel } from "./components/Menu/Menu";
@@ -187,14 +187,14 @@ export function App({
 			data-testid="hud-root"
 			data-theme={hud.colorblind ? "cb" : undefined}
 		>
-			<div className="flex w-64 flex-col gap-1" data-testid="hud-hp">
-				<Bar value={hud.hp} max={hud.maxHp} label={t("hud.hp")} />
-				<Bar value={hud.xp} max={hud.xpNeeded} variant="xp" label={t("hud.xp")} />
-			</div>
-			<div data-testid="hud-round">
-				{t("hud.round", { round: hud.round })} · {t("hud.level", { level: hud.level })} ·{" "}
-				<span className="text-currency">{hud.gold}</span>
-			</div>
+			<Hud
+				hud={hud}
+				touch={stick !== undefined}
+				showButtons={!dialogOpen}
+				onPause={onPause}
+				onCycleSpeed={onCycleSpeed}
+				onOpenOptions={onOpenOptions}
+			/>
 			{hud.cards.length > 0 && onChooseCard ? (
 				<LevelUp
 					cards={hud.cards}
@@ -241,45 +241,6 @@ export function App({
 				<Difficulty view={hud.difficulty} actions={difficultyActions} />
 			) : null}
 			{hud.ossuary && ossuaryActions ? <Ossuary view={hud.ossuary} actions={ossuaryActions} /> : null}
-			{!dialogOpen && (onOpenOptions || onCycleSpeed || onPause) ? (
-				<div
-					className="pointer-events-none absolute top-2 right-2 z-20 flex gap-2"
-					data-testid="hud-corner"
-				>
-					{onPause ? (
-						<button
-							type="button"
-							data-testid="pause-open"
-							aria-label={t("pause.open")}
-							onClick={onPause}
-							className="pointer-events-auto min-h-12 min-w-12 border-2 border-iron-dark bg-night-2 px-2 font-display text-lg text-bone hover:border-ember hover:text-ember-light focus-visible:outline-2 focus-visible:outline-ember"
-						>
-							‖
-						</button>
-					) : null}
-					{onCycleSpeed ? (
-						<button
-							type="button"
-							data-testid="speed-toggle"
-							aria-label={t("hud.speed", { speed: hud.speed })}
-							onClick={onCycleSpeed}
-							className={`pointer-events-auto min-h-12 min-w-12 border-2 bg-night-2 px-2 font-display text-sm focus-visible:outline-2 focus-visible:outline-ember ${hud.speed === 1 ? "border-iron-dark text-bone-dark opacity-70" : "border-ember text-ember-light"} hover:border-ember hover:text-ember-light`}
-						>
-							{hud.speed}x
-						</button>
-					) : null}
-					{onOpenOptions ? (
-						<button
-							type="button"
-							data-testid="options-open"
-							onClick={onOpenOptions}
-							className="pointer-events-auto min-h-12 border-2 border-iron-dark bg-night-2 px-3 font-display text-sm text-bone hover:border-ember hover:text-ember-light focus-visible:outline-2 focus-visible:outline-ember"
-						>
-							{t("options.open")}
-						</button>
-					) : null}
-				</div>
-			) : null}
 			{hud.options && optionsActions ? <Options view={hud.options} actions={optionsActions} /> : null}
 			{hud.boss ? <BossBar boss={hud.boss} /> : null}
 			{hud.merchant && onMerchantTalk ? (
