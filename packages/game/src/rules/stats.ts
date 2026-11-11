@@ -140,13 +140,15 @@ export function computeStats(
 		speedMin: data.caps.speedMin,
 		speedMax: data.caps.speedMax,
 	},
+	/** Modifiers recomputed from the inventory (synergies); kept apart so they can be replaced, not saved. */
+	bonus: readonly Modifier[] = [],
 ): void {
 	for (const f of FIELDS) {
 		add[f] = 0;
 		mul[f] = 1;
 	}
-	for (let i = 0; i < modifiers.length; i++) {
-		const m = modifiers[i];
+	for (let i = 0; i < modifiers.length + bonus.length; i++) {
+		const m = i < modifiers.length ? modifiers[i] : bonus[i - modifiers.length];
 		if (!m) continue;
 		const field = STAT_FIELDS[m.stat];
 		if (!field) throw new RangeError(`unknown stat "${m.stat}" in a modifier`);

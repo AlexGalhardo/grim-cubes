@@ -14,6 +14,7 @@ import {
 	ossuaryData,
 	propsData,
 	roundsData,
+	synergiesData,
 	toBiomeDefs,
 	toEnemyDefs,
 	toShopWeapons,
@@ -68,6 +69,7 @@ import { createShopSystem } from "./systems/shop";
 import { createSpawnSystem } from "./systems/spawn";
 import { createSpellSystem } from "./systems/spells";
 import { createStatsSystem } from "./systems/stats";
+import { createSynergySystem } from "./systems/synergies";
 import { createTargetingSystem } from "./systems/targeting";
 import { createWeaponSystem } from "./systems/weapon";
 import { createChunkGenerator } from "./world/chunkGen";
@@ -143,6 +145,12 @@ function build(options: GameSessionOptions) {
 		},
 		events,
 	);
+
+	const synergies = createSynergySystem(itemsData, owned, synergiesData, stats);
+	const refreshInventory = (): void => {
+		itemEffects.refresh();
+		synergies.refresh();
+	};
 
 	const startingWeapon = weaponsData.find((w) => w.id === (options.weapon ?? heroData.startingWeapon));
 	if (!startingWeapon) throw new Error(`Unknown starting weapon ${heroData.startingWeapon}`);
@@ -362,7 +370,7 @@ function build(options: GameSessionOptions) {
 		run,
 		stats,
 		owned,
-		onItemTaken: itemEffects.refresh,
+		onItemTaken: refreshInventory,
 		events,
 		blocked: () => levelUp.offer !== null,
 		pickupRadius: () => stats.stats.pickupRadius,
@@ -379,7 +387,7 @@ function build(options: GameSessionOptions) {
 		weapon,
 		round: () => run.round,
 		owned,
-		onItemBought: itemEffects.refresh,
+		onItemBought: refreshInventory,
 	});
 
 	const chunkGen = createChunkGenerator(seed, toBiomeDefs(biomesData), {
@@ -513,6 +521,7 @@ function build(options: GameSessionOptions) {
 		poolItems,
 		dash,
 		itemEffects,
+		synergies,
 		startingWeapon,
 		enemyIds,
 		damage,
@@ -570,6 +579,7 @@ export interface GameSession {
 	readonly poolItems: ReturnType<typeof build>["poolItems"];
 	readonly dash: ReturnType<typeof build>["dash"];
 	readonly itemEffects: ReturnType<typeof build>["itemEffects"];
+	readonly synergies: ReturnType<typeof build>["synergies"];
 	readonly startingWeapon: ReturnType<typeof build>["startingWeapon"];
 	readonly enemyIds: ReturnType<typeof build>["enemyIds"];
 	readonly damage: ReturnType<typeof build>["damage"];

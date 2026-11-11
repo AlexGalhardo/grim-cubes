@@ -49,8 +49,21 @@ export function captureCheckpoint(session: GameSession, identity: RunIdentity): 
  * the game no longer has, so the caller can fall back to a new run.
  */
 export function restoreCheckpoint(session: GameSession, cp: RunCheckpoint): void {
-	const { progress, stats, runStats, hero, origin, weapon, shop, owned, levelUp, itemEffects, run, rng } =
-		session;
+	const {
+		progress,
+		stats,
+		runStats,
+		hero,
+		origin,
+		weapon,
+		shop,
+		owned,
+		levelUp,
+		itemEffects,
+		synergies,
+		run,
+		rng,
+	} = session;
 	const def = weaponsData.find((w) => w.id === cp.weapon.id);
 	if (!def) throw new Error(`checkpoint names an unknown weapon: ${cp.weapon.id}`);
 	RNG_STREAMS.forEach((name, i) => {
@@ -64,6 +77,7 @@ export function restoreCheckpoint(session: GameSession, cp: RunCheckpoint): void
 	owned.clear();
 	for (const [id, count] of Object.entries(cp.owned)) owned.set(id, count);
 	stats.add(cp.modifiers);
+	synergies.refresh();
 	itemEffects.restoreRevivesSpent(cp.revivesSpent);
 	weapon.setWeapon(def, cp.weapon.tier);
 	shop.restorePaid(cp.weapon.paid);

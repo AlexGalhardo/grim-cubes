@@ -75,3 +75,16 @@ test("hp_regen heals the hero during a round by the GDD formula and never above 
 	session.step(input);
 	expect(Health.hp[hero] ?? 0).toBeLessThanOrEqual(Health.max[hero] ?? 0);
 });
+
+test("buying an item moves its tag progress through the session", () => {
+	const session = createGameSession({ seed: 5, difficulty, meta: createMetaState() });
+	session.run.newRun();
+	session.progress.gold = 1_000_000;
+	session.shop.open();
+	for (let i = 0; i < 6; i++) session.shop.buy(i);
+	const bought = [...session.owned.keys()];
+	expect(bought.length).toBeGreaterThan(0);
+	expect(session.synergies.states.reduce((sum, s) => sum + s.count, 0)).toBeGreaterThanOrEqual(
+		bought.length,
+	);
+});

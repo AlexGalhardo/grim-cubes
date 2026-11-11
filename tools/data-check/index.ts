@@ -200,6 +200,21 @@ export function checkIntegrity(data: DataSet): string[] {
 		}
 	}
 
+	const synergyIds = checkUniqueIds("synergies.json", asArray(data["synergies.json"]), errors);
+	for (const item of asArray(data["items.json"])) {
+		const tags = Array.isArray(item.tags) ? item.tags : [];
+		if (new Set(tags).size !== tags.length) errors.push(`items.json: ${idOf(item)}.tags repeats a tag`);
+		for (const tag of tags) {
+			if (typeof tag === "string" && !synergyIds.has(tag))
+				errors.push(`items.json: ${idOf(item)}.tags references unknown synergy "${tag}"`);
+		}
+	}
+	for (const synergy of asArray(data["synergies.json"])) {
+		const counts = asArray(synergy.tiers).map((t) => t.count);
+		if (counts.some((c, i) => i > 0 && !(typeof c === "number" && c > (counts[i - 1] as number))))
+			errors.push(`synergies.json: ${idOf(synergy)}.tiers counts must ascend strictly`);
+	}
+
 	const hero = data["hero.json"];
 	if (isObject(hero) && typeof hero.startingWeapon === "string" && !weaponIds.has(hero.startingWeapon)) {
 		errors.push(`hero.json: startingWeapon references unknown weapon "${hero.startingWeapon}"`);
@@ -330,6 +345,7 @@ const EXPECTED_FILES = [
 	"props",
 	"render",
 	"presets",
+	"synergies",
 ].map((n) => `${n}.json`);
 
 /** `assets/src` next to the data dir, if it exists (fixtures without assets skip the data -> assets check). */
@@ -362,6 +378,28 @@ export function selfTest(
 				const first = items[0];
 				const last = items[items.length - 1];
 				if (first && last) last.id = first.id as string;
+			},
+		],
+		[
+			"item tag without a synergy",
+			(d) => {
+				const first = asArray(d["items.json"])[0];
+				if (first) first.tags = ["nope"];
+			},
+		],
+		[
+			"item without tags",
+			(d) => {
+				const first = asArray(d["items.json"])[0];
+				if (first) delete first.tags;
+			},
+		],
+		[
+			"synergy tiers out of order",
+			(d) => {
+				const tiers = asArray(asArray(d["synergies.json"])[0]?.tiers);
+				const second = tiers[1];
+				if (second) second.count = 1;
 			},
 		],
 		[

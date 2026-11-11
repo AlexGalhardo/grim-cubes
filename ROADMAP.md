@@ -156,7 +156,7 @@ A Parte 1B (arte medium poly) começa depois da `v0.6.0` e tem pontos de parada 
 
 ### S-14 Sinergias por etiqueta
 
-- [ ] **S-14-01** Cada item ganha uma ou duas etiquetas de um conjunto de seis; juntar 2, 4 e 6 da mesma etiqueta dá bônus definidos em `data/synergies.json`, com esquema e `data:check`.
+- [x] **S-14-01** Cada item ganha uma ou duas etiquetas de um conjunto de seis; juntar 2, 4 e 6 da mesma etiqueta dá bônus definidos em `data/synergies.json`, com esquema e `data:check`.
   - Asserts: `bun run data:check` exit 0; todo item de `data/items.json` tem etiqueta; teste de aplicação e remoção dos bônus; GDD §15 atualizado.
 - [ ] **S-14-02** A loja e o HUD mostram as etiquetas e o progresso de cada sinergia; a prévia da S-05-02 inclui o bônus que a compra ativaria.
   - Asserts: testes de `Shop` e do HUD; capturas `shop` nos quatro alvos.

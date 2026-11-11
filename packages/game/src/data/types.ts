@@ -229,12 +229,21 @@ export interface ItemEffect {
 	params: Record<string, number | boolean>;
 }
 
+/** One tag of `data/synergies.json`: the bonuses from owning 2, 4 and 6 distinct items with it (GDD 15.4). */
+export interface SynergyData {
+	id: string;
+	name: string;
+	tiers: { count: number; modifiers: Modifier[] }[];
+}
+
 /** One entry of `data/items.json`. */
 export interface ItemData {
 	id: string;
 	name: string;
 	tier: number;
 	price: number;
+	/** One or two synergy tag ids (`data/synergies.json`). */
+	tags: string[];
 	modifiers: Modifier[];
 	effects: ItemEffect[];
 	/** Ossuary node that adds the item to the pool. */

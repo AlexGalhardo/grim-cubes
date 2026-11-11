@@ -420,5 +420,11 @@
 	"leave.quit": "Sair",
 	"leave.toMenu": "Voltar ao menu",
 	"leave.toMenuSaved": "Voltar ao menu inicial? A run fica salva no início do round {round}; Continuar retoma de lá.",
-	"leave.toMenuOver": "Voltar ao menu inicial?"
+	"leave.toMenuOver": "Voltar ao menu inicial?",
+	"tag.iron": "Ferro",
+	"tag.bone": "Osso",
+	"tag.blood": "Sangue",
+	"tag.ember": "Brasa",
+	"tag.grave": "Cova",
+	"tag.curse": "Maldição"
 }

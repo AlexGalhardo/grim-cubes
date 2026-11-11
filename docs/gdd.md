@@ -519,6 +519,25 @@ Exclusivos do Ossuário (entram no pool Lendário só com o nó `ruin_6`, `exclu
 
 Caem de destrutíveis e de elites: Frasco de Sangue (cura 20% HP imediato), Ímã de Ossos (puxa todos os fragmentos por 3 s). Não ficam no inventário; efeito ao pegar.
 
+### 15.5 Sinergias por etiqueta (S-14-01)
+
+Cada item de `data/items.json` leva uma ou duas etiquetas (`tags`) de um conjunto de seis, definidas em `data/synergies.json`. **Proposta, a confirmar pelo PO**: Ferro (placas, armas e metal), Osso (relíquias do Ossuário e mortos), Sangue (roubo de vida, sangramento, dano à custa de HP), Brasa (fogo, explosão, velocidade de ataque), Cova (terra, regeneração, vida máxima) e Maldição (sorte, crítico, pactos).
+
+- A contagem é de **itens distintos** com a etiqueta (uma segunda cópia do mesmo item não conta), para a sinergia pedir coleção em vez de empilhar o item mais barato.
+- Ao chegar a 2, 4 e 6 itens da mesma etiqueta ativa-se o bônus do degrau; os degraus **acumulam** (com 6 valem os três). Perder o item (ou retomar a run de um checkpoint) recalcula tudo: os bônus saem e entram sozinhos, e não são gravados no save.
+- Os bônus são modificadores de stat comuns, em `data/synergies.json` (esquema `data/schema/synergies.schema.json`; `data:check` recusa etiqueta desconhecida, item sem etiqueta e degraus fora de ordem).
+
+| Etiqueta | 2 itens | 4 itens | 6 itens | Itens |
+| --- | --- | --- | --- | --- |
+| Ferro (`iron`) | +2 armadura | +20 HP máx | +4 armadura, +5% dano | 17 |
+| Osso (`bone`) | +5 sorte | +20% raio de pickup | +3 colheita, +5 sorte | 13 |
+| Sangue (`blood`) | +1% roubo de vida | +5% dano | +2% roubo de vida, +5% crítico | 16 |
+| Brasa (`ember`) | +4% vel. de ataque | +15% tamanho de explosão | +8% vel. de ataque, +5% dano | 14 |
+| Cova (`grave`) | +10 HP máx | +0,25 regeneração | +30 HP máx, +0,25 regeneração | 16 |
+| Maldição (`curse`) | +5 sorte | +4% crítico | +15% dano a chefe, +4% crítico | 18 |
+
+Valores iniciais; o simulador (§25) fecha o ajuste na S-14-03. O jogo expõe o progresso por etiqueta em `session.synergies.states` (`SynergyState`: contagem, degraus, degrau alcançado e próximo) para a loja e o HUD.
+
 ## 16. Level-up
 
 Decisão D10: fragmentos dão XP e ouro ao mesmo tempo. Ao subir de nível, o jogo pausa e oferece 3 cartas; o jogador escolhe 1.

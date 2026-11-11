@@ -1,0 +1,30 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "synergies.schema.json",
+	"title": "Item tag synergies (GDD section 15.4, S-14-01)",
+	"type": "array",
+	"minItems": 1,
+	"items": {
+		"type": "object",
+		"required": ["id", "name", "tiers"],
+		"additionalProperties": false,
+		"properties": {
+			"id": { "$ref": "common.schema.json#/$defs/id" },
+			"name": { "$ref": "common.schema.json#/$defs/name" },
+			"tiers": {
+				"type": "array",
+				"minItems": 1,
+				"description": "Bonuses by distinct tagged items owned; every tier reached applies (they stack). Counts ascend.",
+				"items": {
+					"type": "object",
+					"required": ["count", "modifiers"],
+					"additionalProperties": false,
+					"properties": {
+						"count": { "type": "integer", "minimum": 1 },
+						"modifiers": { "$ref": "common.schema.json#/$defs/modifiers" }
+					}
+				}
+			}
+		}
+	}
+}

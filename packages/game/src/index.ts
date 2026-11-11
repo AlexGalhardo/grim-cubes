@@ -26,6 +26,7 @@ export type {
 	RenderData,
 	RoundsData,
 	ShadowQuality,
+	SynergyData,
 	VideoPreset,
 	WeaponData,
 	WorldData,
@@ -46,6 +47,7 @@ export {
 	propsData,
 	renderData,
 	roundsData,
+	synergiesData,
 	toBiomeDefs,
 	toEnemyDefs,
 	toShopWeapons,
@@ -149,6 +151,8 @@ export type { RunSummary, SoulsConfig } from "./rules/souls";
 export { soulsForRun } from "./rules/souls";
 export type { HeroStatsData, Modifier, PlayerStats, StatCaps } from "./rules/stats";
 export { computeStats, createPlayerStats, STAT_FIELDS } from "./rules/stats";
+export type { SynergyState, TaggedItem } from "./rules/synergies";
+export { computeSynergies, synergyModifiers } from "./rules/synergies";
 export type { TipId, Tips, TipsInput } from "./rules/tips";
 export { createTips, MOVE_DONE_DISTANCE, TIP_TIMEOUT_MS } from "./rules/tips";
 export type { Tutorial, TutorialInput, TutorialStep } from "./rules/tutorial";
@@ -220,6 +224,8 @@ export type { SpellSystem, SpellSystemDeps } from "./systems/spells";
 export { createSpellSystem } from "./systems/spells";
 export type { StatsSystem } from "./systems/stats";
 export { createStatsSystem } from "./systems/stats";
+export type { SynergySystem } from "./systems/synergies";
+export { createSynergySystem } from "./systems/synergies";
 export type { TargetingConfig, TargetingSystem } from "./systems/targeting";
 export { createTargetingSystem } from "./systems/targeting";
 export type { WeaponDef, WeaponStats, WeaponSystem, WeaponSystemDeps } from "./systems/weapon";
