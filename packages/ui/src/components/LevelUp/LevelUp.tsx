@@ -13,6 +13,9 @@ export interface CardChange {
 	stat: string;
 	current: string;
 	next: string;
+	/** Signed difference, e.g. "+4%". */
+	delta: string;
+	better: boolean;
 }
 
 export interface CardView {
@@ -77,7 +80,9 @@ export function LevelUp({
 	const desktopWide = isDesktopWidth();
 	const [focused, setFocused] = useState<number | null>(null);
 	const changes = focused === null ? undefined : cards[focused]?.changes;
-	const preview = changes ? Object.fromEntries(changes.map((c) => [c.id, c.next])) : undefined;
+	const preview = changes
+		? Object.fromEntries(changes.map((c) => [c.id, { after: c.next, delta: c.delta, better: c.better }]))
+		: undefined;
 	const showStats = !short && desktopWide && stats.length > 0;
 	return (
 		<div

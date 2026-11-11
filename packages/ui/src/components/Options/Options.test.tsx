@@ -79,6 +79,23 @@ test("the dialog shows the current values and closes", () => {
 	expect(a.close).toHaveBeenCalledTimes(1);
 });
 
+test("neutral brightness reads 100% and the offset moves it like contrast", () => {
+	const { rerender } = render(<Options view={view} actions={actions()} />);
+	expect(screen.getByTestId("options-brightness-value").textContent).toBe("100%");
+	rerender(<Options view={{ ...view, brightness: -20 }} actions={actions()} />);
+	expect(screen.getByTestId("options-brightness-value").textContent).toBe("80%");
+	expect((screen.getByTestId("options-brightness") as HTMLInputElement).value).toBe("-20");
+});
+
+test("the quality presets sit on one row that never wraps", () => {
+	render(<Options view={view} actions={actions()} />);
+	const row = screen.getByTestId("options-preset");
+	expect(row.className).toContain("flex-nowrap");
+	expect(row.className).not.toContain("flex-wrap ");
+	for (const button of row.querySelectorAll("button"))
+		expect(button.className).toContain("whitespace-nowrap");
+});
+
 test("the accessibility section reports brightness, contrast, colour-blind mode, flashes, scale and gore", () => {
 	const a = actions();
 	render(<Options view={view} actions={a} />);

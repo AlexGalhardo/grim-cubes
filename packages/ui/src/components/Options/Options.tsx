@@ -126,9 +126,11 @@ interface SegmentedProps<T extends string | number> {
 	format: (option: T) => string;
 	onChange: (option: T) => void;
 	testId: string;
+	/** Width cap of the row; the quality presets take the whole section. */
+	width?: string;
 }
 
-/** Radio-like buttons drawn as a row of iron keys; the chosen one glows ember. */
+/** Radio-like buttons drawn as one row of iron keys (never wraps); the chosen one glows ember. */
 function Segmented<T extends string | number>({
 	options,
 	value,
@@ -136,11 +138,12 @@ function Segmented<T extends string | number>({
 	format,
 	onChange,
 	testId,
+	width = "max-w-80",
 }: SegmentedProps<T>): JSX.Element {
 	return (
 		<fieldset
 			aria-label={label}
-			className="m-0 flex w-full max-w-80 flex-wrap border-0 p-0"
+			className={`m-0 flex w-full ${width} flex-nowrap border-0 p-0`}
 			data-testid={testId}
 		>
 			{options.map((option) => (
@@ -150,7 +153,7 @@ function Segmented<T extends string | number>({
 					aria-pressed={option === value}
 					data-testid={`${testId}-${option}`}
 					onClick={() => onChange(option)}
-					className={`min-h-9 flex-1 border-2 px-1.5 font-display text-sm focus-visible:outline-2 focus-visible:outline-ember ${option === value ? "border-ember-light bg-linear-to-b from-ember to-rust text-night" : "border-iron-dark bg-linear-to-b from-iron-dark to-iron-black text-bone hover:border-iron"}`}
+					className={`min-h-9 min-w-0 flex-auto whitespace-nowrap border-2 px-1.5 font-display text-sm focus-visible:outline-2 focus-visible:outline-ember ${option === value ? "border-ember-light bg-linear-to-b from-ember to-rust text-night" : "border-iron-dark bg-linear-to-b from-iron-dark to-iron-black text-bone hover:border-iron"}`}
 				>
 					{format(option)}
 				</button>
@@ -200,6 +203,7 @@ function Slider({
 	testId,
 	label,
 	suffix = "",
+	shown = value,
 }: {
 	label: string;
 	value: number;
@@ -209,6 +213,8 @@ function Slider({
 	onChange: (value: number) => void;
 	testId: string;
 	suffix?: string;
+	/** The number printed next to the bar when it differs from the stored value. */
+	shown?: number;
 }): JSX.Element {
 	return (
 		<span className="flex w-full max-w-80 items-center gap-3">
@@ -223,8 +229,8 @@ function Slider({
 				onChange={(event) => onChange(Number(event.target.value))}
 				className="flex-1 accent-ember"
 			/>
-			<span className="w-12 text-right font-display text-ember-light">
-				{value}
+			<span data-testid={`${testId}-value`} className="w-12 text-right font-display text-ember-light">
+				{shown}
 				{suffix}
 			</span>
 		</span>
@@ -412,7 +418,7 @@ export function Options({ view, actions, getPad }: OptionsProps): JSX.Element {
 						✕
 					</button>
 				</div>
-				<div className="grid grid-cols-1 gap-3 mobile-l:grid-cols-3">
+				<div className="grid grid-cols-1 gap-3 landscape:max-desktop:grid-cols-2 desktop:grid-cols-3">
 					<div className="flex flex-col gap-3">
 						<Section title={t("options.video")}>
 							<span className="font-body text-sm text-bone desktop:text-base">
@@ -425,6 +431,7 @@ export function Options({ view, actions, getPad }: OptionsProps): JSX.Element {
 								format={presetName}
 								onChange={actions.setPreset}
 								testId="options-preset"
+								width="max-w-none"
 							/>
 						</Section>
 						<Section title={t("options.audio")}>
@@ -510,6 +517,8 @@ export function Options({ view, actions, getPad }: OptionsProps): JSX.Element {
 									testId="options-brightness"
 									label={t("options.brightness")}
 									suffix="%"
+									// Stored as an offset (-50 to 50); shown like contrast, so neutral reads 100%.
+									shown={100 + view.brightness}
 								/>
 							</Row>
 							<Row label={t("options.contrast")}>
@@ -569,28 +578,32 @@ export function Options({ view, actions, getPad }: OptionsProps): JSX.Element {
 							/>
 						</Section>
 					</div>
-					<Section title={t("options.controls")}>
-						<div className="flex flex-col">{KEY_ACTIONS.map(keyRow)}</div>
-						<div className="mt-2 flex flex-col">{PAD_ACTIONS.map(padRow)}</div>
-						<p
-							role="status"
-							data-testid="options-key-problem"
-							className="min-h-5 font-body text-sm text-danger"
-						>
-							{problem ? <span aria-hidden="true">⚠ </span> : null}
-							{problem}
-						</p>
-						<button
-							type="button"
-							onClick={() => {
-								actions.resetKeys();
-								actions.resetPad();
-							}}
-							className={`min-h-11 px-4 text-base ${IRON_BUTTON}`}
-						>
-							{t("options.keysReset")}
-						</button>
-					</Section>
+					<div className="landscape:max-desktop:col-span-2">
+						<Section title={t("options.controls")}>
+							<div className="grid grid-cols-1 gap-x-6 gap-y-2 landscape:max-desktop:grid-cols-2">
+								<div className="flex flex-col">{KEY_ACTIONS.map(keyRow)}</div>
+								<div className="flex flex-col">{PAD_ACTIONS.map(padRow)}</div>
+							</div>
+							<p
+								role="status"
+								data-testid="options-key-problem"
+								className="min-h-5 font-body text-sm text-danger"
+							>
+								{problem ? <span aria-hidden="true">⚠ </span> : null}
+								{problem}
+							</p>
+							<button
+								type="button"
+								onClick={() => {
+									actions.resetKeys();
+									actions.resetPad();
+								}}
+								className={`min-h-11 px-4 text-base ${IRON_BUTTON}`}
+							>
+								{t("options.keysReset")}
+							</button>
+						</Section>
+					</div>
 				</div>
 				<div className="flex items-center justify-between gap-3">
 					{view.leave && actions.toMenu ? (

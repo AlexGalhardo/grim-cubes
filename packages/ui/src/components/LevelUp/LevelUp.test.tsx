@@ -19,7 +19,16 @@ const cards = [
 	card("damage", "Fury", {
 		lines: ["+4% damage"],
 		rarity: 3,
-		changes: [{ id: "statLine.damage", stat: "Damage", current: "12%", next: "16%" }],
+		changes: [
+			{
+				id: "statLine.damage",
+				stat: "Damage",
+				current: "12%",
+				next: "16%",
+				delta: "+4%",
+				better: true,
+			},
+		],
 	}),
 	card("luck", "Black Luck", { lines: ["+4 luck"] }),
 ];
@@ -153,6 +162,7 @@ test("a desktop screen lists the current stats on the left and previews the focu
 	expect(panel.textContent).not.toContain("→");
 	fireEvent.focus(screen.getByTestId("levelup-card-1"));
 	expect(panel.textContent).toContain("12% → 16%");
+	expect(screen.getByTestId("shop-delta-statLine.damage").textContent).toBe("(+4%)");
 	expect(screen.getAllByTestId("stat-preview")).toHaveLength(1);
 	fireEvent.blur(screen.getByTestId("levelup-card-1"));
 	expect(panel.textContent).not.toContain("→");

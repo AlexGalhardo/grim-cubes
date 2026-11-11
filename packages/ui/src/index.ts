@@ -54,7 +54,7 @@ export type {
 	ShopViewModel,
 } from "./components/Shop/Shop";
 export { Shop } from "./components/Shop/Shop";
-export type { StatLineView } from "./components/StatList/StatList";
+export type { StatLineView, StatPreview } from "./components/StatList/StatList";
 export { StatList } from "./components/StatList/StatList";
 export type { TipId } from "./components/Tip/Tip";
 export { VirtualJoystick } from "./components/VirtualJoystick/VirtualJoystick";

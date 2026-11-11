@@ -158,7 +158,12 @@ test("hovering an offer previews the stats it changes", () => {
 			view={{
 				...view,
 				slots: view.slots.map((slot, i) =>
-					i === 0 ? { ...slot, preview: { "statLine.armor": "3" } } : slot,
+					i === 0
+						? {
+								...slot,
+								preview: { "statLine.armor": { after: "3", delta: "+3", better: true } },
+							}
+						: slot,
 				),
 			}}
 			stats={[{ id: "statLine.armor", label: "Armadura", value: "0" }]}
@@ -167,6 +172,7 @@ test("hovering an offer previews the stats it changes", () => {
 	);
 	// The first offer has the focus on open, so its preview shows for keyboard and pad players too.
 	expect(screen.getByTestId("stat-preview").textContent).toContain("0 → 3");
+	expect(screen.getByTestId("shop-delta-statLine.armor").textContent).toBe("(+3)");
 	fireEvent.mouseEnter(screen.getByTestId("shop-slot-1"));
 	expect(screen.queryByTestId("stat-preview")).toBeNull();
 	fireEvent.mouseEnter(screen.getByTestId("shop-slot-0"));
@@ -197,4 +203,33 @@ test("a weapon offer shows its own icon, damage and attacks per second; an item 
 	expect(item.textContent).toContain("Dash: recarga −1 s");
 	expect(screen.getAllByTestId("icon")).toHaveLength(2);
 	expect(screen.getByTestId("shop-grid").textContent).not.toContain("⚔");
+});
+
+test("the delta is green when better and red when worse, and follows keyboard and pad focus", () => {
+	const slot = (i: number): ShopViewModel["slots"][number] => ({
+		...(view.slots[i] as ShopViewModel["slots"][number]),
+		preview: {
+			"statLine.armor": { after: "3", delta: "+3", better: true },
+			"statLine.speed": { after: "5", delta: "−1", better: false },
+		},
+	});
+	render(
+		<Shop
+			view={{ ...view, slots: [view.slots[0] as ShopViewModel["slots"][number], slot(2)] }}
+			stats={[
+				{ id: "statLine.armor", label: "Armadura", value: "0" },
+				{ id: "statLine.speed", label: "Velocidade", value: "6" },
+			]}
+			actions={actions()}
+		/>,
+	);
+	expect(screen.queryByTestId("shop-delta-statLine.armor")).toBeNull();
+	// Tab and the D-pad both move the DOM focus; the preview follows it.
+	fireEvent.focus(screen.getByTestId("shop-buy-1"));
+	expect(screen.getByTestId("shop-delta-statLine.armor").textContent).toBe("(+3)");
+	expect(screen.getByTestId("shop-delta-statLine.armor").className).toContain("text-heal");
+	expect(screen.getByTestId("shop-delta-statLine.speed").textContent).toBe("(−1)");
+	expect(screen.getByTestId("shop-delta-statLine.speed").className).toContain("text-danger");
+	fireEvent.blur(screen.getByTestId("shop-buy-1"));
+	expect(screen.queryByTestId("shop-delta-statLine.armor")).toBeNull();
 });

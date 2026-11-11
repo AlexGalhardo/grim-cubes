@@ -146,7 +146,15 @@ import {
 	type PropTypeDef,
 	pickAutoPreset,
 } from "@gc/render";
-import { App, type CardChange, type CardView, type HudState, type IconRef, type VolumeBus } from "@gc/ui";
+import {
+	App,
+	type CardChange,
+	type CardView,
+	type HudState,
+	type IconRef,
+	type StatPreview,
+	type VolumeBus,
+} from "@gc/ui";
 import { addComponent, query } from "bitecs";
 import { createRoot } from "react-dom/client";
 import { bootArtReview } from "./artReview";
@@ -1491,13 +1499,24 @@ async function boot(): Promise<void> {
 		return out;
 	}
 	const cardChanges = (mods: readonly Modifier[]): CardChange[] =>
-		statChanges(mods).map((c) => ({ id: c.id, stat: c.label, current: c.now, next: c.after }));
+		statChanges(mods).map((c) => ({
+			id: c.id,
+			stat: c.label,
+			current: c.now,
+			next: c.after,
+			delta: c.delta,
+			better: c.better,
+		}));
 	/** Shop stat preview (`statLine.*` id -> value after buying and its delta). */
-	function statPreview(itemId: string): Record<string, string> | undefined {
+	function statPreview(itemId: string): Record<string, StatPreview> | undefined {
 		const item = itemsData.find((entry) => entry.id === itemId);
 		if (!item) return undefined;
 		const changes = statChanges(item.modifiers);
-		return changes.length > 0 ? Object.fromEntries(changes.map((c) => [c.id, c.after])) : undefined;
+		return changes.length > 0
+			? Object.fromEntries(
+					changes.map((c) => [c.id, { after: c.after, delta: c.delta, better: c.better }]),
+				)
+			: undefined;
 	}
 	/** Damage and attacks per second of a weapon at `tier` (0-3), for the weapon panel and the weapon offers. */
 	function weaponLines(

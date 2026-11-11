@@ -7,12 +7,19 @@ export interface StatLineView {
 	id?: string | undefined;
 }
 
+/** What a focused offer or card does to one stat: the value after, the signed delta and whether it is an improvement (higher is better for every listed stat). */
+export interface StatPreview {
+	after: string;
+	delta: string;
+	better: boolean;
+}
+
 export interface StatListProps {
 	stats: readonly StatLineView[];
 	/** One column (the level-up panel) or two side by side from `mobile-l` up (the shop). */
 	columns?: 1 | 2;
-	/** Stat id -> value after the focused offer, shown as `now → after`. */
-	preview?: Readonly<Record<string, string>> | undefined;
+	/** Stat id -> change of the focused offer, shown as `now → after` and a green or red delta. */
+	preview?: Readonly<Record<string, StatPreview>> | undefined;
 }
 
 const isNegative = (value: string): boolean => value.startsWith("-") || value.startsWith("−");
@@ -38,7 +45,15 @@ export function StatList({ stats, columns = 2, preview }: StatListProps): JSX.El
 							>
 								<dt className="text-bone">{line.label}</dt>
 								<dd className={isNegative(line.value) ? "text-danger" : "text-heal"}>
-									{after ? `${line.value} → ${after}` : line.value}
+									{after ? `${line.value} → ${after.after}` : line.value}
+									{after ? (
+										<span
+											data-testid={`shop-delta-${line.id}`}
+											className={`ml-1 ${after.better ? "text-heal" : "text-danger"}`}
+										>
+											({after.delta})
+										</span>
+									) : null}
 								</dd>
 							</div>
 						);

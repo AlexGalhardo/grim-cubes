@@ -3,7 +3,7 @@ import { type JSX, type ReactNode, useEffect, useState } from "react";
 import { isDesktopWidth, useShortScreen } from "../../hooks/useViewport";
 import { useDialogNav } from "../../nav/useDialogNav";
 import { Icon, type IconRef } from "../Icon/Icon";
-import { type StatLineView, StatList } from "../StatList/StatList";
+import { type StatLineView, StatList, type StatPreview } from "../StatList/StatList";
 import { PLATE, TIER_BORDER, TIER_TEXT } from "../styles";
 
 export interface ShopSlotView {
@@ -18,8 +18,8 @@ export interface ShopSlotView {
 	affordable: boolean;
 	/** Icon from the atlas: the item, or the weapon of a weapon or upgrade offer. */
 	icon?: IconRef | undefined;
-	/** Stat line id -> value after buying this offer, shown as `now → after` while the offer is hovered or focused. */
-	preview?: Readonly<Record<string, string>> | undefined;
+	/** Stat line id -> change of buying this offer, shown while the offer is hovered or focused. */
+	preview?: Readonly<Record<string, StatPreview>> | undefined;
 }
 
 export interface ShopViewModel {
