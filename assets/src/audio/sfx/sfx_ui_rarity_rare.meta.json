@@ -1,0 +1,14 @@
+{
+	"prompt": "a small cold steel chime, one clean ring over a dry bone click, close, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 0.7,
+	"generatedAt": "2026-11-11T18:23:57.017Z",
+	"plan": "creator",
+	"hash": "1b61fdde69e82b632e64463ff0af8b81cc6a2ed221bb54d3890c859f7b9599ea",
+	"promptInfluence": 0.5,
+	"loudness": {
+		"target": -16,
+		"before": -19.4,
+		"after": -20.8
+	}
+}

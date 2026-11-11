@@ -1,0 +1,14 @@
+{
+	"prompt": "a rusted iron chain snapping and falling to stone, followed by one bright metallic ring, close, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 1.4,
+	"generatedAt": "2026-11-11T18:24:01.974Z",
+	"plan": "creator",
+	"hash": "e53094f36b3c4de59644f6b7ecb08121841c9969b6da75a9612652a27b5745f4",
+	"promptInfluence": 0.5,
+	"loudness": {
+		"target": -16,
+		"before": -17.5,
+		"after": -16.8
+	}
+}

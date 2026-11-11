@@ -1,0 +1,14 @@
+{
+	"prompt": "a heavy blade drawn halfway from a leather scabbard and slammed back, steel scrape and a solid thud, close, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 0.8,
+	"generatedAt": "2026-11-11T18:24:05.470Z",
+	"plan": "creator",
+	"hash": "d8e7afc80ffe223f413b7bed235d7a6028d33d3f3c7e533eb4bea0e5a91d77ac",
+	"promptInfluence": 0.5,
+	"loudness": {
+		"target": -16,
+		"before": -10.2,
+		"after": -16.9
+	}
+}

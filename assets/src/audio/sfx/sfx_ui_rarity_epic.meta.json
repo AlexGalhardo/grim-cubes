@@ -1,0 +1,14 @@
+{
+	"prompt": "a deep hollow resonant gong hit with a dark shimmer rising behind it, close, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 1,
+	"generatedAt": "2026-11-11T18:23:58.479Z",
+	"plan": "creator",
+	"hash": "123dfddd71d2872f395241ce0c89bda712a9b668b47800fd1f42cd1f39950022",
+	"promptInfluence": 0.5,
+	"loudness": {
+		"target": -16,
+		"before": -21.9,
+		"after": -19.5
+	}
+}

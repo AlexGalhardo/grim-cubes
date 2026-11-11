@@ -1,0 +1,14 @@
+{
+	"prompt": "a heavy forge hammer strike on an anvil with a burst of embers and a warm metallic ring, close, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 1.2,
+	"generatedAt": "2026-11-11T18:23:59.025Z",
+	"plan": "creator",
+	"hash": "1355c6c70574cd97ae68014c2d10a11d9b535307de84b4090f935f56c7acba7c",
+	"promptInfluence": 0.5,
+	"loudness": {
+		"target": -16,
+		"before": -11.9,
+		"after": -16.3
+	}
+}

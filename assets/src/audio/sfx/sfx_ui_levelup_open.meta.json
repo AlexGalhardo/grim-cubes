@@ -1,0 +1,14 @@
+{
+	"prompt": "a cracked iron bell struck once with a rising rattle of loose bones, heavy tone, short and proud, close, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 1.2,
+	"generatedAt": "2026-11-11T18:23:56.660Z",
+	"plan": "creator",
+	"hash": "42fabe3b91f95bcec186e658f64dc040dfa02454ab9096cb5dd17cab6c5fa8a6",
+	"promptInfluence": 0.5,
+	"loudness": {
+		"target": -16,
+		"before": -11.9,
+		"after": -16.3
+	}
+}

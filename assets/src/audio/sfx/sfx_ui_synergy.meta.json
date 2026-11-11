@@ -1,0 +1,14 @@
+{
+	"prompt": "three bone charms clicking together in quick succession then a short warm metal hum, close, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 0.9,
+	"generatedAt": "2026-11-11T18:24:04.378Z",
+	"plan": "creator",
+	"hash": "a5e3c4259d4ee2a1194e3d245745fb5e8757ffba1f65549e0b6aa9d038381de0",
+	"promptInfluence": 0.5,
+	"loudness": {
+		"target": -16,
+		"before": -22.3,
+		"after": -20.8
+	}
+}

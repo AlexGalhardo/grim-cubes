@@ -1,0 +1,14 @@
+{
+	"prompt": "a single dry knuckle bone knocked on wood, very short hollow tick, close, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 0.5,
+	"generatedAt": "2026-11-11T18:24:02.614Z",
+	"plan": "creator",
+	"hash": "33ca990728947c62ca9ded0b40f7dc40bdb8f0ef349a3ee944283b23823fd657",
+	"promptInfluence": 0.5,
+	"loudness": {
+		"target": -16,
+		"before": -27,
+		"after": -19.3
+	}
+}

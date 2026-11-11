@@ -1,6 +1,6 @@
 # Créditos ElevenLabs
 
-Total usado no catálogo versionado: **37.506 créditos**.
+Total usado no catálogo versionado: **39.706 créditos**.
 
 A conta é a soma do que a leitura de saldo mediu com o que o script estimou quando o contador da conta não se moveu (SFX e, na hora da leitura, o TTS). Fonte das rodadas anteriores: `docs/audio.md` §§5, 8, 10 e 11. A rodada de 2026-11-01 é a estimativa impressa por `bun run audio:generate` (12 × 200).
 
@@ -15,7 +15,10 @@ A conta é a soma do que a leitura de saldo mediu com o que o script estimou qua
 | Oito SFX e cinco falas de fúria, mais duas regerações | 2.140 | estimativa do script (1.740 + 400) |
 | `mus_boss_gravedigger` | 2.250 | estimativa do script |
 | Doze SFX que fecham os 82 (2026-11-01) | 2.400 | estimativa do script |
+| Onze SFX de UI da S-10 (2026-11-11) | 2.200 | estimativa do script; o saldo da conta ficou em 42.910 antes e depois |
 
-13.188 + 14.847 + 335 + 746 + 200 + 1.400 + 2.140 + 2.250 + 2.400 = 37.506.
+13.188 + 14.847 + 335 + 746 + 200 + 1.400 + 2.140 + 2.250 + 2.400 + 2.200 = 39.706.
+
+Teto aprovado pelo PO para a rodada de 2026-11-11: 5.000 créditos. Usados: 2.200.
 
 Plano de todos os `.meta.json` do jogo: `creator`. Nenhum arquivo do catálogo foi gerado no plano `free`.

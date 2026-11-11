@@ -1,0 +1,14 @@
+{
+	"prompt": "a huge cathedral bell toll with a low choir-like metal resonance and a crackle of fire, heavy, close, no melody, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 1.6,
+	"generatedAt": "2026-11-11T18:24:00.385Z",
+	"plan": "creator",
+	"hash": "9ca263dc24330766fc09e49f6843668fbbf2b206f08ec387493f27e7622f9586",
+	"promptInfluence": 0.5,
+	"loudness": {
+		"target": -16,
+		"before": -17.1,
+		"after": -16.4
+	}
+}

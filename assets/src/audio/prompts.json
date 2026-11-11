@@ -1071,5 +1071,93 @@
 		"durationSeconds": 1.2,
 		"promptInfluence": 0.5,
 		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_ui_levelup_open",
+		"kind": "sfx",
+		"prompt": "a cracked iron bell struck once with a rising rattle of loose bones, heavy tone, short and proud, close, no music, game sound effect",
+		"durationSeconds": 1.2,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_ui_rarity_rare",
+		"kind": "sfx",
+		"prompt": "a small cold steel chime, one clean ring over a dry bone click, close, no music, game sound effect",
+		"durationSeconds": 0.7,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_ui_rarity_epic",
+		"kind": "sfx",
+		"prompt": "a deep hollow resonant gong hit with a dark shimmer rising behind it, close, no music, game sound effect",
+		"durationSeconds": 1.0,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_ui_rarity_legendary",
+		"kind": "sfx",
+		"prompt": "a heavy forge hammer strike on an anvil with a burst of embers and a warm metallic ring, close, no music, game sound effect",
+		"durationSeconds": 1.2,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_ui_rarity_mythic",
+		"kind": "sfx",
+		"prompt": "a huge cathedral bell toll with a low choir-like metal resonance and a crackle of fire, heavy, close, no melody, no music, game sound effect",
+		"durationSeconds": 1.6,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_ui_transition",
+		"kind": "sfx",
+		"prompt": "a heavy stone slab sliding shut over a tomb, short gritty scrape ending in a dull thud, close, no music, game sound effect",
+		"durationSeconds": 0.7,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_ui_unlock",
+		"kind": "sfx",
+		"prompt": "a rusted iron chain snapping and falling to stone, followed by one bright metallic ring, close, no music, game sound effect",
+		"durationSeconds": 1.4,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_ui_timer_tick",
+		"kind": "sfx",
+		"prompt": "a single dry knuckle bone knocked on wood, very short hollow tick, close, no music, game sound effect",
+		"durationSeconds": 0.5,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_ui_results",
+		"kind": "sfx",
+		"prompt": "a slow funeral drum hit with a low cracked bell and dust settling, heavy and final, medium distance, no melody, no music, game sound effect",
+		"durationSeconds": 2.0,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_ui_synergy",
+		"kind": "sfx",
+		"prompt": "three bone charms clicking together in quick succession then a short warm metal hum, close, no music, game sound effect",
+		"durationSeconds": 0.9,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
+	},
+	{
+		"file": "sfx_ui_hero_select",
+		"kind": "sfx",
+		"prompt": "a heavy blade drawn halfway from a leather scabbard and slammed back, steel scrape and a solid thud, close, no music, game sound effect",
+		"durationSeconds": 0.8,
+		"promptInfluence": 0.5,
+		"model": "eleven_text_to_sound_v2"
 	}
 ]

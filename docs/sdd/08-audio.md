@@ -42,7 +42,7 @@ Ids ainda sem arquivo (silêncio com aviso, ver prompts.json): `sfx_player_dodge
 
 ## 4. Lista de assets
 
-GDD §22.1–§22.3. Total estimado da 1.0: 82 SFX, 10 faixas de música (menu + 4 biomas + 5 chefes), ~40 falas. Custo estimado em créditos: SFX 82 × 200 ≈ 16.400; música 10 × ~2,5 min × 900 ≈ 22.500; voz ~40 × ~150 ≈ 6.000. Total ≈ 45.000 créditos → 1 mês de Creator (121.000) cobre com folga, incluindo regenerações.
+GDD §22.1–§22.3. Total estimado da 1.0: 93 SFX (82 da lista do GDD mais 11 de UI da S-10), 10 faixas de música (menu + 4 biomas + 5 chefes), ~40 falas. Custo estimado em créditos: SFX 82 × 200 ≈ 16.400; música 10 × ~2,5 min × 900 ≈ 22.500; voz ~40 × ~150 ≈ 6.000. Total ≈ 45.000 créditos → 1 mês de Creator (121.000) cobre com folga, incluindo regenerações.
 
 ## 5. Testes
 

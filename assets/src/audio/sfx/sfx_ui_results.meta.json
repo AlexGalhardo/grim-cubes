@@ -1,0 +1,14 @@
+{
+	"prompt": "a slow funeral drum hit with a low cracked bell and dust settling, heavy and final, medium distance, no melody, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 2,
+	"generatedAt": "2026-11-11T18:24:03.551Z",
+	"plan": "creator",
+	"hash": "f8164a8eba800b6495ecda3aa128f8fed6bfe78f115a5dd41c668726a5f3786a",
+	"promptInfluence": 0.5,
+	"loudness": {
+		"target": -16,
+		"before": -23.6,
+		"after": -17.7
+	}
+}

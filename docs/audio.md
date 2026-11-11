@@ -254,3 +254,20 @@ Gerados no plano `creator` (estimativa do script: 2.400 créditos, 12 × 200; o 
 | `sfx_boss_gravedigger_slam`, `sfx_boss_swamp_spit`, `sfx_boss_forgemaster_hammer` | um ataque próprio dos chefes que só tinham a entrada, ou só a investida |
 
 O total de créditos fica em `docs/audio/credits.md`. `bun run audio:generate --dry-run` lista 0 pendentes (132 em dia).
+
+## 13. Onze efeitos de UI (2026-11-11, ROADMAP S-10)
+
+Geração única com `ELEVENLABS_PLAN=creator bun run audio:generate --max-credits 5000`, plano Creator, 2.200 créditos pela estimativa do script. O catálogo passa a 93 SFX, 10 músicas e 40 falas.
+
+| Arquivo | Uso |
+| --- | --- |
+| `sfx_ui_levelup_open` | abre a tela de novo nível |
+| `sfx_ui_rarity_rare`, `sfx_ui_rarity_epic`, `sfx_ui_rarity_legendary`, `sfx_ui_rarity_mythic` | revelação de carta ou oferta por raridade |
+| `sfx_ui_transition` | troca de tela (menu, slots, dificuldade, Ossuário) |
+| `sfx_ui_unlock` | desbloqueio de herói, dificuldade ou marco |
+| `sfx_ui_timer_tick` | cada um dos últimos 5 segundos do round |
+| `sfx_ui_results` | abre a tela de resultados |
+| `sfx_ui_synergy` | sinergia ativada (S-14) |
+| `sfx_ui_hero_select` | escolha de herói (S-12) |
+
+Loudness: passada `normalize.ts --apply` em todos. `sfx_ui_rarity_rare` (-20,8 LUFS) e `sfx_ui_timer_tick` (-19,4 LUFS) ficam abaixo do alvo de -16 porque são transientes curtos já no teto de pico (-1,6 dBTP); o `sfx_ui_timer_tick` veio quase mudo da geração (-50 LUFS) e precisou de três passadas.

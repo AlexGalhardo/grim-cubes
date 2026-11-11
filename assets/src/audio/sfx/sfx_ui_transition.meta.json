@@ -1,0 +1,14 @@
+{
+	"prompt": "a heavy stone slab sliding shut over a tomb, short gritty scrape ending in a dull thud, close, no music, game sound effect",
+	"model": "eleven_text_to_sound_v2",
+	"durationSeconds": 0.7,
+	"generatedAt": "2026-11-11T18:24:00.625Z",
+	"plan": "creator",
+	"hash": "0bb5d5de11471207b55e0a7df1c26fcb1deac81ea7a7692c1144acd42e306954",
+	"promptInfluence": 0.5,
+	"loudness": {
+		"target": -16,
+		"before": -10.9,
+		"after": -16.4
+	}
+}
