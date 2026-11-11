@@ -15,7 +15,8 @@ export function registerExternalIpc(): void {
 	ipcMain.handle("app:openExternal", (event, url: unknown) => {
 		if (!isTrustedSender(event.senderFrame?.url)) throw new Error("untrusted sender");
 		if (!isSteamStoreUrl(url)) throw new Error("url not allowed");
-		return shell.openExternal(url);
+		// The normalised href, so the shell gets exactly what was validated (no stray whitespace or escapes).
+		return shell.openExternal(new URL(url).href);
 	});
 }
 
