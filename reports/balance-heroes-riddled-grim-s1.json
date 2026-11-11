@@ -1,0 +1,1477 @@
+{
+	"options": {
+		"seed": 1,
+		"runs": 64,
+		"rounds": 35,
+		"difficulty": "grim",
+		"policy": "greedy",
+		"hero": "riddled"
+	},
+	"metrics": {
+		"runs": 64,
+		"deathRound": {
+			"p50": 12.5,
+			"p25": 8,
+			"p75": 15.25,
+			"iqr": 7.25,
+			"mean": 13.515625,
+			"stdev": 6.756922809931678
+		},
+		"survivors": 3,
+		"bosses": {
+			"gravedigger": {
+				"fought": 39,
+				"killed": 39,
+				"medianKillSeconds": 61.483333333333334,
+				"medianEnrageStacks": 1
+			},
+			"swamp_matriarch": {
+				"fought": 7,
+				"killed": 7,
+				"medianKillSeconds": 71.11666666666666,
+				"medianEnrageStacks": 1
+			},
+			"forgemaster": {
+				"fought": 4,
+				"killed": 4,
+				"medianKillSeconds": 88.41666666666666,
+				"medianEnrageStacks": 1
+			}
+		},
+		"goldPerPrice": 1.6710761350916596,
+		"levelUpsPerRound": 1.3905930470347647
+	},
+	"checks": [
+		{
+			"id": "death-round-p50",
+			"target": "14-22",
+			"value": 12.5,
+			"ok": false,
+			"skipped": false
+		},
+		{
+			"id": "death-round-iqr",
+			"target": "<= 25",
+			"value": 7.25,
+			"ok": true,
+			"skipped": false
+		},
+		{
+			"id": "alive-fraction-at-horizon",
+			"target": "<= 0.45",
+			"value": 0.046875,
+			"ok": true,
+			"skipped": false
+		},
+		{
+			"id": "boss-kill-seconds:gravedigger",
+			"target": "45-90",
+			"value": 61.483333333333334,
+			"ok": true,
+			"skipped": false
+		},
+		{
+			"id": "boss-enrage-stacks:gravedigger",
+			"target": "< 3",
+			"value": 1,
+			"ok": true,
+			"skipped": false
+		},
+		{
+			"id": "boss-kill-seconds:swamp_matriarch",
+			"target": "60-120",
+			"value": 71.11666666666666,
+			"ok": true,
+			"skipped": false
+		},
+		{
+			"id": "boss-enrage-stacks:swamp_matriarch",
+			"target": "< 3",
+			"value": 1,
+			"ok": true,
+			"skipped": false
+		},
+		{
+			"id": "boss-kill-seconds:forgemaster",
+			"target": "60-120",
+			"value": 88.41666666666666,
+			"ok": true,
+			"skipped": false
+		},
+		{
+			"id": "boss-enrage-stacks:forgemaster",
+			"target": "< 3",
+			"value": 1,
+			"ok": true,
+			"skipped": false
+		},
+		{
+			"id": "gold-per-item-price",
+			"target": "1.2-1.8",
+			"value": 1.6710761350916596,
+			"ok": true,
+			"skipped": false
+		},
+		{
+			"id": "level-ups-per-round-5-20",
+			"target": "1-2",
+			"value": 1.3905930470347647,
+			"ok": true,
+			"skipped": false
+		}
+	],
+	"runs": [
+		{
+			"seed": 1,
+			"outcome": "died",
+			"roundReached": 12,
+			"kills": 903,
+			"worldHash": 3250271498,
+			"itemsOwned": {
+				"cracked_skull": 2,
+				"grave_dirt": 2,
+				"crown_of_nails": 1,
+				"ember_vial": 1,
+				"iron_tooth": 1,
+				"swamp_lantern": 1,
+				"reaper_hourglass": 1,
+				"chain_mail": 1,
+				"vampire_fang": 1,
+				"bone_saw": 1,
+				"leech_tongue": 1
+			}
+		},
+		{
+			"seed": 2,
+			"outcome": "died",
+			"roundReached": 12,
+			"kills": 859,
+			"worldHash": 84775473,
+			"itemsOwned": {
+				"whetstone": 1,
+				"iron_tooth": 1,
+				"tattered_boots": 2,
+				"phylactery": 1,
+				"rusted_plate": 3,
+				"black_bandage": 1,
+				"ember_vial": 1
+			}
+		},
+		{
+			"seed": 3,
+			"outcome": "died",
+			"roundReached": 8,
+			"kills": 407,
+			"worldHash": 212213880,
+			"itemsOwned": {
+				"grave_dirt": 2,
+				"rusted_plate": 1,
+				"whetstone": 1,
+				"scavenger_hook": 1,
+				"cracked_skull": 1,
+				"bone_charm": 1
+			}
+		},
+		{
+			"seed": 4,
+			"outcome": "died",
+			"roundReached": 8,
+			"kills": 456,
+			"worldHash": 1517907367,
+			"itemsOwned": {
+				"ember_vial": 1,
+				"gilded_skull": 1,
+				"rusted_plate": 1,
+				"cracked_skull": 1,
+				"scavenger_hook": 1,
+				"iron_tooth": 1,
+				"tattered_boots": 1
+			}
+		},
+		{
+			"seed": 5,
+			"outcome": "died",
+			"roundReached": 13,
+			"kills": 1011,
+			"worldHash": 1713666129,
+			"itemsOwned": {
+				"whetstone": 2,
+				"cracked_skull": 1,
+				"ossuary_bolt": 1,
+				"iron_tooth": 1,
+				"tattered_boots": 1,
+				"black_bandage": 2,
+				"leech_tongue": 1,
+				"rat_king": 1,
+				"grave_dirt": 2,
+				"scavenger_hook": 1,
+				"hunter_eye": 1,
+				"soul_jar": 1
+			}
+		},
+		{
+			"seed": 6,
+			"outcome": "died",
+			"roundReached": 13,
+			"kills": 1107,
+			"worldHash": 3229612660,
+			"itemsOwned": {
+				"rusted_plate": 2,
+				"grave_dirt": 1,
+				"ash_nova": 1,
+				"hunter_eye": 1,
+				"cracked_skull": 2,
+				"black_bandage": 1,
+				"reaper_hourglass": 1
+			}
+		},
+		{
+			"seed": 7,
+			"outcome": "died",
+			"roundReached": 18,
+			"kills": 2088,
+			"worldHash": 655999720,
+			"itemsOwned": {
+				"ember_vial": 1,
+				"gilded_skull": 4,
+				"black_bandage": 4,
+				"grave_dirt": 1,
+				"ossuary_bolt": 1,
+				"rat_king": 2,
+				"iron_tooth": 1,
+				"swamp_lantern": 1,
+				"whetstone": 1,
+				"rusted_plate": 2,
+				"heavy_gauntlet": 1,
+				"bone_charm": 1,
+				"bone_lodestone": 1,
+				"grim_pact": 1,
+				"heart_of_the_pit": 1,
+				"war_drum": 2,
+				"hellfire_round": 1,
+				"hunter_eye": 2,
+				"chain_mail": 1,
+				"shadow_cloak": 2,
+				"tithe_box": 1,
+				"crown_of_nails": 1,
+				"bone_saw": 2,
+				"vampire_fang": 1
+			}
+		},
+		{
+			"seed": 8,
+			"outcome": "died",
+			"roundReached": 12,
+			"kills": 807,
+			"worldHash": 863705610,
+			"itemsOwned": {
+				"cracked_skull": 2,
+				"ember_vial": 4,
+				"iron_tooth": 2,
+				"whetstone": 1,
+				"phylactery": 1,
+				"scavenger_hook": 1,
+				"bone_orbit": 1,
+				"rusted_plate": 1,
+				"bone_charm": 2,
+				"war_drum": 1,
+				"heart_of_the_pit": 1,
+				"shadow_cloak": 1,
+				"black_bandage": 1
+			}
+		},
+		{
+			"seed": 9,
+			"outcome": "died",
+			"roundReached": 21,
+			"kills": 2598,
+			"worldHash": 1068907611,
+			"itemsOwned": {
+				"cracked_skull": 2,
+				"rusted_plate": 2,
+				"whetstone": 1,
+				"grave_dirt": 4,
+				"doom_sigil": 1,
+				"swamp_lantern": 2,
+				"scavenger_hook": 3,
+				"reaper_hourglass": 1,
+				"ember_vial": 2,
+				"grave_mine": 1,
+				"bone_orbit": 1,
+				"hunter_eye": 2,
+				"grim_pact": 1,
+				"brimstone_heart": 1,
+				"chain_mail": 2,
+				"crown_of_nails": 1,
+				"bone_charm": 1,
+				"gilded_skull": 1,
+				"ash_nova": 1,
+				"ossuary_bolt": 3,
+				"shadow_cloak": 1,
+				"tithe_box": 1,
+				"leech_tongue": 2,
+				"black_bandage": 1,
+				"spiked_boots": 1,
+				"soul_jar": 1
+			}
+		},
+		{
+			"seed": 10,
+			"outcome": "died",
+			"roundReached": 13,
+			"kills": 1099,
+			"worldHash": 930890768,
+			"itemsOwned": {
+				"scavenger_hook": 1,
+				"grave_dirt": 2,
+				"ember_vial": 1,
+				"crown_of_nails": 1,
+				"rusted_plate": 2,
+				"black_bandage": 2,
+				"iron_tooth": 2,
+				"chain_mail": 1,
+				"hunter_eye": 1,
+				"swamp_lantern": 1,
+				"rat_king": 1,
+				"tithe_box": 1
+			}
+		},
+		{
+			"seed": 11,
+			"outcome": "died",
+			"roundReached": 15,
+			"kills": 1461,
+			"worldHash": 2855751902,
+			"itemsOwned": {
+				"rusted_plate": 1,
+				"cracked_skull": 3,
+				"heart_of_the_pit": 1,
+				"doom_sigil": 1,
+				"grave_mine": 1,
+				"war_drum": 3,
+				"scavenger_hook": 1,
+				"whetstone": 1,
+				"swamp_lantern": 1,
+				"leech_tongue": 1,
+				"bone_charm": 1,
+				"crown_of_nails": 1,
+				"rat_king": 1,
+				"ossuary_bolt": 1
+			}
+		},
+		{
+			"seed": 12,
+			"outcome": "died",
+			"roundReached": 7,
+			"kills": 311,
+			"worldHash": 836616488,
+			"itemsOwned": {
+				"grave_dirt": 2,
+				"rusted_plate": 1
+			}
+		},
+		{
+			"seed": 13,
+			"outcome": "died",
+			"roundReached": 9,
+			"kills": 562,
+			"worldHash": 3181172633,
+			"itemsOwned": {
+				"rusted_plate": 1,
+				"gilded_skull": 1,
+				"whetstone": 2,
+				"ember_vial": 2,
+				"grave_dirt": 1,
+				"crown_of_nails": 1,
+				"rat_king": 1
+			}
+		},
+		{
+			"seed": 14,
+			"outcome": "died",
+			"roundReached": 8,
+			"kills": 410,
+			"worldHash": 1003564537,
+			"itemsOwned": {
+				"grave_dirt": 1,
+				"cracked_skull": 2,
+				"iron_tooth": 1,
+				"whetstone": 2
+			}
+		},
+		{
+			"seed": 15,
+			"outcome": "died",
+			"roundReached": 8,
+			"kills": 412,
+			"worldHash": 3339729416,
+			"itemsOwned": {
+				"ember_vial": 2,
+				"rusted_plate": 1,
+				"scavenger_hook": 1,
+				"black_bandage": 1,
+				"cracked_skull": 2,
+				"whetstone": 1,
+				"swamp_lantern": 1,
+				"iron_tooth": 1
+			}
+		},
+		{
+			"seed": 16,
+			"outcome": "died",
+			"roundReached": 9,
+			"kills": 524,
+			"worldHash": 3579042303,
+			"itemsOwned": {
+				"ember_vial": 2,
+				"rusted_plate": 2,
+				"whetstone": 1,
+				"gilded_skull": 1,
+				"scavenger_hook": 1,
+				"cracked_skull": 1
+			}
+		},
+		{
+			"seed": 17,
+			"outcome": "died",
+			"roundReached": 13,
+			"kills": 1041,
+			"worldHash": 3711289277,
+			"itemsOwned": {
+				"grave_dirt": 2,
+				"rusted_plate": 3,
+				"scavenger_hook": 1,
+				"ember_vial": 2,
+				"reaper_hourglass": 1,
+				"whetstone": 2,
+				"swamp_lantern": 1,
+				"chain_mail": 1,
+				"black_bandage": 1,
+				"spiked_boots": 1,
+				"ossuary_bolt": 2,
+				"iron_tooth": 1,
+				"tithe_box": 1
+			}
+		},
+		{
+			"seed": 18,
+			"outcome": "died",
+			"roundReached": 12,
+			"kills": 916,
+			"worldHash": 3023639413,
+			"itemsOwned": {
+				"whetstone": 2,
+				"ember_vial": 2,
+				"iron_tooth": 3,
+				"heart_of_the_pit": 1,
+				"hunter_eye": 1,
+				"rusted_plate": 1,
+				"rat_king": 1
+			}
+		},
+		{
+			"seed": 19,
+			"outcome": "died",
+			"roundReached": 15,
+			"kills": 1394,
+			"worldHash": 1332089075,
+			"itemsOwned": {
+				"whetstone": 1,
+				"grave_dirt": 2,
+				"cracked_skull": 2,
+				"ember_vial": 2,
+				"tattered_boots": 2,
+				"heart_of_the_pit": 1,
+				"chain_mail": 2,
+				"black_bandage": 1,
+				"leech_tongue": 1,
+				"iron_lung": 1,
+				"grim_pact": 1,
+				"war_drum": 1
+			}
+		},
+		{
+			"seed": 20,
+			"outcome": "completed",
+			"roundReached": 35,
+			"kills": 6610,
+			"worldHash": 549767450,
+			"itemsOwned": {
+				"scavenger_hook": 2,
+				"rusted_plate": 3,
+				"tattered_boots": 2,
+				"cracked_skull": 2,
+				"ember_vial": 2,
+				"doom_sigil": 2,
+				"whetstone": 1,
+				"swamp_lantern": 4,
+				"chain_mail": 6,
+				"grave_dirt": 1,
+				"bone_charm": 3,
+				"vampire_fang": 5,
+				"ash_nova": 1,
+				"ossuary_bolt": 2,
+				"bone_lodestone": 2,
+				"tithe_box": 1,
+				"iron_tooth": 2,
+				"spiked_boots": 4,
+				"bone_saw": 2,
+				"war_drum": 2,
+				"heavy_gauntlet": 3,
+				"leech_tongue": 1,
+				"heart_of_the_pit": 2,
+				"black_bandage": 3,
+				"crown_of_nails": 2,
+				"soul_chain": 1,
+				"rat_king": 4,
+				"blood_altar": 1,
+				"reaper_hourglass": 1,
+				"soul_jar": 1,
+				"shadow_cloak": 1,
+				"iron_lung": 1,
+				"brimstone_heart": 1
+			}
+		},
+		{
+			"seed": 21,
+			"outcome": "died",
+			"roundReached": 14,
+			"kills": 1284,
+			"worldHash": 2945708655,
+			"itemsOwned": {
+				"rusted_plate": 2,
+				"ember_vial": 1,
+				"whetstone": 2,
+				"bone_orbit": 1,
+				"grave_dirt": 1,
+				"chain_mail": 1,
+				"heavy_gauntlet": 1,
+				"soul_jar": 1,
+				"scavenger_hook": 1
+			}
+		},
+		{
+			"seed": 22,
+			"outcome": "died",
+			"roundReached": 7,
+			"kills": 295,
+			"worldHash": 2057267812,
+			"itemsOwned": {
+				"rusted_plate": 2,
+				"grave_dirt": 1,
+				"war_drum": 1
+			}
+		},
+		{
+			"seed": 23,
+			"outcome": "died",
+			"roundReached": 22,
+			"kills": 3037,
+			"worldHash": 2394311564,
+			"itemsOwned": {
+				"rusted_plate": 4,
+				"grave_dirt": 3,
+				"heart_of_the_pit": 1,
+				"ember_vial": 2,
+				"gilded_skull": 2,
+				"iron_tooth": 1,
+				"scavenger_hook": 2,
+				"phylactery": 1,
+				"chain_mail": 2,
+				"ossuary_bolt": 1,
+				"tithe_box": 1,
+				"war_drum": 2,
+				"heavy_gauntlet": 1,
+				"vampire_fang": 1,
+				"hunter_eye": 1,
+				"cracked_skull": 1,
+				"hellfire_round": 1,
+				"iron_lung": 1,
+				"bone_orbit": 1,
+				"swamp_lantern": 1,
+				"soul_chain": 1
+			}
+		},
+		{
+			"seed": 24,
+			"outcome": "died",
+			"roundReached": 8,
+			"kills": 447,
+			"worldHash": 2981995942,
+			"itemsOwned": {
+				"ash_nova": 2,
+				"rusted_plate": 1,
+				"iron_tooth": 1,
+				"tattered_boots": 1,
+				"scavenger_hook": 2,
+				"whetstone": 1,
+				"hunter_eye": 1
+			}
+		},
+		{
+			"seed": 25,
+			"outcome": "died",
+			"roundReached": 14,
+			"kills": 1256,
+			"worldHash": 358005577,
+			"itemsOwned": {
+				"grave_dirt": 3,
+				"whetstone": 4,
+				"scavenger_hook": 3,
+				"cracked_skull": 3,
+				"crown_of_nails": 2,
+				"leech_tongue": 1,
+				"war_drum": 2,
+				"ember_vial": 1,
+				"heavy_gauntlet": 1,
+				"bone_charm": 1,
+				"iron_lung": 1,
+				"spiked_boots": 1,
+				"chain_mail": 1,
+				"rat_king": 1,
+				"phylactery": 1,
+				"iron_tooth": 1
+			}
+		},
+		{
+			"seed": 26,
+			"outcome": "died",
+			"roundReached": 8,
+			"kills": 413,
+			"worldHash": 790390380,
+			"itemsOwned": {
+				"rusted_plate": 1,
+				"grave_dirt": 2,
+				"whetstone": 1,
+				"hunter_eye": 1
+			}
+		},
+		{
+			"seed": 27,
+			"outcome": "died",
+			"roundReached": 19,
+			"kills": 2263,
+			"worldHash": 3506485857,
+			"itemsOwned": {
+				"rusted_plate": 3,
+				"rat_king": 3,
+				"scavenger_hook": 2,
+				"phylactery": 1,
+				"grave_dirt": 2,
+				"whetstone": 1,
+				"spiked_boots": 1,
+				"blood_altar": 1,
+				"black_bandage": 1,
+				"war_drum": 2,
+				"swamp_lantern": 4,
+				"ash_nova": 2,
+				"hunter_eye": 1,
+				"chain_mail": 2,
+				"bone_saw": 1,
+				"tithe_box": 1
+			}
+		},
+		{
+			"seed": 28,
+			"outcome": "died",
+			"roundReached": 9,
+			"kills": 537,
+			"worldHash": 2024990503,
+			"itemsOwned": {
+				"grave_dirt": 4,
+				"rusted_plate": 2,
+				"gilded_skull": 1,
+				"tithe_box": 1
+			}
+		},
+		{
+			"seed": 29,
+			"outcome": "died",
+			"roundReached": 8,
+			"kills": 425,
+			"worldHash": 3106344557,
+			"itemsOwned": {
+				"whetstone": 2,
+				"rusted_plate": 2,
+				"cracked_skull": 1,
+				"ember_vial": 1,
+				"heart_of_the_pit": 1,
+				"rat_king": 1,
+				"bone_charm": 1,
+				"tattered_boots": 1
+			}
+		},
+		{
+			"seed": 30,
+			"outcome": "died",
+			"roundReached": 19,
+			"kills": 2262,
+			"worldHash": 173709570,
+			"itemsOwned": {
+				"rusted_plate": 3,
+				"soul_chain": 1,
+				"black_bandage": 2,
+				"whetstone": 1,
+				"ember_vial": 1,
+				"scavenger_hook": 1,
+				"tattered_boots": 1,
+				"grave_dirt": 2,
+				"cracked_skull": 2,
+				"heart_of_the_pit": 1,
+				"heavy_gauntlet": 1,
+				"shadow_cloak": 2,
+				"hellfire_round": 1,
+				"rat_king": 3,
+				"iron_lung": 1,
+				"ash_nova": 1,
+				"leech_tongue": 1,
+				"bone_lodestone": 1,
+				"hunter_eye": 1
+			}
+		},
+		{
+			"seed": 31,
+			"outcome": "died",
+			"roundReached": 9,
+			"kills": 509,
+			"worldHash": 1292269369,
+			"itemsOwned": {
+				"rusted_plate": 2,
+				"grave_dirt": 1,
+				"tattered_boots": 1,
+				"blood_altar": 1,
+				"cracked_skull": 1
+			}
+		},
+		{
+			"seed": 32,
+			"outcome": "died",
+			"roundReached": 16,
+			"kills": 1590,
+			"worldHash": 3177872540,
+			"itemsOwned": {
+				"gilded_skull": 1,
+				"ember_vial": 1,
+				"ossuary_bolt": 1,
+				"heavy_gauntlet": 2,
+				"grave_dirt": 1,
+				"cracked_skull": 3,
+				"iron_tooth": 2,
+				"swamp_lantern": 1,
+				"soul_jar": 1,
+				"bone_saw": 1,
+				"brimstone_heart": 1,
+				"rat_king": 1,
+				"vampire_fang": 1,
+				"heart_of_the_pit": 1,
+				"shadow_cloak": 1,
+				"crown_of_nails": 1,
+				"war_drum": 1,
+				"hunter_eye": 1,
+				"iron_lung": 1,
+				"tattered_boots": 1
+			}
+		},
+		{
+			"seed": 33,
+			"outcome": "died",
+			"roundReached": 12,
+			"kills": 932,
+			"worldHash": 1728407357,
+			"itemsOwned": {
+				"ember_vial": 1,
+				"rat_king": 3,
+				"cracked_skull": 1,
+				"heart_of_the_pit": 2,
+				"chain_mail": 1,
+				"soul_jar": 1,
+				"rusted_plate": 1,
+				"swamp_lantern": 1,
+				"gilded_skull": 1
+			}
+		},
+		{
+			"seed": 34,
+			"outcome": "died",
+			"roundReached": 16,
+			"kills": 1661,
+			"worldHash": 3974462722,
+			"itemsOwned": {
+				"rusted_plate": 4,
+				"ash_nova": 1,
+				"grave_dirt": 2,
+				"cracked_skull": 3,
+				"black_bandage": 3,
+				"tattered_boots": 1,
+				"scavenger_hook": 1,
+				"rat_king": 3,
+				"gilded_skull": 1,
+				"ember_vial": 1,
+				"bone_charm": 1,
+				"chain_mail": 1,
+				"tithe_box": 1,
+				"soul_jar": 1,
+				"vampire_fang": 1,
+				"bone_saw": 1,
+				"brimstone_heart": 1,
+				"leech_tongue": 1,
+				"iron_tooth": 1,
+				"grim_pact": 1
+			}
+		},
+		{
+			"seed": 35,
+			"outcome": "died",
+			"roundReached": 14,
+			"kills": 1200,
+			"worldHash": 3062524415,
+			"itemsOwned": {
+				"scavenger_hook": 1,
+				"rusted_plate": 4,
+				"iron_tooth": 3,
+				"heart_of_the_pit": 1,
+				"grave_dirt": 2,
+				"tattered_boots": 1,
+				"crown_of_nails": 1,
+				"cracked_skull": 1,
+				"rat_king": 1,
+				"leech_tongue": 1,
+				"hunter_eye": 1,
+				"heavy_gauntlet": 1,
+				"ember_vial": 1,
+				"bone_charm": 1
+			}
+		},
+		{
+			"seed": 36,
+			"outcome": "died",
+			"roundReached": 12,
+			"kills": 921,
+			"worldHash": 2801920725,
+			"itemsOwned": {
+				"rusted_plate": 1,
+				"war_drum": 2,
+				"rat_king": 1,
+				"heart_of_the_pit": 1,
+				"cracked_skull": 3,
+				"swamp_lantern": 1,
+				"tattered_boots": 1,
+				"whetstone": 1,
+				"heavy_gauntlet": 1
+			}
+		},
+		{
+			"seed": 37,
+			"outcome": "died",
+			"roundReached": 8,
+			"kills": 388,
+			"worldHash": 1345235778,
+			"itemsOwned": {
+				"cracked_skull": 3,
+				"tattered_boots": 1,
+				"bone_charm": 1,
+				"whetstone": 1,
+				"ember_vial": 1,
+				"rat_king": 1
+			}
+		},
+		{
+			"seed": 38,
+			"outcome": "died",
+			"roundReached": 18,
+			"kills": 1935,
+			"worldHash": 3792191972,
+			"itemsOwned": {
+				"whetstone": 2,
+				"grave_dirt": 4,
+				"crown_of_nails": 2,
+				"rusted_plate": 3,
+				"scavenger_hook": 4,
+				"tattered_boots": 3,
+				"iron_tooth": 1,
+				"bone_charm": 2,
+				"reaper_hourglass": 1,
+				"spiked_boots": 1,
+				"ember_vial": 1,
+				"war_drum": 1,
+				"chain_mail": 2,
+				"vampire_fang": 1,
+				"bone_lodestone": 1,
+				"leech_tongue": 2,
+				"tithe_box": 1,
+				"hellfire_round": 1,
+				"swamp_lantern": 1,
+				"cracked_skull": 1
+			}
+		},
+		{
+			"seed": 39,
+			"outcome": "died",
+			"roundReached": 12,
+			"kills": 910,
+			"worldHash": 2633658117,
+			"itemsOwned": {
+				"iron_tooth": 2,
+				"crown_of_nails": 1,
+				"ember_vial": 2,
+				"war_drum": 2,
+				"bone_charm": 2,
+				"gilded_skull": 1,
+				"rat_king": 1,
+				"cracked_skull": 1,
+				"scavenger_hook": 1,
+				"iron_lung": 1,
+				"bone_saw": 1,
+				"chain_mail": 1
+			}
+		},
+		{
+			"seed": 40,
+			"outcome": "died",
+			"roundReached": 14,
+			"kills": 1230,
+			"worldHash": 2227467773,
+			"itemsOwned": {
+				"whetstone": 2,
+				"tattered_boots": 1,
+				"ash_nova": 1,
+				"rusted_plate": 2,
+				"soul_chain": 2,
+				"rat_king": 3,
+				"gilded_skull": 1,
+				"spiked_boots": 1,
+				"black_bandage": 2,
+				"scavenger_hook": 1,
+				"grave_dirt": 1
+			}
+		},
+		{
+			"seed": 41,
+			"outcome": "died",
+			"roundReached": 8,
+			"kills": 482,
+			"worldHash": 848744177,
+			"itemsOwned": {
+				"rusted_plate": 1,
+				"bone_orbit": 1,
+				"tattered_boots": 1,
+				"bone_charm": 2,
+				"cracked_skull": 1,
+				"whetstone": 1
+			}
+		},
+		{
+			"seed": 42,
+			"outcome": "died",
+			"roundReached": 13,
+			"kills": 951,
+			"worldHash": 1338766752,
+			"itemsOwned": {
+				"grave_dirt": 3,
+				"black_bandage": 2,
+				"tattered_boots": 1,
+				"war_drum": 1,
+				"ember_vial": 1,
+				"phylactery": 1,
+				"whetstone": 1,
+				"leech_tongue": 2,
+				"cracked_skull": 1,
+				"scavenger_hook": 1,
+				"iron_lung": 1,
+				"vampire_fang": 1,
+				"crown_of_nails": 1,
+				"hunter_eye": 1
+			}
+		},
+		{
+			"seed": 43,
+			"outcome": "died",
+			"roundReached": 8,
+			"kills": 355,
+			"worldHash": 3231704247,
+			"itemsOwned": {
+				"scavenger_hook": 1,
+				"heart_of_the_pit": 1,
+				"chain_mail": 1,
+				"cracked_skull": 2,
+				"tattered_boots": 1,
+				"black_bandage": 1
+			}
+		},
+		{
+			"seed": 44,
+			"outcome": "died",
+			"roundReached": 6,
+			"kills": 245,
+			"worldHash": 234234588,
+			"itemsOwned": {
+				"grave_dirt": 1,
+				"rusted_plate": 1,
+				"whetstone": 1,
+				"chain_mail": 1
+			}
+		},
+		{
+			"seed": 45,
+			"outcome": "died",
+			"roundReached": 9,
+			"kills": 524,
+			"worldHash": 3963536050,
+			"itemsOwned": {
+				"cracked_skull": 2,
+				"heart_of_the_pit": 1,
+				"iron_tooth": 1,
+				"tattered_boots": 3,
+				"bone_charm": 1,
+				"chain_mail": 1,
+				"rusted_plate": 1
+			}
+		},
+		{
+			"seed": 46,
+			"outcome": "died",
+			"roundReached": 15,
+			"kills": 1440,
+			"worldHash": 2507293269,
+			"itemsOwned": {
+				"whetstone": 1,
+				"scavenger_hook": 2,
+				"phylactery": 1,
+				"tattered_boots": 2,
+				"bone_charm": 1,
+				"brimstone_heart": 1,
+				"black_bandage": 1,
+				"iron_tooth": 1,
+				"ash_nova": 1,
+				"soul_jar": 1,
+				"rat_king": 3,
+				"chain_mail": 1,
+				"rusted_plate": 1,
+				"ossuary_bolt": 1,
+				"hunter_eye": 1
+			}
+		},
+		{
+			"seed": 47,
+			"outcome": "died",
+			"roundReached": 8,
+			"kills": 465,
+			"worldHash": 738662077,
+			"itemsOwned": {
+				"blood_altar": 1,
+				"grave_dirt": 1,
+				"rat_king": 1,
+				"grim_pact": 1,
+				"ember_vial": 1,
+				"tattered_boots": 1,
+				"bone_charm": 1,
+				"gilded_skull": 1
+			}
+		},
+		{
+			"seed": 48,
+			"outcome": "completed",
+			"roundReached": 35,
+			"kills": 6751,
+			"worldHash": 553295944,
+			"itemsOwned": {
+				"cracked_skull": 1,
+				"heart_of_the_pit": 4,
+				"grave_dirt": 2,
+				"ember_vial": 1,
+				"reaper_hourglass": 1,
+				"rusted_plate": 4,
+				"tattered_boots": 5,
+				"bone_charm": 2,
+				"whetstone": 5,
+				"swamp_lantern": 3,
+				"chain_mail": 4,
+				"hellfire_round": 2,
+				"doom_sigil": 2,
+				"gilded_skull": 2,
+				"tithe_box": 1,
+				"blood_altar": 2,
+				"soul_jar": 1,
+				"rat_king": 3,
+				"war_drum": 3,
+				"iron_tooth": 1,
+				"iron_lung": 2,
+				"black_bandage": 3,
+				"bone_lodestone": 4,
+				"crown_of_nails": 2,
+				"ash_nova": 2,
+				"spiked_boots": 1,
+				"heavy_gauntlet": 1,
+				"brimstone_heart": 1,
+				"hunter_eye": 2,
+				"bone_saw": 1,
+				"vampire_fang": 2,
+				"grim_pact": 3,
+				"leech_tongue": 1,
+				"ossuary_bolt": 1,
+				"shadow_cloak": 1
+			}
+		},
+		{
+			"seed": 49,
+			"outcome": "died",
+			"roundReached": 8,
+			"kills": 379,
+			"worldHash": 2752487963,
+			"itemsOwned": {
+				"ember_vial": 1,
+				"gilded_skull": 1,
+				"war_drum": 1,
+				"soul_jar": 1,
+				"rusted_plate": 2
+			}
+		},
+		{
+			"seed": 50,
+			"outcome": "died",
+			"roundReached": 34,
+			"kills": 5903,
+			"worldHash": 48872582,
+			"itemsOwned": {
+				"scavenger_hook": 2,
+				"grave_dirt": 2,
+				"ember_vial": 2,
+				"tattered_boots": 3,
+				"gilded_skull": 1,
+				"whetstone": 3,
+				"heart_of_the_pit": 3,
+				"war_drum": 2,
+				"heavy_gauntlet": 4,
+				"phylactery": 1,
+				"hellfire_round": 1,
+				"rusted_plate": 3,
+				"iron_lung": 2,
+				"spiked_boots": 1,
+				"brimstone_heart": 3,
+				"soul_chain": 1,
+				"tithe_box": 2,
+				"grim_pact": 3,
+				"leech_tongue": 1,
+				"cracked_skull": 3,
+				"bone_lodestone": 1,
+				"swamp_lantern": 3,
+				"vampire_fang": 2,
+				"ash_nova": 3,
+				"chain_mail": 2,
+				"soul_jar": 1,
+				"black_bandage": 2,
+				"hunter_eye": 1,
+				"bone_saw": 1,
+				"shadow_cloak": 1,
+				"crown_of_nails": 1,
+				"bone_orbit": 1
+			}
+		},
+		{
+			"seed": 51,
+			"outcome": "died",
+			"roundReached": 17,
+			"kills": 1912,
+			"worldHash": 474607187,
+			"itemsOwned": {
+				"scavenger_hook": 2,
+				"heart_of_the_pit": 2,
+				"cracked_skull": 2,
+				"grave_dirt": 1,
+				"whetstone": 1,
+				"bone_charm": 4,
+				"rat_king": 1,
+				"black_bandage": 3,
+				"hunter_eye": 3,
+				"heavy_gauntlet": 1,
+				"rusted_plate": 1,
+				"iron_tooth": 1,
+				"spiked_boots": 1,
+				"bone_saw": 1,
+				"tattered_boots": 1,
+				"iron_lung": 1,
+				"swamp_lantern": 1
+			}
+		},
+		{
+			"seed": 52,
+			"outcome": "died",
+			"roundReached": 13,
+			"kills": 1023,
+			"worldHash": 2165982413,
+			"itemsOwned": {
+				"rusted_plate": 2,
+				"phylactery": 1,
+				"scavenger_hook": 2,
+				"bone_charm": 1,
+				"ember_vial": 1,
+				"gilded_skull": 1,
+				"iron_tooth": 1,
+				"iron_lung": 1,
+				"war_drum": 1
+			}
+		},
+		{
+			"seed": 53,
+			"outcome": "died",
+			"roundReached": 16,
+			"kills": 1664,
+			"worldHash": 1552101168,
+			"itemsOwned": {
+				"rusted_plate": 5,
+				"whetstone": 3,
+				"scavenger_hook": 4,
+				"blood_altar": 1,
+				"grave_dirt": 3,
+				"iron_tooth": 1,
+				"black_bandage": 3,
+				"cracked_skull": 1,
+				"heart_of_the_pit": 1,
+				"crown_of_nails": 2,
+				"swamp_lantern": 1,
+				"rat_king": 1,
+				"gilded_skull": 1,
+				"leech_tongue": 1
+			}
+		},
+		{
+			"seed": 54,
+			"outcome": "died",
+			"roundReached": 13,
+			"kills": 1092,
+			"worldHash": 2020688508,
+			"itemsOwned": {
+				"ossuary_bolt": 1,
+				"grave_dirt": 2,
+				"rusted_plate": 3,
+				"ember_vial": 3,
+				"whetstone": 1,
+				"gilded_skull": 1,
+				"hunter_eye": 1,
+				"bone_charm": 1,
+				"tattered_boots": 1,
+				"scavenger_hook": 1,
+				"crown_of_nails": 1,
+				"vampire_fang": 1,
+				"heavy_gauntlet": 1
+			}
+		},
+		{
+			"seed": 55,
+			"outcome": "died",
+			"roundReached": 17,
+			"kills": 1743,
+			"worldHash": 759485134,
+			"itemsOwned": {
+				"phylactery": 2,
+				"grave_dirt": 1,
+				"rusted_plate": 3,
+				"cracked_skull": 2,
+				"hunter_eye": 2,
+				"chain_mail": 2,
+				"ember_vial": 1,
+				"ash_nova": 1,
+				"rat_king": 1,
+				"leech_tongue": 1,
+				"heavy_gauntlet": 2,
+				"bone_charm": 1,
+				"swamp_lantern": 1,
+				"black_bandage": 2,
+				"war_drum": 1
+			}
+		},
+		{
+			"seed": 56,
+			"outcome": "died",
+			"roundReached": 8,
+			"kills": 440,
+			"worldHash": 2205545102,
+			"itemsOwned": {
+				"iron_tooth": 1,
+				"whetstone": 1,
+				"crown_of_nails": 1,
+				"war_drum": 1,
+				"swamp_lantern": 1
+			}
+		},
+		{
+			"seed": 57,
+			"outcome": "died",
+			"roundReached": 8,
+			"kills": 425,
+			"worldHash": 1260069370,
+			"itemsOwned": {
+				"whetstone": 2,
+				"bone_charm": 1,
+				"heart_of_the_pit": 1,
+				"rusted_plate": 1,
+				"rat_king": 1,
+				"scavenger_hook": 1,
+				"iron_tooth": 1
+			}
+		},
+		{
+			"seed": 58,
+			"outcome": "completed",
+			"roundReached": 35,
+			"kills": 6430,
+			"worldHash": 1607899692,
+			"itemsOwned": {
+				"rusted_plate": 2,
+				"scavenger_hook": 2,
+				"cracked_skull": 3,
+				"doom_sigil": 2,
+				"grave_dirt": 2,
+				"bone_charm": 5,
+				"crown_of_nails": 2,
+				"tithe_box": 4,
+				"phylactery": 2,
+				"hunter_eye": 9,
+				"ember_vial": 4,
+				"iron_tooth": 1,
+				"chain_mail": 6,
+				"swamp_lantern": 1,
+				"spiked_boots": 2,
+				"black_bandage": 5,
+				"leech_tongue": 3,
+				"war_drum": 1,
+				"heart_of_the_pit": 2,
+				"bone_lodestone": 2,
+				"rat_king": 4,
+				"heavy_gauntlet": 1,
+				"soul_jar": 2,
+				"bone_saw": 2,
+				"vampire_fang": 1,
+				"reaper_hourglass": 1,
+				"brimstone_heart": 1,
+				"bone_orbit": 2,
+				"ash_nova": 1,
+				"shadow_cloak": 2,
+				"iron_lung": 1,
+				"grim_pact": 1,
+				"gilded_skull": 1
+			}
+		},
+		{
+			"seed": 59,
+			"outcome": "died",
+			"roundReached": 15,
+			"kills": 1447,
+			"worldHash": 3782272758,
+			"itemsOwned": {
+				"cracked_skull": 1,
+				"rusted_plate": 1,
+				"whetstone": 1,
+				"scavenger_hook": 1,
+				"gilded_skull": 1,
+				"bone_charm": 1,
+				"black_bandage": 1,
+				"swamp_lantern": 1,
+				"tattered_boots": 1,
+				"leech_tongue": 1,
+				"iron_lung": 1,
+				"vampire_fang": 1,
+				"chain_mail": 1,
+				"rat_king": 1,
+				"bone_orbit": 1,
+				"heavy_gauntlet": 1,
+				"tithe_box": 1
+			}
+		},
+		{
+			"seed": 60,
+			"outcome": "died",
+			"roundReached": 14,
+			"kills": 1260,
+			"worldHash": 3328165796,
+			"itemsOwned": {
+				"ember_vial": 2,
+				"grave_dirt": 1,
+				"heart_of_the_pit": 1,
+				"scavenger_hook": 3,
+				"phylactery": 1,
+				"rusted_plate": 1,
+				"cracked_skull": 2,
+				"war_drum": 2,
+				"iron_tooth": 2,
+				"grave_mine": 2,
+				"hunter_eye": 1,
+				"tattered_boots": 1,
+				"bone_charm": 1,
+				"rat_king": 1,
+				"ossuary_bolt": 1,
+				"whetstone": 1
+			}
+		},
+		{
+			"seed": 61,
+			"outcome": "died",
+			"roundReached": 8,
+			"kills": 413,
+			"worldHash": 3510809399,
+			"itemsOwned": {
+				"bone_charm": 2,
+				"grave_dirt": 1,
+				"cracked_skull": 1,
+				"scavenger_hook": 2,
+				"reaper_hourglass": 1,
+				"whetstone": 1
+			}
+		},
+		{
+			"seed": 62,
+			"outcome": "died",
+			"roundReached": 7,
+			"kills": 321,
+			"worldHash": 3373124632,
+			"itemsOwned": {
+				"ember_vial": 2,
+				"rusted_plate": 1,
+				"cracked_skull": 1,
+				"grave_dirt": 1,
+				"tattered_boots": 1
+			}
+		},
+		{
+			"seed": 63,
+			"outcome": "died",
+			"roundReached": 9,
+			"kills": 469,
+			"worldHash": 1544735805,
+			"itemsOwned": {
+				"rusted_plate": 3,
+				"whetstone": 1,
+				"ember_vial": 2,
+				"phylactery": 1
+			}
+		},
+		{
+			"seed": 64,
+			"outcome": "died",
+			"roundReached": 21,
+			"kills": 2668,
+			"worldHash": 3835656471,
+			"itemsOwned": {
+				"whetstone": 3,
+				"chain_mail": 3,
+				"soul_chain": 1,
+				"scavenger_hook": 1,
+				"phylactery": 1,
+				"rat_king": 2,
+				"ember_vial": 1,
+				"grave_dirt": 2,
+				"ossuary_bolt": 1,
+				"rusted_plate": 1,
+				"hunter_eye": 2,
+				"black_bandage": 1,
+				"cracked_skull": 1,
+				"hellfire_round": 1,
+				"war_drum": 1,
+				"crown_of_nails": 1,
+				"tattered_boots": 1,
+				"bone_charm": 1,
+				"bone_saw": 1
+			}
+		}
+	]
+}

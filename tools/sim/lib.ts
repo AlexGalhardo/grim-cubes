@@ -66,6 +66,7 @@ export interface SimReport {
 	seed: number;
 	roundsRequested: number;
 	difficulty: string;
+	hero: string;
 	weapon: string;
 	policy: "greedy-kite" | "tank-kite";
 	outcome: Outcome;
@@ -127,6 +128,7 @@ export function runSim(options: SimOptions): SimReport {
 		seed: options.seed,
 		roundsRequested: options.rounds,
 		difficulty: options.difficulty,
+		hero: heroDef.id,
 		weapon: weaponId,
 		policy: POLICY_LABEL[options.policy ?? "greedy"],
 		outcome: "timeout",

@@ -146,7 +146,7 @@ A Parte 1B (arte medium poly) começa depois da `v0.6.0` e tem pontos de parada 
   - Asserts: `bun run data:check` exit 0; teste que cada herói inicia a run com a arma e a passiva certas; GDD §7 atualizado.
 - [x] **S-12-02** Tela de escolha de herói entre os slots e a dificuldade, com retrato, arma, passiva e condição de desbloqueio; desbloqueios pelos marcos de `data/milestones.json`; o herói escolhido fica no checkpoint da run.
   - Asserts: teste de componente e de navegação por controle; migração do save com teste (versão do esquema sobe); captura nos quatro alvos; SDD 06 atualizado.
-- [ ] **S-12-03** Balanceamento: `bun run sim --check` passa para os três heróis nas três dificuldades.
+- [-] **S-12-03** Balanceamento: `bun run sim --check` passa para os três heróis nas três dificuldades. Parcial: o Carrasco passa (menos o kill do Coveiro em Nightmare na amostra de 64); os dois heróis novos ficam fora de algumas faixas, ver GDD §25.2 e a decisão pendente com o PO.
   - Asserts: `reports/balance-*.json` com os três heróis dentro das faixas do GDD §25.
 
 ### S-13 Seed diária

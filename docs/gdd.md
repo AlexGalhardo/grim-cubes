@@ -189,10 +189,10 @@ A 1.0 tem três heróis (decisão do PO de 2026-11-11, trilha S-12; revisa a D11
 | Herói | Arma inicial | Stats base (além da tabela 7.1) | Passiva | Desbloqueio |
 | --- | --- | --- | --- | --- |
 | Carrasco (`executioner`) | Espada Enferrujada | — | **Placas Enferrujadas:** +1 de armadura | desde o início |
-| O Fuzilado (`riddled`) | Pistola de Ferro | HP 85, crítico 8% | **Olho do Pelotão:** +10% de chance de crítico | marco `round_10` (round 10 em qualquer dificuldade) |
-| A Penitente (`penitent`) | Submetralhadora | HP 90, velocidade 6,4 u/s | **Carne Flagelada:** +1 ponto de regeneração | marco `bosses_3` (3 chefes mortos) |
+| O Fuzilado (`riddled`) | Pistola de Ferro | HP 200, armadura 8, regeneração 2, esquiva 10%, crítico 8%, dano +85%, velocidade de ataque +85%, raio de pickup 7 u | **Olho do Pelotão:** +10% de chance de crítico, −40% de dano em chefes | marco `round_10` (round 10 em qualquer dificuldade) |
+| A Penitente (`penitent`) | Submetralhadora | HP 150, armadura 4, velocidade 6,4 u/s, dano +40%, velocidade de ataque +40%, raio de pickup 7 u | **Carne Flagelada:** +1 ponto de regeneração, −30% de dano em chefes | marco `bosses_3` (3 chefes mortos) |
 
-**Proposta, aguarda confirmação do PO:** os nomes "O Fuzilado" e "A Penitente", as passivas e o desbloqueio dos dois (propostos pelo agente; o GDD §20 pós-1.0 citava a Bruxa do Pântano e o Forjado Renegado, que ficam como ideias futuras). Os números passam pelo simulador (§25) e saem de `data/*.json`.
+**Proposta, aguarda confirmação do PO:** os nomes "O Fuzilado" e "A Penitente", as passivas e o desbloqueio dos dois (propostos pelo agente; o GDD §20 pós-1.0 citava a Bruxa do Pântano e o Forjado Renegado, que ficam como ideias futuras). Os números saem de `data/*.json` e foram ajustados no simulador (§25.2): armas de longo alcance sofrem muito mais que a espada contra o bot greedy, então os dois heróis recebem bônus grandes de stats base; o raio de pickup alto compensa o bot, que mantém distância e não pisa nos fragmentos, e o redutor de dano em chefes segura o tempo de kill dos chefes (sem ele a pistola mata o Coveiro em ~37 s).
 
 ### 7.1 Stats base (round 1, sem meta-árvore)
 
@@ -841,6 +841,24 @@ Escolhido: o Ímã sobe do tier 2 (preço 40) para o **tier 3 (Épico), preço 1
 **Dificuldade Fácil (implementada em c643158, aberta desde o início por decisão do PO):** inimigos ×0,75 de HP e dano e almas ×0,75. Medida com a dificuldade real (`--difficulty easy`, 128 × 35, relatórios `reports/balance-easy-greedy.json` e `reports/balance-easy-tank.json`, com a espada em 3,2 u e o Ímã no tier 3): greedy p50 35 com 81% vivas (kill dos chefes 56 / 60 / 71 s, ouro por preço 1,52), tank p50 35 com 85% vivas (kill 76 / 89 / 107 s, ouro por preço 1,53). Faixas (decisão do Orq, 2026-10-31, em `rangesFor`): p50 30–35 nas duas políticas, vivas ≤ 85% (greedy) e ≤ 90% (tank), IQR ≤ 25, ouro por preço 1,2–1,8 como no Normal (a faixa mais baixa de 1,1 que se propôs por parâmetro não é necessária) e kill dos chefes nas faixas do Normal com o limite inferior ×0,75, porque os chefes têm 75% do HP (gravedigger 34–90 s, demais 45–120 s, tank até 150 s). O greedy fica no limite: a Matriarca morre em 59,6 s, abaixo dos 60 s do Normal, que o limite ×0,75 acomoda. O ouro por preço de 2,15 visto num smoke do S2 vinha do Ímã de Ossos no tier 2, já rebalanceado.
 
 O Forjador é o chefe mais lento para o tank (148 s em Normal, 172 s em Grim) porque a fase 2 tem armadura 30 e o tank tem pouco dano: a armadura pune quem luta de perto com pouco dano e premia dano alto, o que combina com o desenho do chefe. Não recomendo mexer nos dados do Forjador agora; revisitar depois do playtest B-04 se um jogador defensivo real reportar luta arrastada.
+
+### 25.2 Os três heróis (S-12-03, 2026-11-11)
+
+Medido com `bun run sim --runs 64 --rounds 35 --seed 1 --hero <id> --difficulty <d> [--ossuary <perfil de 25.1>]` (política greedy; relatórios em `reports/balance-heroes-<herói>-<dificuldade>-s1.json`). O Carrasco passa em Normal e Difícil e, em Nightmare, falha só no tempo de kill do Coveiro (105,9 s contra o limite de 90 s; o mesmo valor, 105,6 s, sai sem a passiva, então vem da amostra de 64 runs e da faixa estreita, não do herói). Os dois heróis novos **não passam em todas as faixas**:
+
+| Herói | Dificuldade | p50 | IQR | Vivas | Faixas que falham |
+| --- | --- | --- | --- | --- | --- |
+| Carrasco | Normal | 24 | 20,5 | 44% | — |
+| Carrasco | Difícil | 19,5 | 14,3 | 25% | — |
+| Carrasco | Nightmare | 16 | 12,0 | 13% | kill do Coveiro 105,9 s |
+| O Fuzilado | Normal | 14 | 10,0 | 20% | p50 (18–26) |
+| O Fuzilado | Difícil | 12,5 | 7,3 | 5% | p50 (14–22) |
+| O Fuzilado | Nightmare | 12,5 | 8,0 | 8% | ouro por preço 1,99 (1,2–1,8) |
+| A Penitente | Normal | 18 | 21,3 | 36% | ouro por preço 2,12 |
+| A Penitente | Difícil | 13 | 8,0 | 13% | p50 (14–22), ouro por preço 1,93 |
+| A Penitente | Nightmare | 9 | 7,3 | 5% | p50 (11–18), kill do Forjador 138 s (limite 120), ouro por preço 1,96 |
+
+Por que não fecha só com números de `data/`: com os stats base originais o bot greedy morre no round 4 ou 5 com a pistola e a submetralhadora (a espada acerta todos no arco; a arma de mira única não limpa a horda), e o mesmo acontece com o Carrasco equipado com a pistola (`--weapon pistol`). Os bônus testados (HP, armadura, esquiva, dano, velocidade de ataque, raio de pickup, velocidade, regeneração, roubo de vida, XP, `enemy_speed` e `knockback`) mexem o p50 de forma muito íngreme (dano e velocidade de ataque de +60% para +80% levaram o Fuzilado de 13 a 35 no mesmo perfil) e dois efeitos brigam: quem sobrevive à horda mata chefes rápido demais, e quem tem o raio de pickup que o bot precisa coleta ouro acima da faixa de 1,8. Antes de ajustar mais, vale decidir com o PO entre (a) aceitar as faixas do bot greedy só para o Carrasco e validar os outros por playtest (B-04), (b) dar ao bot uma política de armas de longo alcance (recolher fragmentos, recuar com critério), ou (c) trocar as armas iniciais dos dois heróis por variações corpo a corpo.
 
 ## 26. Métricas de sucesso e telemetria
 

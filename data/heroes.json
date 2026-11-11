@@ -7,7 +7,13 @@
 		"passive": {
 			"id": "rusted_plate",
 			"name": "Placas Enferrujadas",
-			"modifiers": [{ "stat": "armor", "op": "add", "value": 1 }]
+			"modifiers": [
+				{
+					"stat": "armor",
+					"op": "add",
+					"value": 1
+				}
+			]
 		}
 	},
 	{
@@ -15,11 +21,31 @@
 		"name": "O Fuzilado",
 		"startingWeapon": "pistol",
 		"tint": "iron-light",
-		"base": { "maxHp": 85, "critChance": 0.08 },
+		"base": {
+			"maxHp": 200,
+			"critChance": 0.08,
+			"pickupRadius": 7,
+			"damage": 0.85,
+			"attackSpeed": 0.85,
+			"armor": 8,
+			"hpRegen": 2,
+			"dodge": 0.1
+		},
 		"passive": {
 			"id": "squad_eye",
-			"name": "Olho do Pelotão",
-			"modifiers": [{ "stat": "crit_chance", "op": "add", "value": 0.1 }]
+			"name": "Olho do Pelot\u00e3o",
+			"modifiers": [
+				{
+					"stat": "crit_chance",
+					"op": "add",
+					"value": 0.1
+				},
+				{
+					"stat": "boss_damage",
+					"op": "add",
+					"value": -0.4
+				}
+			]
 		}
 	},
 	{
@@ -27,11 +53,29 @@
 		"name": "A Penitente",
 		"startingWeapon": "smg",
 		"tint": "bone",
-		"base": { "maxHp": 90, "speed": 6.4 },
+		"base": {
+			"maxHp": 150,
+			"speed": 6.4,
+			"pickupRadius": 7,
+			"damage": 0.4,
+			"attackSpeed": 0.4,
+			"armor": 4
+		},
 		"passive": {
 			"id": "scourged_flesh",
 			"name": "Carne Flagelada",
-			"modifiers": [{ "stat": "hp_regen", "op": "add", "value": 1 }]
+			"modifiers": [
+				{
+					"stat": "hp_regen",
+					"op": "add",
+					"value": 1
+				},
+				{
+					"stat": "boss_damage",
+					"op": "add",
+					"value": -0.3
+				}
+			]
 		}
 	}
 ]

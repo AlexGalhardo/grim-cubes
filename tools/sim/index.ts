@@ -17,6 +17,7 @@ const KNOWN = new Set([
 	"--rounds",
 	"--difficulty",
 	"--weapon",
+	"--hero",
 	"--ossuary",
 	"--policy",
 	"--out",
@@ -25,7 +26,7 @@ const KNOWN = new Set([
 ]);
 
 /**
- * Usage: bun run sim -- [--runs 200] [--seed 1] [--rounds 10] [--difficulty normal] [--weapon sword]
+ * Usage: bun run sim -- [--runs 200] [--seed 1] [--rounds 10] [--difficulty normal] [--weapon sword] [--hero executioner|riddled|penitent]
  *   [--policy greedy|tank] [--ossuary flesh_1,steel_1] [--jobs 4] [--out reports/x.json] [--check]
  * Run i uses seed (seed + i). `--check` exits 3 when a GDD 25 target is missed (skipped targets do not count); the ranges depend on
  * `--difficulty` and `--policy` (GDD 25.1), and Grim and Nightmare are calibrated with the reference `--ossuary` profiles.
@@ -79,6 +80,7 @@ async function main(argv: string[]): Promise<number> {
 	}
 	const difficulty = flag(argv, "--difficulty") ?? "normal";
 	const weapon = flag(argv, "--weapon");
+	const hero = flag(argv, "--hero");
 	const ossuary = flag(argv, "--ossuary")?.split(",").filter(Boolean);
 
 	const jobs = Number(flag(argv, "--jobs") ?? Math.min(8, Math.max(1, cpus().length - 1)));
@@ -88,6 +90,7 @@ async function main(argv: string[]): Promise<number> {
 		difficulty,
 		policy,
 		...(weapon !== undefined && { weapon }),
+		...(hero !== undefined && { hero }),
 		...(ossuary !== undefined && { ossuary }),
 	}));
 	const reports = await simulate(all, jobs);
@@ -103,7 +106,7 @@ async function main(argv: string[]): Promise<number> {
 		runs === 1
 			? { report: reports[0], metrics, checks }
 			: {
-					options: { seed, runs, rounds, difficulty, policy },
+					options: { seed, runs, rounds, difficulty, policy, hero: reports[0]?.hero },
 					metrics,
 					checks,
 					runs: reports.map((r) => ({
