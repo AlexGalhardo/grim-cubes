@@ -29,13 +29,13 @@
 				},
 				"radius": {
 					"type": "number",
-					"minimum": 32,
-					"maximum": 44
+					"minimum": 26,
+					"maximum": 38
 				},
 				"radiusMobile": {
 					"type": "number",
-					"minimum": 28,
-					"maximum": 44
+					"minimum": 23,
+					"maximum": 38
 				},
 				"followRate": {
 					"type": "number",

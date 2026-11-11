@@ -62,7 +62,7 @@ A Parte 2 não entra na meta: depende do PO, de hardware, de loja ou de data.
 
 ### S-01 Legibilidade do combate
 
-- [ ] **S-01-01** Câmera 25% mais perto: `camera.radius` 38 → 28,5 e `camera.radiusMobile` 34 → 25,5 em `data/render.json`; o anel de spawn continua fora da tela nos quatro alvos; a fade de props e as setas de borda continuam corretas.
+- [x] **S-01-01** Câmera 25% mais perto: `camera.radius` 38 → 28,5 e `camera.radiusMobile` 34 → 25,5 em `data/render.json`; o anel de spawn continua fora da tela nos quatro alvos; a fade de props e as setas de borda continuam corretas.
   - Asserts: teste em `packages/game` ou `packages/render` prova que a distância mínima de spawn é maior que a meia-diagonal visível em 16:9 e em 896×414; herói com altura ≥ 58 px na captura `combat-desktop-1080`; GDD §5 e ADR-0017 emendados.
 - [ ] **S-01-02** Luz de contorno em herói, inimigos, elites e chefes, com cor por papel (herói osso, inimigo comum neutro, elite e chefe brasa), configurada no bloco de render de `data/render.json` e desligada no preset Mínimo.
   - Asserts: teste unitário do bloco de configuração e do corte por preset; `bun run test:perf` sem regressão de `drawCalls`; captura de combate nos quatro alvos; Art Bible §4 atualizada.

@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **render:** Camera 25% closer (radius 38 to 28.5 u, 34 to 25.5 u on mobile) so the hero reads larger; the whole spawn ring is now off-screen on the four screen targets, with a test (S-01-01)
 - **tools:** Every release links each CHANGELOG entry to the commit that wrote it, and `bun tools/release/index.ts link` does the same for the whole file; the entries of 0.1.0 to 0.5.0 and the five published GitHub Releases now carry the links (S-00-01)
 
 - **docs:** Rewrite `ROADMAP.md` from scratch (0.2.0) for goal-driven execution: Part 1 is the agent's work with verifiable asserts (tracks S-00 to S-17, ending in a `v0.6.0` test release with the `.exe` and the `.apk`), Part 2 keeps what depends on the PO under the old ids ([67577c6](https://github.com/AlexGalhardo/grim-cubes/commit/67577c6ba780663e31fc5fed8b299cc407f052be))

@@ -16,6 +16,8 @@ Isométrico estilo Diablo 4 (briefing). Ortográfica pura dá leitura 'limpa' de
 
 `ArcRotateCamera` com controles desligados: alpha −π/2, beta 0,611 rad (π/2 − 55°; o beta do Babylon é medido do zênite, emenda D1 de 2026-10-31), FOV ≈ 0,52 rad, raio 38 u (34 u em mobile), alvo = herói suavizado; sem rotação; zoom leve opcional. Área visível fixa em altura (16 u); largura varia pelo aspecto dos 4 alvos de tela (D31).
 
+Emenda de 2026-11-11 (decisão do PO, ROADMAP S-01-01): raio 28,5 u (25,5 u em mobile), 25% mais perto, porque com 38 u o herói tinha cerca de 45 px de altura em 1080p e sumia em captura e trailer. Ângulos e FOV não mudam. O anel de spawn (22–30 u) passa a ficar inteiro fora da tela nos quatro alvos, o que antes só não valia para os cantos de cima.
+
 ## Consequências
 
 Props altos perto do herói precisam de fade ou regra de geração; valores ajustáveis no PROTÓTIPO sem novo ADR (faixas no GDD §5).

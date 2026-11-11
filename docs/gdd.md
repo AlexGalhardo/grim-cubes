@@ -127,10 +127,10 @@ Decisão D17: perspectiva com FOV baixo, ângulo fixo, segue o herói.
 | Alpha (rotação horizontal) | −π/2 (norte para cima na tela) | fixo |
 | Beta | 0,611 rad (elevação 55°; o `beta` do `ArcRotateCamera` é medido a partir do zênite: beta = π/2 − elevação) | 0,524–0,698 rad (elevação 50°–60°) |
 | FOV vertical | 0,52 rad (≈30°) | 25°–35° |
-| Raio (distância ao alvo) | 38 u | 32–44 u (zoom leve com scroll, opcional) |
+| Raio (distância ao alvo) | 28,5 u (era 38 u até a v0.5.0; decisão do PO em 2026-11-11 para o herói ler maior na tela) | 26–38 u |
 | Alvo | posição do herói suavizada (lerp 8/s) | — |
-| Área visível no chão (16:9, raio 38) | trapézio: profundidade 25,6 u (−10,4 a +15,2 u do herói); largura 30,3 / 35,9 / 44,2 u (borda de baixo / altura do herói / borda de cima); raio 34 → profundidade 22,9 u | — |
-| Mobile (9:16 ou 16:9 landscape forçado) | landscape obrigatório; raio 34 u | — |
+| Área visível no chão (16:9, raio 28,5) | trapézio: profundidade 19,2 u (−7,8 a +11,4 u do herói); largura 22,7 / 26,9 / 33,2 u (borda de baixo / altura do herói / borda de cima); raio 25,5 → profundidade 17,2 u | — |
+| Mobile (9:16 ou 16:9 landscape forçado) | landscape obrigatório; raio 25,5 u | — |
 
 Regras:
 
@@ -868,7 +868,7 @@ Decisão D31. O jogo é projetado, testado e otimizado para estes 4 alvos; outro
 
 Regras:
 
-- Câmera: a área visível no chão é um trapézio (elevação 55°, §5); a largura cresce com o aspecto. O topo da tela fica a ≈ 15 u do herói e os cantos de cima a ≈ 27 u, então o anel de spawn (22–30 u) fica fora da tela exceto nos cantos de cima; se o playtest mostrar spawn visível, subir o mínimo do anel para 27 u em `rounds.json`.
+- Câmera: a área visível no chão é um trapézio (elevação 55°, §5); a largura cresce com o aspecto. Com o raio 28,5 (25,5 no mobile), o topo da tela fica a ≈ 11 u do herói e os cantos de cima a ≈ 20 u em 16:9 e a ≈ 21 u nos dois alvos mobile, então o anel de spawn (22–30 u) fica inteiro fora da tela nos quatro alvos (teste em `packages/render/src/scene/camera.test.ts`). Numa janela de desktop mais larga que 2:1 os cantos de cima passam de 22 u; se isso aparecer em playtest, subir o mínimo do anel em `rounds.json`.
 - HUD: ancorado por cantos com safe area (`env(safe-area-inset-*)` no mobile, mínimo 24 px); escala de UI 100% em 1080p, 125% em 1440p (auto), 100% em mobile com alvos de toque ≥ 48 px.
 - Texto mínimo: 14 px em 1080p, 16 px em 1440p, 13 px em mobile (fonte pixel em múltiplos inteiros: 8/16/24 px).
 - Telas (loja, level-up, Ossuário) usam layout em colunas no desktop e lista horizontal rolável no mobile (ver Art Bible §17).
