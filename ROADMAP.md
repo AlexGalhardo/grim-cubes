@@ -69,6 +69,9 @@ A Parte 2 não entra na meta: depende do PO, de hardware, de loja ou de data.
 - [x] **S-01-03** Separação de valor na cena: chão com menos ruído e mais escuro que os personagens, pickups e projéteis como os pontos mais claros, vinheta mais leve.
   - Asserts: `reports/legibility.json`, gerado por script em `tools/ux-capture`, registra a luminância média do chão, do herói e dos inimigos na captura de combate, com contraste herói/chão ≥ 3:1 e inimigo/chão ≥ 2,5:1; Art Bible §3 e §4 atualizadas.
 
+- [ ] **S-01-04** Números de dano legíveis sobre a cena nova: hoje saem escuros e na fonte pixel ("15" lê "IS"). Dígitos claros com contorno escuro, crítico em destaque, tamanho proporcional à câmera nova.
+  - Asserts: teste do atlas ou da configuração dos números em `packages/render/src/vfx`; captura de combate em 1920×1080 e 896×414 com números de dano lidos sem ambiguidade; Art Bible §9 atualizada.
+
 ### S-02 Números legíveis
 
 - [x] **S-02-01** Todo número da UI sai da Inter com dígitos tabulares: a face `GC Digits` em `theme.css` recorta da Inter os dígitos e os sinais que andam com eles e vem primeiro em `--font-display`, `--font-mono` e no token novo `--font-num`, de modo que nenhum componente precisa de classe e nenhum número novo escapa.
