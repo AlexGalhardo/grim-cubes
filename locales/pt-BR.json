@@ -10,6 +10,8 @@
 	"hud.weapon": "{name}, nível {tier} de 4",
 	"hud.items": "Itens",
 	"hud.itemCount": "{name} x{count}",
+	"boss.enraged": "Enfurecido",
+	"boss.phase": "Fase {phase} de {total}",
 	"hud.itemsMore": "mais {count} itens",
 	"dash.label": "Dash",
 	"dash.charges": "{charges}/{max}",

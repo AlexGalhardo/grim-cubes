@@ -30,7 +30,7 @@ test.each(Object.entries(NOTICES))("Notice %s renders in English", (notice, frag
 test("BossBar and BossIntro show the English boss name", () => {
 	const name = t("boss.gravedigger");
 	expect(name).toBe("The Gravedigger");
-	render(<BossBar boss={{ name, hp: 900, maxHp: 1200, phase: 0, phaseMarkers: [0.5] }} />);
+	render(<BossBar boss={{ name, hp: 900, maxHp: 1200, phase: 0, phaseMarkers: [0.5], enrage: 0 }} />);
 	expect(screen.getByRole("progressbar", { name: "The Gravedigger" })).toBeTruthy();
 	render(<BossIntro name={name} />);
 	expect(screen.getByRole("status").textContent).toBe("The Gravedigger");

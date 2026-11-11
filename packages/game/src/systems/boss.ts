@@ -49,6 +49,8 @@ export interface BossView {
 	phase: number;
 	/** HP fractions (0-1) where the boss changes phase, for the markers on the bar; the same array for the whole fight. */
 	phaseMarkers: readonly number[];
+	/** Enrage stacks so far (+15% damage and speed each); 0 until the first minute passes. */
+	enrage: number;
 	/** Names of the elite modifiers the boss carries (empty before round 60). */
 	modifiers: readonly string[];
 }
@@ -307,6 +309,7 @@ export function createBossSystem(deps: BossSystemDeps): BossSystem {
 				maxHp: Math.ceil(maxHp),
 				phase: Boss.phase[entity] ?? 0,
 				phaseMarkers,
+				enrage: Boss.enrageStacks[entity] ?? 0,
 				modifiers: carried.map((m) => m.name),
 			};
 		},

@@ -2286,6 +2286,10 @@ async function boot(): Promise<void> {
 				frozenAt = performance.now();
 			},
 			saveNotice: () => loaded.notice,
+			/** Hero HP as a share of the maximum (low-HP HUD capture). */
+			setHeroHp: (fraction: number) => {
+				Health.hp[hero] = Math.max(1, (Health.max[hero] ?? 1) * fraction);
+			},
 			heroMaxHp: () => Health.max[hero] ?? 0,
 			heroPos: () => ({ x: origin.x + (Position.x[hero] ?? 0), z: origin.z + (Position.z[hero] ?? 0) }),
 			difficulty: () => difficultyId,

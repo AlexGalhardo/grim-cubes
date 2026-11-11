@@ -412,7 +412,7 @@ Tailwind: `--breakpoint-mobile-l: 821px; --breakpoint-desktop: 1024px; --breakpo
 | `Panel` | fundo `night-2` 85%, borda 2 px `iron-dark`, rebites opcionais, título display 16 px com linha `rust` | — | padding 16 (desktop) / 12 (mobile) |
 | `Button` | fundo `iron`, texto `bone` display 16, borda 2 px `iron-dark` | default, hover (borda `ember`, texto `ember-light`), active (translate 1 px), focus (outline 2 px `ember` offset 2), disabled (`mist`, 50%) | sm 32 px, md 40, lg 48 (mobile mínimo 48) |
 | `IconButton` | 40×40 (48 mobile), ícone 24 px | idem | — |
-| `Bar` (HP/XP/chefe) | trilho `night`, preenchimento 2 tons (base + luz 2 px no topo), número centralizado display 16 | normal, baixo (< 25%: pulso 0,8 s), cheio | alto 20 px (HUD), 28 px (chefe) |
+| `Bar` (HP/XP/chefe) | trilho `night`, preenchimento 2 tons (base + luz 2 px no topo), número centralizado display 16 | normal, baixo (< 25%: pulso 0,8 s em `steps(2)` e moldura `blood-light`, número sempre legível), cheio | alto 20 px (HUD), 28 px (chefe) |
 | `StatList` | linhas `label … valor`, delta colorido (`sludge` +, `blood-light` −) | — | body 14 |
 | `ItemCard` | ícone 32 px em moldura de raridade, nome display 16, efeito body 14, preço com ícone de fragmento | default, hover (eleva 4 px), locked (cadeado `ember-light`), unaffordable (preço `blood-light`, 60%), selected | 220 × 300 (desktop), 180 × 240 (mobile) |
 | `LevelUpCard` | igual a `ItemCard` sem preço; tecla 1/2/3 no canto | — | — |
@@ -427,7 +427,7 @@ Tailwind: `--breakpoint-mobile-l: 821px; --breakpoint-desktop: 1024px; --breakpo
 | `RarityFrame` | moldura 2 px na cor de raridade + canto superior esquerdo chanfrado 4 px | — | — |
 | `VirtualJoystick` (mobile) | base 96 px `iron` 50%, knob 40 px `bone` | flutuante no toque | — |
 | `Hud` (in-run) | quatro cantos sobre placas `night` 65% com borda 2 px `iron-dark`, sem raio nem sombra suave: vitais (retrato 64 px com selo de nível, `Bar` HP 22 px e XP 10 px sem texto), relógio (rótulo display `bone-dark`, timer 40 px), carteira (ouro `currency`, almas, abates) com botões quadrados 40 px (48 px em toque), arma 56 px com 4 pips e faixa de itens 36 px (ícone 32 px) | timer some na luta de chefe; em toque a arma vai ao lado dos vitais e a faixa de itens some | margem 24 px (desktop), 12 px mínimo + safe area (mobile) |
-| `BossBar` | `Bar` 28 px + nome display 24 + marcadores de fase | enrage: borda `blood-light` pulsa | largura 60% (desktop), 70% (mobile) |
+| `BossBar` | placa `night` 65% com o nome display 24 (16 no mobile), pips de fase (um por fase, acesos até a fase atual), `Bar` 28 px com um marcador por mudança de fase | enrage (`enrage` > 0): borda `blood-light` pulsa em `steps(2)` e o rótulo "Enfurecido" aparece | 46vw até 880 px (desktop), 36vw (mobile), no topo-centro no lugar do timer |
 
 Ícones: pixel art 16/24/32 px, 1 cor + sombra, em sprite sheet `ui_icons.png`; nomes `icon_<nome>`. Nunca ícones vetoriais suavizados.
 

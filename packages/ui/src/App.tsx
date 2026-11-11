@@ -1,6 +1,6 @@
 import { type PadStyle, padButtonName, type SaveNotice, type Store, t, type VirtualStick } from "@gc/core";
 import { type CSSProperties, type JSX, useSyncExternalStore } from "react";
-import { BossBar, BossIntro, type BossViewModel } from "./components/BossBar/BossBar";
+import { BossIntro, type BossViewModel } from "./components/BossBar/BossBar";
 import { Caption } from "./components/Caption/Caption";
 import { DashButton, type DashView } from "./components/DashButton/DashButton";
 import { DemoEnd } from "./components/DemoEnd/DemoEnd";
@@ -242,7 +242,6 @@ export function App({
 			) : null}
 			{hud.ossuary && ossuaryActions ? <Ossuary view={hud.ossuary} actions={ossuaryActions} /> : null}
 			{hud.options && optionsActions ? <Options view={hud.options} actions={optionsActions} /> : null}
-			{hud.boss ? <BossBar boss={hud.boss} /> : null}
 			{hud.merchant && onMerchantTalk ? (
 				<MerchantPrompt view={hud.merchant} hint={talkHint} onTalk={onMerchantTalk} />
 			) : null}

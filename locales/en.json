@@ -10,6 +10,8 @@
 	"hud.weapon": "{name}, tier {tier} of 4",
 	"hud.items": "Items",
 	"hud.itemCount": "{name} x{count}",
+	"boss.enraged": "Enraged",
+	"boss.phase": "Phase {phase} of {total}",
 	"hud.itemsMore": "{count} more items",
 	"dash.label": "Dash",
 	"dash.charges": "{charges}/{max}",

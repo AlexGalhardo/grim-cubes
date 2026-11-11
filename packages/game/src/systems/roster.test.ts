@@ -119,5 +119,6 @@ test("the boss view lists the HP fractions where the fight changes phase, the sa
 	boss.start(world, 10);
 	const first = boss.view();
 	expect(first?.phaseMarkers).toEqual([0.5]);
+	expect(first?.enrage).toBe(0);
 	expect(boss.view()?.phaseMarkers).toBe(first?.phaseMarkers);
 });

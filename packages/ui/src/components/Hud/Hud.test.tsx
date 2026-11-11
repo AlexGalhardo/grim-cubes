@@ -89,7 +89,11 @@ test("an empty item set draws no strip", () => {
 test("the timer is hidden from view outside a timed round, and the clock gives way to the boss bar", () => {
 	const { rerender } = render(<Hud hud={view({ secondsLeft: 0 })} />);
 	expect(screen.getByTestId("hud-timer").className).toContain("invisible");
-	rerender(<Hud hud={view({ boss: { name: "B", hp: 1, maxHp: 1, phase: 0, phaseMarkers: [0.5] } })} />);
+	rerender(
+		<Hud
+			hud={view({ boss: { name: "B", hp: 1, maxHp: 1, phase: 0, phaseMarkers: [0.5], enrage: 0 } })}
+		/>,
+	);
 	expect(screen.queryByTestId("hud-timer")).toBeNull();
 	expect(screen.queryByTestId("hud-round")).toBeNull();
 });
@@ -140,4 +144,27 @@ test("on touch the wallet keeps gold and souls and drops the kills counter at th
 	render(<Hud hud={view()} touch />);
 	expect(screen.getByTestId("hud-kills").className).toContain("hidden");
 	expect(screen.getByTestId("hud-kills").className).toContain("desktop:flex");
+});
+
+test("the timer turns blood-light and pulses only in the last five seconds", () => {
+	const { rerender } = render(<Hud hud={view({ secondsLeft: 6 })} />);
+	const timer = (): HTMLElement => screen.getByTestId("hud-timer");
+	expect(timer().getAttribute("data-urgent")).toBe("false");
+	expect(timer().className).not.toContain("animate-low");
+	rerender(<Hud hud={view({ secondsLeft: 5 })} />);
+	expect(timer().getAttribute("data-urgent")).toBe("true");
+	expect(timer().className).toContain("text-blood-light");
+	expect(timer().className).toContain("animate-low");
+	rerender(<Hud hud={view({ secondsLeft: 0 })} />);
+	expect(timer().getAttribute("data-urgent")).toBe("false");
+});
+
+test("the boss bar takes the top-centre place of the clock", () => {
+	render(
+		<Hud
+			hud={view({ boss: { name: "B", hp: 5, maxHp: 10, phase: 0, phaseMarkers: [0.5], enrage: 0 } })}
+		/>,
+	);
+	expect(screen.getByTestId("boss-bar")).toBeTruthy();
+	expect(screen.queryByTestId("hud-timer")).toBeNull();
 });

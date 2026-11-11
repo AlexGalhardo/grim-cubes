@@ -1,3 +1,4 @@
+import { t } from "@gc/core";
 import type { JSX } from "react";
 import { Bar } from "../Bar/Bar";
 
@@ -9,16 +10,53 @@ export interface BossViewModel {
 	phase: number;
 	/** HP fractions (0-1) where the fight changes phase: one tick on the bar for each. */
 	phaseMarkers: readonly number[];
+	/** Enrage stacks; above 0 the frame turns blood-light and pulses. */
+	enrage: number;
 }
 
-/** Boss HP bar at the top of the HUD (Art Bible 16.5): name, 28 px bar and the 50% phase marker. */
+/**
+ * Boss bar in the top-centre of the HUD (Art Bible 16.5): a name plate, the 28 px bar with one tick per phase change
+ * and a pip per phase. An enraged boss gets a blood-light frame that pulses in steps.
+ */
 export function BossBar({ boss }: { boss: BossViewModel }): JSX.Element {
+	const phases = boss.phaseMarkers.length + 1;
+	const current = Math.min(boss.phase, boss.phaseMarkers.length) + 1;
 	return (
 		<div
-			className="absolute top-4 left-1/2 w-[70%] -translate-x-1/2 desktop:w-[60%]"
+			className={`pointer-events-none w-[36vw] max-w-[880px] border-2 bg-night/65 p-1 desktop:w-[46vw] ${boss.enrage > 0 ? "animate-low border-blood-light" : "border-iron-dark"}`}
 			data-testid="boss-bar"
+			data-enraged={boss.enrage > 0}
 		>
-			<div className="mb-1 text-center font-display text-2xl">{boss.name}</div>
+			<div className="mb-1 flex items-center justify-between gap-2 px-1">
+				<div className="truncate font-display text-base text-bone uppercase desktop:text-2xl">
+					{boss.name}
+				</div>
+				<div className="flex shrink-0 items-center gap-2">
+					{boss.enrage > 0 ? (
+						<span
+							data-testid="boss-enrage"
+							className="font-display text-xs text-blood-light uppercase desktop:text-sm"
+						>
+							{t("boss.enraged")}
+						</span>
+					) : null}
+					<div
+						role="img"
+						aria-label={t("boss.phase", { phase: current, total: phases })}
+						data-testid="boss-phase-pips"
+						className="flex gap-1"
+					>
+						{Array.from({ length: phases }, (_, i) => (
+							<span
+								// Fixed, ordered pips: the index is the identity.
+								key={i}
+								data-lit={i < current}
+								className={`size-2 desktop:size-3 ${i < current ? "bg-ember-light" : "bg-iron-dark"}`}
+							/>
+						))}
+					</div>
+				</div>
+			</div>
 			<div className="relative">
 				<Bar value={boss.hp} max={boss.maxHp} variant="boss" label={boss.name} />
 				{boss.phaseMarkers.map((at) => (

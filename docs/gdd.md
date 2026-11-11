@@ -660,7 +660,7 @@ Recordes mostrados no menu: maior round por dificuldade, total de kills, total d
 ### 21.2 HUD in-run
 
 - Topo-esquerda: retrato do herói 64 px com o nível num selo no canto, barra de HP (número centralizado) e, logo abaixo, barra de XP fina sem texto.
-- Topo-centro: "ROUND n" pequeno sobre o timer grande (m:ss, 40 px); na luta de chefe a barra do chefe ocupa o lugar e o timer some.
+- Topo-centro: "ROUND n" pequeno sobre o timer grande (m:ss, 40 px); nos últimos 5 s do round o timer fica `blood-light` e pulsa em `steps()`. Na luta de chefe a barra do chefe ocupa o lugar e o timer some: placa com o nome, pips de fase, marcador por mudança de fase e moldura que pulsa quando o chefe está em fúria. Abaixo de 25% de HP a barra do herói ganha moldura `blood-light` e pulsa.
 - Topo-direita: ouro (moeda), almas da run (caveira) e abates, com os botões de velocidade, pausa e opções em ícones quadrados logo abaixo; ícone de elite ativa.
 - Base-esquerda: arma atual numa moldura de 56 px com 4 pips de tier, e a faixa de itens (ícones de 32 px em moldura da cor da raridade, contador quando maior que 1, no máximo 10 e depois um chip "+N"). Em tela de toque a arma vai para o lado dos vitais e a faixa some (o joystick ocupa a base-esquerda; os itens aparecem na loja e na pausa).
 - Margem de 24 px no desktop e de 12 px no mínimo (ou a safe area) no mobile. Nada cobre o herói nem o anel de 6 u ao redor dele (retângulo central de 600×400 px a 1080p, proporcional nos outros alvos).

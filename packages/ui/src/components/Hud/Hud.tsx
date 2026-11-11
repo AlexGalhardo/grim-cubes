@@ -2,12 +2,15 @@ import { t } from "@gc/core";
 import type { JSX, ReactNode } from "react";
 import type { HudState } from "../../App";
 import { Bar } from "../Bar/Bar";
+import { BossBar } from "../BossBar/BossBar";
 import { Icon } from "../Icon/Icon";
 import type { HudItem, HudWeapon } from "./hudTypes";
 
 /** Items drawn in the strip before the "+N" chip. */
 export const MAX_VISIBLE_ITEMS = 10;
 export const WEAPON_PIPS = 4;
+/** The timer turns blood-light and pulses for the last seconds of a round. */
+export const URGENT_SECONDS = 5;
 
 export type HudView = Pick<
 	HudState,
@@ -120,6 +123,7 @@ function Vitals({ hud }: { hud: HudView }): JSX.Element {
 }
 
 function Clock({ hud }: { hud: HudView }): JSX.Element {
+	const urgent = hud.secondsLeft > 0 && hud.secondsLeft <= URGENT_SECONDS;
 	return (
 		<div className={`${PLATE} flex flex-col items-center px-3 py-1`}>
 			<div
@@ -132,7 +136,8 @@ function Clock({ hud }: { hud: HudView }): JSX.Element {
 				data-testid="hud-timer"
 				role="timer"
 				aria-label={t("hud.timer")}
-				className={`font-display text-2xl leading-none desktop:text-[40px] ${hud.secondsLeft > 0 ? "" : "invisible"}`}
+				data-urgent={urgent}
+				className={`font-display text-2xl leading-none desktop:text-[40px] ${hud.secondsLeft > 0 ? "" : "invisible"} ${urgent ? "animate-low text-blood-light" : ""}`}
 			>
 				{formatClock(hud.secondsLeft)}
 			</div>
@@ -316,7 +321,7 @@ export function Hud({
 				) : null}
 			</div>
 			<div className="col-start-2 row-start-1 justify-self-center">
-				{hud.boss ? null : <Clock hud={hud} />}
+				{hud.boss ? <BossBar boss={hud.boss} /> : <Clock hud={hud} />}
 			</div>
 			<div className="col-start-3 row-start-1 flex flex-col items-end gap-1 justify-self-end">
 				<Wallet hud={hud} />

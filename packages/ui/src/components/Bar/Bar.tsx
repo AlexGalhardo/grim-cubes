@@ -31,7 +31,8 @@ export function Bar({ value, max, variant = "hp", label, thin = false, heightCla
 			aria-valuemin={0}
 			aria-valuemax={max}
 			aria-valuenow={clamped}
-			className={`relative w-full overflow-hidden border-2 border-iron-dark bg-night ${heightClass ?? (variant === "boss" ? "h-7" : "h-5")}`}
+			data-low={low}
+			className={`relative w-full overflow-hidden border-2 ${low ? "border-blood-light" : "border-iron-dark"} bg-night ${heightClass ?? (variant === "boss" ? "h-7" : "h-5")}`}
 		>
 			<div
 				data-low={low}
