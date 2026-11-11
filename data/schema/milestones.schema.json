@@ -22,7 +22,8 @@
 						}
 					},
 					"unlocksItem": { "$ref": "common.schema.json#/$defs/id" },
-					"unlocksSkin": { "$ref": "common.schema.json#/$defs/id" }
+					"unlocksSkin": { "$ref": "common.schema.json#/$defs/id" },
+					"unlocksHero": { "$ref": "common.schema.json#/$defs/id" }
 				}
 			}
 		},

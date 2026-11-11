@@ -5,6 +5,7 @@ import type { ReactElement } from "react";
 import { afterEach, expect, test, vi } from "vitest";
 import { DemoEnd } from "./components/DemoEnd/DemoEnd";
 import { Difficulty } from "./components/Difficulty/Difficulty";
+import { Heroes } from "./components/Heroes/Heroes";
 import { LevelUp } from "./components/LevelUp/LevelUp";
 import { Menu } from "./components/Menu/Menu";
 import { Options } from "./components/Options/Options";
@@ -135,6 +136,29 @@ test("the difficulty screen is navigable with the D-pad", () => {
 			actions={{ start: vi.fn(), cancel: vi.fn() }}
 		/>,
 		5,
+	);
+});
+
+test("the hero screen is navigable with the D-pad", () => {
+	const hero = (id: string, locked: boolean) => ({
+		id,
+		name: id,
+		tint: null,
+		weapon: "x",
+		passiveName: "y",
+		passiveLines: [],
+		locked,
+		requirement: locked ? "z" : "",
+	});
+	assertPadNavigable(
+		<Heroes
+			view={{
+				selected: "a",
+				heroes: [hero("a", false), hero("b", false), hero("c", true)],
+			}}
+			actions={{ choose: vi.fn(), cancel: vi.fn() }}
+		/>,
+		4,
 	);
 });
 

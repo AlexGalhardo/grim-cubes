@@ -45,6 +45,7 @@ import {
 	buyNode,
 	captureCheckpoint,
 	chooseDifficulty,
+	chooseHero,
 	computeStats,
 	computeSynergies,
 	createBot,
@@ -71,6 +72,9 @@ import {
 	type GameSpeed,
 	Health,
 	heroData,
+	heroesData,
+	heroMilestones,
+	heroUnlocked,
 	isUnlocked,
 	itemsData,
 	KnockbackResist,
@@ -325,6 +329,8 @@ async function boot(): Promise<void> {
 		meta.records,
 	);
 	const difficulty = difficultyData(roundsData.difficulties, difficultyId);
+	// A locked or unknown hero in the URL falls back to the Carrasco; a resumed run keeps its own hero.
+	const heroId = chooseHero(heroesData, milestonesData, meta, resumeRun?.hero ?? params.get("hero"));
 
 	// The web demo ends at the first boss: no walk to the Merchant there, the DemoEnd shows at once.
 	const demoLastRound = bossesData[0]?.round ?? 10;
@@ -332,6 +338,7 @@ async function boot(): Promise<void> {
 		seed,
 		difficulty,
 		meta,
+		hero: heroId,
 		autoShop: soakOn ? true : __IS_DEMO__ ? (round: number) => round >= demoLastRound : false,
 	});
 	const {
@@ -411,6 +418,7 @@ async function boot(): Promise<void> {
 		vignette: 0,
 		tip: null,
 		ossuary: null,
+		heroes: null,
 		difficulty: null,
 		dash: null,
 		cardRerolls: 0,
@@ -545,7 +553,7 @@ async function boot(): Promise<void> {
 				resume: () => {
 					if (meta.run) reloadWith((query) => query.set("resume", "1"));
 					else {
-						difficultyOpen = true;
+						heroesOpen = true;
 						publishNow();
 					}
 				},
@@ -570,7 +578,7 @@ async function boot(): Promise<void> {
 				publishNow();
 			}}
 			onRestart={() => {
-				difficultyOpen = true;
+				heroesOpen = true;
 				publishNow();
 			}}
 			onPause={
@@ -595,9 +603,9 @@ async function boot(): Promise<void> {
 							st.lastSlot = target;
 						});
 						slotsView = null;
-						difficultyOpen = true;
+						heroesOpen = true;
 						publishNow();
-					} else void useSlot(target, "difficulty", wipe);
+					} else void useSlot(target, "heroes", wipe);
 				},
 				erase: (target) => {
 					void (async () => {
@@ -625,9 +633,22 @@ async function boot(): Promise<void> {
 					publishNow();
 				},
 			}}
+			heroesActions={{
+				choose: (id) => {
+					pickedHero = chooseHero(heroesData, milestonesData, meta, id);
+					heroesOpen = false;
+					difficultyOpen = true;
+					publishNow();
+				},
+				cancel: () => {
+					heroesOpen = false;
+					publishNow();
+				},
+			}}
 			difficultyActions={{
 				cancel: () => {
 					difficultyOpen = false;
+					heroesOpen = true;
 					publishNow();
 				},
 				start: (id, seedText, tutorial) => {
@@ -638,6 +659,7 @@ async function boot(): Promise<void> {
 					next.delete("next");
 					next.delete("resume");
 					next.set("slot", String(slot));
+					next.set("hero", pickedHero);
 					if (tutorial) next.set("tutorial", "1");
 					next.set("difficulty", chooseDifficulty(roundsData.difficulties, id, meta.records));
 					const typed = parseSeed(seedText);
@@ -943,10 +965,11 @@ async function boot(): Promise<void> {
 			if (type === EventType.PropBroken) chunkRenderer.invalidateProps();
 		},
 	});
-	const skin = unlockedSkins(milestonesData, meta).at(-1);
-	if (skin) {
-		game.setHeroTint(skin.tint);
-		const tokenKey = skin.tint.replace(/-([a-z0-9])/g, (_, c: string) =>
+	// A hero's own recolour wins over the account skin, which only dresses the Carrasco.
+	const heroTint = session.heroDef.tint ?? unlockedSkins(milestonesData, meta).at(-1)?.tint;
+	if (heroTint) {
+		game.setHeroTint(heroTint);
+		const tokenKey = heroTint.replace(/-([a-z0-9])/g, (_, c: string) =>
 			c.toUpperCase(),
 		) as keyof typeof PALETTE;
 		heroRig?.setTint(PALETTE[tokenKey]);
@@ -1079,11 +1102,22 @@ async function boot(): Promise<void> {
 	const updateAudioState = (): void => {
 		const bossId =
 			run.state === "BossIntro" || run.state === "BossRound" ? boss.defFor(run.round).id : undefined;
-		const key = `${run.state}|${difficultyOpen || menuOpen}|${biomeTrack}|${bossId ?? ""}`;
+		const key = `${run.state}|${difficultyOpen || heroesOpen || menuOpen}|${biomeTrack}|${bossId ?? ""}`;
 		if (key === musicKey) return;
 		musicKey = key;
-		audio.setMusic(musicFor({ state: run.state, menu: difficultyOpen || menuOpen, biomeTrack, bossId }));
-		const wanted = ambienceFor({ state: run.state, menu: difficultyOpen || menuOpen, biomeTrack });
+		audio.setMusic(
+			musicFor({
+				state: run.state,
+				menu: difficultyOpen || heroesOpen || menuOpen,
+				biomeTrack,
+				bossId,
+			}),
+		);
+		const wanted = ambienceFor({
+			state: run.state,
+			menu: difficultyOpen || heroesOpen || menuOpen,
+			biomeTrack,
+		});
 		if (wanted !== ambienceId) {
 			if (ambienceId) audio.stop(ambienceId);
 			if (wanted) audio.playLoop(wanted);
@@ -1239,6 +1273,8 @@ async function boot(): Promise<void> {
 
 	let ossuaryOpen = false;
 	let difficultyOpen = false;
+	let heroesOpen = false;
+	let pickedHero = heroId;
 	let slotsView: HudState["slots"] = null;
 	let optionsOpen = false;
 	let pauseOpen = false;
@@ -1251,7 +1287,7 @@ async function boot(): Promise<void> {
 			runState: run.state,
 			levelUpOffer: levelUp.offer !== null,
 			chestOffer: chest.offer !== null,
-			screenOpen: optionsOpen || difficultyOpen || ossuaryOpen || slotsView !== null,
+			screenOpen: optionsOpen || difficultyOpen || heroesOpen || ossuaryOpen || slotsView !== null,
 		});
 		if (!open) return;
 		pauseOpen = true;
@@ -1276,6 +1312,7 @@ async function boot(): Promise<void> {
 	// A page reloaded after a slot choice lands straight on the next screen of the flow.
 	const landing = menuOpen ? params.get("next") : null;
 	if (landing === "difficulty") difficultyOpen = true;
+	if (landing === "heroes") heroesOpen = true;
 
 	// The run is saved into the slot when a round is about to start (GDD 21.4); debug and bench runs never touch it.
 	const checkpointsOn = !menuOpen && !loaded.readOnly && !bench && !soakOn && !params.has("debug");
@@ -1324,7 +1361,7 @@ async function boot(): Promise<void> {
 	/** Reloads the page with the slot flow's parameters; everything else in the URL (debug, lang) survives. */
 	function reloadWith(change: (query: URLSearchParams) => void): void {
 		const query = new URLSearchParams(location.search);
-		for (const key of ["seed", "tutorial", "difficulty", "resume", "next"]) query.delete(key);
+		for (const key of ["seed", "tutorial", "difficulty", "hero", "resume", "next"]) query.delete(key);
 		change(query);
 		location.search = query.toString();
 	}
@@ -1458,6 +1495,27 @@ async function boot(): Promise<void> {
 		void changeSettings((s) => (s.locale = id === "en" ? "en" : "pt-BR")).then(() => {
 			location.search = next.toString();
 		});
+	}
+
+	function heroesView(): NonNullable<HudState["heroes"]> {
+		return {
+			selected: pickedHero,
+			heroes: heroesData.map((def) => {
+				const gate = heroMilestones(milestonesData, def.id)[0];
+				return {
+					id: def.id,
+					name: t(`hero.${def.id}`),
+					tint: def.tint ?? null,
+					weapon: t(`weapon.${def.startingWeapon}`),
+					passiveName: t(`heroPassive.${def.passive.id}`),
+					passiveLines: def.passive.modifiers.map((m) => text(describeModifier(m))),
+					locked: !heroUnlocked(milestonesData, meta, def.id),
+					requirement: gate
+						? t(`heroes.requires.${gate.requires.stat}`, { value: gate.requires.value })
+						: "",
+				};
+			}),
+		};
 	}
 
 	function difficultyView(): NonNullable<HudState["difficulty"]> {
@@ -1850,6 +1908,7 @@ async function boot(): Promise<void> {
 			notice: loaded.notice,
 			boss: bossView,
 			ossuary: ossuaryOpen ? ossuaryView() : null,
+			heroes: heroesOpen ? heroesView() : null,
 			difficulty: difficultyOpen ? difficultyView() : null,
 			slots: slotsView,
 			pause: pauseOpen ? { round: checkpointRound || run.round } : null,
@@ -1922,6 +1981,8 @@ async function boot(): Promise<void> {
 			cur.ossuary !== null ||
 			cur.difficulty !== null ||
 			next.difficulty !== null ||
+			cur.heroes !== null ||
+			next.heroes !== null ||
 			cur.speed !== next.speed ||
 			cur.uiScale !== next.uiScale ||
 			cur.caption !== next.caption ||

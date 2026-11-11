@@ -4,9 +4,11 @@ import {
 	checksumOf,
 	createMetaState,
 	createSettings,
+	DEFAULT_HERO,
 	MAX_SAVE_BYTES,
 	parseGlobal,
 	parseSave,
+	profileOf,
 	SAVE_SCHEMA_VERSION,
 	SaveError,
 	serializeGlobal,
@@ -25,11 +27,11 @@ const meta = () => {
 	return m;
 };
 
-test("a save round-trips and uses schemaVersion 12", async () => {
+test("a save round-trips and uses schemaVersion 13", async () => {
 	const text = await serializeSave(meta(), "0.1.0", new Date("2026-10-31T12:00:00Z"));
 	const envelope = JSON.parse(text) as { schemaVersion: number; app: string; savedAt: string };
-	expect(envelope.schemaVersion).toBe(12);
-	expect(SAVE_SCHEMA_VERSION).toBe(12);
+	expect(envelope.schemaVersion).toBe(13);
+	expect(SAVE_SCHEMA_VERSION).toBe(13);
 	expect(envelope.app).toBe("grim-cubes");
 	expect(envelope.savedAt).toBe("2026-10-31T12:00:00.000Z");
 	expect(await parseSave(text)).toEqual(meta());
@@ -76,7 +78,9 @@ test("untrusted fields are validated", async () => {
 test("a save from another app or a newer schema is refused", async () => {
 	const base = JSON.parse(await serializeSave(meta(), "0.1.0")) as Record<string, unknown>;
 	await expect(parseSave(JSON.stringify({ ...base, app: "other" }))).rejects.toBeInstanceOf(SaveError);
-	await expect(parseSave(JSON.stringify({ ...base, schemaVersion: 13 }))).rejects.toThrow("newer version");
+	await expect(
+		parseSave(JSON.stringify({ ...base, schemaVersion: SAVE_SCHEMA_VERSION + 1 })),
+	).rejects.toThrow("newer version");
 });
 
 test("size, list and key limits protect the parser", async () => {
@@ -342,6 +346,7 @@ const checkpoint = () => ({
 	damageDealt: 5120.5,
 	elitesKilled: 1,
 	bossRounds: [5],
+	hero: "riddled",
 });
 
 test("a run checkpoint round-trips inside the slot and is null when absent", async () => {
@@ -437,4 +442,37 @@ test("a global file from schema 10 or 11 (no health bar toggles) still verifies 
 	await expect(
 		serializeGlobal({ ...createSettings(), hpBarHero: 1 as unknown as boolean }, "0.1.0"),
 	).rejects.toBeInstanceOf(SaveError);
+});
+
+test("a checkpoint from before schema 13 verifies without the hero and resumes as the Carrasco", async () => {
+	const m = meta();
+	m.run = checkpoint();
+	const data = JSON.parse(JSON.stringify(profileOf(m)));
+	delete data.run.hero;
+	for (const schemaVersion of [10, 11, 12]) {
+		const shaped =
+			schemaVersion < 11 ? { ...data, records: { normal: 12, grim: 0, nightmare: 0 } } : data;
+		const text = JSON.stringify({
+			schemaVersion,
+			savedAt: "2026-10-31T10:00:00.000Z",
+			app: "grim-cubes",
+			appVersion: "0.1.0",
+			checksum: await checksumOf(shaped),
+			data: shaped,
+		});
+		const loaded = await parseSave(text);
+		expect(loaded.run?.hero).toBe(DEFAULT_HERO);
+		expect(loaded.run?.seed).toBe(4242);
+		await expect(parseSave(text.replace('"gold":123.5', '"gold":124.5'))).rejects.toThrow(
+			"checksum mismatch",
+		);
+	}
+});
+
+test("the hero of a checkpoint must be a short id", async () => {
+	const m = meta() as unknown as Record<string, unknown>;
+	m.run = { ...checkpoint(), hero: "" };
+	await expect(serializeSave(m as unknown as ReturnType<typeof meta>, "0.1.0")).rejects.toBeInstanceOf(
+		SaveError,
+	);
 });

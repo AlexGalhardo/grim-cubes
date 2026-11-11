@@ -1,4 +1,6 @@
-export const SAVE_SCHEMA_VERSION = 12;
+export const SAVE_SCHEMA_VERSION = 13;
+/** Hero of every run saved before schema 13, and the one a run falls back to (`data/heroes.json`, first entry). */
+export const DEFAULT_HERO = "executioner";
 /** Complete profiles a player can keep side by side (GDD 21.4); slot numbers are 1 to `SLOT_COUNT`. */
 export const SLOT_COUNT = 3;
 export const SAVE_APP = "grim-cubes";
@@ -114,6 +116,8 @@ export interface RunCheckpoint {
 	damageDealt: number;
 	elitesKilled: number;
 	bossRounds: number[];
+	/** Hero id from `data/heroes.json`. */
+	hero: string;
 }
 
 /** Account progress of one slot (SDD 06 section 2); the settings live outside it. */
@@ -417,6 +421,8 @@ function validateCheckpoint(raw: unknown): RunCheckpoint | null {
 		damageDealt: amount(raw.damageDealt, "run.damageDealt"),
 		elitesKilled: counter(raw.elitesKilled, "run.elitesKilled"),
 		bossRounds: bossRounds.map((r: unknown) => counter(r, "run.bossRounds entry")),
+		// Absent before schema 13: the only hero there was.
+		hero: raw.hero === undefined ? DEFAULT_HERO : shortText(raw.hero, "run.hero"),
 	};
 }
 
@@ -569,6 +575,13 @@ function withoutEasy<T extends { records: Record<string, number> }>(profile: T):
 	return { ...profile, records };
 }
 
+/** Schemas before 13 had no hero in the checkpoint: their checksum covers `run` without it. */
+function withoutHero<T extends { run: RunCheckpoint | null }>(profile: T): T {
+	if (!profile.run) return profile;
+	const { hero: _hero, ...run } = profile.run;
+	return { ...profile, run: run as RunCheckpoint };
+}
+
 /**
  * The data as an older schema's checksum saw it (schemas 1 to 9 stored the whole account in one file): no
  * checkpoint, only the settings keys that schema knew, and no `lastSlot`.
@@ -627,7 +640,8 @@ export async function parseSave(text: string): Promise<MetaState> {
 	const envelope = openEnvelope(text);
 	if (envelope.schemaVersion >= 10) {
 		const profile = validateProfile(envelope.data);
-		await verified(envelope, envelope.schemaVersion < 11 ? withoutEasy(profile) : profile);
+		const covered = envelope.schemaVersion < 13 ? withoutHero(profile) : profile;
+		await verified(envelope, envelope.schemaVersion < 11 ? withoutEasy(covered) : covered);
 		return { ...profile, settings: createSettings() };
 	}
 	const data = validateMeta(envelope.data);

@@ -5,6 +5,7 @@ import type { ReactElement } from "react";
 import { afterEach, expect, test, vi } from "vitest";
 import { DemoEnd } from "./components/DemoEnd/DemoEnd";
 import { Difficulty } from "./components/Difficulty/Difficulty";
+import { Heroes } from "./components/Heroes/Heroes";
 import { LevelUp } from "./components/LevelUp/LevelUp";
 import { Menu } from "./components/Menu/Menu";
 import { Options } from "./components/Options/Options";
@@ -137,6 +138,41 @@ test("the title menu with Continuar has no serious violations", async () => {
 			<Menu
 				view={{ records: [], continue: { slotName: "Slot 2", runRound: 7 } }}
 				actions={{ resume: vi.fn(), play: vi.fn(), ossuary: vi.fn(), options: vi.fn() }}
+			/>,
+		),
+	).toEqual([]);
+});
+
+test("the hero screen has no serious violations", async () => {
+	expect(
+		await violations(
+			<Heroes
+				view={{
+					selected: "a",
+					heroes: [
+						{
+							id: "a",
+							name: "Carrasco",
+							tint: null,
+							weapon: "Espada",
+							passiveName: "Placas",
+							passiveLines: ["+1 armadura"],
+							locked: false,
+							requirement: "",
+						},
+						{
+							id: "b",
+							name: "O Fuzilado",
+							tint: "iron-light",
+							weapon: "Pistola",
+							passiveName: "Olho",
+							passiveLines: ["+10% crítico"],
+							locked: true,
+							requirement: "Chegue ao round 10",
+						},
+					],
+				}}
+				actions={{ choose: vi.fn(), cancel: vi.fn() }}
 			/>,
 		),
 	).toEqual([]);

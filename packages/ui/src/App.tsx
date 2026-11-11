@@ -9,6 +9,7 @@ import {
 	type DifficultyActions,
 	type DifficultyViewModel,
 } from "./components/Difficulty/Difficulty";
+import { Heroes, type HeroesActions, type HeroesViewModel } from "./components/Heroes/Heroes";
 import { Hud } from "./components/Hud/Hud";
 import type { HudItem, HudWeapon, SynergyView } from "./components/Hud/hudTypes";
 import { type CardView, LevelUp } from "./components/LevelUp/LevelUp";
@@ -64,6 +65,8 @@ export interface HudState {
 	boss: BossViewModel | null;
 	/** The permanent tree; null while closed. */
 	ossuary: OssuaryViewModel | null;
+	/** The hero choice before the difficulty; null while closed. */
+	heroes: HeroesViewModel | null;
 	/** The pre-run difficulty and seed screen; null while closed. */
 	difficulty: DifficultyViewModel | null;
 	/** The pause menu; null while playing. */
@@ -121,6 +124,7 @@ export interface AppProps {
 	onMenu?: (() => void) | undefined;
 	/** Opens the Steam store page (menu, demo end and the demo's results); the buttons are absent without it. */
 	onWishlist?: (() => void) | undefined;
+	heroesActions?: HeroesActions | undefined;
 	difficultyActions?: DifficultyActions | undefined;
 	slotsActions?: SlotsActions | undefined;
 	pauseActions?: PauseActions | undefined;
@@ -154,6 +158,7 @@ export function App({
 	onWishlist,
 	ossuaryActions,
 	onDashHold,
+	heroesActions,
 	difficultyActions,
 	slotsActions,
 	pauseActions,
@@ -180,6 +185,7 @@ export function App({
 		hud.shop !== null ||
 		hud.results !== null ||
 		hud.difficulty !== null ||
+		hud.heroes !== null ||
 		hud.slots !== null ||
 		hud.pause !== null ||
 		hud.ossuary !== null ||
@@ -231,10 +237,16 @@ export function App({
 					rerollButton={hud.padReroll}
 				/>
 			) : null}
-			{hud.menu && menuActions && !hud.difficulty && !hud.slots && !hud.ossuary && !hud.options ? (
+			{hud.menu &&
+			menuActions &&
+			!hud.difficulty &&
+			!hud.heroes &&
+			!hud.slots &&
+			!hud.ossuary &&
+			!hud.options ? (
 				<Menu view={hud.menu} actions={menuActions} version={version} demo={demo} />
 			) : null}
-			{hud.demoEnd && onRestart && !hud.difficulty && !hud.ossuary ? (
+			{hud.demoEnd && onRestart && !hud.difficulty && !hud.heroes && !hud.ossuary ? (
 				<DemoEnd
 					onRestart={onRestart}
 					onOssuary={ossuaryActions?.open}
@@ -242,7 +254,7 @@ export function App({
 					onWishlist={onWishlist}
 				/>
 			) : null}
-			{hud.results && onRestart && !hud.demoEnd && !hud.difficulty && !hud.ossuary ? (
+			{hud.results && onRestart && !hud.demoEnd && !hud.difficulty && !hud.heroes && !hud.ossuary ? (
 				<Results
 					view={hud.results}
 					onRestart={onRestart}
@@ -255,6 +267,7 @@ export function App({
 				<PauseMenu view={hud.pause} actions={pauseActions} />
 			) : null}
 			{hud.slots && slotsActions ? <Slots view={hud.slots} actions={slotsActions} /> : null}
+			{hud.heroes && heroesActions ? <Heroes view={hud.heroes} actions={heroesActions} /> : null}
 			{hud.difficulty && difficultyActions ? (
 				<Difficulty view={hud.difficulty} actions={difficultyActions} />
 			) : null}

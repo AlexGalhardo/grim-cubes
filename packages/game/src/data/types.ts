@@ -337,6 +337,8 @@ export interface MilestoneData {
 	requires: { stat: string; value: number };
 	unlocksItem?: string | undefined;
 	unlocksSkin?: string | undefined;
+	/** A hero from `data/heroes.json` that stays locked until this milestone is reached. */
+	unlocksHero?: string | undefined;
 }
 
 export interface SkinData {

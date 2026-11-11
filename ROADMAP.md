@@ -144,7 +144,7 @@ A Parte 1B (arte medium poly) começa depois da `v0.6.0` e tem pontos de parada 
 
 - [x] **S-12-01** Dados de três heróis (arma inicial, atributos base e passiva): o Carrasco atual e dois novos, com nomes diegéticos propostos pelo agente e registrados para confirmação do PO. Esquema em `data/schema` e validação em `data:check`.
   - Asserts: `bun run data:check` exit 0; teste que cada herói inicia a run com a arma e a passiva certas; GDD §7 atualizado.
-- [ ] **S-12-02** Tela de escolha de herói entre os slots e a dificuldade, com retrato, arma, passiva e condição de desbloqueio; desbloqueios pelos marcos de `data/milestones.json`; o herói escolhido fica no checkpoint da run.
+- [x] **S-12-02** Tela de escolha de herói entre os slots e a dificuldade, com retrato, arma, passiva e condição de desbloqueio; desbloqueios pelos marcos de `data/milestones.json`; o herói escolhido fica no checkpoint da run.
   - Asserts: teste de componente e de navegação por controle; migração do save com teste (versão do esquema sobe); captura nos quatro alvos; SDD 06 atualizado.
 - [ ] **S-12-03** Balanceamento: `bun run sim --check` passa para os três heróis nas três dificuldades.
   - Asserts: `reports/balance-*.json` com os três heróis dentro das faixas do GDD §25.

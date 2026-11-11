@@ -216,7 +216,7 @@ export function checkIntegrity(data: DataSet): string[] {
 	}
 
 	const heroes = asArray(data["heroes.json"]);
-	checkUniqueIds("heroes.json", heroes, errors);
+	const heroIds = checkUniqueIds("heroes.json", heroes, errors);
 	for (const h of heroes) {
 		if (typeof h.startingWeapon === "string" && !weaponIds.has(h.startingWeapon))
 			errors.push(
@@ -287,6 +287,8 @@ export function checkIntegrity(data: DataSet): string[] {
 		for (const m of list) {
 			if (typeof m.unlocksItem === "string" && !itemIds.has(m.unlocksItem))
 				errors.push(`milestones.json: ${idOf(m)} unlocks unknown item "${m.unlocksItem}"`);
+			if (typeof m.unlocksHero === "string" && !heroIds.has(m.unlocksHero))
+				errors.push(`milestones.json: ${idOf(m)} unlocks unknown hero "${m.unlocksHero}"`);
 			if (typeof m.unlocksSkin === "string" && !skinIds.has(m.unlocksSkin))
 				errors.push(`milestones.json: ${idOf(m)} unlocks unknown skin "${m.unlocksSkin}"`);
 		}
@@ -427,6 +429,15 @@ export function selfTest(
 			(d) => {
 				const exclusive = asArray(d["items.json"]).find((i) => typeof i.exclusiveTo === "string");
 				if (exclusive) exclusive.exclusiveTo = "flesh_1";
+			},
+		],
+		[
+			"milestone unlocks an unknown hero",
+			(d) => {
+				const m = asArray((d["milestones.json"] as JsonObject).milestones).find(
+					(x) => typeof x.unlocksHero === "string",
+				);
+				if (m) m.unlocksHero = "nobody";
 			},
 		],
 		[

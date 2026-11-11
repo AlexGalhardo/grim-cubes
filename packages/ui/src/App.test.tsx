@@ -31,6 +31,7 @@ const hud = (speed: number): HudState => ({
 	boss: null,
 	options: null,
 	ossuary: null,
+	heroes: null,
 	difficulty: null,
 	slots: null,
 	pause: null,
@@ -239,6 +240,33 @@ test("the title screen steps aside for the difficulty screen", () => {
 	);
 	expect(screen.queryByTestId("menu-play")).toBeNull();
 	expect(screen.getAllByRole("dialog")).toHaveLength(1);
+});
+
+test("the title screen steps aside for the hero screen", () => {
+	const heroes = {
+		selected: "a",
+		heroes: [
+			{
+				id: "a",
+				name: "Carrasco",
+				tint: null,
+				weapon: "Espada",
+				passiveName: "Placas",
+				passiveLines: [],
+				locked: false,
+				requirement: "",
+			},
+		],
+	};
+	render(
+		<App
+			store={createStore({ ...hud(1), menu: menuView, heroes })}
+			menuActions={menuActions()}
+			heroesActions={{ choose: vi.fn(), cancel: vi.fn() }}
+		/>,
+	);
+	expect(screen.queryByTestId("menu-play")).toBeNull();
+	expect(screen.getByTestId("heroes")).toBeTruthy();
 });
 
 test("the HUD scale goes to the root as a CSS variable", () => {

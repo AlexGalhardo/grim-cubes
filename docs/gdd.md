@@ -656,6 +656,8 @@ Decisão D09: árvore permanente fora da run, comprada com almas. Nome diegétic
 | 1.000 kills acumulados | item `cube_of_wrath` entra no pool |
 | 10.000 kills | item `warlord_banner` entra no pool |
 | 5 chefes mortos | item `executioner_mark` entra no pool |
+| Round 10 em qualquer dificuldade | herói O Fuzilado (proposta, §7) |
+| 3 chefes mortos | herói A Penitente (proposta, §7) |
 | Round 50 | skin "Carrasco de Ferro Negro" (cosmético) |
 | Pós-1.0 | personagens por marcos (Bruxa do Pântano: 3 Matriarcas mortas; Forjado Renegado: round 30 em Grim) |
 
@@ -670,6 +672,7 @@ Recordes mostrados no menu: maior round por dificuldade, total de kills, total d
 | Boot/Título | logo, "pressione para começar" (unlock de áudio), versão | PROTÓTIPO |
 | Menu principal | Continuar (só se já houve um slot usado), Novo jogo, Ossuário, Opções, Sair, com o botão principal maior; bloco de recordes por dificuldade; brasas animadas sobre a arte (paradas com redução de movimento); selo "DEMO" em destaque quando aplicável | PROTÓTIPO |
 | Slots de save | 3 slots: nome, último jogo, melhor round, almas e se há run em andamento; slot ocupado pede confirmação para sobrescrever; "Apagar" com confirmação | ALPHA |
+| Seleção de herói | 3 cartões: retrato (recolorido por token), arma inicial, passiva e, se bloqueado, a condição de desbloqueio; entre os slots e a dificuldade (novo jogo e "Jogar de novo"); o herói escolhido vai no checkpoint da run | BETA |
 | Seleção de dificuldade | Fácil/Normal/Difícil abertas, Nightmare com cadeado; uma linha de sabor por dificuldade; escolha (preenchimento âmbar e losango) e foco (contorno osso) nunca se parecem; seed e tutorial opcionais (S-08-01) | ALPHA |
 | HUD in-run | ver 21.2 | PROTÓTIPO |
 | Level-up | 3 cartas centrais, stats atuais à esquerda; pausa | PROTÓTIPO |
@@ -684,7 +687,7 @@ Recordes mostrados no menu: maior round por dificuldade, total de kills, total d
 ### 21.4 Slots de save e retomar a run (decisão do PO, 2026-10-31)
 
 - **Três slots**, cada um um perfil completo (almas, Ossuário, recordes, estatísticas, marcos e skins). Opções e teclas são globais e não mudam de slot.
-- **Novo jogo** abre a escolha de slot e depois a dificuldade. Um slot ocupado só é usado depois de confirmar que o perfil dele será apagado; um slot vazio entra direto. Cada slot ocupado também tem "Apagar", com confirmação.
+- **Novo jogo** abre a escolha de slot, depois a do herói (§7) e depois a dificuldade. Um slot ocupado só é usado depois de confirmar que o perfil dele será apagado; um slot vazio entra direto. Cada slot ocupado também tem "Apagar", com confirmação.
 - **Continuar** aparece quando já houve um slot usado e abre o último: retoma a run em andamento dele; sem run, abre o perfil e vai para a escolha de dificuldade. O Ossuário e as Opções do menu valem para o slot atual.
 - **Retomar a run:** o jogo salva o estado da run ao começar cada round (depois de sair da loja). Ao retomar, a run volta ao início desse round com a mesma economia, build, HP e sorteios; os inimigos não são salvos, o round recomeça limpo. Morrer ou terminar a run apaga o checkpoint. Ver SDD 06 seção 2.1.
 

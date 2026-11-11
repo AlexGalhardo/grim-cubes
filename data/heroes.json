@@ -26,7 +26,7 @@
 		"id": "penitent",
 		"name": "A Penitente",
 		"startingWeapon": "smg",
-		"tint": "flesh",
+		"tint": "bone",
 		"base": { "maxHp": 90, "speed": 6.4 },
 		"passive": {
 			"id": "scourged_flesh",

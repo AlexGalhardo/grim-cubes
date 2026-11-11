@@ -36,6 +36,8 @@ test("Nightmare stays locked below a Grim record of 20, Grim is open, and the ty
 	await expect(page.getByTestId("results-record")).toContainText("20", { timeout: 10_000 });
 
 	await page.getByRole("button", { name: "Jogar de novo" }).click();
+	await expect(page.getByTestId("heroes")).toBeVisible();
+	await page.getByTestId("heroes-start").click();
 	await expect(page.getByRole("dialog", { name: "Dificuldade" })).toBeVisible();
 	await expect(page.getByTestId("difficulty-grim")).toBeEnabled();
 	await expect(page.getByTestId("difficulty-nightmare")).toBeDisabled();
@@ -50,5 +52,6 @@ test("Nightmare stays locked below a Grim record of 20, Grim is open, and the ty
 	await page.waitForFunction(() => (window as unknown as DebugGc).gc?.ready === true);
 	expect(new URL(page.url()).searchParams.get("seed")).toBe("7");
 	expect(new URL(page.url()).searchParams.get("difficulty")).toBe("grim");
+	expect(new URL(page.url()).searchParams.get("hero")).toBe("executioner");
 	expect(await debug((d) => d.difficulty())).toBe("grim");
 });

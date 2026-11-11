@@ -126,6 +126,7 @@ export type { FragmentsConfig, XpConfig } from "./rules/fragments";
 export { dropChance, harvestCount, xpForLevel } from "./rules/fragments";
 export type { GameSpeed } from "./rules/gameSpeed";
 export { GAME_SPEEDS, nextSpeed } from "./rules/gameSpeed";
+export { chooseHero, heroMilestones, heroUnlocked } from "./rules/heroes";
 export { availableItems, isReached, lockedItemIds, unlockedSkins } from "./rules/milestones";
 export type { BuyResult, NodeState, OssuaryBonus } from "./rules/ossuary";
 export {

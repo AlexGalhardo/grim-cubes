@@ -16,6 +16,16 @@
 			"unlocksItem": "executioner_mark"
 		},
 		{
+			"id": "round_10",
+			"requires": { "stat": "record", "value": 10 },
+			"unlocksHero": "riddled"
+		},
+		{
+			"id": "bosses_3",
+			"requires": { "stat": "bossKills", "value": 3 },
+			"unlocksHero": "penitent"
+		},
+		{
 			"id": "round_50",
 			"requires": { "stat": "record", "value": 50 },
 			"unlocksSkin": "iron_executioner"

@@ -154,3 +154,33 @@ test("an unknown weapon in the save is refused instead of starting a broken run"
 	cp.weapon.id = "no_such_weapon";
 	expect(() => restoreCheckpoint(fresh(true), cp)).toThrow("unknown weapon");
 });
+
+test("the checkpoint keeps the hero: the passive is not saved as a pick, and another hero's save is refused", async () => {
+	const live = createGameSession({
+		seed: identity.seed,
+		difficulty,
+		meta: createMetaState(),
+		autoShop: true,
+		hero: "riddled",
+	});
+	playUntilIntroOf(live, 2);
+	const checkpoint = await throughTheSave(live);
+	expect(checkpoint.hero).toBe("riddled");
+	const passive = live.heroDef.passive.modifiers;
+	for (const m of passive) expect(checkpoint.modifiers).not.toContainEqual(m);
+
+	const again = createGameSession({
+		seed: identity.seed,
+		difficulty,
+		meta: createMetaState(),
+		autoShop: true,
+		hero: "riddled",
+	});
+	restoreCheckpoint(again, checkpoint);
+	expect(again.weapon.weapon.id).toBe(live.weapon.weapon.id);
+	for (const m of passive)
+		expect(again.stats.modifiers.filter((x) => x.stat === m.stat)).toHaveLength(
+			live.stats.modifiers.filter((x) => x.stat === m.stat).length,
+		);
+	expect(() => restoreCheckpoint(fresh(true), checkpoint)).toThrow("hero riddled");
+});

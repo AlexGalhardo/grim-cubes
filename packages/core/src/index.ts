@@ -37,6 +37,7 @@ export {
 	checksumOf,
 	createMetaState,
 	createSettings,
+	DEFAULT_HERO,
 	DIFFICULTIES,
 	LOCALES,
 	MAX_SAVE_BYTES,
