@@ -2174,6 +2174,11 @@ async function boot(): Promise<void> {
 					events.push(EventType.Damaged, 125, 0, 0, e);
 					return;
 				}
+				if (kind === "crit") {
+					const e = spawnNear(2, 0);
+					events.push(EventType.Damaged, 125, 1, 0, e);
+					return;
+				}
 				if (kind.startsWith("slash")) {
 					// "slash:<reach>": a swing to the right with that reach and enemies at 2.3 u, 3.1 u and 4 u on the arc.
 					const reach = Number(kind.slice(6)) || 3.25;

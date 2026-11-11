@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **tools:** `ux:legibility` takes `--biome <id>` (teleports the hero into that biome before the frame is frozen and writes `reports/legibility-<biome>.json`), and the debug API `fx("crit")` draws a critical damage number for captures
 - **ui:** The stat panel and the `now → after` values of cards and offers use the stats as they stand after every pick: the simulation recomputes them only on its next step and is paused while a card or chest is open, so a second level-up opened right after a pick used to start from stale values and show changes from the earlier card (`currentStats`)
 - **ui:** Elite-chest cards list the item's effects as well as its stat modifiers (through the new pure `itemLines`), so the effect-only Legendary items (the Ossuary arrow, the ruin sigil) no longer show a card with only a name and an icon; checked with `spawnElite()` and `killElites()` at the four screen targets
 - **ui:** Eleven item effects (rat king, executioner mark, brimstone heart, bone saw, tithe box, spiked boots, hellfire round, doom sigil, phylactery, blood altar, cube of wrath) had no text in either language, so shop and chest cards showed the raw `effect.<id>` key; they now read normally, chances and fractions show as clean percentages, and a test refuses any effect id of the items and the Ossuary without a text in pt-BR and en

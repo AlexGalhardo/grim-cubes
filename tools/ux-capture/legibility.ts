@@ -3,7 +3,8 @@
  * of the hero, measures the mean WCAG relative luminance of the ground, the hero and the enemies from the screenshot
  * and writes `reports/legibility.json`. Exits 1 when hero/ground is under 3:1 or enemy/ground under 2.5:1.
  *
- * Usage: `bun tools/ux-capture/legibility.ts [--url http://localhost:5199] [--shots dir]`. Without `--url` it serves the
+ * Usage: `bun tools/ux-capture/legibility.ts [--url http://localhost:5199] [--shots dir] [--biome bone_swamp]`; another
+ * biome teleports the hero there first and writes `reports/legibility-<biome>.json`. Without `--url` it serves the
  * build of `GC_DEBUG_API=1 bun run build` with `vite preview`. The sample windows come from projecting the world
  * offsets of the spawns through the camera of `data/render.json`, so no engine internals are read.
  */
@@ -21,7 +22,16 @@ const PORT = 4375;
 const urlArg = flag("--url", "");
 const base = urlArg || `http://localhost:${PORT}`;
 const shots = flag("--shots", "");
-const OUT = "reports/legibility.json";
+const biomeArg = flag("--biome", "sunken_cemetery");
+/** Where each biome starts on the x axis (`tests/e2e/biomes.spec.ts`): the hero is teleported there before the frame is frozen. */
+const BIOME_X: Record<string, number> = {
+	sunken_cemetery: 0,
+	bone_swamp: 190,
+	infernal_forge: 340,
+	biomech_nest: 520,
+};
+const OUT =
+	biomeArg === "sunken_cemetery" ? "reports/legibility.json" : `reports/legibility-${biomeArg}.json`;
 
 const HERO_RATIO_MIN = 3;
 const ENEMY_RATIO_MIN = 2.5;
@@ -170,6 +180,28 @@ async function main(): Promise<number> {
 				},
 			);
 			await page.waitForTimeout(3000);
+			if (biomeArg !== "sunken_cemetery") {
+				const x = BIOME_X[biomeArg];
+				if (x === undefined) throw new Error(`unknown biome ${biomeArg}`);
+				await page.evaluate((to) => {
+					(
+						window as unknown as { gc: { debug: { teleport(x: number, z: number): void } } }
+					).gc.debug.teleport(to, 0);
+				}, x);
+				await page.waitForFunction(
+					(id) => {
+						const biome = (
+							window as unknown as {
+								gc: { debug: { biome(): { id: string; loaded: boolean } } };
+							}
+						).gc.debug.biome();
+						return biome.id === id && biome.loaded;
+					},
+					biomeArg,
+					{ timeout: 30_000 },
+				);
+				await page.waitForTimeout(1500);
+			}
 			await page.evaluate((enemies) => {
 				const debug = (
 					window as unknown as { gc: { debug: { stillLife(list: typeof enemies): void } } }
@@ -213,7 +245,7 @@ async function main(): Promise<number> {
 		mkdirSync(dirname(OUT), { recursive: true });
 		const report = {
 			seed: 7,
-			biome: "sunken_cemetery",
+			biome: biomeArg,
 			metric: "mean WCAG relative luminance (0..1); ratio = (Lhi + 0.05) / (Llo + 0.05)",
 			thresholds: { heroOverGround: HERO_RATIO_MIN, enemyOverGround: ENEMY_RATIO_MIN },
 			targets,
