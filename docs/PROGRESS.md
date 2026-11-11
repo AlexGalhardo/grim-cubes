@@ -17,6 +17,7 @@ Decisões do PO em 2026-11-11:
 - Git: branch `feat/aaa-polish`, commits atômicos, sem push até a trilha S-17.
 - Releases `v0.1.0` a `v0.5.0`: editar o corpo para trazer o link de commit em cada linha (S-00-01).
 - Release de teste: ao fim da Parte 1, merge na `main`, push e `v0.6.0` com `.exe` e `.apk` (S-17).
+- Arte: depois da `v0.6.0` o jogo inteiro troca o voxel por 3D medium poly, com modelos de IA image-to-3D a partir das concept arts (trilha S-18). O voxel fica só na branch local `voxel-legacy` (`355fc20`). A trilha S-15 (Blockbench) foi cancelada. Instalar a ferramenta de image-to-3D e qualquer custo dela ainda precisam do aval do PO (S-18-01).
 
 Validação no início da sessão: `bun run typecheck` e `bun run lint` limpos; `bun run test` com 1023 de 1024, e o teste restante (`tools/sim/lib.test.ts`, soak) estourou o timeout com a CPU saturada e passou isolado em 28 s.
 

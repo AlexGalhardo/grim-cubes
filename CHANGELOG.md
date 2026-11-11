@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **docs:** The roadmap gains Part 1B (track S-18): after v0.6.0 the whole game moves from voxel to medium-poly 3D made by image-to-3D from the concept art, with the voxel art kept on the `voxel-legacy` branch; the Blockbench track S-15 is cancelled (PO decision of 2026-11-11)
 - **ui:** The whole UI grows by 25% on screens 1440 px tall or more, on top of the scale chosen in Options, so 2560x1440 keeps the proportions of 1080p instead of a HUD the same size in pixels (S-03-02)
 - **ui:** Boss bar with a name plate, phase pips and ticks, and an enrage pulse (`BossView.enrage`), sitting in the top-centre of the HUD; the hero bar gets a blood-light frame under 25% HP; the round timer turns blood-light and pulses in the last 5 s (S-03-04)
 - **ui:** Mobile HUD checks: compact vitals, 24 px timer, gold and souls only, safe-area margins and 48 px buttons are asserted by a component test and by the layout spec on the touch projects, which also keeps every cluster off the joystick region (S-03-03)

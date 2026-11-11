@@ -12,7 +12,7 @@ Cole o texto abaixo depois de `/goal`:
 Todos os itens da Parte 1 do ROADMAP.md estão marcados [x] com os asserts verificados, ou [!] com o bloqueio registrado em docs/PROGRESS.md, e `bun run typecheck && bun run lint && bun run lint:md && bun run test` termina com exit 0 na branch feat/aaa-polish.
 ```
 
-A Parte 2 não entra na meta: depende do PO, de hardware, de loja ou de data.
+A Parte 1B (arte medium poly) começa depois da `v0.6.0` e tem pontos de parada para o PO. A Parte 2 não entra na meta: depende do PO, de hardware, de loja ou de data.
 
 ## Como ler este arquivo
 
@@ -44,12 +44,12 @@ A Parte 2 não entra na meta: depende do PO, de hardware, de loja ou de data.
 | Legibilidade | câmera 25% mais perto e luz de contorno em herói e inimigos |
 | Números | Inter com dígitos tabulares; títulos continuam em Pixelify Sans |
 | Mecânicas novas | corpos e sangue persistentes, 3 heróis, seed diária com ranking local, sinergias por etiqueta |
-| Arte 3D | entra nesta leva, pelo Blockbench aberto pelo PO (MCP `blockbench`) |
 | Áudio | até 5.000 créditos ElevenLabs em SFX de UI |
 | Git | branch `feat/aaa-polish`, commits atômicos, sem push até o fim |
 | Release de teste | ao fim da Parte 1, merge na `main`, push e `v0.6.0` com `.exe` e `.apk` para o PO baixar e testar (S-17) |
 | Releases | editar `v0.1.0` a `v0.5.0` para incluir o link de commit em cada linha |
 | PixelLab | assinatura expirada; nenhum asset depende dele |
+| Arte 3D | troca para medium poly depois da `v0.6.0`, jogo inteiro, modelos por IA image-to-3D a partir das concept arts; voxel só na branch `voxel-legacy` (S-18); S-15 cancelada |
 
 ---
 
@@ -165,12 +165,10 @@ A Parte 2 não entra na meta: depende do PO, de hardware, de loja ou de data.
 
 ### S-15 Modelos 3D no Blockbench
 
-Pré-condição: o MCP `blockbench` responde (Blockbench aberto pelo PO com o plugin). Sem conexão, os itens ficam `[!]` e ninguém edita `.bbmodel` à mão.
+Cancelada pelo PO em 2026-11-11: a arte muda para 3D medium poly depois da `v0.6.0` (trilha S-18), então refinar os modelos voxel deixou de valer o esforço. O plugin MCP do Blockbench também não respondeu nesta sessão.
 
-- [ ] **S-15-01** Herói, os 8 inimigos comuns e os chefes revisados para ler bem com a câmera nova: silhueta, contraste de valor e detalhe de rosto e arma visíveis a 60 px. Fluxo da skill `blockbench-art`.
-  - Asserts: `bun run assets:build` exit 0; cada modelo refinado em `assets/src/models/authored.json` no mesmo commit; checklist do Art Bible §14 preenchido por modelo; capturas `hero`, `enemy-*` e `gravedigger` regeneradas.
-- [ ] **S-15-02** Modelos próprios dos dois heróis novos da S-12 (até lá eles usam o modelo do Carrasco recolorido).
-  - Asserts: os mesmos da S-15-01, mais a captura da tela de escolha de herói.
+- [-] **S-15-01** Herói, os 8 inimigos comuns e os chefes revisados no Blockbench para a câmera nova. Substituída pela S-18.
+- [-] **S-15-02** Modelos próprios dos dois heróis novos da S-12. Substituída pela S-18; até lá eles usam o modelo do Carrasco recolorido.
 
 ### S-16 Fechamento
 
@@ -191,6 +189,33 @@ Pedido do PO em 2026-11-11: ao fim da Parte 1, uma release nova com o `.exe` e o
   - Asserts: `gh run list --branch main --limit 1` com `conclusion: success` no commit da tag; `gh release view v0.6.0 --json assets` lista `GrimCubes-Setup-0.6.0.exe`, `GrimCubes-0.6.0-portable.exe`, `grim-cubes_0.6.0_android.apk`, `checksums.txt` e o SBOM; o corpo da release segue o formato da S-00-01; `CHANGELOG.md` tem a seção `[0.6.0]`; `docs/PROGRESS.md` registra a release e os links de download.
 - [ ] **S-17-03** Conferência dos binários publicados: o `.exe` portable baixado da release abre e chega ao menu, e o APK baixado tem a versão `0.6.0`.
   - Asserts: `sha256sum` dos arquivos baixados confere com `checksums.txt`; captura do menu do executável em `reports/`; `aapt dump badging` (ou equivalente) mostra `versionName='0.6.0'`. Se a máquina não tiver como abrir o `.exe` sem interação, o item fica `[!]` com o motivo e o PO testa.
+
+---
+
+## Parte 1B — Arte 3D medium poly (depois da v0.6.0)
+
+Decisão do PO em 2026-11-11: o jogo inteiro (personagens, cenário e props) troca o voxel por 3D medium poly; os modelos saem de IA image-to-3D a partir das concept arts de `references/concept-arts/`; o voxel fica preservado só na branch `voxel-legacy` (commit `355fc20`). Esta parte só começa com a `v0.6.0` publicada (S-17) e entra na meta do `/goal` depois dela.
+
+### S-18 Troca de arte
+
+- [ ] **S-18-01** ADR da troca de direção de arte, com orçamento de triângulos por tipo (herói 3 a 6 mil, inimigo comum 400 a 1.200, elite 1.500 a 2.500, chefe 6 a 12 mil, prop 100 a 800), o que muda no Art Bible (§1, §5 a §10, §13) e no GDD §1, e a ferramenta de image-to-3D escolhida com licença de uso comercial conferida. Instalar a ferramenta (AssetFurnace ou image-to-3dlab), baixar pesos de modelo e qualquer custo passam pelo PO antes. Deps: S-17-02.
+  - Asserts: `docs/adrs/` com o ADR novo; `docs/legal/third-party.md` registra a ferramenta e a licença dos modelos gerados; a pergunta de instalação e custo respondida em `docs/PROGRESS.md`.
+- [ ] **S-18-02** Pipeline de GLB: `assets/src/models/**/*.glb` entra no `assets:build` (malha com skin para herói e chefes, VAT para a horda, atlas de textura), sem dependência nova de runtime. Deps: S-18-01.
+  - Asserts: `bun run assets:build` exit 0 com um GLB de teste; teste do conversor; `docs/sdd/09-asset-pipeline.md` atualizado.
+- [ ] **S-18-03** Herói de prova: o Carrasco gerado a partir de `hero-headsman.png`, limpo, rigado e animado (idle, corrida, ataque, morte) no Blender e rodando no jogo. É o ponto de parada para o PO comparar com o voxel. Deps: S-18-02.
+  - Asserts: capturas nos quatro alvos; `bun run test:perf` dentro da tolerância; `reports/legibility.json` ainda passa; aprovação do PO registrada em `docs/PROGRESS.md` antes de seguir.
+- [ ] **S-18-04** Os 8 inimigos comuns e suas variantes em medium poly, na horda com VAT. Deps: S-18-03.
+  - Asserts: `bun run test:perf` com `frameP99` dentro da tolerância no cenário `round20`; capturas `enemy-*` e `horde-types`.
+- [ ] **S-18-05** Os 5 chefes, os elites e o Mercador de Ossos. Deps: S-18-03.
+  - Asserts: capturas dos chefes nos quatro alvos; animações de fase e de morte conferidas em captura.
+- [ ] **S-18-06** Cenário e props dos 5 biomas (chão, túmulos, árvores, ruínas, props quebráveis), com a separação de valor da S-01-03 mantida. Deps: S-18-03.
+  - Asserts: capturas `biome-*` nos quatro alvos; `reports/legibility.json` passa nos 5 biomas.
+- [ ] **S-18-07** Armas, projéteis, pickups e gore coerentes com o estilo novo (o sangue em cubos fica, salvo decisão contrária do PO). Deps: S-18-04.
+  - Asserts: capturas de combate nos quatro alvos; Art Bible §9 atualizada.
+- [ ] **S-18-08** Limpeza: o caminho voxel (`.bbmodel`, `assets:gen`, skill e agente do Blockbench) sai da `main`; documentação, key art e textos da loja revisados; a pergunta sobre manter o nome "Grim Cubes" fica registrada em `todo-later.md` para o PO. Deps: S-18-04 a S-18-07.
+  - Asserts: `bun run typecheck && bun run lint && bun run lint:md && bun run test && bun run build` exit 0; nenhum `.bbmodel` na `main`; a branch `voxel-legacy` continua existindo.
+- [ ] **S-18-09** Release `v0.7.0` com o `.exe` e o `.apk` da arte nova. Deps: S-18-08.
+  - Asserts: os mesmos da S-17-02, para a `v0.7.0`.
 
 ---
 
@@ -253,6 +278,7 @@ Os IDs são os da versão anterior. O detalhe de cada assert está em `git show 
 | Marco | Data | Versão |
 | --- | --- | --- |
 | Parte 1 concluída e release de teste (S-17) | até 2026-12-13 | `v0.6.0` |
+| Herói de prova em medium poly (S-18-03) | até 2026-12-20 | — |
 | Página Steam no ar (A-06-02) | 2027-01-10 | — |
 | Demo pública (A-06-03) | 2027-01-24 | `v0.6.x` |
 | Steam Next Fest | 2027-02-22 a 2027-03-01 | `v0.6.x` |
@@ -276,7 +302,8 @@ Os IDs são os da versão anterior. O detalhe de cada assert está em `git show 
 | R1 | Câmera mais perto mostra inimigos nascendo na tela | teste de spawn da S-01-01 falha | aumentar o raio mínimo de spawn em `data/rounds.json`, nunca afrouxar o teste |
 | R2 | Corpos persistentes derrubam o fps | `frameP99` fora da tolerância | baixar o teto por preset; preset Mínimo sem persistência |
 | R3 | Três heróis e sinergias quebram o balanceamento | `sim --check` fora das faixas | ajustar só `data/*.json`; se não fechar, o item fica `[~]` com o relatório anexado |
-| R4 | Blockbench não conecta | MCP recusa a conexão | S-15 fica `[!]`; o resto da Parte 1 não depende dele |
+| R4 | Modelos de IA image-to-3D saem inconsistentes ou pesados demais para a horda | herói de prova (S-18-03) reprovado ou `frameP99` fora da tolerância | parar na S-18-03; o voxel da `voxel-legacy` continua sendo a versão jogável; alternativas são pack comprado ou artista |
+| R7 | Troca de arte a 10 semanas da demo pública | S-18 não fecha até 2027-01-10 | a demo de 2027-01-24 sai com a arte que estiver completa; não misturar estilos numa mesma build pública |
 | R5 | Escopo cresce além deste arquivo | tarefa sem ID | não entra; vira pergunta ao PO |
 | R6 | Migração de save (S-12, S-13) perde progresso | teste de migração falha | migração com teste a partir de um save real da `v0.5.0` antes de qualquer mudança de esquema |
 
