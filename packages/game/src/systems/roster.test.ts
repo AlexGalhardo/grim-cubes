@@ -113,3 +113,11 @@ test("a boss with the armored modifier gets +20 armour, a swift one 1.6x speed",
 	}
 	expect(sawArmor).toBe(true);
 });
+
+test("the boss view lists the HP fractions where the fight changes phase, the same array every call", () => {
+	const { world, boss } = roster(7);
+	boss.start(world, 10);
+	const first = boss.view();
+	expect(first?.phaseMarkers).toEqual([0.5]);
+	expect(boss.view()?.phaseMarkers).toBe(first?.phaseMarkers);
+});

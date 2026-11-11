@@ -7,6 +7,8 @@ export interface BossViewModel {
 	maxHp: number;
 	/** 0 before the 50% summon, 1 after. */
 	phase: number;
+	/** HP fractions (0-1) where the fight changes phase: one tick on the bar for each. */
+	phaseMarkers: readonly number[];
 }
 
 /** Boss HP bar at the top of the HUD (Art Bible 16.5): name, 28 px bar and the 50% phase marker. */
@@ -19,10 +21,15 @@ export function BossBar({ boss }: { boss: BossViewModel }): JSX.Element {
 			<div className="mb-1 text-center font-display text-2xl">{boss.name}</div>
 			<div className="relative">
 				<Bar value={boss.hp} max={boss.maxHp} variant="boss" label={boss.name} />
-				<span
-					aria-hidden="true"
-					className={`absolute top-0 left-1/2 h-full w-0.5 ${boss.phase > 0 ? "bg-iron-dark" : "bg-bone"}`}
-				/>
+				{boss.phaseMarkers.map((at) => (
+					<span
+						key={at}
+						aria-hidden="true"
+						data-testid="boss-phase-marker"
+						style={{ left: `${at * 100}%` }}
+						className={`absolute top-0 h-full w-0.5 ${boss.phase > 0 ? "bg-iron-dark" : "bg-bone"}`}
+					/>
+				))}
 			</div>
 		</div>
 	);

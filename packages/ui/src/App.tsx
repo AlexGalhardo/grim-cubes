@@ -10,6 +10,7 @@ import {
 	type DifficultyActions,
 	type DifficultyViewModel,
 } from "./components/Difficulty/Difficulty";
+import type { HudItem, HudWeapon } from "./components/Hud/hudTypes";
 import { type CardView, LevelUp } from "./components/LevelUp/LevelUp";
 import { Menu, type MenuActions, type MenuViewModel } from "./components/Menu/Menu";
 import { MerchantPrompt, type MerchantPromptView } from "./components/MerchantPrompt/MerchantPrompt";
@@ -34,6 +35,16 @@ export interface HudState {
 	xp: number;
 	xpNeeded: number;
 	gold: number;
+	/** Whole seconds left in the round; 0 outside a timed round (the boss round has no timer). */
+	secondsLeft: number;
+	/** Souls the run has earned so far (the account gets them when it ends). */
+	souls: number;
+	/** Enemies killed in the run. */
+	kills: number;
+	/** The weapon in hand and its tier. */
+	weapon: HudWeapon;
+	/** The items the hero carries, grouped with a count; the same array until the owned set changes. */
+	items: readonly HudItem[];
 	/** The level-up offer on screen; empty when none. */
 	cards: readonly CardView[];
 	/** The elite chest offer on screen; empty when none. */

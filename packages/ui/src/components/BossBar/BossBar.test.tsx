@@ -5,7 +5,7 @@ import { BossBar, BossIntro } from "./BossBar";
 afterEach(cleanup);
 
 test("the boss bar shows the name, the HP and the phase marker", () => {
-	render(<BossBar boss={{ name: "O Coveiro", hp: 900, maxHp: 1200, phase: 0 }} />);
+	render(<BossBar boss={{ name: "O Coveiro", hp: 900, maxHp: 1200, phase: 0, phaseMarkers: [0.5] }} />);
 	expect(screen.getAllByText("O Coveiro").length).toBeGreaterThan(0);
 	const bar = screen.getByRole("progressbar", { name: "O Coveiro" });
 	expect(bar.getAttribute("aria-valuenow")).toBe("900");

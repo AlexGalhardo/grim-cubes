@@ -47,6 +47,8 @@ export interface BossView {
 	maxHp: number;
 	/** 0 before the summon, 1 after (the bar marks the 50% line). */
 	phase: number;
+	/** HP fractions (0-1) where the boss changes phase, for the markers on the bar; the same array for the whole fight. */
+	phaseMarkers: readonly number[];
 	/** Names of the elite modifiers the boss carries (empty before round 60). */
 	modifiers: readonly string[];
 }
@@ -91,6 +93,13 @@ export function createBossSystem(deps: BossSystemDeps): BossSystem {
 	const { def, rounds, spawn, events, queue, hero, rng, summonType, difficulty, onDefeated, heroStatus } =
 		deps;
 	const patterns = buildPatterns(def.patterns);
+	const phaseMarkers = [
+		...new Set(
+			def.patterns.flatMap((p) =>
+				typeof p.params?.atHpFraction === "number" ? [p.params.atHpFraction] : [],
+			),
+		),
+	];
 	const steps = (seconds: number): number => Math.max(1, Math.round(seconds / STEP));
 	const enrageSteps = steps(rounds.enrageEverySeconds);
 	const cooldownSteps = steps(def.patternCooldownSeconds ?? 1);
@@ -297,6 +306,7 @@ export function createBossSystem(deps: BossSystemDeps): BossSystem {
 				hp: Math.max(0, Math.ceil(Health.hp[entity] ?? 0)),
 				maxHp: Math.ceil(maxHp),
 				phase: Boss.phase[entity] ?? 0,
+				phaseMarkers,
 				modifiers: carried.map((m) => m.name),
 			};
 		},

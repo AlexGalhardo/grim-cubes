@@ -152,6 +152,7 @@ import { createFootsteps } from "./audio/footsteps";
 import { createMerchantVoice } from "./audio/merchantVoice";
 import { ambienceFor, createWebAudioDeps, musicFor, weaponLoopFor } from "./audio/webAudio";
 import { createDebugGamepad } from "./debugGamepad";
+import { createLoadoutView, roundSecondsLeft } from "./hudView";
 import { applyLocale, initLocale } from "./locale";
 import { canOpenPause } from "./pauseGate";
 import { createSoak, soakOptionsFrom } from "./soak";
@@ -354,6 +355,11 @@ async function boot(): Promise<void> {
 		xp: 0,
 		xpNeeded: xpForLevel(xp, 1),
 		gold: 0,
+		secondsLeft: 0,
+		souls: 0,
+		kills: 0,
+		weapon: { id: "", name: "", tier: 1 },
+		items: [],
 		cards: NO_CARDS,
 		chest: NO_CARDS,
 		shop: null,
@@ -1080,13 +1086,18 @@ async function boot(): Promise<void> {
 	// Each save copies a snapshot back into `meta`. A slow one must not overwrite a save that started later.
 	let metaRevision = 0;
 	let results: HudState["results"] = null;
+	const loadout = createLoadoutView({
+		itemName: (id) => t(`item.${id}`),
+		itemTier: (id) => itemsData.find((entry) => entry.id === id)?.tier ?? 1,
+		itemIcon: (id) => iconFor("item", id),
+		weaponName: (id) => t(`weapon.${id}`),
+	});
 	let lastShopJson = "";
 	let lastShop: HudState["shop"] = null;
 
-	/** Credits the run to the account once: souls, record and totals, then saves (SDD 06). */
-	function settleRun(): void {
-		settled = true;
-		const souls = soulsForRun(
+	/** Souls the run is worth so far: the results screen and the HUD counter share it. */
+	function runSouls(): number {
+		return soulsForRun(
 			{
 				perRound: roundsData.souls.perRound,
 				perElite: roundsData.souls.perElite,
@@ -1097,6 +1108,12 @@ async function boot(): Promise<void> {
 			difficulty.soulsMult,
 			itemEffects.effects.soulGain,
 		);
+	}
+
+	/** Credits the run to the account once: souls, record and totals, then saves (SDD 06). */
+	function settleRun(): void {
+		settled = true;
+		const souls = runSouls();
 		const newRecord = run.round > meta.records[difficultyId];
 		const result: RunResult = {
 			souls,
@@ -1609,6 +1626,12 @@ async function boot(): Promise<void> {
 			characters?.setBossAuras(carried.map((modifier) => modifier.aura));
 			vfx.setBossSpeedMult(carried.reduce((mult, modifier) => mult * (modifier.speedMult ?? 1), 1));
 		}
+		const loadoutView = loadout.update({
+			owned,
+			weaponId: weapon.weapon.id ?? "",
+			weaponTier: weapon.tier,
+			locale: meta.settings.locale,
+		});
 		const next: HudState = {
 			hp: Math.max(0, Math.ceil(Health.hp[hero] ?? 0)),
 			maxHp: Math.ceil(Health.max[hero] ?? 0),
@@ -1617,6 +1640,11 @@ async function boot(): Promise<void> {
 			xp: Math.floor(progress.xp),
 			xpNeeded: xpForLevel(xp, progress.level),
 			gold: Math.floor(progress.gold),
+			secondsLeft: roundSecondsLeft(run.state, run.ticksLeft, STEP),
+			souls: runSouls(),
+			kills: runStats.kills,
+			weapon: loadoutView.weapon,
+			items: loadoutView.items,
 			cards: lastOffer,
 			cardRerolls: levelUp.rerollsLeft,
 			chest: lastChest,
@@ -1690,6 +1718,11 @@ async function boot(): Promise<void> {
 			cur.level !== next.level ||
 			cur.xp !== next.xp ||
 			cur.gold !== next.gold ||
+			cur.secondsLeft !== next.secondsLeft ||
+			cur.souls !== next.souls ||
+			cur.kills !== next.kills ||
+			cur.weapon !== next.weapon ||
+			cur.items !== next.items ||
 			cur.cards !== next.cards ||
 			cur.cardRerolls !== next.cardRerolls ||
 			cur.chest !== next.chest ||

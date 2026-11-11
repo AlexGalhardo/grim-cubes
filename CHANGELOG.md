@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **ui:** `HudState` carries the seconds left in the round, the run souls, kills, the weapon with its tier and the grouped items, and the boss view lists its phase markers; built by a pure `createLoadoutView` that reuses its arrays until the owned set changes (S-03-01)
 - **render:** Damage numbers are Inter digits painted into the atlas with a dark outline (the pixel digits read "125" as "I2I"), bigger for the closer camera, crits larger in ember-light; size, crit scale and outline come from `data/render.json` (S-01-04)
 - **ci:** `release.yml` builds the debug APK in a third job and attaches it with its checksum, so a release ships the `.exe` and the `.apk` without a manual upload; `gradlew` is executable in git (S-17-01)
 - **ui:** Every number of the UI is drawn in Inter with fixed-width digits: the pixel font's 5 read as an S ("500" as "S00"). A digits-only face cut from Inter sits first in the display font stack, so letters stay in Pixelify Sans and no component changed (S-02-01)
