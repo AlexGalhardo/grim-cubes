@@ -162,6 +162,7 @@ import { createAudioEngine } from "./audio/audioEngine";
 import { createEventAudio } from "./audio/eventSounds";
 import { createFootsteps } from "./audio/footsteps";
 import { createMerchantVoice } from "./audio/merchantVoice";
+import { uiSounds } from "./audio/uiSounds";
 import { ambienceFor, createWebAudioDeps, musicFor, weaponLoopFor } from "./audio/webAudio";
 import { createDebugGamepad } from "./debugGamepad";
 import { createLoadoutView, roundSecondsLeft } from "./hudView";
@@ -1838,6 +1839,7 @@ async function boot(): Promise<void> {
 			cur.shop !== next.shop ||
 			cur.results !== next.results
 		) {
+			for (const id of uiSounds(cur, next)) audio.play(id, { priority: "ui", maxVoices: 2 });
 			hud.publish(next);
 		}
 	}

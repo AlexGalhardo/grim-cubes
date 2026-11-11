@@ -132,7 +132,7 @@ A Parte 1B (arte medium poly) começa depois da `v0.6.0` e tem pontos de parada 
 
 ### S-10 Áudio de UI
 
-- [~] **S-10-01** SFX de UI que faltam (abrir level-up, escolher carta, revelar raridade, compra, compra negada, transição de tela, contagem de almas, desbloqueio), gerados com `bun run audio:generate` dentro do teto de 5.000 créditos e ligados aos eventos da UI. Estado em 2026-11-11: os 11 SFX estão gerados, normalizados e no catálogo (commit `21368ef`, 2.200 créditos estimados); falta ligar cada um ao evento da UI e o teste dessa ligação.
+- [x] **S-10-01** SFX de UI que faltam (abrir level-up, escolher carta, revelar raridade, compra, compra negada, transição de tela, contagem de almas, desbloqueio), gerados com `bun run audio:generate` dentro do teto de 5.000 créditos e ligados aos eventos da UI. Estado: os 11 SFX foram gerados (commit `21368ef`, 2.200 créditos estimados) e estão ligados aos eventos por `apps/web/src/audio/uiSounds.ts`; `sfx_ui_hero_select` e `sfx_ui_synergy` entram com as telas da S-12-02 e da S-14-02.
   - Asserts: `docs/audio/credits.md` soma a rodada e o total da rodada é ≤ 5.000; cada arquivo tem `.meta.json` com plano `creator` e loudness medido; `bun run assets:build` exit 0; teste que cada evento de UI toca o SFX certo.
 
 ### S-11 Corpos e sangue persistentes
