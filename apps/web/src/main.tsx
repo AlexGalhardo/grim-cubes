@@ -2285,6 +2285,12 @@ async function boot(): Promise<void> {
 			grantGold: (amount: number) => {
 				progress.gold += amount;
 			},
+			/** In memory only (never saved): reaches the milestones that unlock the extra heroes, for captures. */
+			unlockHeroes: () => {
+				meta.records.normal = Math.max(meta.records.normal, 10);
+				meta.stats.bossKills = Math.max(meta.stats.bossKills, 3);
+				publishNow();
+			},
 			endRound: () => run.forceEnd(world),
 			/** Ends the walk to the Merchant (A-05-01): the shop opens at once. No-op outside `MerchantWait`. */
 			openShop: () => run.enterShop(),
