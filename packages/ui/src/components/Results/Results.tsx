@@ -97,10 +97,10 @@ function Stat({
 }): JSX.Element {
 	return (
 		<div
-			className={`flex border-2 border-iron-dark bg-night-2 px-2 py-0.5 ${short ? "items-baseline gap-1" : "flex-col"}`}
+			className={`flex border-2 border-iron-dark bg-night-2 px-2 ${short ? "items-baseline gap-1 py-0" : "flex-col py-0.5 desktop:px-3 desktop:py-1.5"}`}
 		>
-			<dt className="font-body text-bone-dark text-xs">{label}</dt>
-			<dd className="font-display text-bone text-lg" data-testid={testId}>
+			<dt className="font-body text-bone-dark text-xs desktop:text-sm">{label}</dt>
+			<dd className="font-display text-bone text-lg desktop:text-3xl" data-testid={testId}>
 				{children}
 			</dd>
 		</div>
@@ -134,7 +134,7 @@ export function Results({ view, onRestart, onOssuary, onMenu }: ResultsProps): J
 			aria-labelledby="results-title"
 			className="pointer-events-auto absolute inset-0 z-20 flex overflow-y-auto bg-night/85 p-2 mobile-l:p-4"
 		>
-			<div className="m-auto w-full max-w-4xl">
+			<div className="m-auto w-full max-w-4xl desktop:max-w-6xl">
 				<Panel title={t("results.panel")} riveted>
 					<h1 id="results-title" className="sr-only">
 						{t("results.title")}
@@ -176,16 +176,16 @@ export function Results({ view, onRestart, onOssuary, onMenu }: ResultsProps): J
 										<div
 											aria-hidden="true"
 											data-testid="results-cause-icon"
-											className={`flex size-12 shrink-0 items-center justify-center border-2 bg-night font-display text-2xl text-blood-light ${TIER_BORDER[CAUSE_TIER[view.causeKind]] ?? "border-iron-dark"}`}
+											className={`flex shrink-0 items-center justify-center border-2 bg-night font-display text-blood-light ${short ? "size-10 text-xl" : "size-12 text-2xl desktop:size-16 desktop:text-4xl"} ${TIER_BORDER[CAUSE_TIER[view.causeKind]] ?? "border-iron-dark"}`}
 										>
 											{CAUSE_GLYPH[view.causeKind]}
 										</div>
 										<div className="min-w-0">
-											<div className="font-body text-bone-dark text-xs">
+											<div className="font-body text-bone-dark text-xs desktop:text-sm">
 												{t("results.killedBy")}
 											</div>
 											<div
-												className="truncate font-display text-bone text-lg"
+												className="truncate font-display text-bone text-lg desktop:text-3xl"
 												data-testid="results-cause"
 											>
 												{view.cause}
@@ -204,7 +204,7 @@ export function Results({ view, onRestart, onOssuary, onMenu }: ResultsProps): J
 													<Icon icon={view.weapon.icon} size={32} />
 												) : null}
 											</div>
-											<span className="font-display text-bone text-sm">
+											<span className="font-display text-bone text-sm desktop:text-lg">
 												{t("results.weaponTier", {
 													name: view.weapon.name,
 													tier: view.weapon.tier,
@@ -238,7 +238,7 @@ export function Results({ view, onRestart, onOssuary, onMenu }: ResultsProps): J
 										data-testid="results-sources"
 										className="border-2 border-iron-dark bg-night-2 p-2"
 									>
-										<h2 className="mb-1 font-display text-bone text-sm uppercase">
+										<h2 className="mb-1 font-display text-bone text-sm uppercase desktop:mb-2 desktop:text-lg">
 											{t("results.sources")}
 										</h2>
 										<ul className="flex flex-col gap-1">
@@ -246,10 +246,10 @@ export function Results({ view, onRestart, onOssuary, onMenu }: ResultsProps): J
 												<li
 													key={source.id}
 													data-testid={`results-source-${source.id}`}
-													className="grid grid-cols-[5rem_1fr_4rem] items-center gap-2 font-body text-xs"
+													className="grid grid-cols-[5rem_1fr_4rem] items-center gap-2 font-body text-xs desktop:grid-cols-[8rem_1fr_5rem] desktop:text-base"
 												>
 													<span className="text-bone-dark">{source.label}</span>
-													<span className="h-3 border border-iron-dark bg-night">
+													<span className="h-3 border border-iron-dark bg-night desktop:h-5">
 														<span
 															className="block h-full bg-ember"
 															style={{
@@ -263,7 +263,7 @@ export function Results({ view, onRestart, onOssuary, onMenu }: ResultsProps): J
 												</li>
 											))}
 										</ul>
-										<div className="mt-1 flex justify-between border-iron-dark border-t-2 pt-1 font-body text-xs">
+										<div className="mt-1 flex justify-between border-iron-dark border-t-2 pt-1 font-body text-xs desktop:text-base">
 											<span className="text-bone-dark">{t("results.damage")}</span>
 											<span data-testid="results-damage" className="text-bone">
 												{view.damage}
@@ -274,8 +274,10 @@ export function Results({ view, onRestart, onOssuary, onMenu }: ResultsProps): J
 										className="border-2 border-ember bg-night-2 p-2"
 										data-testid="results-souls-block"
 									>
-										<p className="font-display text-3xl text-ember-light">
-											<span className="text-base">{t("results.souls")} </span>
+										<p className="font-display text-3xl text-ember-light desktop:text-6xl">
+											<span className="text-base desktop:text-2xl">
+												{t("results.souls")}{" "}
+											</span>
 											<span data-testid="results-souls">{souls}</span>
 											<span className="ml-2 font-body text-bone-dark text-sm">
 												{t("results.totalSouls", { total: view.totalSouls })}
@@ -284,7 +286,7 @@ export function Results({ view, onRestart, onOssuary, onMenu }: ResultsProps): J
 										{unlock ? (
 											<div
 												data-testid="results-unlock"
-												className="mt-1 font-body text-xs"
+												className="mt-1 font-body text-xs desktop:mt-2 desktop:text-base"
 											>
 												<div className="text-bone">
 													{view.totalSouls >= unlock.cost
@@ -294,7 +296,7 @@ export function Results({ view, onRestart, onOssuary, onMenu }: ResultsProps): J
 												<div
 													role="img"
 													aria-label={unlockLabel}
-													className="relative mt-1 h-4 border-2 border-iron-dark bg-night"
+													className="relative mt-1 h-4 border-2 border-iron-dark bg-night desktop:h-6"
 												>
 													<div
 														className="h-full bg-ember/60"
