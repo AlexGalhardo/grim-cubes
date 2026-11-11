@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **docs:** Rewrite `ROADMAP.md` from scratch (0.2.0) for goal-driven execution: Part 1 is the agent's work with verifiable asserts (tracks S-00 to S-17, ending in a `v0.6.0` test release with the `.exe` and the `.apk`), Part 2 keeps what depends on the PO under the old ids
+
 ### Added
 
 - **android:** Debug APK for sideloading (`bun run build:android`, Capacitor 8.6.0), attached to the v0.5.0 GitHub Release. Not a Play build (B-04-04)

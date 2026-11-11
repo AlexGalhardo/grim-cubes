@@ -1,6 +1,26 @@
 # PROGRESS
 
-Atualizado: 2026-11-01 (fuso do PO) | Versão: 0.5.0 (publicada, tag `v0.5.0` em ce352ff) | Fase: 2 — PROTÓTIPO (ALPHA e BETA adiantadas em paralelo) | Sessão: #2
+Atualizado: 2026-11-11 (fuso do PO) | Versão: 0.5.0 (publicada, tag `v0.5.0` em ce352ff) | Fase: ROADMAP 0.2.0, Parte 1 (polimento AAA e mecânicas novas) | Sessão: #3 | Branch: `feat/aaa-polish`
+
+## Sessão #3 (2026-11-11)
+
+O `ROADMAP.md` foi reescrito do zero (versão 0.2.0) para ser executado com `/goal`. A Parte 1 (trilhas S-00 a S-17) é o trabalho do agente; a Parte 2 guarda, com os IDs antigos, o que depende do PO. A versão anterior está em `git show v0.5.0:ROADMAP.md`. As seções abaixo desta, até "Bloqueios", descrevem o estado até a `v0.5.0`.
+
+Decisões do PO em 2026-11-11:
+
+- Legibilidade: câmera 25% mais perto e luz de contorno em herói e inimigos.
+- Números da UI em Inter com dígitos tabulares; títulos continuam em Pixelify Sans.
+- Entram quatro mecânicas: corpos e sangue persistentes, três heróis, seed diária com ranking local e sinergias por etiqueta.
+- Arte 3D entra pelo Blockbench aberto pelo PO; sem conexão do MCP, a trilha S-15 fica bloqueada.
+- Áudio: até 5.000 créditos ElevenLabs em SFX de UI. Saldo medido: 42.910 de 124.333, renovação em 2026-11-14.
+- PixelLab: assinatura expirada em 2026-11-07, sem uso planejado.
+- Git: branch `feat/aaa-polish`, commits atômicos, sem push até a trilha S-17.
+- Releases `v0.1.0` a `v0.5.0`: editar o corpo para trazer o link de commit em cada linha (S-00-01).
+- Release de teste: ao fim da Parte 1, merge na `main`, push e `v0.6.0` com `.exe` e `.apk` (S-17).
+
+Validação no início da sessão: `bun run typecheck` e `bun run lint` limpos; `bun run test` com 1023 de 1024, e o teste restante (`tools/sim/lib.test.ts`, soak) estourou o timeout com a CPU saturada e passou isolado em 28 s.
+
+Ferramentas de arte na máquina do PO: Blender 5.2 e 5.3 e Blockbench instalados; Goxel e AssetFurnace não instalados; só o Blockbench tem MCP configurado.
 
 Meta do PO (2026-10-31): implementar o ROADMAP até o fim sem interrupções; tarefas `Resp: PO` ficam em Bloqueios e os agentes seguem com o resto. Hooks lefthook instalados em `.git` (valem para todos os worktrees).
 
