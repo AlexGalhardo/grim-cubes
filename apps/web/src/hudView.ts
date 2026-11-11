@@ -15,6 +15,7 @@ export interface LoadoutLookup {
 	itemTier(id: string): number;
 	itemIcon(id: string): IconRef | undefined;
 	weaponName(id: string): string;
+	weaponIcon(id: string): IconRef | undefined;
 }
 
 export interface LoadoutView {
@@ -72,6 +73,7 @@ export function createLoadoutView(lookup: LoadoutLookup): { update(source: Loado
 					id: source.weaponId,
 					name: lookup.weaponName(source.weaponId),
 					tier: Math.min(MAX_PIPS, source.weaponTier + 1),
+					icon: lookup.weaponIcon(source.weaponId),
 				},
 				items: ids.map((id, i) => ({
 					id,

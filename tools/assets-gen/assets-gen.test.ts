@@ -1,7 +1,16 @@
-import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+	existsSync,
+	mkdirSync,
+	mkdtempSync,
+	readdirSync,
+	readFileSync,
+	rmSync,
+	writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { PNG } from "pngjs";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { PIXELS_PER_UNIT } from "../assets-build/bbmodel";
 import { buildAssets } from "../assets-build/build";
@@ -142,19 +151,29 @@ describe("assets-gen catalog", () => {
 describe("icons", () => {
 	const specs = iconSpecs("data");
 
-	it("covers every id of items, cards and the Ossuary", () => {
+	it("covers every id of items, cards, the Ossuary and the weapons", () => {
 		const load = <T>(file: string): T => JSON.parse(readFileSync(file, "utf8")) as T;
 		const items = load<{ id: string }[]>("data/items.json").map((i) => i.id);
 		const cards = load<{ cards: { id: string }[] }>("data/cards.json").cards.map((c) => c.id);
 		const nodes = load<{ branches: { nodes: { id: string }[] }[] }>("data/ossuary.json").branches.flatMap(
 			(b) => b.nodes.map((n) => n.id),
 		);
+		const weapons = load<{ id: string }[]>("data/weapons.json").map((w) => w.id);
 		const made = (kind: string): string[] => specs.filter((s) => s.kind === kind).map((s) => s.id);
 		expect(made("item")).toEqual(items);
 		expect(made("card")).toEqual(cards);
 		expect(made("node")).toEqual(nodes);
-		expect(specs.length).toBe(items.length + cards.length + nodes.length);
+		expect(made("weapon")).toEqual(weapons);
+		expect(specs.length).toBe(items.length + cards.length + nodes.length + weapons.length);
 		expect(new Set(specs.map((s) => `${s.kind}:${s.id}`)).size).toBe(specs.length);
+	});
+
+	it("has a hand-drawn icon in the repository for every id, none left as the seeded stand-in", () => {
+		const standIns = specs.filter((spec) => {
+			const file = join("assets", "src", "icons", spec.kind, `${spec.id}.png`);
+			return !existsSync(file) || PNG.sync.read(readFileSync(file)).data.equals(buildIcon(spec).data);
+		});
+		expect(standIns.map((spec) => `${spec.kind}/${spec.id}`)).toEqual([]);
 	});
 
 	it("draws 32x32 icons, deterministic per id and different between ids", () => {

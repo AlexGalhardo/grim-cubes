@@ -6,6 +6,7 @@ const lookup = {
 	itemTier: (id: string): number => (id === "rare" ? 3 : 1),
 	itemIcon: () => undefined,
 	weaponName: (id: string): string => `weapon:${id}`,
+	weaponIcon: () => undefined,
 };
 
 describe("loadout view", () => {

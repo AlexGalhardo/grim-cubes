@@ -1091,6 +1091,7 @@ async function boot(): Promise<void> {
 		itemTier: (id) => itemsData.find((entry) => entry.id === id)?.tier ?? 1,
 		itemIcon: (id) => iconFor("item", id),
 		weaponName: (id) => t(`weapon.${id}`),
+		weaponIcon: (id) => iconFor("weapon", id),
 	});
 	let lastShopJson = "";
 	let lastShop: HudState["shop"] = null;
@@ -1481,6 +1482,7 @@ async function boot(): Promise<void> {
 			weapon: {
 				name: t(`weapon.${def.id ?? ""}`),
 				tier,
+				icon: iconFor("weapon", def.id ?? ""),
 				lines: [
 					t("shop.weaponDamage", { value: i18n.formatNumber(Math.round(damage * 10) / 10) }),
 					t("shop.weaponRate", {
@@ -1502,7 +1504,7 @@ async function boot(): Promise<void> {
 			quote: t(`voice.merchant.arrive_${(run.round % 3) + 1}`),
 		};
 	}
-	function iconFor(kind: "item" | "card" | "node", id: string): IconRef | undefined {
+	function iconFor(kind: "item" | "card" | "node" | "weapon", id: string): IconRef | undefined {
 		const key = `${kind}_${id}`;
 		if (iconCache.has(key)) return iconCache.get(key);
 		const entry = assets?.manifest.entries[`icon_${key}`];
@@ -1593,7 +1595,7 @@ async function boot(): Promise<void> {
 									? t("shop.upgradeName", { name: t(`weapon.${slot.id}`) })
 									: t(`weapon.${slot.id}`),
 						lines: slot.lines.map(text),
-						icon: slot.kind === "item" ? iconFor("item", slot.id) : undefined,
+						icon: iconFor(slot.kind === "item" ? "item" : "weapon", slot.id),
 						preview: slot.kind === "item" ? statPreview(slot.id) : undefined,
 					})),
 					...shopPanels(),

@@ -127,7 +127,7 @@ A Parte 1B (arte medium poly) começa depois da `v0.6.0` e tem pontos de parada 
 
 ### S-09 Ícones que faltam
 
-- [ ] **S-09-01** Ícone próprio para cada arma e cada magia automática, no mesmo padrão dos 84 existentes (grade de 14×14 blocos, só cores da paleta, leitura pela forma), gerados por script e registrados em `assets/src/models/authored.json`.
+- [x] **S-09-01** Ícone próprio para cada arma e cada magia automática, no mesmo padrão dos 84 existentes (grade de 14×14 blocos, só cores da paleta, leitura pela forma), gerados por script e registrados em `assets/src/models/authored.json`.
   - Asserts: um PNG por id de `data/weapons.json` em `assets/src/icons/weapon`; `bun run assets:build` exit 0; teste que todo id de arma resolve um ícone; Art Bible §11 atualizada.
 
 ### S-10 Áudio de UI

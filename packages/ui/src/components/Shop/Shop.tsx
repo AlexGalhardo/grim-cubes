@@ -14,7 +14,7 @@ export interface ShopSlotView {
 	locked: boolean;
 	sold: boolean;
 	affordable: boolean;
-	/** Item icon from the atlas; weapons and upgrades keep the text label. */
+	/** Icon from the atlas: the item, or the weapon of a weapon or upgrade offer. */
 	icon?: IconRef | undefined;
 	/** Stat line id -> value after buying this offer, shown as `now → after` while the offer is hovered or focused. */
 	preview?: Readonly<Record<string, string>> | undefined;
@@ -56,6 +56,7 @@ export interface ShopWeaponView {
 	/** 1-5, the rarity colour of the weapon tier. */
 	tier: number;
 	lines: readonly string[];
+	icon?: IconRef | undefined;
 }
 
 export interface OwnedItemView {
@@ -246,7 +247,7 @@ export function Shop({
 								aria-hidden="true"
 								className={`flex shrink-0 items-center justify-center border-2 bg-night font-display text-ember-light ${TIER_BORDER[weapon.tier] ?? "border-iron-dark"} ${short ? "size-10 text-xl" : "size-16 text-3xl"}`}
 							>
-								⚔
+								{weapon.icon ? <Icon icon={weapon.icon} size={short ? 32 : 48} /> : "⚔"}
 							</div>
 							<div className="min-w-0">
 								<div

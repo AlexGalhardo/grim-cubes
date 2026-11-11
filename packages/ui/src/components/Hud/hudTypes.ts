@@ -16,6 +16,6 @@ export interface HudWeapon {
 	name: string;
 	/** 1-4: the tier pips lit on the weapon frame. */
 	tier: number;
-	/** No weapon art exists yet (ROADMAP S-09): the frame falls back to a glyph. */
+	/** Weapon icon from the atlas; the frame falls back to a glyph while the assets load. */
 	icon?: IconRef | undefined;
 }
