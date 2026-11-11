@@ -60,7 +60,7 @@ export function Menu({ view, actions, version, demo }: MenuProps): JSX.Element {
 	const nav = useDialogNav<HTMLDivElement>({ onCancel: () => setAsking(false) });
 	// Short landscape phones: buttons only, under the logo, so the art's title stays readable.
 	const short = useShortScreen();
-	// The main action (Continue, or New game without a save) is the large plate; the rest are "md". Short screens use "md" for all.
+	// The main action (Continue, or New game without a save) is the large plate; the rest are "md". Short screens use "md" for all, with the buttons after the first in two columns so seven of them fit 360 px.
 	const buttonSize = short ? "md" : "lg";
 	return (
 		<div
@@ -95,7 +95,7 @@ export function Menu({ view, actions, version, demo }: MenuProps): JSX.Element {
 			/>
 			<div
 				data-testid="menu-panel"
-				className={`relative flex w-full flex-col ${short ? "mt-auto max-w-52 gap-1 pb-2" : "gap-3 my-auto max-w-60 mobile-l:ml-[3%] mobile-l:max-w-xs desktop-xl:max-w-sm"}`}
+				className={`relative w-full ${short ? "mt-auto grid max-w-80 grid-cols-2 gap-1 pb-2 [&>:not(button)]:col-span-2 [&>button:first-of-type]:col-span-2" : "flex flex-col gap-3 my-auto max-w-60 mobile-l:ml-[3%] mobile-l:max-w-xs desktop-xl:max-w-sm"}`}
 			>
 				<h1 id="menu-title" className="sr-only">
 					{t("menu.title")}

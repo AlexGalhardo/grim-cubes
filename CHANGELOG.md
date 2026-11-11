@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **ui:** On short screens the title menu puts every button after the first in two columns, so the worst case of seven (Continue, New game, Daily challenge, Ossuary, Options, Wishlist, Quit) fits 800x360 and 896x414 with nothing cut or scrolling; checked at both sizes
 - **audio:** Picking a hero plays `sfx_ui_hero_select`, and the hero and daily-challenge screens change with the transition sound; the run time on the results screen now comes from the checkpointed `RunStats.seconds`, so a resumed run shows its whole fight time (S-12-02, S-13-01, S-06-01)
 - **perf:** New `gore` bench scenario (`?bench=gore&preset=<id>`, run at Ultra and High) that sends death events until the floor-mark pool is full and recycling, and measures `frameP99`, draw calls and active meshes there; the discard costs about 5 us per mark at the 600 cap, so it stays as is (S-11-01)
 - **tools:** `ux:legibility` takes `--biome <id>` (teleports the hero into that biome before the frame is frozen and writes `reports/legibility-<biome>.json`), and the debug API `fx("crit")` draws a critical damage number for captures
