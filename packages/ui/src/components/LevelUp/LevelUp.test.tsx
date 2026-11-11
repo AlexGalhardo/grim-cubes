@@ -176,3 +176,13 @@ test("the stats panel is absent on the mobile targets so the cards are not cut",
 	expect(screen.getAllByTestId(/^levelup-card-/)).toHaveLength(3);
 	vi.unstubAllGlobals();
 });
+
+test("a card grows with a long effect text instead of clipping it at the Art Bible height", () => {
+	const long = card("arrow", "Arrow", {
+		lines: ["A cada 1,2 s uma seta busca o inimigo mais próximo (8 + 2 por round)"],
+	});
+	render(<LevelUp cards={[long]} onChoose={() => {}} />);
+	const className = screen.getByTestId("levelup-card-0").className;
+	expect(className).toContain("desktop:min-h-75");
+	expect(className).not.toMatch(/(^|\s)(mobile-l:|desktop:)?h-(55|60|75)(\s|$)/);
+});

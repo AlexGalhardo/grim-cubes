@@ -121,7 +121,7 @@ export function LevelUp({
 								onFocus={() => setFocused(i)}
 								onBlur={() => setFocused(null)}
 								style={{ animationDelay: `${i * 60}ms` }}
-								className={`group panel-riveted flex h-55 w-40 animate-card-in flex-col items-center overflow-hidden border-2 bg-linear-to-b from-iron-black to-night-2 p-2 text-center font-display text-bone shadow-plate transition-[translate,border-color] duration-fast hover:-translate-y-1 hover:border-ember focus-visible:-translate-y-1 focus-visible:border-ember focus-visible:outline-2 focus-visible:outline-ember focus-visible:outline-offset-2 active:translate-y-0 mobile-l:h-60 mobile-l:w-45 desktop:h-75 desktop:w-55 desktop:p-3 ${TIER_BORDER[card.rarity] ?? "border-iron-dark"}`}
+								className={`group panel-riveted flex min-h-55 w-40 animate-card-in flex-col items-center overflow-hidden border-2 bg-linear-to-b from-iron-black to-night-2 p-2 text-center font-display text-bone shadow-plate transition-[translate,border-color] duration-fast hover:-translate-y-1 hover:border-ember focus-visible:-translate-y-1 focus-visible:border-ember focus-visible:outline-2 focus-visible:outline-ember focus-visible:outline-offset-2 active:translate-y-0 mobile-l:min-h-60 mobile-l:w-45 desktop:min-h-75 desktop:w-55 desktop:p-3 ${TIER_BORDER[card.rarity] ?? "border-iron-dark"}`}
 							>
 								<span className="flex w-full items-center justify-between text-xs">
 									<span className="border-2 border-iron-dark bg-night px-1.5 text-bone-dark">
