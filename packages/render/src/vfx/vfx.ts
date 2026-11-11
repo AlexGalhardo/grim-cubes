@@ -136,6 +136,9 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 		elevation: Math.PI / 2 - CAMERA.beta,
 		color: rgb(PALETTE.damageWhite),
 		critColor: emberLight,
+		outline: config.damageNumberOutline,
+		outlineColor: PALETTE.night,
+		critScale: config.damageNumberCritScale,
 	});
 
 	const telegraph = createTelegraph(game);

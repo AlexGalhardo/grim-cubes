@@ -233,7 +233,7 @@ Decisão D23: gore alto estilizado, toggle para reduzir.
 - Fogo/explosão: 2 sprites pixel art animados (8 frames) em billboard + 6–10 cubos Brasa; sem luz em mobile.
 - Auras de elite: anel de quads emissivos no chão + partículas lentas; forma varia por modificador (§3.3).
 - Telegrafia de ataques de chefe: decal no chão (Sangue claro, 60%), cresce durante o wind-up.
-- Números de dano: sprites de dígitos pixel (fonte §11) em billboard, renderizados pela engine, 0,6 s de vida. Em inimigos são quase brancos (token `damage-white` `#F4F1EA`, que existe porque `#FFFFFF` puro é proibido em textura); crítico usa Brasa clara. Decisão do PO em 2026-10-31.
+- Números de dano: dígitos da Inter (a mesma face dos números da UI, §11) pintados num atlas com contorno escuro (`night`, `damageNumberOutline`) e desenhados em quads inclinados pela elevação da câmera, renderizados pela engine, 0,6 s de vida. O preenchimento é quase branco (token `damage-white` `#F4F1EA`, que existe porque `#FFFFFF` puro é proibido em textura); crítico usa Brasa clara e `damageNumberCritScale` (1,4×). Os dígitos pixel foram trocados em 2026-11-11 porque "125" lia "I2I". O escuro de antes vinha do material sem base emissiva (corrigido em 391f6dd); o que sobrou era o glifo 3×5 sem contorno e pequeno. Tamanho e contorno em `data/render.json`; telas pequenas usam 0,85×.
 
 ### 9.1 Exposição em jogo (2026-10-31)
 

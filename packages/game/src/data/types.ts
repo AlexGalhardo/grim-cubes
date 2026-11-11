@@ -157,6 +157,8 @@ export interface RenderData {
 		damageNumberLifeSeconds: number;
 		damageNumberRise: number;
 		damageNumberHeight: number;
+		damageNumberCritScale: number;
+		damageNumberOutline: number;
 		projectileSize: number;
 		bossScale: number;
 		bossEnrageTint: number[];

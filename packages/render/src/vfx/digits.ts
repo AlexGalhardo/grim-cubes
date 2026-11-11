@@ -7,25 +7,62 @@ import { CreatePlane } from "@babylonjs/core/Meshes/Builders/planeBuilder";
 import type { Scene } from "@babylonjs/core/scene";
 import { createInstanceSet, type InstanceSet } from "./instances";
 
-/** 3x5 pixel digits, rows top to bottom, '1' = lit. */
-const GLYPHS = [
-	"111101101101111",
-	"010110010010111",
-	"111001111100111",
-	"111001111001111",
-	"101101111001001",
-	"111100111001111",
-	"111100111101111",
-	"111001010010010",
-	"111101111101111",
-	"111101111001111",
-] as const;
-const GLYPH_W = 3;
-const GLYPH_H = 5;
-const CELL = GLYPH_W + 1;
 const MAX_DIGITS = 6;
 /** Hits on the same owner closer together than this add up into one number. */
 const MERGE_SECONDS = 0.1;
+/** Inter, the same face the UI draws every number in (`GC Digits`, Art Bible §11): its 1, 5 and 2 are unambiguous. */
+const FONT_FAMILY = '"Inter", sans-serif';
+const FONT_PX = 64;
+/** Inter's digit height as a share of the font size. */
+const DIGIT_HEIGHT = 0.727;
+/** Neighbouring cells overlap by this share of the advance; the cell padding is transparent, so nothing is covered. */
+const ADVANCE = 0.9;
+
+export interface DigitAtlasLayout {
+	cellWidth: number;
+	cellHeight: number;
+	atlasWidth: number;
+	/** Baseline of the digits inside a cell, from the top. */
+	baseline: number;
+}
+
+/** Cell geometry of the digit atlas: one cell per digit, with room for the outline on every side. */
+export function digitAtlasLayout(outline: number): DigitAtlasLayout {
+	const pad = Math.ceil(outline) + 1;
+	const ink = Math.ceil(FONT_PX * DIGIT_HEIGHT);
+	const cellWidth = Math.ceil(FONT_PX * 0.62) + 2 * pad;
+	const cellHeight = ink + 2 * pad;
+	return { cellWidth, cellHeight, atlasWidth: cellWidth * 10, baseline: pad + ink };
+}
+
+/**
+ * Paints the ten digits in white with a dark outline into a canvas atlas. Without a DOM (unit tests) the atlas is a
+ * plain white block: the glyphs only matter on screen.
+ */
+function paintAtlas(layout: DigitAtlasLayout, outline: number, outlineColor: string): Uint8Array {
+	const { cellWidth, cellHeight, atlasWidth, baseline } = layout;
+	const bytes = new Uint8Array(atlasWidth * cellHeight * 4).fill(255);
+	if (typeof document === "undefined") return bytes;
+	const canvas = document.createElement("canvas");
+	canvas.width = atlasWidth;
+	canvas.height = cellHeight;
+	const ctx = canvas.getContext("2d");
+	if (!ctx) return bytes;
+	ctx.clearRect(0, 0, atlasWidth, cellHeight);
+	ctx.font = `700 ${FONT_PX}px ${FONT_FAMILY}`;
+	ctx.textAlign = "center";
+	ctx.textBaseline = "alphabetic";
+	ctx.lineJoin = "round";
+	ctx.lineWidth = outline * 2;
+	ctx.strokeStyle = outlineColor;
+	ctx.fillStyle = "#FFFFFF";
+	for (let d = 0; d < 10; d++) {
+		const cx = d * cellWidth + cellWidth / 2;
+		ctx.strokeText(String(d), cx, baseline);
+		ctx.fillText(String(d), cx, baseline);
+	}
+	return new Uint8Array(ctx.getImageData(0, 0, atlasWidth, cellHeight).data.buffer);
+}
 
 export interface DamageNumbers {
 	/** Shows `value` above (x, z); crit numbers are larger and use `critColor`. */
@@ -48,35 +85,39 @@ export interface DamageNumbersConfig {
 	elevation: number;
 	color: readonly [number, number, number];
 	critColor: readonly [number, number, number];
+	/** Outline thickness in atlas pixels. */
+	outline: number;
+	/** Colour of the outline (a CSS colour). */
+	outlineColor: string;
+	/** Size multiplier of a crit number. */
+	critScale: number;
 }
 
 /**
- * Damage numbers drawn by the engine: one quad mesh per digit (UVs pick the glyph from a generated pixel-font
+ * Damage numbers drawn by the engine: one quad mesh per digit (UVs pick the glyph from a generated Inter
  * atlas), thin instances for every digit on screen, so ten draw calls cover any number of numbers. The camera never
  * rotates, so the quads are tilted once instead of being billboarded.
  */
 export function createDamageNumbers(scene: Scene, config: DamageNumbersConfig): DamageNumbers {
-	const atlasWidth = CELL * 10;
-	const data = new Uint8Array(atlasWidth * GLYPH_H * 4);
-	GLYPHS.forEach((glyph, d) => {
-		for (let y = 0; y < GLYPH_H; y++) {
-			for (let x = 0; x < GLYPH_W; x++) {
-				if (glyph[y * GLYPH_W + x] === "1")
-					data.set([255, 255, 255, 255], (y * atlasWidth + d * CELL + x) * 4);
-			}
-		}
-	});
+	const layout = digitAtlasLayout(config.outline);
+	const { cellWidth, cellHeight, atlasWidth } = layout;
 	const texture = RawTexture.CreateRGBATexture(
-		data,
+		paintAtlas(layout, config.outline, config.outlineColor),
 		atlasWidth,
-		GLYPH_H,
+		cellHeight,
 		scene,
 		false,
 		false,
-		Constants.TEXTURE_NEAREST_SAMPLINGMODE,
+		Constants.TEXTURE_BILINEAR_SAMPLINGMODE,
 		Constants.TEXTURETYPE_UNSIGNED_BYTE,
 	);
 	texture.hasAlpha = true;
+	// The face may still be downloading when the scene is built: draw the atlas again once it is there.
+	if (typeof document !== "undefined" && document.fonts) {
+		void document.fonts.load(`700 ${FONT_PX}px ${FONT_FAMILY}`, "0123456789").then(() => {
+			texture.update(paintAtlas(layout, config.outline, config.outlineColor));
+		});
+	}
 	const material = new StandardMaterial("vfx_digits", scene);
 	material.diffuseTexture = texture;
 	material.useAlphaFromDiffuseTexture = true;
@@ -89,9 +130,9 @@ export function createDamageNumbers(scene: Scene, config: DamageNumbersConfig): 
 	const sets: InstanceSet[] = [];
 	for (let d = 0; d < 10; d++) {
 		const quad = CreatePlane(`vfx_digit_${d}`, { width: 1, height: 1 }, scene);
-		const u0 = (d * CELL) / atlasWidth;
-		const u1 = (d * CELL + GLYPH_W) / atlasWidth;
-		quad.setVerticesData(VertexBuffer.UVKind, [u0, 0, u1, 0, u1, 1, u0, 1], true);
+		const u0 = (d * cellWidth) / atlasWidth;
+		const u1 = ((d + 1) * cellWidth) / atlasWidth;
+		quad.setVerticesData(VertexBuffer.UVKind, [u0, 1, u1, 1, u1, 0, u0, 0], true);
 		quad.material = material;
 		sets.push(createInstanceSet(quad, config.pool * MAX_DIGITS, true));
 	}
@@ -159,8 +200,8 @@ export function createDamageNumbers(scene: Scene, config: DamageNumbersConfig): 
 					continue;
 				}
 				const t = (age[i] ?? 0) / config.lifeSeconds;
-				const scale = (crit[i] ? 1.3 : 1) * config.height * sizeScale;
-				const width = scale * (GLYPH_W / GLYPH_H);
+				const scale = (crit[i] ? config.critScale : 1) * config.height * sizeScale;
+				const width = scale * (cellWidth / cellHeight);
 				const color = crit[i] ? config.critColor : config.color;
 				// Digits are peeled off the integer right to left: no strings, so nothing is allocated per frame.
 				let rest = (value[i] ?? 0) % 10 ** MAX_DIGITS;
@@ -173,7 +214,7 @@ export function createDamageNumbers(scene: Scene, config: DamageNumbersConfig): 
 					const n = counts[d] ?? 0;
 					if (!set || n >= set.capacity) continue;
 					counts[d] = n + 1;
-					const offset = (k - (digitCount - 1) / 2) * (width * 1.25);
+					const offset = (k - (digitCount - 1) / 2) * (width * ADVANCE);
 					const o = n * 16;
 					// Quad tilted back by the camera elevation so it faces the camera; scaled to the glyph aspect.
 					set.matrices[o] = width;

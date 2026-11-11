@@ -163,7 +163,7 @@ const HUD_HZ = 12;
 const LOW_PRESETS: readonly string[] = ["minimum", "low"];
 /** Screens this wide or narrower draw damage numbers at 0.7x. */
 const SMALL_SCREEN_WIDTH = 900;
-const SMALL_NUMBER_SCALE = 0.7;
+const SMALL_NUMBER_SCALE = 0.85;
 /** Ground footprint radius of an unscaled enemy, the base of the elite aura ring. */
 const ELITE_AURA_RADIUS = 0.6;
 /** Live projectiles the round20 bench keeps in the pool (SDD 14 section 1: 200). */
