@@ -125,6 +125,33 @@ async function enableKtx2(decoderUrl: string): Promise<void> {
 }
 
 /**
+ * Pulls every pixel of each `tile`-wide column of the strip towards the tile's own mean colour, keeping `contrast`
+ * (0..1) of the variation: the mean, and so the biome's tone, stays; the moss speckle that fights the characters goes.
+ */
+export function flattenTiles(
+	data: Uint8ClampedArray,
+	width: number,
+	height: number,
+	tile: number,
+	contrast: number,
+): void {
+	for (let x0 = 0; x0 + tile <= width; x0 += tile) {
+		const mean = [0, 0, 0];
+		for (let y = 0; y < height; y++)
+			for (let x = x0; x < x0 + tile; x++)
+				for (let c = 0; c < 3; c++) mean[c] = (mean[c] ?? 0) + (data[(y * width + x) * 4 + c] ?? 0);
+		const count = height * tile;
+		for (let y = 0; y < height; y++)
+			for (let x = x0; x < x0 + tile; x++)
+				for (let c = 0; c < 3; c++) {
+					const o = (y * width + x) * 4 + c;
+					const m = (mean[c] ?? 0) / count;
+					data[o] = m + ((data[o] ?? 0) - m) * contrast;
+				}
+	}
+}
+
+/**
  * The floor strip with `LIGHTING.floorBiomeShade` multiplied into each biome's block of tiles, so the ground of every
  * biome sits at a similar dark level whatever the authored tiles' own brightness. Falls back to the plain image
  * where the browser has no image decoding (tests).
@@ -137,6 +164,7 @@ async function loadTerrain(scene: Scene, terrainUrl: string, fetchFn: Fetcher): 
 		if (!context) throw new Error("no 2d context");
 		context.drawImage(bitmap, 0, 0);
 		const image = context.getImageData(0, 0, bitmap.width, bitmap.height);
+		flattenTiles(image.data, image.width, image.height, TERRAIN_TILE, LIGHTING.floorContrast);
 		const block = TERRAIN_TILE * TERRAIN_VARIANTS;
 		for (let y = 0; y < image.height; y++) {
 			for (let x = 0; x < image.width; x++) {
@@ -232,6 +260,7 @@ export async function loadGameAssets(scene: Scene, options: GameAssetsOptions): 
 	const characterMaterial = characters
 		? atlasMaterial(scene, "atlas_characters", atlasUrl(characters), glowOf("atlas_characters_e"))
 		: null;
+	if (characterMaterial?.diffuseTexture) characterMaterial.diffuseTexture.level = LIGHTING.characterGain;
 	let heroMaterial: StandardMaterial | null = null;
 	let bossMaterial: StandardMaterial | null = null;
 	if (characterMaterial && options.contour) {

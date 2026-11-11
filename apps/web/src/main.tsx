@@ -2208,6 +2208,25 @@ async function boot(): Promise<void> {
 				frozenAt = performance.now();
 			},
 			/**
+			 * Legibility capture (S-01-03): puts one enemy of each listed type at (x, z) from the hero, runs one fixed step
+			 * so they are drawn where they were put (not walking at the hero), then freezes.
+			 */
+			stillLife: (list: { type: number; x: number; z: number }[]) => {
+				for (const e of list) {
+					spawn.spawnEnemy(
+						world,
+						e.type,
+						(Position.x[hero] ?? 0) + e.x,
+						(Position.z[hero] ?? 0) + e.z,
+					);
+				}
+				loop.resume();
+				loop.frame(performance.now() + STEP * 1000);
+				run.pause();
+				loop.pause();
+				frozenAt = performance.now();
+			},
+			/**
 			 * Steps the simulation, synchronously and one fixed step per frame, from round 9's shop to the first frame of the
 			 * boss round (boss on the field), then freezes. The same step count on every run: a capture of the boss
 			 * no longer depends on how fast the machine renders.

@@ -7,7 +7,13 @@ import { Document, NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
 import { createNullEngine } from "../engine";
 import type { VatMeta } from "../vat/loader";
-import { type AssetManifest, hideEmptyMeshes, loadGameAssets, loadManifest } from "./gameAssets";
+import {
+	type AssetManifest,
+	flattenTiles,
+	hideEmptyMeshes,
+	loadGameAssets,
+	loadManifest,
+} from "./gameAssets";
 
 async function glbDataUrl(): Promise<string> {
 	const doc = new Document();
@@ -151,5 +157,23 @@ describe("loadManifest and hideEmptyMeshes", () => {
 		hideEmptyMeshes([empty, solid]);
 		expect([empty.isVisible, solid.isVisible]).toEqual([false, true]);
 		dispose();
+	});
+});
+
+describe("flattenTiles", () => {
+	it("keeps each tile's mean colour and shrinks its variation to the given share", () => {
+		const tile = 2;
+		// Two 2x2 tiles side by side (4x2 strip): tile 0 alternates 40/120, tile 1 is flat 200.
+		const data = new Uint8ClampedArray(4 * 2 * 4);
+		const set = (x: number, y: number, v: number): void => {
+			const o = (y * 4 + x) * 4;
+			data.set([v, v, v, 255], o);
+		};
+		for (let y = 0; y < 2; y++) for (let x = 0; x < 2; x++) set(x, y, (x + y) % 2 === 0 ? 40 : 120);
+		for (let y = 0; y < 2; y++) for (let x = 2; x < 4; x++) set(x, y, 200);
+		flattenTiles(data, 4, 2, tile, 0.5);
+		expect([data[0], data[4]]).toEqual([60, 100]);
+		expect(data[2 * 4]).toBe(200);
+		expect(data[3]).toBe(255);
 	});
 });

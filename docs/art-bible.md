@@ -83,6 +83,8 @@ Rampas derivadas (usadas pelos modelos gerados e pelo refino no Blockbench): par
 
 Cor do fog por bioma (`fogColor` em `data/biomes.json`): Cemitério Afundado `#14121C` (Noite), Pântano de Ossos `#1A2420`, Forja Infernal `#241614`, Ninho Biomecânico `#161C26`.
 
+**Separação de valor (S-01-03, 2026-11-11).** O chão é sempre o valor mais escuro da cena e os personagens ficam acima dele; a leitura do combate depende disso mais que da matiz. Contraste medido (luminância relativa WCAG, `bun run ux:legibility`, `reports/legibility.json`, Cemitério Afundado, semente 7): herói/chão ≥ 3:1 e inimigo/chão ≥ 2,5:1 nos alvos 1920×1080 e 896×414. Alavancas, todas em `LIGHTING` (`packages/render/src/scene/palette.ts`): `floorShade` 0,24 → 0,13 (chão mais escuro), `floorContrast` 0,5 (cada tile de chão mantém metade da própria variação em torno da média, o que tira o ruído do musgo sem mudar o tom do bioma) e `characterGain` 1,4 (ganho de albedo do atlas de personagens: as luzes já saturam o modelo iluminado, então só o albedo o descola do chão). `floorBiomeShade` não muda, então a ordem de brilho entre os cinco biomas se mantém. Pickups, projéteis e emissivos continuam os pontos mais claros: nenhum valor deles foi tocado.
+
 ### 3.3 Semântica de gameplay (obrigatória)
 
 | Significado | Cor | Daltônico (toggle) |
@@ -115,6 +117,7 @@ Obrigatório (orçamento mobile):
 - Sombras: herói, chefes e elites com `ShadowGenerator` de 1 cascata (1024 px, PCF) no desktop; em mobile, **blob shadows** (quad escuro no chão). Inimigos comuns: blob shadow sempre.
 - AO: pintada na textura (cantos e bases) + `vertexColor` escurecido nas bases dos props. Sem SSAO.
 - Fog: `FOGMODE_LINEAR` de 28 u a 60 u, cor Noite `#14121C`. Mantém a câmera sempre com fundo escuro.
+- Vinheta do HUD (S-01-03): mais leve, pulso de dano 0,6 → 0,35 e aviso de HP baixo (máximo) 0,4 → 0,25 em `data/render.json`; só aparece em acerto e com HP baixo, nunca como escurecimento fixo da cena.
 - Pós-processo (desktop, toggle): vinheta (peso 0,35), bloom leve só em emissivos (threshold 0,8, weight 0,15), grain 0,05. Mobile: só vinheta.
 - Luzes pontuais: no máximo 4 ativas (brasas de forja, explosões), com fade de 0,3 s. Projéteis não emitem luz; são emissivos.
 

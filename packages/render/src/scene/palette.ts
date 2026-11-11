@@ -50,7 +50,11 @@ export const LIGHTING = {
 	/** Sky colour of the hemispheric light: a cool iron grey, light enough for the dark model textures to read. */
 	hemiSky: "#8A9099",
 	/** Floor diffuse multiplier: the lights are raised for the models, the ground is kept dark (grimdark). */
-	floorShade: 0.24,
+	floorShade: 0.13,
+	/** Share of each ground tile's own light/dark variation kept (1 = authored texture); less noise lets the characters read. */
+	floorContrast: 0.5,
+	/** Albedo gain of the character atlas: the lights saturate a lit model, so only the albedo can lift it off the ground. */
+	characterGain: 1.4,
 	/** A faint light from the camera: it lifts the silhouettes of the darkest models off the ground. */
 	rimIntensity: 0.6,
 	/** Per-biome multiplier baked into the floor strip: the cemetery tiles are the lightest, so they are dimmed most. */

@@ -1,0 +1,31 @@
+{
+	"seed": 7,
+	"biome": "sunken_cemetery",
+	"metric": "mean WCAG relative luminance (0..1); ratio = (Lhi + 0.05) / (Llo + 0.05)",
+	"thresholds": {
+		"heroOverGround": 3,
+		"enemyOverGround": 2.5
+	},
+	"targets": {
+		"1920x1080": {
+			"meanLuminance": {
+				"ground": 0.005708299669718364,
+				"hero": 0.13678915318011292,
+				"enemies": 0.37357240242703976
+			},
+			"heroOverGround": 3.353,
+			"enemyOverGround": 7.603,
+			"pass": true
+		},
+		"896x414": {
+			"meanLuminance": {
+				"ground": 0.007786042522829977,
+				"hero": 0.14301223963394166,
+				"enemies": 0.15886005152239166
+			},
+			"heroOverGround": 3.34,
+			"enemyOverGround": 3.614,
+			"pass": true
+		}
+	}
+}

@@ -56,10 +56,10 @@
 		"shakeExplosion": 0.2,
 		"shakeBossDeath": 0.8,
 		"shakeSeconds": 0.25,
-		"vignetteHit": 0.6,
+		"vignetteHit": 0.35,
 		"vignetteSeconds": 0.35,
 		"vignetteLowHpBelow": 0.3,
-		"vignetteLowHpMax": 0.4,
+		"vignetteLowHpMax": 0.25,
 		"hitSquash": 0.85
 	}
 }
