@@ -211,7 +211,7 @@ Cada id abaixo continua `[ ]` ou `[~]` no ROADMAP. O assert que falta depende do
 
 ## Dívidas e observações
 
-- O bench de perf deixa o herói parado e não gera mortes, então o teto de marcas de sangue e corpos da S-11-01 (até 600 no Ultra) nunca foi medido cheio; falta um cenário com mortes em `tools/perf` (origem: S-11-01).
+- **Resolvida (2026-11-11):** o cenário `gore` de `tools/perf` enche o teto de marcas de chão da S-11-01 e mede com o pool cheio e reciclando (números em `docs/sdd/14-performance-budgets.md`); o descarte custa ≈ 5 µs por marca nova no teto de 600, então não precisou otimizar `worst()` (origem: S-11-01).
 - O `sim --check` passa por uma a duas runs de margem com as sinergias ligadas: qualquer mudança em `data/*.json` pode derrubar o check do CI (origem: S-14-03).
 - `.env` existe localmente com `ELEVENLABS_API_KEY`; está no `.gitignore`. Nunca commitar.
 - Fontes dos percentuais de tela (D31) são secundárias e não verificadas; revisar antes de citar publicamente.

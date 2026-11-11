@@ -21,10 +21,21 @@ interface BenchWindow {
 	};
 }
 
-for (const scenario of ["horde100", "round20"] as const) {
+/**
+ * `gore` sends death events for living enemies (the real render death path) until the floor-mark pool is full and recycling (S-11-01); it
+ * runs at the Ultra cap (600) and at the default preset. The others pin no preset (the debug default).
+ */
+const RUNS = [
+	{ name: "horde100", bench: "horde100", preset: "" },
+	{ name: "round20", bench: "round20", preset: "" },
+	{ name: "gore-ultra", bench: "gore", preset: "ultra" },
+	{ name: "gore-high", bench: "gore", preset: "high" },
+] as const;
+
+for (const { name: scenario, bench: benchId, preset } of RUNS) {
 	test(`bench ${scenario}`, async ({ page }, testInfo) => {
 		test.setTimeout(WARMUP_MS + MEASURE_MS + 90_000);
-		await page.goto(`/?debug=1&bench=${scenario}`);
+		await page.goto(`/?debug=1&bench=${benchId}${preset ? `&preset=${preset}` : ""}`);
 		await page.waitForFunction(() => (window as unknown as BenchWindow).gc?.ready === true);
 		const hasBench = await page.evaluate(
 			() => (window as unknown as BenchWindow).gc?.debug?.bench !== undefined,
@@ -75,6 +86,12 @@ for (const scenario of ["horde100", "round20"] as const) {
 		// round20, ~200 projectiles). Elite and decals stay provisional until P-05-06 and the decal pool lands in
 		// the bench.
 		expect(measured.metrics.enemiesAvg as number).toBeGreaterThanOrEqual(95);
+		if (benchId === "gore") {
+			// Full and still discarding while measured: the cost of a mark at the cap is what this scenario prices.
+			const decals = measured.metrics.decals as { live: number; limit: number; recycled: number };
+			expect(decals.live).toBe(decals.limit);
+			expect(decals.recycled).toBeGreaterThan(0);
+		}
 		if (scenario === "round20")
 			expect(measured.metrics.projectilesAvg as number).toBeGreaterThanOrEqual(150);
 	});

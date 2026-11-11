@@ -193,6 +193,8 @@ const BENCH_PROJECTILES = 200;
 const BENCH_PROJECTILE_STEPS = 300;
 /** Bench enemy hit points: nothing dies, so the horde stays at the cap. */
 const BENCH_ENEMY_HP = 1e9;
+/** The `gore` bench sends this many death events per step, so the floor-mark pool fills and recycles. */
+const BENCH_KILLS_PER_STEP = 2;
 /** Fragment piles drawn at once; piles beyond this are simply not shown (the drop cap keeps it far below). */
 const MAX_ENTITIES_FRAGMENTS = 256;
 /** Instance colour of an elite aura: the token colour pushed past 1 so the texture glows towards it. */
@@ -367,6 +369,7 @@ async function boot(): Promise<void> {
 	// Bench-only state (P-03-06): the ring emitter and the horde it keeps at the cap.
 	let touchDash = false;
 	let benchEmit = 0;
+	let benchGoreCursor = 0;
 	let benchAngle = 0;
 	const benchPool = [
 		{ type: enemyIds.indexOf("husk"), weight: 6 },
@@ -2036,6 +2039,19 @@ async function boot(): Promise<void> {
 					const e = benchEnemies[i] ?? 0;
 					Health.hp[e] = Health.max[e] = BENCH_ENEMY_HP;
 				}
+				if (bench === "gore") {
+					// Death events for living enemies: the render side takes the real death path (blood, corpse, drips)
+					// while the horde stays at the cap.
+					for (let k = 0; k < Math.min(BENCH_KILLS_PER_STEP, benchEnemies.length); k++)
+						events.push(
+							EventType.Died,
+							0,
+							0,
+							0,
+							benchEnemies[(benchGoreCursor + k) % benchEnemies.length] ?? 0,
+						);
+					benchGoreCursor += BENCH_KILLS_PER_STEP;
+				}
 				if (bench === "round20") {
 					targeting.run(world, hero, weapon.range);
 					weapon.run(world, hero);
@@ -2591,6 +2607,11 @@ async function boot(): Promise<void> {
 								...recorder.stop(),
 								enemiesAvg: samples > 0 ? enemySum / samples : 0,
 								projectilesAvg: samples > 0 ? projectileSum / samples : 0,
+								decals: {
+									live: vfx.decals.live,
+									limit: vfx.decals.limit,
+									recycled: vfx.decals.recycled,
+								},
 							});
 						}, measureMs);
 					}, warmupMs);
