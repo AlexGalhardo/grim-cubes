@@ -2,6 +2,21 @@
 
 Atualizado: 2026-11-11 (fuso do PO) | Versão: 0.5.0 (publicada, tag `v0.5.0` em ce352ff) | Fase: ROADMAP 0.2.0, Parte 1 (polimento AAA e mecânicas novas) | Sessão: #3 | Branch: `feat/aaa-polish`
 
+## Sessão #4 (2026-11-11)
+
+Orquestrador em Opus 5.5 com até três agentes `senior` em paralelo, aprovados pelo PO nesta sessão: o agente 1 no checkout principal e os agentes 2 e 3 nos worktrees `../grim-cubes-wt2` (`feat/aaa-sim`) e `../grim-cubes-wt3` (`feat/aaa-heroes`), saídos da `feat/aaa-polish`. Os worktrees também foram aprovados pelo PO. A integração é por rebase da branch do worktree sobre a `feat/aaa-polish` e fast-forward, sem push.
+
+Validação no início: `bun run typecheck` (433 arquivos) e `bun run lint` limpos; `bun run test` com 1073 de 1073.
+
+Decisões delegadas ao orquestrador pelo PO ("faça o que julgar melhor"):
+
+- Etiquetas de sinergia da S-14-01: `iron` (Ferro), `bone` (Osso), `blood` (Sangue), `ember` (Brasa), `grave` (Cova) e `curse` (Maldição).
+- A sinergia conta itens distintos, não cópias.
+- O `sim --check` com as sinergias passa por uma a duas runs de margem; fica assim até os playtests da B-04.
+- `prompt-workers.md` restaurado: o arquivo apareceu apagado no working tree sem autor conhecido e o `CLAUDE.md` do projeto o referencia.
+
+Ocorrência: o commit `249f226` (S-05-02) levou as mudanças de Options da S-08-03 por um `git add` de pasta inteira; o histórico não foi reescrito e o `401d19b` registra o fato.
+
 ## Sessão #3 (2026-11-11)
 
 O `ROADMAP.md` foi reescrito do zero (versão 0.2.0) para ser executado com `/goal`. A Parte 1 (trilhas S-00 a S-17) é o trabalho do agente; a Parte 2 guarda, com os IDs antigos, o que depende do PO. A versão anterior está em `git show v0.5.0:ROADMAP.md`. As seções abaixo desta, até "Bloqueios", descrevem o estado até a `v0.5.0`.
@@ -196,6 +211,8 @@ Cada id abaixo continua `[ ]` ou `[~]` no ROADMAP. O assert que falta depende do
 
 ## Dívidas e observações
 
+- O bench de perf deixa o herói parado e não gera mortes, então o teto de marcas de sangue e corpos da S-11-01 (até 600 no Ultra) nunca foi medido cheio; falta um cenário com mortes em `tools/perf` (origem: S-11-01).
+- O `sim --check` passa por uma a duas runs de margem com as sinergias ligadas: qualquer mudança em `data/*.json` pode derrubar o check do CI (origem: S-14-03).
 - `.env` existe localmente com `ELEVENLABS_API_KEY`; está no `.gitignore`. Nunca commitar.
 - Fontes dos percentuais de tela (D31) são secundárias e não verificadas; revisar antes de citar publicamente.
 - `reports/` guarda evidência de asserts (`perf-*.json`, `balance-*.json`); os `sim-*.json` regenerados por run ficam no `.gitignore`.
