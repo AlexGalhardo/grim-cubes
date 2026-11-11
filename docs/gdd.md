@@ -648,7 +648,7 @@ Recordes mostrados no menu: maior round por dificuldade, total de kills, total d
 | Chefe | barra de HP topo, nome, marcadores de fase | PROTÓTIPO (Coveiro) |
 | Morte/Resultado | round, kills, dano causado/recebido, causa da morte, build final, almas ganhas (contador animado), seed | PROTÓTIPO |
 | Ossuário | 5 ramos radiais, nós com custo, saldo de almas, reset | ALPHA |
-| Opções | áudio (3 sliders), vídeo (escala de renderização, qualidade, fullscreen, vsync), gameplay (gore, shake, flash, escala UI, daltônico), controles (remap) | ALPHA |
+| Opções | áudio (3 sliders), vídeo (escala de renderização, qualidade, fullscreen, vsync), gameplay (gore, shake, flash, escala UI, daltônico), controles (remap). Qualidade numa linha só; brilho e contraste em % com 100% no neutro; três colunas no desktop e duas em paisagem abaixo de 1024 px (S-08-03) | ALPHA |
 | Fim da demo | após vencer o Coveiro: resumo + botões "Comprar na Steam" / "Google Play" / "Continuar no Ossuário (limitado)" | BETA |
 | Pausa | Esc (PC) ou Start (controle) abre; no celular, botão "‖" no canto superior direito, ao lado da velocidade. Continuar, Opções, Sair para o menu (confirmação; a run fica salva no início do round) | PROTÓTIPO |
 

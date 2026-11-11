@@ -122,7 +122,7 @@ A Parte 1B (arte medium poly) começa depois da `v0.6.0` e tem pontos de parada 
   - Asserts: teste de componente distingue `aria-checked` de foco; captura `difficulty` nos quatro alvos.
 - [ ] **S-08-02** Ossuário: nó bloqueado com contraste AA, estado comprado, comprável e bloqueado distinguíveis sem cor, área vazia da tela aproveitada.
   - Asserts: contraste medido no teste de tokens; captura `ossuary` nos quatro alvos.
-- [ ] **S-08-03** Opções: o seletor de qualidade não quebra linha, o brilho neutro mostra 100%, e a tela cabe em 800×360 sem corte.
+- [x] **S-08-03** Opções: o seletor de qualidade não quebra linha, o brilho neutro mostra 100%, e a tela cabe em 800×360 sem corte.
   - Asserts: captura `options` nos quatro alvos; teste do rótulo do brilho.
 
 ### S-09 Ícones que faltam

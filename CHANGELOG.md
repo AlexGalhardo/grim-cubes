@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **ui:** Options: the quality presets sit on one row that never wraps (the automatic preset reads "Auto"), brightness reads 100% at neutral like contrast (`options-brightness-value`), and landscape screens under 1024 px get two columns with the key and pad bindings side by side, so 800x360 scrolls 30% less with nothing cut (S-08-03)
 - **ui:** Focusing or hovering a shop offer (mouse, keyboard or pad) shows, on each stat it changes, `now → after` and the signed delta in green or red (`shop-delta-<stat>`), and the level-up panel does the same for the focused card; `ShopSlotView.preview` is now a record of `StatPreview` and `CardChange` gains `delta` and `better` (S-05-02)
 - **ui:** Shop weapon offers show their own icon, damage and attacks per second (an upgrade offer shows the next tier), and item offers list their effects as well as their stat modifiers, so the 17 effect-only items are no longer blank; the synergy tag waits for S-14 (S-05-01, partial)
 - **ui:** Level-up and elite-chest screens list the hero's current stats in a panel on the left (desktop only, gone at 896x414 and 800x360 so the cards are not cut), and the stat the focused card changes shows `now → after`; the shop and the panel share a new `StatList`; the card reroll button is always visible with its key or pad hint and disabled when no rerolls are left; `HudState.stats` is now filled for cards and chests too (S-04-02)
