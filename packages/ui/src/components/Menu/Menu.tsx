@@ -93,7 +93,7 @@ export function Menu({ view, actions, version, demo }: MenuProps): JSX.Element {
 			/>
 			<div
 				data-testid="menu-panel"
-				className={`relative flex w-full flex-col ${short ? "mt-auto max-w-52 gap-2 pb-5" : "gap-3 my-auto max-w-60 mobile-l:ml-[3%] mobile-l:max-w-xs desktop-xl:max-w-sm"}`}
+				className={`relative flex w-full flex-col ${short ? "mt-auto max-w-52 gap-1 pb-2" : "gap-3 my-auto max-w-60 mobile-l:ml-[3%] mobile-l:max-w-xs desktop-xl:max-w-sm"}`}
 			>
 				<h1 id="menu-title" className="sr-only">
 					{t("menu.title")}

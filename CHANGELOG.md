@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **ui:** The title menu fits all six buttons (Continue, New game, Ossuary, Options, Wishlist, Quit) at 800x360 without scrolling or the build label covering the last one (tighter gap and bottom padding on short screens); checked at 800x360, 896x414 and 2560x1440 (ROADMAP known loose ends)
 - **ui:** The shop offers show their synergy tags with the progress after buying (a mark when the purchase reaches a tier), the shop lists the tags the hero owns, the stat preview includes the tier bonus the purchase would activate, and the desktop HUD lists the tags as `Ferro 2/4`; `sfx_ui_synergy` plays when a tag gains a tier (S-14-02, closes S-05-01)
 - **ui:** "Wishlist na Steam" button on the title menu, the demo end and the demo's results, shown only when the build has `GC_WISHLIST_URL` (`__WISHLIST_URL__`); the web opens a new tab and Electron opens the system browser through a new sender-checked `app:openExternal` channel that accepts only `https://store.steampowered.com/app/<id>`; `todo-later.md` records that the URL waits for the App ID (S-07-02)
 - **ui:** Results screen at desktop scale: a wider panel (`max-w-6xl`) with the counters, the killer, the damage bars and the soul count in larger type, and tighter rows on short screens (S-06-01)
