@@ -1,4 +1,4 @@
-import type { HudItem, HudWeapon, IconRef } from "@gc/ui";
+import type { HudItem, HudWeapon, IconRef, ResultsViewModel } from "@gc/ui";
 
 export interface LoadoutSource {
 	/** Item id to count, as the session keeps it. */
@@ -91,4 +91,87 @@ export function createLoadoutView(lookup: LoadoutLookup): { update(source: Loado
 /** Whole seconds left in a timed round; 0 outside one (the boss round has no timer). */
 export function roundSecondsLeft(state: string, ticksLeft: number, step: number): number {
 	return state === "Round" || state === "Paused" ? Math.max(0, Math.ceil(ticksLeft * step)) : 0;
+}
+
+export interface ResultsLookup {
+	enemy(type: number): string;
+	boss(type: number): string;
+	/** The elite form of an enemy name. */
+	elite(name: string): string;
+	shot(): string;
+	self(): string;
+	unknown(): string;
+	/** Label of a `DamageOrigin` id (see `DAMAGE_SOURCE_IDS`). */
+	source(id: string): string;
+}
+
+export interface ResultsSource {
+	round: number;
+	kills: number;
+	damageDealt: number;
+	fightTicks: number;
+	step: number;
+	killer: { kind: "none" | "enemy" | "elite" | "boss" | "shot" | "self"; type: number };
+	/** Damage dealt per `DamageOrigin`, in `DAMAGE_SOURCE_IDS` order. */
+	damageBySource: readonly number[];
+	souls: number;
+	totalSouls: number;
+	record: number;
+	newRecord: boolean;
+	seed: number;
+	loadout: LoadoutView;
+	/** Every Ossuary node with its label, cost and state; the next unlock is the cheapest one still open. */
+	nodes: readonly { label: string; cost: number; state: string }[];
+}
+
+/** `DamageOrigin` values in order: the weapon, spells, item effects and bleed. */
+export const DAMAGE_SOURCE_IDS: readonly string[] = ["weapon", "spell", "item", "bleed"];
+
+/** Who killed the hero: never "unknown" when the damage system recorded a killer. */
+export function describeCause(
+	killer: ResultsSource["killer"],
+	lookup: ResultsLookup,
+): { cause: string; causeKind: NonNullable<ResultsViewModel["causeKind"]> } {
+	switch (killer.kind) {
+		case "enemy":
+			return { cause: lookup.enemy(killer.type), causeKind: "enemy" };
+		case "elite":
+			return { cause: lookup.elite(lookup.enemy(killer.type)), causeKind: "elite" };
+		case "boss":
+			return { cause: lookup.boss(killer.type), causeKind: "boss" };
+		case "shot":
+			return { cause: lookup.shot(), causeKind: "shot" };
+		case "self":
+			return { cause: lookup.self(), causeKind: "self" };
+		default:
+			return { cause: lookup.unknown(), causeKind: "none" };
+	}
+}
+
+export function buildResults(source: ResultsSource, lookup: ResultsLookup): ResultsViewModel {
+	const open = source.nodes
+		.filter((node) => node.state === "available")
+		.reduce<{ label: string; cost: number } | null>(
+			(best, node) => (best === null || node.cost < best.cost ? node : best),
+			null,
+		);
+	return {
+		round: source.round,
+		kills: source.kills,
+		damage: Math.round(source.damageDealt),
+		...describeCause(source.killer, lookup),
+		weapon: source.loadout.weapon,
+		items: source.loadout.items,
+		seconds: Math.floor(source.fightTicks * source.step),
+		sources: DAMAGE_SOURCE_IDS.flatMap((id, i) => {
+			const damage = Math.round(source.damageBySource[i] ?? 0);
+			return damage > 0 ? [{ id, label: lookup.source(id), damage }] : [];
+		}),
+		souls: source.souls,
+		totalSouls: source.totalSouls,
+		record: source.record,
+		newRecord: source.newRecord,
+		seed: source.seed,
+		nextUnlock: open ? { name: open.label, cost: open.cost } : null,
+	};
 }

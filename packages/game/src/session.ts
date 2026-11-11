@@ -320,7 +320,7 @@ function build(options: GameSessionOptions) {
 		effects: itemEffects.effects,
 		pull: (seconds) => pickup.pullAll(seconds),
 	});
-	const bleed = createBleedSystem({ events });
+	const bleed = createBleedSystem({ events, runStats });
 	const thorns = createThornsSystem({
 		effects: itemEffects.effects,
 		queue: damage.queue,
@@ -430,6 +430,7 @@ function build(options: GameSessionOptions) {
 	function step(input: Readonly<InputState>): void {
 		run.run(world, hero);
 		if (fighting()) {
+			runStats.fightTicks++;
 			inputSystem(world, hero, input, weapon.speedMultiplier * heroStatus.speedMultiplier);
 			dash.run(hero, input);
 			heroStatus.run(hero);

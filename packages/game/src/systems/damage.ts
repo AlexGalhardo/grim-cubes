@@ -43,6 +43,8 @@ export interface DamageQueue {
 		critChance: number,
 		knockbackX: number,
 		knockbackZ: number,
+		/** A `DamageOrigin`; the weapon unless the caller says otherwise. */
+		origin?: number,
 	): boolean;
 	readonly size: number;
 	readonly dropped: number;
@@ -93,6 +95,7 @@ export function createDamageSystem(deps: DamageSystemDeps): DamageSystem {
 	const source = new Uint16Array(DAMAGE_QUEUE_CAPACITY);
 	const kbX = new Float32Array(DAMAGE_QUEUE_CAPACITY);
 	const kbZ = new Float32Array(DAMAGE_QUEUE_CAPACITY);
+	const origin = new Uint8Array(DAMAGE_QUEUE_CAPACITY);
 	let size = 0;
 	let dropped = 0;
 
@@ -101,7 +104,7 @@ export function createDamageSystem(deps: DamageSystemDeps): DamageSystem {
 	const lifeSteal = createLifeStealLimiter(config, STEP);
 
 	const queue: DamageQueue = {
-		push(t, a, s, c, x, z): boolean {
+		push(t, a, s, c, x, z, o = 0): boolean {
 			if (size === DAMAGE_QUEUE_CAPACITY) {
 				dropped++;
 				return false;
@@ -112,6 +115,7 @@ export function createDamageSystem(deps: DamageSystemDeps): DamageSystem {
 			critChance[size] = c;
 			kbX[size] = x;
 			kbZ[size] = z;
+			origin[size] = o;
 			size++;
 			return true;
 		},
@@ -126,8 +130,15 @@ export function createDamageSystem(deps: DamageSystemDeps): DamageSystem {
 	function recordKiller(world: GameWorld, by: number): void {
 		if (!runStats) return;
 		if (by === hero) runStats.killer = { kind: "self", type: -1 };
-		else if (by > 0 && hasComponent(world, by, EnemyFaction))
-			runStats.killer = { kind: "enemy", type: EnemyType.id[by] ?? -1 };
+		// Source 0 is what an enemy projectile carries: the shooter is not tracked.
+		else if (by === 0) runStats.killer = { kind: "shot", type: -1 };
+		else if (hasComponent(world, by, Boss))
+			runStats.killer = { kind: "boss", type: (Boss.id[by] ?? 1) - 1 };
+		else if (hasComponent(world, by, EnemyFaction))
+			runStats.killer = {
+				kind: hasComponent(world, by, Elite) ? "elite" : "enemy",
+				type: EnemyType.id[by] ?? -1,
+			};
 	}
 
 	function hitHero(world: GameWorld, i: number): void {
@@ -157,7 +168,10 @@ export function createDamageSystem(deps: DamageSystemDeps): DamageSystem {
 			(isBoss ? (stats.bossDamage ?? 0) : 0) + (isElite ? (effects?.bonusDamageVsElites ?? 0) : 0);
 		const dealt = raw * (1 + bonus) * armorMultiplier(Armor.value[eid] ?? 0, config.armorConstant);
 		Health.hp[eid] = (Health.hp[eid] ?? 0) - dealt;
-		if (runStats) runStats.damageDealt += dealt;
+		if (runStats) {
+			runStats.damageDealt += dealt;
+			runStats.damageBySource[origin[i] ?? 0] = (runStats.damageBySource[origin[i] ?? 0] ?? 0) + dealt;
+		}
 		HitFlash.ticks[eid] = 2;
 		if (crit && effects && effects.bleedFraction > 0) {
 			// A fresh crit restarts the bleed with the larger of the two remaining amounts.

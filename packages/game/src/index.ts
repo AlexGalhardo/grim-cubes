@@ -134,7 +134,7 @@ export {
 	totalCost,
 } from "./rules/ossuary";
 export type { RunStats } from "./rules/runstats";
-export { createRunStats } from "./rules/runstats";
+export { createRunStats, DamageOrigin } from "./rules/runstats";
 export type {
 	GenerateContext,
 	ShopCatalog,

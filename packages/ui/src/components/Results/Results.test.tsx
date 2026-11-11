@@ -7,7 +7,18 @@ const view: ResultsViewModel = {
 	kills: 340,
 	damage: 5120,
 	cause: "Carcaça",
-	build: ["Espada Enferrujada (T2)", "Placa Enferrujada ×2"],
+	causeKind: "elite",
+	weapon: { id: "sword", name: "Espada Enferrujada", tier: 2 },
+	items: [
+		{ id: "plate", name: "Placa Enferrujada", tier: 1, count: 2 },
+		{ id: "boots", name: "Botas", tier: 3, count: 1 },
+	],
+	seconds: 754,
+	sources: [
+		{ id: "weapon", label: "Arma", damage: 4000 },
+		{ id: "bleed", label: "Sangramento", damage: 1000 },
+	],
+	nextUnlock: { name: "+5 HP máx", cost: 400 },
 	souls: 285,
 	totalSouls: 1285,
 	record: 12,
@@ -28,7 +39,33 @@ test("shows the run summary, the build and the seed", () => {
 	expect(screen.getByTestId("results-cause").textContent).toBe("Carcaça");
 	expect(screen.getByTestId("results-seed").textContent).toBe("42");
 	expect(screen.getByTestId("results-record").textContent).toContain("novo");
-	expect(screen.getByText("Placa Enferrujada ×2")).toBeTruthy();
+	expect(screen.getByTestId("results-time").textContent).toBe("12:34");
+	expect(screen.getByTestId("results-weapon").textContent).toContain("Espada Enferrujada (T2)");
+	expect(screen.getByTestId("results-build").textContent).toContain("Placa Enferrujada");
+	expect(screen.getByTestId("results-build").textContent).toContain("2");
+});
+
+test("shows who killed the hero with an icon, the damage bars and the progress to the next unlock", () => {
+	render(<Results view={view} onRestart={() => {}} />);
+	expect(screen.getByTestId("results-cause-icon").textContent).toBe("☠");
+	expect(screen.getByTestId("results-cause-icon").className).toContain("border-rarity-3");
+	expect(screen.getByTestId("results-source-weapon").textContent).toContain("4000");
+	const bar = screen.getByTestId("results-source-bleed").querySelector("span > span") as HTMLElement;
+	expect(bar.style.width).toBe("25%");
+	expect(screen.getByTestId("results-unlock").textContent).toContain("1285 / 400 almas");
+	expect(screen.getByTestId("results-unlock").textContent).toContain("já pode ser comprado");
+});
+
+test("the three buttons share one grid row and one size", () => {
+	render(<Results view={view} onRestart={() => {}} onOssuary={() => {}} onMenu={() => {}} />);
+	const buttons = ["Ossuário", "Jogar de novo", "Voltar ao menu"].map((name) =>
+		screen.getByRole("button", { name: new RegExp(name) }),
+	);
+	for (const button of buttons) {
+		expect(button.className).toContain("min-h-12");
+		expect(button.parentElement).toBe(buttons[0]?.parentElement);
+	}
+	expect(buttons[0]?.parentElement?.className).toContain("items-end");
 });
 
 test("the souls count up in steps and land exactly on the total", () => {

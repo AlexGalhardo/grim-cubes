@@ -6,6 +6,7 @@ import type { ProjectilePool, ProjectileSpec } from "../ecs/projectile";
 import type { GameWorld } from "../ecs/world";
 import { STEP } from "../loop";
 import type { ItemEffects, SpellEffect } from "../rules/effects";
+import { DamageOrigin } from "../rules/runstats";
 import type { DamageQueue } from "./damage";
 
 export interface SpellSystemDeps {
@@ -99,7 +100,7 @@ export function createSpellSystem(deps: SpellSystemDeps): SpellSystem {
 			const e = near[i] ?? 0;
 			if ((Health.hp[e] ?? 0) <= 0 || !isHittable(world, e)) continue;
 			const dist = Math.hypot((Position.x[e] ?? 0) - x, (Position.z[e] ?? 0) - z);
-			if (dist <= radius + (Radius.r[e] ?? 0)) queue.push(e, amount, hero, 0, 0, 0);
+			if (dist <= radius + (Radius.r[e] ?? 0)) queue.push(e, amount, hero, 0, 0, 0, DamageOrigin.Spell);
 		}
 	};
 
@@ -199,7 +200,7 @@ export function createSpellSystem(deps: SpellSystemDeps): SpellSystem {
 				const prev = lastOrbitHit[at] ?? 0;
 				if (prev !== 0 && clock - prev < cool) continue;
 				lastOrbitHit[at] = clock;
-				queue.push(e, amount, hero, 0, 0, 0);
+				queue.push(e, amount, hero, 0, 0, 0, DamageOrigin.Spell);
 			}
 		}
 	};
@@ -214,7 +215,7 @@ export function createSpellSystem(deps: SpellSystemDeps): SpellSystem {
 		const amount = damageOf(spec);
 		chainHits[0] = first;
 		let hitCount = 1;
-		queue.push(first, amount, hero, 0, 0, 0);
+		queue.push(first, amount, hero, 0, 0, 0, DamageOrigin.Spell);
 		events.push(EventType.SpellCast, Position.x[first] ?? 0, Position.z[first] ?? 0, 0, SpellVfx.Chain);
 		while (hitCount < cap) {
 			const from = chainHits[hitCount - 1] ?? first;
@@ -228,7 +229,7 @@ export function createSpellSystem(deps: SpellSystemDeps): SpellSystem {
 			if (next < 0) break;
 			chainHits[hitCount] = next;
 			hitCount++;
-			queue.push(next, amount, hero, 0, 0, 0);
+			queue.push(next, amount, hero, 0, 0, 0, DamageOrigin.Spell);
 			events.push(EventType.SpellCast, Position.x[next] ?? 0, Position.z[next] ?? 0, 0, SpellVfx.Chain);
 		}
 		return true;

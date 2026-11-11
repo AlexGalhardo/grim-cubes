@@ -20,6 +20,7 @@ import {
 	type EffectsExtra,
 	type ItemEffects,
 } from "../rules/effects";
+import { DamageOrigin, type RunStats } from "../rules/runstats";
 import type { DamageQueue } from "./damage";
 
 export interface EffectsSystem {
@@ -125,7 +126,8 @@ export function createAuraSystem(deps: AuraSystemDeps): AuraSystem {
 					const e = near[i] ?? 0;
 					if ((Health.hp[e] ?? 0) <= 0 || !isHittable(world, e)) continue;
 					const dist = Math.hypot((Position.x[e] ?? 0) - hx, (Position.z[e] ?? 0) - hz);
-					if (dist <= aura.radius + (Radius.r[e] ?? 0)) queue.push(e, perStep, 0, 0, 0, 0);
+					if (dist <= aura.radius + (Radius.r[e] ?? 0))
+						queue.push(e, perStep, 0, 0, 0, 0, DamageOrigin.Item);
 				}
 			}
 		},
@@ -134,6 +136,8 @@ export function createAuraSystem(deps: AuraSystemDeps): AuraSystem {
 
 export interface BleedSystemDeps {
 	events: EventBuffer;
+	/** Bleed damage counts as dealt, under its own source. */
+	runStats?: RunStats | undefined;
 }
 
 const bleeding = createQueryCache([Bleed]);
@@ -146,7 +150,7 @@ const BLEED_REPORT_STEPS = 30;
  * it skips the hit path: no flash, no knockback reset, no life steal; the render hears one aggregated `Damaged`
  * every half second and `Died` when the bleed kills.
  */
-export function createBleedSystem({ events }: BleedSystemDeps): { run(world: GameWorld): void } {
+export function createBleedSystem({ events, runStats }: BleedSystemDeps): { run(world: GameWorld): void } {
 	return {
 		run(world: GameWorld): void {
 			const list = bleeding(world);
@@ -163,6 +167,11 @@ export function createBleedSystem({ events }: BleedSystemDeps): { run(world: Gam
 					const dealt = Bleed.perStep[e] ?? 0;
 					Health.hp[e] = hp - dealt;
 					Bleed.shown[e] = (Bleed.shown[e] ?? 0) + dealt;
+					if (runStats) {
+						runStats.damageDealt += dealt;
+						runStats.damageBySource[DamageOrigin.Bleed] =
+							(runStats.damageBySource[DamageOrigin.Bleed] ?? 0) + dealt;
+					}
 					if ((Health.hp[e] ?? 0) <= 0) events.push(EventType.Died, 0, 0, 0, e);
 				}
 				const last = ticks === 1 || (Health.hp[e] ?? 0) <= 0;
@@ -211,7 +220,7 @@ export function createThornsSystem(deps: ThornsSystemDeps): AuraSystem {
 				if ((ThornsCooldown.ticks[e] ?? 0) > 0) continue;
 				const dist = Math.hypot((Position.x[e] ?? 0) - hx, (Position.z[e] ?? 0) - hz);
 				if (dist > reach + (Radius.r[e] ?? 0)) continue;
-				queue.push(e, effects.contactDamage, hero, 0, 0, 0);
+				queue.push(e, effects.contactDamage, hero, 0, 0, 0, DamageOrigin.Item);
 				ThornsCooldown.ticks[e] = cooldownSteps;
 				events?.push(EventType.ThornsHit, Position.x[e] ?? 0, Position.z[e] ?? 0, dist, e);
 			}
@@ -256,7 +265,7 @@ export function createKillEffectsSystem(deps: KillEffectsDeps): KillEffectsSyste
 			const e = near[i] ?? 0;
 			if (e === skip || (Health.hp[e] ?? 0) <= 0 || !isHittable(world, e)) continue;
 			const dist = Math.hypot((Position.x[e] ?? 0) - x, (Position.z[e] ?? 0) - z);
-			if (dist <= radius + (Radius.r[e] ?? 0)) queue.push(e, damage, hero, 0, 0, 0);
+			if (dist <= radius + (Radius.r[e] ?? 0)) queue.push(e, damage, hero, 0, 0, 0, DamageOrigin.Item);
 		}
 	}
 

@@ -4,7 +4,7 @@ import { expect, test } from "vitest";
 import { Boss, Elite, EnemyFaction, EnemyType, Health, Radius } from "../ecs/components";
 import { createEventBuffer } from "../ecs/events";
 import { createGameWorld, spawnBody } from "../ecs/world";
-import { createRunStats } from "../rules/runstats";
+import { createRunStats, DamageOrigin } from "../rules/runstats";
 import { createDamageSystem } from "./damage";
 import { createDeathSystem } from "./loot";
 
@@ -99,4 +99,37 @@ test("kills, elites and bosses are counted when enemies die, with the boss round
 	expect(runStats.kills).toBe(3);
 	expect(runStats.elitesKilled).toBe(1);
 	expect(runStats.bossRounds).toEqual([10]);
+});
+
+test("an elite, a boss, an enemy projectile and the hero's own blast are all named as the killer", () => {
+	const elite = setup();
+	const e = elite.enemy(2);
+	addComponent(elite.world, e, Elite);
+	elite.damage.queue.push(elite.hero, 50, e, 0, 0, 0);
+	elite.damage.run(elite.world);
+	expect(elite.runStats.killer).toEqual({ kind: "elite", type: 2 });
+
+	const boss = setup();
+	const b = boss.enemy(0);
+	addComponent(boss.world, b, Boss);
+	Boss.id[b] = 2;
+	boss.damage.queue.push(boss.hero, 50, b, 0, 0, 0);
+	boss.damage.run(boss.world);
+	expect(boss.runStats.killer).toEqual({ kind: "boss", type: 1 });
+
+	const shot = setup();
+	shot.damage.queue.push(shot.hero, 50, 0, 0, 0, 0);
+	shot.damage.run(shot.world);
+	expect(shot.runStats.killer).toEqual({ kind: "shot", type: -1 });
+});
+
+test("damage dealt is tallied by origin", () => {
+	const { world, damage, runStats, enemy } = setup();
+	const e = enemy();
+	damage.queue.push(e, 10, 0, 0, 0, 0);
+	damage.queue.push(e, 20, 0, 0, 0, 0, DamageOrigin.Spell);
+	damage.queue.push(e, 5, 0, 0, 0, 0, DamageOrigin.Item);
+	damage.run(world);
+	expect(runStats.damageBySource).toEqual([10, 20, 5, 0]);
+	expect(runStats.damageDealt).toBeCloseTo(35);
 });

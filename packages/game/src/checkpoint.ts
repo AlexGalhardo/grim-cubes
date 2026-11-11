@@ -1,6 +1,7 @@
 import { RNG_STREAMS, type RunCheckpoint } from "@gc/core";
 import { weaponsData } from "./data";
 import { Health, Position, PrevPosition } from "./ecs/components";
+import { DamageOrigin } from "./rules/runstats";
 import type { GameSession } from "./session";
 
 /** Which run the session belongs to; the session itself does not keep them. */
@@ -69,6 +70,9 @@ export function restoreCheckpoint(session: GameSession, cp: RunCheckpoint): void
 	levelUp.restoreRerollsLeft(cp.cardRerollsLeft);
 	runStats.kills = cp.kills;
 	runStats.damageDealt = cp.damageDealt;
+	// The checkpoint keeps no per-source split: the damage dealt before the save counts as the weapon's.
+	runStats.damageBySource.fill(0);
+	runStats.damageBySource[DamageOrigin.Weapon] = cp.damageDealt;
 	runStats.elitesKilled = cp.elitesKilled;
 	runStats.bossRounds.length = 0;
 	runStats.bossRounds.push(...cp.bossRounds);

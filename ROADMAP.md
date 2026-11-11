@@ -106,7 +106,7 @@ A Parte 1B (arte medium poly) começa depois da `v0.6.0` e tem pontos de parada 
 
 ### S-06 Resultados
 
-- [ ] **S-06-01** Tela de resultados com resumo da build (arma, itens com ícone e contador), tempo de run, dano por fonte em barras, quem matou o herói com nome e ícone, contador de almas em destaque e progresso até o próximo desbloqueio. Os três botões têm o mesmo tamanho e a mesma linha de base.
+- [x] **S-06-01** Tela de resultados com resumo da build (arma, itens com ícone e contador), tempo de run, dano por fonte em barras, quem matou o herói com nome e ícone, contador de almas em destaque e progresso até o próximo desbloqueio. Os três botões têm o mesmo tamanho e a mesma linha de base.
   - Asserts: `ResultsViewModel` com os campos novos e teste do view model; a causa da morte nunca é "Desconhecido" numa morte real (teste com dano de inimigo, de elite, de chefe e próprio); capturas `results` nos quatro alvos.
 
 ### S-07 Menu e chamada comercial

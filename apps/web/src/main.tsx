@@ -165,7 +165,7 @@ import { createMerchantVoice } from "./audio/merchantVoice";
 import { uiSounds } from "./audio/uiSounds";
 import { ambienceFor, createWebAudioDeps, musicFor, weaponLoopFor } from "./audio/webAudio";
 import { createDebugGamepad } from "./debugGamepad";
-import { createLoadoutView, roundSecondsLeft } from "./hudView";
+import { buildResults, createLoadoutView, roundSecondsLeft } from "./hudView";
 import { applyLocale, initLocale } from "./locale";
 import { canOpenPause } from "./pauseGate";
 import { createSoak, soakOptionsFrom } from "./soak";
@@ -1173,31 +1173,47 @@ async function boot(): Promise<void> {
 				.catch((error: unknown) => log.error("save failed", error));
 		}
 
-		const weaponName = t(`weapon.${weapon.weapon.id}`);
-		const killer = runStats.killer;
-		results = {
-			round: run.round,
-			kills: runStats.kills,
-			damage: Math.round(runStats.damageDealt),
-			cause:
-				killer.kind === "enemy"
-					? t(`enemy.${enemiesData[killer.type]?.id ?? ""}`)
-					: killer.kind === "self"
-						? t("results.causeSelf")
-						: t("results.causeUnknown"),
-			build: [
-				t("results.weaponTier", { name: weaponName, tier: weapon.tier + 1 }),
-				...[...owned].map(([id, count]) => {
-					const name = t(`item.${id}`);
-					return count > 1 ? t("results.stack", { name, count }) : name;
+		results = buildResults(
+			{
+				round: run.round,
+				kills: runStats.kills,
+				damageDealt: runStats.damageDealt,
+				fightTicks: runStats.fightTicks,
+				step: STEP,
+				killer: runStats.killer,
+				damageBySource: runStats.damageBySource,
+				souls,
+				totalSouls: meta.souls,
+				record: meta.records[difficultyId],
+				newRecord,
+				seed,
+				loadout: loadout.update({
+					owned,
+					weaponId: weapon.weapon.id ?? "",
+					weaponTier: weapon.tier,
+					locale: meta.settings.locale,
 				}),
-			],
-			souls,
-			totalSouls: meta.souls,
-			record: meta.records[difficultyId],
-			newRecord,
-			seed,
-		};
+				nodes: ossuaryData.branches.flatMap((branch) =>
+					branch.nodes.map((node) => ({
+						label: [
+							...node.modifiers.map((m) => text(describeModifier(m))),
+							...node.effects.map((e) => text(describeEffect(e.id, e.params))),
+						].join(", "),
+						cost: node.cost,
+						state: nodeState(ossuaryData, meta, node, __IS_DEMO__),
+					})),
+				),
+			},
+			{
+				enemy: (type) => t(`enemy.${enemiesData[type]?.id ?? ""}`),
+				boss: (type) => t(`boss.${bossesData[type]?.id ?? ""}`),
+				elite: (name) => t("results.causeElite", { name }),
+				shot: () => t("results.causeShot"),
+				self: () => t("results.causeSelf"),
+				unknown: () => t("results.causeUnknown"),
+				source: (id) => t(`results.source.${id}`),
+			},
+		);
 		publishNow();
 	}
 
