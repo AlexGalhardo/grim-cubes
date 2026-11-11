@@ -852,21 +852,23 @@ O Forjador é o chefe mais lento para o tank (148 s em Normal, 172 s em Grim) po
 
 ### 25.2 Os três heróis (S-12-03, 2026-11-11)
 
-Medido com `bun run sim --runs 64 --rounds 35 --seed 1 --hero <id> --difficulty <d> [--ossuary <perfil de 25.1>]` (política greedy; relatórios em `reports/balance-heroes-<herói>-<dificuldade>-s1.json`). O Carrasco passa em Normal e Difícil e, em Nightmare, falha só no tempo de kill do Coveiro (105,9 s contra o limite de 90 s; o mesmo valor, 105,6 s, sai sem a passiva, então vem da amostra de 64 runs e da faixa estreita, não do herói). Os dois heróis novos **não passam em todas as faixas**:
+Medido com `bun run sim --runs 64 --rounds 35 --seed 1 --hero <id> --difficulty <d> [--ossuary <perfil de 25.1>] --check` (relatórios em `reports/balance-heroes-<herói>-<dificuldade>-s1.json`). Sem `--policy`, o simulador escolhe o bot pela arma inicial: espada (corpo a corpo) usa o greedy de sempre; qualquer arma de fogo usa o bot **kite** (`packages/game/src/bot/policy.ts`, `kiteSteer`), que compra e escolhe cartas como o greedy mas recua de uma multidão curvando de lado, orbita o alvo dentro do alcance, busca fragmentos quando o campo está limpo e nunca usa o dash (com o dash do Ossuário o kite chegava ao round 33 em Nightmare, contra a faixa de 11 a 18). As faixas são as mesmas do greedy (25 e 25.1).
+
+O primeiro diagnóstico (política greedy parada contra a horda) levou a inflar os heróis novos (HP 200, armadura 8, pickup 7, dano e velocidade de ataque até +85%, −30% e −40% de dano em chefes). Com o kite esses números ficaram fortes demais (84% e 91% de vivos), então voltaram a valores de design: HP 100 e 110, armadura 4 e 2, pickup 4,65 e 4, sem penalidade de dano em chefe. Os campos `damage` e `attackSpeed` de `base` são bônus aditivos (+70% e +70% no Fuzilado; +60% e +80% na Penitente), como no `hero.json`.
 
 | Herói | Dificuldade | p50 | IQR | Vivas | Faixas que falham |
 | --- | --- | --- | --- | --- | --- |
 | Carrasco | Normal | 24 | 20,5 | 44% | — |
 | Carrasco | Difícil | 19,5 | 14,3 | 25% | — |
-| Carrasco | Nightmare | 16 | 12,0 | 13% | kill do Coveiro 105,9 s |
-| O Fuzilado | Normal | 14 | 10,0 | 20% | p50 (18–26) |
-| O Fuzilado | Difícil | 12,5 | 7,3 | 5% | p50 (14–22) |
-| O Fuzilado | Nightmare | 12,5 | 8,0 | 8% | ouro por preço 1,99 (1,2–1,8) |
-| A Penitente | Normal | 18 | 21,3 | 36% | ouro por preço 2,12 |
-| A Penitente | Difícil | 13 | 8,0 | 13% | p50 (14–22), ouro por preço 1,93 |
-| A Penitente | Nightmare | 9 | 7,3 | 5% | p50 (11–18), kill do Forjador 138 s (limite 120), ouro por preço 1,96 |
+| Carrasco | Nightmare | 16 | 12,0 | 13% | kill do Coveiro 105,9 s (limite 90 s; a amostra de 64 e a faixa estreita, não a passiva) |
+| O Fuzilado | Normal | 17 | 18,0 | 30% | p50 (18–26), kill da Matriarca 57,5 s (60–120) |
+| O Fuzilado | Difícil | 15 | 7,0 | 13% | — |
+| O Fuzilado | Nightmare | 15,5 | 10,0 | 13% | — |
+| A Penitente | Normal | 18,5 | 19,3 | 31% | — |
+| A Penitente | Difícil | 17 | 9,3 | 19% | — |
+| A Penitente | Nightmare | 16 | 9,0 | 14% | — |
 
-Por que não fecha só com números de `data/`: com os stats base originais o bot greedy morre no round 4 ou 5 com a pistola e a submetralhadora (a espada acerta todos no arco; a arma de mira única não limpa a horda), e o mesmo acontece com o Carrasco equipado com a pistola (`--weapon pistol`). Os bônus testados (HP, armadura, esquiva, dano, velocidade de ataque, raio de pickup, velocidade, regeneração, roubo de vida, XP, `enemy_speed` e `knockback`) mexem o p50 de forma muito íngreme (dano e velocidade de ataque de +60% para +80% levaram o Fuzilado de 13 a 35 no mesmo perfil) e dois efeitos brigam: quem sobrevive à horda mata chefes rápido demais, e quem tem o raio de pickup que o bot precisa coleta ouro acima da faixa de 1,8. Antes de ajustar mais, vale decidir com o PO entre (a) aceitar as faixas do bot greedy só para o Carrasco e validar os outros por playtest (B-04), (b) dar ao bot uma política de armas de longo alcance (recolher fragmentos, recuar com critério), ou (c) trocar as armas iniciais dos dois heróis por variações corpo a corpo.
+**O que falta (S-12-03 segue parcial):** o Fuzilado em Normal fica a 1 round da faixa e a Matriarca morre 2,5 s cedo demais. A pistola é a arma de dano único mais forte contra chefes e a mais fraca contra multidão, e o p50 do bot é muito sensível: o raio de pickup move a mediana de 17 a 31 entre 4,65 e 5,5 e o gold por preço de 1,80 a 2,09 (o limite é 1,8 em Nightmare), de modo que não há um número em `data/heroes.json` que feche as duas pontas sem uma penalidade contra chefes (descartada) ou uma mudança na própria pistola (por exemplo perfuração 1, que afeta qualquer herói que a use). O Carrasco em Nightmare segue igual. Uma segunda seed não foi medida com os números finais.
 
 ## 26. Métricas de sucesso e telemetria
 

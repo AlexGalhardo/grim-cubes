@@ -1,8 +1,8 @@
 import type { InputState } from "@gc/core";
 import { Health, Position } from "../ecs/components";
 import type { GameSession } from "../session";
-import { queryEnemies } from "../world/queries";
-import { type Policy, policyFor, tankSteer } from "./policy";
+import { queryEnemies, queryFragments } from "../world/queries";
+import { kiteSteer, type Policy, policyFor, tankSteer } from "./policy";
 
 export interface BotHooks {
 	/** The average price of the item slots of the shop that just opened (0 without items). */
@@ -37,6 +37,7 @@ export function createBot(session: GameSession, policyId: Policy["id"], hooks: B
 	const policy = policyFor(policyId);
 	const { world, hero, progress, run, shop, levelUp, chest, weapon, poolItems, origin, dash } = session;
 	let dashHeld = false;
+	let ticks = 0;
 	let lastX = Number.NaN;
 	let lastZ = Number.NaN;
 	let stuckFor = 0;
@@ -103,6 +104,23 @@ export function createBot(session: GameSession, policyId: Policy["id"], hooks: B
 			dashHeld = move.dash;
 			return;
 		}
+		if (policy.id === "kite") {
+			spots.length = 0;
+			for (const e of queryEnemies(world)) spots.push({ x: Position.x[e] ?? 0, z: Position.z[e] ?? 0 });
+			const enemyCount = spots.length;
+			for (const f of queryFragments(world))
+				spots.push({ x: Position.x[f] ?? 0, z: Position.z[f] ?? 0 });
+			const move = kiteSteer({
+				hero: { x: hx, z: hz },
+				range: weapon.range,
+				enemies: spots.slice(0, enemyCount),
+				fragments: spots.slice(enemyCount),
+				tick: ticks,
+			});
+			input.moveX = move.moveX;
+			input.moveZ = move.moveZ;
+			return;
+		}
 		let best = Number.POSITIVE_INFINITY;
 		let dx = 0;
 		let dz = 0;
@@ -156,6 +174,7 @@ export function createBot(session: GameSession, policyId: Policy["id"], hooks: B
 		policy,
 		prepare(input): void {
 			choose();
+			ticks++;
 			if (run.state === "Round" || run.state === "BossRound") steer(input);
 			else input.dash = false;
 		},

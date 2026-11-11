@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { cpus } from "node:os";
 import { dirname } from "node:path";
-import { parsePolicy } from "../../packages/game/src/index";
+import { heroesData, parsePolicy, policyForWeapon, weaponsData } from "../../packages/game/src/index";
 import type { SimOptions, SimReport } from "./lib";
 import { runSim } from "./lib";
 import { checkTargets, type Difficulty, summarize } from "./report";
@@ -72,8 +72,17 @@ async function main(argv: string[]): Promise<number> {
 		return 1;
 	}
 	let policy: ReturnType<typeof parsePolicy>;
+	const heroFlag = flag(argv, "--hero");
+	const weaponFlag = flag(argv, "--weapon");
+	// Without --policy the bot fits the weapon: kiting for a gun, standing in the crowd for the sword (S-12-03).
+	const startWeapon =
+		weaponFlag ?? heroesData.find((h) => h.id === (heroFlag ?? heroesData[0]?.id))?.startingWeapon;
+	const weaponKind = weaponsData.find((w) => w.id === startWeapon)?.kind ?? "melee";
 	try {
-		policy = parsePolicy(flag(argv, "--policy"));
+		policy =
+			flag(argv, "--policy") === undefined
+				? policyForWeapon(weaponKind)
+				: parsePolicy(flag(argv, "--policy"));
 	} catch (error) {
 		console.error(`sim: ${error instanceof Error ? error.message : "bad --policy"}`);
 		return 1;
@@ -98,7 +107,7 @@ async function main(argv: string[]): Promise<number> {
 	const checks = checkTargets(metrics, rounds, { difficulty: difficultyName(difficulty), policy });
 
 	const date = new Date().toLocaleDateString("sv-SE");
-	const suffix = policy === "greedy" ? "" : `-${policy}`;
+	const suffix = policy === "greedy" || policy === "kite" ? "" : `-${policy}`;
 	const out = flag(argv, "--out") ?? `reports/sim-${date}-seed${seed}-runs${runs}${suffix}.json`;
 	// Bun on Windows throws EEXIST for recursive mkdir of an existing relative dir such as "..".
 	if (!existsSync(dirname(out))) mkdirSync(dirname(out), { recursive: true });

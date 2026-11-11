@@ -146,7 +146,7 @@ A Parte 1B (arte medium poly) começa depois da `v0.6.0` e tem pontos de parada 
   - Asserts: `bun run data:check` exit 0; teste que cada herói inicia a run com a arma e a passiva certas; GDD §7 atualizado.
 - [x] **S-12-02** Tela de escolha de herói entre os slots e a dificuldade, com retrato, arma, passiva e condição de desbloqueio; desbloqueios pelos marcos de `data/milestones.json`; o herói escolhido fica no checkpoint da run.
   - Asserts: teste de componente e de navegação por controle; migração do save com teste (versão do esquema sobe); captura nos quatro alvos; SDD 06 atualizado.
-- [~] **S-12-03** Balanceamento: `bun run sim --check` passa para os três heróis nas três dificuldades. Parcial: o Carrasco passa (menos o kill do Coveiro em Nightmare na amostra de 64); os dois heróis novos ficam fora de algumas faixas, ver GDD §25.2 e a decisão pendente com o PO.
+- [~] **S-12-03** Balanceamento: `bun run sim --check` passa para os três heróis nas três dificuldades. Estado em 2026-11-11: o bot kite para armas de fogo existe e os heróis novos voltaram a números de design (sem penalidade em chefe). A Penitente passa nas três dificuldades e o Fuzilado em Difícil e Nightmare; faltam o Fuzilado em Normal (p50 17 contra 18–26 e kill da Matriarca 57,5 s contra 60–120) e o kill do Coveiro do Carrasco em Nightmare (105,9 s). Ver GDD §25.2.
   - Asserts: `reports/balance-*.json` com os três heróis dentro das faixas do GDD §25.
 
 ### S-13 Seed diária

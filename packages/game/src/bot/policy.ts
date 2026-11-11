@@ -3,14 +3,16 @@ import type { Modifier } from "../rules/stats";
 /**
  * The simulated player's habits (GDD 25). `greedy` buys and picks for damage and keeps the weapon's range; `tank`
  * (B-02-02) prefers max HP, armor, regeneration and life steal, backs away from a crowd, and spends a dash to get
- * out of a corner. Policies decide what the bot does; they are not game data.
+ * out of a corner; `kite` (S-12-03) buys like greedy but keeps its distance, strafes and collects fragments when it is
+ * clear, for the long-range weapons that cannot clear a crowd standing still. Policies decide what the bot does; they are not game data.
  */
-export const POLICIES = ["greedy", "tank"] as const;
+export const POLICIES = ["greedy", "tank", "kite"] as const;
 export type PolicyId = (typeof POLICIES)[number];
 
-export const POLICY_LABEL: Readonly<Record<PolicyId, "greedy-kite" | "tank-kite">> = {
+export const POLICY_LABEL: Readonly<Record<PolicyId, "greedy-kite" | "tank-kite" | "kite">> = {
 	greedy: "greedy-kite",
 	tank: "tank-kite",
+	kite: "kite",
 };
 
 /** Value of a modifier to the player, per unit. */
@@ -101,8 +103,16 @@ const tank: Policy = {
 		effects?.reduce((sum, e) => sum + (TANK_EFFECT_VALUE[e.id] ?? TANK_OTHER_EFFECT), 0) ?? 0,
 };
 
+/** The kiting bot spends like the greedy one: what changes is how it moves. */
+const kite: Policy = { ...greedy, id: "kite" };
+
 export function policyFor(id: PolicyId): Policy {
-	return id === "tank" ? tank : greedy;
+	return id === "tank" ? tank : id === "kite" ? kite : greedy;
+}
+
+/** The bot that suits a weapon: the melee arc is played standing in the crowd, any gun by kiting. */
+export function policyForWeapon(kind: string): PolicyId {
+	return kind === "melee" ? "greedy" : "kite";
 }
 
 export function parsePolicy(text: string | undefined): PolicyId {
@@ -192,4 +202,89 @@ export function tankSteer(view: TankView): TankMove {
 		moveZ = 0.4 * moveZ + 0.6 * flee.z;
 	}
 	return { moveX, moveZ, dash };
+}
+
+export interface KiteView {
+	hero: Spot;
+	/** The weapon's reach in u. */
+	range: number;
+	enemies: readonly Spot[];
+	fragments: readonly Spot[];
+	/** Simulation step, to swap the strafing side now and then. */
+	tick: number;
+}
+
+/** Enemies inside this distance push the kiter away; it never lets a crowd close in. */
+const KITE_DANGER = 5;
+/** Fragments are fetched only when nothing is inside this distance. */
+const KITE_SAFE = 6;
+const KITE_FETCH_RADIUS = 14;
+const KITE_SWAP_STEPS = 180;
+
+/**
+ * The kiter's step: away from the weighted centre of the enemies when they are close (sliding sideways so it does not
+ * run into a wall of them), a strafe while they are in the weapon's reach, a walk to the nearest fragment when the
+ * field is clear, and otherwise a step in until the target is in range. It never dashes: with the Ossuary dash a kiter
+ * outlived every Nightmare range (p50 33 against 11-18), so the dash stays the tank's tool.
+ */
+export function kiteSteer(view: KiteView): TankMove {
+	let fleeX = 0;
+	let fleeZ = 0;
+	let nearest = Number.POSITIVE_INFINITY;
+	let nx = 0;
+	let nz = 0;
+	for (const e of view.enemies) {
+		const dx = e.x - view.hero.x;
+		const dz = e.z - view.hero.z;
+		const d = Math.hypot(dx, dz);
+		if (d < nearest) {
+			nearest = d;
+			nx = dx;
+			nz = dz;
+		}
+		if (d > THREAT_RADIUS) continue;
+		const weight = 1 / Math.max(d * d, 0.25);
+		fleeX -= (dx / Math.max(d, 1e-6)) * weight;
+		fleeZ -= (dz / Math.max(d, 1e-6)) * weight;
+	}
+	const side = Math.floor(view.tick / KITE_SWAP_STEPS) % 2 === 0 ? 1 : -1;
+	if (!Number.isFinite(nearest)) return fetchFragment(view);
+
+	const fleeLength = Math.hypot(fleeX, fleeZ);
+	const fx = fleeLength > 1e-6 ? fleeX / fleeLength : 0;
+	const fz = fleeLength > 1e-6 ? fleeZ / fleeLength : 0;
+	if (nearest < KITE_DANGER) {
+		// Mostly away, with a sideways part so the hero curves round the crowd instead of backing into a corner.
+		const mx = fx + -fz * side * 0.6;
+		const mz = fz + fx * side * 0.6;
+		const length = Math.max(Math.hypot(mx, mz), 1e-6);
+		return { moveX: mx / length, moveZ: mz / length, dash: false };
+	}
+	const want = Math.max(KITE_DANGER, view.range * 0.75);
+	if (nearest > KITE_SAFE) {
+		const fetch = fetchFragment(view);
+		if (fetch.moveX !== 0 || fetch.moveZ !== 0) return fetch;
+	}
+	if (nearest > want) return { moveX: nx / nearest, moveZ: nz / nearest, dash: false };
+	// In reach and not crowded: strafe across the line to the target.
+	return { moveX: (-nz / nearest) * side, moveZ: (nx / nearest) * side, dash: false };
+}
+
+/** A step towards the nearest fragment within reach, or standing still when there is none. */
+function fetchFragment(view: KiteView): TankMove {
+	let best = KITE_FETCH_RADIUS;
+	let bx = 0;
+	let bz = 0;
+	for (const f of view.fragments) {
+		const dx = f.x - view.hero.x;
+		const dz = f.z - view.hero.z;
+		const d = Math.hypot(dx, dz);
+		if (d < best) {
+			best = d;
+			bx = dx / Math.max(d, 1e-6);
+			bz = dz / Math.max(d, 1e-6);
+		}
+	}
+	if (best === KITE_FETCH_RADIUS) return { moveX: 0, moveZ: 0, dash: false };
+	return { moveX: bx, moveZ: bz, dash: false };
 }

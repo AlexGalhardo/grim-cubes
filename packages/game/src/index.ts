@@ -1,12 +1,14 @@
 export { type Bot, type BotHooks, createBot } from "./bot/bot";
 export {
 	GREEDY_WEIGHTS,
+	kiteSteer,
 	POLICIES,
 	POLICY_LABEL,
 	type Policy,
 	type PolicyId,
 	parsePolicy,
 	policyFor,
+	policyForWeapon,
 	TANK_WEIGHTS,
 	tankSteer,
 } from "./bot/policy";

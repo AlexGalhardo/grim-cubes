@@ -130,7 +130,7 @@ export const IQR_LIMIT = 25;
 export const ALIVE_LIMIT = 0.45;
 
 export type Difficulty = "easy" | "normal" | "grim" | "nightmare";
-export type PolicyName = "greedy" | "tank";
+export type PolicyName = "greedy" | "tank" | "kite";
 export interface Profile {
 	difficulty: Difficulty;
 	policy: PolicyName;
@@ -150,7 +150,7 @@ interface Ranges {
  * the reference Ossuary profiles of the GDD (`--ossuary`); without them the bot dies far earlier.
  */
 export function rangesFor({ difficulty, policy }: Profile): Ranges {
-	if (policy === "greedy") {
+	if (policy !== "tank") {
 		const p50 = { easy: [30, 35], normal: [18, 26], grim: [14, 22], nightmare: [11, 18] } as const;
 		return {
 			p50: p50[difficulty],

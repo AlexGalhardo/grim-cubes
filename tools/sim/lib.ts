@@ -68,7 +68,7 @@ export interface SimReport {
 	difficulty: string;
 	hero: string;
 	weapon: string;
-	policy: "greedy-kite" | "tank-kite";
+	policy: (typeof POLICY_LABEL)[PolicyId];
 	outcome: Outcome;
 	/** Round the run was in when it stopped (the last completed round when `outcome` is "completed"). */
 	roundReached: number;

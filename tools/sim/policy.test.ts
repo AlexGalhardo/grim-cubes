@@ -2,9 +2,11 @@ import { describe, expect, it } from "vitest";
 import {
 	cardsData,
 	itemsData,
+	kiteSteer,
 	type Modifier,
 	parsePolicy,
 	policyFor,
+	policyForWeapon,
 	TANK_WEIGHTS,
 	tankSteer,
 } from "../../packages/game/src/index";
@@ -192,5 +194,60 @@ describe("running the simulator with each policy", () => {
 		};
 		// A lower mean rank means the defensive items sit higher in the bot's wish list.
 		expect(meanRankOfDefence("tank")).toBeLessThan(meanRankOfDefence("greedy"));
+	});
+});
+
+describe("the kiting bot for guns (S-12-03)", () => {
+	const hero = { x: 0, z: 0 };
+	const base = { hero, range: 12, fragments: [], tick: 0 };
+
+	it("is chosen by the weapon kind: melee stays greedy, any gun kites", () => {
+		expect(policyForWeapon("melee")).toBe("greedy");
+		for (const kind of ["single_shot", "burst", "continuous", "explosive"])
+			expect(policyForWeapon(kind)).toBe("kite");
+		expect(policyFor("kite").modifierValue([add("damage", 0.1)])).toBe(
+			policyFor("greedy").modifierValue([add("damage", 0.1)]),
+		);
+	});
+
+	it("backs away from a crowd that is close, curving instead of running straight back", () => {
+		const move = kiteSteer({
+			...base,
+			enemies: [
+				{ x: 3, z: 0 },
+				{ x: 3, z: 1 },
+			],
+		});
+		expect(move.moveX).toBeLessThan(-0.5);
+		expect(Math.abs(move.moveZ)).toBeGreaterThan(0.1);
+		expect(move.dash).toBe(false);
+	});
+
+	it("strafes across the line to a target in reach, and walks in on a far one", () => {
+		const strafe = kiteSteer({ ...base, enemies: [{ x: 8, z: 0 }] });
+		expect(Math.abs(strafe.moveX)).toBeLessThan(1e-9);
+		expect(Math.abs(strafe.moveZ)).toBe(1);
+		const approach = kiteSteer({ ...base, enemies: [{ x: 20, z: 0 }] });
+		expect(approach.moveX).toBe(1);
+	});
+
+	it("fetches the nearest fragment when the field is clear, and flips the strafing side over time", () => {
+		const fetch = kiteSteer({
+			...base,
+			enemies: [{ x: 30, z: 0 }],
+			fragments: [
+				{ x: 0, z: 8 },
+				{ x: 0, z: -3 },
+			],
+		});
+		expect(fetch).toMatchObject({ moveX: 0, moveZ: -1 });
+		const early = kiteSteer({ ...base, enemies: [{ x: 8, z: 0 }] });
+		const late = kiteSteer({ ...base, enemies: [{ x: 8, z: 0 }], tick: 200 });
+		expect(late.moveZ).toBe(-early.moveZ);
+	});
+
+	it("plays a whole run with a gun and gets past the first rounds", () => {
+		const report = runSim({ seed: 1, rounds: 6, difficulty: "normal", hero: "riddled" });
+		expect(report.roundReached).toBeGreaterThanOrEqual(5);
 	});
 });
