@@ -75,7 +75,7 @@ export function Ossuary({ view, actions }: OssuaryProps): JSX.Element {
 			aria-labelledby="ossuary-title"
 			className="pointer-events-auto absolute inset-0 z-30 flex overflow-y-auto bg-linear-to-b from-night/95 to-shadow/95 p-2 mobile-l:p-4"
 		>
-			<div className="m-auto flex w-full max-w-[1700px] flex-col gap-3">
+			<div className="m-auto flex w-full max-w-[1700px] flex-col gap-3 desktop:my-0 desktop:min-h-full">
 				<div className="flex items-center justify-between gap-4 border-rust border-b-2 pb-2">
 					<h1
 						id="ossuary-title"
@@ -91,7 +91,7 @@ export function Ossuary({ view, actions }: OssuaryProps): JSX.Element {
 						{t("ossuary.souls", { souls: view.souls })}
 					</p>
 				</div>
-				<div className="grid grid-cols-1 gap-3 mobile-l:grid-cols-5">
+				<div className="grid grid-cols-1 gap-3 landscape:grid-cols-5 mobile-l:grid-cols-5 desktop:flex-1">
 					{view.branches.map((branch) => {
 						const accent = BRANCH[branch.id] ?? FALLBACK;
 						return (
@@ -125,12 +125,41 @@ export function Ossuary({ view, actions }: OssuaryProps): JSX.Element {
 									const dim = node.state === "locked" || node.state === "demo";
 									const status =
 										stateLabel(node.state) || t("ossuary.cost", { cost: node.cost });
+									// Each state also differs in shape and words, not only in colour: a written "bought" with a check,
+									// a glowing solid frame with the price, or a dashed frame with a lock square.
+									const look = owned
+										? `${accent.border} bg-linear-to-b from-iron-dark to-night-2`
+										: available
+											? "border-ember bg-linear-to-b from-iron-black to-night-2 shadow-[0_0_10px_var(--color-ember)]"
+											: "border-dashed border-iron bg-night-2";
+									const badge = owned ? (
+										<span className="text-heal">
+											<span aria-hidden="true">✓ </span>
+											{t("ossuary.owned")}
+										</span>
+									) : (
+										<span
+											className={
+												dim
+													? "text-iron-light"
+													: node.affordable
+														? "text-bone"
+														: "text-danger"
+											}
+										>
+											<span aria-hidden="true">{dim ? "▣ ☠ " : "☠ "}</span>
+											{node.cost}
+										</span>
+									);
 									return (
-										<div key={node.id} className="flex flex-col items-stretch">
+										<div
+											key={node.id}
+											className="flex flex-col items-stretch desktop:flex-1"
+										>
 											{i > 0 ? (
 												<span
 													aria-hidden="true"
-													className="mx-auto h-2 w-0.5 bg-rust"
+													className="mx-auto h-2 w-0.5 shrink-0 bg-rust"
 												/>
 											) : null}
 											<button
@@ -139,40 +168,39 @@ export function Ossuary({ view, actions }: OssuaryProps): JSX.Element {
 												data-state={node.state}
 												disabled={!available}
 												onClick={() => actions.buy(node.id)}
-												className={`flex min-h-14 items-center gap-2 border-2 bg-linear-to-b from-iron-black to-night-2 p-2 text-left ${owned ? accent.border : available ? "border-ember shadow-[0_0_10px_var(--color-ember)]" : "border-iron-dark"} ${dim ? "opacity-50" : ""} ${PRESS} enabled:hover:border-ember-light`}
+												className={`flex min-h-14 items-center gap-2 border-2 p-2 text-left desktop:flex-1 desktop:gap-3 desktop:p-3 ${look} ${PRESS} enabled:hover:border-ember-light`}
 											>
-												<span className="flex size-10 shrink-0 items-center justify-center border-2 border-iron-dark bg-night">
+												<span className="hidden size-10 shrink-0 items-center justify-center border-2 border-iron-dark bg-night desktop:flex desktop:size-12">
 													{node.icon ? <Icon icon={node.icon} /> : null}
 												</span>
 												<span className="min-w-0 flex-1">
-													<span className="block font-display text-sm text-bone">
+													<span
+														className={`block font-display text-sm desktop:text-lg ${dim ? "text-iron-light" : "text-bone"}`}
+													>
 														{title}
 													</span>
 													{rest.map((line) => (
 														<span
 															key={line}
-															className="block font-body text-xs text-bone-dark"
+															className={`block font-body text-xs desktop:text-base ${dim ? "text-iron-light" : "text-bone-dark"}`}
 														>
 															{line}
 														</span>
 													))}
-												</span>
-												<span className="flex shrink-0 flex-col items-end gap-1">
 													<span
-														className={`font-display text-sm ${available && !node.affordable ? "text-danger" : "text-bone"}`}
+														aria-hidden="true"
+														className="mt-1 block font-display text-sm desktop:hidden"
 													>
-														<span aria-hidden="true">☠ </span>
-														{node.cost}
-													</span>
-													<span className="sr-only">{status}</span>
-													<span aria-hidden="true" className="text-sm">
-														{owned ? (
-															<span className="text-heal">✓</span>
-														) : dim ? (
-															<span className="text-bone-dark">▣</span>
-														) : null}
+														{badge}
 													</span>
 												</span>
+												<span
+													aria-hidden="true"
+													className="hidden shrink-0 font-display text-sm desktop:block desktop:text-lg"
+												>
+													{badge}
+												</span>
+												<span className="sr-only">{status}</span>
 											</button>
 										</div>
 									);

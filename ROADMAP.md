@@ -120,7 +120,7 @@ A Parte 1B (arte medium poly) começa depois da `v0.6.0` e tem pontos de parada 
 
 - [x] **S-08-01** Dificuldade: foco e seleção com aparências diferentes, caixa de seleção no estilo do jogo, uma linha de sabor por dificuldade.
   - Asserts: teste de componente distingue `aria-checked` de foco; captura `difficulty` nos quatro alvos.
-- [ ] **S-08-02** Ossuário: nó bloqueado com contraste AA, estado comprado, comprável e bloqueado distinguíveis sem cor, área vazia da tela aproveitada.
+- [x] **S-08-02** Ossuário: nó bloqueado com contraste AA, estado comprado, comprável e bloqueado distinguíveis sem cor, área vazia da tela aproveitada.
   - Asserts: contraste medido no teste de tokens; captura `ossuary` nos quatro alvos.
 - [x] **S-08-03** Opções: o seletor de qualidade não quebra linha, o brilho neutro mostra 100%, e a tela cabe em 800×360 sem corte.
   - Asserts: captura `options` nos quatro alvos; teste do rótulo do brilho.

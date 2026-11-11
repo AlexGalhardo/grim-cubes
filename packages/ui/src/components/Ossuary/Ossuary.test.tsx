@@ -37,6 +37,23 @@ test("shows souls, branch names and node states", () => {
 	expect((screen.getByTestId("ossuary-node-flesh_3") as HTMLButtonElement).disabled).toBe(true);
 });
 
+test("bought, buyable and locked differ without colour: words, frame shape and marks", () => {
+	render(<Ossuary view={view} actions={actions()} />);
+	const owned = screen.getByTestId("ossuary-node-flesh_1");
+	const buyable = screen.getByTestId("ossuary-node-steel_1");
+	const locked = screen.getByTestId("ossuary-node-flesh_3");
+	expect(owned.textContent).toContain("✓ Comprado");
+	expect(owned.textContent).not.toContain("50");
+	expect(buyable.textContent).toContain("☠ 50");
+	expect(buyable.textContent).not.toContain("▣");
+	expect(locked.textContent).toContain("▣");
+	expect(locked.className).toContain("border-dashed");
+	expect(owned.className).not.toContain("border-dashed");
+	expect(buyable.className).not.toContain("border-dashed");
+	// Locked used to fade to half opacity, which dropped its text under AA.
+	for (const node of [owned, buyable, locked]) expect(node.className).not.toContain("opacity-");
+});
+
 test("only available nodes can be bought", () => {
 	const a = actions();
 	render(<Ossuary view={view} actions={a} />);
