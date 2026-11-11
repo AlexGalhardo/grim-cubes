@@ -44,6 +44,33 @@ test("start without a seed passes an empty text and cancel closes", () => {
 	expect(actions.cancel).toHaveBeenCalledTimes(1);
 });
 
+test("focus moves without choosing: aria-checked follows the click, not the focus", () => {
+	render(<Difficulty view={view} actions={{ start: vi.fn(), cancel: vi.fn() }} />);
+	const normal = screen.getByTestId("difficulty-normal");
+	const grim = screen.getByTestId("difficulty-grim");
+	expect(screen.getByRole("radiogroup")).toBeTruthy();
+	grim.focus();
+	expect(document.activeElement).toBe(grim);
+	expect(grim.getAttribute("aria-checked")).toBe("false");
+	expect(normal.getAttribute("aria-checked")).toBe("true");
+	// The two states are drawn with different properties: ember fill when checked, a bone outline on focus.
+	expect(normal.className).toContain("border-ember");
+	expect(grim.className).not.toContain("border-ember ");
+	expect(grim.className).toContain("focus-visible:outline-bone");
+	fireEvent.click(grim);
+	expect(grim.getAttribute("aria-checked")).toBe("true");
+	expect(normal.getAttribute("aria-checked")).toBe("false");
+});
+
+test("each difficulty shows its flavour line", () => {
+	render(<Difficulty view={view} actions={{ start: vi.fn(), cancel: vi.fn() }} />);
+	for (const id of ["normal", "grim", "nightmare"]) {
+		const line = screen.getByTestId(`difficulty-flavor-${id}`).textContent ?? "";
+		expect(line.length).toBeGreaterThan(10);
+		expect(line).not.toContain("difficultyFlavor");
+	}
+});
+
 test("the tutorial checkbox is passed to start", () => {
 	const start = vi.fn();
 	render(<Difficulty view={view} actions={{ start, cancel: vi.fn() }} />);

@@ -50,23 +50,47 @@ export function Difficulty({ view, actions }: DifficultyProps): JSX.Element {
 					<h1 id="difficulty-title" className="sr-only">
 						{t("difficulty.title")}
 					</h1>
-					<div className="flex flex-col gap-2">
-						{view.options.map((option) => (
-							<button
-								key={option.id}
-								type="button"
-								aria-pressed={selected === option.id}
-								data-testid={`difficulty-${option.id}`}
-								disabled={option.locked}
-								onClick={() => setSelected(option.id)}
-								className={`flex min-h-12 flex-col gap-1 border-2 bg-night-2 p-2 text-left font-body text-sm transition-colors duration-fast ${selected === option.id ? "border-ember text-ember-light" : "border-mist text-bone"} ${option.locked ? "opacity-60" : "enabled:hover:text-ember-light"}`}
-							>
-								<span className="font-display text-base">{option.name}</span>
-								<span className="text-bone-dark">
-									{option.locked ? option.requirement : option.summary}
-								</span>
-							</button>
-						))}
+					<div role="radiogroup" aria-label={t("difficulty.title")} className="flex flex-col gap-2">
+						{view.options.map((option) => {
+							const checked = selected === option.id;
+							const flavorKey = `difficultyFlavor.${option.id}`;
+							const flavor = t(flavorKey);
+							return (
+								// Selection is the ember fill and the diamond; focus is a separate bone outline, so the pad cursor never reads as a choice.
+								// biome-ignore lint/a11y/useSemanticElements: a native radio checks itself on arrow keys, which would fuse focus and choice.
+								<button
+									key={option.id}
+									type="button"
+									role="radio"
+									aria-checked={checked}
+									data-testid={`difficulty-${option.id}`}
+									disabled={option.locked}
+									onClick={() => setSelected(option.id)}
+									className={`flex min-h-12 items-start gap-3 border-2 p-2 text-left font-body text-sm transition-colors duration-fast focus-visible:outline-2 focus-visible:outline-bone! ${checked ? "border-ember bg-linear-to-b from-iron-dark to-night-2 text-ember-light shadow-[inset_0_0_0_1px_var(--color-ember)]" : "border-iron-dark bg-night-2 text-bone"} ${option.locked ? "opacity-60" : "enabled:hover:border-iron"}`}
+								>
+									<span
+										aria-hidden="true"
+										className={`mt-0.5 flex size-5 shrink-0 items-center justify-center border-2 ${checked ? "border-ember-light bg-night" : "border-iron bg-night"}`}
+									>
+										{checked ? <span className="size-2 rotate-45 bg-ember" /> : null}
+									</span>
+									<span className="flex min-w-0 flex-col gap-0.5">
+										<span className="font-display text-base">{option.name}</span>
+										{flavor !== flavorKey ? (
+											<span
+												data-testid={`difficulty-flavor-${option.id}`}
+												className="text-bone italic"
+											>
+												{flavor}
+											</span>
+										) : null}
+										<span className="text-bone-dark">
+											{option.locked ? option.requirement : option.summary}
+										</span>
+									</span>
+								</button>
+							);
+						})}
 					</div>
 					<label className="mt-4 flex flex-col gap-1 font-body text-sm text-bone-dark">
 						{t("difficulty.seed")}
@@ -82,13 +106,20 @@ export function Difficulty({ view, actions }: DifficultyProps): JSX.Element {
 							className="min-h-12 border-2 border-mist bg-night-2 px-2 text-bone focus:border-ember"
 						/>
 					</label>
-					<label className="mt-3 flex min-h-12 items-center gap-2 font-body text-sm text-bone-dark">
+					<label className="mt-3 flex min-h-12 cursor-pointer items-center gap-3 font-body text-sm text-bone">
 						<input
 							type="checkbox"
 							data-testid="difficulty-tutorial"
 							checked={tutorial}
 							onChange={(event) => setTutorial(event.target.checked)}
+							className="peer sr-only"
 						/>
+						<span
+							aria-hidden="true"
+							className="flex size-6 shrink-0 items-center justify-center border-2 border-iron bg-linear-to-b from-iron-dark to-iron-black font-display text-ember-light shadow-[0_2px_0_var(--color-night)] peer-checked:border-ember-light peer-focus-visible:outline-2 peer-focus-visible:outline-bone"
+						>
+							{tutorial ? "✓" : ""}
+						</span>
 						{t("difficulty.tutorial")}
 					</label>
 					<div className="mt-4 flex flex-wrap justify-between gap-3">

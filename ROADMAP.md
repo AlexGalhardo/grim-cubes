@@ -118,7 +118,7 @@ A Parte 1B (arte medium poly) começa depois da `v0.6.0` e tem pontos de parada 
 
 ### S-08 Dificuldade, Ossuário e Opções
 
-- [ ] **S-08-01** Dificuldade: foco e seleção com aparências diferentes, caixa de seleção no estilo do jogo, uma linha de sabor por dificuldade.
+- [x] **S-08-01** Dificuldade: foco e seleção com aparências diferentes, caixa de seleção no estilo do jogo, uma linha de sabor por dificuldade.
   - Asserts: teste de componente distingue `aria-checked` de foco; captura `difficulty` nos quatro alvos.
 - [ ] **S-08-02** Ossuário: nó bloqueado com contraste AA, estado comprado, comprável e bloqueado distinguíveis sem cor, área vazia da tela aproveitada.
   - Asserts: contraste medido no teste de tokens; captura `ossuary` nos quatro alvos.

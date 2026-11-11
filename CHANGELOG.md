@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **ui:** Difficulty: the options are a radio group where the choice (ember fill and a diamond, `aria-checked`) and the keyboard or pad focus (a bone outline) never look alike, each difficulty has a flavour line (`difficultyFlavor.*`), and the tutorial checkbox is an iron box in the game's style (S-08-01)
 - **ui:** Options: the quality presets sit on one row that never wraps (the automatic preset reads "Auto"), brightness reads 100% at neutral like contrast (`options-brightness-value`), and landscape screens under 1024 px get two columns with the key and pad bindings side by side, so 800x360 scrolls 30% less with nothing cut (S-08-03)
 - **ui:** Focusing or hovering a shop offer (mouse, keyboard or pad) shows, on each stat it changes, `now → after` and the signed delta in green or red (`shop-delta-<stat>`), and the level-up panel does the same for the focused card; `ShopSlotView.preview` is now a record of `StatPreview` and `CardChange` gains `delta` and `better` (S-05-02)
 - **ui:** Shop weapon offers show their own icon, damage and attacks per second (an upgrade offer shows the next tier), and item offers list their effects as well as their stat modifiers, so the 17 effect-only items are no longer blank; the synergy tag waits for S-14 (S-05-01, partial)
