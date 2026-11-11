@@ -415,7 +415,7 @@ Tailwind: `--breakpoint-mobile-l: 821px; --breakpoint-desktop: 1024px; --breakpo
 | `Bar` (HP/XP/chefe) | trilho `night`, preenchimento 2 tons (base + luz 2 px no topo), número centralizado display 16 | normal, baixo (< 25%: pulso 0,8 s em `steps(2)` e moldura `blood-light`, número sempre legível), cheio | alto 20 px (HUD), 28 px (chefe) |
 | `StatList` | linhas `label … valor`, delta colorido (`sludge` +, `blood-light` −) | — | body 14 |
 | `ItemCard` | ícone 32 px em moldura de raridade, nome display 16, efeito body 14, preço com ícone de fragmento | default, hover (eleva 4 px), locked (cadeado `ember-light`), unaffordable (preço `blood-light`, 60%), selected | 220 × 300 (desktop), 180 × 240 (mobile) |
-| `LevelUpCard` | igual a `ItemCard` sem preço; tecla 1/2/3 no canto | — | — |
+| `LevelUpCard` | igual a `ItemCard` sem preço: tecla 1/2/3 no canto, raridade (nome e marca do modo daltônico) no outro, ícone grande (64 px no desktop) em moldura de raridade, nome display, efeito body e, embaixo, `atributo atual → novo` (o novo em `sludge`) | default, hover/foco (borda `ember`, eleva 4 px), entrada em `steps(4)` de 180 ms com 60 ms de defasagem por carta (desliga com `prefers-reduced-motion`) | 220 × 300 (desktop), 180 × 240 (896 × 414), 160 × 220 (800 × 360) |
 | `Modal` | `Panel` centralizado sobre overlay `night` 70%, título, corpo, 2 botões | — | max-width 560 (desktop), 90vw (mobile) |
 | `Tooltip` | `Panel` pequeno, body 14, seta cúbica 8 px | aparece em 150 ms (desktop), toque longo (mobile) | max-width 280 |
 | `Toast` | barra topo-centro, display 16, ícone | entra 150 ms, fica 2 s, sai 150 ms | — |

@@ -45,9 +45,11 @@ import {
 	buyNode,
 	captureCheckpoint,
 	chooseDifficulty,
+	computeStats,
 	createBot,
 	createGameSession,
 	createLoop,
+	createPlayerStats,
 	createTargetingSystem,
 	createTips,
 	createTutorial,
@@ -71,6 +73,7 @@ import {
 	isUnlocked,
 	itemsData,
 	KnockbackResist,
+	type Modifier,
 	milestonesData,
 	movementSystem,
 	nextSpeed,
@@ -88,7 +91,6 @@ import {
 	restoreCheckpoint,
 	roundsData,
 	Speed,
-	STAT_FIELDS,
 	STEP,
 	soulsForRun,
 	unlockedSkins,
@@ -142,7 +144,7 @@ import {
 	type PropTypeDef,
 	pickAutoPreset,
 } from "@gc/render";
-import { App, type CardView, type HudState, type IconRef, type VolumeBus } from "@gc/ui";
+import { App, type CardChange, type CardView, type HudState, type IconRef, type VolumeBus } from "@gc/ui";
 import { addComponent, query } from "bitecs";
 import { createRoot } from "react-dom/client";
 import { bootArtReview } from "./artReview";
@@ -197,6 +199,15 @@ function floorTint(fogColor: string): string {
 
 const NO_CARDS: readonly CardView[] = [];
 const NO_STATS: HudState["stats"] = [];
+
+interface StatChange {
+	id: string;
+	label: string;
+	now: string;
+	after: string;
+	delta: string;
+	better: boolean;
+}
 
 function runSeed(): number {
 	const param = new URLSearchParams(location.search).get("seed");
@@ -1446,22 +1457,45 @@ async function boot(): Promise<void> {
 	const iconCache = new Map<string, IconRef | undefined>();
 	const formatStat = (value: number, percent: boolean): string =>
 		`${i18n.formatNumber(percent ? Math.round(value * 1000) / 10 : Math.round(value * 100) / 100)}${percent ? "%" : ""}`;
-	/** Shop stat preview (`statLine.*` id -> value after buying): only additive modifiers of the listed stats. */
+	/** The stat changes `mods` would make: the real stat formula runs on the run's modifiers plus `mods`, so caps, speed fractions and `mul` modifiers are exact. Higher is better for every listed stat. */
+	const scratchStats = createPlayerStats();
+	// The range is a card stat the shop panel does not list.
+	const rangeLine = (value: number): ReturnType<typeof describeStats>[number] => ({
+		key: "statLine.range",
+		value,
+		percent: false,
+	});
+	function statChanges(mods: readonly Modifier[]): StatChange[] {
+		computeStats(heroData, [...stats.modifiers, ...mods], scratchStats);
+		const before = [...describeStats(stats.stats), rangeLine(stats.stats.range)];
+		const after = [...describeStats(scratchStats), rangeLine(scratchStats.range)];
+		const out: StatChange[] = [];
+		before.forEach((line, i) => {
+			const next = after[i];
+			if (!next) return;
+			const now = formatStat(line.value, line.percent);
+			const then = formatStat(next.value, next.percent);
+			if (now === then) return;
+			const delta = next.value - line.value;
+			out.push({
+				id: line.key,
+				label: t(line.key),
+				now,
+				after: then,
+				delta: `${delta < 0 ? "−" : "+"}${formatStat(Math.abs(delta), line.percent)}`,
+				better: delta > 0,
+			});
+		});
+		return out;
+	}
+	const cardChanges = (mods: readonly Modifier[]): CardChange[] =>
+		statChanges(mods).map((c) => ({ id: c.id, stat: c.label, current: c.now, next: c.after }));
+	/** Shop stat preview (`statLine.*` id -> value after buying and its delta). */
 	function statPreview(itemId: string): Record<string, string> | undefined {
 		const item = itemsData.find((entry) => entry.id === itemId);
 		if (!item) return undefined;
-		const lines = describeStats(stats.stats);
-		const out: Record<string, string> = {};
-		for (const modifier of item.modifiers) {
-			if (modifier.op !== "add") continue;
-			const field = STAT_FIELDS[modifier.stat];
-			const line = lines.find((entry) => entry.key === `statLine.${field}`);
-			if (!line) continue;
-			// The speed line is in u/s while its modifiers are fractions of the base speed.
-			const after = field === "speed" ? line.value * (1 + modifier.value) : line.value + modifier.value;
-			out[line.key] = formatStat(after, line.percent);
-		}
-		return Object.keys(out).length > 0 ? out : undefined;
+		const changes = statChanges(item.modifiers);
+		return changes.length > 0 ? Object.fromEntries(changes.map((c) => [c.id, c.after])) : undefined;
 	}
 	/** The hero, weapon, items and Merchant line of the shop (ARPG layout, PO mockup of 2026-10-31). */
 	function shopPanels(): Pick<NonNullable<HudState["shop"]>, "hero" | "weapon" | "items" | "quote"> {
@@ -1553,12 +1587,18 @@ async function boot(): Promise<void> {
 		if (offer !== lastOfferSource) {
 			lastOfferSource = offer;
 			lastOffer = offer
-				? offer.map((c) => ({
-						id: c.id,
-						name: t(`card.${c.id}`),
-						double: c.double,
-						icon: iconFor("card", c.id),
-					}))
+				? offer.map((c) => {
+						const parts = c.id.split("+");
+						return {
+							id: c.id,
+							name: parts.map((part) => t(`cardName.${part}`)).join(" / "),
+							double: c.double,
+							icon: iconFor("card", parts[0] ?? c.id),
+							rarity: c.double ? 3 : 1,
+							lines: c.modifiers.map((m) => text(describeModifier(m))),
+							changes: cardChanges(c.modifiers),
+						};
+					})
 				: NO_CARDS;
 		}
 		const chestOffer = chest.offer;
@@ -1567,11 +1607,12 @@ async function boot(): Promise<void> {
 			lastChest = chestOffer
 				? chestOffer.map((c) => ({
 						id: c.id,
-						name: [t(`item.${c.id}`), ...c.modifiers.map((m) => text(describeModifier(m)))].join(
-							": ",
-						),
+						name: t(`item.${c.id}`),
 						double: false,
 						icon: iconFor("item", c.id),
+						rarity: c.tier,
+						lines: c.modifiers.map((m) => text(describeModifier(m))),
+						changes: cardChanges(c.modifiers),
 					}))
 				: NO_CARDS;
 		}

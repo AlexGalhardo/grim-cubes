@@ -1,8 +1,9 @@
 import { t } from "@gc/core";
 import { type JSX, type ReactNode, useEffect, useState } from "react";
-import { useShortScreen } from "../../hooks/useViewport";
+import { isDesktopWidth, useShortScreen } from "../../hooks/useViewport";
 import { useDialogNav } from "../../nav/useDialogNav";
 import { Icon, type IconRef } from "../Icon/Icon";
+import { PLATE, TIER_BORDER, TIER_TEXT } from "../styles";
 
 export interface ShopSlotView {
 	kind: "item" | "weapon" | "upgrade";
@@ -88,25 +89,6 @@ export interface ShopProps {
 
 /** The items grid shows two rows of 8 even when the hero owns fewer, like an inventory. */
 const EMPTY_ITEM_SLOTS = 16;
-/** Same threshold as the `desktop` breakpoint of theme.css, where the offer icons grow. */
-const DESKTOP_QUERY = "(min-width: 1024px)";
-const isDesktopWidth = (): boolean =>
-	typeof window.matchMedia !== "function" || window.matchMedia(DESKTOP_QUERY).matches;
-
-const TIER_BORDER: Readonly<Record<number, string>> = {
-	1: "border-rarity-1",
-	2: "border-rarity-2",
-	3: "border-rarity-3",
-	4: "border-rarity-4",
-	5: "border-rarity-5",
-};
-const TIER_TEXT: Readonly<Record<number, string>> = {
-	1: "text-rarity-1",
-	2: "text-rarity-2",
-	3: "text-rarity-3",
-	4: "text-rarity-4",
-	5: "text-rarity-5",
-};
 const kindLabel = (kind: ShopSlotView["kind"]): string =>
 	kind === "weapon"
 		? t("shop.kindWeapon")
@@ -114,9 +96,6 @@ const kindLabel = (kind: ShopSlotView["kind"]): string =>
 			? t("shop.kindUpgrade")
 			: t("shop.kindItem");
 
-/** A riveted iron plate, the frame of every block of the shop. */
-const PLATE =
-	"panel-riveted border-2 border-iron-dark bg-linear-to-b from-iron-black to-night-2 shadow-[inset_0_1px_0_var(--color-iron),0_4px_10px_var(--color-night)]";
 /** A raised button: lighter top edge, a dark base under it that disappears while pressed. */
 const RAISED =
 	"border-2 font-display transition-[translate,box-shadow,color] duration-fast active:translate-y-1 active:shadow-none focus-visible:outline-2 focus-visible:outline-ember focus-visible:outline-offset-2 disabled:opacity-50 disabled:active:translate-y-0 pointer-coarse:min-h-12";

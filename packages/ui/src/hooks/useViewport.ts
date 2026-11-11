@@ -18,6 +18,11 @@ function subscribeShort(onChange: () => void): () => void {
 const shortSnapshot = (): boolean =>
 	typeof window.matchMedia === "function" && window.matchMedia(SHORT_QUERY).matches;
 
+/** Same threshold as the `desktop` breakpoint of theme.css, where the icons of offers and cards grow. */
+const DESKTOP_QUERY = "(min-width: 1024px)";
+export const isDesktopWidth = (): boolean =>
+	typeof window.matchMedia !== "function" || window.matchMedia(DESKTOP_QUERY).matches;
+
 /** True on a short landscape screen: the dialogs use cards and offers that fit in a row. */
 export function useShortScreen(): boolean {
 	return useSyncExternalStore(subscribeShort, shortSnapshot, () => false);

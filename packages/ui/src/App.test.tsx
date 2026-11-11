@@ -401,7 +401,7 @@ test("the Merchant prompt counts down and the screen reader hears it only every 
 });
 
 test("the reroll hint names the keyboard key, or the pad button once the pad was used last", () => {
-	const cards = [{ id: "a", name: "A", double: false }];
+	const cards = [{ id: "a", name: "A", double: false, rarity: 1, lines: [], changes: [] }];
 	render(
 		<App
 			store={createStore({ ...hud(1), cards, cardRerolls: 1 })}
@@ -431,7 +431,7 @@ test("the reroll hint names the keyboard key, or the pad button once the pad was
 });
 
 test("the hints name the buttons of the connected controller: PlayStation symbols or Xbox letters", () => {
-	const cards = [{ id: "a", name: "A", double: false }];
+	const cards = [{ id: "a", name: "A", double: false, rarity: 1, lines: [], changes: [] }];
 	render(
 		<App
 			store={createStore({

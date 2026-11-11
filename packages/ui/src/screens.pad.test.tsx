@@ -227,9 +227,9 @@ test("the shop is navigable with the D-pad", () => {
 
 test("the level-up offer and the elite chest offer are navigable with the D-pad", () => {
 	const cards = [
-		{ id: "armor", name: "+3 armadura", double: false },
-		{ id: "damage", name: "+4% dano", double: true },
-		{ id: "luck", name: "+4 sorte", double: false },
+		{ id: "armor", name: "+3 armadura", double: false, rarity: 1, lines: [], changes: [] },
+		{ id: "damage", name: "+4% dano", double: true, rarity: 1, lines: [], changes: [] },
+		{ id: "luck", name: "+4 sorte", double: false, rarity: 1, lines: [], changes: [] },
 	];
 	assertPadNavigable(<LevelUp cards={cards} onChoose={vi.fn()} rerollsLeft={1} onReroll={vi.fn()} />, 4);
 	cleanup();

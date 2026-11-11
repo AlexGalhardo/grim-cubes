@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **ui:** Level-up and elite-chest cards at the Art Bible size (220x300, 180x240 at 896x414, 160x220 at 800x360): a rarity frame with the colour-blind mark, a large icon, the card name in the display font (new `cardName.*` locale keys), the effect lines, the stat now and after, and the key in the corner; the focused card lifts 4 px with an ember border and the cards rise in `steps()` in at most 300 ms, off under reduced motion; `CardView` gains `rarity`, `lines` and `changes`, and the shop stat preview now runs the real stat formula (S-04-01)
 - **art:** Hand-drawn icons for the five weapons, shown in the shop offers, the weapon panel and the HUD, and for the nine items that still had a seeded stand-in (the four Mythic items and the five spells); a test refuses any stand-in icon (S-09-01)
 - **docs:** The roadmap gains Part 1B (track S-18): after v0.6.0 the whole game moves from voxel to medium-poly 3D made by image-to-3D from the concept art, with the voxel art kept on the `voxel-legacy` branch; the Blockbench track S-15 is cancelled (PO decision of 2026-11-11)
 - **ui:** The whole UI grows by 25% on screens 1440 px tall or more, on top of the scale chosen in Options, so 2560x1440 keeps the proportions of 1080p instead of a HUD the same size in pixels (S-03-02)

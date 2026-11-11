@@ -114,10 +114,19 @@
 
 	--shadow-plate: 2px 2px 0 var(--color-night);
 	--animate-low: low-pulse 0.8s steps(2) infinite;
+	/* A level-up card rises into place; three cards stagger by 60 ms, so the last one ends at 300 ms. */
+	--animate-card-in: card-in 180ms var(--ease-step) backwards;
 
 	@keyframes low-pulse {
 		50% {
 			opacity: 0.5;
+		}
+	}
+
+	@keyframes card-in {
+		from {
+			opacity: 0;
+			translate: 0 16px;
 		}
 	}
 }
@@ -145,6 +154,7 @@
 @media (prefers-reduced-motion: reduce) {
 	:root {
 		--animate-low: none;
+		--animate-card-in: none;
 		--duration-fast: 0ms;
 		--duration-base: 0ms;
 		--duration-slow: 0ms;

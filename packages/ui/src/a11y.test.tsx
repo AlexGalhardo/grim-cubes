@@ -230,8 +230,8 @@ test("the level-up offer has no serious violations", async () => {
 		await violations(
 			<LevelUp
 				cards={[
-					{ id: "armor", name: "+3 armadura", double: false },
-					{ id: "damage", name: "+4% dano", double: true },
+					{ id: "armor", name: "+3 armadura", double: false, rarity: 1, lines: [], changes: [] },
+					{ id: "damage", name: "+4% dano", double: true, rarity: 1, lines: [], changes: [] },
 				]}
 				onChoose={vi.fn()}
 			/>,

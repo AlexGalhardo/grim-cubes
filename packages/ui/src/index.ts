@@ -20,7 +20,7 @@ export { Difficulty } from "./components/Difficulty/Difficulty";
 export type { HudItem, HudWeapon } from "./components/Hud/hudTypes";
 export type { IconProps, IconRef } from "./components/Icon/Icon";
 export { Icon } from "./components/Icon/Icon";
-export type { CardView, LevelUpProps } from "./components/LevelUp/LevelUp";
+export type { CardChange, CardView, LevelUpProps } from "./components/LevelUp/LevelUp";
 export { LevelUp } from "./components/LevelUp/LevelUp";
 export type { MenuActions, MenuProps, MenuViewModel } from "./components/Menu/Menu";
 export { Menu } from "./components/Menu/Menu";

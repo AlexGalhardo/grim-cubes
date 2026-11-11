@@ -1,21 +1,42 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
-import { LevelUp } from "./LevelUp";
+import { createPadHarness } from "../../nav/padHarness";
+import { type CardView, LevelUp } from "./LevelUp";
 
 afterEach(cleanup);
 
+const card = (id: string, name: string, over: Partial<CardView> = {}): CardView => ({
+	id,
+	name,
+	double: false,
+	rarity: 1,
+	lines: [],
+	changes: [],
+	...over,
+});
 const cards = [
-	{ id: "armor", name: "+3 armor", double: false },
-	{ id: "damage", name: "+4% damage", double: false },
-	{ id: "luck", name: "+4 luck", double: false },
+	card("armor", "Plate", { lines: ["+3 armor"] }),
+	card("damage", "Fury", {
+		lines: ["+4% damage"],
+		rarity: 3,
+		changes: [{ id: "statLine.damage", stat: "Damage", current: "12%", next: "16%" }],
+	}),
+	card("luck", "Black Luck", { lines: ["+4 luck"] }),
 ];
 
-test("shows the three cards with their key hints", () => {
+test("shows the three cards with name, effect, rarity, value now and after, and the key hint", () => {
 	render(<LevelUp cards={cards} onChoose={() => {}} />);
 	expect(screen.getByRole("dialog")).toBeTruthy();
 	expect(screen.getByRole("heading", { name: "Novo nível" })).toBeTruthy();
-	expect(screen.getByTestId("levelup-card-0").textContent).toContain("+3 armor");
+	const fury = screen.getByTestId("levelup-card-1");
+	expect(fury.textContent).toContain("Fury");
+	expect(fury.textContent).toContain("+4% damage");
+	expect(fury.textContent).toContain("Épico");
+	expect(screen.getByTestId("levelup-change-1-statLine.damage").textContent).toBe("Damage12% → 16%");
+	expect(screen.getByTestId("levelup-card-0").textContent).toContain("Normal");
 	expect(screen.getByTestId("levelup-card-2").textContent).toContain("3");
+	expect(screen.getByTestId("levelup-card-1").className).toContain("border-rarity-3");
+	expect(screen.getByTestId("levelup-rarity-mark-1").getAttribute("data-tier")).toBe("3");
 });
 
 test("clicking a card chooses it", () => {
@@ -52,9 +73,43 @@ test("the reroll button and the R key appear only with rerolls left", () => {
 	expect(screen.queryByTestId("levelup-reroll")).toBeNull();
 });
 
-function stubShortScreen(short: boolean): void {
+test("arrows move the focus between the cards and Enter picks the focused one", () => {
+	const onChoose = vi.fn();
+	render(<LevelUp cards={cards} onChoose={onChoose} />);
+	expect(document.activeElement).toBe(screen.getByTestId("levelup-card-0"));
+	fireEvent.keyDown(screen.getByRole("dialog"), { key: "ArrowRight" });
+	expect(document.activeElement).toBe(screen.getByTestId("levelup-card-1"));
+	fireEvent.keyDown(screen.getByRole("dialog"), { key: "ArrowLeft" });
+	fireEvent.keyDown(screen.getByRole("dialog"), { key: "ArrowLeft" });
+	expect(document.activeElement).toBe(screen.getByTestId("levelup-card-2"));
+	// Enter on a focused button is the browser's click; jsdom needs it spelled out.
+	fireEvent.click(document.activeElement as HTMLElement);
+	expect(onChoose).toHaveBeenCalledWith(2);
+});
+
+test("a gamepad walks the cards with the D-pad and A picks the focused one", () => {
+	const harness = createPadHarness();
+	const onChoose = vi.fn();
+	render(<LevelUp cards={cards} onChoose={onChoose} />);
+	harness.idle();
+	harness.tap(15);
+	expect(document.activeElement).toBe(screen.getByTestId("levelup-card-1"));
+	harness.tap(0);
+	expect(onChoose).toHaveBeenCalledWith(1);
+	harness.restore();
+});
+
+test("a tap on a card picks it", () => {
+	const onChoose = vi.fn();
+	render(<LevelUp cards={cards} onChoose={onChoose} />);
+	fireEvent.pointerDown(screen.getByTestId("levelup-card-2"), { pointerType: "touch" });
+	fireEvent.click(screen.getByTestId("levelup-card-2"));
+	expect(onChoose).toHaveBeenCalledWith(2);
+});
+
+function stubScreen({ short, wide }: { short: boolean; wide: boolean }): void {
 	vi.stubGlobal("matchMedia", (query: string) => ({
-		matches: short && query.includes("max-height"),
+		matches: query.includes("max-height") ? short : wide,
 		addEventListener: () => undefined,
 		removeEventListener: () => undefined,
 	}));
@@ -62,24 +117,18 @@ function stubShortScreen(short: boolean): void {
 
 const iconRef = { url: "a.png", x: 0, y: 0, w: 32, h: 32, atlasWidth: 64, atlasHeight: 64 };
 
-test("on a short landscape screen the three cards sit in one row, start at the top and use small icons", () => {
-	stubShortScreen(true);
-	const withIcons = cards.map((c) => ({ ...c, icon: iconRef }));
-	render(<LevelUp cards={withIcons} onChoose={() => {}} />);
+test("on a short landscape screen the dialog scrolls instead of clipping and the icons are 48 px", () => {
+	stubScreen({ short: true, wide: false });
+	render(<LevelUp cards={cards.map((c) => ({ ...c, icon: iconRef }))} onChoose={() => {}} />);
 	const dialog = screen.getByRole("dialog");
-	expect(dialog.className).toContain("justify-start");
 	expect(dialog.className).toContain("overflow-y-auto");
-	expect(screen.getByTestId("levelup-cards").className).toContain("flex-row");
-	expect(screen.getAllByTestId("icon")[0]?.style.width).toBe("32px");
+	expect(screen.getAllByTestId("icon")[0]?.style.width).toBe("48px");
 	vi.unstubAllGlobals();
 });
 
-test("on a tall screen the cards keep their roomy layout and 64 px icons", () => {
-	stubShortScreen(false);
-	const withIcons = cards.map((c) => ({ ...c, icon: iconRef }));
-	render(<LevelUp cards={withIcons} onChoose={() => {}} />);
-	expect(screen.getByRole("dialog").className).toContain("justify-center");
-	expect(screen.getByTestId("levelup-cards").className).toContain("flex-col");
+test("on a desktop screen the icons are 64 px", () => {
+	stubScreen({ short: false, wide: true });
+	render(<LevelUp cards={cards.map((c) => ({ ...c, icon: iconRef }))} onChoose={() => {}} />);
 	expect(screen.getAllByTestId("icon")[0]?.style.width).toBe("64px");
 	vi.unstubAllGlobals();
 });
