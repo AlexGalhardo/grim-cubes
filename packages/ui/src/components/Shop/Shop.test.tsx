@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
 import { Shop, type ShopViewModel } from "./Shop";
 
@@ -232,4 +232,49 @@ test("the delta is green when better and red when worse, and follows keyboard an
 	expect(screen.getByTestId("shop-delta-statLine.speed").className).toContain("text-danger");
 	fireEvent.blur(screen.getByTestId("shop-buy-1"));
 	expect(screen.queryByTestId("shop-delta-statLine.armor")).toBeNull();
+});
+
+const hero = { level: 7, xp: 140, xpNeeded: 200, hp: 84, maxHp: 120, round: 3, bossRound: 10, souls: 18 };
+const ownedItem = (n: number): { id: string; name: string; tier: number; count: number } => ({
+	id: `item${n}`,
+	name: `Item ${n}`,
+	tier: 1,
+	count: 1,
+});
+
+test("the gold shows once, the profile souls have their own label and the weapon holds its upgrade", () => {
+	const buy = actions();
+	render(
+		<Shop
+			view={{ ...view, hero, weapon: { name: "Espada", tier: 1, lines: ["Dano 12"] } }}
+			stats={stats}
+			actions={buy}
+		/>,
+	);
+	expect(screen.getAllByTestId("shop-gold")).toHaveLength(1);
+	expect(screen.getByTestId("shop-hero").textContent).toContain("Almas do perfil: 18");
+	const upgrade = within(screen.getByTestId("shop-weapon")).getByTestId("shop-slot-2");
+	expect(upgrade.textContent).toContain("Melhoria");
+	expect(within(screen.getByTestId("shop-grid")).queryByTestId("shop-slot-2")).toBeNull();
+	fireEvent.click(within(upgrade).getByTestId("shop-buy-2"));
+	expect(buy.buy).toHaveBeenCalledWith(2);
+});
+
+test("the items grid is the owned items plus one empty row, not 16 slots", () => {
+	const cells = (count: number): number => {
+		render(
+			<Shop
+				view={{ ...view, hero, items: Array.from({ length: count }, (_, n) => ownedItem(n)) }}
+				stats={stats}
+				actions={actions()}
+			/>,
+		);
+		const total = screen.getByTestId("shop-items").querySelectorAll("li").length;
+		cleanup();
+		return total;
+	};
+	expect(cells(0)).toBe(8);
+	expect(cells(3)).toBe(16);
+	expect(cells(8)).toBe(16);
+	expect(cells(9)).toBe(24);
 });

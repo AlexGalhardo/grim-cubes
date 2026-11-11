@@ -101,7 +101,7 @@ A Parte 1B (arte medium poly) começa depois da `v0.6.0` e tem pontos de parada 
   - Asserts: teste de `Shop` com fixture de arma e de item; nenhuma oferta usa o ícone genérico.
 - [x] **S-05-02** Prévia nos atributos: ao focar ou passar o mouse numa oferta, cada atributo afetado mostra o delta em verde ou vermelho antes da compra.
   - Asserts: `data-testid="shop-delta-<stat>"` aparece com o valor certo no teste; funciona por teclado e por controle.
-- [ ] **S-05-03** Limpeza de layout: o ouro aparece uma vez, a grade de itens mostra os itens e uma linha vazia em vez de 16 slots, o botão de upgrade da arma fica junto da arma, e em mobile os atributos cabem sem rolar a tela inteira.
+- [x] **S-05-03** Limpeza de layout: o ouro aparece uma vez, a grade de itens mostra os itens e uma linha vazia em vez de 16 slots, o botão de upgrade da arma fica junto da arma, e em mobile os atributos cabem sem rolar a tela inteira.
   - Asserts: um único `shop-gold` no DOM; capturas `shop` nos quatro alvos; `screens.pad.test.tsx` verde.
 
 ### S-06 Resultados

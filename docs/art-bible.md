@@ -498,7 +498,7 @@ Decisão D31 (dados do PO em `docs/brainstorming.md` §7.2). Layout de referênc
 | --- | --- | --- | --- | --- |
 | 1920 × 1080 | 1920 × 1080 | 100% | 4 cantos, margem 24 px | loja 4 colunas; level-up 3 cartas lado a lado com o painel de atributos à esquerda; Ossuário radial completo |
 | 2560 × 1440 | 2560 × 1440 | 125% (auto) | idem, margem 32 px | idem (mais área de jogo visível, não mais UI) |
-| 896 × 414 (~6,1") | 896 × 414 | 100% | margem = safe area (≥ 24 px); joystick à esquerda, dash/pausa à direita; HP/XP compactos topo-esquerda; round/timer topo-centro | loja 2 × 2 rolável; level-up 3 cartas 180 × 240, sem o painel de atributos; Ossuário por ramo (tabs) |
+| 896 × 414 (~6,1") | 896 × 414 | 100% | margem = safe area (≥ 24 px); joystick à esquerda, dash/pausa à direita; HP/XP compactos topo-esquerda; round/timer topo-centro | loja em duas colunas sem rolar a tela (só a lista de atributos e as ofertas rolam); level-up 3 cartas 180 × 240, sem o painel de atributos; Ossuário por ramo (tabs) |
 | 800 × 360 (~6,5") | 800 × 360 | 100% | idem, texto 13 px mínimo | idem; cartas 160 × 220 |
 
 Regras:

@@ -644,7 +644,7 @@ Recordes mostrados no menu: maior round por dificuldade, total de kills, total d
 | Seleção de dificuldade | Fácil/Normal/Difícil abertas, Nightmare com cadeado; uma linha de sabor por dificuldade; escolha (preenchimento âmbar e losango) e foco (contorno osso) nunca se parecem; seed e tutorial opcionais (S-08-01) | ALPHA |
 | HUD in-run | ver 21.2 | PROTÓTIPO |
 | Level-up | 3 cartas centrais, stats atuais à esquerda; pausa | PROTÓTIPO |
-| Loja | 4 slots, arma atual com botão de upgrade, stats, reroll, lock, "Próximo round" | PROTÓTIPO |
+| Loja | 4 slots (a melhoria da arma fica no painel da arma), stats com prévia do delta, reroll, lock, ouro uma vez só, almas do perfil rotuladas, "Próximo round" | PROTÓTIPO |
 | Chefe | barra de HP topo, nome, marcadores de fase | PROTÓTIPO (Coveiro) |
 | Morte/Resultado | round, kills, dano causado/recebido, causa da morte, build final, almas ganhas (contador animado), seed | PROTÓTIPO |
 | Ossuário | 5 ramos em colunas, nós com custo, saldo de almas, reset. Comprado ("✓ Comprado"), comprável (moldura sólida com brilho e preço) e bloqueado (moldura tracejada, ▣, texto AA) se distinguem sem cor; no desktop as colunas ocupam a altura da tela (S-08-02) | ALPHA |

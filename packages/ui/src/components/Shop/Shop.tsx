@@ -81,8 +81,7 @@ export interface ShopProps {
 	rerollButton?: number | undefined;
 }
 
-/** The items grid shows two rows of 8 even when the hero owns fewer, like an inventory. */
-const EMPTY_ITEM_SLOTS = 16;
+const ITEMS_PER_ROW = 8;
 const kindLabel = (kind: ShopSlotView["kind"]): string =>
 	kind === "weapon"
 		? t("shop.kindWeapon")
@@ -132,6 +131,51 @@ function Counter({ icon, children, testId }: { icon: string; children: ReactNode
 	);
 }
 
+function OfferRow({
+	slot,
+	index,
+	short,
+	actions,
+}: {
+	slot: ShopSlotView;
+	index: number;
+	short: boolean;
+	actions: ShopActions;
+}): JSX.Element {
+	return (
+		<div className="mt-auto flex items-center gap-2">
+			<span
+				className={`flex ${short ? "" : "min-w-14"} items-center gap-1 font-display ${short ? "text-sm" : "text-lg"} ${slot.affordable ? "text-currency" : "text-danger"}`}
+			>
+				<span aria-hidden="true">●</span>
+				{slot.price}
+			</span>
+			<button
+				type="button"
+				data-testid={`shop-buy-${index}`}
+				disabled={slot.sold}
+				aria-label={slot.sold ? undefined : `${t("shop.buy")} ${slot.name} (${slot.price})`}
+				onClick={() => actions.buy(index)}
+				className={`h-9 min-w-0 flex-1 px-2 text-base desktop:h-11 desktop:text-lg ${slot.affordable ? EMBER_BUTTON : IRON_BUTTON}`}
+			>
+				{slot.sold ? t("shop.sold") : t("shop.buy")}
+			</button>
+			<button
+				type="button"
+				data-testid={`shop-lock-${index}`}
+				disabled={slot.sold}
+				aria-pressed={slot.locked}
+				aria-label={slot.locked ? t("shop.unlock") : t("shop.lock")}
+				onClick={() => actions.toggleLock(index)}
+				className={`flex h-9 shrink-0 items-center gap-1 px-2 text-sm desktop:h-11 desktop:px-3 ${IRON_BUTTON} ${slot.locked ? "border-ember text-ember-light" : ""}`}
+			>
+				<span aria-hidden="true">{slot.locked ? "■" : "□"}</span>
+				<span className={short ? "sr-only" : ""}>{t("shop.lock")}</span>
+			</button>
+		</div>
+	);
+}
+
 /** Between-rounds shop (GDD 17): hero, weapon, items and stats on the left; the Merchant and 4 offers on the right. Keys 1-4 buy, R rerolls, Enter continues. */
 export function Shop({
 	view,
@@ -158,6 +202,17 @@ export function Shop({
 	const desktopWide = isDesktopWidth();
 	const [hovered, setHovered] = useState<number | null>(null);
 	const preview = hovered === null ? undefined : view.slots[hovered]?.preview;
+	// The weapon's upgrade offer sits with the weapon; without a weapon panel it stays in the grid.
+	const upgradeIndex = weapon ? view.slots.findIndex((slot) => slot.kind === "upgrade") : -1;
+	const upgrade = upgradeIndex >= 0 ? view.slots[upgradeIndex] : undefined;
+	// Owned items plus one empty row, like an inventory with room to grow; a short screen only completes the row.
+	const itemRows = Math.max(1, Math.ceil(items.length / ITEMS_PER_ROW) + (short ? 0 : 1));
+	const focusProps = (i: number) => ({
+		onMouseEnter: () => setHovered(i),
+		onMouseLeave: () => setHovered(null),
+		onFocus: () => setHovered(i),
+		onBlur: () => setHovered(null),
+	});
 
 	return (
 		<div
@@ -165,16 +220,16 @@ export function Shop({
 			role="dialog"
 			aria-modal="true"
 			aria-labelledby="shop-title"
-			className={`pointer-events-auto absolute inset-0 z-20 flex overflow-y-auto bg-night/85 ${short ? "p-1" : "p-2 mobile-l:p-4"}`}
+			className={`pointer-events-auto absolute inset-0 z-20 flex ${short ? "overflow-hidden" : "overflow-y-auto"} bg-night/85 ${short ? "p-1" : "p-2 mobile-l:p-4"}`}
 		>
 			<h1 id="shop-title" className="sr-only">
 				{t("shop.title")}
 			</h1>
 			<div
-				className={`m-auto grid w-full max-w-[1760px] grid-cols-1 mobile-l:grid-cols-[46fr_54fr] ${short ? "gap-1" : "gap-2 desktop:gap-4"}`}
+				className={`m-auto grid w-full max-w-[1760px] ${short ? "h-full grid-cols-[46fr_54fr] gap-1" : "grid-cols-1 gap-2 mobile-l:grid-cols-[46fr_54fr] desktop:gap-4"}`}
 			>
 				{/* Left: the hero, the weapon in hand, the items owned and the full stats. */}
-				<section className={`${PLATE} flex flex-col ${short ? "gap-1 p-1.5" : "gap-3 p-3"}`}>
+				<section className={`${PLATE} flex flex-col ${short ? "min-h-0 gap-1 p-1.5" : "gap-3 p-3"}`}>
 					{hero ? (
 						<div className="flex gap-3" data-testid="shop-hero">
 							<div
@@ -207,36 +262,55 @@ export function Shop({
 								<Counter icon="⚑">
 									{t("shop.round", { round: hero.round, boss: hero.bossRound })}
 								</Counter>
-								<Counter icon="●">{t("shop.goldLabel", { gold: view.gold })}</Counter>
 								<Counter icon="☠">{t("shop.souls", { souls: hero.souls })}</Counter>
 							</div>
 						</div>
 					) : null}
 					{weapon ? (
-						<div className={`${PLATE} flex items-center gap-3 p-2`} data-testid="shop-weapon">
-							<div
-								aria-hidden="true"
-								className={`flex shrink-0 items-center justify-center border-2 bg-night font-display text-ember-light ${TIER_BORDER[weapon.tier] ?? "border-iron-dark"} ${short ? "size-10 text-xl" : "size-16 text-3xl"}`}
-							>
-								{weapon.icon ? <Icon icon={weapon.icon} size={short ? 32 : 48} /> : "⚔"}
-							</div>
-							<div className="min-w-0">
+						<div className={`${PLATE} flex flex-col gap-2 p-2`} data-testid="shop-weapon">
+							<div className="flex items-center gap-3">
 								<div
-									className={`font-display text-bone uppercase ${short ? "text-sm" : "text-lg"}`}
+									aria-hidden="true"
+									className={`flex shrink-0 items-center justify-center border-2 bg-night font-display text-ember-light ${TIER_BORDER[weapon.tier] ?? "border-iron-dark"} ${short ? "size-10 text-xl" : "size-16 text-3xl"}`}
 								>
-									{weapon.name}
+									{weapon.icon ? <Icon icon={weapon.icon} size={short ? 32 : 48} /> : "⚔"}
 								</div>
-								<div
-									className={`font-display text-xs uppercase ${TIER_TEXT[weapon.tier] ?? "text-bone-dark"}`}
-								>
-									{t(`rarity.${weapon.tier}`)} · {t("shop.kindWeapon")}
+								<div className="min-w-0">
+									<div
+										className={`font-display text-bone uppercase ${short ? "text-sm" : "text-lg"}`}
+									>
+										{weapon.name}
+									</div>
+									<div
+										className={`font-display text-xs uppercase ${TIER_TEXT[weapon.tier] ?? "text-bone-dark"}`}
+									>
+										{t(`rarity.${weapon.tier}`)} · {t("shop.kindWeapon")}
+									</div>
+									<ul className="font-body text-sm text-heal">
+										{weapon.lines.map((line) => (
+											<li key={line}>{line}</li>
+										))}
+									</ul>
 								</div>
-								<ul className="font-body text-sm text-heal">
-									{weapon.lines.map((line) => (
-										<li key={line}>{line}</li>
-									))}
-								</ul>
 							</div>
+							{upgrade ? (
+								<fieldset
+									data-testid={`shop-slot-${upgradeIndex}`}
+									aria-label={upgrade.name}
+									{...focusProps(upgradeIndex)}
+									className={`m-0 flex min-w-0 flex-col gap-1 border-iron-dark border-t-2 p-0 pt-2 ${upgrade.sold ? "opacity-40" : ""}`}
+								>
+									<div className="font-body text-bone-dark text-sm">
+										{kindLabel("upgrade")}: {upgrade.lines.join(" · ")}
+									</div>
+									<OfferRow
+										slot={upgrade}
+										index={upgradeIndex}
+										short={short}
+										actions={actions}
+									/>
+								</fieldset>
+							) : null}
 						</div>
 					) : null}
 					{hero ? (
@@ -264,20 +338,20 @@ export function Shop({
 										) : null}
 									</li>
 								))}
-								{Array.from(
-									{ length: Math.max(0, EMPTY_ITEM_SLOTS - items.length) },
-									(_, i) => (
-										<li
-											key={`empty-${i}`}
-											aria-hidden="true"
-											className="aspect-square border-2 border-iron-dark bg-night/60"
-										/>
-									),
-								)}
+								{Array.from({ length: itemRows * ITEMS_PER_ROW - items.length }, (_, i) => (
+									<li
+										key={`empty-${i}`}
+										aria-hidden="true"
+										className="aspect-square border-2 border-iron-dark bg-night/60"
+									/>
+								))}
 							</ul>
 						</div>
 					) : null}
-					<div data-testid="shop-side" className={`${PLATE} flex-1 ${short ? "p-1.5" : "p-3"}`}>
+					<div
+						data-testid="shop-side"
+						className={`${PLATE} flex-1 ${short ? "min-h-0 overflow-y-auto p-1.5" : "p-3"}`}
+					>
 						<h2 className="mb-2 font-display text-base text-bone uppercase">{t("shop.stats")}</h2>
 						<StatList stats={stats} preview={preview} />
 					</div>
@@ -285,7 +359,7 @@ export function Shop({
 
 				{/* Right: the Merchant, its four offers in two columns, then reroll, gold and next round. */}
 				<section
-					className={`${PLATE} order-first flex flex-col mobile-l:order-none ${short ? "gap-1 p-1.5" : "gap-3 p-3"}`}
+					className={`${PLATE} order-first flex flex-col mobile-l:order-none ${short ? "min-h-0 gap-1 p-1.5" : "gap-3 p-3"}`}
 				>
 					<div className="flex gap-3">
 						<div
@@ -308,114 +382,80 @@ export function Shop({
 					</div>
 					<div
 						data-testid="shop-grid"
-						className={`grid ${short ? "grid-cols-2 gap-1" : "grid-cols-1 gap-2 mobile-l:grid-cols-2 desktop:gap-3"}`}
+						className={`grid ${short ? "min-h-0 flex-1 grid-cols-2 content-start gap-1 overflow-y-auto" : "grid-cols-1 gap-2 mobile-l:grid-cols-2 desktop:gap-3"}`}
 					>
-						{view.slots.map((slot, i) => (
-							<fieldset
-								key={`${slot.kind}-${slot.id}-${i}`}
-								data-testid={`shop-slot-${i}`}
-								aria-label={slot.name}
-								onMouseEnter={() => setHovered(i)}
-								onMouseLeave={() => setHovered(null)}
-								onFocus={() => setHovered(i)}
-								onBlur={() => setHovered(null)}
-								className={`panel-riveted m-0 flex min-w-0 flex-col border-2 bg-linear-to-b from-iron-black to-night-2 ${short ? "gap-1 p-1.5" : "gap-2 p-3 desktop:gap-4 desktop:p-4 desktop:min-h-56"} ${TIER_BORDER[slot.tier] ?? "border-iron-dark"} ${slot.sold ? "opacity-40" : ""}`}
-							>
-								<div className="flex gap-3">
-									<div
-										className={`flex shrink-0 items-center justify-center border-2 bg-night ${TIER_BORDER[slot.tier] ?? "border-iron-dark"} ${short ? "size-10" : "size-16 desktop:size-20"}`}
-									>
-										{slot.icon ? (
-											<Icon
-												icon={slot.icon}
-												size={short ? 32 : desktopWide ? 64 : 48}
-											/>
-										) : (
-											<span
-												aria-hidden="true"
-												className="font-display text-2xl text-ember-light"
+						{view.slots.map((slot, i) =>
+							i === upgradeIndex ? null : (
+								<fieldset
+									key={`${slot.kind}-${slot.id}-${i}`}
+									data-testid={`shop-slot-${i}`}
+									aria-label={slot.name}
+									{...focusProps(i)}
+									className={`panel-riveted m-0 flex min-w-0 flex-col border-2 bg-linear-to-b from-iron-black to-night-2 ${short ? "gap-0.5 p-1" : "gap-2 p-3 desktop:gap-4 desktop:p-4 desktop:min-h-56"} ${TIER_BORDER[slot.tier] ?? "border-iron-dark"} ${slot.sold ? "opacity-40" : ""}`}
+								>
+									<div className="flex gap-3">
+										<div
+											className={`flex shrink-0 items-center justify-center border-2 bg-night ${TIER_BORDER[slot.tier] ?? "border-iron-dark"} ${short ? "size-10" : "size-16 desktop:size-20"}`}
+										>
+											{slot.icon ? (
+												<Icon
+													icon={slot.icon}
+													size={short ? 32 : desktopWide ? 64 : 48}
+												/>
+											) : (
+												<span
+													aria-hidden="true"
+													className="font-display text-2xl text-ember-light"
+												>
+													⚔
+												</span>
+											)}
+										</div>
+										<div className="min-w-0 flex-1">
+											<div
+												className={`font-display text-bone ${short ? "text-xs leading-tight" : "text-lg desktop:text-xl"}`}
 											>
-												⚔
-											</span>
-										)}
-									</div>
-									<div className="min-w-0 flex-1">
-										<div
-											className={`font-display text-bone ${short ? "text-sm" : "text-lg desktop:text-xl"}`}
-										>
-											{slot.name}
+												{slot.name}
+											</div>
+											<div
+												className={`font-display text-xs uppercase ${TIER_TEXT[slot.tier] ?? "text-bone-dark"}`}
+											>
+												<span
+													className="rarity-mark"
+													data-tier={slot.tier}
+													data-testid={`rarity-mark-${i}`}
+													aria-hidden="true"
+												/>
+												{t(`rarity.${slot.tier}`)} · {kindLabel(slot.kind)}
+											</div>
+											<ul
+												className={`mt-1 font-body text-bone-dark ${short ? "text-[11px] leading-tight" : "text-sm desktop:text-base"}`}
+											>
+												{slot.lines.map((line) => (
+													<li key={line}>{line}</li>
+												))}
+											</ul>
 										</div>
-										<div
-											className={`font-display text-xs uppercase ${TIER_TEXT[slot.tier] ?? "text-bone-dark"}`}
-										>
-											<span
-												className="rarity-mark"
-												data-tier={slot.tier}
-												data-testid={`rarity-mark-${i}`}
-												aria-hidden="true"
-											/>
-											{t(`rarity.${slot.tier}`)} · {kindLabel(slot.kind)}
-										</div>
-										<ul
-											className={`mt-1 font-body text-bone-dark ${short ? "text-xs" : "text-sm desktop:text-base"}`}
-										>
-											{slot.lines.map((line) => (
-												<li key={line}>{line}</li>
-											))}
-										</ul>
 									</div>
-								</div>
-								<div className="mt-auto flex items-center gap-2">
-									<span
-										className={`flex min-w-14 items-center gap-1 font-display ${short ? "text-sm" : "text-lg"} ${slot.affordable ? "text-currency" : "text-danger"}`}
-									>
-										<span aria-hidden="true">●</span>
-										{slot.price}
-									</span>
-									<button
-										type="button"
-										data-testid={`shop-buy-${i}`}
-										disabled={slot.sold}
-										aria-label={
-											slot.sold
-												? undefined
-												: `${t("shop.buy")} ${slot.name} (${slot.price})`
-										}
-										onClick={() => actions.buy(i)}
-										className={`h-9 flex-1 px-2 text-base desktop:h-11 desktop:text-lg ${slot.affordable ? EMBER_BUTTON : IRON_BUTTON}`}
-									>
-										{slot.sold ? t("shop.sold") : t("shop.buy")}
-									</button>
-									<button
-										type="button"
-										data-testid={`shop-lock-${i}`}
-										disabled={slot.sold}
-										aria-pressed={slot.locked}
-										aria-label={slot.locked ? t("shop.unlock") : t("shop.lock")}
-										onClick={() => actions.toggleLock(i)}
-										className={`flex h-9 items-center gap-1 px-2 text-sm desktop:h-11 desktop:px-3 ${IRON_BUTTON} ${slot.locked ? "border-ember text-ember-light" : ""}`}
-									>
-										<span aria-hidden="true">{slot.locked ? "■" : "□"}</span>
-										<span className={short ? "sr-only" : ""}>{t("shop.lock")}</span>
-									</button>
-								</div>
-							</fieldset>
-						))}
+									<OfferRow slot={slot} index={i} short={short} actions={actions} />
+								</fieldset>
+							),
+						)}
 					</div>
 					<div
-						className={`${PLATE} mt-auto flex flex-wrap items-center gap-2 ${short ? "p-1" : "p-2 desktop:gap-4"}`}
+						className={`${PLATE} mt-auto flex shrink-0 items-center ${short ? "gap-1 p-1" : "flex-wrap gap-2 p-2 desktop:gap-4"}`}
 					>
 						<button
 							type="button"
 							onClick={actions.reroll}
 							disabled={view.gold < view.rerollPrice}
-							className={`h-11 px-3 text-base ${IRON_BUTTON}`}
+							className={`h-11 ${short ? "whitespace-nowrap px-1.5 text-xs" : "px-3 text-base"} ${IRON_BUTTON}`}
 						>
 							<span aria-hidden="true">⟳ </span>
 							{t("shop.reroll", { price: view.rerollPrice, key: rerollHint })}
 						</button>
 						<div
-							className="flex items-center gap-1 border-iron-dark px-2 font-display text-base text-currency mobile-l:border-x-2"
+							className={`flex items-center gap-1 border-iron-dark font-display text-currency mobile-l:border-x-2 ${short ? "whitespace-nowrap px-1 text-xs" : "px-2 text-base"}`}
 							data-testid="shop-gold"
 						>
 							<span aria-hidden="true">●</span>
@@ -424,7 +464,7 @@ export function Shop({
 						<button
 							type="button"
 							onClick={actions.next}
-							className={`ml-auto h-11 px-4 uppercase ${short ? "text-base" : "text-lg"} ${EMBER_BUTTON}`}
+							className={`ml-auto h-11 uppercase ${short ? "whitespace-nowrap px-2 text-xs" : "px-4 text-lg"} ${EMBER_BUTTON}`}
 						>
 							<span aria-hidden="true">» </span>
 							{t("shop.next")}
