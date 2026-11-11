@@ -105,6 +105,7 @@ export type { Loop, LoopHooks } from "./loop";
 export { createLoop, MAX_STEPS, STEP } from "./loop";
 export type { CardData, CardOffer, CardRng, CardsConfig } from "./rules/cards";
 export { drawCards } from "./rules/cards";
+export { dailyHero, dailySeed, utcDate } from "./rules/daily";
 export type { DamageConfig, HeroCombatData, LifeStealLimiter } from "./rules/damage";
 export {
 	armorMultiplier,

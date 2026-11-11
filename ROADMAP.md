@@ -151,7 +151,7 @@ A Parte 1B (arte medium poly) começa depois da `v0.6.0` e tem pontos de parada 
 
 ### S-13 Seed diária
 
-- [ ] **S-13-01** "Desafio diário" no menu: seed derivada da data UTC, dificuldade Normal, herói do dia, uma tentativa pontuada por dia por slot e tabela local dos últimos 30 dias (round, tempo, abates). O ranking online espera o App ID (Parte 2).
+- [x] **S-13-01** "Desafio diário" no menu: seed derivada da data UTC, dificuldade Normal, herói do dia, uma tentativa pontuada por dia por slot e tabela local dos últimos 30 dias (round, tempo, abates). O ranking online espera o App ID (Parte 2).
   - Asserts: teste de que a mesma data gera a mesma seed e o mesmo herói; teste de que a segunda tentativa do dia não pontua; migração do save com teste; captura da tela nos quatro alvos; GDD §20 atualizado.
 
 ### S-14 Sinergias por etiqueta

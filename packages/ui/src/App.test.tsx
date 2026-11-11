@@ -31,6 +31,7 @@ const hud = (speed: number): HudState => ({
 	boss: null,
 	options: null,
 	ossuary: null,
+	daily: null,
 	heroes: null,
 	difficulty: null,
 	slots: null,
@@ -177,7 +178,13 @@ const menuView = {
 	],
 	continue: null,
 };
-const menuActions = () => ({ resume: vi.fn(), play: vi.fn(), ossuary: vi.fn(), options: vi.fn() });
+const menuActions = () => ({
+	resume: vi.fn(),
+	play: vi.fn(),
+	daily: vi.fn(),
+	ossuary: vi.fn(),
+	options: vi.fn(),
+});
 
 test("the title screen is a column of plate buttons, a records block and a small build label", () => {
 	const actions = menuActions();
@@ -240,6 +247,24 @@ test("the title screen steps aside for the difficulty screen", () => {
 	);
 	expect(screen.queryByTestId("menu-play")).toBeNull();
 	expect(screen.getAllByRole("dialog")).toHaveLength(1);
+});
+
+test("the menu offers the daily challenge and the title screen steps aside for it", () => {
+	const actions = menuActions();
+	render(<App store={createStore({ ...hud(1), menu: menuView })} menuActions={actions} />);
+	fireEvent.click(screen.getByTestId("menu-daily"));
+	expect(actions.daily).toHaveBeenCalledTimes(1);
+	cleanup();
+	const daily = { date: "2026-11-11", heroName: "Carrasco", weapon: "Espada", today: null, rows: [] };
+	render(
+		<App
+			store={createStore({ ...hud(1), menu: menuView, daily })}
+			menuActions={menuActions()}
+			dailyActions={{ start: vi.fn(), cancel: vi.fn() }}
+		/>,
+	);
+	expect(screen.queryByTestId("menu-play")).toBeNull();
+	expect(screen.getByTestId("daily")).toBeTruthy();
 });
 
 test("the title screen steps aside for the hero screen", () => {

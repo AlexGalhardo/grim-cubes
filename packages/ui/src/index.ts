@@ -7,6 +7,8 @@ export { BossBar, BossIntro } from "./components/BossBar/BossBar";
 export type { ButtonProps, ButtonSize } from "./components/Button/Button";
 export { Button } from "./components/Button/Button";
 export { Caption } from "./components/Caption/Caption";
+export type { DailyActions, DailyRowView, DailyViewModel } from "./components/Daily/Daily";
+export { Daily } from "./components/Daily/Daily";
 export type { DashButtonProps, DashView } from "./components/DashButton/DashButton";
 export { DashButton } from "./components/DashButton/DashButton";
 export type { DemoEndProps } from "./components/DemoEnd/DemoEnd";

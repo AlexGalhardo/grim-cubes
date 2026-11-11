@@ -1,6 +1,7 @@
 import {
 	createMetaState,
 	createSettings,
+	DAILY_HISTORY_DAYS,
 	type Difficulty,
 	isLegacySave,
 	type MetaState,
@@ -58,6 +59,8 @@ export interface RunResult {
 	kills: number;
 	bossKills: number;
 	elitesKilled: number;
+	/** Set when the run was the daily challenge of `date` (UTC); its score counts once per day. */
+	daily?: { date: string; seconds: number };
 }
 
 /** Adds a run to `meta` in place: souls and stats accumulate, records keep the best round. */
@@ -68,6 +71,17 @@ export function applyRun(meta: MetaState, run: RunResult): void {
 	meta.stats.kills += run.kills;
 	meta.stats.bossKills += run.bossKills;
 	meta.stats.elitesKilled += run.elitesKilled;
+	if (run.daily && !meta.daily.some((entry) => entry.date === run.daily?.date)) {
+		const entry = {
+			date: run.daily.date,
+			round: run.round,
+			seconds: run.daily.seconds,
+			kills: run.kills,
+		};
+		meta.daily = [entry, ...meta.daily]
+			.sort((a, b) => (a.date < b.date ? 1 : -1))
+			.slice(0, DAILY_HISTORY_DAYS);
+	}
 	// The run is over, so its checkpoint goes with it.
 	meta.run = null;
 }

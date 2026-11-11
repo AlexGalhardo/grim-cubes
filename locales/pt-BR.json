@@ -461,5 +461,22 @@
 	"hero.penitent": "A Penitente",
 	"heroPassive.rusted_plate": "Placas Enferrujadas",
 	"heroPassive.squad_eye": "Olho do Pelotão",
-	"heroPassive.scourged_flesh": "Carne Flagelada"
+	"heroPassive.scourged_flesh": "Carne Flagelada",
+	"menu.daily": "Desafio diário",
+	"daily.panel": "Desafio diário",
+	"daily.title": "Desafio diário de {date}",
+	"daily.date": "Dia (UTC): {date} · dificuldade Normal",
+	"daily.hero": "Herói do dia",
+	"daily.weapon": "Arma inicial",
+	"daily.open": "A tentativa pontuada de hoje está livre.",
+	"daily.scored": "Hoje já pontuou: round {round} em {time}.",
+	"daily.rule": "Todos jogam a mesma seed e o mesmo herói. Só a primeira tentativa do dia pontua; as outras valem como treino.",
+	"daily.empty": "Nenhuma tentativa pontuada ainda.",
+	"daily.history": "Últimos 30 dias",
+	"daily.col.date": "Data",
+	"daily.col.round": "Round",
+	"daily.col.time": "Tempo",
+	"daily.col.kills": "Abates",
+	"daily.back": "Voltar",
+	"daily.start": "Jogar"
 }

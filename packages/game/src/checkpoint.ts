@@ -8,6 +8,8 @@ import type { GameSession } from "./session";
 export interface RunIdentity {
 	seed: number;
 	difficulty: RunCheckpoint["difficulty"];
+	/** UTC date of the daily challenge the run plays, if any. */
+	daily?: string | null;
 }
 
 /**
@@ -41,6 +43,8 @@ export function captureCheckpoint(session: GameSession, identity: RunIdentity): 
 		elitesKilled: runStats.elitesKilled,
 		bossRounds: [...runStats.bossRounds],
 		hero: session.heroDef.id,
+		seconds: Math.round(runStats.seconds),
+		daily: identity.daily ?? null,
 	};
 }
 
@@ -91,6 +95,7 @@ export function restoreCheckpoint(session: GameSession, cp: RunCheckpoint): void
 	runStats.damageBySource.fill(0);
 	runStats.damageBySource[DamageOrigin.Weapon] = cp.damageDealt;
 	runStats.elitesKilled = cp.elitesKilled;
+	runStats.seconds = cp.seconds;
 	runStats.bossRounds.length = 0;
 	runStats.bossRounds.push(...cp.bossRounds);
 	origin.x = cp.origin.x;

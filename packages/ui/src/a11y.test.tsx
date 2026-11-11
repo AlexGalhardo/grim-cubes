@@ -3,6 +3,7 @@ import { cleanup, render } from "@testing-library/react";
 import axe from "axe-core";
 import type { ReactElement } from "react";
 import { afterEach, expect, test, vi } from "vitest";
+import { Daily } from "./components/Daily/Daily";
 import { DemoEnd } from "./components/DemoEnd/DemoEnd";
 import { Difficulty } from "./components/Difficulty/Difficulty";
 import { Heroes } from "./components/Heroes/Heroes";
@@ -49,7 +50,13 @@ test("the title menu has no serious violations", async () => {
 		await violations(
 			<Menu
 				view={{ records: [{ id: "normal", name: "Normal", round: 12 }], continue: null }}
-				actions={{ resume: vi.fn(), play: vi.fn(), ossuary: vi.fn(), options: vi.fn() }}
+				actions={{
+					resume: vi.fn(),
+					play: vi.fn(),
+					daily: vi.fn(),
+					ossuary: vi.fn(),
+					options: vi.fn(),
+				}}
 			/>,
 		),
 	).toEqual([]);
@@ -97,7 +104,14 @@ test("the quit and back-to-menu questions have no serious violations", async () 
 	const menu = render(
 		<Menu
 			view={{ records: [], continue: null }}
-			actions={{ resume: vi.fn(), play: vi.fn(), ossuary: vi.fn(), options: vi.fn(), quit: vi.fn() }}
+			actions={{
+				resume: vi.fn(),
+				play: vi.fn(),
+				daily: vi.fn(),
+				ossuary: vi.fn(),
+				options: vi.fn(),
+				quit: vi.fn(),
+			}}
 		/>,
 	);
 	fireEvent.click(menu.getByTestId("menu-quit"));
@@ -137,7 +151,30 @@ test("the title menu with Continuar has no serious violations", async () => {
 		await violations(
 			<Menu
 				view={{ records: [], continue: { slotName: "Slot 2", runRound: 7 } }}
-				actions={{ resume: vi.fn(), play: vi.fn(), ossuary: vi.fn(), options: vi.fn() }}
+				actions={{
+					resume: vi.fn(),
+					play: vi.fn(),
+					daily: vi.fn(),
+					ossuary: vi.fn(),
+					options: vi.fn(),
+				}}
+			/>,
+		),
+	).toEqual([]);
+});
+
+test("the daily challenge screen has no serious violations", async () => {
+	expect(
+		await violations(
+			<Daily
+				view={{
+					date: "2026-11-11",
+					heroName: "O Fuzilado",
+					weapon: "Pistola",
+					today: { date: "2026-11-11", round: 4, time: "3:10", kills: 80 },
+					rows: [{ date: "2026-11-11", round: 4, time: "3:10", kills: 80 }],
+				}}
+				actions={{ start: vi.fn(), cancel: vi.fn() }}
 			/>,
 		),
 	).toEqual([]);

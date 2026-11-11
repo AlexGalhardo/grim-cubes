@@ -22,6 +22,7 @@ export type { Rng, RngStreams, StatefulRng, StreamName } from "./rng";
 export { createStreams, hash32, hash32x3, mulberry32, murmur3x86_32, RNG_STREAMS } from "./rng";
 export type {
 	ColorblindSetting,
+	DailyEntry,
 	Difficulty,
 	MetaState,
 	Profile,
@@ -37,6 +38,7 @@ export {
 	checksumOf,
 	createMetaState,
 	createSettings,
+	DAILY_HISTORY_DAYS,
 	DEFAULT_HERO,
 	DIFFICULTIES,
 	LOCALES,

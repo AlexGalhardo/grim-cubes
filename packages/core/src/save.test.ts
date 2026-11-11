@@ -27,11 +27,11 @@ const meta = () => {
 	return m;
 };
 
-test("a save round-trips and uses schemaVersion 13", async () => {
+test("a save round-trips and uses schemaVersion 14", async () => {
 	const text = await serializeSave(meta(), "0.1.0", new Date("2026-10-31T12:00:00Z"));
 	const envelope = JSON.parse(text) as { schemaVersion: number; app: string; savedAt: string };
-	expect(envelope.schemaVersion).toBe(13);
-	expect(SAVE_SCHEMA_VERSION).toBe(13);
+	expect(envelope.schemaVersion).toBe(14);
+	expect(SAVE_SCHEMA_VERSION).toBe(14);
 	expect(envelope.app).toBe("grim-cubes");
 	expect(envelope.savedAt).toBe("2026-10-31T12:00:00.000Z");
 	expect(await parseSave(text)).toEqual(meta());
@@ -347,6 +347,8 @@ const checkpoint = () => ({
 	elitesKilled: 1,
 	bossRounds: [5],
 	hero: "riddled",
+	seconds: 412,
+	daily: "2026-11-11" as string | null,
 });
 
 test("a run checkpoint round-trips inside the slot and is null when absent", async () => {
@@ -385,6 +387,7 @@ test("a slot file written by schema 10 (no Easy record) still verifies and gets 
 	const m = meta();
 	const data = { ...JSON.parse(JSON.stringify(m)), records: { normal: 12, grim: 0, nightmare: 0 } };
 	delete data.settings;
+	delete data.daily;
 	delete data.run;
 	data.run = null;
 	const text = JSON.stringify({
@@ -444,29 +447,70 @@ test("a global file from schema 10 or 11 (no health bar toggles) still verifies 
 	).rejects.toBeInstanceOf(SaveError);
 });
 
-test("a checkpoint from before schema 13 verifies without the hero and resumes as the Carrasco", async () => {
+/** A slot file as `version` wrote it: only the fields that schema knew, checksummed over exactly those. */
+async function slotFileOf(version: number): Promise<string> {
 	const m = meta();
 	m.run = checkpoint();
+	m.daily = [{ date: "2026-11-10", round: 9, seconds: 300, kills: 120 }];
 	const data = JSON.parse(JSON.stringify(profileOf(m)));
-	delete data.run.hero;
-	for (const schemaVersion of [10, 11, 12]) {
-		const shaped =
-			schemaVersion < 11 ? { ...data, records: { normal: 12, grim: 0, nightmare: 0 } } : data;
-		const text = JSON.stringify({
-			schemaVersion,
-			savedAt: "2026-10-31T10:00:00.000Z",
-			app: "grim-cubes",
-			appVersion: "0.1.0",
-			checksum: await checksumOf(shaped),
-			data: shaped,
-		});
+	if (version < 14) {
+		delete data.daily;
+		delete data.run.seconds;
+		delete data.run.daily;
+	}
+	if (version < 13) delete data.run.hero;
+	if (version < 11) data.records = { normal: 12, grim: 0, nightmare: 0 };
+	return JSON.stringify({
+		schemaVersion: version,
+		savedAt: "2026-10-31T10:00:00.000Z",
+		app: "grim-cubes",
+		appVersion: "0.1.0",
+		checksum: await checksumOf(data),
+		data,
+	});
+}
+
+test("slot files from schemas 10 to 13 still verify and gain the hero, the clock and an empty daily table", async () => {
+	for (const version of [10, 11, 12, 13]) {
+		const text = await slotFileOf(version);
 		const loaded = await parseSave(text);
-		expect(loaded.run?.hero).toBe(DEFAULT_HERO);
-		expect(loaded.run?.seed).toBe(4242);
+		expect(loaded.run?.seed, `schema ${version}`).toBe(4242);
+		expect(loaded.run?.hero, `schema ${version}`).toBe(version < 13 ? DEFAULT_HERO : "riddled");
+		expect(loaded.run?.seconds, `schema ${version}`).toBe(0);
+		expect(loaded.run?.daily, `schema ${version}`).toBeNull();
+		expect(loaded.daily, `schema ${version}`).toEqual([]);
 		await expect(parseSave(text.replace('"gold":123.5', '"gold":124.5'))).rejects.toThrow(
 			"checksum mismatch",
 		);
 	}
+});
+
+test("a schema 14 slot file keeps the daily table and the daily run, and re-serializes to the same text", async () => {
+	const text = await slotFileOf(14);
+	const loaded = await parseSave(text);
+	expect(loaded.daily).toEqual([{ date: "2026-11-10", round: 9, seconds: 300, kills: 120 }]);
+	expect(loaded.run?.daily).toBe("2026-11-11");
+	expect(loaded.run?.seconds).toBe(412);
+	const again = JSON.parse(await serializeSave(loaded, "0.1.0")) as { data: unknown; checksum: string };
+	expect(again.data).toEqual(JSON.parse(text).data);
+	expect(again.checksum).toBe(JSON.parse(text).checksum);
+});
+
+test("the daily table is refused when it is long, repeats a day or has a bad date", async () => {
+	const bad = async (daily: unknown): Promise<void> => {
+		const m = meta() as unknown as Record<string, unknown>;
+		m.daily = daily;
+		await expect(serializeSave(m as unknown as ReturnType<typeof meta>, "0.1.0")).rejects.toBeInstanceOf(
+			SaveError,
+		);
+	};
+	const row = (date: string) => ({ date, round: 1, seconds: 1, kills: 1 });
+	await bad(Array.from({ length: 31 }, (_, i) => row(`2026-10-${String(i + 1).padStart(2, "0")}`)));
+	await bad([row("2026-11-11"), row("2026-11-11")]);
+	await bad([row("11/11/2026")]);
+	await bad([row("2026-13-45")]);
+	await bad([{ ...row("2026-11-11"), round: -1 }]);
+	await bad("nope");
 });
 
 test("the hero of a checkpoint must be a short id", async () => {

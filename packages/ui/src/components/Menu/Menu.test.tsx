@@ -11,7 +11,13 @@ const view: MenuViewModel = {
 	],
 	continue: null,
 };
-const actions = () => ({ resume: vi.fn(), play: vi.fn(), ossuary: vi.fn(), options: vi.fn() });
+const actions = () => ({
+	resume: vi.fn(),
+	play: vi.fn(),
+	daily: vi.fn(),
+	ossuary: vi.fn(),
+	options: vi.fn(),
+});
 
 test("New game is the large primary button and the others are smaller", () => {
 	render(<Menu view={view} actions={actions()} />);

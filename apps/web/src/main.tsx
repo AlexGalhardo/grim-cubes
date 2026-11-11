@@ -56,6 +56,8 @@ import {
 	createTips,
 	createTutorial,
 	cullDistantEnemies,
+	dailyHero,
+	dailySeed,
 	describeEffect,
 	describeModifier,
 	describeStats,
@@ -103,6 +105,7 @@ import {
 	synergiesData,
 	synergyModifiers,
 	unlockedSkins,
+	utcDate,
 	type WeaponDef,
 	weaponsData,
 	worldData,
@@ -316,7 +319,15 @@ async function boot(): Promise<void> {
 	const meta: MetaState = loaded.meta;
 	// "Continuar" with a run in progress reloads with `?resume=1`: that run's seed and difficulty win over the URL.
 	const resumeRun = params.get("resume") === "1" && !bench ? meta.run : null;
-	const seed = resumeRun?.seed ?? (soak ? soak.seed : bench ? 42 : runSeed());
+	// The daily challenge (GDD 20): today's seed, hero and Normal, the same for everyone. Only "today" (UTC) counts, so an
+	// old link falls back to a normal run; a resumed run keeps the day it started on.
+	const dailyDate = resumeRun
+		? resumeRun.daily
+		: !bench && !soak && params.get("daily") === utcDate(new Date())
+			? utcDate(new Date())
+			: null;
+	const seed =
+		resumeRun?.seed ?? (dailyDate ? dailySeed(dailyDate) : soak ? soak.seed : bench ? 42 : runSeed());
 	if (loaded.notice) log.warn("save problem", loaded.notice);
 	// The saved language applies unless `?lang=` forces one for this session.
 	if (!params.has("lang")) applyLocale(meta.settings.locale);
@@ -325,12 +336,14 @@ async function boot(): Promise<void> {
 	// A locked or unknown difficulty in the URL falls back to Normal (GDD 17).
 	const difficultyId = chooseDifficulty(
 		roundsData.difficulties,
-		resumeRun?.difficulty ?? params.get("difficulty"),
+		dailyDate ? "normal" : (resumeRun?.difficulty ?? params.get("difficulty")),
 		meta.records,
 	);
 	const difficulty = difficultyData(roundsData.difficulties, difficultyId);
 	// A locked or unknown hero in the URL falls back to the Carrasco; a resumed run keeps its own hero.
-	const heroId = chooseHero(heroesData, milestonesData, meta, resumeRun?.hero ?? params.get("hero"));
+	const heroId = dailyDate
+		? dailyHero(dailyDate, heroesData)
+		: chooseHero(heroesData, milestonesData, meta, resumeRun?.hero ?? params.get("hero"));
 
 	// The web demo ends at the first boss: no walk to the Merchant there, the DemoEnd shows at once.
 	const demoLastRound = bossesData[0]?.round ?? 10;
@@ -418,6 +431,7 @@ async function boot(): Promise<void> {
 		vignette: 0,
 		tip: null,
 		ossuary: null,
+		daily: null,
 		heroes: null,
 		difficulty: null,
 		dash: null,
@@ -548,6 +562,10 @@ async function boot(): Promise<void> {
 			onWishlist={openWishlist}
 			menuActions={{
 				wishlist: openWishlist,
+				daily: () => {
+					dailyOpen = true;
+					publishNow();
+				},
 				// Only the desktop build can close the app; the main process checks who is asking.
 				quit: window.gcDesktop ? () => void window.gcDesktop?.quit() : undefined,
 				resume: () => {
@@ -630,6 +648,20 @@ async function boot(): Promise<void> {
 				},
 				cancel: () => {
 					slotsView = null;
+					publishNow();
+				},
+			}}
+			dailyActions={{
+				start: () => {
+					const next = new URLSearchParams(location.search);
+					for (const key of ["seed", "tutorial", "difficulty", "hero", "resume", "next"])
+						next.delete(key);
+					next.set("slot", String(slot));
+					next.set("daily", utcDate(new Date()));
+					location.search = next.toString();
+				},
+				cancel: () => {
+					dailyOpen = false;
 					publishNow();
 				},
 			}}
@@ -1102,20 +1134,20 @@ async function boot(): Promise<void> {
 	const updateAudioState = (): void => {
 		const bossId =
 			run.state === "BossIntro" || run.state === "BossRound" ? boss.defFor(run.round).id : undefined;
-		const key = `${run.state}|${difficultyOpen || heroesOpen || menuOpen}|${biomeTrack}|${bossId ?? ""}`;
+		const key = `${run.state}|${difficultyOpen || heroesOpen || dailyOpen || menuOpen}|${biomeTrack}|${bossId ?? ""}`;
 		if (key === musicKey) return;
 		musicKey = key;
 		audio.setMusic(
 			musicFor({
 				state: run.state,
-				menu: difficultyOpen || heroesOpen || menuOpen,
+				menu: difficultyOpen || heroesOpen || dailyOpen || menuOpen,
 				biomeTrack,
 				bossId,
 			}),
 		);
 		const wanted = ambienceFor({
 			state: run.state,
-			menu: difficultyOpen || heroesOpen || menuOpen,
+			menu: difficultyOpen || heroesOpen || dailyOpen || menuOpen,
 			biomeTrack,
 		});
 		if (wanted !== ambienceId) {
@@ -1199,6 +1231,7 @@ async function boot(): Promise<void> {
 			kills: runStats.kills,
 			bossKills: runStats.bossRounds.length,
 			elitesKilled: runStats.elitesKilled,
+			...(dailyDate && { daily: { date: dailyDate, seconds: Math.round(runStats.seconds) } }),
 		};
 		applyRun(meta, result);
 		telemetry.track("run_end", {
@@ -1232,8 +1265,7 @@ async function boot(): Promise<void> {
 				round: run.round,
 				kills: runStats.kills,
 				damageDealt: runStats.damageDealt,
-				fightTicks: runStats.fightTicks,
-				step: STEP,
+				seconds: runStats.seconds,
 				killer: runStats.killer,
 				damageBySource: runStats.damageBySource,
 				souls,
@@ -1274,6 +1306,7 @@ async function boot(): Promise<void> {
 	let ossuaryOpen = false;
 	let difficultyOpen = false;
 	let heroesOpen = false;
+	let dailyOpen = false;
 	let pickedHero = heroId;
 	let slotsView: HudState["slots"] = null;
 	let optionsOpen = false;
@@ -1287,7 +1320,8 @@ async function boot(): Promise<void> {
 			runState: run.state,
 			levelUpOffer: levelUp.offer !== null,
 			chestOffer: chest.offer !== null,
-			screenOpen: optionsOpen || difficultyOpen || heroesOpen || ossuaryOpen || slotsView !== null,
+			screenOpen:
+				optionsOpen || difficultyOpen || heroesOpen || dailyOpen || ossuaryOpen || slotsView !== null,
 		});
 		if (!open) return;
 		pauseOpen = true;
@@ -1306,9 +1340,17 @@ async function boot(): Promise<void> {
 		publishNow();
 	}
 	// The title screen shows on a plain load; links with a seed, difficulty, tutorial or a debug flag go straight in.
-	const menuOpen = !["seed", "difficulty", "tutorial", "debug", "bench", "tips", "preset", "resume"].some(
-		(key) => params.has(key),
-	);
+	const menuOpen = ![
+		"seed",
+		"difficulty",
+		"daily",
+		"tutorial",
+		"debug",
+		"bench",
+		"tips",
+		"preset",
+		"resume",
+	].some((key) => params.has(key));
 	// A page reloaded after a slot choice lands straight on the next screen of the flow.
 	const landing = menuOpen ? params.get("next") : null;
 	if (landing === "difficulty") difficultyOpen = true;
@@ -1339,7 +1381,7 @@ async function boot(): Promise<void> {
 		}
 		if ((run.state === "RoundIntro" || run.state === "BossIntro") && checkpointRound !== run.round) {
 			checkpointRound = run.round;
-			storeRun(captureCheckpoint(session, { seed, difficulty: difficultyId }));
+			storeRun(captureCheckpoint(session, { seed, difficulty: difficultyId, daily: dailyDate }));
 		}
 	}
 
@@ -1361,7 +1403,8 @@ async function boot(): Promise<void> {
 	/** Reloads the page with the slot flow's parameters; everything else in the URL (debug, lang) survives. */
 	function reloadWith(change: (query: URLSearchParams) => void): void {
 		const query = new URLSearchParams(location.search);
-		for (const key of ["seed", "tutorial", "difficulty", "hero", "resume", "next"]) query.delete(key);
+		for (const key of ["seed", "tutorial", "difficulty", "hero", "daily", "resume", "next"])
+			query.delete(key);
 		change(query);
 		location.search = query.toString();
 	}
@@ -1495,6 +1538,30 @@ async function boot(): Promise<void> {
 		void changeSettings((s) => (s.locale = id === "en" ? "en" : "pt-BR")).then(() => {
 			location.search = next.toString();
 		});
+	}
+
+	const clock = (seconds: number): string =>
+		`${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
+	const dailyRow = (
+		entry: MetaState["daily"][number],
+	): { date: string; round: number; time: string; kills: number } => ({
+		date: entry.date,
+		round: entry.round,
+		time: clock(entry.seconds),
+		kills: entry.kills,
+	});
+
+	function dailyView(): NonNullable<HudState["daily"]> {
+		const date = utcDate(new Date());
+		const def = heroesData.find((h) => h.id === dailyHero(date, heroesData));
+		const scored = meta.daily.find((entry) => entry.date === date);
+		return {
+			date,
+			heroName: t(`hero.${def?.id ?? ""}`),
+			weapon: t(`weapon.${def?.startingWeapon ?? ""}`),
+			today: scored ? dailyRow(scored) : null,
+			rows: meta.daily.map(dailyRow),
+		};
 	}
 
 	function heroesView(): NonNullable<HudState["heroes"]> {
@@ -1908,6 +1975,7 @@ async function boot(): Promise<void> {
 			notice: loaded.notice,
 			boss: bossView,
 			ossuary: ossuaryOpen ? ossuaryView() : null,
+			daily: dailyOpen ? dailyView() : null,
 			heroes: heroesOpen ? heroesView() : null,
 			difficulty: difficultyOpen ? difficultyView() : null,
 			slots: slotsView,
@@ -1983,6 +2051,8 @@ async function boot(): Promise<void> {
 			next.difficulty !== null ||
 			cur.heroes !== null ||
 			next.heroes !== null ||
+			cur.daily !== null ||
+			next.daily !== null ||
 			cur.speed !== next.speed ||
 			cur.uiScale !== next.uiScale ||
 			cur.caption !== next.caption ||

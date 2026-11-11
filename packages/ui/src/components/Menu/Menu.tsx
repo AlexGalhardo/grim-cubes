@@ -17,6 +17,8 @@ export interface MenuActions {
 	resume(): void;
 	/** "Novo jogo": the slot choice. */
 	play(): void;
+	/** "Desafio diário": today's seed and hero (GDD 20). */
+	daily(): void;
 	ossuary(): void;
 	options(): void;
 	/** Opens the Steam page; the button is absent when the build has no URL. */
@@ -146,6 +148,11 @@ export function Menu({ view, actions, version, demo }: MenuProps): JSX.Element {
 						onClick={actions.play}
 					>
 						{t("menu.play")}
+					</Button>
+				)}
+				{asking ? null : (
+					<Button size="md" testId="menu-daily" onClick={actions.daily}>
+						{t("menu.daily")}
 					</Button>
 				)}
 				{asking ? null : (

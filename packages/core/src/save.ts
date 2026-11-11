@@ -1,6 +1,10 @@
-export const SAVE_SCHEMA_VERSION = 13;
+export const SAVE_SCHEMA_VERSION = 14;
 /** Hero of every run saved before schema 13, and the one a run falls back to (`data/heroes.json`, first entry). */
 export const DEFAULT_HERO = "executioner";
+/** Days the daily challenge table keeps (GDD 20). */
+export const DAILY_HISTORY_DAYS = 30;
+const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+
 /** Complete profiles a player can keep side by side (GDD 21.4); slot numbers are 1 to `SLOT_COUNT`. */
 export const SLOT_COUNT = 3;
 export const SAVE_APP = "grim-cubes";
@@ -118,6 +122,19 @@ export interface RunCheckpoint {
 	bossRounds: number[];
 	/** Hero id from `data/heroes.json`. */
 	hero: string;
+	/** Combat seconds played so far in the run (the daily challenge table shows the time). */
+	seconds: number;
+	/** UTC date (`YYYY-MM-DD`) of the daily challenge this run belongs to, or null for a normal run. */
+	daily: string | null;
+}
+
+/** The scored attempt of one day of the daily challenge (S-13-01). */
+export interface DailyEntry {
+	/** UTC date, `YYYY-MM-DD`. */
+	date: string;
+	round: number;
+	seconds: number;
+	kills: number;
 }
 
 /** Account progress of one slot (SDD 06 section 2); the settings live outside it. */
@@ -132,6 +149,8 @@ export interface Profile {
 	flags: { isDemo: boolean; fullVersion: boolean };
 	/** The run in progress, or null. */
 	run: RunCheckpoint | null;
+	/** One scored attempt per day, newest first, at most `DAILY_HISTORY_DAYS` of them. */
+	daily: DailyEntry[];
 }
 
 /** What the game works with: the open slot plus the settings shared by all slots. */
@@ -157,6 +176,7 @@ export function createMetaState(): MetaState {
 		ossuary: {},
 		flags: { isDemo: false, fullVersion: false },
 		run: null,
+		daily: [],
 		settings: createSettings(),
 	};
 }
@@ -362,6 +382,32 @@ function amount(value: unknown, label: string): number {
 	return n;
 }
 
+function dateText(value: unknown, label: string): string {
+	if (typeof value !== "string" || !DATE_PATTERN.test(value) || Number.isNaN(Date.parse(value)))
+		throw new SaveError(`${label} must be a YYYY-MM-DD date`);
+	return value;
+}
+
+function validateDaily(raw: unknown): DailyEntry[] {
+	// Absent before schema 14: no attempt yet.
+	if (raw === undefined) return [];
+	if (!Array.isArray(raw) || raw.length > DAILY_HISTORY_DAYS)
+		throw new SaveError("daily must be a short list");
+	const seen = new Set<string>();
+	return raw.map((entry: unknown) => {
+		if (!isRecord(entry)) throw new SaveError("daily entries must be objects");
+		const date = dateText(entry.date, "daily.date");
+		if (seen.has(date)) throw new SaveError("daily has two entries for one day");
+		seen.add(date);
+		return {
+			date,
+			round: counter(entry.round, "daily.round"),
+			seconds: counter(entry.seconds, "daily.seconds"),
+			kills: counter(entry.kills, "daily.kills"),
+		};
+	});
+}
+
 function validateCheckpoint(raw: unknown): RunCheckpoint | null {
 	if (raw === undefined || raw === null) return null;
 	if (!isRecord(raw)) throw new SaveError("run must be an object");
@@ -423,6 +469,9 @@ function validateCheckpoint(raw: unknown): RunCheckpoint | null {
 		bossRounds: bossRounds.map((r: unknown) => counter(r, "run.bossRounds entry")),
 		// Absent before schema 13: the only hero there was.
 		hero: raw.hero === undefined ? DEFAULT_HERO : shortText(raw.hero, "run.hero"),
+		// Absent before schema 14: a normal run that has not counted its time.
+		seconds: raw.seconds === undefined ? 0 : counter(raw.seconds, "run.seconds"),
+		daily: raw.daily === undefined || raw.daily === null ? null : dateText(raw.daily, "run.daily"),
 	};
 }
 
@@ -480,6 +529,7 @@ export function validateProfile(raw: unknown): Profile {
 		ossuary: nodes,
 		flags: { isDemo: flags.isDemo, fullVersion: flags.fullVersion },
 		run: validateCheckpoint(raw.run),
+		daily: validateDaily(raw.daily),
 	};
 }
 
@@ -582,6 +632,14 @@ function withoutHero<T extends { run: RunCheckpoint | null }>(profile: T): T {
 	return { ...profile, run: run as RunCheckpoint };
 }
 
+/** Schemas before 14 had no daily table, nor `seconds` and `daily` in the checkpoint. */
+function withoutDaily<T extends { run: RunCheckpoint | null; daily: DailyEntry[] }>(profile: T): T {
+	const { daily: _table, ...rest } = profile;
+	if (!rest.run) return rest as unknown as T;
+	const { seconds: _seconds, daily: _day, ...run } = rest.run;
+	return { ...rest, run } as unknown as T;
+}
+
 /**
  * The data as an older schema's checksum saw it (schemas 1 to 9 stored the whole account in one file): no
  * checkpoint, only the settings keys that schema knew, and no `lastSlot`.
@@ -640,8 +698,10 @@ export async function parseSave(text: string): Promise<MetaState> {
 	const envelope = openEnvelope(text);
 	if (envelope.schemaVersion >= 10) {
 		const profile = validateProfile(envelope.data);
-		const covered = envelope.schemaVersion < 13 ? withoutHero(profile) : profile;
-		await verified(envelope, envelope.schemaVersion < 11 ? withoutEasy(covered) : covered);
+		const v = envelope.schemaVersion;
+		const covered = v < 14 ? withoutDaily(profile) : profile;
+		const coveredHero = v < 13 ? withoutHero(covered as typeof profile) : covered;
+		await verified(envelope, v < 11 ? withoutEasy(coveredHero as typeof profile) : coveredHero);
 		return { ...profile, settings: createSettings() };
 	}
 	const data = validateMeta(envelope.data);

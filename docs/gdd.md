@@ -663,6 +663,12 @@ Decisão D09: árvore permanente fora da run, comprada com almas. Nome diegétic
 
 Recordes mostrados no menu: maior round por dificuldade, total de kills, total de almas, chefes mortos.
 
+### 20.1 Desafio diário (S-13-01)
+
+- **Menu → "Desafio diário".** A seed vem da data UTC (`YYYY-MM-DD`, muda às 00:00 UTC para todo mundo) por um hash fixo (`dailySeed`), o herói do dia sai de outro hash da mesma data entre os três (`dailyHero`, bloqueado ou não), e a dificuldade é sempre Normal. A mesma data dá a mesma seed e o mesmo herói em qualquer máquina.
+- **Uma tentativa pontuada por dia, por slot.** A primeira run do desafio que termina no dia grava uma linha (data, round, tempo de combate, abates); as seguintes do mesmo dia valem como treino: jogam e contam para a conta (almas, recordes, estatísticas), mas não entram na tabela. Uma run abandonada antes de terminar não pontua; ela continua salva e "Continuar" a retoma, mesmo que a meia-noite UTC passe.
+- **Tabela local** dos últimos 30 dias com pontuação (mais novo primeiro), na própria tela do desafio. O ranking online fica para a Parte 2 do ROADMAP (precisa do App ID da Steam).
+
 ## 21. UI e HUD
 
 ### 21.1 Telas

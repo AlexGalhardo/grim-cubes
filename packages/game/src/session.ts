@@ -450,7 +450,7 @@ function build(options: GameSessionOptions) {
 	function step(input: Readonly<InputState>): void {
 		run.run(world, hero);
 		if (fighting()) {
-			runStats.fightTicks++;
+			runStats.seconds += STEP;
 			inputSystem(world, hero, input, weapon.speedMultiplier * heroStatus.speedMultiplier);
 			dash.run(hero, input);
 			heroStatus.run(hero);

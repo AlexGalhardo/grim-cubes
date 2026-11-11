@@ -184,3 +184,19 @@ test("the checkpoint keeps the hero: the passive is not saved as a pick, and ano
 		);
 	expect(() => restoreCheckpoint(fresh(true), checkpoint)).toThrow("hero riddled");
 });
+
+test("the checkpoint keeps the combat clock and the daily date, and a resumed run keeps counting", async () => {
+	const live = fresh(true);
+	playUntilIntroOf(live, 2);
+	expect(live.runStats.seconds).toBeGreaterThan(0);
+	const meta = createMetaState();
+	meta.run = captureCheckpoint(live, { ...identity, daily: "2026-11-11" });
+	const stored = (await parseSave(await serializeSave(meta, "0.0.0"))).run;
+	expect(stored?.daily).toBe("2026-11-11");
+	expect(stored?.seconds).toBe(Math.round(live.runStats.seconds));
+	const again = fresh(true);
+	if (!stored) throw new Error("the checkpoint did not survive the save");
+	restoreCheckpoint(again, stored);
+	expect(again.runStats.seconds).toBe(stored.seconds);
+	expect(captureCheckpoint(live, identity).daily).toBeNull();
+});

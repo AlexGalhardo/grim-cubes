@@ -461,5 +461,22 @@
 	"hero.penitent": "The Penitent",
 	"heroPassive.rusted_plate": "Rusted Plate",
 	"heroPassive.squad_eye": "Squad's Eye",
-	"heroPassive.scourged_flesh": "Scourged Flesh"
+	"heroPassive.scourged_flesh": "Scourged Flesh",
+	"menu.daily": "Daily challenge",
+	"daily.panel": "Daily challenge",
+	"daily.title": "Daily challenge of {date}",
+	"daily.date": "Day (UTC): {date} · Normal difficulty",
+	"daily.hero": "Hero of the day",
+	"daily.weapon": "Starting weapon",
+	"daily.open": "Today's scored attempt is still free.",
+	"daily.scored": "Already scored today: round {round} in {time}.",
+	"daily.rule": "Everyone plays the same seed and hero. Only the first attempt of the day scores; the others are practice.",
+	"daily.empty": "No scored attempt yet.",
+	"daily.history": "Last 30 days",
+	"daily.col.date": "Date",
+	"daily.col.round": "Round",
+	"daily.col.time": "Time",
+	"daily.col.kills": "Kills",
+	"daily.back": "Back",
+	"daily.start": "Play"
 }

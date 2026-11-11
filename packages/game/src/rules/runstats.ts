@@ -3,6 +3,8 @@ export interface RunStats {
 	kills: number;
 	damageDealt: number;
 	elitesKilled: number;
+	/** Combat time of the run, in seconds. */
+	seconds: number;
 	/** Round of every boss killed. */
 	bossRounds: number[];
 	/**
@@ -12,8 +14,6 @@ export interface RunStats {
 	killer: { kind: "none" | "enemy" | "elite" | "boss" | "shot" | "self"; type: number };
 	/** Damage dealt to enemies by `DamageOrigin`. */
 	damageBySource: number[];
-	/** Simulation steps spent fighting (rounds and boss fights, not the shop). */
-	fightTicks: number;
 }
 
 /** Where a point of damage dealt to enemies came from, for the Results bars. */
@@ -25,9 +25,9 @@ export function createRunStats(): RunStats {
 		kills: 0,
 		damageDealt: 0,
 		elitesKilled: 0,
+		seconds: 0,
 		bossRounds: [],
 		killer: { kind: "none", type: -1 },
 		damageBySource: new Array<number>(DAMAGE_ORIGIN_COUNT).fill(0),
-		fightTicks: 0,
 	};
 }

@@ -3,6 +3,7 @@ import { createKeyMap, createPadMap } from "@gc/core";
 import { cleanup, render, screen } from "@testing-library/react";
 import type { ReactElement } from "react";
 import { afterEach, expect, test, vi } from "vitest";
+import { Daily } from "./components/Daily/Daily";
 import { DemoEnd } from "./components/DemoEnd/DemoEnd";
 import { Difficulty } from "./components/Difficulty/Difficulty";
 import { Heroes } from "./components/Heroes/Heroes";
@@ -67,7 +68,7 @@ test("the title menu is navigable with the D-pad", () => {
 	assertPadNavigable(
 		<Menu
 			view={{ records: [{ id: "normal", name: "Normal", round: 3 }], continue: null }}
-			actions={{ resume: vi.fn(), play: vi.fn(), ossuary: vi.fn(), options: vi.fn() }}
+			actions={{ resume: vi.fn(), play: vi.fn(), daily: vi.fn(), ossuary: vi.fn(), options: vi.fn() }}
 		/>,
 		3,
 	);
@@ -77,7 +78,7 @@ test("the title menu with Continuar is navigable with the D-pad", () => {
 	assertPadNavigable(
 		<Menu
 			view={{ records: [], continue: { slotName: "Slot 1", runRound: null } }}
-			actions={{ resume: vi.fn(), play: vi.fn(), ossuary: vi.fn(), options: vi.fn() }}
+			actions={{ resume: vi.fn(), play: vi.fn(), daily: vi.fn(), ossuary: vi.fn(), options: vi.fn() }}
 		/>,
 		4,
 	);
@@ -136,6 +137,22 @@ test("the difficulty screen is navigable with the D-pad", () => {
 			actions={{ start: vi.fn(), cancel: vi.fn() }}
 		/>,
 		5,
+	);
+});
+
+test("the daily challenge screen is navigable with the D-pad", () => {
+	assertPadNavigable(
+		<Daily
+			view={{
+				date: "2026-11-11",
+				heroName: "x",
+				weapon: "y",
+				today: null,
+				rows: [{ date: "2026-11-10", round: 3, time: "1:00", kills: 9 }],
+			}}
+			actions={{ start: vi.fn(), cancel: vi.fn() }}
+		/>,
+		2,
 	);
 });
 

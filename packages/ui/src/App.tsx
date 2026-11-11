@@ -2,6 +2,7 @@ import { type PadStyle, padButtonName, type SaveNotice, type Store, t, type Virt
 import { type CSSProperties, type JSX, useSyncExternalStore } from "react";
 import { BossIntro, type BossViewModel } from "./components/BossBar/BossBar";
 import { Caption } from "./components/Caption/Caption";
+import { Daily, type DailyActions, type DailyViewModel } from "./components/Daily/Daily";
 import { DashButton, type DashView } from "./components/DashButton/DashButton";
 import { DemoEnd } from "./components/DemoEnd/DemoEnd";
 import {
@@ -65,6 +66,8 @@ export interface HudState {
 	boss: BossViewModel | null;
 	/** The permanent tree; null while closed. */
 	ossuary: OssuaryViewModel | null;
+	/** The daily challenge screen; null while closed. */
+	daily: DailyViewModel | null;
 	/** The hero choice before the difficulty; null while closed. */
 	heroes: HeroesViewModel | null;
 	/** The pre-run difficulty and seed screen; null while closed. */
@@ -124,6 +127,7 @@ export interface AppProps {
 	onMenu?: (() => void) | undefined;
 	/** Opens the Steam store page (menu, demo end and the demo's results); the buttons are absent without it. */
 	onWishlist?: (() => void) | undefined;
+	dailyActions?: DailyActions | undefined;
 	heroesActions?: HeroesActions | undefined;
 	difficultyActions?: DifficultyActions | undefined;
 	slotsActions?: SlotsActions | undefined;
@@ -158,6 +162,7 @@ export function App({
 	onWishlist,
 	ossuaryActions,
 	onDashHold,
+	dailyActions,
 	heroesActions,
 	difficultyActions,
 	slotsActions,
@@ -186,6 +191,7 @@ export function App({
 		hud.results !== null ||
 		hud.difficulty !== null ||
 		hud.heroes !== null ||
+		hud.daily !== null ||
 		hud.slots !== null ||
 		hud.pause !== null ||
 		hud.ossuary !== null ||
@@ -241,6 +247,7 @@ export function App({
 			menuActions &&
 			!hud.difficulty &&
 			!hud.heroes &&
+			!hud.daily &&
 			!hud.slots &&
 			!hud.ossuary &&
 			!hud.options ? (
@@ -267,6 +274,7 @@ export function App({
 				<PauseMenu view={hud.pause} actions={pauseActions} />
 			) : null}
 			{hud.slots && slotsActions ? <Slots view={hud.slots} actions={slotsActions} /> : null}
+			{hud.daily && dailyActions ? <Daily view={hud.daily} actions={dailyActions} /> : null}
 			{hud.heroes && heroesActions ? <Heroes view={hud.heroes} actions={heroesActions} /> : null}
 			{hud.difficulty && difficultyActions ? (
 				<Difficulty view={hud.difficulty} actions={difficultyActions} />

@@ -118,8 +118,8 @@ export interface ResultsSource {
 	round: number;
 	kills: number;
 	damageDealt: number;
-	fightTicks: number;
-	step: number;
+	/** Combat time of the run (`RunStats.seconds`, kept in the checkpoint, so a resumed run counts it all). */
+	seconds: number;
 	killer: { kind: "none" | "enemy" | "elite" | "boss" | "shot" | "self"; type: number };
 	/** Damage dealt per `DamageOrigin`, in `DAMAGE_SOURCE_IDS` order. */
 	damageBySource: readonly number[];
@@ -171,7 +171,7 @@ export function buildResults(source: ResultsSource, lookup: ResultsLookup): Resu
 		...describeCause(source.killer, lookup),
 		weapon: source.loadout.weapon,
 		items: source.loadout.items,
-		seconds: Math.floor(source.fightTicks * source.step),
+		seconds: Math.floor(source.seconds),
 		sources: DAMAGE_SOURCE_IDS.flatMap((id, i) => {
 			const damage = Math.round(source.damageBySource[i] ?? 0);
 			return damage > 0 ? [{ id, label: lookup.source(id), damage }] : [];

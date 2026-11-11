@@ -12,6 +12,7 @@ const menuView = { records: [], continue: null };
 const menuActions = (quit?: () => void) => ({
 	resume: vi.fn(),
 	play: vi.fn(),
+	daily: vi.fn(),
 	ossuary: vi.fn(),
 	options: vi.fn(),
 	...(quit ? { quit } : {}),
