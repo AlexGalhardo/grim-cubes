@@ -1,4 +1,5 @@
 import type { DynamicScaleConfig, PresetsData, VideoPreset } from "@gc/game";
+import { setContour } from "./contour";
 import type { GameScene } from "./scene";
 
 /** What a preset changed on the render side, for the HUD, the debug API and the caller that owns the pools. */
@@ -24,12 +25,15 @@ export interface QualityEngine {
  */
 /** Presets that draw without the camera rim light: a third light is ~15% of a frame on a software rasteriser (SDD 14). */
 export const NO_RIM_PRESETS: readonly string[] = ["low", "minimum"];
+/** Presets that draw without the per-role character contour (S-01-02). */
+export const NO_CONTOUR_PRESETS: readonly string[] = ["minimum"];
 /** Presets that draw without the ground contrast rings (SDD 14: rings and health bars cost 10 to 16% of a frame in software). */
 export const NO_RINGS_PRESETS: readonly string[] = ["minimum"];
 
 export function applyPreset(game: GameScene, engine: QualityEngine, preset: VideoPreset): AppliedPreset {
 	game.scene.shadowsEnabled = preset.shadows !== "none";
 	game.setRim(!NO_RIM_PRESETS.includes(preset.id));
+	setContour(game.scene, !NO_CONTOUR_PRESETS.includes(preset.id));
 	const hardwareScalingLevel = 1 / preset.renderScale;
 	engine.setHardwareScalingLevel(hardwareScalingLevel);
 	return {

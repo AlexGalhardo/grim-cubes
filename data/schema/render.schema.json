@@ -4,7 +4,7 @@
 	"title": "Render constants (GDD section 5, ADR-0017)",
 	"type": "object",
 	"additionalProperties": false,
-	"required": ["camera", "propFade", "vfx", "character"],
+	"required": ["camera", "propFade", "vfx", "character", "contour"],
 	"properties": {
 		"camera": {
 			"type": "object",
@@ -41,6 +41,78 @@
 					"type": "number",
 					"exclusiveMinimum": 0,
 					"description": "Exponential follow rate per second of the camera target (lerp 8/s)."
+				}
+			}
+		},
+		"contour": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": ["strength", "power", "hero", "enemy", "elite", "boss"],
+			"description": "Per-role contour (Fresnel) light on the characters (S-01-02, Art Bible section 4); off on the Minimo preset.",
+			"properties": {
+				"strength": {
+					"type": "number",
+					"minimum": 0,
+					"maximum": 2,
+					"description": "Multiplier of the added light."
+				},
+				"power": {
+					"type": "number",
+					"minimum": 0.5,
+					"maximum": 8,
+					"description": "Fresnel exponent: higher narrows the contour to the silhouette edge."
+				},
+				"hero": {
+					"type": "string",
+					"enum": [
+						"bone",
+						"bone-dark",
+						"iron-light",
+						"iron",
+						"ember",
+						"ember-light",
+						"damage-white"
+					],
+					"description": "Art Bible palette token (kebab-case)."
+				},
+				"enemy": {
+					"type": "string",
+					"enum": [
+						"bone",
+						"bone-dark",
+						"iron-light",
+						"iron",
+						"ember",
+						"ember-light",
+						"damage-white"
+					],
+					"description": "Art Bible palette token (kebab-case)."
+				},
+				"elite": {
+					"type": "string",
+					"enum": [
+						"bone",
+						"bone-dark",
+						"iron-light",
+						"iron",
+						"ember",
+						"ember-light",
+						"damage-white"
+					],
+					"description": "Art Bible palette token (kebab-case)."
+				},
+				"boss": {
+					"type": "string",
+					"enum": [
+						"bone",
+						"bone-dark",
+						"iron-light",
+						"iron",
+						"ember",
+						"ember-light",
+						"damage-white"
+					],
+					"description": "Art Bible palette token (kebab-case)."
 				}
 			}
 		},

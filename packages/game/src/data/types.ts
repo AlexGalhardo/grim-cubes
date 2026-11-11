@@ -134,6 +134,7 @@ export interface RenderData {
 		radiusMobile: number;
 		followRate: number;
 	};
+	contour: { strength: number; power: number; hero: string; enemy: string; elite: string; boss: string };
 	character: { blendSeconds: number; executionZoom: number; executionSeconds: number };
 	vfx: {
 		particlePool: number;

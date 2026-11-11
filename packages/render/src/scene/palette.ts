@@ -58,3 +58,11 @@ export const LIGHTING = {
 	fogStart: 28,
 	fogEnd: 60,
 } as const;
+
+/** Resolves a kebab-case Art Bible token (`iron-light`) to its hex; throws on a name the palette does not have. */
+export function paletteHex(token: string): string {
+	const key = token.replace(/-([a-z0-9])/g, (_, c: string) => c.toUpperCase()) as keyof typeof PALETTE;
+	const hex = PALETTE[key];
+	if (hex === undefined) throw new RangeError(`unknown palette token "${token}"`);
+	return hex;
+}

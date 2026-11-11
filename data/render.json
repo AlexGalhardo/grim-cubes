@@ -14,6 +14,14 @@
 		"heroHalfWidth": 0.6,
 		"heroHeight": 1
 	},
+	"contour": {
+		"strength": 1.3,
+		"power": 2.2,
+		"hero": "bone",
+		"enemy": "iron-light",
+		"elite": "ember",
+		"boss": "ember"
+	},
 	"character": {
 		"blendSeconds": 0.1,
 		"executionZoom": 0.2,

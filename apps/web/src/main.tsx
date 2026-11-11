@@ -131,6 +131,7 @@ import {
 	createRenderPort,
 	createVfx,
 	createVision,
+	type GameAssets,
 	hardwareInfo,
 	importModelMesh,
 	loadCharacter,
@@ -686,6 +687,7 @@ async function boot(): Promise<void> {
 		warn: (message) => log.warn(message),
 		// The emissive atlases cost ~16 MB of GPU each: the two lowest presets go without them (SDD 14).
 		emissive: !LOW_PRESETS.includes(preset?.id ?? ""),
+		contour: renderData.contour,
 	}).catch((error: unknown) => {
 		log.warn("assets unavailable, using placeholders", error);
 		return null;
@@ -694,13 +696,14 @@ async function boot(): Promise<void> {
 	const loadRig = async (
 		id: string,
 		rig: { refSpeed: number; idle: string; move: string },
+		material: GameAssets["characterMaterial"] | undefined,
 	): Promise<Character | undefined> => {
 		const entry = assets?.manifest.entries[id];
 		if (!assets || !entry) return undefined;
 		try {
 			return await loadCharacter(game.scene, `/assets/${entry.url}`, {
 				blendSeconds: renderData.character.blendSeconds,
-				material: assets.characterMaterial ?? undefined,
+				material: material ?? undefined,
 				...rig,
 			});
 		} catch (error) {
@@ -708,11 +711,25 @@ async function boot(): Promise<void> {
 			return undefined;
 		}
 	};
-	const heroRig = await loadRig("hero", { refSpeed: heroData.base.speed, idle: "idle", move: "run" });
-	const merchantRig = await loadRig("bone_merchant", { refSpeed: 1, idle: "idle", move: "idle" });
+	const heroRig = await loadRig(
+		"hero",
+		{ refSpeed: heroData.base.speed, idle: "idle", move: "run" },
+		assets?.heroMaterial ?? assets?.characterMaterial,
+	);
+	const merchantRig = await loadRig(
+		"bone_merchant",
+		{ refSpeed: 1, idle: "idle", move: "idle" },
+		assets?.characterMaterial,
+	);
 	// One rig per boss, by Boss.id - 1; a boss whose model is missing keeps its horde instance.
 	const bossRigs = await Promise.all(
-		bossesData.map((def) => loadRig(def.id, { refSpeed: def.speed ?? 2.4, idle: "idle", move: "walk" })),
+		bossesData.map((def) =>
+			loadRig(
+				def.id,
+				{ refSpeed: def.speed ?? 2.4, idle: "idle", move: "walk" },
+				assets?.bossMaterial ?? assets?.characterMaterial,
+			),
+		),
 	);
 	if (heroRig && assets) {
 		game.hero.isVisible = false;

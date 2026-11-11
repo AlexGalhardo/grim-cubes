@@ -16,6 +16,7 @@ import {
 } from "@gc/game";
 import "@babylonjs/core/Meshes/thinInstanceMesh";
 import { toLoaderLocalX, toLoaderLocalYaw } from "../coords";
+import { CONTOUR_BOSS, CONTOUR_ELITE, CONTOUR_ENEMY } from "../scene/contour";
 import type { LoadedVat } from "../vat/loader";
 import { createFrustumCuller } from "./frustum";
 
@@ -293,6 +294,7 @@ export function createHordeRenderer(types: readonly HordeType[], options: HordeO
 					colors[n * 4] = level * (tint?.[0] ?? 1);
 					colors[n * 4 + 1] = level * (tint?.[1] ?? 1);
 					colors[n * 4 + 2] = level * (tint?.[2] ?? 1);
+					colors[n * 4 + 3] = isBoss ? CONTOUR_BOSS : modifier > 0 ? CONTOUR_ELITE : CONTOUR_ENEMY;
 				}
 				const yaw = Facing.yaw[eid] ?? 0;
 				if (next === STATE_WALK) {

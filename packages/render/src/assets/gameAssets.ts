@@ -7,6 +7,7 @@ import { Color3 } from "@babylonjs/core/Maths/math.color";
 import type { AbstractMesh } from "@babylonjs/core/Meshes/abstractMesh";
 import type { Mesh } from "@babylonjs/core/Meshes/mesh";
 import type { Scene } from "@babylonjs/core/scene";
+import { addContour, type ContourConfig } from "../scene/contour";
 import { LIGHTING } from "../scene/palette";
 import { type LoadedVat, loadVat } from "../vat/loader";
 import { TERRAIN_TILE, TERRAIN_VARIANTS } from "../world/placeholder";
@@ -56,6 +57,8 @@ export interface GameAssetsOptions {
 	ktx2DecoderUrl?: string;
 	/** Load the emissive atlases (`atlas_*_e`, ~16 MB of GPU each as 2048 px PNG); false for the lowest presets. Default true. */
 	emissive?: boolean;
+	/** Contour light per role (data/render.json `contour`); omit to draw the characters without it. */
+	contour?: ContourConfig;
 	/** Told once which format the atlases were loaded in ("ktx2" or "png"). */
 	onTextureFormat?: (format: AtlasFormat) => void;
 	/** Called for every enemy that has no model or VAT in the manifest and is drawn with a stand-in. */
@@ -85,6 +88,9 @@ export interface GameAssets {
 	props: Map<string, Mesh>;
 	/** The shared character atlas material, for models loaded outside the horde (hero, Merchant, bosses, weapons). */
 	characterMaterial: StandardMaterial | null;
+	/** Clones of `characterMaterial` carrying the hero and boss contour colours; null without the character atlas. */
+	heroMaterial: StandardMaterial | null;
+	bossMaterial: StandardMaterial | null;
 }
 
 async function getOk(fetchFn: Fetcher, url: string): Promise<Response> {
@@ -226,6 +232,15 @@ export async function loadGameAssets(scene: Scene, options: GameAssetsOptions): 
 	const characterMaterial = characters
 		? atlasMaterial(scene, "atlas_characters", atlasUrl(characters), glowOf("atlas_characters_e"))
 		: null;
+	let heroMaterial: StandardMaterial | null = null;
+	let bossMaterial: StandardMaterial | null = null;
+	if (characterMaterial && options.contour) {
+		heroMaterial = characterMaterial.clone("atlas_characters_hero");
+		bossMaterial = characterMaterial.clone("atlas_characters_boss");
+		addContour(characterMaterial, options.contour, "enemy");
+		addContour(heroMaterial, options.contour, "hero");
+		addContour(bossMaterial, options.contour, "boss");
+	}
 	const propMaterial = propsAtlas
 		? atlasMaterial(scene, "atlas_props", atlasUrl(propsAtlas), glowOf("atlas_props_e"))
 		: null;
@@ -285,5 +300,5 @@ export async function loadGameAssets(scene: Scene, options: GameAssetsOptions): 
 	variants.sort((a, b) => (a.id < b.id ? -1 : 1));
 	const terrainEntry = entry("atlas_terrain");
 	const terrain = terrainEntry ? await loadTerrain(scene, url(terrainEntry.url), fetchFn) : null;
-	return { manifest, enemies, variants, terrain, props, characterMaterial };
+	return { manifest, enemies, variants, terrain, props, characterMaterial, heroMaterial, bossMaterial };
 }

@@ -28,6 +28,7 @@ export type { Atmosphere, BiomeLook } from "./scene/atmosphere";
 export { createAtmosphere } from "./scene/atmosphere";
 export { auraHex, mixAuras } from "./scene/aura";
 export { CAMERA } from "./scene/camera";
+export type { ContourConfig } from "./scene/contour";
 export { LIGHTING, PALETTE } from "./scene/palette";
 export type { AppliedPreset, DynamicScaler, HardwareInfo, QualityEngine } from "./scene/quality";
 export {

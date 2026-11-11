@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **render:** Contour (Fresnel) light per role on the hero, enemies, elites and bosses (hero bone, enemy neutral, elite and boss ember), configured in the `contour` block of `data/render.json` and off on the Minimum preset; no extra draw call (S-01-02)
 - **android:** Debug APK for sideloading (`bun run build:android`, Capacitor 8.6.0), attached to the v0.5.0 GitHub Release. Not a Play build (B-04-04) ([683e301](https://github.com/AlexGalhardo/grim-cubes/commit/683e3018dd4e0bc321ad47b690bcf6006068f887))
 
 ## [0.5.0] - 2026-11-01
