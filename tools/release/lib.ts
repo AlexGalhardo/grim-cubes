@@ -71,6 +71,31 @@ export function extractNotes(changelog: string, version: string): string {
 	return `${lines.slice(from, to).join("\n").trim()}\n`;
 }
 
+const COMMIT_LINK_RE = /\(\[[0-9a-f]{7,}\]\([^)]*\/commit\/[0-9a-f]+\)\)\s*$/;
+
+/**
+ * Appends `([hash7](repo/commit/sha))` to every entry that has no commit link yet (SDD 13 section 3).
+ * `find` returns the full SHA of the commit that wrote the entry, or undefined when it is not committed.
+ */
+export function linkEntries(changelog: string, find: (entry: string) => string | undefined): string {
+	const lines = changelog.split("\n");
+	const repoUrl = lines.map((l) => FOOTER_UNRELEASED_RE.exec(l)?.[1]).find((url) => url !== undefined);
+	if (repoUrl === undefined) throw new Error("CHANGELOG footer has no [Unreleased] compare link");
+	return lines
+		.map((line) => {
+			if (!line.startsWith("- ") || COMMIT_LINK_RE.test(line)) return line;
+			const sha = find(line);
+			return sha ? `${line} ([${sha.slice(0, 7)}](${repoUrl}/commit/${sha}))` : line;
+		})
+		.join("\n");
+}
+
+/** The oldest commit that added this exact entry to the CHANGELOG (`-m`: merges count). A release moving the entry does not count. */
+export function entryCommit(io: Pick<ReleaseIo, "exec">, entry: string): string | undefined {
+	const out = io.exec("git", ["log", "-m", "--reverse", "--format=%H", `-S${entry}`, "--", "CHANGELOG.md"]);
+	return out.split("\n")[0] || undefined;
+}
+
 export function transformChangelog(changelog: string, version: string, date: string): string {
 	const lines = changelog.split("\n");
 	const [from, to] = sectionBounds(lines, UNRELEASED_HEADER);
@@ -170,7 +195,8 @@ export interface ReleaseOptions {
 
 export function runRelease(options: ReleaseOptions, io: ReleaseIo): number {
 	const pkg = io.read("package.json");
-	const changelog = io.read("CHANGELOG.md");
+	const original = io.read("CHANGELOG.md");
+	const changelog = linkEntries(original, (entry) => entryCommit(io, entry));
 	const current = readPackageVersion(pkg);
 	const version = options.versionOverride ?? nextVersion(current, options.bump);
 	parseVersion(version);
@@ -182,7 +208,7 @@ export function runRelease(options: ReleaseOptions, io: ReleaseIo): number {
 	io.log(`version: ${current} -> ${version}`);
 	if (options.dryRun) {
 		const diffs = [
-			lineDiff(changelog, nextChangelog, "CHANGELOG.md"),
+			lineDiff(original, nextChangelog, "CHANGELOG.md"),
 			lineDiff(pkg, nextPkg, "package.json"),
 		].filter((d) => d !== "");
 		io.log(diffs.join("\n"));

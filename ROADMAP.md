@@ -57,7 +57,7 @@ A Parte 2 não entra na meta: depende do PO, de hardware, de loja ou de data.
 
 ### S-00 Releases no padrão vukem
 
-- [ ] **S-00-01** O corpo de cada GitHub Release traz o link do commit no fim de cada linha, como em `AlexGalhardo/vukem`; `tools/release` gera o corpo assim e os cinco releases publicados são regenerados. Os binários anexados não mudam.
+- [x] **S-00-01** O corpo de cada GitHub Release traz o link do commit no fim de cada linha, como em `AlexGalhardo/vukem`; `tools/release` gera o corpo assim e os cinco releases publicados são regenerados. Os binários anexados não mudam.
   - Asserts: para cada tag de `v0.1.0` a `v0.5.0`, `gh release view <tag> --json body -q .body` contém `/commit/` em toda linha de item; `gh release view <tag> --json assets` lista os mesmos arquivos de antes; teste em `tools/release/lib.test.ts` cobre o formato; `docs/sdd/13-release-versioning.md` descreve o formato.
 
 ### S-01 Legibilidade do combate

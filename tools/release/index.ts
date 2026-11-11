@@ -1,9 +1,9 @@
 import { readFileSync, writeFileSync } from "node:fs";
-import { extractNotes, parseBump, runRelease } from "./lib";
+import { entryCommit, extractNotes, linkEntries, parseBump, runRelease } from "./lib";
 
 const BUMPS: readonly string[] = ["patch", "minor", "major", "rc", "rc-major"];
 const USAGE =
-	"usage: bun run release <patch|minor|major|rc|rc-major> [--rc (with major) | --major (with rc)] [--version X.Y.Z] [--dry-run] [--publish]\n       bun tools/release/index.ts notes <X.Y.Z>";
+	"usage: bun run release <patch|minor|major|rc|rc-major> [--rc (with major) | --major (with rc)] [--version X.Y.Z] [--dry-run] [--publish]\n       bun tools/release/index.ts notes <X.Y.Z>\n       bun tools/release/index.ts link";
 
 function flagValue(argv: string[], name: string): string | undefined {
 	const i = argv.indexOf(name);
@@ -23,6 +23,14 @@ function main(argv: string[]): number {
 		const version = argv[1];
 		if (!version) throw new Error(USAGE);
 		process.stdout.write(extractNotes(readFileSync("CHANGELOG.md", "utf8"), version));
+		return 0;
+	}
+	if (command === "link") {
+		const changelog = readFileSync("CHANGELOG.md", "utf8");
+		const linked = linkEntries(changelog, (entry) => entryCommit({ exec }, entry));
+		writeFileSync("CHANGELOG.md", linked);
+		const count = (text: string): number => text.split("/commit/").length - 1;
+		console.log(`linked ${count(linked) - count(changelog)} entries`);
 		return 0;
 	}
 	if (command === undefined || !BUMPS.includes(command)) {

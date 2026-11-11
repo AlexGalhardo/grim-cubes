@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { extractNotes, nextVersion, parseBump, type ReleaseIo, runRelease, transformChangelog } from "./lib";
+import {
+	entryCommit,
+	extractNotes,
+	linkEntries,
+	nextVersion,
+	parseBump,
+	type ReleaseIo,
+	runRelease,
+	transformChangelog,
+} from "./lib";
 
 const CHANGELOG = `# Changelog
 
@@ -54,6 +63,9 @@ function memoryIo(files: Record<string, string>): {
 		},
 	};
 }
+
+/** Looking up the commit of an entry (`git log`) reads history; everything else the release runs changes something. */
+const mutates = (command: string): boolean => !command.startsWith("git log ");
 
 describe("parseBump", () => {
 	it("treats major --rc and rc --major as the next major candidate", () => {
@@ -120,7 +132,7 @@ describe("runRelease", () => {
 		});
 		expect(runRelease({ ...base, dryRun: true }, io)).toBe(0);
 		expect(writes).toEqual([]);
-		expect(commands).toEqual([]);
+		expect(commands.filter(mutates)).toEqual([]);
 		expect(logs.join("\n")).toContain("+## [0.1.0] - 2026-11-01");
 		expect(logs.join("\n")).toContain('+\t"version": "0.1.0"');
 	});
@@ -142,7 +154,7 @@ describe("runRelease", () => {
 	it("does not touch git without --publish", () => {
 		const { io, commands } = memoryIo({ "CHANGELOG.md": CHANGELOG, "package.json": PACKAGE });
 		runRelease({ ...base, dryRun: false }, io);
-		expect(commands).toEqual([]);
+		expect(commands.filter(mutates)).toEqual([]);
 	});
 
 	it("--publish commits, tags and pushes after the safety checks", () => {
@@ -157,6 +169,56 @@ describe("runRelease", () => {
 		const { io, writes, commands } = memoryIo({ "CHANGELOG.md": CHANGELOG, "package.json": PACKAGE });
 		runRelease({ ...base, dryRun: true, publish: true }, io);
 		expect(writes).toEqual([]);
-		expect(commands).toEqual([]);
+		expect(commands.filter(mutates)).toEqual([]);
+	});
+});
+
+describe("linkEntries", () => {
+	const sha = "0123456789abcdef0123456789abcdef01234567";
+
+	it("links the entries that have no commit link and leaves the rest alone", () => {
+		const asked: string[] = [];
+		const linked = linkEntries(CHANGELOG, (entry) => {
+			asked.push(entry);
+			return sha;
+		});
+		expect(asked).toEqual(["- **core:** Fix thing"]);
+		expect(linked).toContain(`- **core:** Fix thing ([0123456](https://github.com/o/r/commit/${sha}))`);
+		expect(linked).toContain("- **docs:** Add docs ([2775e6e](https://github.com/o/r/commit/2775e6e))");
+		expect(linkEntries(linked, () => sha)).toBe(linked);
+	});
+
+	it("keeps an entry whose commit is unknown", () => {
+		expect(linkEntries(CHANGELOG, () => undefined)).toBe(CHANGELOG);
+	});
+
+	it("asks git for the oldest commit that added the entry", () => {
+		const calls: string[][] = [];
+		const found = entryCommit(
+			{
+				exec: (command, args) => {
+					calls.push([command, ...args]);
+					return `${sha}\nffffffffffffffffffffffffffffffffffffffff`;
+				},
+			},
+			"- **core:** Fix thing",
+		);
+		expect(found).toBe(sha);
+		expect(calls).toEqual([
+			["git", "log", "-m", "--reverse", "--format=%H", "-S- **core:** Fix thing", "--", "CHANGELOG.md"],
+		]);
+		expect(entryCommit({ exec: () => "" }, "- x")).toBeUndefined();
+	});
+
+	it("a release links its entries, so the notes carry the commit of every line", () => {
+		const files = { "CHANGELOG.md": CHANGELOG, "package.json": PACKAGE };
+		const { io } = memoryIo(files);
+		const withHistory: ReleaseIo = {
+			...io,
+			exec: (command, args) => (args[0] === "log" ? sha : io.exec(command, args)),
+		};
+		runRelease({ bump: "minor", publish: false, dryRun: false, date: "2026-11-01" }, withHistory);
+		for (const line of extractNotes(files["CHANGELOG.md"], "0.1.0").split("\n"))
+			if (line.startsWith("- ")) expect(line).toContain("/commit/");
 	});
 });

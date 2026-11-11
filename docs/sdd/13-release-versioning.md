@@ -55,6 +55,7 @@ Regras: item = `- **escopo:** Descrição em inglês (#PR) ([hash7](url do commi
 - `--publish`: faz os passos abaixo.
 - `--version X.Y.Z`: força a versão.
 - `notes X.Y.Z`: imprime a seção do CHANGELOG (usado pelo `release.yml`).
+- `link`: acrescenta o link do commit a todo item do CHANGELOG que ainda não tem um. O commit é o mais antigo que escreveu aquela linha no `CHANGELOG.md` (`git log -m --reverse -S<linha>`). Toda release faz o mesmo antes de mover o `[Unreleased]`, então quem escreve o item não precisa colar o hash; um item ainda não commitado fica sem link.
 
 Versões:
 

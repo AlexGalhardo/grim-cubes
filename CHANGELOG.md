@@ -9,121 +9,123 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **docs:** Rewrite `ROADMAP.md` from scratch (0.2.0) for goal-driven execution: Part 1 is the agent's work with verifiable asserts (tracks S-00 to S-17, ending in a `v0.6.0` test release with the `.exe` and the `.apk`), Part 2 keeps what depends on the PO under the old ids
+- **tools:** Every release links each CHANGELOG entry to the commit that wrote it, and `bun tools/release/index.ts link` does the same for the whole file; the entries of 0.1.0 to 0.5.0 and the five published GitHub Releases now carry the links (S-00-01)
+
+- **docs:** Rewrite `ROADMAP.md` from scratch (0.2.0) for goal-driven execution: Part 1 is the agent's work with verifiable asserts (tracks S-00 to S-17, ending in a `v0.6.0` test release with the `.exe` and the `.apk`), Part 2 keeps what depends on the PO under the old ids ([67577c6](https://github.com/AlexGalhardo/grim-cubes/commit/67577c6ba780663e31fc5fed8b299cc407f052be))
 
 ### Added
 
-- **android:** Debug APK for sideloading (`bun run build:android`, Capacitor 8.6.0), attached to the v0.5.0 GitHub Release. Not a Play build (B-04-04)
+- **android:** Debug APK for sideloading (`bun run build:android`, Capacitor 8.6.0), attached to the v0.5.0 GitHub Release. Not a Play build (B-04-04) ([683e301](https://github.com/AlexGalhardo/grim-cubes/commit/683e3018dd4e0bc321ad47b690bcf6006068f887))
 
 ## [0.5.0] - 2026-11-01
 
 ### Added
 
-- **tools:** `bun run release major --rc` (and `rc --major`) opens the next major's release candidate (`0.9.0` → `1.0.0-rc.1`); on a `release/*` branch commitlint accepts only `fix:`, `docs:` and `chore:`, and CI passes the branch name (R-01-01 tooling; no tag is cut)
-- **audio:** Twelve SFX from the GDD §22.1 minimum list, bringing the catalog to 82 SFX, 10 music and 40 voice lines, each with measured loudness; the ElevenLabs credit total is in `docs/audio/credits.md` (A-05-02, B-03-03)
-- **fix:** The first Esc after choosing a level-up card opens the pause menu (it looked at the dialog still in the page for a moment; it now reads the game state)
-- **tests:** `?bench=soak` in debug builds: the greedy bot plays whole runs on an immortal hero in the browser, one page load per run, and a downloadable report records fps, frame-time percentiles, JS heap and errors (R-01-02)
-- **game:** The simulator's bot (`createBot`, the greedy and tank policies) now lives in `packages/game/src/bot` so the browser soak can play with it too; it can sidestep a prop it is stuck against (`unstick`, on in the soak only, so the balance reports are unchanged)
-- **ui:** "Sair do jogo" at the end of the title menu on the desktop build (confirmed, closes the app through a sender-checked IPC channel), and a confirmed "Voltar ao menu" in Options during a run, on the results and on the demo end, next to the one in the pause menu; the run stays saved at the start of its round and Continue resumes it
-- **tools:** `assets:build` refuses audio whose `meta.json` says the free ElevenLabs plan or has no plan, listing the files (A-05-02)
-- **audio:** The engine can loop a sound (`playLoop`/`stop`, with a hold that ends it a moment after the last call): the SMG and MG loops while they fire and the biome ambience under the hero; the first rage of a boss is shouted (`voice_<boss>_enrage`, captioned in both languages)
-- **ui:** Embedded fonts: Pixelify Sans (display) and Inter (text), self-hosted `.woff2` in `public/fonts` (latin and latin-ext, `font-display: swap`, latin preloaded) under the SIL OFL, registered in `docs/legal/third-party.md`; the UI no longer falls back to system fonts
-- **tests:** A virtual gamepad for debug builds (`?gamepad=1`, `gc.debug.gamepad`) and an e2e spec that walks menu, slots, difficulty and pause with it (B-04-02)
-- **ui:** Five rarities in the UI: Normal (bone), Rare (blue), Epic (purple), Legendary (orange) and Mythic (yellow) with `rarity-1..5` tokens and a distinct shape for each in colour-blind mode (Art Bible 3.3, GDD 15.1)
-- **game:** The `pull_fragments` item effect (XP magnet): every N seconds of fighting the fragments on the floor fly to the hero, more often with more copies
-- **game:** Five automatic spells bought as tier-4 items (Ossuary Bolt, Bone Circle, Soul Lightning, Grave Mines, Ash Pulse) fire on their own during a round, each with a `SpellCast` VFX
-- **tests:** Playwright baselines for the key-art menu, save slots, Options, pause, Ossuary and shop at the four viewports (A-07-03). The e2e job stays out of required CI
-- **fix:** A save that finishes after a newer Ossuary edit no longer overwrites those souls; the write keeps the revision it started with
-- **ui:** The English name of `grim_pact` is Grim Bargain, so it does not read as the Grim difficulty
-- **ci:** The perf bench runs only on `workflow_dispatch` or on a pull request labeled `perf`, and fails when draw calls, active meshes, or the median frame time grow past the baseline (A-01-03)
-- **docs:** KTX2 stays out of the 1.0 CI (ADR-0027). The Windows build stays unsigned in 1.0 (ADR-0008). Capacitor dependencies are approved for the BETA opening and are not installed in this release (ADR-0028)
+- **tools:** `bun run release major --rc` (and `rc --major`) opens the next major's release candidate (`0.9.0` → `1.0.0-rc.1`); on a `release/*` branch commitlint accepts only `fix:`, `docs:` and `chore:`, and CI passes the branch name (R-01-01 tooling; no tag is cut) ([d237e63](https://github.com/AlexGalhardo/grim-cubes/commit/d237e63ab5e70981b62d5090c5ad6d3b3c79b13b))
+- **audio:** Twelve SFX from the GDD §22.1 minimum list, bringing the catalog to 82 SFX, 10 music and 40 voice lines, each with measured loudness; the ElevenLabs credit total is in `docs/audio/credits.md` (A-05-02, B-03-03) ([d237e63](https://github.com/AlexGalhardo/grim-cubes/commit/d237e63ab5e70981b62d5090c5ad6d3b3c79b13b))
+- **fix:** The first Esc after choosing a level-up card opens the pause menu (it looked at the dialog still in the page for a moment; it now reads the game state) ([57a8de3](https://github.com/AlexGalhardo/grim-cubes/commit/57a8de3296caa6d00cea670880c2fcf544dc725f))
+- **tests:** `?bench=soak` in debug builds: the greedy bot plays whole runs on an immortal hero in the browser, one page load per run, and a downloadable report records fps, frame-time percentiles, JS heap and errors (R-01-02) ([a8a29ac](https://github.com/AlexGalhardo/grim-cubes/commit/a8a29acfeab46a4136b2ba10598ca264458044ef))
+- **game:** The simulator's bot (`createBot`, the greedy and tank policies) now lives in `packages/game/src/bot` so the browser soak can play with it too; it can sidestep a prop it is stuck against (`unstick`, on in the soak only, so the balance reports are unchanged) ([70e0841](https://github.com/AlexGalhardo/grim-cubes/commit/70e0841d1f1f6f1ba60d94cf3b663d09868e1616))
+- **ui:** "Sair do jogo" at the end of the title menu on the desktop build (confirmed, closes the app through a sender-checked IPC channel), and a confirmed "Voltar ao menu" in Options during a run, on the results and on the demo end, next to the one in the pause menu; the run stays saved at the start of its round and Continue resumes it ([47b8bae](https://github.com/AlexGalhardo/grim-cubes/commit/47b8bae3edd8fe3b456e89e9b537be8accec2bed))
+- **tools:** `assets:build` refuses audio whose `meta.json` says the free ElevenLabs plan or has no plan, listing the files (A-05-02) ([457fc09](https://github.com/AlexGalhardo/grim-cubes/commit/457fc098e73f9513c5227e0b1e78ad78b781190d))
+- **audio:** The engine can loop a sound (`playLoop`/`stop`, with a hold that ends it a moment after the last call): the SMG and MG loops while they fire and the biome ambience under the hero; the first rage of a boss is shouted (`voice_<boss>_enrage`, captioned in both languages) ([d37c312](https://github.com/AlexGalhardo/grim-cubes/commit/d37c312a371fab51e9d0dc70452e36785a83cc3f))
+- **ui:** Embedded fonts: Pixelify Sans (display) and Inter (text), self-hosted `.woff2` in `public/fonts` (latin and latin-ext, `font-display: swap`, latin preloaded) under the SIL OFL, registered in `docs/legal/third-party.md`; the UI no longer falls back to system fonts ([0f4ac5a](https://github.com/AlexGalhardo/grim-cubes/commit/0f4ac5a9ef19d836ab78bfd656d4f1192979466c))
+- **tests:** A virtual gamepad for debug builds (`?gamepad=1`, `gc.debug.gamepad`) and an e2e spec that walks menu, slots, difficulty and pause with it (B-04-02) ([e79d93f](https://github.com/AlexGalhardo/grim-cubes/commit/e79d93f57953cea150671aba3f7c5cd0ff0cd8d7))
+- **ui:** Five rarities in the UI: Normal (bone), Rare (blue), Epic (purple), Legendary (orange) and Mythic (yellow) with `rarity-1..5` tokens and a distinct shape for each in colour-blind mode (Art Bible 3.3, GDD 15.1) ([1cda484](https://github.com/AlexGalhardo/grim-cubes/commit/1cda4840e194248cd79e6135a4bfba353769d9cc))
+- **game:** The `pull_fragments` item effect (XP magnet): every N seconds of fighting the fragments on the floor fly to the hero, more often with more copies ([e692a01](https://github.com/AlexGalhardo/grim-cubes/commit/e692a01cb82b70dfa40dc99002c14bb7b4351d10))
+- **game:** Five automatic spells bought as tier-4 items (Ossuary Bolt, Bone Circle, Soul Lightning, Grave Mines, Ash Pulse) fire on their own during a round, each with a `SpellCast` VFX ([d237e63](https://github.com/AlexGalhardo/grim-cubes/commit/d237e63ab5e70981b62d5090c5ad6d3b3c79b13b))
+- **tests:** Playwright baselines for the key-art menu, save slots, Options, pause, Ossuary and shop at the four viewports (A-07-03). The e2e job stays out of required CI ([d237e63](https://github.com/AlexGalhardo/grim-cubes/commit/d237e63ab5e70981b62d5090c5ad6d3b3c79b13b))
+- **fix:** A save that finishes after a newer Ossuary edit no longer overwrites those souls; the write keeps the revision it started with ([d237e63](https://github.com/AlexGalhardo/grim-cubes/commit/d237e63ab5e70981b62d5090c5ad6d3b3c79b13b))
+- **ui:** The English name of `grim_pact` is Grim Bargain, so it does not read as the Grim difficulty ([d237e63](https://github.com/AlexGalhardo/grim-cubes/commit/d237e63ab5e70981b62d5090c5ad6d3b3c79b13b))
+- **ci:** The perf bench runs only on `workflow_dispatch` or on a pull request labeled `perf`, and fails when draw calls, active meshes, or the median frame time grow past the baseline (A-01-03) ([d237e63](https://github.com/AlexGalhardo/grim-cubes/commit/d237e63ab5e70981b62d5090c5ad6d3b3c79b13b))
+- **docs:** KTX2 stays out of the 1.0 CI (ADR-0027). The Windows build stays unsigned in 1.0 (ADR-0008). Capacitor dependencies are approved for the BETA opening and are not installed in this release (ADR-0028) ([d237e63](https://github.com/AlexGalhardo/grim-cubes/commit/d237e63ab5e70981b62d5090c5ad6d3b3c79b13b))
 
 ### Fixed
 
-- **game:** Soul Lightning hits at most `jumps` enemies, counting the first. Two Bone Circle copies share one spin instead of turning the ring twice as fast
+- **game:** Soul Lightning hits at most `jumps` enemies, counting the first. Two Bone Circle copies share one spin instead of turning the ring twice as fast ([d237e63](https://github.com/AlexGalhardo/grim-cubes/commit/d237e63ab5e70981b62d5090c5ad6d3b3c79b13b))
 
 ## [0.4.0] - 2026-10-31
 
 ### Added
 
-- **ui:** Options toggles for the hero and enemy health bars, on by default and saved with the global settings (save schema 12); the render switch is still to be wired
-- **fix:** Clicking Options, speed or pause before the game finished loading no longer throws `Cannot access 'optionsOpen' before initialization`
-- **game:** An Easy difficulty (enemy HP and damage x0.75, souls x0.75) with its own best round (save schema 11); Easy, Normal and Hard (`grim`) are open from the start and Nightmare unlocks at round 20 on Hard
-- **ui:** Main menu over the painted key art (`public/menu/menu-1.webp`), with the buttons on its dark left side
-- **ui:** ARPG shop from the PO mockup: hero panel (painted portrait, level, XP, HP, round, gold, souls), weapon, an inventory grid of owned items with counts, all stats in two columns with a before → after preview of the hovered offer, and the Merchant's portrait and a line above four offers in two columns
-- **ui:** Options from the PO mockup in three columns that fit without scrolling: segmented buttons, iron switches, sliders, key caps and room for the health bar toggles
-- **docs:** Image prompts for the menu key art, the shop, Options, Ossuary and the two portraits (`prompt-*.md`)
-- **ui:** A pause menu (Esc, Start on the pad, or a pause button next to the speed one on touch screens) with Continue, Options and Quit to menu (confirmed; the run stays saved at the start of its round)
-- **save:** Three save slots, each a complete profile (souls, Ossuary, records, stats, milestones, skins); settings and keys stay global. Save schema 10 moves the old single save into slot 1 with its checksum verified; per-slot storage keys and backups on web and Electron
-- **ui:** The slot screen opens from New game (overwrite and erase need a confirmation; keyboard, D-pad and axe covered), and the title menu shows Continue when a slot was used before
-- **game:** The run is saved into the slot at the start of every round (round, gold, XP, HP, items, weapon, upgrades, stats, rerolls, difficulty, seed and RNG state; no enemies) and Continue resumes it; dying or finishing the run deletes the checkpoint
-- **ui:** Gamepad dash and pause buttons can be remapped in Options (save schema 7)
-- **ui:** Boss voice lines are subtitled, with an Options toggle that is on by default (save schema 8)
-- **tests:** The effect id enum in the data schema is tied to the implemented handlers, so `data:check` refuses an id without one
-- **perf:** Debug hook to toggle the enemy variants and the SDD 14 bench with them (+2 draw calls, no frame cost)
-- **game:** The Merchant waits for the hero after each round at a fixed spot (6 u away, opposite the horde): the shop opens on contact, with Enter or the dash button, or after 20 s; an arrow and a countdown show where he is; the simulator and the demo end skip the walk (A-05-01)
-- **render:** The Merchant stands at his fixed spot on the map with an interaction ring
-- **ui:** Gamepad reroll (X) and game speed (Back), both remappable (save schema 9), and button hints named for the controller: Xbox letters or PlayStation symbols from `Gamepad.id` (B-04-02)
-- **ui:** A D-pad focus test for every screen: menu, difficulty, Ossuary, Options, shop, level-up, chest, results and demo end
-- **desktop:** The Electron save is a set of files in `%APPDATA%\grim-cubes\saves` (atomic writes over IPC, one-time move from IndexedDB, folder pinned so a rename never loses it), and the build also produces `win-unpacked` for the Steam upload
-- **audio:** An LRU budget for the decoded rarely heard sounds; frequent effects stay loaded
-- **art:** Hand-drawn item, card and Ossuary icons with tier marks that read in greyscale; in-game captures of all 78 models; distinct silhouettes for the Alpha Hunter, SMG and MG, a grimmer Wail and a segmented Leech; bone and ember accents, darker swamp and nest floors and a darker dead wood so the biomes contrast
-- **tools:** A local UX capture of the HUD, level-up, shop and Merchant at 100% and 150% UI scale, and an in-game art capture mode
+- **ui:** Options toggles for the hero and enemy health bars, on by default and saved with the global settings (save schema 12); the render switch is still to be wired ([fd98405](https://github.com/AlexGalhardo/grim-cubes/commit/fd98405c0aa9d446c2418b43f23739beb2489040))
+- **fix:** Clicking Options, speed or pause before the game finished loading no longer throws `Cannot access 'optionsOpen' before initialization` ([fd98405](https://github.com/AlexGalhardo/grim-cubes/commit/fd98405c0aa9d446c2418b43f23739beb2489040))
+- **game:** An Easy difficulty (enemy HP and damage x0.75, souls x0.75) with its own best round (save schema 11); Easy, Normal and Hard (`grim`) are open from the start and Nightmare unlocks at round 20 on Hard ([c643158](https://github.com/AlexGalhardo/grim-cubes/commit/c643158327116ff517f2953bb85e94a4c6067069))
+- **ui:** Main menu over the painted key art (`public/menu/menu-1.webp`), with the buttons on its dark left side ([4ee4462](https://github.com/AlexGalhardo/grim-cubes/commit/4ee446259a91f6df99e984c63aa311ed1216b485))
+- **ui:** ARPG shop from the PO mockup: hero panel (painted portrait, level, XP, HP, round, gold, souls), weapon, an inventory grid of owned items with counts, all stats in two columns with a before → after preview of the hovered offer, and the Merchant's portrait and a line above four offers in two columns ([4ee4462](https://github.com/AlexGalhardo/grim-cubes/commit/4ee446259a91f6df99e984c63aa311ed1216b485))
+- **ui:** Options from the PO mockup in three columns that fit without scrolling: segmented buttons, iron switches, sliders, key caps and room for the health bar toggles ([4ee4462](https://github.com/AlexGalhardo/grim-cubes/commit/4ee446259a91f6df99e984c63aa311ed1216b485))
+- **docs:** Image prompts for the menu key art, the shop, Options, Ossuary and the two portraits (`prompt-*.md`) ([4ee4462](https://github.com/AlexGalhardo/grim-cubes/commit/4ee446259a91f6df99e984c63aa311ed1216b485))
+- **ui:** A pause menu (Esc, Start on the pad, or a pause button next to the speed one on touch screens) with Continue, Options and Quit to menu (confirmed; the run stays saved at the start of its round) ([81e9ff0](https://github.com/AlexGalhardo/grim-cubes/commit/81e9ff067bc6e244c72d52523eceaf685e8651b5))
+- **save:** Three save slots, each a complete profile (souls, Ossuary, records, stats, milestones, skins); settings and keys stay global. Save schema 10 moves the old single save into slot 1 with its checksum verified; per-slot storage keys and backups on web and Electron ([463c14f](https://github.com/AlexGalhardo/grim-cubes/commit/463c14fd7dc89ccbdf43a5d5495d43150bc17739))
+- **ui:** The slot screen opens from New game (overwrite and erase need a confirmation; keyboard, D-pad and axe covered), and the title menu shows Continue when a slot was used before ([463c14f](https://github.com/AlexGalhardo/grim-cubes/commit/463c14fd7dc89ccbdf43a5d5495d43150bc17739))
+- **game:** The run is saved into the slot at the start of every round (round, gold, XP, HP, items, weapon, upgrades, stats, rerolls, difficulty, seed and RNG state; no enemies) and Continue resumes it; dying or finishing the run deletes the checkpoint ([463c14f](https://github.com/AlexGalhardo/grim-cubes/commit/463c14fd7dc89ccbdf43a5d5495d43150bc17739))
+- **ui:** Gamepad dash and pause buttons can be remapped in Options (save schema 7) ([5576385](https://github.com/AlexGalhardo/grim-cubes/commit/5576385360d16df7ac4e696a23fe4bb9d8ef7054))
+- **ui:** Boss voice lines are subtitled, with an Options toggle that is on by default (save schema 8) ([5576385](https://github.com/AlexGalhardo/grim-cubes/commit/5576385360d16df7ac4e696a23fe4bb9d8ef7054))
+- **tests:** The effect id enum in the data schema is tied to the implemented handlers, so `data:check` refuses an id without one ([5576385](https://github.com/AlexGalhardo/grim-cubes/commit/5576385360d16df7ac4e696a23fe4bb9d8ef7054))
+- **perf:** Debug hook to toggle the enemy variants and the SDD 14 bench with them (+2 draw calls, no frame cost) ([5576385](https://github.com/AlexGalhardo/grim-cubes/commit/5576385360d16df7ac4e696a23fe4bb9d8ef7054))
+- **game:** The Merchant waits for the hero after each round at a fixed spot (6 u away, opposite the horde): the shop opens on contact, with Enter or the dash button, or after 20 s; an arrow and a countdown show where he is; the simulator and the demo end skip the walk (A-05-01) ([0755169](https://github.com/AlexGalhardo/grim-cubes/commit/075516933f9ad63eca2837417d66c1e16d2db455))
+- **render:** The Merchant stands at his fixed spot on the map with an interaction ring ([0755169](https://github.com/AlexGalhardo/grim-cubes/commit/075516933f9ad63eca2837417d66c1e16d2db455))
+- **ui:** Gamepad reroll (X) and game speed (Back), both remappable (save schema 9), and button hints named for the controller: Xbox letters or PlayStation symbols from `Gamepad.id` (B-04-02) ([0755169](https://github.com/AlexGalhardo/grim-cubes/commit/075516933f9ad63eca2837417d66c1e16d2db455))
+- **ui:** A D-pad focus test for every screen: menu, difficulty, Ossuary, Options, shop, level-up, chest, results and demo end ([0755169](https://github.com/AlexGalhardo/grim-cubes/commit/075516933f9ad63eca2837417d66c1e16d2db455))
+- **desktop:** The Electron save is a set of files in `%APPDATA%\grim-cubes\saves` (atomic writes over IPC, one-time move from IndexedDB, folder pinned so a rename never loses it), and the build also produces `win-unpacked` for the Steam upload ([0755169](https://github.com/AlexGalhardo/grim-cubes/commit/075516933f9ad63eca2837417d66c1e16d2db455))
+- **audio:** An LRU budget for the decoded rarely heard sounds; frequent effects stay loaded ([0755169](https://github.com/AlexGalhardo/grim-cubes/commit/075516933f9ad63eca2837417d66c1e16d2db455))
+- **art:** Hand-drawn item, card and Ossuary icons with tier marks that read in greyscale; in-game captures of all 78 models; distinct silhouettes for the Alpha Hunter, SMG and MG, a grimmer Wail and a segmented Leech; bone and ember accents, darker swamp and nest floors and a darker dead wood so the biomes contrast ([0755169](https://github.com/AlexGalhardo/grim-cubes/commit/075516933f9ad63eca2837417d66c1e16d2db455))
+- **tools:** A local UX capture of the HUD, level-up, shop and Merchant at 100% and 150% UI scale, and an in-game art capture mode ([0755169](https://github.com/AlexGalhardo/grim-cubes/commit/075516933f9ad63eca2837417d66c1e16d2db455))
 
 ### Changed
 
-- **assets:** Each atlas is sized to its sprites: 80 MB of atlas GPU memory down to 5 MB
-- **ui:** On short screens (800x360) the level-up cards share one row and the shop shows four offers with its buttons beside the gold; the HUD buttons, version and DEMO seal are not drawn under a dialog; the UI scale is capped at 125% on screens 414 px tall or less
+- **assets:** Each atlas is sized to its sprites: 80 MB of atlas GPU memory down to 5 MB ([0755169](https://github.com/AlexGalhardo/grim-cubes/commit/075516933f9ad63eca2837417d66c1e16d2db455))
+- **ui:** On short screens (800x360) the level-up cards share one row and the shop shows four offers with its buttons beside the gold; the HUD buttons, version and DEMO seal are not drawn under a dialog; the UI scale is capped at 125% on screens 414 px tall or less ([0755169](https://github.com/AlexGalhardo/grim-cubes/commit/075516933f9ad63eca2837417d66c1e16d2db455))
 
 ## [0.3.0] - 2026-10-31
 
 ### Added
 
-- **ui:** Key remapping in Options (save schema 6), rarity shapes in the colour-blind theme and an axe-core check of the main screens
-- **ui:** Accessibility options: brightness, contrast, colour-blind modes, flash and shake reduction, UI scale and gore (save schema 5)
-- **desktop:** App icon for the Windows executables and the web favicon; Electron fuses and stricter shell permissions; executable checksums in the release
-- **render:** Emissive glow from `_e.png` masks, near-white enemy damage numbers, per-boss executions, bleed and thorns VFX, stealth shimmer, egg cracks, decal fade, biome prop dust, merged damage numbers, consumable rings
-- **art:** Second passes on the Alpha Hunter and the Nest Queen, longer Wail and Leech legs, foot-locked walk cycles, attack anticipation, ember eyes for the hero
-- **tools:** Emissive mask and B-03-01 checklist generators in `assets-gen`
-- **art:** Cosmetic Husk and Wail variants (iron pot helmet, blood-crusted Wail) on about 30% of each horde type, picked by entity id without touching the simulation
-- **render:** Thorns VFX driven by the `ThornsHit` event, preset particle and decal pools applied live, emissive atlases skipped on the low presets
+- **ui:** Key remapping in Options (save schema 6), rarity shapes in the colour-blind theme and an axe-core check of the main screens ([511e0fc](https://github.com/AlexGalhardo/grim-cubes/commit/511e0fc7970cc49ad6ec84a92fd04d17001cd081))
+- **ui:** Accessibility options: brightness, contrast, colour-blind modes, flash and shake reduction, UI scale and gore (save schema 5) ([8de7e2e](https://github.com/AlexGalhardo/grim-cubes/commit/8de7e2e50620bb0394547d2a9e155d530eb55d0c))
+- **desktop:** App icon for the Windows executables and the web favicon; Electron fuses and stricter shell permissions; executable checksums in the release ([8de7e2e](https://github.com/AlexGalhardo/grim-cubes/commit/8de7e2e50620bb0394547d2a9e155d530eb55d0c))
+- **render:** Emissive glow from `_e.png` masks, near-white enemy damage numbers, per-boss executions, bleed and thorns VFX, stealth shimmer, egg cracks, decal fade, biome prop dust, merged damage numbers, consumable rings ([8de7e2e](https://github.com/AlexGalhardo/grim-cubes/commit/8de7e2e50620bb0394547d2a9e155d530eb55d0c))
+- **art:** Second passes on the Alpha Hunter and the Nest Queen, longer Wail and Leech legs, foot-locked walk cycles, attack anticipation, ember eyes for the hero ([8de7e2e](https://github.com/AlexGalhardo/grim-cubes/commit/8de7e2e50620bb0394547d2a9e155d530eb55d0c))
+- **tools:** Emissive mask and B-03-01 checklist generators in `assets-gen` ([8de7e2e](https://github.com/AlexGalhardo/grim-cubes/commit/8de7e2e50620bb0394547d2a9e155d530eb55d0c))
+- **art:** Cosmetic Husk and Wail variants (iron pot helmet, blood-crusted Wail) on about 30% of each horde type, picked by entity id without touching the simulation ([08859cc](https://github.com/AlexGalhardo/grim-cubes/commit/08859cca429c777c3e352b0840573bd893cc1017))
+- **render:** Thorns VFX driven by the `ThornsHit` event, preset particle and decal pools applied live, emissive atlases skipped on the low presets ([110c5fc](https://github.com/AlexGalhardo/grim-cubes/commit/110c5fc293f1f73866b2713abd44452fa06f5818))
 
 ### Changed
 
-- **balance:** Regeneration lowered after regen started working (Black Bandage, Abyss Heart and Ossuary Mantle to +0.5, the regen card to +0.25) and the Reaper's Hourglass slows enemies by 5% instead of 20%; the simulator check passes on 64x35 and 500x30
-- **tools:** The simulator report lists the items each run bought
-- **i18n:** pt-BR and English copy reviewed against the GDD
-- **docs:** ADRs 0021 to 0024 (Electron, audio engine, telemetry, e2e out of CI) and a refreshed README
+- **balance:** Regeneration lowered after regen started working (Black Bandage, Abyss Heart and Ossuary Mantle to +0.5, the regen card to +0.25) and the Reaper's Hourglass slows enemies by 5% instead of 20%; the simulator check passes on 64x35 and 500x30 ([b97baf3](https://github.com/AlexGalhardo/grim-cubes/commit/b97baf3d62c8327843e5b44c1a896a28010b424d))
+- **tools:** The simulator report lists the items each run bought ([b97baf3](https://github.com/AlexGalhardo/grim-cubes/commit/b97baf3d62c8327843e5b44c1a896a28010b424d))
+- **i18n:** pt-BR and English copy reviewed against the GDD ([8de7e2e](https://github.com/AlexGalhardo/grim-cubes/commit/8de7e2e50620bb0394547d2a9e155d530eb55d0c))
+- **docs:** ADRs 0021 to 0024 (Electron, audio engine, telemetry, e2e out of CI) and a refreshed README ([8de7e2e](https://github.com/AlexGalhardo/grim-cubes/commit/8de7e2e50620bb0394547d2a9e155d530eb55d0c))
 
 ### Fixed
 
-- **art:** Animation tracks mirrored by re-saving Blockbench 5.0 files (death, Husk arms, Breeder, Hunter, Leech and Watcher walks) restored
-- **render:** The model review route picks the atlas from the manifest, so tiles are no longer black
-- **game:** `knockback` and `enemy_speed` now take effect; regeneration is continuous for fractional points
-- **ui:** A held gamepad button or direction no longer triggers the first control of a screen that opens
-- **render:** The hero portrait light, the white quad under the hero and a per-frame allocation in the character sync
+- **art:** Animation tracks mirrored by re-saving Blockbench 5.0 files (death, Husk arms, Breeder, Hunter, Leech and Watcher walks) restored ([08859cc](https://github.com/AlexGalhardo/grim-cubes/commit/08859cca429c777c3e352b0840573bd893cc1017))
+- **render:** The model review route picks the atlas from the manifest, so tiles are no longer black ([08859cc](https://github.com/AlexGalhardo/grim-cubes/commit/08859cca429c777c3e352b0840573bd893cc1017))
+- **game:** `knockback` and `enemy_speed` now take effect; regeneration is continuous for fractional points ([8de7e2e](https://github.com/AlexGalhardo/grim-cubes/commit/8de7e2e50620bb0394547d2a9e155d530eb55d0c))
+- **ui:** A held gamepad button or direction no longer triggers the first control of a screen that opens ([8de7e2e](https://github.com/AlexGalhardo/grim-cubes/commit/8de7e2e50620bb0394547d2a9e155d530eb55d0c))
+- **render:** The hero portrait light, the white quad under the hero and a per-frame allocation in the character sync ([8de7e2e](https://github.com/AlexGalhardo/grim-cubes/commit/8de7e2e50620bb0394547d2a9e155d530eb55d0c))
 
 ## [0.2.0] - 2026-10-31
 
 ### Added
 
-- **desktop:** Windows build with Electron 45 and electron-builder (NSIS installer and portable `.exe`), sandboxed and served from `app://game/`; the release attaches both executables (P-07-02)
-- **ui:** Title menu, keyboard and gamepad navigation on every screen, opt-in telemetry interface (A-07-02, A-06-04)
-- **art:** Biome props and the sixteen seamless floor tiles refined in Blockbench (B-03-01)
+- **desktop:** Windows build with Electron 45 and electron-builder (NSIS installer and portable `.exe`), sandboxed and served from `app://game/`; the release attaches both executables (P-07-02) ([79d7bdb](https://github.com/AlexGalhardo/grim-cubes/commit/79d7bdbe5c3080e89ab34d2b1bec3c95222b9a00))
+- **ui:** Title menu, keyboard and gamepad navigation on every screen, opt-in telemetry interface (A-07-02, A-06-04) ([79d7bdb](https://github.com/AlexGalhardo/grim-cubes/commit/79d7bdbe5c3080e89ab34d2b1bec3c95222b9a00))
+- **art:** Biome props and the sixteen seamless floor tiles refined in Blockbench (B-03-01) ([79d7bdb](https://github.com/AlexGalhardo/grim-cubes/commit/79d7bdbe5c3080e89ab34d2b1bec3c95222b9a00))
 
-- **render:** The hero faces the enemy it is attacking while moving, with a smoothed shortest-path turn
+- **render:** The hero faces the enemy it is attacking while moving, with a smoothed shortest-path turn ([80352f5](https://github.com/AlexGalhardo/grim-cubes/commit/80352f57f2791eaefea6301dd62a5927d559e191))
 
-- **game:** Game speed 1x/2x/3x for testing: Options selector, TAB cycles it, a HUD button on every screen size; save schema 3 (`settings.gameSpeed`)
-- **audio:** Web Audio engine (buses, unlock, crossfaded music by state, event sounds) and 39 ElevenLabs assets documented in `docs/audio.md` (P-06-04, A-05-02)
-- **ui:** Options screen (video preset, volumes, screen shake, language) saved with the meta (A-01-01)
-- **ui:** Animated Merchant portrait in the Shop (A-05-01)
-- **art:** Every character refined in Blockbench: hero, weapons, the eight enemies, the five bosses and the Merchant (B-03-01)
+- **game:** Game speed 1x/2x/3x for testing: Options selector, TAB cycles it, a HUD button on every screen size; save schema 3 (`settings.gameSpeed`) ([de398d8](https://github.com/AlexGalhardo/grim-cubes/commit/de398d80e262ed8868fbae9b3b512270df2ee1f8))
+- **audio:** Web Audio engine (buses, unlock, crossfaded music by state, event sounds) and 39 ElevenLabs assets documented in `docs/audio.md` (P-06-04, A-05-02) ([de398d8](https://github.com/AlexGalhardo/grim-cubes/commit/de398d80e262ed8868fbae9b3b512270df2ee1f8))
+- **ui:** Options screen (video preset, volumes, screen shake, language) saved with the meta (A-01-01) ([de398d8](https://github.com/AlexGalhardo/grim-cubes/commit/de398d80e262ed8868fbae9b3b512270df2ee1f8))
+- **ui:** Animated Merchant portrait in the Shop (A-05-01) ([de398d8](https://github.com/AlexGalhardo/grim-cubes/commit/de398d80e262ed8868fbae9b3b512270df2ee1f8))
+- **art:** Every character refined in Blockbench: hero, weapons, the eight enemies, the five bosses and the Merchant (B-03-01) ([de398d8](https://github.com/AlexGalhardo/grim-cubes/commit/de398d80e262ed8868fbae9b3b512270df2ee1f8))
 
-- **render:** Pick the video preset from the hardware on boot (cores, memory, renderer) (R-01-03)
-- **assets:** Base models for the Alpha Hunter and the Nest Queen (B-01-01, B-01-02)
-- **art:** Hero refined in Blockbench with armour plates, mask and painted wear (B-03-01)
-- **test:** UI test of the Notice and boss names in English (A-07-01)
-- **ci:** `tools/changelog-check` job that fails a PR with feat/fix commits and no new `[Unreleased]` entry, skippable with the `skip-changelog` label (E-04-06)
+- **render:** Pick the video preset from the hardware on boot (cores, memory, renderer) (R-01-03) ([7bb8bbe](https://github.com/AlexGalhardo/grim-cubes/commit/7bb8bbee50c2a528e0adc0841538ee5b0622ae88))
+- **assets:** Base models for the Alpha Hunter and the Nest Queen (B-01-01, B-01-02) ([7bb8bbe](https://github.com/AlexGalhardo/grim-cubes/commit/7bb8bbee50c2a528e0adc0841538ee5b0622ae88))
+- **art:** Hero refined in Blockbench with armour plates, mask and painted wear (B-03-01) ([7bb8bbe](https://github.com/AlexGalhardo/grim-cubes/commit/7bb8bbee50c2a528e0adc0841538ee5b0622ae88))
+- **test:** UI test of the Notice and boss names in English (A-07-01) ([0e6768e](https://github.com/AlexGalhardo/grim-cubes/commit/0e6768ec729c4f5bcf0b264a9e9e35b29047ff38))
+- **ci:** `tools/changelog-check` job that fails a PR with feat/fix commits and no new `[Unreleased]` entry, skippable with the `skip-changelog` label (E-04-06) ([0e6768e](https://github.com/AlexGalhardo/grim-cubes/commit/0e6768ec729c4f5bcf0b264a9e9e35b29047ff38))
 - **ui:** Optional 20 s tutorial (move, kill, collect), picked on the difficulty screen (A-07-01) ([c3e908f](https://github.com/AlexGalhardo/grim-cubes/commit/c3e908f1f8702c0cc87c49101c1e6a8fea5f80c7))
 - **i18n:** Review the English names that came from ids (B-05-01) ([1167186](https://github.com/AlexGalhardo/grim-cubes/commit/116718666d753ec89fbcefbf3ea6c76569fe1f16))
 - **render:** Hide broken props, throw dust and draw the blood vial and bone magnet consumables (A-02-04) ([1805558](https://github.com/AlexGalhardo/grim-cubes/commit/1805558a905526e3d4b8adf1f1d4a65338054e1e))
@@ -137,13 +139,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **docs:** GDD counts the 40 items plus the 2 Ossuary exclusives (`ruin_chalice`, `ossuary_mantle`) and states both IQR limits (10 for players, 25 provisional for the greedy bot); Art Bible lists `iron-black`, `mud` and the biome fog colours (B-05-02)
+- **docs:** GDD counts the 40 items plus the 2 Ossuary exclusives (`ruin_chalice`, `ossuary_mantle`) and states both IQR limits (10 for players, 25 provisional for the greedy bot); Art Bible lists `iron-black`, `mud` and the biome fog colours (B-05-02) ([2eb98fe](https://github.com/AlexGalhardo/grim-cubes/commit/2eb98fe09ea1e6fd22101c02215f589f781d5ba8))
 - **data:** Rebalance after breakables and consumables: enemy HP and damage per round, Matriarch 12,500 HP, Forgemaster 15,000 HP, item price `base × 0.15 × N`; 64-run deterministic sim check in CI (A-02-03) ([159e9f3](https://github.com/AlexGalhardo/grim-cubes/commit/159e9f34c1b11064585626029a10062f7d52276a))
 
 ### Fixed
 
-- **game:** `hp_regen` now heals the hero every step with the GDD formula
-- **render:** The Merchant portrait no longer shrinks the game canvas after the Shop (render target instead of `registerView`)
+- **game:** `hp_regen` now heals the hero every step with the GDD formula ([79d7bdb](https://github.com/AlexGalhardo/grim-cubes/commit/79d7bdbe5c3080e89ab34d2b1bec3c95222b9a00))
+- **render:** The Merchant portrait no longer shrinks the game canvas after the Shop (render target instead of `registerView`) ([79d7bdb](https://github.com/AlexGalhardo/grim-cubes/commit/79d7bdbe5c3080e89ab34d2b1bec3c95222b9a00))
 
 - **web:** Stop the camera follow and the prop fade while the run is paused (P-06-01) ([89c9f04](https://github.com/AlexGalhardo/grim-cubes/commit/89c9f041445d49ae3487e4ef15c6c019ad0d30e7))
 
@@ -151,13 +153,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **game:** Shared `createGameSession` used by the game and the simulator; enemy pool by biome ring (60/30/10) (P-07-05, A-02-01)
-- **game:** Breakable props as entities with `PropBroken`, per-chunk memory and consumable drops (blood vial, bone magnet) (A-02-04)
-- **game:** Boss roster with seeded draws from round 40 and elite modifiers on bosses from rounds 60 and 100 (A-03-03)
-- **render:** Boss modifier auras, the eight enemy types in a debug lineup, the biome border capture, video presets with a dynamic resolution scaler and an optional KTX2 atlas path (A-03-03, A-02-02b, A-01-01, A-01-02)
-- **assets:** 84 generated UI icons packed into `atlas_vfx_ui`; reshaped Drowned and Hunter placeholders with painted AO (B-03-05, B-03-01)
-- **i18n:** `t()` with en and pt-BR catalogs, game text moved to keys, the three round 1 tips and a lint rule against hard-coded UI text (A-07-01)
-- **release:** `release rc --major` (R-01-01); per-package coverage thresholds (A-07-03)
+- **game:** Shared `createGameSession` used by the game and the simulator; enemy pool by biome ring (60/30/10) (P-07-05, A-02-01) ([eb12bc2](https://github.com/AlexGalhardo/grim-cubes/commit/eb12bc25de58a91407146bd2503dd279e5509b46))
+- **game:** Breakable props as entities with `PropBroken`, per-chunk memory and consumable drops (blood vial, bone magnet) (A-02-04) ([eb12bc2](https://github.com/AlexGalhardo/grim-cubes/commit/eb12bc25de58a91407146bd2503dd279e5509b46))
+- **game:** Boss roster with seeded draws from round 40 and elite modifiers on bosses from rounds 60 and 100 (A-03-03) ([eb12bc2](https://github.com/AlexGalhardo/grim-cubes/commit/eb12bc25de58a91407146bd2503dd279e5509b46))
+- **render:** Boss modifier auras, the eight enemy types in a debug lineup, the biome border capture, video presets with a dynamic resolution scaler and an optional KTX2 atlas path (A-03-03, A-02-02b, A-01-01, A-01-02) ([eb12bc2](https://github.com/AlexGalhardo/grim-cubes/commit/eb12bc25de58a91407146bd2503dd279e5509b46))
+- **assets:** 84 generated UI icons packed into `atlas_vfx_ui`; reshaped Drowned and Hunter placeholders with painted AO (B-03-05, B-03-01) ([eb12bc2](https://github.com/AlexGalhardo/grim-cubes/commit/eb12bc25de58a91407146bd2503dd279e5509b46))
+- **i18n:** `t()` with en and pt-BR catalogs, game text moved to keys, the three round 1 tips and a lint rule against hard-coded UI text (A-07-01) ([eb12bc2](https://github.com/AlexGalhardo/grim-cubes/commit/eb12bc25de58a91407146bd2503dd279e5509b46))
+- **release:** `release rc --major` (R-01-01); per-package coverage thresholds (A-07-03) ([eb12bc2](https://github.com/AlexGalhardo/grim-cubes/commit/eb12bc25de58a91407146bd2503dd279e5509b46))
 
 - **docs:** Add web research, brainstorming decisions (D01–D33), GDD, Art Bible with design system, 14 SDDs and 20 ADRs ([2775e6e](https://github.com/AlexGalhardo/grim-cubes/commit/2775e6ee07d913f912d80bf5367bf5b7d867a5bb))
 - **docs:** Add ROADMAP with 5 phases and 125 micro-tasks with verifiable asserts, plus the 1.1 Android appendix ([2775e6e](https://github.com/AlexGalhardo/grim-cubes/commit/2775e6ee07d913f912d80bf5367bf5b7d867a5bb))
@@ -166,7 +168,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **repo:** Initialize git repository on `main` and connect to `AlexGalhardo/grim-cubes` ([2775e6e](https://github.com/AlexGalhardo/grim-cubes/commit/2775e6ee07d913f912d80bf5367bf5b7d867a5bb))
 - **repo:** Add `.gitattributes` (LF, binary assets), `README.md` and extend `.gitignore` with release, Android and signing artifacts ([abe4492](https://github.com/AlexGalhardo/grim-cubes/commit/abe4492dc6bbffc143d9ab2668dd6bb5b83ff33d))
 - **docs:** Align `CHANGELOG.md` with Keep a Changelog 1.1.0 and the vukem item format ([f14a65b](https://github.com/AlexGalhardo/grim-cubes/commit/f14a65b1190ab9e540e01daf8008bf31ee2be14b))
-- **docs:** Add `docs/legal/third-party.md` referenced by `LICENSE`
+- **docs:** Add `docs/legal/third-party.md` referenced by `LICENSE` ([ebf1dc0](https://github.com/AlexGalhardo/grim-cubes/commit/ebf1dc0d16f363c6c0be7b78acbe08dabf35d5de))
 - **build:** Add root `package.json` with workspaces, exact-pinned deps, SDD 10 scripts and tool stubs ([e154a99](https://github.com/AlexGalhardo/grim-cubes/commit/e154a993518cc134cc3d0e48bcc317b75ed400ac))
 - **build:** Add base tsconfig, project references and `@gc/*` workspace packages ([d76a6d1](https://github.com/AlexGalhardo/grim-cubes/commit/d76a6d16acdfb94bb4cfc1187c1ef69d210a4232))
 - **lint:** Add Biome config with layer import rules, Babylon barrel ban and `Math.random` ban in game ([9b5b11a](https://github.com/AlexGalhardo/grim-cubes/commit/9b5b11a5cbf33f45688636f9b8c7ef9d963313ef))
@@ -211,7 +213,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **e2e:** Add Playwright config (4 viewports, SwiftShader) and boot spec with visual baselines ([f2eee30](https://github.com/AlexGalhardo/grim-cubes/commit/f2eee30c40e49ca43e3985e63134eb7f67601476))
 - **ci:** Install Bun via npm in the Playwright e2e container ([526c00a](https://github.com/AlexGalhardo/grim-cubes/commit/526c00ae66808908fbcb6893964f970376130abd))
 - **release:** Dedupe SBOM components, binary sort, green-CI gate and local date in release tooling ([cc9f93d](https://github.com/AlexGalhardo/grim-cubes/commit/cc9f93de48916160d3b1095f6065bca5d323dffc))
-- **lint:** Ignore nested `node_modules` and `dist` in markdownlint (workspace packages install nested dependencies)
+- **lint:** Ignore nested `node_modules` and `dist` in markdownlint (workspace packages install nested dependencies) ([5c1e14c](https://github.com/AlexGalhardo/grim-cubes/commit/5c1e14c2c607f4b4c11853aa2df6e8aff0c6d58d))
 - **ui:** Give Button a 48 px touch target on coarse pointers and a colour transition ([6ffba51](https://github.com/AlexGalhardo/grim-cubes/commit/6ffba51779c6d614a68c1e4e8100e8e453691070))
 - **game:** Add drops, pickup magnet, XP curve and round-end harvest ([7a8d2fd](https://github.com/AlexGalhardo/grim-cubes/commit/7a8d2fd5dc1bc9732f2ecede08f8c700c9c40e5a))
 - **e2e:** Regenerate boot baselines with the themed HUD ([3b678a8](https://github.com/AlexGalhardo/grim-cubes/commit/3b678a819754bb36dfb2ce89e50aba2ee848507d))
@@ -236,7 +238,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **assets:** Bring hero, merchant and wail widths into the Art Bible range ([2582d65](https://github.com/AlexGalhardo/grim-cubes/commit/2582d651357200cd60a60408b39eb115d5a0113a))
 - **web:** Add the model review route and silhouette captures (`docs/art/review`); freeze the horde while paused ([c7dc306](https://github.com/AlexGalhardo/grim-cubes/commit/c7dc3063682cb968a6572fc96cc3a1cb8e1ae8eb))
 - **e2e:** Add Cemetery world captures and refresh baselines with the horde, glb props and cube floor ([c8904fa](https://github.com/AlexGalhardo/grim-cubes/commit/c8904fa967b85b3f96db6cff91c0790708bf9308))
-- **docs:** Amend SDD 02/04/05 to match the implemented ECS, combat, spawn and data loaders
+- **docs:** Amend SDD 02/04/05 to match the implemented ECS, combat, spawn and data loaders ([95e224b](https://github.com/AlexGalhardo/grim-cubes/commit/95e224be32ba93a3384638befedd4a0435955fd5))
 - **game:** Add shop rules (price inflation, reroll, tiers, guarantees, lock, sell) and shop system ([7bbb801](https://github.com/AlexGalhardo/grim-cubes/commit/7bbb801a0b0d62875d4aacab78f986731abe7b9e))
 - **ui:** Add the Shop screen and open it between rounds ([8122209](https://github.com/AlexGalhardo/grim-cubes/commit/8122209b75c93288876a65715e5186ef7dbc38dd))
 - **e2e:** Add shop e2e and per-worktree preview port (`GC_E2E_PORT`) ([9098583](https://github.com/AlexGalhardo/grim-cubes/commit/9098583f73f7580f5f4153805a7e0061b2c2f856))
@@ -263,21 +265,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **render:** Draw projectiles and fragment piles with thin instances; combat e2e captures ([e10d4c6](https://github.com/AlexGalhardo/grim-cubes/commit/e10d4c66466415c6a9245e33b79e96eaddf947f8))
 - **perf:** Bench round20 holds 100 enemies and ~200 projectiles and reports their means ([9cf486e](https://github.com/AlexGalhardo/grim-cubes/commit/9cf486ebe1347c07b7cf8ea84f2785329323a97d))
 - **web:** Start the run again outside the bench scenarios ([053485e](https://github.com/AlexGalhardo/grim-cubes/commit/053485effecc059d463f4a8431d1a23e11f82680))
-- **docs:** SDD 14 §4 bench metrics as implemented; GDD §18.2 souls use the round where the run ended
-- **docs:** Amend SDD 03/06/07/09/14 to the implemented world, save, UI, asset pipeline and performance code; add P-04-06 (projectile and fragment rendering)
+- **docs:** SDD 14 §4 bench metrics as implemented; GDD §18.2 souls use the round where the run ended ([9e997b2](https://github.com/AlexGalhardo/grim-cubes/commit/9e997b28512bb5336cb2f8578d21fd3f2770b6f8))
+- **docs:** Amend SDD 03/06/07/09/14 to the implemented world, save, UI, asset pipeline and performance code; add P-04-06 (projectile and fragment rendering) ([3f4cc75](https://github.com/AlexGalhardo/grim-cubes/commit/3f4cc75fb4daab1d1b21e9f2725cfae4fbba74f5))
 - **roadmap:** Fix phase 3 (ALPHA) deps and asserts; split A-02-02 into A-02-02a (behaviors) and A-02-02b (models/VAT) ([d0be5ec](https://github.com/AlexGalhardo/grim-cubes/commit/d0be5ecc6269cbb85d24f89556549f1377729ad5))
 - **roadmap:** Fix phase 4 (BETA) deps and asserts; add A-03-00 (boss pattern dispatcher), A-02-04 (destructible props) and B-03-05 (UI icons) ([68a3384](https://github.com/AlexGalhardo/grim-cubes/commit/68a3384b05fd32de146b3bc5b6b921f90c43eb58))
 - **roadmap:** Fix phase 5 (1.0 RC) and Android appendix deps, asserts and risks; add M-01-02b (runtime demo flag) ([529a8b8](https://github.com/AlexGalhardo/grim-cubes/commit/529a8b8129bc631d38553cae8aeebe7a2af4952c))
 - **docs:** Amend SDD 08/10/11/12/13 to the implemented audio tooling, build, tests, CI and release; add E-04-06 (changelog check) ([b256a64](https://github.com/AlexGalhardo/grim-cubes/commit/b256a64319162579738b9ce9b5f824b5781b2f49))
-- **docs:** Fix the GDD §18.2 souls example to match the formula
+- **docs:** Fix the GDD §18.2 souls example to match the formula ([facc30c](https://github.com/AlexGalhardo/grim-cubes/commit/facc30cd4749ff42ef37ad46a5ab0cdd6c28425f))
 - **ci:** Add CI (lint, typecheck, unit, integration, build-web, e2e gated) and CodeQL workflows (#1) ([da8923e](https://github.com/AlexGalhardo/grim-cubes/commit/da8923ee65069ec95a017f53a20937718c27413b))
-- **game:** Add the Gravedigger boss system (line charge, shovel arc, summon, enrage, rewards) and a debug jump to any round (P-05-07) ([e20ae57](https://github.com/AlexGalhardo/grim-cubes/commit/e20ae571fe27c01960495a71c5debebd9c51d5c4), [5858b5c](https://github.com/AlexGalhardo/grim-cubes/commit/5858b5c3bb94be5b5324272ec9e076482684f8f7))
+- **game:** Add the Gravedigger boss system (line charge, shovel arc, summon, enrage, rewards) and a debug jump to any round (P-05-07) ([e20ae57](https://github.com/AlexGalhardo/grim-cubes/commit/e20ae571fe27c01960495a71c5debebd9c51d5c4), [5858b5c](https://github.com/AlexGalhardo/grim-cubes/commit/5858b5c3bb94be5b5324272ec9e076482684f8f7)) ([7cee91b](https://github.com/AlexGalhardo/grim-cubes/commit/7cee91b30d12222291702b0e8df095a459a02d76))
 - **ui:** Add the boss HP bar and the boss intro banner (P-05-07) ([b1bd7f1](https://github.com/AlexGalhardo/grim-cubes/commit/b1bd7f10a1f423f5963d283b78aefbed1adaba45))
 - **web:** Wire the boss fight and merge each run into the stored save (P-05-07, P-05-08) ([fabaee5](https://github.com/AlexGalhardo/grim-cubes/commit/fabaee59da2d8c69c373759d7f375ec3e7f62a48))
-- **game:** Add the push, latch_drain, ranged_static, charge and spawner behaviors from the data and wire them with enemy shots (A-02-02a) ([3224aa4](https://github.com/AlexGalhardo/grim-cubes/commit/3224aa455971d96cbe7700f1ec366fb6ef8296bc), [b899d7b](https://github.com/AlexGalhardo/grim-cubes/commit/b899d7be8e7cd57169d017a9f6ba599d185c3d34))
-- **sim:** Add the headless sim harness with fixed seed and flee policy; ignore generated reports (P-07-04) ([c4b0ea3](https://github.com/AlexGalhardo/grim-cubes/commit/c4b0ea3c02a9bafd902425a6a24a0fca969109fc), [6a2731f](https://github.com/AlexGalhardo/grim-cubes/commit/6a2731f8271b50df3b267d2af6d8ab5aa7efb00f))
-- **game:** Add the Ossuary rules, run bonuses stacked with item effects, the Ossuary screen and save-locked purchases (A-04-01) ([01ee926](https://github.com/AlexGalhardo/grim-cubes/commit/01ee92625e48bd27cd7e25bb25d9539ca0d0ff6b), [62d04a8](https://github.com/AlexGalhardo/grim-cubes/commit/62d04a81f895b4a21450dbbf49ab5cc17bdeda87), [470018d](https://github.com/AlexGalhardo/grim-cubes/commit/470018d8b35503ba206e6a41d941b82d8cbe6f2d))
-- **game:** Wire the Ruin bonuses: card rerolls, a guaranteed Uncommon in the opening shop offer and the exclusive Legendary items checked against `extra_legendary_pool` (A-04-01) ([bf90035](https://github.com/AlexGalhardo/grim-cubes/commit/bf900358584c24fa23480574bf12ee2cc160aa84), [5cce96f](https://github.com/AlexGalhardo/grim-cubes/commit/5cce96fa209529af9579c60805b74962c37c33d6), [460a352](https://github.com/AlexGalhardo/grim-cubes/commit/460a3525ccd614df7fb49db2a2c7b615714bd63c), [03da7b4](https://github.com/AlexGalhardo/grim-cubes/commit/03da7b43374355ea5ea5e463d446c8496d795ca8))
+- **game:** Add the push, latch_drain, ranged_static, charge and spawner behaviors from the data and wire them with enemy shots (A-02-02a) ([3224aa4](https://github.com/AlexGalhardo/grim-cubes/commit/3224aa455971d96cbe7700f1ec366fb6ef8296bc), [b899d7b](https://github.com/AlexGalhardo/grim-cubes/commit/b899d7be8e7cd57169d017a9f6ba599d185c3d34)) ([7cee91b](https://github.com/AlexGalhardo/grim-cubes/commit/7cee91b30d12222291702b0e8df095a459a02d76))
+- **sim:** Add the headless sim harness with fixed seed and flee policy; ignore generated reports (P-07-04) ([c4b0ea3](https://github.com/AlexGalhardo/grim-cubes/commit/c4b0ea3c02a9bafd902425a6a24a0fca969109fc), [6a2731f](https://github.com/AlexGalhardo/grim-cubes/commit/6a2731f8271b50df3b267d2af6d8ab5aa7efb00f)) ([7cee91b](https://github.com/AlexGalhardo/grim-cubes/commit/7cee91b30d12222291702b0e8df095a459a02d76))
+- **game:** Add the Ossuary rules, run bonuses stacked with item effects, the Ossuary screen and save-locked purchases (A-04-01) ([01ee926](https://github.com/AlexGalhardo/grim-cubes/commit/01ee92625e48bd27cd7e25bb25d9539ca0d0ff6b), [62d04a8](https://github.com/AlexGalhardo/grim-cubes/commit/62d04a81f895b4a21450dbbf49ab5cc17bdeda87), [470018d](https://github.com/AlexGalhardo/grim-cubes/commit/470018d8b35503ba206e6a41d941b82d8cbe6f2d)) ([7cee91b](https://github.com/AlexGalhardo/grim-cubes/commit/7cee91b30d12222291702b0e8df095a459a02d76))
+- **game:** Wire the Ruin bonuses: card rerolls, a guaranteed Uncommon in the opening shop offer and the exclusive Legendary items checked against `extra_legendary_pool` (A-04-01) ([bf90035](https://github.com/AlexGalhardo/grim-cubes/commit/bf900358584c24fa23480574bf12ee2cc160aa84), [5cce96f](https://github.com/AlexGalhardo/grim-cubes/commit/5cce96fa209529af9579c60805b74962c37c33d6), [460a352](https://github.com/AlexGalhardo/grim-cubes/commit/460a3525ccd614df7fb49db2a2c7b615714bd63c), [03da7b4](https://github.com/AlexGalhardo/grim-cubes/commit/03da7b43374355ea5ea5e463d446c8496d795ca8)) ([7cee91b](https://github.com/AlexGalhardo/grim-cubes/commit/7cee91b30d12222291702b0e8df095a459a02d76))
 - **game:** Add difficulties, the difficulty and seed screen and per-difficulty records (A-04-03) ([3b7ac70](https://github.com/AlexGalhardo/grim-cubes/commit/3b7ac70da2cd04229d5fa1ed517cbf91e8103744))
 - **data:** Add cross-reference rules, the effect id enum, hero bounds and the data-to-assets check (E-03-04) ([be2740b](https://github.com/AlexGalhardo/grim-cubes/commit/be2740bdbdf88dccf807db0e7f6b6ce130ba991c))
 - **game:** Add the Ossuary dash with charges, i-frames and a touch button (A-04-02) ([2ceb682](https://github.com/AlexGalhardo/grim-cubes/commit/2ceb6828c3a3057f733b4eb188cd8e162b39e7cb))
@@ -290,61 +292,61 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **render:** Add the skeleton character rig with 0.1 s blends, sockets and speed-scaled locomotion (P-06-06) ([ccf21d7](https://github.com/AlexGalhardo/grim-cubes/commit/ccf21d7137defcd09506674bd165bec55e4023e7))
 - **game:** Implement the bleed, thorns, kill explosion and shockwave item effects (B-02-01) ([210ffea](https://github.com/AlexGalhardo/grim-cubes/commit/210ffea66e626b1d69e483e7c04e2b760fdbd728))
 - **game:** Add the Swamp Matriarch patterns, hero slow and push, and the boss roster (A-03-01) ([70f931c](https://github.com/AlexGalhardo/grim-cubes/commit/70f931c49a73c24d27e0fbdd17f9564bf2868477))
-- **e2e:** Add the boss spec (intro, HP bar, death, chest, shop) and the input spec (keyboard and virtual joystick) (P-05-07, P-02-02) ([ce55e26](https://github.com/AlexGalhardo/grim-cubes/commit/ce55e26d06c76ff884e53ce7e0e5264a268a591b), [f12d257](https://github.com/AlexGalhardo/grim-cubes/commit/f12d257193d504c36b672fc589bca95f7abc1c13))
+- **e2e:** Add the boss spec (intro, HP bar, death, chest, shop) and the input spec (keyboard and virtual joystick) (P-05-07, P-02-02) ([ce55e26](https://github.com/AlexGalhardo/grim-cubes/commit/ce55e26d06c76ff884e53ce7e0e5264a268a591b), [f12d257](https://github.com/AlexGalhardo/grim-cubes/commit/f12d257193d504c36b672fc589bca95f7abc1c13)) ([7cee91b](https://github.com/AlexGalhardo/grim-cubes/commit/7cee91b30d12222291702b0e8df095a459a02d76))
 - **test:** Add the determinism test hashing the world for seed 42 (P-07-03) ([947f5b7](https://github.com/AlexGalhardo/grim-cubes/commit/947f5b78a0cae0fbf19960e3720aba6a799e1771))
 
-- **ui:** Build version label (`vX.Y.Z`) at the bottom-left of the menu and the HUD; hidden in visual captures through `tests/e2e/screenshot.css`
+- **ui:** Build version label (`vX.Y.Z`) at the bottom-left of the menu and the HUD; hidden in visual captures through `tests/e2e/screenshot.css` ([81efecc](https://github.com/AlexGalhardo/grim-cubes/commit/81efecce065d95459b1a79b489fdc6d6544ac7bf))
 
-- **art:** Blockbench MCP integration (`.mcp.json`, plugin pinned to v1.10.1 by SHA-256), `docs/blockbench.md`, the `blockbench-art` skill and the `blockbench-artist` agent (Art role)
-- **tools:** `assets:gen` skips models listed in `assets/src/models/authored.json`
+- **art:** Blockbench MCP integration (`.mcp.json`, plugin pinned to v1.10.1 by SHA-256), `docs/blockbench.md`, the `blockbench-art` skill and the `blockbench-artist` agent (Art role) ([4b2cf75](https://github.com/AlexGalhardo/grim-cubes/commit/4b2cf75ed64236f70cd38fc3c0cec5d73b17b84e))
+- **tools:** `assets:gen` skips models listed in `assets/src/models/authored.json` ([4b2cf75](https://github.com/AlexGalhardo/grim-cubes/commit/4b2cf75ed64236f70cd38fc3c0cec5d73b17b84e))
 
 ### Changed
 
-- **balance:** Enemy and boss data tuned with the simulator (bosses 4,800 / 11,000 / 10,000 HP); the GDD 25 death-round spread uses right-censored runs and IQR <= 25 for the greedy bot, and `balance.yml` runs `sim --check` (A-02-03)
-- **ci:** The e2e job no longer runs on push, PRs or releases (kept behind `if: false`); run `bun run test:e2e` locally
-- **roadmap:** Apply phase 1 review fixes: add E-03-06 (ECS base), break the E-03-02/E-02-06 cycle, pin `@babylonjs/inspector` and approved dev deps in E-02-01, async WebGL2 `createEngine` with golden-value asserts in E-03-01
-- **docs:** Add command table to `AGENTS.md` (E-01-05)
+- **balance:** Enemy and boss data tuned with the simulator (bosses 4,800 / 11,000 / 10,000 HP); the GDD 25 death-round spread uses right-censored runs and IQR <= 25 for the greedy bot, and `balance.yml` runs `sim --check` (A-02-03) ([eb12bc2](https://github.com/AlexGalhardo/grim-cubes/commit/eb12bc25de58a91407146bd2503dd279e5509b46))
+- **ci:** The e2e job no longer runs on push, PRs or releases (kept behind `if: false`); run `bun run test:e2e` locally ([eb12bc2](https://github.com/AlexGalhardo/grim-cubes/commit/eb12bc25de58a91407146bd2503dd279e5509b46))
+- **roadmap:** Apply phase 1 review fixes: add E-03-06 (ECS base), break the E-03-02/E-02-06 cycle, pin `@babylonjs/inspector` and approved dev deps in E-02-01, async WebGL2 `createEngine` with golden-value asserts in E-03-01 ([a59cf07](https://github.com/AlexGalhardo/grim-cubes/commit/a59cf07b7fb9ef3afc389dc76e0198e328b09869))
+- **docs:** Add command table to `AGENTS.md` (E-01-05) ([a59cf07](https://github.com/AlexGalhardo/grim-cubes/commit/a59cf07b7fb9ef3afc389dc76e0198e328b09869))
 - **build:** Use `bun check -b` for typecheck, raise node engine floor to 22.12 and fix stub roadmap ids ([89ae8e4](https://github.com/AlexGalhardo/grim-cubes/commit/89ae8e4354db80ae348b94a38c0067991936c1c2))
-- **docs:** Amend SDD 10/11 for `bun check`, Vitest projects, Biome preset and GritQL plugin
+- **docs:** Amend SDD 10/11 for `bun check`, Vitest projects, Biome preset and GritQL plugin ([a19769b](https://github.com/AlexGalhardo/grim-cubes/commit/a19769b9cebbacab8e55334febadfab5d95776eb))
 - **lint:** Close layer import gaps (Babylon subpaths, relative cross-package imports, render override), drop `vitest/globals` types and add SMHasher verification test ([0ab5190](https://github.com/AlexGalhardo/grim-cubes/commit/0ab51906e7fc74d659395c8aa4ebcb2ad5c32251))
-- **docs:** Amend SDD 01 §2: `ui` imports only `core`; Biome layer patterns documented
-- **docs:** Apply phase 2 review fixes to ROADMAP (new P-03-06, P-06-06, P-06-07) and SDD 02/03/09/10/11/14; add `.env.example` variable names
-- **tooling:** Tighten `secrets-scan` patterns (no false positives on docs/code; adds GitHub PAT and AWS keys)
-- **docs:** Define bounded negative-armor formula in GDD §8.2 and fix P-04-01 assert; rename SDD 06 storage interface to `PlatformStorage`
-- **docs:** Apply PO decisions D1 (55° camera elevation, beta 0.611 rad), D3 (4–8 blocking props per chunk) and D5 (`.bbmodel` generated by script, converted by `assets-build`) to GDD, ADR-0017, Art Bible, SDD 03 and ROADMAP
-- **render:** Set camera beta to π/2 − 55° (D1)
-- **docs:** Clarify spawn bias in GDD §6.4 (60% biased + 40% uniform) and floor/prop budget in P-01-03
-- **docs:** Record trademark screening (keep "Grim Cubes") and PO decisions on blockers; keep new concept art PNGs out of the public repository
+- **docs:** Amend SDD 01 §2: `ui` imports only `core`; Biome layer patterns documented ([3663c92](https://github.com/AlexGalhardo/grim-cubes/commit/3663c9216946edde7f5257d7adc43d2e9bb1533b))
+- **docs:** Apply phase 2 review fixes to ROADMAP (new P-03-06, P-06-06, P-06-07) and SDD 02/03/09/10/11/14; add `.env.example` variable names ([70e8ba3](https://github.com/AlexGalhardo/grim-cubes/commit/70e8ba395e27eecc58ec5d8835d331d11ba60615))
+- **tooling:** Tighten `secrets-scan` patterns (no false positives on docs/code; adds GitHub PAT and AWS keys) ([70e8ba3](https://github.com/AlexGalhardo/grim-cubes/commit/70e8ba395e27eecc58ec5d8835d331d11ba60615))
+- **docs:** Define bounded negative-armor formula in GDD §8.2 and fix P-04-01 assert; rename SDD 06 storage interface to `PlatformStorage` ([346fa4d](https://github.com/AlexGalhardo/grim-cubes/commit/346fa4d872efbc4c6163d2b8f3cc70a53626ddc3))
+- **docs:** Apply PO decisions D1 (55° camera elevation, beta 0.611 rad), D3 (4–8 blocking props per chunk) and D5 (`.bbmodel` generated by script, converted by `assets-build`) to GDD, ADR-0017, Art Bible, SDD 03 and ROADMAP ([c868b0d](https://github.com/AlexGalhardo/grim-cubes/commit/c868b0db2c7531df82121f1e12351ecd08106a76))
+- **render:** Set camera beta to π/2 − 55° (D1) ([c868b0d](https://github.com/AlexGalhardo/grim-cubes/commit/c868b0db2c7531df82121f1e12351ecd08106a76))
+- **docs:** Clarify spawn bias in GDD §6.4 (60% biased + 40% uniform) and floor/prop budget in P-01-03 ([7aa33c2](https://github.com/AlexGalhardo/grim-cubes/commit/7aa33c2c3d4792a5770b005914b6169913663e6a))
+- **docs:** Record trademark screening (keep "Grim Cubes") and PO decisions on blockers; keep new concept art PNGs out of the public repository ([cae69e6](https://github.com/AlexGalhardo/grim-cubes/commit/cae69e6f0f442f2149664c4f75a4e76ed72b9fca))
 - **game:** Dispatch boss attacks to registered pattern handlers (A-03-00) ([9138346](https://github.com/AlexGalhardo/grim-cubes/commit/9138346451d200fb5715289ed0d1981072b51c16))
 - **core:** Publish to store listeners without copying the set (E-03-01) ([d57699e](https://github.com/AlexGalhardo/grim-cubes/commit/d57699ec17654f1c545b82a6d2df489d6d977cf9))
 - **ci:** Wait for the ci workflow of the tagged commit before releasing (E-04-03) ([4cdd35a](https://github.com/AlexGalhardo/grim-cubes/commit/4cdd35a50e030f7083abf1a0dd592de8800f7cd9))
 - **ci:** Pin every action by commit SHA, add Dependabot (bun and GitHub Actions) and fail the smoke on a live debug API (E-01-06, E-04-04, R-01-05) ([ff185d9](https://github.com/AlexGalhardo/grim-cubes/commit/ff185d975671a7c9cdbe94096f7696fa65364550))
-- **e2e:** Per-platform baselines (win32 and linux), UI-only capture, a shared frozen-clock helper, tighter tolerance and an own preview port; regenerate the baselines (E-02-06) ([fea93ae](https://github.com/AlexGalhardo/grim-cubes/commit/fea93aef8a0239ef82b3600dd86360508cbd9278), [7f0a6eb](https://github.com/AlexGalhardo/grim-cubes/commit/7f0a6eb1e3d0c30e8cfc378c992ae1e9a03c49ae), [45af824](https://github.com/AlexGalhardo/grim-cubes/commit/45af8247cb512642ce658f465b7565612805e271), [8560d34](https://github.com/AlexGalhardo/grim-cubes/commit/8560d34b56dda78845fac1184f8608cc6f57e678), [db5fded](https://github.com/AlexGalhardo/grim-cubes/commit/db5fdedb72add10f574295e20c0094b1abd51d59), [53ff412](https://github.com/AlexGalhardo/grim-cubes/commit/53ff41268c455dd37ba173c1fba18ee84ee7be51), [13c0635](https://github.com/AlexGalhardo/grim-cubes/commit/13c063535e83227b53af9bc121aa83247bc0f414))
+- **e2e:** Per-platform baselines (win32 and linux), UI-only capture, a shared frozen-clock helper, tighter tolerance and an own preview port; regenerate the baselines (E-02-06) ([fea93ae](https://github.com/AlexGalhardo/grim-cubes/commit/fea93aef8a0239ef82b3600dd86360508cbd9278), [7f0a6eb](https://github.com/AlexGalhardo/grim-cubes/commit/7f0a6eb1e3d0c30e8cfc378c992ae1e9a03c49ae), [45af824](https://github.com/AlexGalhardo/grim-cubes/commit/45af8247cb512642ce658f465b7565612805e271), [8560d34](https://github.com/AlexGalhardo/grim-cubes/commit/8560d34b56dda78845fac1184f8608cc6f57e678), [db5fded](https://github.com/AlexGalhardo/grim-cubes/commit/db5fdedb72add10f574295e20c0094b1abd51d59), [53ff412](https://github.com/AlexGalhardo/grim-cubes/commit/53ff41268c455dd37ba173c1fba18ee84ee7be51), [13c0635](https://github.com/AlexGalhardo/grim-cubes/commit/13c063535e83227b53af9bc121aa83247bc0f414)) ([7cee91b](https://github.com/AlexGalhardo/grim-cubes/commit/7cee91b30d12222291702b0e8df095a459a02d76))
 - **perf:** Record the bench with VFX, projectiles and fragments (P-04-05) ([5519f27](https://github.com/AlexGalhardo/grim-cubes/commit/5519f274d58694c3f22c23549cacacb75c5b5fb8))
-- **sim:** Guard the horde simulation with a CPU-time budget and allow 20 s for full-length simulation tests (P-03-06) ([45399e2](https://github.com/AlexGalhardo/grim-cubes/commit/45399e2d2170ce32b7f4fa39013ef857b5227f6d), [a2cdbad](https://github.com/AlexGalhardo/grim-cubes/commit/a2cdbad908a783ad2ce3ce223086f7cadeead3f2))
-- **docs:** Mark the six enemy behaviors in SDD 04 §5, add the dash system to SDD 02 §2.3 and update the SDD 14 prototype state (VFX, projectile render, culling) ([4a7e405](https://github.com/AlexGalhardo/grim-cubes/commit/4a7e405be66dbe0583cff70fbc694845834038ba), [84bb276](https://github.com/AlexGalhardo/grim-cubes/commit/84bb27612874bdc3b856dbb693a6d747ac3b2028), [3be4925](https://github.com/AlexGalhardo/grim-cubes/commit/3be49258f1ee9e4780e17a6fb89bbe84d0680c35))
-- **roadmap:** Split the elite render into P-05-06b, keep P-04-05 open until vignette, shake and gore capture land, and align the P-03-05 assert with the frustum render cull ([2eccb9d](https://github.com/AlexGalhardo/grim-cubes/commit/2eccb9da41916a35ef04d1fe717d9af404511587), [4748bef](https://github.com/AlexGalhardo/grim-cubes/commit/4748bef63b0fafb70faab54da5ef68f789e53f08), [2a2102a](https://github.com/AlexGalhardo/grim-cubes/commit/2a2102ac615fe925e18ad3969ff7d51a353d0e02))
+- **sim:** Guard the horde simulation with a CPU-time budget and allow 20 s for full-length simulation tests (P-03-06) ([45399e2](https://github.com/AlexGalhardo/grim-cubes/commit/45399e2d2170ce32b7f4fa39013ef857b5227f6d), [a2cdbad](https://github.com/AlexGalhardo/grim-cubes/commit/a2cdbad908a783ad2ce3ce223086f7cadeead3f2)) ([7cee91b](https://github.com/AlexGalhardo/grim-cubes/commit/7cee91b30d12222291702b0e8df095a459a02d76))
+- **docs:** Mark the six enemy behaviors in SDD 04 §5, add the dash system to SDD 02 §2.3 and update the SDD 14 prototype state (VFX, projectile render, culling) ([4a7e405](https://github.com/AlexGalhardo/grim-cubes/commit/4a7e405be66dbe0583cff70fbc694845834038ba), [84bb276](https://github.com/AlexGalhardo/grim-cubes/commit/84bb27612874bdc3b856dbb693a6d747ac3b2028), [3be4925](https://github.com/AlexGalhardo/grim-cubes/commit/3be49258f1ee9e4780e17a6fb89bbe84d0680c35)) ([7cee91b](https://github.com/AlexGalhardo/grim-cubes/commit/7cee91b30d12222291702b0e8df095a459a02d76))
+- **roadmap:** Split the elite render into P-05-06b, keep P-04-05 open until vignette, shake and gore capture land, and align the P-03-05 assert with the frustum render cull ([2eccb9d](https://github.com/AlexGalhardo/grim-cubes/commit/2eccb9da41916a35ef04d1fe717d9af404511587), [4748bef](https://github.com/AlexGalhardo/grim-cubes/commit/4748bef63b0fafb70faab54da5ef68f789e53f08), [2a2102a](https://github.com/AlexGalhardo/grim-cubes/commit/2a2102ac615fe925e18ad3969ff7d51a353d0e02)) ([7cee91b](https://github.com/AlexGalhardo/grim-cubes/commit/7cee91b30d12222291702b0e8df095a459a02d76))
 
-- **ci:** CI jobs run in parallel after `gate`, and the e2e job is split into 4 Playwright shards on separate runners
+- **ci:** CI jobs run in parallel after `gate`, and the e2e job is split into 4 Playwright shards on separate runners ([81efecc](https://github.com/AlexGalhardo/grim-cubes/commit/81efecce065d95459b1a79b489fdc6d6544ac7bf))
 
 ### Fixed
 
 - **game:** Move prop steering constants to `world.json`, widen the candidate scratch and add overlaps (P-01-05) ([227d00b](https://github.com/AlexGalhardo/grim-cubes/commit/227d00be90756eb48e86fd9afdbcc1c1155d1eca))
 - **render:** Unfreeze faded prop materials, reset recycled slot opacity and use model heights (P-02-03) ([ab76b1d](https://github.com/AlexGalhardo/grim-cubes/commit/ab76b1d3d07108d6b9beff79e803ad34bf49900f))
-- **core:** Merge runs into the stored save under a lock and keep two corrupt copies; cover the backup and corrupt storage keys (P-05-08) ([98cef15](https://github.com/AlexGalhardo/grim-cubes/commit/98cef151fa097cc8a0760644b780e955b0d8fa04), [e9be7bc](https://github.com/AlexGalhardo/grim-cubes/commit/e9be7bc8ea82ded055ed7c0d3f32191ba44da7e9))
+- **core:** Merge runs into the stored save under a lock and keep two corrupt copies; cover the backup and corrupt storage keys (P-05-08) ([98cef15](https://github.com/AlexGalhardo/grim-cubes/commit/98cef151fa097cc8a0760644b780e955b0d8fa04), [e9be7bc](https://github.com/AlexGalhardo/grim-cubes/commit/e9be7bc8ea82ded055ed7c0d3f32191ba44da7e9)) ([7cee91b](https://github.com/AlexGalhardo/grim-cubes/commit/7cee91b30d12222291702b0e8df095a459a02d76))
 - **game:** Skip alpha items in chests, report escaped elites and read the warning lead from data (P-05-06) ([5640a2d](https://github.com/AlexGalhardo/grim-cubes/commit/5640a2d68850cf5b12c99add06f255fa4fd50901))
 - **sim:** Pass hero and events to the projectile system after the API change (P-07-04) ([279deed](https://github.com/AlexGalhardo/grim-cubes/commit/279deed495193f9ef32acce6c1beb471fe52fb71))
 - **e2e:** Keep combat piles out of the pickup magnet, freeze the loop and add win32 baselines (P-04-06) ([affd535](https://github.com/AlexGalhardo/grim-cubes/commit/affd5351993e71eff7f07929acdaf4ceb92407cb))
 - **game:** Keep enemy spawns out of blocking props (P-03-02) ([d5c9fcc](https://github.com/AlexGalhardo/grim-cubes/commit/d5c9fcca23aed6ae42e1239c58562eb82b136322))
-- **game:** Count breeder spawns within a step, route the leech drain through damage events with its killer and mark the drain PlayerHit as a leak (A-02-02a) ([8f123f7](https://github.com/AlexGalhardo/grim-cubes/commit/8f123f7d3b26c27d22ccb09eb15e640fbbadd23b), [f53bc0b](https://github.com/AlexGalhardo/grim-cubes/commit/f53bc0bff84f221a1170f5c0d269f63518ab1cf7), [e14abcf](https://github.com/AlexGalhardo/grim-cubes/commit/e14abcffa95643feb89b27ac4ff0b29b907d984d))
-- **game:** Widen the Gravedigger radius to 1.65, stop the boss chest from healing and announce the boss chest and the started pattern to the render (P-05-07) ([1df5e06](https://github.com/AlexGalhardo/grim-cubes/commit/1df5e066d39f506723e0b60682d291544a97ae08), [d3476d7](https://github.com/AlexGalhardo/grim-cubes/commit/d3476d7311a049517b4cf2314d85863329c29993))
+- **game:** Count breeder spawns within a step, route the leech drain through damage events with its killer and mark the drain PlayerHit as a leak (A-02-02a) ([8f123f7](https://github.com/AlexGalhardo/grim-cubes/commit/8f123f7d3b26c27d22ccb09eb15e640fbbadd23b), [f53bc0b](https://github.com/AlexGalhardo/grim-cubes/commit/f53bc0bff84f221a1170f5c0d269f63518ab1cf7), [e14abcf](https://github.com/AlexGalhardo/grim-cubes/commit/e14abcffa95643feb89b27ac4ff0b29b907d984d)) ([7cee91b](https://github.com/AlexGalhardo/grim-cubes/commit/7cee91b30d12222291702b0e8df095a459a02d76))
+- **game:** Widen the Gravedigger radius to 1.65, stop the boss chest from healing and announce the boss chest and the started pattern to the render (P-05-07) ([1df5e06](https://github.com/AlexGalhardo/grim-cubes/commit/1df5e066d39f506723e0b60682d291544a97ae08), [d3476d7](https://github.com/AlexGalhardo/grim-cubes/commit/d3476d7311a049517b4cf2314d85863329c29993)) ([7cee91b](https://github.com/AlexGalhardo/grim-cubes/commit/7cee91b30d12222291702b0e8df095a459a02d76))
 - **game:** Carry the chest position in `ChestOpened` (P-05-06) ([44f9cd7](https://github.com/AlexGalhardo/grim-cubes/commit/44f9cd788a965c7b6bf40cabf9807c7d81211151))
 - **render:** Reuse blood colour constants and give elite kills the long hit-stop (P-04-05) ([11661e5](https://github.com/AlexGalhardo/grim-cubes/commit/11661e543bff28f9e5de7b72ef07ad97f5884da9))
 - **render:** Pulse and shake on `PlayerHit`, skip the leech drain and honour reduced motion (P-04-05) ([430b8e0](https://github.com/AlexGalhardo/grim-cubes/commit/430b8e0eefe4dc353b9395751abeff8fe3d54f50))
 - **render:** Release telegraphs on death, remove chests by position and rename `ironLight` (P-05-06b) ([4b791fc](https://github.com/AlexGalhardo/grim-cubes/commit/4b791fc27c59d275cef29a4582d7a2db1988d708))
 - **render:** Cull the horde with the real camera frustum instead of a disc (P-03-05) ([a514770](https://github.com/AlexGalhardo/grim-cubes/commit/a5147707038f082b91086059b7199df766c3a2d8))
 - **sim:** Cull distant enemies like the game does and re-anchor the determinism hash (P-03-05) ([7d89669](https://github.com/AlexGalhardo/grim-cubes/commit/7d8966926c2d0d1332f88431455b86fb9e1ea4ba))
-- **data:** Name the skin tint by theme token and add the `iron-black` colour (A-04-04) ([bb39c4f](https://github.com/AlexGalhardo/grim-cubes/commit/bb39c4f33e679eba7f5edc6ca88a19b297afdd8e), [f73aa8f](https://github.com/AlexGalhardo/grim-cubes/commit/f73aa8f798153c48833b7a9b8f3d2c4db9a953af))
+- **data:** Name the skin tint by theme token and add the `iron-black` colour (A-04-04) ([bb39c4f](https://github.com/AlexGalhardo/grim-cubes/commit/bb39c4f33e679eba7f5edc6ca88a19b297afdd8e), [f73aa8f](https://github.com/AlexGalhardo/grim-cubes/commit/f73aa8f798153c48833b7a9b8f3d2c4db9a953af)) ([7cee91b](https://github.com/AlexGalhardo/grim-cubes/commit/7cee91b30d12222291702b0e8df095a459a02d76))
 - **tools:** Make `secrets-scan` fail on unknown flags and missing paths (E-02-07) ([92f6135](https://github.com/AlexGalhardo/grim-cubes/commit/92f6135126264f7a06bc885a0465059be3bf5301))
 - **web:** Revalidate the asset manifest and add CSP and security headers (E-04-02, R-01-05) ([6370507](https://github.com/AlexGalhardo/grim-cubes/commit/6370507dfbdc4e29579e4313f87ad1912991b616))
 - **game:** Apply the knockback the damage system writes to enemy movement (P-04-01) ([6180a55](https://github.com/AlexGalhardo/grim-cubes/commit/6180a55c4e18195196f35427b91548263d1e654a))
