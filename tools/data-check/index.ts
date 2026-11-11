@@ -668,7 +668,8 @@ export function selfTest(
 		if (needsAssets && assetsDir === undefined) continue;
 		const copy = clone();
 		mutate(copy);
-		if (checkAll(copy, schemas, assetsDir).length === 0) undetected.push(label);
+		// Only the asset cases need the file system walk; the rest are caught by the data rules alone.
+		if (checkAll(copy, schemas, needsAssets ? assetsDir : undefined).length === 0) undetected.push(label);
 	}
 	return undetected;
 }
