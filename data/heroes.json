@@ -1,0 +1,37 @@
+[
+	{
+		"id": "executioner",
+		"name": "Carrasco",
+		"startingWeapon": "sword",
+		"base": {},
+		"passive": {
+			"id": "rusted_plate",
+			"name": "Placas Enferrujadas",
+			"modifiers": [{ "stat": "armor", "op": "add", "value": 1 }]
+		}
+	},
+	{
+		"id": "riddled",
+		"name": "O Fuzilado",
+		"startingWeapon": "pistol",
+		"tint": "iron-light",
+		"base": { "maxHp": 85, "critChance": 0.08 },
+		"passive": {
+			"id": "squad_eye",
+			"name": "Olho do Pelotão",
+			"modifiers": [{ "stat": "crit_chance", "op": "add", "value": 0.1 }]
+		}
+	},
+	{
+		"id": "penitent",
+		"name": "A Penitente",
+		"startingWeapon": "smg",
+		"tint": "flesh",
+		"base": { "maxHp": 90, "speed": 6.4 },
+		"passive": {
+			"id": "scourged_flesh",
+			"name": "Carne Flagelada",
+			"modifiers": [{ "stat": "hp_regen", "op": "add", "value": 1 }]
+		}
+	}
+]

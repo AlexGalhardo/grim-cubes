@@ -215,9 +215,13 @@ export function checkIntegrity(data: DataSet): string[] {
 			errors.push(`synergies.json: ${idOf(synergy)}.tiers counts must ascend strictly`);
 	}
 
-	const hero = data["hero.json"];
-	if (isObject(hero) && typeof hero.startingWeapon === "string" && !weaponIds.has(hero.startingWeapon)) {
-		errors.push(`hero.json: startingWeapon references unknown weapon "${hero.startingWeapon}"`);
+	const heroes = asArray(data["heroes.json"]);
+	checkUniqueIds("heroes.json", heroes, errors);
+	for (const h of heroes) {
+		if (typeof h.startingWeapon === "string" && !weaponIds.has(h.startingWeapon))
+			errors.push(
+				`heroes.json: ${idOf(h)} startingWeapon references unknown weapon "${h.startingWeapon}"`,
+			);
 	}
 
 	const cards = data["cards.json"];
@@ -342,6 +346,7 @@ const EXPECTED_FILES = [
 	"rounds",
 	"biomes",
 	"hero",
+	"heroes",
 	"props",
 	"render",
 	"presets",
@@ -441,8 +446,24 @@ export function selfTest(
 		[
 			"unknown hero weapon",
 			(d) => {
-				const h = d["hero.json"];
-				if (isObject(h)) h.startingWeapon = "nope";
+				const h = asArray(d["heroes.json"])[1];
+				if (h) h.startingWeapon = "nope";
+			},
+		],
+		[
+			"duplicate hero id",
+			(d) => {
+				const heroes = asArray(d["heroes.json"]);
+				const first = heroes[0];
+				const last = heroes[heroes.length - 1];
+				if (first && last) last.id = first.id as string;
+			},
+		],
+		[
+			"hero base override outside its range",
+			(d) => {
+				const h = asArray(d["heroes.json"])[1];
+				if (h && isObject(h.base)) h.base.critChance = 1.5;
 			},
 		],
 		[

@@ -10,6 +10,7 @@ import {
 	enrageMult,
 	type GameWorld,
 	heroData,
+	heroesData,
 	MAX_ENTITIES,
 	Position,
 	queryBleeding,
@@ -147,7 +148,7 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 	const telegraph = createTelegraph(game);
 	const slash = createSlash(
 		game,
-		weaponsData.find((w) => w.id === heroData.startingWeapon)?.arcDegrees ?? SLASH_FALLBACK_ARC,
+		weaponsData.find((w) => w.id === heroesData[0]?.startingWeapon)?.arcDegrees ?? SLASH_FALLBACK_ARC,
 	);
 	const zones = createZones(game);
 	let bossSpeedMult = 1;

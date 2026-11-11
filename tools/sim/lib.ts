@@ -12,7 +12,7 @@ import {
 	enemiesData,
 	Health,
 	hashWorld,
-	heroData,
+	heroesData,
 	POLICY_LABEL,
 	type PolicyId,
 	roundsData,
@@ -25,6 +25,8 @@ export interface SimOptions {
 	rounds: number;
 	difficulty: string;
 	weapon?: string;
+	/** Hero id from `data/heroes.json`; defaults to the first (the Carrasco). */
+	hero?: string;
 	/** Stop after this many simulation steps (determinism test); default: enough for `rounds` rounds. */
 	maxSteps?: number;
 	/** Ossuary node ids the simulated account already owns. */
@@ -100,7 +102,9 @@ function difficultyId(id: string): Difficulty {
 
 export function runSim(options: SimOptions): SimReport {
 	const difficulty = difficultyData(roundsData.difficulties, difficultyId(options.difficulty));
-	const weaponId = options.weapon ?? heroData.startingWeapon;
+	const heroDef = heroesData.find((h) => h.id === (options.hero ?? heroesData[0]?.id));
+	if (!heroDef) throw new Error(`unknown hero "${options.hero}"`);
+	const weaponId = options.weapon ?? heroDef.startingWeapon;
 	if (!weaponsData.some((w) => w.id === weaponId)) throw new Error(`unknown weapon "${weaponId}"`);
 
 	const meta = createMetaState();
@@ -112,6 +116,7 @@ export function runSim(options: SimOptions): SimReport {
 		meta,
 		// The simulator opens the shop at once: no walk to the Merchant, no steps or randomness spent on it.
 		autoShop: true,
+		hero: heroDef.id,
 		...(options.weapon !== undefined && { weapon: options.weapon }),
 	});
 	const { world, hero, events, progress, run, shop, boss } = session;
@@ -131,7 +136,7 @@ export function runSim(options: SimOptions): SimReport {
 		damageTaken: 0,
 		gold: 0,
 		level: 1,
-		heroHp: heroData.base.maxHp,
+		heroHp: session.heroStatsData.base.maxHp,
 		steps: 0,
 		eventsDropped: 0,
 		worldHash: 0,

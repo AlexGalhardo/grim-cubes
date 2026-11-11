@@ -10,7 +10,8 @@ Os loaders importam os JSON (`resolveJsonModule`; `rootDir: "../.."` só no `tsc
 
 | Arquivo | Conteúdo |
 | --- | --- |
-| `hero.json` | stats base do herói, caps, fórmulas (armadura, regen, gatilho de roubo de vida), dash, combate (i-frames, contato, knockback, prioridade de alvo), raio, arma inicial |
+| `hero.json` | stats base do herói, caps, fórmulas (armadura, regen, gatilho de roubo de vida), dash, combate (i-frames, contato, knockback, prioridade de alvo), raio |
+| `heroes.json` | os três heróis (S-12-01): arma inicial, sobreposições dos stats base de `hero.json`, passiva (lista de modificadores somada depois dos do Ossuário) e `tint` do modelo compartilhado; o primeiro é o padrão |
 | `world.json` | chunk, raios de carga/descarga, chunks por passo, pool, limiar de origin shift, props por chunk (SDD 03) |
 | `props.json` | props: `id`, `sizeClass` (orçamento de elementos, Art Bible §5.1), `kind` |
 | `enemies.json` | 8 tipos: hp/dano base e incremento, velocidade, `walkRefSpeed`, raio, `sizeClass`, behavior, fragmentos, bioma |

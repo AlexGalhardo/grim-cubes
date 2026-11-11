@@ -9,6 +9,7 @@ import {
 	elitesData,
 	enemiesData,
 	heroData,
+	heroesData,
 	itemsData,
 	milestonesData,
 	ossuaryData,
@@ -83,6 +84,8 @@ export interface GameSessionOptions {
 	difficulty: DifficultyData;
 	/** The account: Ossuary nodes shape the run and milestones gate the item pool. */
 	meta: MetaState;
+	/** Hero id from `data/heroes.json`; defaults to the first one. */
+	hero?: string;
 	/** Starting weapon id; defaults to the hero's own (the simulator tries others). */
 	weapon?: string;
 	/**
@@ -110,19 +113,27 @@ function build(options: GameSessionOptions) {
 
 	// Permanent Ossuary nodes shape the run before it starts (GDD 19).
 	const ossuaryBonus = applyOssuary(ossuaryData, meta);
+	const heroDef = heroesData.find((h) => h.id === (options.hero ?? heroesData[0]?.id));
+	if (!heroDef) throw new Error(`Unknown hero ${options.hero}`);
 	const runHeroData = {
 		...heroData,
-		base: { ...heroData.base, critMult: ossuaryBonus.critMult ?? heroData.base.critMult },
+		base: {
+			...heroData.base,
+			...heroDef.base,
+			critMult: ossuaryBonus.critMult ?? heroDef.base.critMult ?? heroData.base.critMult,
+		},
 	};
 	progress.gold += ossuaryBonus.startGold;
 
 	const hero = spawnHero(world, {
-		speed: heroData.base.speed,
-		maxHp: heroData.base.maxHp,
-		radius: heroData.base.radius,
+		speed: runHeroData.base.speed,
+		maxHp: runHeroData.base.maxHp,
+		radius: runHeroData.base.radius,
 	});
 	const stats = createStatsSystem(runHeroData, createPlayerStats());
 	stats.add(ossuaryBonus.modifiers);
+	// After the Ossuary ones and before anything the run picks up: a checkpoint skips both groups.
+	stats.add(heroDef.passive.modifiers);
 	stats.run(hero);
 
 	const owned = new Map<string, number>();
@@ -152,8 +163,9 @@ function build(options: GameSessionOptions) {
 		synergies.refresh();
 	};
 
-	const startingWeapon = weaponsData.find((w) => w.id === (options.weapon ?? heroData.startingWeapon));
-	if (!startingWeapon) throw new Error(`Unknown starting weapon ${heroData.startingWeapon}`);
+	const startingWeapon = weaponsData.find((w) => w.id === (options.weapon ?? heroDef.startingWeapon));
+	if (!startingWeapon)
+		throw new Error(`Unknown starting weapon ${options.weapon ?? heroDef.startingWeapon}`);
 	const enemyIds = enemiesData.map((e) => e.id);
 
 	const hooks: { heroHit?: (source: number, taken: number) => void } = {};
@@ -523,6 +535,8 @@ function build(options: GameSessionOptions) {
 		itemEffects,
 		synergies,
 		startingWeapon,
+		heroDef,
+		heroStatsData: runHeroData,
 		enemyIds,
 		damage,
 		separation,
@@ -581,6 +595,10 @@ export interface GameSession {
 	readonly itemEffects: ReturnType<typeof build>["itemEffects"];
 	readonly synergies: ReturnType<typeof build>["synergies"];
 	readonly startingWeapon: ReturnType<typeof build>["startingWeapon"];
+	/** The hero of the run: weapon, passive and recolour. */
+	readonly heroDef: ReturnType<typeof build>["heroDef"];
+	/** `data/hero.json` with this hero's base overrides and the Ossuary crit multiplier applied. */
+	readonly heroStatsData: ReturnType<typeof build>["heroStatsData"];
 	readonly enemyIds: ReturnType<typeof build>["enemyIds"];
 	readonly damage: ReturnType<typeof build>["damage"];
 	readonly separation: ReturnType<typeof build>["separation"];

@@ -1,6 +1,6 @@
 import { createInputState, createMetaState } from "@gc/core";
 import { expect, test } from "vitest";
-import { roundsData } from "./data";
+import { heroesData, roundsData } from "./data";
 import { Health } from "./ecs/components";
 import { difficultyData } from "./rules/difficulty";
 import { regenPerSecond } from "./rules/stats";
@@ -87,4 +87,37 @@ test("buying an item moves its tag progress through the session", () => {
 	expect(session.synergies.states.reduce((sum, s) => sum + s.count, 0)).toBeGreaterThanOrEqual(
 		bought.length,
 	);
+});
+
+test("every hero starts the run with its own weapon, base stats and passive", () => {
+	for (const def of heroesData) {
+		const session = createGameSession({
+			seed: 5,
+			difficulty,
+			meta: createMetaState(),
+			hero: def.id,
+		});
+		expect(session.heroDef.id).toBe(def.id);
+		expect(session.weapon.weapon.id).toBe(def.startingWeapon);
+		session.stats.run(session.hero);
+		expect(Health.max[session.hero]).toBe(def.base.maxHp ?? 100);
+		for (const m of def.passive.modifiers) expect(session.stats.modifiers).toContainEqual(m);
+	}
+});
+
+test("a session without a hero plays the first one, and an unknown hero is refused", () => {
+	const session = createGameSession({ seed: 5, difficulty, meta: createMetaState() });
+	expect(session.heroDef.id).toBe(heroesData[0]?.id);
+	expect(() => createGameSession({ seed: 5, difficulty, meta: createMetaState(), hero: "nobody" })).toThrow(
+		"Unknown hero",
+	);
+});
+
+test("the passive shows up in the stats: the Fuzilado crits more than the Carrasco", () => {
+	const crit = (hero: string): number => {
+		const session = createGameSession({ seed: 5, difficulty, meta: createMetaState(), hero });
+		session.stats.run(session.hero);
+		return session.stats.stats.critChance;
+	};
+	expect(crit("riddled")).toBeGreaterThan(crit("executioner"));
 });

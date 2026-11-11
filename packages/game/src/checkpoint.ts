@@ -17,7 +17,7 @@ export interface RunIdentity {
 export function captureCheckpoint(session: GameSession, identity: RunIdentity): RunCheckpoint {
 	const { progress, stats, runStats, hero, origin, weapon, shop, owned, levelUp, itemEffects, run, rng } =
 		session;
-	const own = session.ossuaryBonus.modifiers.length;
+	const own = session.ossuaryBonus.modifiers.length + session.heroDef.passive.modifiers.length;
 	return {
 		seed: identity.seed,
 		difficulty: identity.difficulty,
@@ -28,7 +28,7 @@ export function captureCheckpoint(session: GameSession, identity: RunIdentity): 
 		hp: Health.hp[hero] ?? 0,
 		weapon: { id: weapon.weapon.id ?? "", tier: weapon.tier, paid: shop.paid },
 		owned: Object.fromEntries(owned),
-		// Ossuary modifiers come back by themselves when the session is rebuilt from the same account.
+		// Ossuary and hero passive modifiers come back by themselves when the session is rebuilt from the same account.
 		modifiers: stats.modifiers.slice(own).map((m) => ({ stat: m.stat, op: m.op, value: m.value })),
 		cardRerollsLeft: levelUp.rerollsLeft,
 		revivesSpent: itemEffects.revivesSpent,

@@ -1,0 +1,51 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "heroes.schema.json",
+	"title": "Playable heroes (GDD 7); the first entry is the default hero",
+	"type": "array",
+	"minItems": 1,
+	"items": {
+		"type": "object",
+		"required": ["id", "name", "startingWeapon", "base", "passive"],
+		"additionalProperties": false,
+		"properties": {
+			"id": { "$ref": "common.schema.json#/$defs/id" },
+			"name": { "$ref": "common.schema.json#/$defs/name" },
+			"startingWeapon": { "$ref": "common.schema.json#/$defs/id" },
+			"tint": {
+				"type": "string",
+				"pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
+				"description": "Name of a theme.css colour token (without the --color- prefix) the shared hero model is recoloured with; absent keeps the model's own colours."
+			},
+			"base": {
+				"type": "object",
+				"description": "Overrides of the matching fields of hero.json base.",
+				"additionalProperties": false,
+				"properties": {
+					"maxHp": { "type": "number", "minimum": 1 },
+					"hpRegen": { "type": "number", "minimum": 0 },
+					"speed": { "type": "number", "minimum": 0 },
+					"pickupRadius": { "type": "number", "minimum": 0 },
+					"armor": { "type": "number" },
+					"dodge": { "type": "number", "minimum": 0, "maximum": 1 },
+					"critChance": { "type": "number", "minimum": 0, "maximum": 1 },
+					"critMult": { "type": "number", "minimum": 0 },
+					"damage": { "type": "number", "minimum": 0 },
+					"attackSpeed": { "type": "number", "minimum": 0 },
+					"luck": { "type": "number", "minimum": 0 },
+					"harvest": { "type": "number", "minimum": 0 }
+				}
+			},
+			"passive": {
+				"type": "object",
+				"required": ["id", "name", "modifiers"],
+				"additionalProperties": false,
+				"properties": {
+					"id": { "$ref": "common.schema.json#/$defs/id" },
+					"name": { "$ref": "common.schema.json#/$defs/name" },
+					"modifiers": { "$ref": "common.schema.json#/$defs/modifiers" }
+				}
+			}
+		}
+	}
+}

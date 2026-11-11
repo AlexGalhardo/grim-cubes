@@ -1,11 +1,8 @@
 {
 	"type": "object",
-	"required": ["startingWeapon", "base", "caps", "formulas", "dash", "combat"],
+	"required": ["base", "caps", "formulas", "dash", "combat"],
 	"additionalProperties": false,
 	"properties": {
-		"startingWeapon": {
-			"$ref": "common.schema.json#/$defs/id"
-		},
 		"base": {
 			"type": "object",
 			"required": [

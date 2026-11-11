@@ -9,7 +9,6 @@ import type { WorldConfig } from "../world/chunkSystem";
 /** `data/hero.json`. */
 export interface HeroData {
 	dash: { distance: number; durationSeconds: number; iFramesSeconds: number; cooldownSeconds: number };
-	startingWeapon: string;
 	base: {
 		maxHp: number;
 		hpRegen: number;
@@ -47,6 +46,18 @@ export interface HeroData {
 		eliteKnockbackMult: number;
 		targetPriorityDistanceMult: number;
 	};
+}
+
+/** One entry of `data/heroes.json` (GDD 7); the first one is the default hero. */
+export interface HeroDef {
+	id: string;
+	name: string;
+	startingWeapon: string;
+	/** Theme token the shared hero model is recoloured with; absent keeps its own colours. */
+	tint?: string | undefined;
+	/** Overrides of `HeroData.base`. */
+	base: Partial<HeroData["base"]>;
+	passive: { id: string; name: string; modifiers: { stat: string; op: string; value: number }[] };
 }
 
 /** One entry of `data/enemies.json`. */

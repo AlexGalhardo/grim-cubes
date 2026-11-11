@@ -184,9 +184,19 @@ O anel 3 repete-se ao infinito (mais escuro, com variação de props). Biomas af
 
 ## 7. Herói
 
-1.0 tem um único herói (D11): **o Carrasco** (nome de trabalho), um executor condenado, com armadura de placas enferrujadas e um capuz de ferro.
+A 1.0 tem três heróis (decisão do PO de 2026-11-11, trilha S-12; revisa a D11): **o Carrasco** (nome de trabalho), um executor condenado, com armadura de placas enferrujadas e um capuz de ferro, e dois heróis novos. Cada herói define a arma inicial, ajustes nos stats base e uma passiva, em `data/heroes.json`. Até a S-18-06 os dois novos usam o modelo do Carrasco recolorido (`tint`).
+
+| Herói | Arma inicial | Stats base (além da tabela 7.1) | Passiva | Desbloqueio |
+| --- | --- | --- | --- | --- |
+| Carrasco (`executioner`) | Espada Enferrujada | — | **Placas Enferrujadas:** +1 de armadura | desde o início |
+| O Fuzilado (`riddled`) | Pistola de Ferro | HP 85, crítico 8% | **Olho do Pelotão:** +10% de chance de crítico | marco `round_10` (round 10 em qualquer dificuldade) |
+| A Penitente (`penitent`) | Submetralhadora | HP 90, velocidade 6,4 u/s | **Carne Flagelada:** +1 ponto de regeneração | marco `bosses_3` (3 chefes mortos) |
+
+**Proposta, aguarda confirmação do PO:** os nomes "O Fuzilado" e "A Penitente", as passivas e o desbloqueio dos dois (propostos pelo agente; o GDD §20 pós-1.0 citava a Bruxa do Pântano e o Forjado Renegado, que ficam como ideias futuras). Os números passam pelo simulador (§25) e saem de `data/*.json`.
 
 ### 7.1 Stats base (round 1, sem meta-árvore)
+
+Valem para o Carrasco; os outros dois sobrepõem só os campos da tabela acima.
 
 | Stat | Valor | Nota |
 | --- | --- | --- |

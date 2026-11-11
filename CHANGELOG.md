@@ -52,6 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **game:** Three heroes in `data/heroes.json` (schema `heroes.schema.json`, checked by `data:check`): the Carrasco (sword, Placas Enferrujadas), O Fuzilado (pistol, Olho do Pelotão) and A Penitente (SMG, Carne Flagelada), each with base stat overrides and a passive of stat modifiers; names are proposals awaiting the PO. `hero.json` no longer holds the starting weapon, `createGameSession` takes a `hero`, and the simulator a `hero` option (S-12-01)
 - **game:** Item tag synergies: every item in `data/items.json` carries one or two of six tags (iron, bone, blood, ember, grave, curse) and owning 2, 4 and 6 distinct items of a tag applies the bonuses of `data/synergies.json`, recomputed on every purchase, chest or restored run; `data:check` validates tags and tiers, and `session.synergies.states` exposes the progress per tag (S-14-01)
 - **render:** Value separation: the ground is darker (`floorShade` 0.24 to 0.13) and flatter (each tile keeps half of its variation), the characters get an albedo gain of 1.4, and the hit and low-HP vignette is lighter; `bun run ux:legibility` writes `reports/legibility.json` with hero/ground at least 3:1 and enemy/ground at least 2.5:1 (S-01-03)
 - **render:** Contour (Fresnel) light per role on the hero, enemies, elites and bosses (hero bone, enemy neutral, elite and boss ember), configured in the `contour` block of `data/render.json` and off on the Minimum preset; no extra draw call (S-01-02)

@@ -387,8 +387,8 @@ async function boot(): Promise<void> {
 		return meta.stats.runs < 3 && !params.has("seed") && !params.has("debug") && !params.has("bench");
 	};
 	const hud = createStore<HudState>({
-		hp: heroData.base.maxHp,
-		maxHp: heroData.base.maxHp,
+		hp: session.heroStatsData.base.maxHp,
+		maxHp: session.heroStatsData.base.maxHp,
 		round: 1,
 		level: 1,
 		xp: 0,
@@ -781,7 +781,7 @@ async function boot(): Promise<void> {
 	);
 	if (heroRig && assets) {
 		game.hero.isVisible = false;
-		const weaponEntry = assets.manifest.entries[`weapon_${heroData.startingWeapon}`];
+		const weaponEntry = assets.manifest.entries[`weapon_${session.startingWeapon.id}`];
 		if (weaponEntry) {
 			const weaponMesh = await importModelMesh(game.scene, `/assets/${weaponEntry.url}`).catch(
 				() => null,
@@ -1527,7 +1527,7 @@ async function boot(): Promise<void> {
 	}
 	function statChanges(mods: readonly Modifier[], bonus?: readonly Modifier[]): StatChange[] {
 		computeStats(
-			heroData,
+			session.heroStatsData,
 			[...stats.modifiers, ...mods],
 			scratchStats,
 			undefined,

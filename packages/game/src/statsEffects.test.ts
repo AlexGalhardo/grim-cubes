@@ -1,7 +1,7 @@
 import { createInputState, createMetaState } from "@gc/core";
 import { addComponent, query, removeEntity } from "bitecs";
 import { expect, test } from "vitest";
-import { heroData, roundsData } from "./data";
+import { heroData, heroesData, roundsData } from "./data";
 import {
 	Boss,
 	ContactDamage,
@@ -111,8 +111,12 @@ test("speed scales the hero's speed and stays inside the data caps", () => {
 });
 
 test("armor reduces the damage taken by the formula, and negative armor increases it within the bound", () => {
+	// The default hero's passive already carries armor: the formula is measured on the armor the test asks for.
+	const passiveArmor = (heroesData[0]?.passive.modifiers ?? [])
+		.filter((m) => m.stat === "armor")
+		.reduce((sum, m) => sum + m.value, 0);
 	const taken = (armor: number): number => {
-		const { session } = arena([add("armor", armor)]);
+		const { session } = arena([add("armor", armor - passiveArmor)]);
 		session.stats.run(session.hero);
 		Health.hp[session.hero] = 1000;
 		Invulnerable.ticks[session.hero] = 0;

@@ -5,6 +5,7 @@ import consumablesJson from "../../../../data/consumables.json";
 import elitesJson from "../../../../data/elites.json";
 import enemiesJson from "../../../../data/enemies.json";
 import heroJson from "../../../../data/hero.json";
+import heroesJson from "../../../../data/heroes.json";
 import itemsJson from "../../../../data/items.json";
 import milestonesJson from "../../../../data/milestones.json";
 import ossuaryJson from "../../../../data/ossuary.json";
@@ -27,6 +28,7 @@ import type {
 	ElitesData,
 	EnemyData,
 	HeroData,
+	HeroDef,
 	ItemData,
 	MilestonesData,
 	OssuaryData,
@@ -44,6 +46,7 @@ import type {
  * drifts from these shapes, `bun check` fails. `bun run data:check` validates the values against the schemas.
  */
 export const heroData: HeroData = heroJson;
+export const heroesData: readonly HeroDef[] = heroesJson;
 export const enemiesData: readonly EnemyData[] = enemiesJson;
 export const weaponsData: readonly WeaponData[] = weaponsJson;
 export const roundsData: RoundsData = roundsJson;
@@ -180,6 +183,7 @@ export type {
 	ElitesData,
 	EnemyData,
 	HeroData,
+	HeroDef,
 	ItemData,
 	ItemEffect,
 	OssuaryBranchData,
