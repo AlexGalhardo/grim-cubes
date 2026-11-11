@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **render:** Floor contrast in the other biomes measured with `ux:legibility --biome`: the Bone Swamp and the Infernal Forge failed hero over ground at 896x414 (2.92 and 2.90 against 3), so `floorBiomeShade` goes from `[0.55, 0.78, 0.92, 1]` to `[0.55, 0.7, 0.78, 1]` (brightness order kept); after, 3.28 and 3.10 at 896x414 and 5.43 and 3.04 at 1920x1080; the reports are in `reports/legibility-<biome>.json` and the numbers in the Art Bible section 5
 - **ui:** Level-up and chest cards use a minimum height (300, 240, 220) instead of a fixed one, so a long effect text (the Ossuary arrow, the ruin sigil) grows the card instead of being clipped at the desktop size; checked on the elite chest at 1920x1080 and 2560x1440
 - **ui:** On short screens the title menu puts every button after the first in two columns, so the worst case of seven (Continue, New game, Daily challenge, Ossuary, Options, Wishlist, Quit) fits 800x360 and 896x414 with nothing cut or scrolling; checked at both sizes
 - **audio:** Picking a hero plays `sfx_ui_hero_select`, and the hero and daily-challenge screens change with the transition sound; the run time on the results screen now comes from the checkpointed `RunStats.seconds`, so a resumed run shows its whole fight time (S-12-02, S-13-01, S-06-01)

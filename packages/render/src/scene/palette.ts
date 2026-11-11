@@ -58,7 +58,7 @@ export const LIGHTING = {
 	/** A faint light from the camera: it lifts the silhouettes of the darkest models off the ground. */
 	rimIntensity: 0.6,
 	/** Per-biome multiplier baked into the floor strip: the cemetery tiles are the lightest, so they are dimmed most. */
-	floorBiomeShade: [0.55, 0.78, 0.92, 1],
+	floorBiomeShade: [0.55, 0.7, 0.78, 1],
 	fogStart: 28,
 	fogEnd: 60,
 } as const;

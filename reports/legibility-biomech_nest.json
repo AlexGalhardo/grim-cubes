@@ -1,0 +1,31 @@
+{
+	"seed": 7,
+	"biome": "biomech_nest",
+	"metric": "mean WCAG relative luminance (0..1); ratio = (Lhi + 0.05) / (Llo + 0.05)",
+	"thresholds": {
+		"heroOverGround": 3,
+		"enemyOverGround": 2.5
+	},
+	"targets": {
+		"1920x1080": {
+			"meanLuminance": {
+				"ground": 0.009526255064567234,
+				"hero": 0.3041761839060926,
+				"enemies": 0.38126964388912454
+			},
+			"heroOverGround": 5.95,
+			"enemyOverGround": 7.245,
+			"pass": true
+		},
+		"896x414": {
+			"meanLuminance": {
+				"ground": 0.011446900272761233,
+				"hero": 0.1461654089948065,
+				"enemies": 0.15626427669432338
+			},
+			"heroOverGround": 3.192,
+			"enemyOverGround": 3.357,
+			"pass": true
+		}
+	}
+}

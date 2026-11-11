@@ -1,0 +1,31 @@
+{
+	"seed": 7,
+	"biome": "bone_swamp",
+	"metric": "mean WCAG relative luminance (0..1); ratio = (Lhi + 0.05) / (Llo + 0.05)",
+	"thresholds": {
+		"heroOverGround": 3,
+		"enemyOverGround": 2.5
+	},
+	"targets": {
+		"1920x1080": {
+			"meanLuminance": {
+				"ground": 0.010008087849623905,
+				"hero": 0.27609390884406615,
+				"enemies": 0.4059945208916472
+			},
+			"heroOverGround": 5.434,
+			"enemyOverGround": 7.599,
+			"pass": true
+		},
+		"896x414": {
+			"meanLuminance": {
+				"ground": 0.010594822501040317,
+				"hero": 0.14846918923601704,
+				"enemies": 0.17218232272453876
+			},
+			"heroOverGround": 3.275,
+			"enemyOverGround": 3.667,
+			"pass": true
+		}
+	}
+}

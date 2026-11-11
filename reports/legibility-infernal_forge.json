@@ -1,0 +1,31 @@
+{
+	"seed": 7,
+	"biome": "infernal_forge",
+	"metric": "mean WCAG relative luminance (0..1); ratio = (Lhi + 0.05) / (Llo + 0.05)",
+	"thresholds": {
+		"heroOverGround": 3,
+		"enemyOverGround": 2.5
+	},
+	"targets": {
+		"1920x1080": {
+			"meanLuminance": {
+				"ground": 0.013538849539543804,
+				"hero": 0.1434046645767835,
+				"enemies": 0.38027530339217075
+			},
+			"heroOverGround": 3.044,
+			"enemyOverGround": 6.772,
+			"pass": true
+		},
+		"896x414": {
+			"meanLuminance": {
+				"ground": 0.013367268267846524,
+				"hero": 0.146491559037472,
+				"enemies": 0.19152324073704427
+			},
+			"heroOverGround": 3.101,
+			"enemyOverGround": 3.811,
+			"pass": true
+		}
+	}
+}
