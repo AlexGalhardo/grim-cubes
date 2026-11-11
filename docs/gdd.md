@@ -529,14 +529,14 @@ Cada item de `data/items.json` leva uma ou duas etiquetas (`tags`) de um conjunt
 
 | Etiqueta | 2 itens | 4 itens | 6 itens | Itens |
 | --- | --- | --- | --- | --- |
-| Ferro (`iron`) | +2 armadura | +20 HP máx | +4 armadura, +5% dano | 17 |
-| Osso (`bone`) | +5 sorte | +20% raio de pickup | +3 colheita, +5 sorte | 13 |
-| Sangue (`blood`) | +1% roubo de vida | +5% dano | +2% roubo de vida, +5% crítico | 16 |
-| Brasa (`ember`) | +4% vel. de ataque | +15% tamanho de explosão | +8% vel. de ataque, +5% dano | 14 |
-| Cova (`grave`) | +10 HP máx | +0,25 regeneração | +30 HP máx, +0,25 regeneração | 16 |
-| Maldição (`curse`) | +5 sorte | +4% crítico | +15% dano a chefe, +4% crítico | 18 |
+| Ferro (`iron`) | +1 armadura | +4 HP máx | +3 armadura, +3% dano, −6% velocidade | 17 |
+| Osso (`bone`) | +2 sorte | +5% raio de pickup | +2 colheita, +3 sorte, −15 HP máx | 13 |
+| Sangue (`blood`) | +0,3% roubo de vida | +1% dano | +1% roubo de vida, +3% crítico, −15 HP máx | 16 |
+| Brasa (`ember`) | +1% vel. de ataque | +5% tamanho de explosão | +6% vel. de ataque, +3% dano, −3 armadura | 14 |
+| Cova (`grave`) | +3 HP máx | +0,05 regeneração | +10 HP máx, +0,1 regeneração, −6% vel. de ataque | 16 |
+| Maldição (`curse`) | +2 sorte | +1% crítico | +10% dano a chefe, +4% crítico, −20 HP máx | 18 |
 
-Valores iniciais; o simulador (§25) fecha o ajuste na S-14-03. O jogo expõe o progresso por etiqueta em `session.synergies.states` (`SynergyState`: contagem, degraus, degrau alcançado e próximo) para a loja e o HUD.
+Ajuste da S-14-03: o bot greedy do simulador já fica na borda das faixas sem sinergias (p50 26, 42% vivas), então qualquer bônus puro (testados de +1 armadura a +2 armadura, +5% dano) empurrava as vivas para 45–55% e o p50 para 34–35. Os degraus de 2 e 4 itens ficaram pequenos e o de 6 itens troca poder por um custo (menos HP, armadura ou velocidade); com isso `bun run sim --runs 64 --rounds 35 --seed 1 --check` e `--seed 1001 --check` passam (p50 25,5 e 25; vivas 44% e 42%; `reports/balance-synergies-64x35-seed1.json` e `-seed1001.json`). A margem é de uma a duas runs: o simulador é caótico (um bônus quase nulo move as vivas em até ±5 runs por seed), então esses números são o ponto de partida e o playtest da B-04 os revisa. O jogo expõe o progresso por etiqueta em `session.synergies.states` (`SynergyState`: contagem, degraus, degrau alcançado e próximo) para a loja e o HUD.
 
 ## 16. Level-up
 

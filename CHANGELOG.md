@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **balance:** Synergy bonuses tuned so `bun run sim --check` passes with them on (seeds 1 and 1001, 64 runs x 35 rounds): small 2 and 4 item tiers and a 6 item tier that trades power for a cost; reports in `reports/balance-synergies-64x35-seed*.json` (S-14-03)
 - **render:** Blood stains and a corpse mark stay on the floor for the whole run, capped per preset by `data/render.json` `vfx.floorMarkCaps` (600/400/200/100/50); past the cap the oldest and farthest from the hero go first, and reduced gore still draws none (S-11-01)
 - **ui:** Results screen with the build (weapon and items with icons and counters), the fight time, damage by source in bars (weapon, spells, items, bleed), who killed the hero with a name and a stand-in glyph (enemies have no atlas icon yet), the souls in a highlighted block with the progress to the cheapest open Ossuary node, and three buttons of one size on one baseline; `ResultsViewModel` replaces `build` with `weapon`, `items`, `seconds`, `sources`, `causeKind` and `nextUnlock`, built by the pure `buildResults` (S-06-01)
 - **game:** The killer of the hero is recorded as enemy, elite, boss (its own index), enemy projectile or own blast, so the cause of death is never "Desconhecido" in a real death; `DamageQueue.push` takes an optional `DamageOrigin` and `RunStats` gains `damageBySource` and `fightTicks` (S-06-01)

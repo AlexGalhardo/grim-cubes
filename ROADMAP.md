@@ -160,7 +160,7 @@ A Parte 1B (arte medium poly) começa depois da `v0.6.0` e tem pontos de parada 
   - Asserts: `bun run data:check` exit 0; todo item de `data/items.json` tem etiqueta; teste de aplicação e remoção dos bônus; GDD §15 atualizado.
 - [ ] **S-14-02** A loja e o HUD mostram as etiquetas e o progresso de cada sinergia; a prévia da S-05-02 inclui o bônus que a compra ativaria.
   - Asserts: testes de `Shop` e do HUD; capturas `shop` nos quatro alvos.
-- [ ] **S-14-03** Balanceamento: `bun run sim --check` dentro das faixas com as sinergias ligadas.
+- [x] **S-14-03** Balanceamento: `bun run sim --check` dentro das faixas com as sinergias ligadas.
   - Asserts: `reports/balance-*.json` atualizado; nenhuma faixa do GDD §25 violada.
 
 ### S-15 Modelos 3D no Blockbench

@@ -14,6 +14,14 @@ function build(): { stats: StatsSystem; owned: Map<string, number>; synergies: S
 	return { stats, owned, synergies };
 }
 
+/** Armor the iron tag gives with its first `n` tiers active. */
+const armorOfTiers = (n: number): number =>
+	(synergiesData.find((s) => s.id === "iron")?.tiers ?? [])
+		.slice(0, n)
+		.flatMap((t) => t.modifiers)
+		.filter((m) => m.stat === "armor")
+		.reduce((sum, m) => sum + m.value, 0);
+
 const ironState = (s: SynergyState[]): SynergyState | undefined => s.find((x) => x.id === "iron");
 
 describe("item tag synergies", () => {
@@ -57,11 +65,11 @@ describe("item tag synergies", () => {
 			synergiesData[0]?.tiers[0]?.modifiers,
 		);
 		expect(stats.stats.dirty).toBe(true);
-		expect(armorAt()).toBe(base + 2);
+		expect(armorAt()).toBe(base + armorOfTiers(1));
 
 		for (const id of iron.slice(2, 6)) owned.set(id, 1);
 		synergies.refresh();
-		expect(armorAt()).toBe(base + 2 + 4);
+		expect(armorAt()).toBe(base + armorOfTiers(3));
 
 		for (const id of iron) owned.delete(id);
 		synergies.refresh();

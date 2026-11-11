@@ -3,13 +3,44 @@
 		"id": "iron",
 		"name": "Ferro",
 		"tiers": [
-			{ "count": 2, "modifiers": [{ "stat": "armor", "op": "add", "value": 2 }] },
-			{ "count": 4, "modifiers": [{ "stat": "max_hp", "op": "add", "value": 20 }] },
+			{
+				"count": 2,
+				"modifiers": [
+					{
+						"stat": "armor",
+						"op": "add",
+						"value": 1
+					}
+				]
+			},
+			{
+				"count": 4,
+				"modifiers": [
+					{
+						"stat": "max_hp",
+						"op": "add",
+						"value": 4
+					}
+				]
+			},
 			{
 				"count": 6,
 				"modifiers": [
-					{ "stat": "armor", "op": "add", "value": 4 },
-					{ "stat": "damage", "op": "add", "value": 0.05 }
+					{
+						"stat": "armor",
+						"op": "add",
+						"value": 3
+					},
+					{
+						"stat": "damage",
+						"op": "add",
+						"value": 0.03
+					},
+					{
+						"stat": "speed",
+						"op": "add",
+						"value": -0.06
+					}
 				]
 			}
 		]
@@ -18,13 +49,44 @@
 		"id": "bone",
 		"name": "Osso",
 		"tiers": [
-			{ "count": 2, "modifiers": [{ "stat": "luck", "op": "add", "value": 5 }] },
-			{ "count": 4, "modifiers": [{ "stat": "pickup_range", "op": "add", "value": 0.2 }] },
+			{
+				"count": 2,
+				"modifiers": [
+					{
+						"stat": "luck",
+						"op": "add",
+						"value": 2
+					}
+				]
+			},
+			{
+				"count": 4,
+				"modifiers": [
+					{
+						"stat": "pickup_range",
+						"op": "add",
+						"value": 0.05
+					}
+				]
+			},
 			{
 				"count": 6,
 				"modifiers": [
-					{ "stat": "harvest", "op": "add", "value": 3 },
-					{ "stat": "luck", "op": "add", "value": 5 }
+					{
+						"stat": "harvest",
+						"op": "add",
+						"value": 2
+					},
+					{
+						"stat": "luck",
+						"op": "add",
+						"value": 3
+					},
+					{
+						"stat": "max_hp",
+						"op": "add",
+						"value": -15
+					}
 				]
 			}
 		]
@@ -33,13 +95,44 @@
 		"id": "blood",
 		"name": "Sangue",
 		"tiers": [
-			{ "count": 2, "modifiers": [{ "stat": "life_steal", "op": "add", "value": 0.01 }] },
-			{ "count": 4, "modifiers": [{ "stat": "damage", "op": "add", "value": 0.05 }] },
+			{
+				"count": 2,
+				"modifiers": [
+					{
+						"stat": "life_steal",
+						"op": "add",
+						"value": 0.003
+					}
+				]
+			},
+			{
+				"count": 4,
+				"modifiers": [
+					{
+						"stat": "damage",
+						"op": "add",
+						"value": 0.01
+					}
+				]
+			},
 			{
 				"count": 6,
 				"modifiers": [
-					{ "stat": "life_steal", "op": "add", "value": 0.02 },
-					{ "stat": "crit_chance", "op": "add", "value": 0.05 }
+					{
+						"stat": "life_steal",
+						"op": "add",
+						"value": 0.01
+					},
+					{
+						"stat": "crit_chance",
+						"op": "add",
+						"value": 0.03
+					},
+					{
+						"stat": "max_hp",
+						"op": "add",
+						"value": -15
+					}
 				]
 			}
 		]
@@ -48,13 +141,44 @@
 		"id": "ember",
 		"name": "Brasa",
 		"tiers": [
-			{ "count": 2, "modifiers": [{ "stat": "attack_speed", "op": "add", "value": 0.04 }] },
-			{ "count": 4, "modifiers": [{ "stat": "explosion_size", "op": "add", "value": 0.15 }] },
+			{
+				"count": 2,
+				"modifiers": [
+					{
+						"stat": "attack_speed",
+						"op": "add",
+						"value": 0.01
+					}
+				]
+			},
+			{
+				"count": 4,
+				"modifiers": [
+					{
+						"stat": "explosion_size",
+						"op": "add",
+						"value": 0.05
+					}
+				]
+			},
 			{
 				"count": 6,
 				"modifiers": [
-					{ "stat": "attack_speed", "op": "add", "value": 0.08 },
-					{ "stat": "damage", "op": "add", "value": 0.05 }
+					{
+						"stat": "attack_speed",
+						"op": "add",
+						"value": 0.06
+					},
+					{
+						"stat": "damage",
+						"op": "add",
+						"value": 0.03
+					},
+					{
+						"stat": "armor",
+						"op": "add",
+						"value": -3
+					}
 				]
 			}
 		]
@@ -63,13 +187,44 @@
 		"id": "grave",
 		"name": "Cova",
 		"tiers": [
-			{ "count": 2, "modifiers": [{ "stat": "max_hp", "op": "add", "value": 10 }] },
-			{ "count": 4, "modifiers": [{ "stat": "hp_regen", "op": "add", "value": 0.25 }] },
+			{
+				"count": 2,
+				"modifiers": [
+					{
+						"stat": "max_hp",
+						"op": "add",
+						"value": 3
+					}
+				]
+			},
+			{
+				"count": 4,
+				"modifiers": [
+					{
+						"stat": "hp_regen",
+						"op": "add",
+						"value": 0.05
+					}
+				]
+			},
 			{
 				"count": 6,
 				"modifiers": [
-					{ "stat": "max_hp", "op": "add", "value": 30 },
-					{ "stat": "hp_regen", "op": "add", "value": 0.25 }
+					{
+						"stat": "max_hp",
+						"op": "add",
+						"value": 10
+					},
+					{
+						"stat": "hp_regen",
+						"op": "add",
+						"value": 0.1
+					},
+					{
+						"stat": "attack_speed",
+						"op": "add",
+						"value": -0.06
+					}
 				]
 			}
 		]
@@ -78,13 +233,44 @@
 		"id": "curse",
 		"name": "Maldição",
 		"tiers": [
-			{ "count": 2, "modifiers": [{ "stat": "luck", "op": "add", "value": 5 }] },
-			{ "count": 4, "modifiers": [{ "stat": "crit_chance", "op": "add", "value": 0.04 }] },
+			{
+				"count": 2,
+				"modifiers": [
+					{
+						"stat": "luck",
+						"op": "add",
+						"value": 2
+					}
+				]
+			},
+			{
+				"count": 4,
+				"modifiers": [
+					{
+						"stat": "crit_chance",
+						"op": "add",
+						"value": 0.01
+					}
+				]
+			},
 			{
 				"count": 6,
 				"modifiers": [
-					{ "stat": "boss_damage", "op": "add", "value": 0.15 },
-					{ "stat": "crit_chance", "op": "add", "value": 0.04 }
+					{
+						"stat": "boss_damage",
+						"op": "add",
+						"value": 0.1
+					},
+					{
+						"stat": "crit_chance",
+						"op": "add",
+						"value": 0.04
+					},
+					{
+						"stat": "max_hp",
+						"op": "add",
+						"value": -20
+					}
 				]
 			}
 		]
