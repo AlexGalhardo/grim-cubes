@@ -3,6 +3,7 @@ import {
 	buildResults,
 	createLoadoutView,
 	describeCause,
+	itemLines,
 	type ResultsSource,
 	roundSecondsLeft,
 } from "./hudView";
@@ -155,5 +156,21 @@ describe("results view", () => {
 	it("has no next unlock when every node is owned, locked or demo-gated", () => {
 		const view = buildResults({ ...source, nodes: [{ label: "x", cost: 1, state: "owned" }] }, names);
 		expect(view.nextUnlock).toBeNull();
+	});
+});
+
+describe("item lines", () => {
+	it("lists the modifiers and then the effects, so an effect-only item is never blank", () => {
+		const text = (d: { key: string }): string => d.key;
+		expect(itemLines({ modifiers: [], effects: [{ id: "dash_unlock" }] }, text)).toEqual([
+			"effect.dash_unlock",
+		]);
+		expect(
+			itemLines(
+				{ modifiers: [{ stat: "armor", op: "add", value: 3 }], effects: [{ id: "dash_unlock" }] },
+				text,
+			),
+		).toHaveLength(2);
+		expect(itemLines({ modifiers: [] }, text)).toEqual([]);
 	});
 });

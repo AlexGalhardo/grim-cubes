@@ -1,3 +1,5 @@
+import type { Described } from "@gc/core";
+import { describeEffect, describeModifier, type Modifier } from "@gc/game";
 import type { HudItem, HudWeapon, IconRef, ResultsViewModel } from "@gc/ui";
 
 export interface LoadoutSource {
@@ -174,4 +176,20 @@ export function buildResults(source: ResultsSource, lookup: ResultsLookup): Resu
 		seed: source.seed,
 		nextUnlock: open ? { name: open.label, cost: open.cost } : null,
 	};
+}
+
+/** The effect lines of an item: its stat modifiers, then its effects. Most chest and shop items are effect-only, so a card needs both. */
+export function itemLines(
+	item: {
+		modifiers: readonly Modifier[];
+		effects?:
+			| readonly { id: string; params?: Record<string, number | string | boolean> | undefined }[]
+			| undefined;
+	},
+	text: (described: Described) => string,
+): string[] {
+	return [
+		...item.modifiers.map((m) => text(describeModifier(m))),
+		...(item.effects ?? []).map((e) => text(describeEffect(e.id, e.params))),
+	];
 }

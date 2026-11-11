@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **ui:** Elite-chest cards list the item's effects as well as its stat modifiers (through the new pure `itemLines`), so the effect-only Legendary items (the Ossuary arrow, the ruin sigil) no longer show a card with only a name and an icon; checked with `spawnElite()` and `killElites()` at the four screen targets
 - **ui:** Eleven item effects (rat king, executioner mark, brimstone heart, bone saw, tithe box, spiked boots, hellfire round, doom sigil, phylactery, blood altar, cube of wrath) had no text in either language, so shop and chest cards showed the raw `effect.<id>` key; they now read normally, chances and fractions show as clean percentages, and a test refuses any effect id of the items and the Ossuary without a text in pt-BR and en
 - **ui:** Outside a timed round (the intro, the walk to the Merchant, the shop) the top-centre round plate is gone instead of a lone "ROUND n" over an invisible timer; it returns with the countdown, and the boss bar still takes the place in a boss fight
 - **ui:** On touch screens the boss bar sits centred in the space between the vitals and the wallet (the HUD grid becomes `auto 1fr auto` while a boss is up), so at 800x360 it is about 50 px from the weapon slot and the wallet instead of 8 px; measured with `toBossFrame()` at 800x360, 896x414 and 1920x1080

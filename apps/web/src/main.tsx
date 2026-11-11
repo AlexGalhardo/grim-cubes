@@ -171,7 +171,7 @@ import { createMerchantVoice } from "./audio/merchantVoice";
 import { uiSounds } from "./audio/uiSounds";
 import { ambienceFor, createWebAudioDeps, musicFor, weaponLoopFor } from "./audio/webAudio";
 import { createDebugGamepad } from "./debugGamepad";
-import { buildResults, createLoadoutView, roundSecondsLeft } from "./hudView";
+import { buildResults, createLoadoutView, itemLines, roundSecondsLeft } from "./hudView";
 import { applyLocale, initLocale } from "./locale";
 import { canOpenPause } from "./pauseGate";
 import { createSoak, soakOptionsFrom } from "./soak";
@@ -1729,7 +1729,14 @@ async function boot(): Promise<void> {
 						double: false,
 						icon: iconFor("item", c.id),
 						rarity: c.tier,
-						lines: c.modifiers.map((m) => text(describeModifier(m))),
+						// Most chest items are effect-only (a Legendary arrow, a sigil): their card would be blank without the effects.
+						lines: itemLines(
+							{
+								modifiers: c.modifiers,
+								effects: itemsData.find((entry) => entry.id === c.id)?.effects,
+							},
+							text,
+						),
 						changes: cardChanges(c.modifiers),
 					}))
 				: NO_CARDS;
