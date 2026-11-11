@@ -87,9 +87,16 @@ test("the HUD clusters stay out of the hero's central area and do not overlap ea
 		expect(joystick, "the joystick region is on screen").not.toBeNull();
 		if (joystick) {
 			for (const box of clusters) {
-				expect(overlaps(box, { id: "joystick", ...joystick }), `${box.id} sits on the joystick`).toBe(
-					false,
-				);
+				expect(
+					overlaps(box, {
+						id: "joystick",
+						x: joystick.x,
+						y: joystick.y,
+						w: joystick.width,
+						h: joystick.height,
+					}),
+					`${box.id} sits on the joystick`,
+				).toBe(false);
 			}
 		}
 	}
