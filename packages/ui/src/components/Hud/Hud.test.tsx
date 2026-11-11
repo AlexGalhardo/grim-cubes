@@ -86,9 +86,14 @@ test("an empty item set draws no strip", () => {
 	expect(screen.queryByTestId("hud-items")).toBeNull();
 });
 
-test("the timer is hidden from view outside a timed round, and the clock gives way to the boss bar", () => {
+test("the whole round plate is absent outside a timed round, and the clock gives way to the boss bar", () => {
 	const { rerender } = render(<Hud hud={view({ secondsLeft: 0 })} />);
-	expect(screen.getByTestId("hud-timer").className).toContain("invisible");
+	expect(screen.queryByTestId("hud-timer")).toBeNull();
+	expect(screen.queryByTestId("hud-round")).toBeNull();
+	rerender(<Hud hud={view({ secondsLeft: 12 })} />);
+	expect(screen.getByTestId("hud-round")).toBeTruthy();
+	expect(screen.getByTestId("hud-timer").className).not.toContain("invisible");
+	rerender(<Hud hud={view({ secondsLeft: 0 })} />);
 	rerender(
 		<Hud
 			hud={view({ boss: { name: "B", hp: 1, maxHp: 1, phase: 0, phaseMarkers: [0.5], enrage: 0 } })}
@@ -156,7 +161,7 @@ test("the timer turns blood-light and pulses only in the last five seconds", () 
 	expect(timer().className).toContain("text-blood-light");
 	expect(timer().className).toContain("animate-low");
 	rerender(<Hud hud={view({ secondsLeft: 0 })} />);
-	expect(timer().getAttribute("data-urgent")).toBe("false");
+	expect(screen.queryByTestId("hud-timer")).toBeNull();
 });
 
 test("the boss bar takes the top-centre place of the clock", () => {

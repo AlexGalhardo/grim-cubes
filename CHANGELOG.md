@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **ui:** Outside a timed round (the intro, the walk to the Merchant, the shop) the top-centre round plate is gone instead of a lone "ROUND n" over an invisible timer; it returns with the countdown, and the boss bar still takes the place in a boss fight
 - **ui:** On touch screens the boss bar sits centred in the space between the vitals and the wallet (the HUD grid becomes `auto 1fr auto` while a boss is up), so at 800x360 it is about 50 px from the weapon slot and the wallet instead of 8 px; measured with `toBossFrame()` at 800x360, 896x414 and 1920x1080
 - **ui:** The title menu fits all six buttons (Continue, New game, Ossuary, Options, Wishlist, Quit) at 800x360 without scrolling or the build label covering the last one (tighter gap and bottom padding on short screens); checked at 800x360, 896x414 and 2560x1440 (ROADMAP known loose ends)
 - **ui:** The shop offers show their synergy tags with the progress after buying (a mark when the purchase reaches a tier), the shop lists the tags the hero owns, the stat preview includes the tier bonus the purchase would activate, and the desktop HUD lists the tags as `Ferro 2/4`; `sfx_ui_synergy` plays when a tag gains a tier (S-14-02, closes S-05-01)

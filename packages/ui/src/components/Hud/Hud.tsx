@@ -122,8 +122,10 @@ function Vitals({ hud }: { hud: HudView }): JSX.Element {
 	);
 }
 
-function Clock({ hud }: { hud: HudView }): JSX.Element {
-	const urgent = hud.secondsLeft > 0 && hud.secondsLeft <= URGENT_SECONDS;
+/** The round plate and the timer only exist during a timed round: between rounds a lone "ROUND n" over an empty timer row says nothing. */
+function Clock({ hud }: { hud: HudView }): JSX.Element | null {
+	if (hud.secondsLeft <= 0) return null;
+	const urgent = hud.secondsLeft <= URGENT_SECONDS;
 	return (
 		<div className={`${PLATE} flex flex-col items-center px-3 py-1`}>
 			<div
@@ -137,7 +139,7 @@ function Clock({ hud }: { hud: HudView }): JSX.Element {
 				role="timer"
 				aria-label={t("hud.timer")}
 				data-urgent={urgent}
-				className={`font-display text-2xl leading-none desktop:text-[40px] ${hud.secondsLeft > 0 ? "" : "invisible"} ${urgent ? "animate-low text-blood-light" : ""}`}
+				className={`font-display text-2xl leading-none desktop:text-[40px] ${urgent ? "animate-low text-blood-light" : ""}`}
 			>
 				{formatClock(hud.secondsLeft)}
 			</div>
