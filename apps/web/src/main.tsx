@@ -1645,7 +1645,7 @@ async function boot(): Promise<void> {
 	function freshStats(): PlayerStats {
 		return currentStats(
 			stats,
-			heroData,
+			session.heroStatsData,
 			stats.stats.dirty ? synergyModifiers(session.synergies.states, synergiesData) : [],
 			currentScratch,
 		);
