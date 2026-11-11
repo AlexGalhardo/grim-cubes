@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **ui:** Mobile HUD checks: compact vitals, 24 px timer, gold and souls only, safe-area margins and 48 px buttons are asserted by a component test and by the layout spec on the touch projects, which also keeps every cluster off the joystick region (S-03-03)
 - **ui:** In-run HUD in four corners (`components/Hud/Hud.tsx`): hero portrait with level badge, HP and thin XP bars, round label over a large timer, gold, souls and kills with glyphs, square icon buttons, weapon frame with tier pips and the item strip with counters; plates behind the clusters, nothing in the hero area, with a Playwright layout spec (S-03-02)
 - **ui:** `HudState` carries the seconds left in the round, the run souls, kills, the weapon with its tier and the grouped items, and the boss view lists its phase markers; built by a pure `createLoadoutView` that reuses its arrays until the owned set changes (S-03-01)
 - **render:** Damage numbers are Inter digits painted into the atlas with a dark outline (the pixel digits read "125" as "I2I"), bigger for the closer camera, crits larger in ember-light; size, crit scale and outline come from `data/render.json` (S-01-04)

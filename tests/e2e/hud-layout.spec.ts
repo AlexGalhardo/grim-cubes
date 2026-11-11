@@ -70,5 +70,28 @@ test("the HUD clusters stay out of the hero's central area and do not overlap ea
 			expect(overlaps(a, b), `${a.id} overlaps ${b.id}`).toBe(false);
 		}
 	}
+
+	if (testInfo.project.use.hasTouch) {
+		const sizes = await page.evaluate(() =>
+			["pause-open", "speed-toggle", "options-open"].flatMap((id) => {
+				const el = document.querySelector(`[data-testid="${id}"]`);
+				const r = el?.getBoundingClientRect();
+				return r ? [{ id, w: r.width, h: r.height }] : [];
+			}),
+		);
+		for (const s of sizes) {
+			expect(s.w, `${s.id} width`).toBeGreaterThanOrEqual(48);
+			expect(s.h, `${s.id} height`).toBeGreaterThanOrEqual(48);
+		}
+		const joystick = await page.getByTestId("joystick-region").boundingBox();
+		expect(joystick, "the joystick region is on screen").not.toBeNull();
+		if (joystick) {
+			for (const box of clusters) {
+				expect(overlaps(box, { id: "joystick", ...joystick }), `${box.id} sits on the joystick`).toBe(
+					false,
+				);
+			}
+		}
+	}
 	await page.screenshot({ path: testInfo.outputPath("hud-layout.png") });
 });

@@ -83,7 +83,7 @@ A Parte 2 não entra na meta: depende do PO, de hardware, de loja ou de data.
   - Asserts: teste do view model em `apps/web`; teste que o snapshot reaproveita arrays quando nada mudou; SDD 07 §2 atualizado.
 - [x] **S-03-02** HUD em grade de quatro cantos. Topo-esquerda: retrato do herói, HP e XP com nível. Topo-centro: round e timer grandes, ou a barra do chefe. Topo-direita: ouro e almas com ícone, velocidade, pausa. Base-esquerda: arma com pips de tier e faixa de itens. Nada cobre o herói nem o anel de 6 u ao redor dele.
   - Asserts: `data-testid` `hud-hp`, `hud-xp`, `hud-round`, `hud-timer`, `hud-gold`, `hud-souls`, `hud-weapon`, `hud-items`, `hud-kills` presentes; teste de layout prova que nenhum elemento do HUD invade o retângulo central nos quatro alvos; `a11y.test.tsx` verde; capturas nos quatro alvos.
-- [ ] **S-03-03** HUD mobile: HP e XP compactos, round e timer no centro, joystick à esquerda, dash e pausa à direita, margens pela safe area, alvos de toque ≥ 48 px.
+- [x] **S-03-03** HUD mobile: HP e XP compactos, round e timer no centro, joystick à esquerda, dash e pausa à direita, margens pela safe area, alvos de toque ≥ 48 px.
   - Asserts: capturas em 896×414 e 800×360 sem sobreposição; teste de componente dos tamanhos mínimos de toque.
 - [ ] **S-03-04** Barra do chefe com placa de nome, pips de fase e pulso de fúria; aviso de HP baixo na barra do herói; contagem regressiva destacada nos últimos 5 s do round.
   - Asserts: testes de `BossBar` e `Bar` para os estados; captura `boss` nos quatro alvos.

@@ -122,3 +122,22 @@ test("on touch the weapon sits beside the vitals and the item strip is left to t
 		true,
 	);
 });
+
+test("touch targets and compact sizes: buttons are 48 px, the vitals shrink below the desktop breakpoint", () => {
+	render(<Hud hud={view()} touch onPause={vi.fn()} onCycleSpeed={vi.fn()} onOpenOptions={vi.fn()} />);
+	for (const id of ["pause-open", "speed-toggle", "options-open"]) {
+		const className = screen.getByTestId(id).className;
+		expect(className, id).toContain("size-12");
+		expect(className, id).toContain("pointer-coarse:size-12");
+	}
+	expect(screen.getByTestId("hud-portrait").className).toContain("size-10");
+	expect(within(screen.getByTestId("hud-hp")).getByRole("progressbar").className).toContain("h-4");
+	expect(within(screen.getByTestId("hud-xp")).getByRole("progressbar").className).toContain("h-1.5");
+	expect(screen.getByTestId("hud-timer").className).toContain("text-2xl");
+});
+
+test("on touch the wallet keeps gold and souls and drops the kills counter at the compact sizes", () => {
+	render(<Hud hud={view()} touch />);
+	expect(screen.getByTestId("hud-kills").className).toContain("hidden");
+	expect(screen.getByTestId("hud-kills").className).toContain("desktop:flex");
+});
