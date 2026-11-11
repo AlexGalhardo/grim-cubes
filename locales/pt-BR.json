@@ -427,5 +427,10 @@
 	"tag.blood": "Sangue",
 	"tag.ember": "Brasa",
 	"tag.grave": "Cova",
-	"tag.curse": "Maldição"
+	"tag.curse": "Maldição",
+	"hud.synergies": "Sinergias",
+	"hud.synergy": "{name}: {count} itens, {tiers} degraus ativos",
+	"shop.synergies": "Sinergias",
+	"shop.tag": "Etiqueta {name}: {count} itens depois da compra",
+	"shop.tagActivates": "Etiqueta {name}: a compra ativa um degrau ({count} itens)"
 }

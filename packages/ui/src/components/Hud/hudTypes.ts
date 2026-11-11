@@ -19,3 +19,15 @@ export interface HudWeapon {
 	/** Weapon icon from the atlas; the frame falls back to a glyph while the assets load. */
 	icon?: IconRef | undefined;
 }
+
+/** Progress on one item tag (GDD 15.5): the HUD and the shop list the tags the hero has at least one item of. */
+export interface SynergyView {
+	id: string;
+	name: string;
+	/** Distinct owned items with the tag. */
+	count: number;
+	/** Tiers active now. */
+	reached: number;
+	/** Count of the next tier; null when every tier is active. */
+	nextAt: number | null;
+}

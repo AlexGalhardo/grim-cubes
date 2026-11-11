@@ -46,6 +46,7 @@ import {
 	captureCheckpoint,
 	chooseDifficulty,
 	computeStats,
+	computeSynergies,
 	createBot,
 	createGameSession,
 	createLoop,
@@ -94,6 +95,8 @@ import {
 	Speed,
 	STEP,
 	soulsForRun,
+	synergiesData,
+	synergyModifiers,
 	unlockedSkins,
 	type WeaponDef,
 	weaponsData,
@@ -153,7 +156,9 @@ import {
 	type CardView,
 	type HudState,
 	type IconRef,
+	type SlotTagView,
 	type StatPreview,
+	type SynergyView,
 	type VolumeBus,
 } from "@gc/ui";
 import { addComponent, query } from "bitecs";
@@ -390,6 +395,7 @@ async function boot(): Promise<void> {
 		kills: 0,
 		weapon: { id: "", name: "", tier: 1 },
 		items: [],
+		synergies: [],
 		cards: NO_CARDS,
 		chest: NO_CARDS,
 		shop: null,
@@ -1502,8 +1508,14 @@ async function boot(): Promise<void> {
 		value,
 		percent: false,
 	});
-	function statChanges(mods: readonly Modifier[]): StatChange[] {
-		computeStats(heroData, [...stats.modifiers, ...mods], scratchStats);
+	function statChanges(mods: readonly Modifier[], bonus?: readonly Modifier[]): StatChange[] {
+		computeStats(
+			heroData,
+			[...stats.modifiers, ...mods],
+			scratchStats,
+			undefined,
+			bonus ?? synergyModifiers(session.synergies.states, synergiesData),
+		);
 		const before = [...describeStats(stats.stats), rangeLine(stats.stats.range)];
 		const after = [...describeStats(scratchStats), rangeLine(scratchStats.range)];
 		const out: StatChange[] = [];
@@ -1538,12 +1550,54 @@ async function boot(): Promise<void> {
 	function statPreview(itemId: string): Record<string, StatPreview> | undefined {
 		const item = itemsData.find((entry) => entry.id === itemId);
 		if (!item) return undefined;
-		const changes = statChanges(item.modifiers);
+		// Buying a new item can reach a synergy tier: its bonus belongs in the preview.
+		const withItem = new Map(owned).set(itemId, Math.max(1, owned.get(itemId) ?? 0));
+		const bonus = synergyModifiers(computeSynergies(itemsData, withItem, synergiesData), synergiesData);
+		const changes = statChanges(item.modifiers, bonus);
 		return changes.length > 0
 			? Object.fromEntries(
 					changes.map((c) => [c.id, { after: c.after, delta: c.delta, better: c.better }]),
 				)
 			: undefined;
+	}
+	/** The tags of an item offer and what buying it does to each (progress after the purchase, tier reached). */
+	function slotTags(itemId: string): SlotTagView[] {
+		const item = itemsData.find((entry) => entry.id === itemId);
+		if (!item) return [];
+		const have = (owned.get(itemId) ?? 0) > 0;
+		return item.tags.flatMap((tag) => {
+			const state = session.synergies.states.find((s) => s.id === tag);
+			if (!state) return [];
+			const after = state.count + (have ? 0 : 1);
+			return [
+				{
+					id: tag,
+					name: t(`tag.${tag}`),
+					after,
+					nextAt: state.thresholds.find((n) => n > after) ?? null,
+					activates: !have && state.thresholds.includes(after),
+				},
+			];
+		});
+	}
+	let lastSynergyStates: unknown = null;
+	let lastSynergyView: readonly SynergyView[] = [];
+	/** Tags with an owned item; a new array only when the inventory changed (the store compares by identity). */
+	function synergyView(): readonly SynergyView[] {
+		const states = session.synergies.states;
+		if (states !== lastSynergyStates) {
+			lastSynergyStates = states;
+			lastSynergyView = states
+				.filter((s) => s.count > 0)
+				.map((s) => ({
+					id: s.id,
+					name: t(`tag.${s.id}`),
+					count: s.count,
+					reached: s.reached,
+					nextAt: s.nextAt,
+				}));
+		}
+		return lastSynergyView;
 	}
 	/** Damage and attacks per second of a weapon at `tier` (0-3), for the weapon panel and the weapon offers. */
 	function weaponLines(
@@ -1702,8 +1756,10 @@ async function boot(): Promise<void> {
 						lines: offerLines(slot),
 						icon: iconFor(slot.kind === "item" ? "item" : "weapon", slot.id),
 						preview: slot.kind === "item" ? statPreview(slot.id) : undefined,
+						tags: slot.kind === "item" ? slotTags(slot.id) : undefined,
 					})),
 					...shopPanels(),
+					synergies: synergyView(),
 				};
 			}
 			shopView = lastShop;
@@ -1752,6 +1808,7 @@ async function boot(): Promise<void> {
 			kills: runStats.kills,
 			weapon: loadoutView.weapon,
 			items: loadoutView.items,
+			synergies: synergyView(),
 			cards: lastOffer,
 			cardRerolls: levelUp.rerollsLeft,
 			chest: lastChest,

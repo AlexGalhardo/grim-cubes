@@ -17,7 +17,7 @@ export type {
 	DifficultyViewModel,
 } from "./components/Difficulty/Difficulty";
 export { Difficulty } from "./components/Difficulty/Difficulty";
-export type { HudItem, HudWeapon } from "./components/Hud/hudTypes";
+export type { HudItem, HudWeapon, SynergyView } from "./components/Hud/hudTypes";
 export type { IconProps, IconRef } from "./components/Icon/Icon";
 export { Icon } from "./components/Icon/Icon";
 export type { CardChange, CardView, LevelUpProps } from "./components/LevelUp/LevelUp";
@@ -52,6 +52,7 @@ export type {
 	ShopProps,
 	ShopSlotView,
 	ShopViewModel,
+	SlotTagView,
 } from "./components/Shop/Shop";
 export { Shop } from "./components/Shop/Shop";
 export type { StatLineView, StatPreview } from "./components/StatList/StatList";

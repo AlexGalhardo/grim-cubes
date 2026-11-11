@@ -10,7 +10,7 @@ import {
 	type DifficultyViewModel,
 } from "./components/Difficulty/Difficulty";
 import { Hud } from "./components/Hud/Hud";
-import type { HudItem, HudWeapon } from "./components/Hud/hudTypes";
+import type { HudItem, HudWeapon, SynergyView } from "./components/Hud/hudTypes";
 import { type CardView, LevelUp } from "./components/LevelUp/LevelUp";
 import { Menu, type MenuActions, type MenuViewModel } from "./components/Menu/Menu";
 import { MerchantPrompt, type MerchantPromptView } from "./components/MerchantPrompt/MerchantPrompt";
@@ -46,6 +46,8 @@ export interface HudState {
 	weapon: HudWeapon;
 	/** The items the hero carries, grouped with a count; the same array until the owned set changes. */
 	items: readonly HudItem[];
+	/** Tags with at least one owned item and their progress; the same array until the inventory changes. */
+	synergies: readonly SynergyView[];
 	/** The level-up offer on screen; empty when none. */
 	cards: readonly CardView[];
 	/** The elite chest offer on screen; empty when none. */

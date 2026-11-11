@@ -97,7 +97,7 @@ A Parte 1B (arte medium poly) começa depois da `v0.6.0` e tem pontos de parada 
 
 ### S-05 Loja
 
-- [~] **S-05-01** Ofertas de arma mostram ícone próprio, dano e ataques por segundo; ofertas de item mostram o efeito e a etiqueta de sinergia (depois da S-14). Estado em 2026-11-11: ícone, dano, ataques por segundo (a melhoria mostra o nível seguinte) e o efeito do item, inclusive os efeitos sem modificador de atributo, estão prontos; falta a etiqueta de sinergia, que depende da S-14.
+- [x] **S-05-01** Ofertas de arma mostram ícone próprio, dano e ataques por segundo; ofertas de item mostram o efeito e a etiqueta de sinergia (depois da S-14). Estado em 2026-11-11: ícone, dano, ataques por segundo (a melhoria mostra o nível seguinte) e o efeito do item, inclusive os efeitos sem modificador de atributo, estão prontos; as etiquetas de sinergia entraram com a S-14-02 (cada oferta de item mostra as suas, com o progresso depois da compra).
   - Asserts: teste de `Shop` com fixture de arma e de item; nenhuma oferta usa o ícone genérico.
 - [x] **S-05-02** Prévia nos atributos: ao focar ou passar o mouse numa oferta, cada atributo afetado mostra o delta em verde ou vermelho antes da compra.
   - Asserts: `data-testid="shop-delta-<stat>"` aparece com o valor certo no teste; funciona por teclado e por controle.
@@ -158,7 +158,7 @@ A Parte 1B (arte medium poly) começa depois da `v0.6.0` e tem pontos de parada 
 
 - [x] **S-14-01** Cada item ganha uma ou duas etiquetas de um conjunto de seis; juntar 2, 4 e 6 da mesma etiqueta dá bônus definidos em `data/synergies.json`, com esquema e `data:check`.
   - Asserts: `bun run data:check` exit 0; todo item de `data/items.json` tem etiqueta; teste de aplicação e remoção dos bônus; GDD §15 atualizado.
-- [ ] **S-14-02** A loja e o HUD mostram as etiquetas e o progresso de cada sinergia; a prévia da S-05-02 inclui o bônus que a compra ativaria.
+- [x] **S-14-02** A loja e o HUD mostram as etiquetas e o progresso de cada sinergia; a prévia da S-05-02 inclui o bônus que a compra ativaria.
   - Asserts: testes de `Shop` e do HUD; capturas `shop` nos quatro alvos.
 - [x] **S-14-03** Balanceamento: `bun run sim --check` dentro das faixas com as sinergias ligadas.
   - Asserts: `reports/balance-*.json` atualizado; nenhuma faixa do GDD §25 violada.

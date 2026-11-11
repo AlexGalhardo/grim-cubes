@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { heroData, itemsData, synergiesData } from "../data";
-import { createPlayerStats } from "../rules/stats";
+import { computeStats, createPlayerStats } from "../rules/stats";
 import { computeSynergies, type SynergyState, synergyModifiers } from "../rules/synergies";
 import { createStatsSystem, type StatsSystem } from "./stats";
 import { createSynergySystem, type SynergySystem } from "./synergies";
@@ -75,4 +75,13 @@ describe("item tag synergies", () => {
 		synergies.refresh();
 		expect(armorAt()).toBe(base);
 	});
+});
+
+it("computeStats takes the preview bonus on top of the saved modifiers, so a shop preview can add a tier", () => {
+	const hero = { ...heroData };
+	const plain = createPlayerStats();
+	const withBonus = createPlayerStats();
+	computeStats(hero, [], plain);
+	computeStats(hero, [], withBonus, undefined, synergiesData[0]?.tiers[0]?.modifiers ?? []);
+	expect(withBonus.armor).toBeGreaterThan(plain.armor);
 });

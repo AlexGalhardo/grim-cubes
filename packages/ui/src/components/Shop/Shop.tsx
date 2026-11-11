@@ -2,9 +2,22 @@ import { t } from "@gc/core";
 import { type JSX, type ReactNode, useEffect, useState } from "react";
 import { isDesktopWidth, useShortScreen } from "../../hooks/useViewport";
 import { useDialogNav } from "../../nav/useDialogNav";
+import type { SynergyView } from "../Hud/hudTypes";
 import { Icon, type IconRef } from "../Icon/Icon";
 import { type StatLineView, StatList, type StatPreview } from "../StatList/StatList";
 import { PLATE, TIER_BORDER, TIER_TEXT } from "../styles";
+
+/** One tag of an item offer and what buying it does to that tag. */
+export interface SlotTagView {
+	id: string;
+	name: string;
+	/** Distinct owned items with the tag after the purchase. */
+	after: number;
+	/** Count of the next tier after the purchase; null when every tier is active. */
+	nextAt: number | null;
+	/** The purchase reaches a tier of this tag. */
+	activates: boolean;
+}
 
 export interface ShopSlotView {
 	kind: "item" | "weapon" | "upgrade";
@@ -20,6 +33,8 @@ export interface ShopSlotView {
 	icon?: IconRef | undefined;
 	/** Stat line id -> change of buying this offer, shown while the offer is hovered or focused. */
 	preview?: Readonly<Record<string, StatPreview>> | undefined;
+	/** Tags of an item offer (one or two). */
+	tags?: readonly SlotTagView[] | undefined;
 }
 
 export interface ShopViewModel {
@@ -29,6 +44,8 @@ export interface ShopViewModel {
 	hero?: ShopHeroView | undefined;
 	weapon?: ShopWeaponView | undefined;
 	items?: readonly OwnedItemView[] | undefined;
+	/** Tags the hero owns items of, with their progress. */
+	synergies?: readonly SynergyView[] | undefined;
 	/** One Merchant line under its name. */
 	quote?: string | undefined;
 }
@@ -128,6 +145,32 @@ function Counter({ icon, children, testId }: { icon: string; children: ReactNode
 			</span>
 			{children}
 		</div>
+	);
+}
+
+function TagChips({ tags, short }: { tags: readonly SlotTagView[]; short: boolean }): JSX.Element {
+	return (
+		<ul data-testid="shop-tags" className="mt-1 flex flex-wrap gap-1">
+			{tags.map((tag) => (
+				<li
+					key={tag.id}
+					data-activates={tag.activates}
+					className={`border px-1 font-display ${short ? "text-[10px] leading-3" : "text-xs"} ${tag.activates ? "border-ember text-ember-light" : "border-iron-dark text-bone-dark"}`}
+				>
+					<span aria-hidden="true">
+						{tag.name} {tag.after}
+						{tag.nextAt === null ? "" : `/${tag.nextAt}`}
+						{tag.activates ? " ▲" : ""}
+					</span>
+					<span className="sr-only">
+						{t(tag.activates ? "shop.tagActivates" : "shop.tag", {
+							name: tag.name,
+							count: tag.after,
+						})}
+					</span>
+				</li>
+			))}
+		</ul>
 	);
 }
 
@@ -348,6 +391,25 @@ export function Shop({
 							</ul>
 						</div>
 					) : null}
+					{!short && view.synergies && view.synergies.length > 0 ? (
+						<div className={`${PLATE} p-2`} data-testid="shop-synergies">
+							<h2 className="mb-1 font-display text-base text-bone uppercase">
+								{t("shop.synergies")}
+							</h2>
+							<ul className="flex flex-wrap gap-1">
+								{view.synergies.map((s) => (
+									<li
+										key={s.id}
+										data-reached={s.reached}
+										className={`border-2 bg-night-2 px-1.5 font-display text-sm ${s.reached > 0 ? "border-ember text-ember-light" : "border-iron-dark text-bone-dark"}`}
+									>
+										{s.name} {s.count}
+										{s.nextAt === null ? "" : `/${s.nextAt}`}
+									</li>
+								))}
+							</ul>
+						</div>
+					) : null}
 					<div
 						data-testid="shop-side"
 						className={`${PLATE} flex-1 ${short ? "min-h-0 overflow-y-auto p-1.5" : "p-3"}`}
@@ -435,6 +497,9 @@ export function Shop({
 													<li key={line}>{line}</li>
 												))}
 											</ul>
+											{slot.tags && slot.tags.length > 0 ? (
+												<TagChips tags={slot.tags} short={short} />
+											) : null}
 										</div>
 									</div>
 									<OfferRow slot={slot} index={i} short={short} actions={actions} />

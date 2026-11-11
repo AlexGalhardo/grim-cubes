@@ -427,5 +427,10 @@
 	"tag.blood": "Blood",
 	"tag.ember": "Ember",
 	"tag.grave": "Grave",
-	"tag.curse": "Curse"
+	"tag.curse": "Curse",
+	"hud.synergies": "Synergies",
+	"hud.synergy": "{name}: {count} items, {tiers} tiers active",
+	"shop.synergies": "Synergies",
+	"shop.tag": "Tag {name}: {count} items after buying",
+	"shop.tagActivates": "Tag {name}: buying unlocks a tier ({count} items)"
 }

@@ -278,3 +278,31 @@ test("the items grid is the owned items plus one empty row, not 16 slots", () =>
 	expect(cells(8)).toBe(16);
 	expect(cells(9)).toBe(24);
 });
+
+test("an item offer shows its tags with the progress after buying and marks the tier it reaches", () => {
+	const tagged: ShopViewModel = {
+		...view,
+		synergies: [{ id: "iron", name: "Ferro", count: 1, reached: 0, nextAt: 2 }],
+		slots: [
+			{
+				...(view.slots[0] as ShopViewModel["slots"][number]),
+				tags: [
+					{ id: "iron", name: "Ferro", after: 2, nextAt: 4, activates: true },
+					{ id: "grave", name: "Cova", after: 1, nextAt: 2, activates: false },
+				],
+			},
+			...view.slots.slice(1),
+		],
+	};
+	render(<Shop view={tagged} stats={stats} actions={actions()} />);
+	const chips = within(within(screen.getByTestId("shop-slot-0")).getByTestId("shop-tags")).getAllByRole(
+		"listitem",
+	);
+	expect(chips.map((c) => c.querySelector("[aria-hidden]")?.textContent?.trim())).toEqual([
+		"Ferro 2/4 ▲",
+		"Cova 1/2",
+	]);
+	expect(chips.map((c) => c.getAttribute("data-activates"))).toEqual(["true", "false"]);
+	expect(within(screen.getByTestId("shop-synergies")).getByText("Ferro 1/2")).toBeTruthy();
+	expect(within(screen.getByTestId("shop-slot-1")).queryByTestId("shop-tags")).toBeNull();
+});

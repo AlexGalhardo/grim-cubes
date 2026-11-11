@@ -267,7 +267,7 @@ Geração única com `ELEVENLABS_PLAN=creator bun run audio:generate --max-credi
 | `sfx_ui_unlock` | desbloqueio de herói, dificuldade ou marco |
 | `sfx_ui_timer_tick` | cada um dos últimos 5 segundos do round |
 | `sfx_ui_results` | abre a tela de resultados |
-| `sfx_ui_synergy` | sinergia ativada (S-14) |
+| `sfx_ui_synergy` | um degrau de sinergia é alcançado (S-14-02) |
 | `sfx_ui_hero_select` | escolha de herói (S-12) |
 
 Loudness: passada `normalize.ts --apply` em todos. `sfx_ui_rarity_rare` (-20,8 LUFS) e `sfx_ui_timer_tick` (-19,4 LUFS) ficam abaixo do alvo de -16 porque são transientes curtos já no teto de pico (-1,6 dBTP); o `sfx_ui_timer_tick` veio quase mudo da geração (-50 LUFS) e precisou de três passadas.

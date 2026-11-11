@@ -168,3 +168,31 @@ test("the boss bar takes the top-centre place of the clock", () => {
 	expect(screen.getByTestId("boss-bar")).toBeTruthy();
 	expect(screen.queryByTestId("hud-timer")).toBeNull();
 });
+
+test("the synergy strip lists each tag with its progress and lights the ones with a tier", () => {
+	const synergies = [
+		{ id: "iron", name: "Ferro", count: 2, reached: 1, nextAt: 4 },
+		{ id: "bone", name: "Osso", count: 1, reached: 0, nextAt: 2 },
+		{ id: "ember", name: "Brasa", count: 6, reached: 3, nextAt: null },
+	];
+	render(<Hud hud={view({ synergies })} />);
+	const rows = within(screen.getByTestId("hud-synergies")).getAllByRole("listitem");
+	expect(rows.map((r) => r.querySelector("[aria-hidden]")?.textContent)).toEqual([
+		"Ferro 2/4",
+		"Osso 1/2",
+		"Brasa 6",
+	]);
+	expect(rows.map((r) => r.getAttribute("data-reached"))).toEqual(["1", "0", "3"]);
+});
+
+test("no synergy strip without a tagged item, and none on touch screens", () => {
+	const { rerender } = render(<Hud hud={view()} />);
+	expect(screen.queryByTestId("hud-synergies")).toBeNull();
+	rerender(
+		<Hud
+			hud={view({ synergies: [{ id: "iron", name: "Ferro", count: 1, reached: 0, nextAt: 2 }] })}
+			touch
+		/>,
+	);
+	expect(screen.queryByTestId("hud-synergies")).toBeNull();
+});
