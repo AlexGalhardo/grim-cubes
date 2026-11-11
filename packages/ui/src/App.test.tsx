@@ -298,6 +298,10 @@ test("the 150% scale is kept on tall screens and capped on screens 414 px tall o
 	expect(effectiveUiScale(150, 415)).toBe(150);
 	expect(effectiveUiScale(150, 414)).toBe(125);
 	expect(effectiveUiScale(100, 360)).toBe(100);
+	// 2560x1440 keeps the proportions of 1080p (Art Bible 17): 125% on top of the chosen scale.
+	expect(effectiveUiScale(100, 1439)).toBe(100);
+	expect(effectiveUiScale(100, 1440)).toBe(125);
+	expect(effectiveUiScale(150, 1440)).toBe(187.5);
 	window.innerHeight = 1080;
 	render(<App store={createStore({ ...hud(1), uiScale: 150 })} />);
 	expect(screen.getByTestId("hud-root").style.getPropertyValue("--ui-scale")).toBe("1.5");

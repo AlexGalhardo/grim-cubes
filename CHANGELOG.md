@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **ui:** The whole UI grows by 25% on screens 1440 px tall or more, on top of the scale chosen in Options, so 2560x1440 keeps the proportions of 1080p instead of a HUD the same size in pixels (S-03-02)
 - **ui:** Boss bar with a name plate, phase pips and ticks, and an enrage pulse (`BossView.enrage`), sitting in the top-centre of the HUD; the hero bar gets a blood-light frame under 25% HP; the round timer turns blood-light and pulses in the last 5 s (S-03-04)
 - **ui:** Mobile HUD checks: compact vitals, 24 px timer, gold and souls only, safe-area margins and 48 px buttons are asserted by a component test and by the layout spec on the touch projects, which also keeps every cluster off the joystick region (S-03-03)
 - **ui:** In-run HUD in four corners (`components/Hud/Hud.tsx`): hero portrait with level badge, HP and thin XP bars, round label over a large timer, gold, souls and kills with glyphs, square icon buttons, weapon frame with tier pips and the item strip with counters; plates behind the clusters, nothing in the hero area, with a Playwright layout spec (S-03-02)

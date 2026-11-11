@@ -35,7 +35,15 @@ export const useViewportHeight = (): number =>
 		() => 1080,
 	);
 
-/** The scale actually applied: the chosen percent, capped to 125 on screens 414 px tall or less. */
+/** From this height up (2560x1440) the UI grows by 25%, so it keeps its 1080p proportions (Art Bible 17). */
+export const XL_HEIGHT_PX = 1440;
+export const XL_SCALE = 1.25;
+
+/**
+ * The scale actually applied: the chosen percent, capped to 125 on screens 414 px tall or less and enlarged by 25%
+ * on screens 1440 px tall or more.
+ */
 export function effectiveUiScale(percent: number, viewportHeight: number): number {
-	return viewportHeight <= LOW_HEIGHT_PX ? Math.min(percent, LOW_HEIGHT_MAX_SCALE) : percent;
+	if (viewportHeight <= LOW_HEIGHT_PX) return Math.min(percent, LOW_HEIGHT_MAX_SCALE);
+	return viewportHeight >= XL_HEIGHT_PX ? percent * XL_SCALE : percent;
 }
