@@ -33,7 +33,7 @@
 		},
 		"passive": {
 			"id": "squad_eye",
-			"name": "Olho do Pelot\u00e3o",
+			"name": "Olho do Pelotão",
 			"modifiers": [
 				{
 					"stat": "crit_chance",

@@ -16,6 +16,8 @@ export interface UiSoundState {
 	menu: object | null;
 	slots: object | null;
 	difficulty: object | null;
+	heroes: object | null;
+	daily: object | null;
 	options: object | null;
 	pause: object | null;
 	demoEnd: boolean;
@@ -41,6 +43,8 @@ export function screenOf(s: UiSoundState): string {
 	if (s.results) return "results";
 	if (s.demoEnd) return "demoEnd";
 	if (s.ossuary) return "ossuary";
+	if (s.heroes) return "heroes";
+	if (s.daily) return "daily";
 	if (s.difficulty) return "difficulty";
 	if (s.slots) return "slots";
 	if (s.menu) return "menu";
@@ -93,7 +97,9 @@ export function uiSounds(prev: UiSoundState, next: UiSoundState): string[] {
 	}
 
 	if (to !== from) {
-		if (to === "results") {
+		if (from === "heroes" && to === "difficulty") {
+			out.push("sfx_ui_hero_select");
+		} else if (to === "results") {
 			out.push("sfx_ui_results");
 			if ((next.results?.souls ?? 0) > 0) out.push("sfx_ui_souls");
 		} else if (

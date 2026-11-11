@@ -11,6 +11,8 @@ const run = (over: Partial<UiSoundState> = {}): UiSoundState => ({
 	menu: null,
 	slots: null,
 	difficulty: null,
+	heroes: null,
+	daily: null,
 	options: null,
 	pause: null,
 	demoEnd: false,
@@ -108,4 +110,17 @@ test("reaching a synergy tier plays its sound once; a restored run stays silent"
 	expect(uiSounds(run({ synergies: tag(1) }), run({ synergies: tag(1) }))).toEqual([]);
 	expect(uiSounds(run({ synergies: tag(2) }), run({ synergies: tag(1) }))).toEqual([]);
 	expect(uiSounds(run(), run({ synergies: tag(2) }))).toEqual([]);
+});
+
+test("choosing a hero plays its sting; the hero and daily screens change with a transition", () => {
+	expect(uiSounds(run({ menu: {}, heroes: {} }), run({ menu: {}, difficulty: {} }))).toEqual([
+		"sfx_ui_hero_select",
+	]);
+	expect(uiSounds(run({ menu: {}, slots: {} }), run({ menu: {}, heroes: {} }))).toEqual([
+		"sfx_ui_transition",
+	]);
+	expect(uiSounds(run({ menu: {} }), run({ menu: {}, daily: {} }))).toEqual(["sfx_ui_transition"]);
+	expect(uiSounds(run({ menu: {}, heroes: {} }), run({ menu: {}, slots: {} }))).toEqual([
+		"sfx_ui_transition",
+	]);
 });
