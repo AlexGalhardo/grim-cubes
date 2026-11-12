@@ -13,6 +13,7 @@ import { dirname } from "node:path";
 // biome-ignore lint/correctness/noUnresolvedImports: Biome cannot follow the `export *` re-exports of @playwright/test.
 import { chromium, type Page } from "@playwright/test";
 import render from "../../data/render.json";
+import { medianByGroup } from "./stats";
 
 const flag = (name: string, fallback: string): string => {
 	const i = process.argv.indexOf(name);
@@ -33,6 +34,8 @@ const BIOME_X: Record<string, number> = {
 const OUT =
 	biomeArg === "sunken_cemetery" ? "reports/legibility.json" : `reports/legibility-${biomeArg}.json`;
 
+/** Screenshots measured per target; the report keeps the median of each group. */
+const SAMPLES = 9;
 const HERO_RATIO_MIN = 3;
 const ENEMY_RATIO_MIN = 2.5;
 /** Enemy offsets from the hero in world units (x right, z north) and the enemy type each stands for. */
@@ -209,20 +212,27 @@ async function main(): Promise<number> {
 				debug.stillLife(enemies);
 			}, ENEMIES);
 			await page.waitForTimeout(400);
-			const png = await page.screenshot();
-			if (shots) {
-				mkdirSync(shots, { recursive: true });
-				writeFileSync(`${shots}/s01-legibility-${target.name}.png`, png);
-			}
 			const radius = target.mobile ? render.camera.radiusMobile : render.camera.radius;
 			const at = (x: number, y: number, z: number): Point =>
 				project(target.width, target.height, radius, x, y, z);
 			const half = target.height * 0.012;
-			const result = await measure(page, png, {
+			const groups = {
 				ground: { windows: GROUND.map((g) => at(g.x, 0, g.z)), half },
 				hero: { windows: [at(0, 0.8, 0)], half },
 				enemies: { windows: ENEMIES.map((e) => at(e.x, 0.3, e.z)), half },
-			});
+			};
+			// The hero keeps animating in a frozen frame, so its luminance swings between shots: the median of several samples is stable.
+			const samples: Record<string, number>[] = [];
+			for (let i = 0; i < SAMPLES; i++) {
+				const png = await page.screenshot();
+				if (shots && i === 0) {
+					mkdirSync(shots, { recursive: true });
+					writeFileSync(`${shots}/s01-legibility-${target.name}.png`, png);
+				}
+				samples.push(await measure(page, png, groups));
+				await page.waitForTimeout(170);
+			}
+			const result = medianByGroup(samples);
 			const ground = result.ground ?? 0;
 			const hero = result.hero ?? 0;
 			const enemies = result.enemies ?? 0;
