@@ -45,6 +45,7 @@ export { Options } from "./components/Options/Options";
 export type {
 	OssuaryActions,
 	OssuaryBranchView,
+	OssuaryClassView,
 	OssuaryNodeState,
 	OssuaryNodeView,
 	OssuaryProps,

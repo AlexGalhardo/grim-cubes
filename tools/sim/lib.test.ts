@@ -37,7 +37,12 @@ describe("sim harness", () => {
 
 	it("takes owned Ossuary nodes into the run", () => {
 		const plain = runSim({ seed: 3, rounds: 2, difficulty: "normal" });
-		const blessed = runSim({ seed: 3, rounds: 2, difficulty: "normal", ossuary: ["flesh_1", "flesh_2"] });
+		const blessed = runSim({
+			seed: 3,
+			rounds: 2,
+			difficulty: "normal",
+			ossuary: ["warrior_shockwave_2", "warrior_shockwave_3"],
+		});
 		expect(blessed.worldHash).not.toBe(plain.worldHash);
 	});
 

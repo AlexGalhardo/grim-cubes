@@ -319,22 +319,29 @@ test("the ossuary has no serious violations", async () => {
 				view={{
 					souls: 60,
 					refund: 50,
+					classes: [{ id: "warrior", name: "Warrior" }],
+					selectedClass: "warrior",
 					branches: [
 						{
-							id: "flesh",
-							name: "Carne",
+							id: "warrior_shockwave",
+							name: "Onda de Choque",
+							kind: "auto",
+							theme: "Automática",
+							level: 2,
 							nodes: [
 								{
-									id: "flesh_1",
-									lines: ["+10 HP"],
-									cost: 50,
+									id: "warrior_shockwave_2",
+									level: 2,
+									lines: ["Nível 2", "+15% de dano"],
+									cost: 20,
 									state: "owned",
 									affordable: true,
 								},
 								{
-									id: "flesh_2",
-									lines: ["+1 regen"],
-									cost: 100,
+									id: "warrior_shockwave_3",
+									level: 3,
+									lines: ["Nível 3", "+15% de dano"],
+									cost: 35,
 									state: "locked",
 									affordable: false,
 								},
@@ -342,7 +349,7 @@ test("the ossuary has no serious violations", async () => {
 						},
 					],
 				}}
-				actions={{ buy: vi.fn(), reset: vi.fn(), close: vi.fn() }}
+				actions={{ buy: vi.fn(), reset: vi.fn(), close: vi.fn(), selectClass: vi.fn() }}
 			/>,
 		),
 	).toEqual([]);

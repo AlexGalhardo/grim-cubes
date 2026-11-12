@@ -27,7 +27,7 @@ const KNOWN = new Set([
 
 /**
  * Usage: bun run sim -- [--runs 200] [--seed 1] [--rounds 10] [--difficulty normal] [--weapon sword] [--hero warrior|ranged|mage]
- *   [--policy greedy|tank] [--ossuary flesh_1,steel_1] [--jobs 4] [--out reports/x.json] [--check]
+ *   [--policy greedy|tank] [--ossuary warrior_shockwave_2,warrior_shockwave_3] [--jobs 4] [--out reports/x.json] [--check]
  * Run i uses seed (seed + i). `--check` exits 3 when a GDD 25 target is missed (skipped targets do not count); the ranges depend on
  * `--difficulty` and `--policy` (GDD 25.1), and Grim and Nightmare are calibrated with the reference `--ossuary` profiles.
  */

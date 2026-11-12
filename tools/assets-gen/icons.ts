@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { PNG } from "pngjs";
 import { hexToRgb, type Rgb, TOKENS, type TokenName } from "./palette";
 
-export type IconKind = "item" | "card" | "node" | "weapon";
+export type IconKind = "item" | "card" | "weapon";
 
 export interface IconSpec {
 	kind: IconKind;
@@ -20,16 +20,14 @@ const TIER_FRAME: TokenName[] = ["ironDark", "graveGreen", "mist", "rust", "bloo
 const read = (dataDir: string, file: string): unknown =>
 	JSON.parse(readFileSync(join(dataDir, file), "utf8"));
 
-/** Every id that needs an icon: all of data/items.json, data/cards.json, data/ossuary.json and data/weapons.json. */
+/** Every id that needs an icon: all of data/items.json, data/cards.json and data/weapons.json (the Ossuary squares carry numbers, not icons). */
 export function iconSpecs(dataDir: string): IconSpec[] {
 	const items = read(dataDir, "items.json") as { id: string; tier: number }[];
 	const cards = (read(dataDir, "cards.json") as { cards: { id: string }[] }).cards;
-	const branches = (read(dataDir, "ossuary.json") as { branches: { nodes: { id: string }[] }[] }).branches;
 	const weapons = read(dataDir, "weapons.json") as { id: string }[];
 	return [
 		...items.map((i) => ({ kind: "item" as const, id: i.id, tier: i.tier })),
 		...cards.map((c) => ({ kind: "card" as const, id: c.id })),
-		...branches.flatMap((b) => b.nodes.map((n) => ({ kind: "node" as const, id: n.id }))),
 		...weapons.map((w) => ({ kind: "weapon" as const, id: w.id })),
 	];
 }

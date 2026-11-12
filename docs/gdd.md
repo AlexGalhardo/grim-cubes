@@ -650,23 +650,18 @@ Exemplos (Normal): morrer no round 12 com 1 elite e 1 chefe ≈ 60 + 25 + 200 = 
 
 Decisão D09: árvore permanente fora da run, comprada com almas. Nome diegético: **Ossuário** (uma cripta onde o Carrasco grava runas em ossos).
 
-### 19.1 Estrutura
+### 19.1 Estrutura (S-22-01, ADR-0030)
 
-5 ramos, 6 nós cada (30 nós na 1.0). Nós em sequência dentro do ramo (o nó k exige o nó k−1). Custo cresce por posição: 50, 100, 200, 350, 550, 800 almas (total por ramo 2.050; árvore inteira 10.250 ≈ 15–25 runs médias).
+O Ossuário é uma **árvore de quadrados ligados por classe** (uma aba por classe: Warrior, Ranged e Mago). Cada classe tem **6 colunas**, uma para cada magia (as 4 automáticas, a cura e a super, §8.4), e cada coluna tem **9 quadrados**, um por nível de 2 a 10; o nível 1 é de graça. Os quadrados de uma coluna se ligam em sequência (o nível k exige o nível k−1). Cada quadrado comprado sobe a magia em um nível (+15% de dano, ou +6% de cura, e −4% de recarga; §8.4). A árvore sai de `data/spells.json` (as magias) e de `data/ossuary.json` (os preços).
 
-| Ramo | Tema | Nós (em ordem) |
-| --- | --- | --- |
-| Carne | sobrevivência | +10 HP máx; +1 regen; +3 armadura; +5% esquiva; +20 HP máx; Filactério fraco (revive 1× com 15% HP, só se não tiver o item) |
-| Aço | dano | +5% dano; +5% velocidade de ataque; +5% crítico; +0,5 u alcance; +10% dano; mult. crítico ×2,3 |
-| Sombra | mobilidade | +5% velocidade; Dash (desbloqueia); +25% raio de pickup; dash recarga −1 s; +10% velocidade; 2 cargas de dash |
-| Ouro | economia | +1 colheita; −5% preços; +1 reroll grátis por loja; +10% fragmentos; +2 colheita; começa a run com 30 ouro |
-| Ruína | meta | +10% almas; +10% XP; loja começa com 1 item Raro (tier 2) garantido; 1 reroll de cartas por run; +25% almas; pool Lendário +2 itens exclusivos |
+Custo por nível, igual para todas as magias: 20, 35, 55, 85, 130, 190, 280, 400 e 560 almas (1.755 por magia, 10.530 por classe, 31.590 a árvore toda de 162 quadrados). O jogador compra qualquer coluna das três classes, também as das classes ainda bloqueadas.
+
+A árvore de atributos da `v0.6.0` (5 ramos de 6 nós: Carne, Aço, Sombra, Ouro e Ruína, 10.250 almas) saiu. O save migra devolvendo **100% das almas gastas** nela (`migrateOssuary`, schema 15) e começa a árvore nova do zero. O dash passou a vir liberado para toda classe, com 1 carga; os outros efeitos da árvore antiga (+HP, +dano, ouro inicial, rerolls de cartas, loja com item Raro, Filactério fraco) foram embora com ela.
 
 ### 19.2 Regras
 
 - Reset total do Ossuário: permitido, devolve 100% das almas (sem punição; encoraja experimentar).
-- A demo (D04) mostra o Ossuário completo, mas só os 2 primeiros nós de cada ramo são compráveis; o resto exibe cadeado "jogo completo".
-- Pós-1.0: 6º ramo por personagem novo.
+- A demo (D04) mostra o Ossuário completo, mas só os quadrados até o nível 4 de cada magia são comprados; o resto exibe cadeado "jogo completo" (`demoMaxLevel` em `data/ossuary.json`).
 
 ## 20. Progressão e desbloqueios
 

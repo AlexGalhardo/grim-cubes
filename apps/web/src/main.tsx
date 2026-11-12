@@ -42,6 +42,7 @@ import {
 	Boss,
 	biomesData,
 	bossesData,
+	buildOssuaryTree,
 	buyNode,
 	captureCheckpoint,
 	chooseDifficulty,
@@ -102,6 +103,8 @@ import {
 	Speed,
 	STEP,
 	soulsForRun,
+	spellLevel,
+	spellsData,
 	synergiesData,
 	synergyModifiers,
 	unlockedSkins,
@@ -723,7 +726,11 @@ async function boot(): Promise<void> {
 					audio.play("sfx_ui_buy", { priority: "ui", maxVoices: 2 });
 					changeOssuary((m) => buyAndThrow(m, id));
 				},
-				reset: () => changeOssuary((m) => void resetOssuary(ossuaryData, m)),
+				reset: () => changeOssuary((m) => void resetOssuary(ossuaryTree, m)),
+				selectClass: (id) => {
+					ossuaryClass = id;
+					publishNow();
+				},
 			}}
 			shopActions={{
 				buy: (index) => {
@@ -1300,16 +1307,13 @@ async function boot(): Promise<void> {
 					weaponTier: weapon.tier,
 					locale: meta.settings.locale,
 				}),
-				nodes: ossuaryData.branches.flatMap((branch) =>
-					branch.nodes.map((node) => ({
-						label: [
-							...node.modifiers.map((m) => text(describeModifier(m))),
-							...node.effects.map((e) => text(describeEffect(e.id, e.params))),
-						].join(", "),
+				nodes: ossuaryTree
+					.filter((node) => node.classId === heroId)
+					.map((node) => ({
+						label: t("ossuary.next", { spell: t(`spell.${node.spellId}`), level: node.level }),
 						cost: node.cost,
-						state: nodeState(ossuaryData, meta, node, __IS_DEMO__),
+						state: nodeState(meta, node, __IS_DEMO__),
 					})),
-				),
 			},
 			{
 				enemy: (type) => t(`enemy.${enemiesData[type]?.id ?? ""}`),
@@ -1324,6 +1328,9 @@ async function boot(): Promise<void> {
 		publishNow();
 	}
 
+	// The Ossuary is the same tree for the whole session: one square per level of every spell of every class (S-22-01).
+	const ossuaryTree = buildOssuaryTree(ossuaryData, spellsData);
+	let ossuaryClass = heroId;
 	let ossuaryOpen = false;
 	let difficultyOpen = false;
 	let heroesOpen = false;
@@ -1654,7 +1661,7 @@ async function boot(): Promise<void> {
 	}
 
 	function buyAndThrow(m: MetaState, id: string): void {
-		const result = buyNode(ossuaryData, m, id, __IS_DEMO__);
+		const result = buyNode(ossuaryTree, m, id, __IS_DEMO__);
 		if (!result.ok) throw new Error(`ossuary: ${result.reason}`);
 	}
 
@@ -1845,7 +1852,7 @@ async function boot(): Promise<void> {
 			quote: t(`voice.merchant.arrive_${(run.round % 3) + 1}`),
 		};
 	}
-	function iconFor(kind: "item" | "card" | "node" | "weapon", id: string): IconRef | undefined {
+	function iconFor(kind: "item" | "card" | "weapon", id: string): IconRef | undefined {
 		const key = `${kind}_${id}`;
 		if (iconCache.has(key)) return iconCache.get(key);
 		const entry = assets?.manifest.entries[`icon_${key}`];
@@ -1867,24 +1874,37 @@ async function boot(): Promise<void> {
 	}
 
 	function ossuaryView(): NonNullable<HudState["ossuary"]> {
+		const { damagePerLevel, cooldownPerLevel, healPerLevel } = spellsData.levels;
+		const percent = (fraction: number): number => Math.round(fraction * 100);
+		const selected = spellsData.classes.find((c) => c.id === ossuaryClass) ?? spellsData.classes[0];
 		return {
 			souls: meta.souls,
-			refund: refundValue(ossuaryData, meta),
-			branches: ossuaryData.branches.map((branch) => ({
-				id: branch.id,
-				name: t(`branch.${branch.id}`),
-				theme: t(`branchTheme.${branch.id}`),
-				nodes: branch.nodes.map((node) => ({
-					id: node.id,
-					lines: [
-						...node.modifiers.map((m) => text(describeModifier(m))),
-						...node.effects.map((e) => text(describeEffect(e.id, e.params))),
-					],
-					icon: iconFor("node", node.id),
-					cost: node.cost,
-					state: nodeState(ossuaryData, meta, node, __IS_DEMO__),
-					affordable: meta.souls >= node.cost,
-				})),
+			refund: refundValue(ossuaryTree, meta),
+			classes: spellsData.classes.map((c) => ({ id: c.id, name: t(`hero.${c.id}`) })),
+			selectedClass: selected?.id ?? "",
+			branches: (selected?.spells ?? []).map((spell) => ({
+				id: spell.id,
+				name: t(`spell.${spell.id}`),
+				kind: spell.slot === "heal" || spell.slot === "super" ? spell.slot : "auto",
+				theme: t(`ossuary.kind.${spell.slot}`),
+				level: spellLevel(meta.ossuary, spell.id, spellsData.levels.max),
+				nodes: ossuaryTree
+					.filter((node) => node.spellId === spell.id)
+					.map((node) => ({
+						id: node.id,
+						level: node.level,
+						lines: [
+							t("ossuary.nodeLevel", { level: node.level }),
+							t(`ossuary.effect.${spell.slot}`, {
+								damage: percent(damagePerLevel),
+								heal: percent(healPerLevel),
+								cooldown: percent(cooldownPerLevel),
+							}),
+						],
+						cost: node.cost,
+						state: nodeState(meta, node, __IS_DEMO__),
+						affordable: meta.souls >= node.cost,
+					})),
 			})),
 		};
 	}

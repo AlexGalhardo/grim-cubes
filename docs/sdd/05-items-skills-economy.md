@@ -11,7 +11,7 @@ Os loaders importam os JSON (`resolveJsonModule`; `rootDir: "../.."` só no `tsc
 | Arquivo | Conteúdo |
 | --- | --- |
 | `hero.json` | stats base do herói, caps, fórmulas (armadura, regen, gatilho de roubo de vida), dash, combate (i-frames, contato, knockback, prioridade de alvo), raio |
-| `heroes.json` | os três heróis (S-12-01): arma inicial, sobreposições dos stats base de `hero.json`, passiva (lista de modificadores somada depois dos do Ossuário) e `tint` do modelo compartilhado; o primeiro é o padrão |
+| `heroes.json` | os três heróis (S-12-01): arma inicial, sobreposições dos stats base de `hero.json`, passiva (lista de modificadores somada aos stats base) e `tint` do modelo compartilhado; o primeiro é o padrão |
 | `world.json` | chunk, raios de carga/descarga, chunks por passo, pool, limiar de origin shift, props por chunk (SDD 03) |
 | `props.json` | props: `id`, `sizeClass` (orçamento de elementos, Art Bible §5.1), `kind` |
 | `enemies.json` | 8 tipos: hp/dano base e incremento, velocidade, `walkRefSpeed`, raio, `sizeClass`, behavior, fragmentos, bioma |
@@ -20,7 +20,8 @@ Os loaders importam os JSON (`resolveJsonModule`; `rootDir: "../.."` só no `tsc
 | `weapons.json` | 5 armas: stats por tier, preços |
 | `items.json` | 40 itens: tier, modificadores de stat, efeitos especiais (por id de efeito), preço base |
 | `cards.json` | 12 cartas de level-up + regra de carta dupla |
-| `ossuary.json` | 5 ramos × 6 nós: custo, modificadores, efeitos |
+| `ossuary.json` | os preços da árvore de magias (`levelCosts`, um por nível de 2 a 10) e o corte da demo (`demoMaxLevel`); os nós saem de `spells.json` (S-22-01) |
+| `spells.json` | as seis magias de cada classe (4 automáticas, cura e super), a escala por nível e a carga da super (S-20-02) |
 | `rounds.json` | duração, fluxo da run, chefe (enrage, horda, dano), IA (`ai`), fórmulas de spawn, mistura de biomas, chance de tier, fragmentos, XP, loja, almas, dificuldades |
 | `biomes.json` | ver SDD 03 |
 
@@ -54,13 +55,13 @@ Estado `ShopState { slots: Slot[4], rerollCount, locked: boolean[4], gold }`.
 ## 5. Almas e Ossuário
 
 - `rules/souls.ts`: `soulsForRun(roundsCompleted, elites, bossKills[], difficulty, modifiers)` conforme GDD §18.2. Creditadas em `MetaState.souls` na tela de resultado (e em abandono, sem bônus).
-- `ossuary.json` nós com `requires` (nó anterior) e `cost`. `MetaState.ossuary: Record<nodeId, true>`. `applyOssuary(meta)` gera modificadores iniciais da run e flags (`dashUnlocked`, `dashCharges`, `freeRerolls`, `cardRerolls`, `startGold`, `guaranteedUncommon`, `extraLegendaryPool`).
+- `buildOssuaryTree(ossuary, spells)` (`rules/ossuary.ts`) monta os quadrados: 3 classes × 6 magias × 9 níveis (2 a 10), cada um com `requires` (o nível de baixo) e `cost`. `MetaState.ossuary: Record<nodeId, true>` com `nodeId = <magia>_<nível>`; o nível de uma magia é 1 mais o maior quadrado dela que a conta tem (`spellLevel`) e a sessão o lê ao montar as magias da classe (`buildClassSpells`). O Ossuário não gera mais modificadores nem flags da run: o dash vem liberado e as outras alavancas da árvore antiga saíram.
 - Reset: devolve 100% das almas (somatório dos custos), limpa o record.
 - Demo: `meta.isDemo` limita compra aos 2 primeiros nós de cada ramo (`node.index <= 1`).
 
 ## 6. Simulador de balanceamento (`tools/sim`)
 
-- `bun run sim [--runs N] [--seed S] [--rounds R] [--difficulty normal] [--weapon sword] [--policy greedy|tank] [--ossuary flesh_1,steel_1] [--jobs J] [--out arquivo.json] [--check]` roda `game` em Node sem render, com o mesmo `simulate` e a política `greedy-kite` (`tools/sim/lib.ts`: foge dos inimigos próximos atirando/atacando, compra pelo maior valor de stat por preço, carta de maior valor). A run `i` usa a seed `S + i`; as runs se dividem em worker threads (`--jobs`, padrão até 8). Flags desconhecidas falham.
+- `bun run sim [--runs N] [--seed S] [--rounds R] [--difficulty normal] [--weapon sword] [--policy greedy|tank] [--ossuary warrior_shockwave_2,warrior_shockwave_3] [--jobs J] [--out arquivo.json] [--check]` roda `game` em Node sem render, com o mesmo `simulate` e a política `greedy-kite` (`tools/sim/lib.ts`: foge dos inimigos próximos atirando/atacando, compra pelo maior valor de stat por preço, carta de maior valor). A run `i` usa a seed `S + i`; as runs se dividem em worker threads (`--jobs`, padrão até 8). Flags desconhecidas falham.
 - Políticas (`tools/sim/policy.ts`, B-02-02): `greedy` (padrão, valor de dano) e `tank` (`--policy tank`, relatório `tank-kite`, arquivo `...-tank.json`): pesa HP máximo, armadura, regeneração e roubo de vida várias vezes mais, valoriza `revive_once` e os efeitos de sobrevivência, compra menos upgrades de arma, fica parada e luta com a vida alta, foge do centro dos inimigos abaixo de 30% de vida (ou de 60% com algo em cima), cede terreno numa multidão com a vida abaixo de 80% e gasta o dash quando está ferida e cercada. O orçamento de passos por round é de 150 s (90 s na greedy), porque a luta contra os chefes dura mais. A greedy não mudou: os hashes das runs ficam iguais.
 - Saída: `reports/sim-<data>-seed<S>-runs<N>.json` (ignorado pelo git; relatórios de fechamento commitados usam outro nome, ex.: `reports/balance-a0203-final.json`) e um resumo no terminal: distribuição do round de morte (p50, IQR, quantas ficaram vivas), tempo de kill e pilhas de fúria por chefe, ouro/preço e level-ups por round.
 - `tools/sim/tune.ts` roda a simulação em memória com overrides temporários dos dados (HP e dano dos inimigos, HP e padrões dos chefes, grupos de `rounds.json`) para experimentar sem editar `data/*.json`; nada é gravado, e os números vencedores são copiados à mão para o JSON.
@@ -72,5 +73,5 @@ Estado `ShopState { slots: Slot[4], rerollCount, locked: boolean[4], gold }`.
 - `rules/*`: tabelas de casos com valores do Brotato como oráculo (preço, reroll, tier).
 - `statsSystem`: ordem add/mul/caps; armadura negativa.
 - Loja: garantias dos rounds 1–2; lock persiste; venda de arma devolve 50%.
-- Ossuário: `requires`, custo total 10.250, reset devolve tudo, demo bloqueia nó 3+.
+- Ossuário: `requires`, 162 quadrados e o custo total, reset devolve tudo, demo bloqueia os níveis acima de `demoMaxLevel`; a migração do save devolve as almas da árvore antiga.
 - Schema: todo JSON valida; ids únicos; referências cruzadas existem (`enemyPool` aponta para ids válidos).

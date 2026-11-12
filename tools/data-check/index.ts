@@ -230,55 +230,6 @@ export function checkIntegrity(data: DataSet): string[] {
 	const elites = data["elites.json"];
 	if (isObject(elites)) checkUniqueIds("elites.json", asArray(elites.modifiers), errors);
 
-	const ossuary = data["ossuary.json"];
-	if (isObject(ossuary)) {
-		const branches = asArray(ossuary.branches);
-		checkUniqueIds("ossuary.json branches", branches, errors);
-		const nodes = branches.flatMap((b) => asArray(b.nodes));
-		const nodeIds = checkUniqueIds("ossuary.json nodes", nodes, errors);
-		for (const item of asArray(data["items.json"])) {
-			if (typeof item.exclusiveTo === "string" && !nodeIds.has(item.exclusiveTo))
-				errors.push(
-					`items.json: ${idOf(item)}.exclusiveTo unknown ossuary node "${item.exclusiveTo}"`,
-				);
-		}
-		// extra_legendary_pool promises `count` exclusive items; items.json must hold exactly that many for the node.
-		const exclusives = new Map<string, number>();
-		for (const item of asArray(data["items.json"])) {
-			if (typeof item.exclusiveTo === "string")
-				exclusives.set(item.exclusiveTo, (exclusives.get(item.exclusiveTo) ?? 0) + 1);
-		}
-		const promised = new Set<string>();
-		for (const node of nodes) {
-			for (const effect of asArray(node.effects)) {
-				if (effect.id !== "extra_legendary_pool") continue;
-				const nodeId = idOf(node) ?? "?";
-				promised.add(nodeId);
-				const count = isObject(effect.params) ? effect.params.count : undefined;
-				const found = exclusives.get(nodeId) ?? 0;
-				if (count !== found)
-					errors.push(
-						`ossuary.json: ${nodeId} promises ${String(count)} exclusive items, items.json has ${found}`,
-					);
-			}
-		}
-		for (const nodeId of exclusives.keys()) {
-			if (nodeIds.has(nodeId) && !promised.has(nodeId))
-				errors.push(
-					`items.json: items are exclusive to ${nodeId}, which has no extra_legendary_pool effect`,
-				);
-		}
-		for (const node of nodes) {
-			if (typeof node.requires === "string" && !nodeIds.has(node.requires))
-				errors.push(`ossuary.json: ${idOf(node)}.requires unknown node "${node.requires}"`);
-			for (const effect of asArray(node.effects)) {
-				const item = paramString(effect, "onlyWithoutItem");
-				if (item !== undefined && !itemIds.has(item))
-					errors.push(`ossuary.json: ${idOf(node)} references unknown item "${item}"`);
-			}
-		}
-	}
-
 	const milestones = data["milestones.json"];
 	if (isObject(milestones)) {
 		const list = asArray(milestones.milestones);
@@ -343,6 +294,7 @@ const EXPECTED_FILES = [
 	"items",
 	"cards",
 	"ossuary",
+	"spells",
 	"milestones",
 	"consumables",
 	"rounds",
@@ -417,34 +369,12 @@ export function selfTest(
 			},
 		],
 		[
-			"extra_legendary_pool count differs from the exclusive items",
-			(d) => {
-				const items = asArray(d["items.json"]);
-				const exclusive = items.find((i) => typeof i.exclusiveTo === "string");
-				if (exclusive) delete exclusive.exclusiveTo;
-			},
-		],
-		[
-			"exclusive item on a node without extra_legendary_pool",
-			(d) => {
-				const exclusive = asArray(d["items.json"]).find((i) => typeof i.exclusiveTo === "string");
-				if (exclusive) exclusive.exclusiveTo = "flesh_1";
-			},
-		],
-		[
 			"milestone unlocks an unknown hero",
 			(d) => {
 				const m = asArray((d["milestones.json"] as JsonObject).milestones).find(
 					(x) => typeof x.unlocksHero === "string",
 				);
 				if (m) m.unlocksHero = "nobody";
-			},
-		],
-		[
-			"unknown ossuary requires",
-			(d) => {
-				const n = asArray(asArray((d["ossuary.json"] as JsonObject).branches)[0]?.nodes)[1];
-				if (n) n.requires = "nope";
 			},
 		],
 		[
@@ -563,30 +493,44 @@ export function selfTest(
 			},
 		],
 		[
-			"ossuary: broken chain",
-			(d) => {
-				const o = d["ossuary.json"];
-				if (isObject(o)) {
-					const n = asArray(asArray(o.branches)[0]?.nodes)[2];
-					if (n) n.requires = null;
-				}
-			},
-		],
-		[
 			"ossuary: cost not increasing",
 			(d) => {
 				const o = d["ossuary.json"];
 				if (isObject(o)) {
-					const n = asArray(asArray(o.branches)[0]?.nodes)[2];
-					if (n) n.cost = 1;
+					if (Array.isArray(o.levelCosts)) o.levelCosts[2] = 1;
 				}
 			},
 		],
 		[
-			"ossuary: demoMaxNodeIndex out of range",
+			"ossuary: demoMaxLevel above the spell levels",
 			(d) => {
 				const o = d["ossuary.json"];
-				if (isObject(o)) o.demoMaxNodeIndex = 99;
+				if (isObject(o)) o.demoMaxLevel = 99;
+			},
+		],
+		[
+			"ossuary: one price short of the spell levels",
+			(d) => {
+				const o = d["ossuary.json"];
+				if (isObject(o) && Array.isArray(o.levelCosts)) o.levelCosts.pop();
+			},
+		],
+		[
+			"spells: a class without its super",
+			(d) => {
+				const s = d["spells.json"];
+				const first = isObject(s) ? asArray(s.classes)[0] : undefined;
+				const last = first ? asArray(first.spells)[5] : undefined;
+				if (last) last.slot = "auto";
+			},
+		],
+		[
+			"spells: a spell id outside its class",
+			(d) => {
+				const s = d["spells.json"];
+				const first = isObject(s) ? asArray(s.classes)[0] : undefined;
+				const spell = first ? asArray(first.spells)[0] : undefined;
+				if (spell) spell.id = "other_shockwave";
 			},
 		],
 		[

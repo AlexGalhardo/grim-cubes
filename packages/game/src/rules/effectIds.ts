@@ -33,20 +33,6 @@ export const EFFECT_HANDLERS = {
 		"hero_speed_penalty_while_firing",
 		"self_damage_in_radius",
 	],
-	/** `ossuaryBonuses` in rules/ossuary.ts. */
-	ossuary: [
-		"card_rerolls",
-		"crit_mult_set",
-		"dash_charges",
-		"dash_cooldown_reduction",
-		"dash_unlock",
-		"extra_legendary_pool",
-		"fragment_gain",
-		"guaranteed_uncommon_shop_item",
-		"soul_gain",
-		"start_gold",
-		"weak_phylactery",
-	],
 	/** Describes what the weapon kind already does, so there is nothing to look up: the sword hits its whole arc. */
 	intrinsic: ["hit_all_in_arc"],
 } as const;

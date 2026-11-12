@@ -12,7 +12,6 @@ import {
 	heroesData,
 	itemsData,
 	milestonesData,
-	ossuaryData,
 	propsData,
 	roundsData,
 	spellsData,
@@ -33,7 +32,6 @@ import { createGameWorld } from "./ecs/world";
 import { STEP } from "./loop";
 import { damageConfigFromHero } from "./rules/damage";
 import { availableItems } from "./rules/milestones";
-import { applyOssuary } from "./rules/ossuary";
 import { createRunStats } from "./rules/runstats";
 import { buildClassSpells, spellLevel } from "./rules/spells";
 import { createPlayerStats, regenPerSecond } from "./rules/stats";
@@ -116,8 +114,6 @@ function build(options: GameSessionOptions) {
 
 	const { fragments, xp } = roundsData;
 
-	// Permanent Ossuary nodes shape the run before it starts (GDD 19).
-	const ossuaryBonus = applyOssuary(ossuaryData, meta);
 	const heroDef = heroesData.find((h) => h.id === (options.hero ?? heroesData[0]?.id));
 	if (!heroDef) throw new Error(`Unknown hero ${options.hero}`);
 	const runHeroData = {
@@ -125,10 +121,9 @@ function build(options: GameSessionOptions) {
 		base: {
 			...heroData.base,
 			...heroDef.base,
-			critMult: ossuaryBonus.critMult ?? heroDef.base.critMult ?? heroData.base.critMult,
+			critMult: heroDef.base.critMult ?? heroData.base.critMult,
 		},
 	};
-	progress.gold += ossuaryBonus.startGold;
 
 	const hero = spawnHero(world, {
 		speed: runHeroData.base.speed,
@@ -136,8 +131,7 @@ function build(options: GameSessionOptions) {
 		radius: runHeroData.base.radius,
 	});
 	const stats = createStatsSystem(runHeroData, createPlayerStats());
-	stats.add(ossuaryBonus.modifiers);
-	// After the Ossuary ones and before anything the run picks up: a checkpoint skips both groups.
+	// Before anything the run picks up: a checkpoint skips it.
 	stats.add(heroDef.passive.modifiers);
 	stats.run(hero);
 
@@ -145,22 +139,14 @@ function build(options: GameSessionOptions) {
 	// Milestone-gated items (GDD 20) stay out of shops and chests until the account reaches them; the run starts with
 	// the pool the saved stats allow.
 	const poolItems = availableItems(itemsData, milestonesData, meta);
+	// The dash is part of every class now: the Ossuary no longer sells it (S-22-01).
 	const dash = createDashSystem(heroData.dash, {
-		unlocked: ossuaryBonus.dashUnlocked,
-		charges: ossuaryBonus.dashCharges,
-		cooldownReductionSeconds: ossuaryBonus.dashCooldownReductionSeconds,
+		unlocked: true,
+		charges: 1,
+		cooldownReductionSeconds: 0,
 		events,
 	});
-	const itemEffects = createEffectsSystem(
-		itemsData,
-		owned,
-		{
-			fragmentGain: ossuaryBonus.fragmentGain,
-			soulGain: ossuaryBonus.soulGain,
-			weakReviveHpFraction: ossuaryBonus.weakReviveHpFraction,
-		},
-		events,
-	);
+	const itemEffects = createEffectsSystem(itemsData, owned, undefined, events);
 
 	const synergies = createSynergySystem(itemsData, owned, synergiesData, stats);
 	const refreshInventory = (): void => {
@@ -397,7 +383,6 @@ function build(options: GameSessionOptions) {
 		rng: rng.cards,
 		stats,
 		events,
-		rerolls: ossuaryBonus.cardRerolls,
 	});
 	const chest = createChestSystem({
 		reward: elitesData.reward,
@@ -413,7 +398,6 @@ function build(options: GameSessionOptions) {
 	});
 	const shop = createShopSystem({
 		config: roundsData.shop,
-		guaranteedUncommon: ossuaryBonus.guaranteedUncommonShopItems,
 		tiers: roundsData.tierChance,
 		catalog: { items: poolItems, weapons: toShopWeapons(weaponsData) },
 		weaponDefs: weaponsData,
@@ -612,7 +596,6 @@ function build(options: GameSessionOptions) {
 		arena,
 		breakables,
 		propCollision,
-		ossuaryBonus,
 		rng,
 		difficulty,
 		fighting,
@@ -682,7 +665,6 @@ export interface GameSession {
 	readonly arena: ReturnType<typeof build>["arena"];
 	readonly propCollision: ReturnType<typeof build>["propCollision"];
 	readonly merchant: ReturnType<typeof build>["merchant"];
-	readonly ossuaryBonus: ReturnType<typeof build>["ossuaryBonus"];
 	readonly rng: ReturnType<typeof build>["rng"];
 	readonly difficulty: ReturnType<typeof build>["difficulty"];
 	/** True while combat is running (a Round or BossRound that is not paused or in its intro). */

@@ -151,20 +151,16 @@ describe("assets-gen catalog", () => {
 describe("icons", () => {
 	const specs = iconSpecs("data");
 
-	it("covers every id of items, cards, the Ossuary and the weapons", () => {
+	it("covers every id of items, cards and weapons", () => {
 		const load = <T>(file: string): T => JSON.parse(readFileSync(file, "utf8")) as T;
 		const items = load<{ id: string }[]>("data/items.json").map((i) => i.id);
 		const cards = load<{ cards: { id: string }[] }>("data/cards.json").cards.map((c) => c.id);
-		const nodes = load<{ branches: { nodes: { id: string }[] }[] }>("data/ossuary.json").branches.flatMap(
-			(b) => b.nodes.map((n) => n.id),
-		);
 		const weapons = load<{ id: string }[]>("data/weapons.json").map((w) => w.id);
 		const made = (kind: string): string[] => specs.filter((s) => s.kind === kind).map((s) => s.id);
 		expect(made("item")).toEqual(items);
 		expect(made("card")).toEqual(cards);
-		expect(made("node")).toEqual(nodes);
 		expect(made("weapon")).toEqual(weapons);
-		expect(specs.length).toBe(items.length + cards.length + nodes.length + weapons.length);
+		expect(specs.length).toBe(items.length + cards.length + weapons.length);
 		expect(new Set(specs.map((s) => `${s.kind}:${s.id}`)).size).toBe(specs.length);
 	});
 

@@ -221,7 +221,7 @@ Decisão do PO em 2026-11-12, registrada no ADR-0030 (o texto original está no 
 
 ### S-22 Ossuário como árvore de magias
 
-- [ ] **S-22-01** Ossuário vira uma árvore de quadrados ligados por classe, que sobe cada uma das 6 magias até o nível 10 com almas; o save migra as almas gastas na árvore antiga (devolução integral).
+- [x] **S-22-01** Ossuário vira uma árvore de quadrados ligados por classe, que sobe cada uma das 6 magias até o nível 10 com almas; o save migra as almas gastas na árvore antiga (devolução integral).
   - Asserts: teste de compra e de pré-requisito; migração com teste (almas devolvidas); capturas nos quatro alvos; navegação por controle.
 
 ### S-23 Chefes

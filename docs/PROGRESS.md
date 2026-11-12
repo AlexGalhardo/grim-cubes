@@ -246,6 +246,7 @@ Cada id abaixo continua `[ ]` ou `[~]` no ROADMAP. O assert que falta depende do
 
 ## Dívidas e observações
 
+- **v0.7.0, classes e Ossuário (S-20-01, S-20-02, S-22-01, branch `feat/v0.7-classes`):** três classes com arma fixa (o nível da arma, de 1 a 10, é o nível do herói), seis magias por classe com cura e super acionadas pelo jogador, e o Ossuário como árvore de quadrados por classe; o save está no schema 15 (classes e Ossuário, cada um numa função de migração própria). Decisões de números e de escopo no relatório do sênior B; a âncora de determinismo foi regravada e o `sim --check` fica para a S-26.
 - **Resolvida (2026-11-11):** o cenário `gore` de `tools/perf` enche o teto de marcas de chão da S-11-01 e mede com o pool cheio e reciclando (números em `docs/sdd/14-performance-budgets.md`); o descarte custa ≈ 5 µs por marca nova no teto de 600, então não precisou otimizar `worst()` (origem: S-11-01).
 - O `sim --check` passa por uma a duas runs de margem com as sinergias ligadas: qualquer mudança em `data/*.json` pode derrubar o check do CI (origem: S-14-03).
 - `.env` existe localmente com `ELEVENLABS_API_KEY`; está no `.gitignore`. Nunca commitar.

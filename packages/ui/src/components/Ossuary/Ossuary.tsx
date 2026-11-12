@@ -1,31 +1,46 @@
 import { t } from "@gc/core";
 import type { JSX } from "react";
 import { useDialogNav } from "../../nav/useDialogNav";
-import { Icon, type IconRef } from "../Icon/Icon";
 
 export type OssuaryNodeState = "owned" | "available" | "locked" | "demo";
 
+/** One square: the level it takes its spell to. */
 export interface OssuaryNodeView {
 	id: string;
+	/** The spell level the square reaches, 2 to 10. */
+	level: number;
+	/** What the square does, for the tooltip and the screen reader ("Level 2", "+15% damage"). */
 	lines: readonly string[];
 	cost: number;
 	state: OssuaryNodeState;
 	affordable: boolean;
-	icon?: IconRef | undefined;
 }
 
+/** A column of the class tree: one spell and its squares, level 2 at the top. */
 export interface OssuaryBranchView {
 	id: string;
 	name: string;
-	/** One-word theme under the branch name ("Survival"). */
+	/** `auto` (cast by itself), `heal` or `super` (cast by the player): picks the accent. */
+	kind: "auto" | "heal" | "super";
+	/** One-word type under the spell name ("Automatic"). */
 	theme?: string | undefined;
+	/** The spell level now, shown over the column. */
+	level: number;
 	nodes: readonly OssuaryNodeView[];
+}
+
+export interface OssuaryClassView {
+	id: string;
+	name: string;
 }
 
 export interface OssuaryViewModel {
 	souls: number;
+	/** The classes, one tab each; the tree below belongs to `selectedClass`. */
+	classes: readonly OssuaryClassView[];
+	selectedClass: string;
 	branches: readonly OssuaryBranchView[];
-	/** Souls a reset would give back. */
+	/** Souls a reset would give back (the whole tree, every class). */
 	refund: number;
 }
 
@@ -33,6 +48,7 @@ export interface OssuaryActions {
 	buy(id: string): void;
 	reset(): void;
 	close(): void;
+	selectClass(id: string): void;
 }
 
 export interface OssuaryProps {
@@ -40,15 +56,12 @@ export interface OssuaryProps {
 	actions: OssuaryActions;
 }
 
-/** Branch accent: header tint and the border of bought nodes (PO mockup menu-ossuary.png). */
-const BRANCH: Readonly<Record<string, { header: string; border: string; glyph: string }>> = {
-	flesh: { header: "from-blood to-night-2 border-blood-light", border: "border-blood-light", glyph: "♥" },
-	steel: { header: "from-iron-dark to-night-2 border-iron-light", border: "border-iron-light", glyph: "⚔" },
-	shadow: { header: "from-shadow to-night-2 border-mist", border: "border-mist", glyph: "☾" },
-	gold: { header: "from-mud to-night-2 border-ember", border: "border-ember", glyph: "●" },
-	ruin: { header: "from-sludge/40 to-night-2 border-sludge", border: "border-sludge", glyph: "♜" },
+/** Column accent: header tint and the border of bought squares. */
+const KIND: Readonly<Record<OssuaryBranchView["kind"], { header: string; border: string; glyph: string }>> = {
+	auto: { header: "from-iron-dark to-night-2 border-iron-light", border: "border-iron-light", glyph: "⚔" },
+	heal: { header: "from-sludge/40 to-night-2 border-sludge", border: "border-sludge", glyph: "✚" },
+	super: { header: "from-mud to-night-2 border-ember", border: "border-ember", glyph: "✦" },
 };
-const FALLBACK = { header: "from-iron-dark to-night-2 border-iron", border: "border-iron", glyph: "◆" };
 const PRESS =
 	"transition-[translate,box-shadow] duration-fast active:translate-y-1 active:shadow-none focus-visible:outline-2 focus-visible:outline-ember focus-visible:outline-offset-2";
 
@@ -62,8 +75,9 @@ const stateLabel = (state: OssuaryNodeState): string =>
 				: "";
 
 /**
- * The permanent tree (GDD 19), laid out like the PO mockup: five branch columns of six nodes linked top to bottom,
- * all on one screen. A node is a button that buys it when it is available and affordable.
+ * The permanent tree (GDD 19) as linked squares: a tab per class, six columns (the class's spells) of nine squares
+ * (levels 2 to 10) joined top to bottom. A square is a button that buys it when it is available and affordable; each
+ * state also differs in shape and words, not only in colour.
  */
 export function Ossuary({ view, actions }: OssuaryProps): JSX.Element {
 	const nav = useDialogNav<HTMLDivElement>({ onCancel: actions.close });
@@ -91,52 +105,73 @@ export function Ossuary({ view, actions }: OssuaryProps): JSX.Element {
 						{t("ossuary.souls", { souls: view.souls })}
 					</p>
 				</div>
-				<div className="grid grid-cols-1 gap-3 landscape:grid-cols-5 mobile-l:grid-cols-5 desktop:flex-1">
+				<div role="tablist" aria-label={t("ossuary.classes")} className="flex flex-wrap gap-2">
+					{view.classes.map((cls) => {
+						const selected = cls.id === view.selectedClass;
+						return (
+							<button
+								key={cls.id}
+								type="button"
+								role="tab"
+								aria-selected={selected}
+								data-testid={`ossuary-class-${cls.id}`}
+								onClick={() => actions.selectClass(cls.id)}
+								className={`min-h-10 border-2 px-4 font-display text-base uppercase desktop:min-h-12 desktop:text-xl ${selected ? "border-ember bg-linear-to-b from-iron-black to-night-2 text-ember-light" : "border-iron bg-night-2 text-bone"} ${PRESS} enabled:hover:border-ember-light`}
+							>
+								{cls.name}
+							</button>
+						);
+					})}
+				</div>
+				<div
+					role="tabpanel"
+					className="grid grid-cols-3 gap-2 landscape:grid-cols-6 mobile-l:grid-cols-6 desktop:flex-1"
+				>
 					{view.branches.map((branch) => {
-						const accent = BRANCH[branch.id] ?? FALLBACK;
+						const accent = KIND[branch.kind];
 						return (
 							<section
 								key={branch.id}
 								aria-label={branch.name}
 								data-testid={`ossuary-branch-${branch.id}`}
-								className="flex min-w-0 flex-col"
+								className="flex min-w-0 flex-col items-center"
 							>
 								<div
-									className={`panel-riveted mb-2 flex items-center gap-3 border-2 bg-linear-to-b px-3 py-2 ${accent.header}`}
+									className={`panel-riveted mb-2 flex w-full flex-col items-center gap-0.5 border-2 bg-linear-to-b px-1 py-2 text-center ${accent.header}`}
 								>
-									<span aria-hidden="true" className="font-display text-3xl text-bone">
+									<span aria-hidden="true" className="font-display text-2xl text-bone">
 										{accent.glyph}
 									</span>
-									<div className="min-w-0">
-										<h2 className="font-display text-xl text-bone uppercase">
-											{branch.name}
-										</h2>
-										{branch.theme ? (
-											<p className="font-display text-xs text-bone-dark uppercase">
-												{branch.theme}
-											</p>
-										) : null}
-									</div>
+									<h2 className="font-display text-xs text-bone uppercase leading-tight desktop:text-base">
+										{branch.name}
+									</h2>
+									{branch.theme ? (
+										<p className="font-display text-[0.65rem] text-bone-dark uppercase desktop:text-xs">
+											{branch.theme}
+										</p>
+									) : null}
+									<p
+										data-testid={`ossuary-level-${branch.id}`}
+										className="font-display text-xs text-ember-light desktop:text-sm"
+									>
+										{t("ossuary.level", { level: branch.level })}
+									</p>
 								</div>
 								{branch.nodes.map((node, i) => {
-									const [title, ...rest] = node.lines;
 									const owned = node.state === "owned";
 									const available = node.state === "available";
 									const dim = node.state === "locked" || node.state === "demo";
 									const status =
 										stateLabel(node.state) || t("ossuary.cost", { cost: node.cost });
-									// Each state also differs in shape and words, not only in colour: a written "bought" with a check,
-									// a glowing solid frame with the price, or a dashed frame with a lock square.
+									// A written "bought" with a check, a glowing solid frame with the price, or a dashed frame with
+									// a lock square.
 									const look = owned
 										? `${accent.border} bg-linear-to-b from-iron-dark to-night-2`
 										: available
 											? "border-ember bg-linear-to-b from-iron-black to-night-2 shadow-[0_0_10px_var(--color-ember)]"
 											: "border-dashed border-iron bg-night-2";
 									const badge = owned ? (
-										<span className="text-heal">
-											<span aria-hidden="true">✓ </span>
-											{t("ossuary.owned")}
-										</span>
+										<span className="text-heal">✓</span>
 									) : (
 										<span
 											className={
@@ -147,19 +182,15 @@ export function Ossuary({ view, actions }: OssuaryProps): JSX.Element {
 														: "text-danger"
 											}
 										>
-											<span aria-hidden="true">{dim ? "▣ ☠ " : "☠ "}</span>
-											{node.cost}
+											{dim ? "▣" : "☠"} {node.cost}
 										</span>
 									);
 									return (
-										<div
-											key={node.id}
-											className="flex flex-col items-stretch desktop:flex-1"
-										>
+										<div key={node.id} className="flex flex-col items-center">
 											{i > 0 ? (
 												<span
 													aria-hidden="true"
-													className="mx-auto h-2 w-0.5 shrink-0 bg-rust"
+													className="h-2 w-0.5 shrink-0 bg-rust"
 												/>
 											) : null}
 											<button
@@ -167,40 +198,25 @@ export function Ossuary({ view, actions }: OssuaryProps): JSX.Element {
 												data-testid={`ossuary-node-${node.id}`}
 												data-state={node.state}
 												disabled={!available}
+												title={node.lines.join(", ")}
 												onClick={() => actions.buy(node.id)}
-												className={`flex min-h-14 items-center gap-2 border-2 p-2 text-left desktop:flex-1 desktop:gap-3 desktop:p-3 ${look} ${PRESS} enabled:hover:border-ember-light`}
+												className={`flex size-14 flex-col items-center justify-center border-2 text-center desktop:size-[4.5rem] ${look} ${PRESS} enabled:hover:border-ember-light`}
 											>
-												<span className="hidden size-10 shrink-0 items-center justify-center border-2 border-iron-dark bg-night desktop:flex desktop:size-12">
-													{node.icon ? <Icon icon={node.icon} /> : null}
-												</span>
-												<span className="min-w-0 flex-1">
-													<span
-														className={`block font-display text-sm desktop:text-lg ${dim ? "text-iron-light" : "text-bone"}`}
-													>
-														{title}
-													</span>
-													{rest.map((line) => (
-														<span
-															key={line}
-															className={`block font-body text-xs desktop:text-base ${dim ? "text-iron-light" : "text-bone-dark"}`}
-														>
-															{line}
-														</span>
-													))}
-													<span
-														aria-hidden="true"
-														className="mt-1 block font-display text-sm desktop:hidden"
-													>
-														{badge}
-													</span>
+												<span
+													aria-hidden="true"
+													className={`font-display text-lg leading-none desktop:text-2xl ${dim ? "text-iron-light" : "text-bone"}`}
+												>
+													{node.level}
 												</span>
 												<span
 													aria-hidden="true"
-													className="hidden shrink-0 font-display text-sm desktop:block desktop:text-lg"
+													className="font-display text-[0.65rem] leading-tight desktop:text-sm"
 												>
 													{badge}
 												</span>
-												<span className="sr-only">{status}</span>
+												<span className="sr-only">
+													{node.lines.join(", ")}. {status}
+												</span>
 											</button>
 										</div>
 									);

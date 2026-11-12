@@ -352,27 +352,12 @@ export interface BossData {
 	patterns: BossPatternData[];
 }
 
-export interface OssuaryNodeData {
-	id: string;
-	index: number;
-	requires: string | null;
-	cost: number;
-	modifiers: Modifier[];
-	effects: { id: string; params?: Record<string, number | string | boolean> }[];
-}
-
-export interface OssuaryBranchData {
-	id: string;
-	name: string;
-	theme: string;
-	nodes: OssuaryNodeData[];
-}
-
-/** `data/ossuary.json`. */
+/** `data/ossuary.json`: the prices of the spell tree (the nodes come from `data/spells.json`, S-22-01). */
 export interface OssuaryData {
-	branches: OssuaryBranchData[];
-	/** The demo sells only nodes with `index <= demoMaxNodeIndex` (GDD 19.2). */
-	demoMaxNodeIndex: number;
+	/** The demo sells only the squares up to this spell level (GDD 19.2). */
+	demoMaxLevel: number;
+	/** Souls for the square of level 2, 3, ... of a spell. */
+	levelCosts: number[];
 }
 
 /** `data/milestones.json` (GDD 20). */

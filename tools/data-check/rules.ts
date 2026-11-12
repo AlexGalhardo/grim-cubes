@@ -124,31 +124,24 @@ export function checkRules(data: Data): string[] {
 		}
 	}
 
-	// ossuary.json
+	// ossuary.json x spells.json: one price per square of a column (levels 2 to levels.max), rising.
 	const ossuary = data["ossuary.json"];
 	if (isObj(ossuary)) {
-		const demo = num(ossuary.demoMaxNodeIndex);
-		for (const branch of objs(ossuary.branches)) {
-			const nodes = objs(branch.nodes);
-			const name = str(branch.id);
-			nodes.forEach((node, i) => {
-				const expected = i === 0 ? null : (str(nodes[i - 1]?.id) ?? null);
-				if ((node.requires ?? null) !== expected)
-					push(
-						`ossuary.json: ${name} node ${str(node.id)} requires ${JSON.stringify(node.requires)}, expected ${JSON.stringify(expected)} (linear chain)`,
-					);
-				const prev = num(nodes[i - 1]?.cost);
-				const cost = num(node.cost);
-				if (i > 0 && prev !== undefined && cost !== undefined && cost <= prev)
-					push(
-						`ossuary.json: ${name} node ${str(node.id)} cost ${cost} must exceed the previous ${prev}`,
-					);
-			});
-			if (demo !== undefined && demo >= nodes.length)
+		const costs = Array.isArray(ossuary.levelCosts) ? ossuary.levelCosts : [];
+		const max = isObj(spells) && isObj(spells.levels) ? num(spells.levels.max) : undefined;
+		if (max !== undefined && costs.length !== max - 1)
+			push(
+				`ossuary.json: levelCosts has ${costs.length} prices but spells.json levels.max ${max} needs ${max - 1}`,
+			);
+		costs.forEach((cost, i) => {
+			if (i > 0 && typeof cost === "number" && typeof costs[i - 1] === "number" && cost <= costs[i - 1])
 				push(
-					`ossuary.json: demoMaxNodeIndex ${demo} is not below the ${nodes.length} nodes of ${name}`,
+					`ossuary.json: levelCosts[${i}] ${cost} must exceed the previous ${String(costs[i - 1])}`,
 				);
-		}
+		});
+		const demo = num(ossuary.demoMaxLevel);
+		if (demo !== undefined && max !== undefined && demo > max)
+			push(`ossuary.json: demoMaxLevel ${demo} is above spells.json levels.max ${max}`);
 	}
 
 	// cards.json

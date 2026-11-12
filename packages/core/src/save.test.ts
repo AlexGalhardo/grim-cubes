@@ -1,5 +1,6 @@
 import { expect, test } from "vitest";
 import { createKeyMap } from "./keys";
+import { LEGACY_OSSUARY_COSTS } from "./legacyOssuary";
 import { createPadMap } from "./pad";
 import {
 	checksumOf,
@@ -8,6 +9,7 @@ import {
 	DEFAULT_HERO,
 	MAX_SAVE_BYTES,
 	migrateClasses,
+	migrateOssuary,
 	parseGlobal,
 	parseSave,
 	profileOf,
@@ -600,4 +602,42 @@ test("a global file from schema 14 (no heal or super keys) still verifies and ge
 	expect(settings.pad).toEqual(createPadMap());
 	const tampered = text.replace('"reroll":"KeyR"', '"reroll":"KeyT"');
 	await expect(parseGlobal(tampered)).rejects.toThrow("checksum mismatch");
+});
+
+test("the old stat tree costs 10,250 souls in all, and migrateOssuary gives back every node owned in full", () => {
+	expect(Object.values(LEGACY_OSSUARY_COSTS).reduce((a, b) => a + b, 0)).toBe(10250);
+	const m = meta();
+	m.souls = 40;
+	m.ossuary = {
+		flesh_1: true,
+		flesh_2: true,
+		steel_1: true,
+		ruin_6: false,
+		gone_node: true,
+		toString: true,
+	};
+	const migrated = migrateOssuary(m);
+	expect(migrated.souls).toBe(40 + 50 + 100 + 50);
+	expect(migrated.ossuary).toEqual({});
+	const all = meta();
+	all.ossuary = Object.fromEntries(Object.keys(LEGACY_OSSUARY_COSTS).map((id) => [id, true]));
+	expect(migrateOssuary(all).souls).toBe(all.souls + 10250);
+});
+
+test("a schema 14 slot with bought nodes loads with those souls back and an empty tree", async () => {
+	const text = await slotFileOf(14);
+	const before = JSON.parse(text).data as { souls: number; ossuary: Record<string, boolean> };
+	expect(before.ossuary).toEqual({ flesh_1: true });
+	const loaded = await parseSave(text);
+	expect(loaded.souls).toBe(before.souls + 50);
+	expect(loaded.ossuary).toEqual({});
+	await expect(parseSave(text.replace('"souls":285', '"souls":286'))).rejects.toThrow("checksum mismatch");
+});
+
+test("a schema 15 slot keeps its spell nodes and its souls untouched", async () => {
+	const m = meta();
+	m.ossuary = { warrior_shockwave_2: true };
+	const loaded = await parseSave(await serializeSave(m, "0.7.0"));
+	expect(loaded.souls).toBe(m.souls);
+	expect(loaded.ossuary).toEqual({ warrior_shockwave_2: true });
 });

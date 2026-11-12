@@ -21,6 +21,7 @@ export type Difficulty = "easy" | "normal" | "grim" | "nightmare";
 export const DIFFICULTIES: readonly Difficulty[] = ["easy", "normal", "grim", "nightmare"];
 
 import { checkKey, createKeyMap, KEY_ACTIONS, type KeyAction, type KeyMap, validKeyMap } from "./keys";
+import { LEGACY_OSSUARY_COSTS } from "./legacyOssuary";
 import { checkPadButton, createPadMap, PAD_ACTIONS, type PadAction, type PadMap, validPadMap } from "./pad";
 import { RNG_STREAMS } from "./rng";
 
@@ -712,6 +713,18 @@ export function migrateClasses<T extends Profile>(profile: T): T {
 	return { ...profile, stats: { ...profile.stats, bestBossRound }, run };
 }
 
+/**
+ * Schema 15, Ossuary: the stat tree is gone, replaced by the spell tree. Every soul spent on it comes back (the full
+ * price of each node owned) and the nodes are cleared, so the profile starts the new tree from zero with its souls.
+ */
+export function migrateOssuary<T extends Profile>(profile: T): T {
+	let refund = 0;
+	for (const [id, owned] of Object.entries(profile.ossuary)) {
+		if (owned && Object.hasOwn(LEGACY_OSSUARY_COSTS, id)) refund += LEGACY_OSSUARY_COSTS[id] ?? 0;
+	}
+	return { ...profile, souls: profile.souls + refund, ossuary: {} };
+}
+
 /** Schemas before 14 had no daily table, nor `seconds` and `daily` in the checkpoint. */
 function withoutDaily<T extends { run: RunCheckpoint | null; daily: DailyEntry[] }>(profile: T): T {
 	const { daily: _table, ...rest } = profile;
@@ -783,11 +796,14 @@ export async function parseSave(text: string): Promise<MetaState> {
 		const coveredDaily = v < 14 ? withoutDaily(covered) : covered;
 		const coveredHero = v < 13 ? withoutHero(coveredDaily) : coveredDaily;
 		await verified(envelope, v < 11 ? withoutEasy(coveredHero) : coveredHero);
-		return { ...(v < 15 ? migrateClasses(profile) : profile), settings: createSettings() };
+		return {
+			...(v < 15 ? migrateOssuary(migrateClasses(profile)) : profile),
+			settings: createSettings(),
+		};
 	}
 	const data = validateMeta(envelope.data);
 	await verified(envelope, coveredBy(envelope.schemaVersion, data));
-	return migrateClasses(data);
+	return migrateOssuary(migrateClasses(data));
 }
 
 /** True when `text` is a schema 1 to 9 file, the single save from before the slots. Unreadable text is false. */

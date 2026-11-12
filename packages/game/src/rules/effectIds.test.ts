@@ -9,7 +9,6 @@ const data = (name: string): unknown =>
 const OWNER: Record<string, string> = {
 	item: "./effects.ts",
 	weapon: "../systems/weapon.ts",
-	ossuary: "./ossuary.ts",
 };
 
 test("the effect id enum of the schema lists exactly the ids that have a handler", () => {
@@ -42,7 +41,7 @@ test("no effect id used by the data is missing from the handlers", () => {
 			for (const child of Object.values(record)) walk(child);
 		}
 	};
-	for (const file of ["items.json", "ossuary.json", "weapons.json"]) walk(data(file));
+	for (const file of ["items.json", "weapons.json"]) walk(data(file));
 	expect(used.size).toBeGreaterThan(10);
 	for (const id of used) expect(IMPLEMENTED_EFFECT_IDS, id).toContain(id);
 });

@@ -4,71 +4,101 @@ import { Ossuary, type OssuaryViewModel } from "./Ossuary";
 
 afterEach(cleanup);
 
+const node = (
+	spell: string,
+	level: number,
+	state: "owned" | "available" | "locked" | "demo",
+	cost: number,
+	affordable = true,
+) => ({ id: `${spell}_${level}`, level, lines: [`Nível ${level}`, "+15% de dano"], cost, state, affordable });
+
 const view: OssuaryViewModel = {
 	souls: 60,
-	refund: 50,
+	refund: 20,
+	classes: [
+		{ id: "warrior", name: "Warrior" },
+		{ id: "mage", name: "Mago" },
+	],
+	selectedClass: "warrior",
 	branches: [
 		{
-			id: "flesh",
-			name: "Carne",
+			id: "warrior_shockwave",
+			name: "Onda de Choque",
+			kind: "auto",
+			theme: "Automática",
+			level: 2,
 			nodes: [
-				{ id: "flesh_1", lines: ["+10 HP máx"], cost: 50, state: "owned", affordable: true },
-				{ id: "flesh_2", lines: ["+1 regen"], cost: 100, state: "available", affordable: false },
-				{ id: "flesh_3", lines: ["+3 armadura"], cost: 200, state: "locked", affordable: false },
+				node("warrior_shockwave", 2, "owned", 20),
+				node("warrior_shockwave", 3, "available", 35, false),
+				node("warrior_shockwave", 4, "locked", 55, false),
 			],
 		},
 		{
-			id: "steel",
-			name: "Aço",
-			nodes: [{ id: "steel_1", lines: ["+5% dano"], cost: 50, state: "available", affordable: true }],
+			id: "warrior_mend",
+			name: "Fôlego de Guerra",
+			kind: "heal",
+			level: 1,
+			nodes: [node("warrior_mend", 2, "available", 20)],
 		},
 	],
 };
 
 function actions() {
-	return { buy: vi.fn(), reset: vi.fn(), close: vi.fn() };
+	return { buy: vi.fn(), reset: vi.fn(), close: vi.fn(), selectClass: vi.fn() };
 }
 
-test("shows souls, branch names and node states", () => {
+test("shows souls, the spell columns with their level and the square states", () => {
 	render(<Ossuary view={view} actions={actions()} />);
 	expect(screen.getByTestId("ossuary-souls").textContent).toContain("60");
-	expect(screen.getByTestId("ossuary-node-flesh_1").getAttribute("data-state")).toBe("owned");
-	expect(screen.getByTestId("ossuary-node-flesh_3").getAttribute("data-state")).toBe("locked");
-	expect((screen.getByTestId("ossuary-node-flesh_3") as HTMLButtonElement).disabled).toBe(true);
+	expect(screen.getByTestId("ossuary-level-warrior_shockwave").textContent).toBe("Nível 2");
+	expect(screen.getByTestId("ossuary-node-warrior_shockwave_2").getAttribute("data-state")).toBe("owned");
+	expect(screen.getByTestId("ossuary-node-warrior_shockwave_4").getAttribute("data-state")).toBe("locked");
+	expect((screen.getByTestId("ossuary-node-warrior_shockwave_4") as HTMLButtonElement).disabled).toBe(true);
 });
 
 test("bought, buyable and locked differ without colour: words, frame shape and marks", () => {
 	render(<Ossuary view={view} actions={actions()} />);
-	const owned = screen.getByTestId("ossuary-node-flesh_1");
-	const buyable = screen.getByTestId("ossuary-node-steel_1");
-	const locked = screen.getByTestId("ossuary-node-flesh_3");
-	expect(owned.textContent).toContain("✓ Comprado");
-	expect(owned.textContent).not.toContain("50");
-	expect(buyable.textContent).toContain("☠ 50");
+	const owned = screen.getByTestId("ossuary-node-warrior_shockwave_2");
+	const buyable = screen.getByTestId("ossuary-node-warrior_mend_2");
+	const locked = screen.getByTestId("ossuary-node-warrior_shockwave_4");
+	expect(owned.textContent).toContain("✓");
+	expect(owned.textContent).toContain("Comprado");
+	expect(buyable.textContent).toContain("☠ 20");
 	expect(buyable.textContent).not.toContain("▣");
 	expect(locked.textContent).toContain("▣");
+	expect(locked.textContent).toContain("Bloqueado");
 	expect(locked.className).toContain("border-dashed");
 	expect(owned.className).not.toContain("border-dashed");
 	expect(buyable.className).not.toContain("border-dashed");
-	// Locked used to fade to half opacity, which dropped its text under AA.
-	for (const node of [owned, buyable, locked]) expect(node.className).not.toContain("opacity-");
+	for (const square of [owned, buyable, locked]) expect(square.className).not.toContain("opacity-");
 });
 
-test("only available nodes can be bought", () => {
+test("only available squares can be bought", () => {
 	const a = actions();
 	render(<Ossuary view={view} actions={a} />);
-	fireEvent.click(screen.getByTestId("ossuary-node-flesh_1"));
-	fireEvent.click(screen.getByTestId("ossuary-node-flesh_3"));
+	fireEvent.click(screen.getByTestId("ossuary-node-warrior_shockwave_2"));
+	fireEvent.click(screen.getByTestId("ossuary-node-warrior_shockwave_4"));
 	expect(a.buy).not.toHaveBeenCalled();
-	fireEvent.click(screen.getByTestId("ossuary-node-flesh_2"));
-	expect(a.buy).toHaveBeenCalledWith("flesh_2");
+	fireEvent.click(screen.getByTestId("ossuary-node-warrior_shockwave_3"));
+	expect(a.buy).toHaveBeenCalledWith("warrior_shockwave_3");
 });
 
-test("every branch shows at once, linked node to node, with the reset warning", () => {
+test("a tab per class: the selected one is marked and another one can be picked", () => {
+	const a = actions();
+	render(<Ossuary view={view} actions={a} />);
+	const tabs = screen.getAllByRole("tab");
+	expect(tabs.map((tab) => [tab.textContent, tab.getAttribute("aria-selected")])).toEqual([
+		["Warrior", "true"],
+		["Mago", "false"],
+	]);
+	fireEvent.click(screen.getByTestId("ossuary-class-mage"));
+	expect(a.selectClass).toHaveBeenCalledWith("mage");
+});
+
+test("every column of the class shows at once, with the reset warning", () => {
 	render(<Ossuary view={view} actions={actions()} />);
 	for (const branch of view.branches)
 		expect(screen.getByTestId(`ossuary-branch-${branch.id}`)).toBeTruthy();
-	expect(screen.queryByRole("tab")).toBeNull();
 	expect(screen.getByText(/Devolve/)).toBeTruthy();
 });
 
