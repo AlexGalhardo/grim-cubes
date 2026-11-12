@@ -9,6 +9,8 @@ import { STEP } from "../loop";
 import { createBossSystem } from "./boss";
 import { buildPatterns, type PatternContext } from "./bossPatterns";
 import type { DamageQueue } from "./damage";
+import { createProgress } from "./loot";
+import { createMaterials } from "./materials";
 import { createSpawnSystem, type SpawnSystem } from "./spawn";
 
 /** Passive patterns (no hit of their own) and the one gated behind the second phase. */
@@ -158,6 +160,7 @@ function fight(seed: number, steps: number): number[] {
 		rng: mulberry32(seed),
 		summonType: husk,
 		difficulty: () => 1,
+		materials: createMaterials(createProgress(), events),
 		onDefeated: () => undefined,
 	});
 	boss.start(world, 10);
