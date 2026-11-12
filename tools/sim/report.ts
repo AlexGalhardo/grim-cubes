@@ -23,6 +23,8 @@ export interface Metrics {
 	bosses: Record<
 		string,
 		{
+			/** Round the boss appears in (a boss has one fixed round). */
+			round: number;
 			fought: number;
 			killed: number;
 			medianKillSeconds: number | null;
@@ -70,6 +72,7 @@ export function summarize(reports: readonly SimReport[]): Metrics {
 	for (const report of reports) {
 		for (const fight of report.bosses) {
 			const entry = bosses[fight.boss] ?? {
+				round: fight.round,
 				fought: 0,
 				killed: 0,
 				medianKillSeconds: null,
@@ -128,6 +131,13 @@ export const IQR_LIMIT = 25;
  * the p50 away from that cliff.
  */
 export const ALIVE_LIMIT = 0.45;
+
+/**
+ * Lowest median kill time of a boss, by the round it appears in (GDD 25, S-26-01): a boss every 5 rounds, so the first
+ * two are lessons and may die fast; from round 15 on a boss is a fight of at least 40 s. (The loop before v0.7.0 had a
+ * boss every 10 rounds and a 60 s floor for all of them.)
+ */
+export const bossKillMin = (round: number): number => (round <= 5 ? 12 : round <= 10 ? 25 : 40);
 
 export type Difficulty = "easy" | "normal" | "grim" | "nightmare";
 export type PolicyName = "greedy" | "tank" | "kite" | "mage";
@@ -202,7 +212,7 @@ export function checkTargets(
 	});
 	for (const [id, entry] of Object.entries(metrics.bosses)) {
 		// Easy bosses have 75% of the HP, so they may die 25% sooner.
-		const lo = (id === "gravedigger" ? 45 : 60) * (profile.difficulty === "easy" ? 0.75 : 1);
+		const lo = bossKillMin(entry.round) * (profile.difficulty === "easy" ? 0.75 : 1);
 		const hi = id === "gravedigger" ? ranges.killMax.gravedigger : ranges.killMax.other;
 		checks.push({
 			id: `boss-kill-seconds:${id}`,

@@ -60,14 +60,20 @@ test("Easy expects a late p50 with most runs alive and lets its bosses die soone
 			{
 				...metrics(100, 10),
 				bosses: {
-					swamp_matriarch: { fought: 10, killed: 10, medianKillSeconds: 50, medianEnrageStacks: 0 },
+					swamp_matriarch: {
+						round: 20,
+						fought: 10,
+						killed: 10,
+						medianKillSeconds: 50,
+						medianEnrageStacks: 0,
+					},
 				},
 			},
 			35,
 			{ difficulty, policy: "greedy" },
 		).find((c) => c.id === "boss-kill-seconds:swamp_matriarch")?.target;
-	expect(killTarget("normal")).toBe("60-120");
-	expect(killTarget("easy")).toBe("45-120");
+	expect(killTarget("normal")).toBe("40-120");
+	expect(killTarget("easy")).toBe("30-120");
 	expect(p50Check(32, { difficulty: "easy", policy: "greedy" })).toBe(true);
 	expect(p50Check(24, { difficulty: "easy", policy: "greedy" })).toBe(false);
 });

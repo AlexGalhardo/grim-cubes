@@ -80,6 +80,7 @@ describe("sim report", () => {
 		const m = summarize([fake(10, 50), fake(20, 70), fake(30, null)]);
 		expect(m.deathRound.p50).toBe(20);
 		expect(m.bosses.gravedigger).toEqual({
+			round: 10,
 			fought: 3,
 			killed: 2,
 			medianKillSeconds: 60,
