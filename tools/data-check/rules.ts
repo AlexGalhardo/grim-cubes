@@ -188,7 +188,7 @@ export function checkRules(data: Data): string[] {
 		if (round === undefined) continue;
 		if (seen.has(round)) push(`bosses.json: round ${round} used by more than one boss`);
 		seen.add(round);
-		if (round % 10 !== 0) push(`bosses.json: ${str(boss.id)} round ${round} is not a multiple of 10`);
+		if (round % 5 !== 0) push(`bosses.json: ${str(boss.id)} round ${round} is not a multiple of 5`);
 	}
 
 	return errors;

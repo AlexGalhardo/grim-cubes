@@ -822,13 +822,16 @@ async function boot(): Promise<void> {
 	);
 	// One rig per boss, by Boss.id - 1; a boss whose model is missing keeps its horde instance.
 	const bossRigs = await Promise.all(
-		bossesData.map((def) =>
-			loadRig(
-				def.id,
+		bossesData.map(async (def) => {
+			// The bosses added by ADR-0030 borrow the model of an older one, adapted by scale (until the S-18).
+			const rig = await loadRig(
+				def.model ?? def.id,
 				{ refSpeed: def.speed ?? 2.4, idle: "idle", move: "walk" },
 				assets?.bossMaterial ?? assets?.characterMaterial,
-			),
-		),
+			);
+			if (rig && def.scale) rig.setScale(def.scale);
+			return rig;
+		}),
 	);
 	if (heroRig && assets) {
 		game.hero.isVisible = false;

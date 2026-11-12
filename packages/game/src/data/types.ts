@@ -308,6 +308,10 @@ export interface BossData {
 	patternCooldownSeconds?: number;
 	/** Multiplies the shared boss contact damage (rounds.json boss); balance lever per boss. Default 1. */
 	contactDamageMult?: number;
+	/** Model id the boss borrows when it has no model of its own (the five added by ADR-0030). */
+	model?: string;
+	/** Uniform scale of the borrowed model (a tint is not possible yet: cloning a contour material throws). */
+	scale?: number;
 	archetype: string;
 	delivery: string;
 	patterns: BossPatternData[];

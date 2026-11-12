@@ -226,7 +226,7 @@ Decisão do PO em 2026-11-12, registrada no ADR-0030 (o texto original está no 
 
 ### S-23 Chefes
 
-- [ ] **S-23-01** Chefe a cada 5 rounds (5, 10, …, 50), 10 chefes no total: os 5 atuais e 5 novos com modelos adaptados; depois do round 50, modo infinito com inimigos e chefes sorteados.
+- [x] **S-23-01** Chefe a cada 5 rounds (5, 10, …, 50), 10 chefes no total: os 5 atuais e 5 novos com modelos adaptados; depois do round 50, modo infinito com inimigos e chefes sorteados.
   - Asserts: teste do roster por round (5 a 55); teste do modo infinito; GDD.
 - [ ] **S-23-02** Cada chefe com 5 ataques sorteados, sempre com marcação vermelha no chão antes do golpe (telegraph com tempo de reação por dificuldade).
   - Asserts: teste de que todo ataque emite o aviso antes do dano; teste do sorteio determinístico por seed; captura de um aviso por chefe.

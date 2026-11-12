@@ -9,7 +9,7 @@
 		"firstRoundSeconds": 30,
 		"stepSeconds": 5,
 		"maxSeconds": 120,
-		"bossEveryRounds": 10,
+		"bossEveryRounds": 5,
 		"bossHasTimer": false
 	},
 	"boss": {
@@ -25,7 +25,7 @@
 		"soulsPerRound": 10,
 		"hpScalePerTenRounds": 0.35,
 		"freeWeaponUpgrades": 1,
-		"randomRosterFromRound": 60,
+		"randomRosterFromRound": 51,
 		"eliteModifierFromRound": 60,
 		"secondEliteModifierFromRound": 100,
 		"rewardRelics": 1

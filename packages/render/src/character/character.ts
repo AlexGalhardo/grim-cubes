@@ -48,6 +48,8 @@ export interface Character {
 	setWeaponScale(scale: number): void;
 	/** Multiplies the model colour by `hex` on a private copy of its material (cosmetic skins). */
 	setTint(hex: string): void;
+	/** Uniform scale of the whole model (a borrowed boss model adapted to its new owner). */
+	setScale(scale: number): void;
 	setVisible(visible: boolean): void;
 	/** Opacity 0..1 of every mesh of the model (the Alpha Hunter's stealth). */
 	setAlpha(alpha: number): void;
@@ -236,6 +238,9 @@ export async function loadCharacter(
 		},
 		setAlpha(alpha): void {
 			for (const mesh of result.meshes) if (mesh.getTotalVertices() > 0) mesh.visibility = alpha;
+		},
+		setScale(scale): void {
+			holder.scaling.setAll(scale);
 		},
 		setLift(y): void {
 			lift = y;

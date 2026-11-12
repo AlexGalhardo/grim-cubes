@@ -367,20 +367,27 @@ Decisão D08.
 
 ## 12. Chefes
 
-Decisão D02: roster de 3–5 chefes únicos; ordem fixa até o round 50; depois sorteio com modificadores de elite. Round de chefe sem timer; enrage a cada 60 s (+15% dano e velocidade, acumulativo). Horda reduzida continua (30% do spawn normal).
+Decisão D02, revista pelo ADR-0030: dez chefes únicos, um a cada 5 rounds (5, 10, …, 50), em ordem fixa; depois do round 50 vem o modo infinito, com chefe sorteado a cada 5 rounds (sorteio a partir do round 51, `randomRosterFromRound`) e modificadores de elite. Round de chefe sem timer; enrage a cada 60 s (+15% dano e velocidade, acumulativo). Horda reduzida continua (30% do spawn normal).
 
 ### 12.1 Roster e entrega por fase
 
 | Round | Chefe | Fase de entrega | Arquétipo | HP base (round 10) | Padrões |
 | --- | --- | --- | --- | --- | --- |
+| 5 | O Carcereiro de Ossos | PROTÓTIPO | tanque lento com investida | 1.800 | modelo do Coveiro menor: investida, golpe de pá, invoca 4 Carcaças a 50% HP |
 | 10 | O Coveiro | PROTÓTIPO | tanque lento com investida | 4.800 | investida em linha (telegrafada 1 s), golpe de pá em arco, invoca 6 Carcaças a 50% HP |
+| 15 | A Bruxa do Lodo | PROTÓTIPO | invocadora | 8.000 | modelo da Matriarca menor: Afogados, poça de lodo, grito |
 | 20 | A Matriarca do Pântano | ALPHA | invocadora | 12.500 | solta 3 Sanguessugas a cada 8 s, poça de lodo (lentidão), grito (knockback) |
+| 25 | O Titã de Escória | PROTÓTIPO | área e projéteis | 13.500 | modelo do Forjador maior: martelo, correntes em 6 direções, fase 2 com armadura 25 |
 | 30 | O Forjador | ALPHA | área e projéteis | 15.000 | martelo (onda de choque radial), lança correntes em 4 direções, fase 2 com armadura 30 |
+| 35 | O Espreitador da Ninhada | PROTÓTIPO | rápido, caça | 30.000 | modelo do Caçador Alfa maior: furtividade, salto, visão térmica |
 | 40 | O Caçador Alfa | BETA | rápido, caça | 60.000 (provisório) | `stealth`: fica invisível 3 s (as armas não o miram) e ataca pelas costas; `leap`: salto com área; `thermal_vision`: persegue atravessando obstáculos |
+| 45 | O Soberano Gélido | PROTÓTIPO | dois estágios | 62.000 | modelo da Rainha menor: varredura, poça de gelo (lentidão), salto |
 | 50 | A Rainha do Ninho | BETA | dois estágios | 65.000 (provisório) | `eggs`: ovos destrutíveis que eclodem Caçadores; `sweep`: cauda em varredura; `fly_bomb`: na fase 2 (50% HP) voa e bombardeia |
-| 60+ | sorteio do roster | — | — | HP(N) = HP_base_do_chefe × (1 + 0,35 × (N − round_original) / 10) | + 1 modificador de elite a partir do 60; 2 a partir do 100 |
+| 55+ | sorteio do roster (dez chefes) | — | — | HP(N) = HP_base_do_chefe × (1 + 0,35 × (N − round_original) / 10) | + 1 modificador de elite a partir do 60; 2 a partir do 100 |
 
-HP escala com o multiplicador de dificuldade (D13). Dano de contato dos chefes: (3 + 0,18 × N) × multiplicador do chefe (Coveiro ×1, Matriarca ×2, Forjador ×2, Caçador Alfa ×1,5, Rainha ×2; `contactDamageMult` em `bosses.json`); projéteis 18 + 1,2 × N (**proposta**). Os padrões de área e projétil escalam esse contato: grito ×3, martelo ×4, correntes ×3. HP e dano saíram do simulador (A-02-03): com 1.200/2.800/5.000 os chefes caíam em 15–40 s. O HP do Caçador Alfa (60.000) e da Rainha do Ninho (65.000) é provisório, decisão do Orq em 2026-10-31, revisável pelo PO: o HP anterior do GDD (7.500 e 11.000) dava kill em 10–14 s no sim. O sorteio do roster começa no round 60 (`randomRosterFromRound` em `rounds.json`).
+Os cinco chefes novos (rounds 5, 15, 25, 35 e 45) pegam emprestado o modelo voxel de um chefe antigo, adaptado por escala (`model` e `scale` em `data/bosses.json`; a tinta ficou de fora porque clonar o material com contorno lança erro) até a S-18 modelar os dez. Os nomes e o tema grimdark são propostas do agente, a validar pelo PO. HP e padrões dos novos são provisórios; o balanceamento é da S-26.
+
+HP escala com o multiplicador de dificuldade (D13). Dano de contato dos chefes: (3 + 0,18 × N) × multiplicador do chefe (Coveiro ×1, Matriarca ×2, Forjador ×2, Caçador Alfa ×1,5, Rainha ×2; `contactDamageMult` em `bosses.json`); projéteis 18 + 1,2 × N (**proposta**). Os padrões de área e projétil escalam esse contato: grito ×3, martelo ×4, correntes ×3. HP e dano saíram do simulador (A-02-03): com 1.200/2.800/5.000 os chefes caíam em 15–40 s. O HP do Caçador Alfa (60.000) e da Rainha do Ninho (65.000) é provisório, decisão do Orq em 2026-10-31, revisável pelo PO: o HP anterior do GDD (7.500 e 11.000) dava kill em 10–14 s no sim. O sorteio do roster começa no round 51 (`randomRosterFromRound` em `rounds.json`).
 
 ### 12.2 Regras gerais
 

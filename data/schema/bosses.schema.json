@@ -24,6 +24,11 @@
 			"speed": { "type": "number", "minimum": 0 },
 			"patternCooldownSeconds": { "type": "number", "minimum": 0 },
 			"contactDamageMult": { "type": "number", "minimum": 0 },
+			"model": {
+				"$ref": "common.schema.json#/$defs/id",
+				"description": "Id of the model the boss borrows when it has none of its own (adapted by scale)."
+			},
+			"scale": { "type": "number", "exclusiveMinimum": 0 },
 			"archetype": {
 				"$ref": "common.schema.json#/$defs/id"
 			},

@@ -504,7 +504,7 @@ export function selfTest(
 			},
 		],
 		[
-			"bosses: round not a multiple of 10",
+			"bosses: round not a multiple of 5",
 			(d) => {
 				const b = asArray(d["bosses.json"])[0];
 				if (b) b.round = 7;

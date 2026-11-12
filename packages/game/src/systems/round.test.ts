@@ -57,7 +57,7 @@ test("round durations follow the GDD ramp (30 s, +5 s, cap 120 s), bosses have n
 	const seconds = Array.from({ length: 12 }, (_, i) =>
 		isBossRound(runConfig, i + 1) ? null : roundDurationSeconds(runConfig, i + 1),
 	);
-	expect(seconds).toEqual([30, 35, 40, 45, 50, 55, 60, 65, 70, null, 80, 85]);
+	expect(seconds).toEqual([30, 35, 40, 45, null, 55, 60, 65, 70, null, 80, 85]);
 	const { run, step, until } = setup();
 	run.newRun();
 	until("Round");
@@ -113,16 +113,16 @@ test("round end purges enemies without drops and conserves fragments through the
 test("boss round has no timer, spawns 30% of the horde and ends on bossDied", () => {
 	const { run, spawn, step, until } = setup();
 	run.newRun();
-	for (let r = 1; r < 10; r++) {
+	for (let r = 1; r < 5; r++) {
 		until("Shop");
 		run.closeShop();
 	}
-	expect(run.round).toBe(10);
+	expect(run.round).toBe(5);
 	expect(run.state).toBe("BossIntro");
 	expect(until("BossRound")).toBe(3 / STEP);
 	for (let i = 0; i < 4000; i++) step();
 	expect(run.state).toBe("BossRound");
-	expect(spawn.spawned).toBe(Math.round(140 * rounds.boss.remainingHordeFraction));
+	expect(spawn.spawned).toBe(Math.round(80 * rounds.boss.remainingHordeFraction));
 	run.bossDied();
 	step();
 	expect(run.state).toBe("RoundOutro");

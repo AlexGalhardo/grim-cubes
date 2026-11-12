@@ -185,7 +185,7 @@ test("the scream shoves a hero standing next to her away and hurts it, after a t
 	expect(Health.hp[hero]).toBeLessThan(1e6);
 });
 
-test("the roster fights the Gravedigger in round 10, the Matriarch from 20 and the Forgemaster from 30", () => {
+test("the roster fights the Gravedigger in round 10, the Matriarch from 20 and the Forgemaster from 30 (with a new boss every five rounds in between)", () => {
 	const { spawn, events, damage } = setup();
 	const hero = spawnBody(createGameWorld(), 0, 0);
 	const roster = createBossRoster(
@@ -206,6 +206,8 @@ test("the roster fights the Gravedigger in round 10, the Matriarch from 20 and t
 	);
 	expect(roster.defFor(10).id).toBe("gravedigger");
 	expect(roster.defFor(20).id).toBe("swamp_matriarch");
-	expect(roster.defFor(29).id).toBe("swamp_matriarch");
+	expect(roster.defFor(24).id).toBe("swamp_matriarch");
+	expect(roster.defFor(15).id).toBe("bog_warlock");
+	expect(roster.defFor(25).id).toBe("slag_titan");
 	expect(roster.defFor(30).id).toBe("forgemaster");
 });
