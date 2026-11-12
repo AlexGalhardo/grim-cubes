@@ -164,7 +164,7 @@ describe("the kiting bot for guns (S-12-03)", () => {
 	const hero = { x: 0, z: 0 };
 	const base = { hero, range: 12, fragments: [], tick: 0 };
 
-	it("is chosen by the class: warrior greedy, ranged kite, mage its own close kite", () => {
+	it("is chosen by the class: warrior greedy, ranged kite, mage its own bot", () => {
 		expect(policyForHero("warrior")).toBe("greedy");
 		expect(policyForHero("ranged")).toBe("kite");
 		expect(policyForHero("mage")).toBe("mage");
@@ -174,12 +174,6 @@ describe("the kiting bot for guns (S-12-03)", () => {
 		expect(policyFor("mage").modifierValue([add("damage", 0.1)])).toBe(
 			policyFor("greedy").modifierValue([add("damage", 0.1)]),
 		);
-	});
-
-	it("the mage lets enemies come closer than the ranged kiter does", () => {
-		const view = { ...base, enemies: [{ x: 4, z: 0 }] };
-		expect(kiteSteer(view).moveX).toBeLessThan(0);
-		expect(Math.abs(kiteSteer({ ...view, danger: 3 }).moveX)).toBeLessThan(1e-9);
 	});
 
 	it("backs away from a crowd that is close, curving instead of running straight back", () => {
