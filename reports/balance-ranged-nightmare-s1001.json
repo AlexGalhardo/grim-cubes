@@ -1,0 +1,682 @@
+{
+	"options": {
+		"seed": 1001,
+		"runs": 64,
+		"rounds": 35,
+		"difficulty": "nightmare",
+		"policy": "kite",
+		"hero": "ranged"
+	},
+	"metrics": {
+		"runs": 64,
+		"deathRound": {
+			"p50": 18,
+			"p25": 16,
+			"p75": 21,
+			"iqr": 5,
+			"mean": 18.25,
+			"stdev": 3.5
+		},
+		"survivors": 0,
+		"bosses": {
+			"bone_warden": {
+				"round": 5,
+				"fought": 64,
+				"killed": 64,
+				"medianKillSeconds": 42.45,
+				"medianEnrageStacks": 0
+			},
+			"gravedigger": {
+				"round": 10,
+				"fought": 64,
+				"killed": 63,
+				"medianKillSeconds": 85.68333333333334,
+				"medianEnrageStacks": 1
+			},
+			"bog_warlock": {
+				"round": 15,
+				"fought": 55,
+				"killed": 53,
+				"medianKillSeconds": 104.55,
+				"medianEnrageStacks": 1
+			},
+			"swamp_matriarch": {
+				"round": 20,
+				"fought": 25,
+				"killed": 23,
+				"medianKillSeconds": 109.51666666666667,
+				"medianEnrageStacks": 1
+			},
+			"slag_titan": {
+				"round": 25,
+				"fought": 1,
+				"killed": 1,
+				"medianKillSeconds": 168.75,
+				"medianEnrageStacks": 2
+			}
+		},
+		"goldPerPrice": 1.4314083325416747,
+		"levelUpsPerRound": 1.4138349514563107
+	},
+	"checks": [
+		{
+			"id": "death-round-p50",
+			"target": "11-18",
+			"value": 18,
+			"ok": true,
+			"skipped": false
+		},
+		{
+			"id": "death-round-iqr",
+			"target": "<= 25",
+			"value": 5,
+			"ok": true,
+			"skipped": false
+		},
+		{
+			"id": "alive-fraction-at-horizon",
+			"target": "<= 0.45",
+			"value": 0,
+			"ok": true,
+			"skipped": false
+		},
+		{
+			"id": "boss-kill-seconds:bone_warden",
+			"target": "12-120",
+			"value": 42.45,
+			"ok": true,
+			"skipped": false
+		},
+		{
+			"id": "boss-enrage-stacks:bone_warden",
+			"target": "< 3",
+			"value": 0,
+			"ok": true,
+			"skipped": false
+		},
+		{
+			"id": "boss-kill-seconds:gravedigger",
+			"target": "25-90",
+			"value": 85.68333333333334,
+			"ok": true,
+			"skipped": false
+		},
+		{
+			"id": "boss-enrage-stacks:gravedigger",
+			"target": "< 3",
+			"value": 1,
+			"ok": true,
+			"skipped": false
+		},
+		{
+			"id": "boss-kill-seconds:bog_warlock",
+			"target": "40-120",
+			"value": 104.55,
+			"ok": true,
+			"skipped": false
+		},
+		{
+			"id": "boss-enrage-stacks:bog_warlock",
+			"target": "< 3",
+			"value": 1,
+			"ok": true,
+			"skipped": false
+		},
+		{
+			"id": "boss-kill-seconds:swamp_matriarch",
+			"target": "40-120",
+			"value": 109.51666666666667,
+			"ok": true,
+			"skipped": false
+		},
+		{
+			"id": "boss-enrage-stacks:swamp_matriarch",
+			"target": "< 3",
+			"value": 1,
+			"ok": true,
+			"skipped": false
+		},
+		{
+			"id": "boss-kill-seconds:slag_titan",
+			"target": "40-180",
+			"value": 168.75,
+			"ok": true,
+			"skipped": false
+		},
+		{
+			"id": "boss-enrage-stacks:slag_titan",
+			"target": "< 3",
+			"value": 2,
+			"ok": true,
+			"skipped": false
+		},
+		{
+			"id": "gold-per-item-price",
+			"target": "1-1.6",
+			"value": 1.4314083325416747,
+			"ok": true,
+			"skipped": false
+		},
+		{
+			"id": "level-ups-per-round-5-20",
+			"target": "1-2",
+			"value": 1.4138349514563107,
+			"ok": true,
+			"skipped": false
+		}
+	],
+	"runs": [
+		{
+			"seed": 1001,
+			"outcome": "died",
+			"roundReached": 21,
+			"kills": 2468,
+			"worldHash": 279618610,
+			"equipment": [7, 7, 7, 3, 6, 4]
+		},
+		{
+			"seed": 1002,
+			"outcome": "died",
+			"roundReached": 16,
+			"kills": 1634,
+			"worldHash": 98447098,
+			"equipment": [5, 5, 5, 5, 5, 5]
+		},
+		{
+			"seed": 1003,
+			"outcome": "died",
+			"roundReached": 12,
+			"kills": 1015,
+			"worldHash": 3841751995,
+			"equipment": [5, 5, 3, 3, 4, 3]
+		},
+		{
+			"seed": 1004,
+			"outcome": "died",
+			"roundReached": 13,
+			"kills": 1116,
+			"worldHash": 1403635924,
+			"equipment": [5, 5, 4, 4, 3, 4]
+		},
+		{
+			"seed": 1005,
+			"outcome": "died",
+			"roundReached": 22,
+			"kills": 2587,
+			"worldHash": 2400476717,
+			"equipment": [8, 6, 5, 4, 6, 5]
+		},
+		{
+			"seed": 1006,
+			"outcome": "died",
+			"roundReached": 22,
+			"kills": 2450,
+			"worldHash": 413752801,
+			"equipment": [8, 6, 5, 4, 5, 5]
+		},
+		{
+			"seed": 1007,
+			"outcome": "died",
+			"roundReached": 21,
+			"kills": 2353,
+			"worldHash": 832752139,
+			"equipment": [8, 6, 4, 4, 5, 5]
+		},
+		{
+			"seed": 1008,
+			"outcome": "died",
+			"roundReached": 22,
+			"kills": 2612,
+			"worldHash": 306266957,
+			"equipment": [6, 7, 6, 6, 6, 5]
+		},
+		{
+			"seed": 1009,
+			"outcome": "died",
+			"roundReached": 22,
+			"kills": 2611,
+			"worldHash": 2819056035,
+			"equipment": [7, 7, 4, 5, 5, 5]
+		},
+		{
+			"seed": 1010,
+			"outcome": "died",
+			"roundReached": 16,
+			"kills": 1645,
+			"worldHash": 2721328308,
+			"equipment": [7, 6, 5, 4, 4, 4]
+		},
+		{
+			"seed": 1011,
+			"outcome": "died",
+			"roundReached": 20,
+			"kills": 2305,
+			"worldHash": 1512622683,
+			"equipment": [7, 6, 5, 4, 6, 4]
+		},
+		{
+			"seed": 1012,
+			"outcome": "died",
+			"roundReached": 19,
+			"kills": 2216,
+			"worldHash": 2730117798,
+			"equipment": [7, 5, 5, 4, 5, 5]
+		},
+		{
+			"seed": 1013,
+			"outcome": "died",
+			"roundReached": 21,
+			"kills": 2465,
+			"worldHash": 13873800,
+			"equipment": [7, 7, 5, 3, 5, 5]
+		},
+		{
+			"seed": 1014,
+			"outcome": "died",
+			"roundReached": 16,
+			"kills": 1581,
+			"worldHash": 717064813,
+			"equipment": [5, 5, 5, 3, 5, 4]
+		},
+		{
+			"seed": 1015,
+			"outcome": "died",
+			"roundReached": 17,
+			"kills": 1816,
+			"worldHash": 825582831,
+			"equipment": [5, 5, 5, 4, 5, 5]
+		},
+		{
+			"seed": 1016,
+			"outcome": "died",
+			"roundReached": 14,
+			"kills": 1344,
+			"worldHash": 2266230268,
+			"equipment": [4, 5, 4, 3, 4, 4]
+		},
+		{
+			"seed": 1017,
+			"outcome": "died",
+			"roundReached": 10,
+			"kills": 705,
+			"worldHash": 4035584983,
+			"equipment": [4, 4, 4, 2, 4, 2]
+		},
+		{
+			"seed": 1018,
+			"outcome": "died",
+			"roundReached": 21,
+			"kills": 2358,
+			"worldHash": 2689374733,
+			"equipment": [6, 7, 5, 4, 6, 4]
+		},
+		{
+			"seed": 1019,
+			"outcome": "died",
+			"roundReached": 14,
+			"kills": 1348,
+			"worldHash": 703739569,
+			"equipment": [5, 5, 5, 5, 4, 3]
+		},
+		{
+			"seed": 1020,
+			"outcome": "died",
+			"roundReached": 11,
+			"kills": 802,
+			"worldHash": 3129524657,
+			"equipment": [4, 4, 3, 3, 4, 4]
+		},
+		{
+			"seed": 1021,
+			"outcome": "died",
+			"roundReached": 17,
+			"kills": 1836,
+			"worldHash": 3650244874,
+			"equipment": [5, 5, 5, 3, 5, 4]
+		},
+		{
+			"seed": 1022,
+			"outcome": "died",
+			"roundReached": 18,
+			"kills": 2000,
+			"worldHash": 1694802593,
+			"equipment": [5, 5, 5, 5, 4, 4]
+		},
+		{
+			"seed": 1023,
+			"outcome": "died",
+			"roundReached": 18,
+			"kills": 2044,
+			"worldHash": 2059152033,
+			"equipment": [7, 6, 4, 3, 6, 4]
+		},
+		{
+			"seed": 1024,
+			"outcome": "died",
+			"roundReached": 23,
+			"kills": 2777,
+			"worldHash": 2710095810,
+			"equipment": [7, 6, 5, 5, 6, 5]
+		},
+		{
+			"seed": 1025,
+			"outcome": "died",
+			"roundReached": 14,
+			"kills": 1351,
+			"worldHash": 3436220092,
+			"equipment": [5, 5, 4, 3, 5, 3]
+		},
+		{
+			"seed": 1026,
+			"outcome": "died",
+			"roundReached": 21,
+			"kills": 2381,
+			"worldHash": 3516755566,
+			"equipment": [7, 7, 4, 5, 5, 4]
+		},
+		{
+			"seed": 1027,
+			"outcome": "died",
+			"roundReached": 20,
+			"kills": 2386,
+			"worldHash": 2328047410,
+			"equipment": [7, 7, 5, 4, 5, 5]
+		},
+		{
+			"seed": 1028,
+			"outcome": "died",
+			"roundReached": 21,
+			"kills": 2501,
+			"worldHash": 3041018510,
+			"equipment": [7, 7, 6, 4, 6, 5]
+		},
+		{
+			"seed": 1029,
+			"outcome": "died",
+			"roundReached": 15,
+			"kills": 1559,
+			"worldHash": 750523311,
+			"equipment": [5, 5, 5, 5, 5, 4]
+		},
+		{
+			"seed": 1030,
+			"outcome": "died",
+			"roundReached": 17,
+			"kills": 1839,
+			"worldHash": 4290304558,
+			"equipment": [7, 6, 4, 3, 4, 4]
+		},
+		{
+			"seed": 1031,
+			"outcome": "died",
+			"roundReached": 17,
+			"kills": 1835,
+			"worldHash": 1310157836,
+			"equipment": [7, 5, 4, 4, 5, 5]
+		},
+		{
+			"seed": 1032,
+			"outcome": "died",
+			"roundReached": 21,
+			"kills": 2396,
+			"worldHash": 2535255015,
+			"equipment": [7, 7, 4, 5, 5, 5]
+		},
+		{
+			"seed": 1033,
+			"outcome": "died",
+			"roundReached": 18,
+			"kills": 2016,
+			"worldHash": 2462029640,
+			"equipment": [7, 6, 5, 3, 5, 4]
+		},
+		{
+			"seed": 1034,
+			"outcome": "died",
+			"roundReached": 18,
+			"kills": 1957,
+			"worldHash": 3999829944,
+			"equipment": [7, 6, 5, 5, 5, 5]
+		},
+		{
+			"seed": 1035,
+			"outcome": "died",
+			"roundReached": 18,
+			"kills": 1987,
+			"worldHash": 2417002303,
+			"equipment": [7, 5, 4, 5, 4, 4]
+		},
+		{
+			"seed": 1036,
+			"outcome": "died",
+			"roundReached": 24,
+			"kills": 2945,
+			"worldHash": 141986677,
+			"equipment": [7, 7, 5, 4, 6, 5]
+		},
+		{
+			"seed": 1037,
+			"outcome": "died",
+			"roundReached": 22,
+			"kills": 2588,
+			"worldHash": 1966002657,
+			"equipment": [6, 7, 5, 5, 5, 6]
+		},
+		{
+			"seed": 1038,
+			"outcome": "died",
+			"roundReached": 18,
+			"kills": 1897,
+			"worldHash": 3630496619,
+			"equipment": [7, 6, 4, 3, 3, 4]
+		},
+		{
+			"seed": 1039,
+			"outcome": "died",
+			"roundReached": 15,
+			"kills": 1449,
+			"worldHash": 1969431739,
+			"equipment": [6, 5, 4, 2, 5, 4]
+		},
+		{
+			"seed": 1040,
+			"outcome": "died",
+			"roundReached": 23,
+			"kills": 2767,
+			"worldHash": 4006292827,
+			"equipment": [7, 7, 5, 4, 6, 5]
+		},
+		{
+			"seed": 1041,
+			"outcome": "died",
+			"roundReached": 22,
+			"kills": 2536,
+			"worldHash": 2603180123,
+			"equipment": [7, 6, 5, 5, 6, 4]
+		},
+		{
+			"seed": 1042,
+			"outcome": "died",
+			"roundReached": 16,
+			"kills": 1553,
+			"worldHash": 2216511218,
+			"equipment": [6, 7, 5, 4, 4, 3]
+		},
+		{
+			"seed": 1043,
+			"outcome": "died",
+			"roundReached": 16,
+			"kills": 1623,
+			"worldHash": 3352232304,
+			"equipment": [7, 5, 4, 4, 5, 3]
+		},
+		{
+			"seed": 1044,
+			"outcome": "died",
+			"roundReached": 21,
+			"kills": 2432,
+			"worldHash": 771506286,
+			"equipment": [8, 6, 5, 4, 5, 5]
+		},
+		{
+			"seed": 1045,
+			"outcome": "died",
+			"roundReached": 17,
+			"kills": 1693,
+			"worldHash": 346130935,
+			"equipment": [5, 5, 4, 4, 5, 4]
+		},
+		{
+			"seed": 1046,
+			"outcome": "died",
+			"roundReached": 16,
+			"kills": 1622,
+			"worldHash": 1409625012,
+			"equipment": [5, 5, 5, 4, 5, 5]
+		},
+		{
+			"seed": 1047,
+			"outcome": "died",
+			"roundReached": 16,
+			"kills": 1647,
+			"worldHash": 3563947383,
+			"equipment": [7, 5, 4, 3, 4, 4]
+		},
+		{
+			"seed": 1048,
+			"outcome": "died",
+			"roundReached": 23,
+			"kills": 2646,
+			"worldHash": 437646449,
+			"equipment": [7, 7, 5, 5, 4, 5]
+		},
+		{
+			"seed": 1049,
+			"outcome": "died",
+			"roundReached": 19,
+			"kills": 2262,
+			"worldHash": 56724688,
+			"equipment": [7, 6, 5, 5, 5, 5]
+		},
+		{
+			"seed": 1050,
+			"outcome": "died",
+			"roundReached": 28,
+			"kills": 3504,
+			"worldHash": 1742438212,
+			"equipment": [7, 7, 7, 5, 6, 5]
+		},
+		{
+			"seed": 1051,
+			"outcome": "died",
+			"roundReached": 18,
+			"kills": 1900,
+			"worldHash": 3516162610,
+			"equipment": [5, 5, 4, 5, 4, 5]
+		},
+		{
+			"seed": 1052,
+			"outcome": "died",
+			"roundReached": 21,
+			"kills": 2451,
+			"worldHash": 1826838044,
+			"equipment": [6, 7, 4, 4, 5, 5]
+		},
+		{
+			"seed": 1053,
+			"outcome": "died",
+			"roundReached": 22,
+			"kills": 2584,
+			"worldHash": 706759398,
+			"equipment": [7, 7, 5, 3, 6, 5]
+		},
+		{
+			"seed": 1054,
+			"outcome": "died",
+			"roundReached": 17,
+			"kills": 1764,
+			"worldHash": 1798141748,
+			"equipment": [5, 5, 5, 3, 4, 5]
+		},
+		{
+			"seed": 1055,
+			"outcome": "died",
+			"roundReached": 17,
+			"kills": 1823,
+			"worldHash": 998145742,
+			"equipment": [7, 7, 5, 5, 5, 4]
+		},
+		{
+			"seed": 1056,
+			"outcome": "died",
+			"roundReached": 12,
+			"kills": 949,
+			"worldHash": 2401394021,
+			"equipment": [5, 5, 4, 2, 3, 3]
+		},
+		{
+			"seed": 1057,
+			"outcome": "died",
+			"roundReached": 18,
+			"kills": 1962,
+			"worldHash": 308830470,
+			"equipment": [8, 7, 5, 4, 5, 4]
+		},
+		{
+			"seed": 1058,
+			"outcome": "died",
+			"roundReached": 21,
+			"kills": 2436,
+			"worldHash": 3751764519,
+			"equipment": [7, 6, 5, 5, 5, 4]
+		},
+		{
+			"seed": 1059,
+			"outcome": "died",
+			"roundReached": 16,
+			"kills": 1637,
+			"worldHash": 4157615394,
+			"equipment": [8, 5, 4, 3, 5, 4]
+		},
+		{
+			"seed": 1060,
+			"outcome": "died",
+			"roundReached": 16,
+			"kills": 1611,
+			"worldHash": 2532732628,
+			"equipment": [6, 8, 4, 3, 4, 5]
+		},
+		{
+			"seed": 1061,
+			"outcome": "died",
+			"roundReached": 22,
+			"kills": 2546,
+			"worldHash": 2348462103,
+			"equipment": [7, 7, 5, 4, 4, 4]
+		},
+		{
+			"seed": 1062,
+			"outcome": "died",
+			"roundReached": 17,
+			"kills": 1856,
+			"worldHash": 1435293549,
+			"equipment": [7, 5, 4, 4, 5, 4]
+		},
+		{
+			"seed": 1063,
+			"outcome": "died",
+			"roundReached": 13,
+			"kills": 1163,
+			"worldHash": 3823555366,
+			"equipment": [5, 5, 4, 3, 4, 2]
+		},
+		{
+			"seed": 1064,
+			"outcome": "died",
+			"roundReached": 16,
+			"kills": 1602,
+			"worldHash": 1995306239,
+			"equipment": [5, 5, 4, 4, 5, 4]
+		}
+	]
+}

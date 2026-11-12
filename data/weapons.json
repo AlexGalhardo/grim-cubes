@@ -22,7 +22,7 @@
 		"kind": "boomerang",
 		"range": 11,
 		"attacksPerSecond": 1.1,
-		"damage": 14,
+		"damage": 8,
 		"knockback": 0.8,
 		"projectile": {
 			"count": 1,
@@ -41,9 +41,9 @@
 		"kind": "melee",
 		"range": 2.7,
 		"attacksPerSecond": 1,
-		"damage": 16,
+		"damage": 12,
 		"knockback": 2,
-		"arcDegrees": 360,
+		"arcDegrees": 240,
 		"special": {
 			"id": "hit_all_in_arc"
 		},

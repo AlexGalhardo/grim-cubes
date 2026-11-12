@@ -1,6 +1,12 @@
 # PROGRESS
 
-Atualizado: 2026-11-11 (fuso do PO) | Versão: 0.6.0 | Fase: ROADMAP 0.3.0, fim da Parte 1 (S-16-01 e S-12-03 pendentes) | Sessão: #4 | Branch: `main`
+Atualizado: 2026-11-12 (fuso do PO) | Versão: 0.6.0 | Fase: ROADMAP Parte 1A (S-26 fechada, S-27 aberta) | Sessão: #5 | Branch: `feat/v0.7-shop`
+
+## Sessão #5 (2026-11-12)
+
+A Parte 1A está na `feat/v0.7-shop` (worktree `C:\dev\grim-cubes-shop`). S-19 a S-25 já estavam commitadas. A S-26 fechou com `sim --check` nas 18 combinações (Warrior, Ranged e Mago × Normal, Grim e Nightmare × seeds 1 e 1001, 64 runs × 35 rounds). Relatórios em `reports/balance-<classe>-<dificuldade>-s<seed>.json`. A `feat/v0.7-redesign` ficou para trás: ela tem a arena, os biomas e uma cópia dos chefes, sem classes, loja nem este balanceamento.
+
+A S-27 (docs que ainda faltam, baselines do Playwright e a release `v0.7.0`) não foi feita. Nada foi para a `main`.
 
 ## Sessão #4 (2026-11-11)
 

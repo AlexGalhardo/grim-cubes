@@ -245,7 +245,7 @@ Decisão do PO em 2026-11-12, registrada no ADR-0030 (o texto original está no 
 
 ### S-26 Balanceamento do loop novo
 
-- [ ] **S-26-01** Bots para as três classes (`greedy` para o Warrior, `kite` para o Ranged, um para o Mago) e faixas do GDD §25 revistas para o loop novo; `sim --check` passa nas seeds 1 e 1001 para as três classes nas três dificuldades.
+- [x] **S-26-01** Bots para as três classes (`greedy` para o Warrior, `kite` para o Ranged, um para o Mago) e faixas do GDD §25 revistas para o loop novo; `sim --check` passa nas seeds 1 e 1001 para as três classes nas três dificuldades.
   - Asserts: `reports/balance-*.json` atualizados; `balance.yml` verde.
 
 ### S-27 Release

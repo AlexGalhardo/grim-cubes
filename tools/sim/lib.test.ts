@@ -141,11 +141,11 @@ describe("sim report fields", () => {
 	});
 
 	it("an immortal hero keeps going where a mortal one dies (soak mode)", () => {
-		// Nightmare seed 5 dies on round 6 (with the 30 s+ rounds and the bounded arena of v0.7.0). A cap below that stops
+		// Nightmare seed 5 dies on round 11 (the Warrior's median there is 16, GDD 25); a cap below the death round stops
 		// at the shop and counts as completed.
-		const mortal = runSim({ seed: 5, rounds: 8, difficulty: "nightmare" });
+		const mortal = runSim({ seed: 5, rounds: 12, difficulty: "nightmare" });
 		expect(mortal.outcome).toBe("died");
-		const immortal = runSim({ seed: 5, rounds: 8, difficulty: "nightmare", immortal: true });
+		const immortal = runSim({ seed: 5, rounds: 12, difficulty: "nightmare", immortal: true });
 		expect(immortal.outcome).not.toBe("died");
 		expect(immortal.roundReached).toBeGreaterThan(mortal.roundReached);
 	});

@@ -20,7 +20,7 @@
 			"speed": 6.3,
 			"critChance": 0.08,
 			"dodge": 0.05,
-			"pickupRadius": 3.5
+			"pickupRadius": 2.8
 		},
 		"passive": {
 			"id": "squad_eye",
@@ -40,9 +40,9 @@
 		"startingWeapon": "magic_axe",
 		"tint": "bone",
 		"base": {
-			"maxHp": 85,
+			"maxHp": 60,
 			"armor": 1,
-			"pickupRadius": 3.5
+			"pickupRadius": 2.5
 		},
 		"passive": {
 			"id": "grave_lore",

@@ -77,3 +77,39 @@ test("Easy expects a late p50 with most runs alive and lets its bosses die soone
 	expect(p50Check(32, { difficulty: "easy", policy: "greedy" })).toBe(true);
 	expect(p50Check(24, { difficulty: "easy", policy: "greedy" })).toBe(false);
 });
+
+test("the boss kill range follows the round of the boss: lessons first, long fights late", () => {
+	const target = (round: number): string | undefined =>
+		checkTargets(
+			{
+				...metrics(100, 10),
+				bosses: {
+					b: { round, fought: 10, killed: 10, medianKillSeconds: 50, medianEnrageStacks: 0 },
+				},
+			},
+			35,
+		).find((c) => c.id === "boss-kill-seconds:b")?.target;
+	expect(target(5)).toBe("12-120");
+	expect(target(10)).toBe("25-120");
+	expect(target(15)).toBe("40-120");
+	expect(target(30)).toBe("40-180");
+});
+
+test("a boss nobody killed has no kill time to judge", () => {
+	const check = checkTargets(
+		{
+			...metrics(64, 1),
+			bosses: {
+				brood_stalker: {
+					round: 35,
+					fought: 1,
+					killed: 0,
+					medianKillSeconds: null,
+					medianEnrageStacks: 0,
+				},
+			},
+		},
+		35,
+	).find((c) => c.id === "boss-kill-seconds:brood_stalker");
+	expect(check?.skipped).toBe(true);
+});

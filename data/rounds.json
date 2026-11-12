@@ -93,7 +93,7 @@
 		"dropPercentBase": 100,
 		"dropPercentPerRound": 1.5,
 		"dropPercentMin": 50,
-		"goldPerFragment": 1.7,
+		"goldPerFragment": 2.2,
 		"xpPerFragment": 1,
 		"groundPileCap": 50,
 		"harvestPerRound": 0.05,

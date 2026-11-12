@@ -93,8 +93,8 @@
 					"kind": "bolt",
 					"params": {
 						"intervalSeconds": 0.9,
-						"damageBase": 7,
-						"damagePerRound": 1.8,
+						"damageBase": 4.39,
+						"damagePerRound": 1.12,
 						"range": 14,
 						"speed": 20,
 						"radius": 0.2
@@ -106,8 +106,8 @@
 					"kind": "chain",
 					"params": {
 						"intervalSeconds": 2.5,
-						"damageBase": 6,
-						"damagePerRound": 1.5,
+						"damageBase": 3.76,
+						"damagePerRound": 0.94,
 						"range": 11,
 						"jumpRadius": 4,
 						"jumps": 3
@@ -119,8 +119,8 @@
 					"kind": "mine",
 					"params": {
 						"intervalSeconds": 3.5,
-						"damageBase": 12,
-						"damagePerRound": 3,
+						"damageBase": 7.52,
+						"damagePerRound": 1.88,
 						"radius": 1.8,
 						"fuseSeconds": 6
 					}
@@ -132,8 +132,8 @@
 					"params": {
 						"radius": 1.6,
 						"hitRadius": 0.45,
-						"damageBase": 4,
-						"damagePerRound": 1,
+						"damageBase": 2.51,
+						"damagePerRound": 0.63,
 						"cooldownSeconds": 0.4,
 						"spin": 2,
 						"count": 2
@@ -152,8 +152,8 @@
 					"slot": "super",
 					"params": {
 						"radius": 7,
-						"damageBase": 8,
-						"damagePerRound": 1.2
+						"damageBase": 5.02,
+						"damagePerRound": 0.76
 					}
 				}
 			]
@@ -167,8 +167,8 @@
 					"kind": "bolt",
 					"params": {
 						"intervalSeconds": 1.1,
-						"damageBase": 9,
-						"damagePerRound": 2,
+						"damageBase": 4.95,
+						"damagePerRound": 1.1,
 						"range": 13,
 						"speed": 17,
 						"radius": 0.25
@@ -180,8 +180,8 @@
 					"kind": "chain",
 					"params": {
 						"intervalSeconds": 2.2,
-						"damageBase": 8,
-						"damagePerRound": 1.8,
+						"damageBase": 3.2,
+						"damagePerRound": 0.72,
 						"range": 11,
 						"jumpRadius": 4.5,
 						"jumps": 4
@@ -193,8 +193,8 @@
 					"kind": "nova",
 					"params": {
 						"intervalSeconds": 4.5,
-						"damageBase": 12,
-						"damagePerRound": 2.5,
+						"damageBase": 4.8,
+						"damagePerRound": 1.0,
 						"radius": 4
 					}
 				},
@@ -205,8 +205,8 @@
 					"params": {
 						"radius": 2,
 						"hitRadius": 0.5,
-						"damageBase": 5,
-						"damagePerRound": 1,
+						"damageBase": 2.0,
+						"damagePerRound": 0.4,
 						"cooldownSeconds": 0.4,
 						"spin": 2,
 						"count": 3
@@ -225,8 +225,8 @@
 					"slot": "super",
 					"params": {
 						"radius": 8,
-						"damageBase": 12,
-						"damagePerRound": 1.8
+						"damageBase": 6.0,
+						"damagePerRound": 0.9
 					}
 				}
 			]

@@ -196,10 +196,10 @@ A 1.0 tem três **classes** (ADR-0030, trilha S-20 da `v0.7.0`; substitui os tr�
 | Classe | Arma | Stats base (além da tabela 7.1) | Passiva | Desbloqueio |
 | --- | --- | --- | --- | --- |
 | Warrior (`warrior`, o antigo Carrasco) | Espada Enferrujada: arco de 130° que acerta todos os inimigos dentro | — | **Placas Enferrujadas:** sem bônus numérico | desde o início |
-| Ranged (`ranged`) | Bumerangue de Ferro: voa até o alvo e ricocheteia no inimigo mais próximo ainda não atingido (raio de 9 u); atinge 3 alvos no nível 1 da arma e 20 no nível 10 | HP 90, velocidade 6,3, crítico 8%, esquiva 5%, raio de pickup 3,5 u | **Olho do Pelotão:** +10% de chance de crítico | marco `boss_round_10`: matar o chefe do round 10 |
-| Mago (`mage`) | Machado Mágico: pancada em área circular (360°) em volta do herói; o raio dobra do nível 1 (2,7 u) ao nível 10 (5,4 u) | HP 85, armadura 1, raio de pickup 3,5 u | **Saber do Ossuário:** +10% de dano | marco `boss_round_20`: matar o chefe do round 20 |
+| Ranged (`ranged`) | Bumerangue de Ferro: voa até o alvo e ricocheteia no inimigo mais próximo ainda não atingido (raio de 9 u); atinge 3 alvos no nível 1 da arma e 20 no nível 10 | HP 90, velocidade 6,3, crítico 8%, esquiva 5%, raio de pickup 2,8 u | **Olho do Pelotão:** +10% de chance de crítico | marco `boss_round_10`: matar o chefe do round 10 |
+| Mago (`mage`) | Machado Mágico: pancada em arco de 240° em volta do herói; o raio dobra do nível 1 (2,7 u) ao nível 10 (5,4 u) | HP 60, armadura 1, raio de pickup 2,5 u | **Saber do Ossuário:** +10% de dano | marco `boss_round_20`: matar o chefe do round 20 |
 
-**Nível da arma (1 a 10):** acompanha o nível do herói (o mesmo nível das cartas de level-up), limitado a 10; não há compra nem upgrade de arma. Os números por nível (`damageMult`, `attackSpeedBonusPerTier`, `rangeBonusPerTier` e, no bumerangue, `projectile.bounces`) estão em `data/weapons.json`. Os marcos usam `stats.bestBossRound` do perfil, o último round de chefe morto em qualquer run; um save da `v0.6.0` recebe esse valor derivado do recorde (os chefes antigos ficavam nos rounds 10, 20 e 30). A run salva vira uma run de Warrior com a espada; o Fuzilado e a Penitente saem. Os números são provisórios até a S-26 (balanceamento).
+**Nível da arma (1 a 10):** acompanha o nível do herói (o mesmo nível das cartas de level-up), limitado a 10; não há compra nem upgrade de arma. Os números por nível (`damageMult`, `attackSpeedBonusPerTier`, `rangeBonusPerTier` e, no bumerangue, `projectile.bounces`) estão em `data/weapons.json`. Os marcos usam `stats.bestBossRound` do perfil, o último round de chefe morto em qualquer run; um save da `v0.6.0` recebe esse valor derivado do recorde (os chefes antigos ficavam nos rounds 10, 20 e 30). A run salva vira uma run de Warrior com a espada; o Fuzilado e a Penitente saem. Os números de dano, pickup e HP do Mago saíram da S-26.
 
 ### 7.1 Stats base (round 1, sem meta-árvore)
 
@@ -385,9 +385,9 @@ Decisão D02, revista pelo ADR-0030: dez chefes únicos, um a cada 5 rounds (5, 
 | 50 | A Rainha do Ninho | BETA | dois estágios | 65.000 (provisório) | `eggs`: ovos destrutíveis que eclodem Caçadores; `sweep`: cauda em varredura; `fly_bomb`: na fase 2 (50% HP) voa e bombardeia |
 | 55+ | sorteio do roster (dez chefes) | — | — | HP(N) = HP_base_do_chefe × (1 + 0,35 × (N − round_original) / 10) | + 1 modificador de elite a partir do 60; 2 a partir do 100 |
 
-Os cinco chefes novos (rounds 5, 15, 25, 35 e 45) pegam emprestado o modelo voxel de um chefe antigo, adaptado por escala (`model` e `scale` em `data/bosses.json`; a tinta ficou de fora porque clonar o material com contorno lança erro) até a S-18 modelar os dez. Os nomes e o tema grimdark são propostas do agente, a validar pelo PO. HP e padrões dos novos são provisórios; o balanceamento é da S-26.
+Os cinco chefes novos (rounds 5, 15, 25, 35 e 45) pegam emprestado o modelo voxel de um chefe antigo, adaptado por escala (`model` e `scale` em `data/bosses.json`; a tinta ficou de fora porque clonar o material com contorno lança erro) até a S-18 modelar os dez. Os nomes e o tema grimdark são propostas do agente, a validar pelo PO. O HP de cada chefe no round em que ele aparece está em `data/bosses.json` (`hpBaseRound10`) e foi calibrado na S-26 para as três classes.
 
-HP escala com o multiplicador de dificuldade (D13). Dano de contato dos chefes: (3 + 0,18 × N) × multiplicador do chefe (Coveiro ×1, Matriarca ×2, Forjador ×2, Caçador Alfa ×1,5, Rainha ×2; `contactDamageMult` em `bosses.json`); projéteis 18 + 1,2 × N (**proposta**). Os padrões de área e projétil escalam esse contato: grito ×3, martelo ×4, correntes ×3. HP e dano saíram do simulador (A-02-03): com 1.200/2.800/5.000 os chefes caíam em 15–40 s. O HP do Caçador Alfa (60.000) e da Rainha do Ninho (65.000) é provisório, decisão do Orq em 2026-10-31, revisável pelo PO: o HP anterior do GDD (7.500 e 11.000) dava kill em 10–14 s no sim. O sorteio do roster começa no round 51 (`randomRosterFromRound` em `rounds.json`).
+HP escala com o multiplicador de dificuldade (D13). Dano de contato dos chefes: (3 + 0,18 × N) × multiplicador do chefe (Coveiro ×1, Matriarca ×2, Forjador ×2, Caçador Alfa ×1,5, Rainha ×2; `contactDamageMult` em `bosses.json`); projéteis 18 + 1,2 × N (**proposta**). Os padrões de área e projétil escalam esse contato: grito ×3, martelo ×4, correntes ×3. HP e dano saíram do simulador (A-02-03) e foram recalibrados na S-26 para o loop de um chefe a cada 5 rounds: no round do próprio chefe o HP é o `hpBaseRound10` (o termo de escala zera). A curva fechada em 2026-11-12 é 1.800, 4.800, 5.600, 6.200, 5.200, 5.800, 13.000, 12.000, 14.000 e 16.000 nos rounds 5 a 50. O sorteio do roster começa no round 51 (`randomRosterFromRound` em `rounds.json`).
 
 Cada chefe tem **cinco ataques** (os passivos, como invocar, armadura de fase, visão térmica e ovos, não contam, nem o `fly_bomb` da Rainha, que só existe na fase 2), sorteados pelo fluxo `combat` da seed entre os que podem começar na distância atual, e **todo ataque avisa no chão antes de ferir**: arco, linha, círculo ou anel vermelho (`BossTelegraph`) ou uma bomba marcada no chão (`BossBomb`) com tempo de reação mínimo de 0,3 s. O tempo de aviso é multiplicado pela dificuldade (`telegraphMult` em `rounds.json`: Fácil ×1,25, Normal ×1, Difícil ×0,85, Nightmare ×0,7). O ataque genérico novo é o `target_blast` (a rajada de bombas do `fly_bomb`, sem a fase 2); os demais reaproveitam os padrões existentes com números próprios.
 
@@ -794,7 +794,23 @@ O primeiro diagnóstico (política greedy parada contra a horda) levou a inflar 
 | A Penitente | Difícil | 17 | 9,3 | 19% | — |
 | A Penitente | Nightmare | 16 | 9,0 | 14% | — |
 
-**O que falta (S-12-03 segue parcial):** o Fuzilado em Normal fica a 1 round da faixa e a Matriarca morre 2,5 s cedo demais. A pistola é a arma de dano único mais forte contra chefes e a mais fraca contra multidão, e o p50 do bot é muito sensível: o raio de pickup move a mediana de 17 a 31 entre 4,65 e 5,5 e o gold por preço de 1,80 a 2,09 (o limite é 1,8 em Nightmare), de modo que não há um número em `data/heroes.json` que feche as duas pontas sem uma penalidade contra chefes (descartada) ou uma mudança na própria pistola (por exemplo perfuração 1, que afeta qualquer herói que a use). O Carrasco em Nightmare segue igual. Uma segunda seed não foi medida com os números finais.
+**O que falta (S-12-03 segue parcial):** o Fuzilado em Normal fica a 1 round da faixa e a Matriarca morre 2,5 s cedo demais. A pistola é a arma de dano único mais forte contra chefes e a mais fraca contra multidão, e o p50 do bot é muito sensível: o raio de pickup move a mediana de 17 a 31 entre 4,65 e 5,5 e o gold por preço de 1,80 a 2,09 (o limite é 1,8 em Nightmare), de modo que não há um número em `data/heroes.json` que feche as duas pontas sem uma penalidade contra chefes (descartada) ou uma mudança na própria pistola (por exemplo perfuração 1, que afeta qualquer herói que a use). O Carrasco em Nightmare segue igual. Uma segunda seed não foi medida com os números finais. A S-26 substitui esse alvo: o Fuzilado e a Penitente saíram.
+
+### 25.3 Três classes no loop novo (S-26, 2026-11-12)
+
+Medido com `bun run sim --runs 64 --rounds 35 --seed <1|1001> --hero <warrior|ranged|mage> --difficulty <normal|grim|nightmare> --check`. Sem `--policy`, o Warrior e o Mago usam o bot greedy e o Ranged usa o kite. Grim e Nightmare seguem sem o perfil de Ossuário da §25.1: a árvore agora é de magias e o bot não compra nós no meio da run. As faixas de p50, de IQR e de vivas da §25.1 continuam. O que mudou no `--check`, porque um chefe a cada 5 rounds e classes que batem num alvo de cada vez não cabem nas faixas de 2026-10-31:
+
+| Métrica | Faixa |
+| --- | --- |
+| Kill do chefe do round 5 | 12–120 s |
+| Kill do chefe do round 10 (Coveiro continua com teto 90 s) | 25–90 s |
+| Kill de chefe do round 15 ou 20 | 40–120 s |
+| Kill de chefe do round 25 em diante (bot que não é tank) | 40–180 s |
+| Fúria | < 3 |
+| Ouro por round / preço médio da peça | 1–1,6 |
+| Chefe que ninguém matou | a métrica de tempo é ignorada; a fúria continua valendo |
+
+O piso de 40 s a partir do round 15 é o de uma luta, não o de uma aula. O teto de 180 s a partir do round 25 é o instante da terceira fúria (uma a cada 60 s). As 18 combinações (3 classes × 3 dificuldades × seeds 1 e 1001) passam; os relatórios estão em `reports/balance-<classe>-<dificuldade>-s<seed>.json`. O CI (`balance.yml`) continua com o Warrior em Normal nas duas seeds.
 
 ## 26. Métricas de sucesso e telemetria
 

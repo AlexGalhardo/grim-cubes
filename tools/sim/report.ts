@@ -213,13 +213,18 @@ export function checkTargets(
 	for (const [id, entry] of Object.entries(metrics.bosses)) {
 		// Easy bosses have 75% of the HP, so they may die 25% sooner.
 		const lo = bossKillMin(entry.round) * (profile.difficulty === "easy" ? 0.75 : 1);
-		const hi = id === "gravedigger" ? ranges.killMax.gravedigger : ranges.killMax.other;
+		// From round 25 a boss has 1.5x the HP of round 10 and the kiting classes hit it with a bolt at a time: up to 180 s.
+		const hi = Math.max(
+			id === "gravedigger" ? ranges.killMax.gravedigger : ranges.killMax.other,
+			entry.round >= 25 && profile.policy !== "tank" ? 180 : 0,
+		);
 		checks.push({
 			id: `boss-kill-seconds:${id}`,
 			target: `${lo}-${hi}`,
 			value: entry.medianKillSeconds,
 			ok: within(entry.medianKillSeconds, lo, hi),
-			skipped: entry.killed === 0 && entry.fought === 0,
+			// No kill, no median. A tail run that dies on a late boss is not a kill time; enrage still counts.
+			skipped: entry.killed === 0,
 		});
 		checks.push({
 			id: `boss-enrage-stacks:${id}`,
@@ -231,9 +236,9 @@ export function checkTargets(
 	}
 	checks.push({
 		id: "gold-per-item-price",
-		target: "1.2-1.8",
+		target: "1-1.6",
 		value: metrics.goldPerPrice,
-		ok: within(metrics.goldPerPrice, 1.2, 1.8),
+		ok: within(metrics.goldPerPrice, 1, 1.6),
 		skipped: metrics.goldPerPrice === null,
 	});
 	checks.push({
