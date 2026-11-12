@@ -11,7 +11,7 @@
 	"minItems": 1,
 	"items": {
 		"type": "object",
-		"required": ["id", "name", "ring", "minDistance", "enemyPool"],
+		"required": ["id", "name", "ring", "enemyPool"],
 		"additionalProperties": false,
 		"properties": {
 			"id": {
@@ -23,17 +23,6 @@
 			"ring": {
 				"type": "integer",
 				"minimum": 0
-			},
-			"minDistance": {
-				"type": "number",
-				"minimum": 0
-			},
-			"maxDistance": {
-				"type": "number",
-				"minimum": 0
-			},
-			"repeats": {
-				"type": "boolean"
 			},
 			"floorTiles": {
 				"type": "array",

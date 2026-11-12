@@ -17,7 +17,8 @@
 		"propSteerGain",
 		"cullDistance",
 		"propSteerMargin",
-		"arena"
+		"arena",
+		"biomes"
 	],
 	"properties": {
 		"chunkSize": { "type": "integer", "minimum": 1, "description": "Chunk edge in world units." },
@@ -71,6 +72,16 @@
 			"type": "number",
 			"minimum": 0,
 			"description": "Extra clearance, in units, kept when deciding that a prop is in an enemy's way."
+		},
+		"biomes": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": ["roundsPerBiome", "randomFromRound"],
+			"description": "Biome by round (ADR-0030): the list order of biomes.json, one biome per `roundsPerBiome` rounds, drawn per round from `randomFromRound` on.",
+			"properties": {
+				"roundsPerBiome": { "type": "integer", "minimum": 1 },
+				"randomFromRound": { "type": "integer", "minimum": 2 }
+			}
 		},
 		"arena": {
 			"type": "object",

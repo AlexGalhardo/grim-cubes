@@ -238,8 +238,8 @@ export type { WeaponDef, WeaponStats, WeaponSystem, WeaponSystemDeps } from "./s
 export { createWeaponSystem } from "./systems/weapon";
 export type { Arena, ArenaConfig } from "./world/arena";
 export { arenaHalfSize, createArena } from "./world/arena";
-export type { BiomeBand, BiomeMap, BiomeMix } from "./world/biome";
-export { BIOME_BLEND, createBiomeMap } from "./world/biome";
+export type { BiomeRoundsConfig } from "./world/biome";
+export { biomeForRound } from "./world/biome";
 export type { BiomeDef, ChunkGen, ChunkGenConfig, Range } from "./world/chunkGen";
 export { createChunkGenerator, PROP_KIND } from "./world/chunkGen";
 export type { ChunkData, ChunkGenerator, ChunkStats, ChunkSystem, WorldConfig } from "./world/chunkSystem";

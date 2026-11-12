@@ -205,7 +205,6 @@ export function toBiomeDefs(biomes: readonly BiomeData[]): BiomeDef[] {
 	const range = (r: number[] | undefined): readonly [number, number] => [r?.[0] ?? 0, r?.[1] ?? 0];
 	return biomes.map((b) => ({
 		id: b.id,
-		minDistance: b.minDistance,
 		...(b.props && b.propCounts
 			? {
 					props: b.props,

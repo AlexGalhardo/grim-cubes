@@ -4,7 +4,7 @@
  * and writes `reports/legibility.json`. Exits 1 when hero/ground is under 3:1 or enemy/ground under 2.5:1.
  *
  * Usage: `bun tools/ux-capture/legibility.ts [--url http://localhost:5199] [--shots dir] [--biome bone_swamp]`; another
- * biome teleports the hero there first and writes `reports/legibility-<biome>.json`. Without `--url` it serves the
+ * biome is pinned with `debug.setBiome` first and writes `reports/legibility-<biome>.json`. Without `--url` it serves the
  * build of `GC_DEBUG_API=1 bun run build` with `vite preview`. The sample windows come from projecting the world
  * offsets of the spawns through the camera of `data/render.json`, so no engine internals are read.
  */
@@ -24,13 +24,6 @@ const urlArg = flag("--url", "");
 const base = urlArg || `http://localhost:${PORT}`;
 const shots = flag("--shots", "");
 const biomeArg = flag("--biome", "sunken_cemetery");
-/** Where each biome starts on the x axis (`tests/e2e/biomes.spec.ts`): the hero is teleported there before the frame is frozen. */
-const BIOME_X: Record<string, number> = {
-	sunken_cemetery: 0,
-	bone_swamp: 190,
-	infernal_forge: 340,
-	biomech_nest: 520,
-};
 const OUT =
 	biomeArg === "sunken_cemetery" ? "reports/legibility.json" : `reports/legibility-${biomeArg}.json`;
 
@@ -184,13 +177,11 @@ async function main(): Promise<number> {
 			);
 			await page.waitForTimeout(3000);
 			if (biomeArg !== "sunken_cemetery") {
-				const x = BIOME_X[biomeArg];
-				if (x === undefined) throw new Error(`unknown biome ${biomeArg}`);
-				await page.evaluate((to) => {
+				await page.evaluate((id) => {
 					(
-						window as unknown as { gc: { debug: { teleport(x: number, z: number): void } } }
-					).gc.debug.teleport(to, 0);
-				}, x);
+						window as unknown as { gc: { debug: { setBiome(id: string): void } } }
+					).gc.debug.setBiome(id);
+				}, biomeArg);
 				await page.waitForFunction(
 					(id) => {
 						const biome = (

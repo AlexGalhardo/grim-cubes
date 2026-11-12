@@ -5,7 +5,7 @@ interface DebugWindow {
 		ready?: boolean;
 		debug?: {
 			state(): { run: string };
-			teleport(x: number, z: number): void;
+			setBiome(id: string | null): void;
 			biome(): { id: string; loaded: boolean };
 			freeze(): void;
 		};
@@ -13,10 +13,11 @@ interface DebugWindow {
 }
 
 const BIOMES = [
-	{ id: "sunken_cemetery", x: 60 },
-	{ id: "bone_swamp", x: 190 },
-	{ id: "infernal_forge", x: 340 },
-	{ id: "biomech_nest", x: 520 },
+	{ id: "sunken_cemetery" },
+	{ id: "bone_swamp" },
+	{ id: "infernal_forge" },
+	{ id: "biomech_nest" },
+	{ id: "frozen_catacombs" },
 ];
 
 // Needs a build made with GC_DEBUG_API=1. One capture per biome: floor tint, fog and props (A-02-01).
@@ -34,7 +35,7 @@ for (const biome of BIOMES) {
 				timeout: 15_000,
 			})
 			.toBe("Round");
-		await page.evaluate((x) => (window as unknown as DebugWindow).gc?.debug?.teleport(x, 0), biome.x);
+		await page.evaluate((id) => (window as unknown as DebugWindow).gc?.debug?.setBiome(id), biome.id);
 		await expect
 			.poll(() => page.evaluate(() => (window as unknown as DebugWindow).gc?.debug?.biome()), {
 				timeout: 20_000,

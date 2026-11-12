@@ -5,6 +5,7 @@ import type { RunConfig } from "../systems/round";
 import type { SpawnConfig } from "../systems/spawn";
 import type { WeaponDef } from "../systems/weapon";
 import type { ArenaConfig } from "../world/arena";
+import type { BiomeRoundsConfig } from "../world/biome";
 import type { WorldConfig } from "../world/chunkSystem";
 
 /** `data/hero.json`. */
@@ -213,11 +214,8 @@ export interface PropData {
 export interface BiomeData {
 	id: string;
 	name: string;
+	/** Position in the run's biome order (`biomes.json` order); `enemies.json` `biomeRing` points here. */
 	ring: number;
-	minDistance: number;
-	maxDistance?: number;
-	/** The last ring repeats outward (SDD 03). */
-	repeats?: boolean;
 	enemyPool: string[];
 	/** Only the first ring has authored visuals so far (P-01-x). */
 	floorTiles?: string[];
@@ -234,7 +232,7 @@ export interface CardsData {
 	cards: { id: string; name: string; modifiers: Modifier[] }[];
 }
 
-export type WorldData = WorldConfig & { arena: ArenaConfig };
+export type WorldData = WorldConfig & { arena: ArenaConfig; biomes: BiomeRoundsConfig };
 
 export interface ItemEffect {
 	id: string;

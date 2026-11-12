@@ -186,6 +186,8 @@ export function createChunkRenderer(
 	const shown = new Array<unknown>(slotCount).fill(null);
 	const shownCx = new Int32Array(slotCount).fill(NONE);
 	const shownCz = new Int32Array(slotCount).fill(NONE);
+	// A chunk regenerated for another biome reuses its ChunkData object and coordinates.
+	const shownBiome = new Int32Array(slotCount).fill(NONE);
 	const dirty = new Uint8Array(slotCount);
 	const uvDirty = new Uint8Array(slotCount);
 	let originX = Number.NaN;
@@ -336,11 +338,14 @@ export function createChunkRenderer(
 				const chunk = chunks.slots[i] ?? null;
 				const cx = chunk ? chunk.cx : NONE;
 				const cz = chunk ? chunk.cz : NONE;
-				const swapped = chunk !== shown[i] || cx !== shownCx[i] || cz !== shownCz[i];
+				const biome = chunk ? chunk.biome : NONE;
+				const swapped =
+					chunk !== shown[i] || cx !== shownCx[i] || cz !== shownCz[i] || biome !== shownBiome[i];
 				if (swapped) {
 					shown[i] = chunk;
 					shownCx[i] = cx;
 					shownCz[i] = cz;
+					shownBiome[i] = biome;
 					writeUvs(i);
 					uvDirty[i] = 1;
 					// A recycled slot must not hand its faded opacity to the new chunk's props.

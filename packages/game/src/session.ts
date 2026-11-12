@@ -74,6 +74,7 @@ import { createSynergySystem } from "./systems/synergies";
 import { createTargetingSystem } from "./systems/targeting";
 import { createWeaponSystem } from "./systems/weapon";
 import { createArena } from "./world/arena";
+import { biomeForRound } from "./world/biome";
 import { createChunkGenerator } from "./world/chunkGen";
 import { type ChunkHooks, createChunkSystem } from "./world/chunkSystem";
 import { cullDistantEnemies } from "./world/cull";
@@ -213,6 +214,8 @@ function build(options: GameSessionOptions) {
 	const maxEnemyRadius = Math.max(...enemiesData.map((e) => e.radius));
 	// `run` is created after `spawn` but spawn must call back into it for the fragment bag.
 	const arena = createArena(worldData.arena, () => run.round);
+	/** `forced` pins the biome whatever the round says (debug API and captures only). */
+	const biome: { index: number; forced: number | null } = { index: 0, forced: null };
 	const bag: { release?: (w: typeof world, x: number, z: number) => void } = {};
 	const spawn = createSpawnSystem({
 		config: roundsData.spawn,
@@ -221,9 +224,9 @@ function build(options: GameSessionOptions) {
 		events,
 		// propCollision is created further down; it is only called once the loop runs.
 		isBlocked: (x, z) => propCollision.overlaps(origin, x, z, maxEnemyRadius),
-		// GDD 10.2: the ring the hero stands in decides the enemy pool (60/30/10 with its neighbours).
+		// GDD 10.2: the biome of the round decides the enemy pool (60/30/10 with its neighbours in the list).
 		biomes: {
-			at: (x, z) => biomeMap.at(origin.x + x, origin.z + z),
+			at: () => biome.index,
 			pools: biomesData.map((biome) => biome.enemyPool.map((id) => enemyIds.indexOf(id))),
 		},
 		onSpawn: (w, x, z) => bag.release?.(w, x, z),
@@ -411,8 +414,16 @@ function build(options: GameSessionOptions) {
 	});
 	const chunkHooks: ChunkHooks = {};
 	const chunks = createChunkSystem(worldData, chunkGen.generate, chunkHooks);
-	// Rings by distance (A-02-01): the one map the chunk generator and the atmosphere share (the spawner joins it with the per-biome pools).
-	const biomeMap = chunkGen.biomeMap;
+	/** Moves the arena to the biome of the round, regenerating the loaded chunks when it changes (S-24-01). */
+	let biomeSet = false;
+	function syncBiome(): void {
+		const wanted = biome.forced ?? biomeForRound(worldData.biomes, biomesData.length, seed, run.round);
+		if (biomeSet && wanted === biome.index) return;
+		biomeSet = true;
+		biome.index = wanted;
+		chunkGen.setBiome(wanted);
+		chunks.reset();
+	}
 	const breakables = createBreakableSystem({
 		world,
 		chunks,
@@ -452,6 +463,10 @@ function build(options: GameSessionOptions) {
 
 	function step(input: Readonly<InputState>): void {
 		run.run(world, hero);
+		syncBiome();
+		// Outside combat nothing else loads chunks: keep the window full so a new biome shows at once.
+		if (!fighting() && run.state !== "MerchantWait")
+			chunks.update(origin.x + (Position.x[hero] ?? 0), origin.z + (Position.z[hero] ?? 0));
 		if (fighting()) {
 			runStats.seconds += STEP;
 			inputSystem(world, hero, input, weapon.speedMultiplier * heroStatus.speedMultiplier);
@@ -570,7 +585,7 @@ function build(options: GameSessionOptions) {
 		shop,
 		chunkGen,
 		chunks,
-		biomeMap,
+		biome,
 		arena,
 		breakables,
 		propCollision,
@@ -634,7 +649,8 @@ export interface GameSession {
 	readonly chunkGen: ReturnType<typeof build>["chunkGen"];
 	readonly chunks: ReturnType<typeof build>["chunks"];
 	readonly breakables: ReturnType<typeof build>["breakables"];
-	readonly biomeMap: ReturnType<typeof build>["biomeMap"];
+	/** Index (into `biomes.json`) of the biome of the current round. */
+	readonly biome: ReturnType<typeof build>["biome"];
 	/** The square the run plays in; it grows with the round. */
 	readonly arena: ReturnType<typeof build>["arena"];
 	readonly propCollision: ReturnType<typeof build>["propCollision"];

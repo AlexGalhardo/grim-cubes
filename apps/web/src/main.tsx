@@ -385,7 +385,6 @@ async function boot(): Promise<void> {
 		shop,
 		chunkGen,
 		chunks,
-		biomeMap,
 		arena,
 	} = session;
 	// Bench-only state (P-03-06): the ring emitter and the horde it keeps at the cap.
@@ -1179,7 +1178,6 @@ async function boot(): Promise<void> {
 
 	const atmosphere = createAtmosphere(
 		game,
-		biomeMap,
 		biomesData.map((biome) => ({ fogColor: biome.fogColor, music: biome.music })),
 		(track) => {
 			log.info("biome music", track);
@@ -2219,7 +2217,7 @@ async function boot(): Promise<void> {
 			port.sync(world, alpha);
 			audio.beginFrame();
 			port.consumeEvents(tappedEvents);
-			atmosphere.update(origin.x + (Position.x[hero] ?? 0), origin.z + (Position.z[hero] ?? 0));
+			atmosphere.update(session.biome.index);
 			updateAudioState();
 			arenaBorder.update(arena.half, origin.x, origin.z);
 			chunkRenderer.update(
@@ -2542,6 +2540,10 @@ async function boot(): Promise<void> {
 					}
 				}
 				return best;
+			},
+			/** Pins the biome (by id) whatever the round says, for captures; `null` goes back to the round's biome. */
+			setBiome: (id: string | null) => {
+				session.biome.forced = id === null ? null : biomesData.findIndex((b) => b.id === id);
 			},
 			teleport: (x: number, z: number) => {
 				Position.x[hero] = PrevPosition.x[hero] = x;

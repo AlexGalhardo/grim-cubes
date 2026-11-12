@@ -1,6 +1,5 @@
 import { hash32x3 } from "@gc/core";
 import { createNoise2D } from "simplex-noise";
-import { type BiomeMap, createBiomeMap } from "./biome";
 import type { ChunkData, ChunkGenerator } from "./chunkSystem";
 
 export const PROP_KIND = { blocking: 0, decor: 1, breakable: 2 } as const;
@@ -9,7 +8,6 @@ export type Range = readonly [number, number];
 
 export interface BiomeDef {
 	id: string;
-	minDistance: number;
 	props?: { blocking: readonly string[]; decor: readonly string[]; breakable: readonly string[] };
 	propCounts?: { blocking: Range; decor: Range; breakable: Range };
 	floorTiles?: readonly string[];
@@ -24,10 +22,11 @@ export interface ChunkGen {
 	generate: ChunkGenerator;
 	/** Prop names; `ChunkData.propType` indexes this list (blocking, decor, breakable per biome, deduplicated). */
 	readonly propTypes: readonly string[];
-	/** Index of the biome used for a chunk (distance from the spawn to the chunk centre). */
-	biomeIndex(cx: number, cz: number): number;
-	/** The rings-by-distance map the generator picks chunk biomes from; the spawner and the atmosphere share it. */
-	readonly biomeMap: BiomeMap;
+	/**
+	 * Picks the biome (index into the list given to `createChunkGenerator`) every chunk generated from now on takes;
+	 * chunks already loaded keep theirs, so the caller resets the chunk system when it changes.
+	 */
+	setBiome(index: number): void;
 }
 
 const GRID = 4;
@@ -60,16 +59,11 @@ export function createChunkGenerator(
 				biome: BiomeDef & Required<Pick<BiomeDef, "props" | "propCounts">>;
 				index: number;
 			} => entry.biome.props !== undefined && entry.biome.propCounts !== undefined,
-		)
-		.sort((a, b) => a.biome.minDistance - b.biome.minDistance);
+		);
 	if (defined.length === 0) throw new Error("No biome defines props and propCounts");
 
 	const propTypes: string[] = [];
 	const idOf = new Map<string, number>();
-	const map = createBiomeMap(
-		biomes,
-		defined.map((entry) => entry.index),
-	);
 	// Biome list index -> position in `defined`, so picking a chunk biome allocates nothing.
 	const positionOf: number[] = [];
 	defined.forEach((entry, position) => {
@@ -120,9 +114,7 @@ export function createChunkGenerator(
 		return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
 	}
 
-	function biomeIndex(cx: number, cz: number): number {
-		return positionOf[map.chunkBiome(cx, cz, chunkSize, seedRun)] ?? 0;
-	}
+	let current = 0;
 
 	/** Orders the 16 cells by descending noise (insertion sort in preallocated arrays). */
 	function rank(wx: number, wz: number, offsetX: number, offsetZ: number): void {
@@ -207,7 +199,7 @@ export function createChunkGenerator(
 
 	const generate: ChunkGenerator = (cx, cz, out) => {
 		rngState = hash32x3(seedRun, cx, cz) | 0;
-		const index = biomeIndex(cx, cz);
+		const index = current;
 		const entry = defined[index];
 		const list = lists[index];
 		if (!entry || !list) return;
@@ -254,7 +246,8 @@ export function createChunkGenerator(
 	return {
 		generate,
 		propTypes,
-		biomeMap: map,
-		biomeIndex: (cx, cz) => defined[biomeIndex(cx, cz)]?.index ?? 0,
+		setBiome(index): void {
+			current = positionOf[index] ?? 0;
+		},
 	};
 }

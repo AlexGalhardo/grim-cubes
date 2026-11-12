@@ -156,6 +156,8 @@ export function flattenTiles(
  * biome sits at a similar dark level whatever the authored tiles' own brightness. Falls back to the plain image
  * where the browser has no image decoding (tests).
  */
+const NO_TINT: readonly number[] = [1, 1, 1];
+
 async function loadTerrain(scene: Scene, terrainUrl: string, fetchFn: Fetcher): Promise<BaseTexture> {
 	try {
 		const bitmap = await createImageBitmap(await (await getOk(fetchFn, terrainUrl)).blob());
@@ -168,11 +170,13 @@ async function loadTerrain(scene: Scene, terrainUrl: string, fetchFn: Fetcher): 
 		const block = TERRAIN_TILE * TERRAIN_VARIANTS;
 		for (let y = 0; y < image.height; y++) {
 			for (let x = 0; x < image.width; x++) {
-				const shade = LIGHTING.floorBiomeShade[Math.floor(x / block)] ?? 1;
+				const biome = Math.floor(x / block);
+				const shade = LIGHTING.floorBiomeShade[biome] ?? 1;
+				const tint = LIGHTING.floorBiomeTint[biome] ?? NO_TINT;
 				const o = (y * image.width + x) * 4;
-				image.data[o] = (image.data[o] ?? 0) * shade;
-				image.data[o + 1] = (image.data[o + 1] ?? 0) * shade;
-				image.data[o + 2] = (image.data[o + 2] ?? 0) * shade;
+				image.data[o] = (image.data[o] ?? 0) * shade * (tint[0] ?? 1);
+				image.data[o + 1] = (image.data[o + 1] ?? 0) * shade * (tint[1] ?? 1);
+				image.data[o + 2] = (image.data[o + 2] ?? 0) * shade * (tint[2] ?? 1);
 			}
 		}
 		return RawTexture.CreateRGBATexture(

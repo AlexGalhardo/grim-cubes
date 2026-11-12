@@ -11,6 +11,10 @@
 	"cullDistance": 40,
 	"propSteerGain": 1.5,
 	"propSteerMargin": 0.1,
+	"biomes": {
+		"roundsPerBiome": 10,
+		"randomFromRound": 51
+	},
 	"arena": {
 		"startHalfSize": 26,
 		"growPerRound": 1.5,

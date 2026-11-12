@@ -3,8 +3,6 @@
 		"id": "sunken_cemetery",
 		"name": "Cemitério Afundado",
 		"ring": 0,
-		"minDistance": 0,
-		"maxDistance": 120,
 		"floorTiles": ["tile_cemetery_01", "tile_cemetery_02", "tile_cemetery_03", "tile_cemetery_04"],
 		"props": {
 			"blocking": ["prop_tombstone_01", "prop_dead_tree_01", "prop_crypt_01"],
@@ -25,8 +23,6 @@
 		"id": "bone_swamp",
 		"name": "Pântano de Ossos",
 		"ring": 1,
-		"minDistance": 120,
-		"maxDistance": 260,
 		"enemyPool": ["drowned", "leech"],
 		"floorTiles": ["tile_swamp_01", "tile_swamp_02", "tile_swamp_03", "tile_swamp_04"],
 		"props": {
@@ -52,8 +48,6 @@
 		"id": "infernal_forge",
 		"name": "Forja Infernal",
 		"ring": 2,
-		"minDistance": 260,
-		"maxDistance": 420,
 		"enemyPool": ["forged", "watcher"],
 		"floorTiles": ["tile_forge_01", "tile_forge_02", "tile_forge_03", "tile_forge_04"],
 		"props": {
@@ -74,8 +68,6 @@
 		"id": "biomech_nest",
 		"name": "Ninho Biomecânico",
 		"ring": 3,
-		"minDistance": 420,
-		"repeats": true,
 		"enemyPool": ["hunter", "breeder"],
 		"floorTiles": ["tile_nest_01", "tile_nest_02", "tile_nest_03", "tile_nest_04"],
 		"props": {
@@ -91,5 +83,25 @@
 		"propDensity": 0.45,
 		"music": "mus_biome_nest",
 		"fogColor": "#161C26"
+	},
+	{
+		"id": "frozen_catacombs",
+		"name": "Catacumbas Congeladas",
+		"ring": 4,
+		"enemyPool": ["wail", "watcher", "leech"],
+		"floorTiles": ["tile_cemetery_01", "tile_cemetery_02", "tile_cemetery_03", "tile_cemetery_04"],
+		"props": {
+			"blocking": ["prop_tombstone_01", "prop_crypt_01", "prop_swamp_bonearch_01", "prop_spire_01"],
+			"decor": ["prop_bone_01", "prop_swamp_skull_01", "prop_chain_01", "prop_mesh_01"],
+			"breakable": ["prop_urn_01", "prop_canister_01"]
+		},
+		"propCounts": {
+			"blocking": [4, 8],
+			"decor": [6, 14],
+			"breakable": [1, 2]
+		},
+		"propDensity": 0.45,
+		"music": "mus_biome_cemetery",
+		"fogColor": "#18242E"
 	}
 ]

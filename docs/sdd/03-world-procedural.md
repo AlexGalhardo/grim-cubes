@@ -71,8 +71,8 @@ generate(cx, cz, out) {
 }
 ```
 
-- `biomeFn(cx, cz)`: distância `d` do centro do chunk ao spawn; usa o bioma definido de maior `minDistance` ≤ d (os quatro biomas existem: Cemitério Afundado 0–120 u, Pântano de Ossos 120–260, Forja Infernal 260–420 e Ninho Biomecânico acima de 420 u, que se repete ao infinito). Borda misturada (`BIOME_BLEND` = 16 u, `game/world/biome.ts`, A-02-01): metade antes e metade depois do limite; um chunk na borda toma um dos dois biomas de forma determinística por chunk, e o chão muda em linha dura (aceitável no look cúbico). `propDensity` não é mais usado: as contagens vêm de `propCounts`.
-- Pool de spawn do round: 60% bioma atual (do herói), 30% anterior, 10% próximo (GDD §10.2). Quando um desses biomas não está definido, o pool renormaliza os pesos entre os biomas existentes. O `spawnSystem` recebe `biomes.at(x, z)` e os `pools` de `biomes.json` (`session.ts`); o `poolFor` fixo (`husk` 6, `wail` 4) só vale para o início do round e como reserva.
+- Bioma por round (ADR-0030, S-24-01): `biomeForRound(config, count, seed, round)` em `game/world/biome.ts` devolve o índice de `biomes.json` (10 rounds cada, ordem da lista; do round 51 em diante um sorteio determinístico por `hash32x3(seed, round)`). O gerador não escolhe mais por distância: `setBiome(index)` fixa o bioma de todo chunk gerado dali em diante e a sessão chama `chunks.reset()` quando o bioma da rodada muda, o que devolve a janela inteira ao pool para ser gerada de novo (o renderer reescreve o chão quando `chunk.biome` muda). Há cinco biomas; o quinto (Catacumbas Congeladas) reaproveita tiles e props existentes.
+- Pool de spawn do round: 60% bioma atual (do herói), 30% anterior, 10% próximo (GDD §10.2). Quando um desses biomas não está definido, o pool renormaliza os pesos entre os biomas existentes. O `spawnSystem` recebe `biomes.at()` (o bioma do round) e os `pools` de `biomes.json` (`session.ts`); o `poolFor` fixo (`husk` 6, `wail` 4) só vale para o início do round e como reserva.
 
 ## 4. Colisão herói/inimigo vs props
 

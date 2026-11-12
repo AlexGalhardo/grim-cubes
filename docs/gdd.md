@@ -158,18 +158,19 @@ Decisão D16: terreno plano com props por chunk, biomas por distância do spawn.
 | Ruído | `simplex-noise` 2D para densidade de props e variação de cor do chão |
 | Origin shifting | quando `abs(pos.x)` ou `abs(pos.z)` > 1.024 u, desloca tudo e grava offset (precisão de float) |
 
-### 6.2 Biomas por distância
+### 6.2 Biomas por round
 
-Distância euclidiana do ponto de spawn da run. Biomas em anéis, com borda misturada de 16 u.
+Decisão do PO (ADR-0030): o bioma muda a cada 10 rounds, na ordem de `data/biomes.json` (rounds 1–10, 11–20, 21–30, 31–40, 41–50). Do round 51 em diante (modo infinito) o bioma é sorteado a cada round, de forma determinística pela seed da run (`biomeForRound`, `data/world.json` `biomes`). Ao trocar, os chunks carregados são gerados de novo com o bioma novo, e fog, céu e música seguem o bioma.
 
-| Anel | Distância (u) | Bioma | Chão | Props típicos | Inimigos nativos |
-| --- | --- | --- | --- | --- | --- |
-| 0 | 0–120 | Cemitério Afundado | terra cinza, lápides | lápides, árvores mortas, cercas de ferro, criptas | Carcaças, Lamentos |
-| 1 | 120–260 | Pântano de Ossos | lodo verde-escuro | ossadas gigantes, água rasa (decorativa), totens | Afogados, Sanguessugas |
-| 2 | 260–420 | Forja Infernal | pedra negra com veios laranja | bigornas, correntes, caldeirões, torres de metal | Forjados, Vigias |
-| 3 | 420+ | Ninho Biomecânico | carne/metal escuro | ovos, costelas de metal, tubos | Caçadores, Reprodutores |
+| Rounds | Bioma | Chão | Props típicos | Inimigos nativos |
+| --- | --- | --- | --- | --- |
+| 1–10 | Cemitério Afundado | terra cinza, lápides | lápides, árvores mortas, cercas de ferro, criptas | Carcaças, Lamentos |
+| 11–20 | Pântano de Ossos | lodo verde-escuro | ossadas gigantes, árvores de pântano, cabanas | Afogados, Sanguessugas |
+| 21–30 | Forja Infernal | pedra negra com veios laranja | bigornas, correntes, chaminés, fornalhas | Forjados, Vigias |
+| 31–40 | Ninho Biomecânico | carne/metal escuro | ovos, torres, tanques, cabos | Caçadores, Reprodutores |
+| 41–50 | Catacumbas Congeladas | pedra do cemitério tingida de azul-gelo | criptas, lápides, arcos de ossos, torres do ninho, correntes | Lamentos, Vigias, Sanguessugas |
 
-O anel 3 repete-se ao infinito (mais escuro, com variação de props). Biomas afetam **pool de spawn** e **visual**; não afetam stats base (a dificuldade vem do round). Jogador que anda muito "escolhe" inimigos mais perigosos: Caçadores são mais rápidos.
+As Catacumbas Congeladas (5º bioma) reaproveitam tiles e props voxel existentes: o chão é o do cemitério com tinta fria aplicada ao ler a faixa de tiles (`LIGHTING.floorBiomeTint`), e os props vêm do cemitério, do pântano e do ninho; a música é a do cemitério até haver faixa própria. A S-18 modela os cinco biomas de novo. Biomas afetam **pool de spawn** e **visual**; não afetam stats base (a dificuldade vem do round). O pool de spawn segue a mistura 60% bioma atual, 30% anterior e 10% seguinte da lista.
 
 ### 6.3 Props e colisão
 

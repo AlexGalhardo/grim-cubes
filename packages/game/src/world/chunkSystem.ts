@@ -62,6 +62,8 @@ export interface ChunkSystem {
 	/** Feed the absolute hero position (origin + Position) once per simulation step. */
 	update(heroX: number, heroZ: number): void;
 	get(cx: number, cz: number): ChunkData | null;
+	/** Releases every loaded chunk; the next `update` generates the window again (the biome changed). */
+	reset(): void;
 	/** Window table, `null` for empty slots; iterate by index, do not mutate. */
 	readonly slots: readonly (ChunkData | null)[];
 	readonly stats: Readonly<ChunkStats>;
@@ -158,10 +160,22 @@ export function createChunkSystem(
 		}
 	}
 
+	function reset(): void {
+		for (let i = 0; i < slots.length; i++) {
+			const chunk = slots[i];
+			if (!chunk) continue;
+			hooks.onRelease?.(chunk);
+			slots[i] = null;
+			free[freeCount++] = chunk;
+			stats.released++;
+			stats.loaded--;
+		}
+	}
+
 	function get(cx: number, cz: number): ChunkData | null {
 		const chunk = slots[slotOf(cx, cz)];
 		return chunk && chunk.cx === cx && chunk.cz === cz ? chunk : null;
 	}
 
-	return { update, get, slots, stats };
+	return { update, get, reset, slots, stats };
 }
