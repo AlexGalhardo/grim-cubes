@@ -15,6 +15,7 @@
 		"test-results/**",
 		"chatgpt-chat.md",
 		"PROMPT.md",
-		"TODO.md"
+		"TODO.md",
+		"questions-to-dev.md"
 	]
 }
