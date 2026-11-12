@@ -18,6 +18,8 @@ const view = (over: Partial<HudView> = {}): HudView => ({
 	secondsLeft: 45,
 	souls: 30,
 	kills: 12,
+	eliteFragments: 2,
+	relics: 1,
 	weapon: { id: "sword", name: "Rusted Sword", tier: 2 },
 	items: [],
 	boss: null,
@@ -52,6 +54,8 @@ test("every cluster of the four corners is on screen", () => {
 	expect(screen.getByTestId("hud-timer").textContent).toBe("0:45");
 	expect(screen.getByTestId("hud-gold").textContent).toContain("120");
 	expect(screen.getByTestId("hud-souls").textContent).toContain("30");
+	expect(screen.getByTestId("hud-fragments").textContent).toContain("2");
+	expect(screen.getByTestId("hud-relics").textContent).toContain("1");
 	expect(screen.getByTestId("hud-kills").textContent).toContain("12");
 	expect(screen.getByTestId("hud-level").textContent).toContain("4");
 });

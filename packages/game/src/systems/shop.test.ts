@@ -123,3 +123,60 @@ test("the view lists the offers with their attribute lines and whether the hero 
 	expect(view.slots.every((o) => !o.affordable && o.lines.length > 0)).toBe(true);
 	expect(view.slots[0]?.slot).toBe("helmet");
 });
+
+test("fragments raise a slot from 6 to 9 step by step, a relic raises it to 10, and each refuses without its material", () => {
+	const s = setup();
+	s.shop.restoreLevels([6, 3, 0, 0, 0, 0]);
+	const [seven, eight, nine, ten] = equipmentData.upgrades;
+	expect([seven?.level, eight?.level, nine?.level, ten?.level]).toEqual([7, 8, 9, 10]);
+
+	// Gold levels are not sold for materials, and an empty wallet buys nothing.
+	expect(s.shop.upgrade(1)).toBe(false);
+	expect(s.shop.upgrade(0)).toBe(false);
+	expect(s.shop.levels[0]).toBe(6);
+
+	s.progress.eliteFragments = (seven?.fragments ?? 0) - 1;
+	expect(s.shop.upgrade(0)).toBe(false);
+	s.progress.eliteFragments = (seven?.fragments ?? 0) + (eight?.fragments ?? 0) + (nine?.fragments ?? 0);
+	expect(s.shop.upgrade(0)).toBe(true);
+	expect(s.shop.levels[0]).toBe(7);
+	expect(s.shop.upgrade(0)).toBe(true);
+	expect(s.shop.upgrade(0)).toBe(true);
+	expect(s.shop.levels[0]).toBe(9);
+	expect(s.progress.eliteFragments).toBe(0);
+
+	// Level 10 takes a relic, never fragments.
+	s.progress.eliteFragments = 100;
+	expect(s.shop.upgrade(0)).toBe(false);
+	s.progress.relics = 1;
+	expect(s.shop.upgrade(0)).toBe(true);
+	expect(s.shop.levels[0]).toBe(10);
+	expect(s.progress.relics).toBe(0);
+	expect(s.progress.eliteFragments).toBe(100);
+	expect(s.shop.upgrade(0)).toBe(false);
+});
+
+test("a material upgrade applies the new level's attributes and is offered only to a slot that reached 6", () => {
+	const s = setup();
+	s.shop.restoreLevels([6, 0, 0, 0, 0, 0]);
+	s.progress.eliteFragments = 10;
+	s.stats.run(0);
+	const before = s.stats.stats.armor;
+	s.shop.upgrade(0);
+	s.stats.run(0);
+	const level7 = equipmentData.slots[0]?.levels[6]?.modifiers.find((m) => m.stat === "armor")?.value ?? 0;
+	expect(s.stats.stats.armor).toBe(level7);
+	expect(s.stats.stats.armor).toBeGreaterThan(before);
+
+	s.shop.open();
+	const view = s.shop.view();
+	expect(view.upgrades.map((u) => u.next)).toEqual([8, null, null, null, null, null]);
+	expect(view.upgrades[0]).toMatchObject({
+		slot: "helmet",
+		level: 7,
+		fragments: 3,
+		relics: 0,
+		affordable: true,
+	});
+	expect([view.fragments, view.relics]).toEqual([s.progress.eliteFragments, 0]);
+});

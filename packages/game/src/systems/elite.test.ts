@@ -1,20 +1,16 @@
 import { mulberry32 } from "@gc/core";
 import { addComponent, query } from "bitecs";
 import { expect, test } from "vitest";
-import { elitesData, enemiesData, heroData, itemsData, roundsData, toEnemyDefs } from "../data";
-import { dropChest } from "../ecs/chest";
-import { Armor, Chest, Elite, EnemyFaction, Health, Position, Radius, Speed } from "../ecs/components";
+import { elitesData, enemiesData, roundsData, toEnemyDefs } from "../data";
+import { Armor, Elite, EnemyFaction, Health, Position, Radius, Speed } from "../ecs/components";
 import { createEventBuffer, EventType } from "../ecs/events";
 import { createGameWorld, spawnBody } from "../ecs/world";
-import { createPlayerStats } from "../rules/stats";
-import { createChestSystem } from "./chest";
 import { createDamageSystem } from "./damage";
 import { createEliteSystem } from "./elite";
-import { createDeathSystem } from "./loot";
-import type { RunSystem } from "./round";
+import { createDeathSystem, createProgress } from "./loot";
+import { createMaterials } from "./materials";
 import { createRunSystem } from "./round";
 import { createSpawnSystem } from "./spawn";
-import { createStatsSystem } from "./stats";
 
 const damageConfig = {
 	armorConstant: 6.66,
@@ -49,6 +45,7 @@ function setup(alwaysElite = true) {
 		rng: mulberry32(3),
 	});
 	spawn.startRound(10, { pool: [{ type: 0, weight: 1 }], difficultyMult: 1 });
+	const progress = createProgress();
 	const elite = createEliteSystem({
 		config: elitesData,
 		spawn,
@@ -58,8 +55,9 @@ function setup(alwaysElite = true) {
 		pool: () => [{ type: 0, weight: 1 }],
 		ring: { min: roundsData.spawn.ringMin, max: roundsData.spawn.ringMax },
 		hero,
+		materials: createMaterials(progress, events),
 	});
-	return { world, hero, events, damage, spawn, elite };
+	return { world, hero, events, damage, spawn, elite, progress };
 }
 
 test("an elite enters 10 s after the round starts with the modifier numbers applied", () => {
@@ -110,7 +108,34 @@ test("no elite is armed when the roll fails or on a boss round", () => {
 	expect(forced.elite.pending).toBe(false);
 });
 
-test("a dead elite drops a legendary chest and the explosive one hurts the hero in range", () => {
+test("every dead elite drops exactly one fragment, heals the hero and tells the render", () => {
+	for (const [index, modifier] of elitesData.modifiers.entries()) {
+		const { world, hero, elite, damage, events, progress } = setup();
+		elite.onRoundStart(5, false);
+		const e = elite.spawnNow(world, 30, 0, index);
+		Health.hp[hero] = 50;
+		const death = createDeathSystem({
+			fragments: roundsData.fragments,
+			fragmentsPerType: [0],
+			rng: mulberry32(1),
+			round: () => 5,
+			onDeath: (w, id, x, z) => elite.handleDeath(w, id, x, z),
+		});
+		Health.hp[e] = 0;
+		death.run(world);
+		damage.run(world);
+		expect(progress.eliteFragments, modifier.id).toBe(elitesData.reward.fragments);
+		expect(progress.eliteFragments).toBe(1);
+		expect(Health.hp[hero], modifier.id).toBe(50 + elitesData.reward.healHp);
+		const dropped: number[] = [];
+		events.consume((type, a, b, c) => {
+			if (type === EventType.MaterialDropped) dropped.push(a, b, c);
+		});
+		expect(dropped).toEqual([30, 0, 1]);
+	}
+});
+
+test("the explosive elite hurts the hero in range when it dies", () => {
 	const { world, hero, elite, damage } = setup();
 	elite.onRoundStart(5, false);
 	const boom = elitesData.modifiers.findIndex((m) => m.onDeathExplosion);
@@ -126,9 +151,6 @@ test("a dead elite drops a legendary chest and the explosive one hurts the hero 
 	Health.hp[e] = 0;
 	death.run(world);
 	damage.run(world);
-	const chest = [...query(world, [Chest])];
-	expect(chest).toHaveLength(1);
-	expect(Chest.tier[chest[0] as number]).toBe(4);
 	expect(100 - (Health.hp[hero] ?? 0)).toBeCloseTo(15 + 2 * 5, 3);
 });
 
@@ -143,57 +165,8 @@ test("a vampiric elite heals for 10% of what it deals", () => {
 	void EnemyFaction;
 });
 
-test("opening a chest heals 25 HP, pauses the run and offers 2 distinct tier 4 items", () => {
-	const world = createGameWorld();
-	const hero = spawnBody(world, 0, 0);
-	Health.hp[hero] = 50;
-	Health.max[hero] = 100;
-	const run = {
-		state: "Round",
-		pause: () => {
-			run.state = "Paused";
-		},
-		resume: () => {
-			run.state = "Round";
-		},
-	};
-	const stats = createStatsSystem(heroData, createPlayerStats());
-	const owned = new Map<string, number>();
-	let taken = 0;
-	const chest = createChestSystem({
-		reward: elitesData.reward,
-		items: itemsData,
-		rng: mulberry32(8),
-		run: run as unknown as RunSystem,
-		stats,
-		owned,
-		onItemTaken: () => taken++,
-		events: createEventBuffer(8),
-		blocked: () => false,
-		pickupRadius: () => 2.5,
-	});
-	// Out of reach first, then in reach.
-	dropChest(world, 10, 0, 4, 2, 1);
-	chest.run(world, hero);
-	expect(chest.offer).toBeNull();
-	dropChest(world, 1, 0, 4, 2, 1, true);
-	chest.run(world, hero);
-	expect(run.state).toBe("Paused");
-	expect(chest.offer).toHaveLength(2);
-	const [a, b] = chest.offer ?? [];
-	expect(a?.id).not.toBe(b?.id);
-	expect(a?.tier).toBe(4);
-	expect(b?.tier).toBe(4);
-	expect(Health.hp[hero]).toBe(75);
-	expect(chest.choose(5)).toBe(false);
-	expect(chest.choose(0)).toBe(true);
-	expect(run.state).toBe("Round");
-	expect(owned.get(a?.id ?? "")).toBe(1);
-	expect(taken).toBe(1);
-});
-
-test("an elite still alive at round end is reported as escaped and no chest drops", () => {
-	const { world, hero, elite, events } = setup();
+test("an elite still alive at round end is reported as escaped and drops nothing", () => {
+	const { world, hero, elite, events, progress } = setup();
 	elite.onRoundStart(5, false);
 	const e = elite.spawnNow(world, 6, 0, 0);
 	void hero;
@@ -212,7 +185,7 @@ test("an elite still alive at round end is reported as escaped and no chest drop
 		if (type === EventType.EliteEscaped && entity === e) escaped++;
 	});
 	expect(escaped).toBe(1);
-	expect(query(world, [Chest])).toHaveLength(0);
+	expect(progress.eliteFragments).toBe(0);
 });
 
 function setupSpawn() {
@@ -224,86 +197,3 @@ function setupSpawn() {
 	spawn.startRound(5, { pool: [{ type: 0, weight: 1 }], difficultyMult: 1 });
 	return spawn;
 }
-
-test("chest offers never include items whose effect is not implemented", () => {
-	const alpha = new Set(itemsData.filter((i) => i.status === "alpha").map((i) => i.id));
-	for (let seed = 1; seed <= 200; seed++) {
-		const world = createGameWorld();
-		const hero = spawnBody(world, 0, 0);
-		Health.hp[hero] = Health.max[hero] = 100;
-		const run = { state: "Round", pause: () => {}, resume: () => {} };
-		const chest = createChestSystem({
-			reward: elitesData.reward,
-			items: itemsData,
-			rng: mulberry32(seed),
-			run: run as unknown as RunSystem,
-			stats: createStatsSystem(heroData, createPlayerStats()),
-			owned: new Map(),
-			onItemTaken: () => {},
-			events: createEventBuffer(8),
-			blocked: () => false,
-			pickupRadius: () => 2.5,
-		});
-		dropChest(world, 1, 0, 4, 2, 1);
-		chest.run(world, hero);
-		for (const offer of chest.offer ?? []) expect(alpha.has(offer.id)).toBe(false);
-	}
-});
-
-test("Legendary and boss chests never offer Mythic items, only a Mythic chest does", () => {
-	const offered = (chestTier: number, seed: number): number[] => {
-		const world = createGameWorld();
-		const hero = spawnBody(world, 0, 0);
-		Health.hp[hero] = Health.max[hero] = 100;
-		const chest = createChestSystem({
-			reward: elitesData.reward,
-			items: itemsData,
-			rng: mulberry32(seed),
-			run: { state: "Round", pause: () => {}, resume: () => {} } as unknown as RunSystem,
-			stats: createStatsSystem(heroData, createPlayerStats()),
-			owned: new Map(),
-			onItemTaken: () => {},
-			events: createEventBuffer(8),
-			blocked: () => false,
-			pickupRadius: () => 2.5,
-		});
-		dropChest(world, 1, 0, chestTier, 3, 1);
-		chest.run(world, hero);
-		return (chest.offer ?? []).map((o) => o.tier);
-	};
-	for (let seed = 1; seed <= 100; seed++) {
-		for (const tier of [3, 4]) expect(Math.max(...offered(tier, seed))).toBeLessThan(5);
-	}
-	expect(offered(5, 1).every((t) => t === 5)).toBe(true);
-});
-
-test("a chest that does not heal (the boss chest) leaves the HP alone", () => {
-	const world = createGameWorld();
-	const hero = spawnBody(world, 0, 0);
-	Health.hp[hero] = 50;
-	Health.max[hero] = 100;
-	const events = createEventBuffer(8);
-	const run = { state: "Round", pause: () => undefined, resume: () => undefined };
-	const chest = createChestSystem({
-		reward: elitesData.reward,
-		items: itemsData,
-		rng: mulberry32(8),
-		run: run as unknown as RunSystem,
-		stats: createStatsSystem(heroData, createPlayerStats()),
-		owned: new Map<string, number>(),
-		onItemTaken: () => undefined,
-		events,
-		blocked: () => false,
-		pickupRadius: () => 2.5,
-	});
-	dropChest(world, 1, 0.5, 4, 3, 2);
-	chest.run(world, hero);
-	const opened: number[] = [];
-	events.consume((type, a, b) => {
-		if (type === EventType.ChestOpened) opened.push(a, b);
-	});
-	// The render removes the chest by this position, so it must be where the chest stood.
-	expect(opened).toEqual([1, 0.5]);
-	expect(chest.offer).toHaveLength(3);
-	expect(Health.hp[hero]).toBe(50);
-});

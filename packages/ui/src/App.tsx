@@ -53,8 +53,10 @@ export interface HudState {
 	synergies: readonly SynergyView[];
 	/** The level-up offer on screen; empty when none. */
 	cards: readonly CardView[];
-	/** The elite chest offer on screen; empty when none. */
-	chest: readonly CardView[];
+	/** Elite fragments in the run's wallet (they raise equipment above level 6). */
+	eliteFragments: number;
+	/** Boss relics in the run's wallet (one raises equipment to level 10). */
+	relics: number;
 	/** The shop screen between rounds; null during a round. */
 	shop: ShopViewModel | null;
 	/** Hero stats shown beside the shop offers. */
@@ -123,7 +125,6 @@ export interface AppProps {
 	stick?: VirtualStick | undefined;
 	onChooseCard?: ((index: number) => void) | undefined;
 	onRerollCards?: (() => void) | undefined;
-	onChooseChest?: ((index: number) => void) | undefined;
 	shopActions?: ShopActions | undefined;
 	onRestart?: (() => void) | undefined;
 	/** Back to the title menu from the results and the demo end (the host asks nothing more). */
@@ -160,7 +161,6 @@ export function App({
 	stick,
 	onChooseCard,
 	onRerollCards,
-	onChooseChest,
 	shopActions,
 	onRestart,
 	onMenu,
@@ -192,7 +192,6 @@ export function App({
 	// and still take clicks.
 	const dialogOpen =
 		hud.cards.length > 0 ||
-		hud.chest.length > 0 ||
 		hud.shop !== null ||
 		hud.results !== null ||
 		hud.difficulty !== null ||
@@ -229,14 +228,6 @@ export function App({
 					rerollKey={hud.rerollKey}
 					rerollHint={rerollHint}
 					rerollButton={hud.padReroll}
-				/>
-			) : null}
-			{hud.chest.length > 0 && onChooseChest ? (
-				<LevelUp
-					cards={hud.chest}
-					stats={hud.stats}
-					onChoose={onChooseChest}
-					title={t("chest.title")}
 				/>
 			) : null}
 			{hud.shop && shopActions ? (

@@ -270,24 +270,27 @@ test("the options screen, remap rows included, is navigable with the D-pad", () 
 test("the shop is navigable with the D-pad", () => {
 	assertPadNavigable(
 		<Shop
-			view={{ gold: 50, rerollPrice: 11, slots: [slot("a"), slot("b"), slot("c", { sold: true })] }}
+			view={{
+				gold: 50,
+				rerollPrice: 11,
+				fragments: 0,
+				relics: 0,
+				slots: [slot("a"), slot("b"), slot("c", { sold: true })],
+			}}
 			stats={[{ label: "Armadura", value: "0" }]}
-			actions={{ buy: vi.fn(), toggleLock: vi.fn(), reroll: vi.fn(), next: vi.fn() }}
+			actions={{ buy: vi.fn(), upgrade: vi.fn(), toggleLock: vi.fn(), reroll: vi.fn(), next: vi.fn() }}
 		/>,
 		6,
 	);
 });
 
-test("the level-up offer and the elite chest offer are navigable with the D-pad", () => {
+test("the level-up offer is navigable with the D-pad", () => {
 	const cards = [
 		{ id: "armor", name: "+3 armadura", double: false, rarity: 1, lines: [], changes: [] },
 		{ id: "damage", name: "+4% dano", double: true, rarity: 1, lines: [], changes: [] },
 		{ id: "luck", name: "+4 sorte", double: false, rarity: 1, lines: [], changes: [] },
 	];
 	assertPadNavigable(<LevelUp cards={cards} onChoose={vi.fn()} rerollsLeft={1} onReroll={vi.fn()} />, 4);
-	cleanup();
-	harness?.restore();
-	assertPadNavigable(<LevelUp cards={cards} onChoose={vi.fn()} title="Baú" />, 3);
 });
 
 test("the results screen is navigable with the D-pad", () => {

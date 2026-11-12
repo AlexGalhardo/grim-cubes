@@ -5,7 +5,6 @@ export interface PauseGate {
 	/** `RunState` name. */
 	runState: string;
 	levelUpOffer: boolean;
-	chestOffer: boolean;
 	/** Options, difficulty, slots or the Ossuary is open. */
 	screenOpen: boolean;
 }
@@ -16,8 +15,7 @@ export interface PauseGate {
  * after a level-up fall on that stale dialog and do nothing.
  */
 export function canOpenPause(gate: PauseGate): boolean {
-	if (gate.pauseOpen || gate.menuOpen || gate.screenOpen || gate.levelUpOffer || gate.chestOffer)
-		return false;
+	if (gate.pauseOpen || gate.menuOpen || gate.screenOpen || gate.levelUpOffer) return false;
 	// The shop is a screen of its own; the others have no pausing to do.
 	return !["Idle", "Results", "Dying", "Shop", "Paused"].includes(gate.runState);
 }

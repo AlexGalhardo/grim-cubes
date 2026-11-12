@@ -23,6 +23,8 @@ export type HudView = Pick<
 	| "secondsLeft"
 	| "souls"
 	| "kills"
+	| "eliteFragments"
+	| "relics"
 	| "weapon"
 	| "items"
 	| "boss"
@@ -162,6 +164,20 @@ function Wallet({ hud }: { hud: HudView }): JSX.Element {
 				label={t("hud.souls")}
 				value={hud.souls}
 				className="text-xl text-bone desktop:text-2xl"
+			/>
+			<Stat
+				testId="hud-fragments"
+				glyph="◆"
+				label={t("hud.eliteFragments")}
+				value={hud.eliteFragments}
+				className="text-base text-ember-light desktop:text-xl"
+			/>
+			<Stat
+				testId="hud-relics"
+				glyph="★"
+				label={t("hud.relics")}
+				value={hud.relics}
+				className="text-base text-ember-light desktop:text-xl"
 			/>
 			<Stat
 				testId="hud-kills"

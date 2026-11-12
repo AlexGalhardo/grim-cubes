@@ -216,7 +216,7 @@ export function runSim(options: SimOptions): SimReport {
 		bot.prepare(input);
 		session.step(input);
 		if (options.immortal) Health.hp[hero] = Health.max[hero] ?? 0;
-		// A level-up or chest pauses the round mid-fight, so the fight is told apart by its round, not by the state.
+		// A level-up pauses the round mid-fight, so the fight is told apart by its round, not by the state.
 		if (run.state === "BossRound" && bosses.at(-1)?.round !== run.round) {
 			bossStartStep = steps;
 			bosses.push({

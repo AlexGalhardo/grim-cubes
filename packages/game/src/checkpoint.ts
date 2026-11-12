@@ -30,6 +30,8 @@ export function captureCheckpoint(session: GameSession, identity: RunIdentity): 
 		hp: Health.hp[hero] ?? 0,
 		weapon: { id: weapon.weapon.id ?? "", tier: weapon.tier },
 		equipment: [...shop.levels],
+		eliteFragments: progress.eliteFragments,
+		relics: progress.relics,
 		owned: Object.fromEntries(owned),
 		// The hero passive modifiers come back by themselves when the session is rebuilt.
 		modifiers: stats.modifiers.slice(own).map((m) => ({ stat: m.stat, op: m.op, value: m.value })),
@@ -89,6 +91,8 @@ export function restoreCheckpoint(session: GameSession, cp: RunCheckpoint): void
 	itemEffects.restoreRevivesSpent(cp.revivesSpent);
 	weapon.setWeapon(def, cp.weapon.tier);
 	shop.restoreLevels(cp.equipment);
+	progress.eliteFragments = cp.eliteFragments;
+	progress.relics = cp.relics;
 	levelUp.restoreRerollsLeft(cp.cardRerollsLeft);
 	runStats.kills = cp.kills;
 	runStats.damageDealt = cp.damageDealt;

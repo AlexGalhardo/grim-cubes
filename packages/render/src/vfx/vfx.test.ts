@@ -318,25 +318,6 @@ describe("fragment renderer", () => {
 });
 
 describe("elite view", () => {
-	it("places a chest at the ChestDropped point, removes it when opened and shifts with the origin", () => {
-		const { engine, dispose } = createNullEngine();
-		const game = createGameScene(engine);
-		const view = createEliteView(game);
-		view.onEvent(EventType.ChestDropped, 5, 7, 0);
-		view.update(0.016, 0, 0);
-		const mesh = game.scene.getMeshByName("vfx_chests") as Mesh | null;
-		expect(view.chests).toBe(1);
-		expect(mesh?.thinInstanceCount).toBe(1);
-		expect(view.chestAt(0)).toEqual({ x: 5, z: 7 });
-		view.shift(16, 0);
-		view.update(0.016, -11, 7);
-		expect(view.chestAt(0)?.x).toBeCloseTo(-11, 5);
-		view.onEvent(EventType.ChestOpened, -11, 7, 0);
-		view.update(0.016, -11, 7);
-		expect(view.chests).toBe(0);
-		dispose();
-	});
-
 	it("shows the edge marker for an elite out of frame until it spawns", () => {
 		const { engine, dispose } = createNullEngine();
 		const game = createGameScene(engine);

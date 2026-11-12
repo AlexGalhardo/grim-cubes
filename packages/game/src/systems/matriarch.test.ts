@@ -9,6 +9,8 @@ import { computeStats, createPlayerStats } from "../rules/stats";
 import { bossMaxHp, createBossRoster, createBossSystem } from "./boss";
 import { createDamageSystem } from "./damage";
 import { createHeroStatus } from "./heroStatus";
+import { createProgress } from "./loot";
+import { createMaterials } from "./materials";
 import { movementSystem } from "./movement";
 import { createSpawnSystem } from "./spawn";
 
@@ -63,6 +65,7 @@ function setup(heroX = 0) {
 		enemyIndex: (id) => ids.indexOf(id),
 		heroStatus,
 		difficulty: () => 1,
+		materials: createMaterials(createProgress(), events),
 		onDefeated: () => undefined,
 	});
 	const step = (): void => {
@@ -196,6 +199,7 @@ test("the roster fights the Gravedigger in round 10, the Matriarch from 20 and t
 			summonType: husk,
 			enemyIndex: (id) => ids.indexOf(id),
 			difficulty: () => 1,
+			materials: createMaterials(createProgress(), events),
 			onDefeated: () => undefined,
 		},
 		bossesData,

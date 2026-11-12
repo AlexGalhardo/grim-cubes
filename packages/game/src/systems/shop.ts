@@ -1,6 +1,6 @@
 import type { Described } from "@gc/core";
 import { describeModifier } from "../rules/describe";
-import { type EquipmentData, equipmentModifiers, levelTier } from "../rules/equipment";
+import { type EquipmentData, equipmentModifiers, levelTier, upgradeCost } from "../rules/equipment";
 import {
 	type GenerateContext,
 	generateShop,
@@ -35,10 +35,25 @@ export interface ShopSlotView {
 	affordable: boolean;
 }
 
+/** What it takes to raise an equipment slot with materials; `next` is null when gold sells the next level or the slot is maxed. */
+export interface ShopUpgradeView {
+	slot: string;
+	level: number;
+	next: number | null;
+	fragments: number;
+	relics: number;
+	affordable: boolean;
+}
+
 export interface ShopView {
 	slots: ShopSlotView[];
 	rerollPrice: number;
 	gold: number;
+	/** The run's materials. */
+	fragments: number;
+	relics: number;
+	/** One entry per equipment slot, in slot order. */
+	upgrades: ShopUpgradeView[];
 }
 
 export interface ShopSystem {
@@ -52,6 +67,8 @@ export interface ShopSystem {
 	/** Draws the offers for the current round, keeping locked ones, and resets the reroll counter. */
 	open(): void;
 	buy(index: number): boolean;
+	/** Spends fragments (levels 7 to 9) or a relic (level 10) to raise the equipment slot `slot` by one level. */
+	upgrade(slot: number): boolean;
 	reroll(): boolean;
 	toggleLock(index: number): void;
 	view(): ShopView;
@@ -107,6 +124,17 @@ export function createShopSystem(deps: ShopSystemDeps): ShopSystem {
 			slots[index] = { ...offer, sold: true, locked: false };
 			return true;
 		},
+		upgrade(slot: number): boolean {
+			const cost = upgradeCost(equipment, levels[slot] ?? -1);
+			const fragments = cost?.fragments ?? 0;
+			const relics = cost?.relics ?? 0;
+			if (!cost || progress.eliteFragments < fragments || progress.relics < relics) return false;
+			progress.eliteFragments -= fragments;
+			progress.relics -= relics;
+			levels[slot] = cost.level;
+			applyEquipment();
+			return true;
+		},
 		reroll(): boolean {
 			const price = nextRerollPrice();
 			if (progress.gold < price) return false;
@@ -135,6 +163,25 @@ export function createShopSystem(deps: ShopSystemDeps): ShopSystem {
 				})),
 				rerollPrice: nextRerollPrice(),
 				gold: Math.floor(progress.gold),
+				fragments: progress.eliteFragments,
+				relics: progress.relics,
+				upgrades: equipment.slots.map((slot, i) => {
+					const level = levels[i] ?? 0;
+					const cost = upgradeCost(equipment, level);
+					const fragments = cost?.fragments ?? 0;
+					const relics = cost?.relics ?? 0;
+					return {
+						slot: slot.id,
+						level,
+						next: cost?.level ?? null,
+						fragments,
+						relics,
+						affordable:
+							cost !== null &&
+							progress.eliteFragments >= fragments &&
+							progress.relics >= relics,
+					};
+				}),
 			};
 		},
 	};

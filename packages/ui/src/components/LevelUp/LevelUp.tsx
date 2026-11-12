@@ -37,8 +37,6 @@ export interface LevelUpProps {
 	/** The hero's current stats, listed on the left of the cards on desktop screens; the focused card's changes show `now → after`. */
 	stats?: readonly StatLineView[];
 	onChoose: (index: number) => void;
-	/** Heading; defaults to the level-up title. The elite chest reuses this screen. */
-	title?: string;
 	/** Ossuary card rerolls left; the button stays visible but disabled at 0, and is absent without a handler. */
 	rerollsLeft?: number;
 	onReroll?: (() => void) | undefined;
@@ -55,7 +53,6 @@ export function LevelUp({
 	cards,
 	stats = [],
 	onChoose,
-	title = t("levelUp.title"),
 	rerollsLeft = 0,
 	onReroll,
 	rerollKey = "KeyR",
@@ -104,7 +101,7 @@ export function LevelUp({
 						id="levelup-title"
 						className={`font-display text-ember-light ${short ? "text-lg leading-none" : "text-2xl"}`}
 					>
-						{title}
+						{t("levelUp.title")}
 					</h1>
 					<div
 						data-testid="levelup-cards"

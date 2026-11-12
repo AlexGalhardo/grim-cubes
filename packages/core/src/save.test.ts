@@ -354,6 +354,8 @@ const checkpoint = () => ({
 	hp: 82.5,
 	weapon: { id: "boomerang", tier: 2 },
 	equipment: [6, 0, 3, 10, 0, 1],
+	eliteFragments: 3,
+	relics: 1,
 	owned: { ring: 2 },
 	modifiers: [{ stat: "damage", op: "mult", value: 0.1 }],
 	cardRerollsLeft: 1,
@@ -402,6 +404,8 @@ test("a malformed checkpoint is refused field by field", async () => {
 	await bad({ equipment: [11] });
 	await bad({ equipment: [-1] });
 	await bad({ equipment: "all" });
+	await bad({ eliteFragments: -1 });
+	await bad({ relics: 1.5 });
 	await bad({ origin: { x: "0", z: 0 } });
 	await bad({ bossRounds: [-1] });
 });
@@ -484,6 +488,8 @@ async function slotFileOf(version: number): Promise<string> {
 		// Schema 14 saved what the shop paid for the weapon and no equipment.
 		data.run.weapon.paid = 60;
 		delete data.run.equipment;
+		delete data.run.eliteFragments;
+		delete data.run.relics;
 	}
 	if (version < 14) {
 		delete data.daily;
@@ -527,12 +533,15 @@ test("a schema 14 slot file becomes a Warrior save: the run keeps its sword, the
 	expect(loaded.stats.bestBossRound).toBe(10);
 	// The shop changed too: nothing equipped yet.
 	expect(loaded.run?.equipment).toEqual([]);
+	expect([loaded.run?.eliteFragments, loaded.run?.relics]).toEqual([0, 0]);
+	expect(loaded.run?.daily).toBe("2026-11-11");
 });
 
 test("a schema 15 slot file keeps the equipment, the daily table and the daily run, and re-serializes to the same text", async () => {
 	const text = await slotFileOf(15);
 	const loaded = await parseSave(text);
 	expect(loaded.run?.equipment).toEqual([6, 0, 3, 10, 0, 1]);
+	expect([loaded.run?.eliteFragments, loaded.run?.relics]).toEqual([3, 1]);
 	expect(loaded.daily).toEqual([{ date: "2026-11-10", round: 9, seconds: 300, kills: 120 }]);
 	expect(loaded.run?.daily).toBe("2026-11-11");
 	expect(loaded.run?.seconds).toBe(412);

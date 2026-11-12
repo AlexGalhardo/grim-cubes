@@ -6,11 +6,7 @@
 	"scale": 1.6,
 	"entryDelaySeconds": 10,
 	"reward": {
-		"chest": {
-			"tier": 4,
-			"offered": 2,
-			"picks": 1
-		},
+		"fragments": 1,
 		"souls": 25,
 		"healHp": 25
 	},

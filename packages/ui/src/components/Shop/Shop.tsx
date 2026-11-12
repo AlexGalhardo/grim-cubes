@@ -31,12 +31,17 @@ export interface EquippedView {
 	tier: number;
 	lines: readonly string[];
 	icon?: IconRef | undefined;
+	/** What raising the slot with materials costs; absent when gold sells the next level or the slot is maxed. */
+	upgrade?: { next: number; fragments: number; relics: number; affordable: boolean } | undefined;
 }
 
 export interface ShopViewModel {
 	slots: readonly ShopSlotView[];
 	rerollPrice: number;
 	gold: number;
+	/** Elite fragments and boss relics in the run's wallet. */
+	fragments: number;
+	relics: number;
 	hero?: ShopHeroView | undefined;
 	equipped?: readonly EquippedView[] | undefined;
 	/** One Merchant line under its name. */
@@ -58,6 +63,8 @@ export interface ShopHeroView {
 
 export interface ShopActions {
 	buy(index: number): void;
+	/** Raises equipment slot `index` (the order of `equipped`) with fragments or a relic. */
+	upgrade(index: number): void;
 	toggleLock(index: number): void;
 	reroll(): void;
 	next(): void;
@@ -253,7 +260,7 @@ export function Shop({
 								{t("shop.equipped")}
 							</h2>
 							<ul className="grid grid-cols-2 gap-1.5">
-								{equipped.map((piece) => (
+								{equipped.map((piece, pieceIndex) => (
 									<li
 										key={piece.slot}
 										data-testid={`shop-equipped-${piece.slot}`}
@@ -285,6 +292,31 @@ export function Shop({
 													))}
 												</ul>
 											)}
+											{piece.upgrade ? (
+												<button
+													type="button"
+													data-testid={`shop-upgrade-${pieceIndex}`}
+													disabled={!piece.upgrade.affordable}
+													onClick={() => actions.upgrade(pieceIndex)}
+													className={`mt-0.5 px-1.5 text-xs ${short ? "h-6" : "h-7"} pointer-coarse:min-h-10 ${piece.upgrade.affordable ? EMBER_BUTTON : IRON_BUTTON}`}
+												>
+													{t("shop.upgradeTo", {
+														level: piece.upgrade.next,
+														cost:
+															piece.upgrade.relics > 0
+																? t("shop.costRelics", {
+																		count: piece.upgrade.relics,
+																	})
+																: t("shop.costFragments", {
+																		count: piece.upgrade.fragments,
+																	}),
+													})}
+												</button>
+											) : piece.level >= 10 ? (
+												<span className="font-display text-ember-light text-xs uppercase">
+													{t("shop.maxLevel")}
+												</span>
+											) : null}
 										</div>
 									</li>
 								))}
@@ -395,6 +427,19 @@ export function Shop({
 						>
 							<span aria-hidden="true">●</span>
 							{t("shop.goldLabel", { gold: view.gold })}
+						</div>
+						<div
+							className={`flex items-center gap-2 font-display text-ember-light ${short ? "whitespace-nowrap text-xs" : "text-base"}`}
+							data-testid="shop-materials"
+						>
+							<span>
+								<span aria-hidden="true">◆ </span>
+								{t("shop.fragmentsLabel", { count: view.fragments })}
+							</span>
+							<span>
+								<span aria-hidden="true">★ </span>
+								{t("shop.relicsLabel", { count: view.relics })}
+							</span>
 						</div>
 						<button
 							type="button"

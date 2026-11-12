@@ -12,7 +12,6 @@ import {
 	heroData,
 	heroesData,
 	itemsData,
-	milestonesData,
 	propsData,
 	roundsData,
 	spellsData,
@@ -31,14 +30,12 @@ import { createProjectilePool } from "./ecs/projectile";
 import { createGameWorld } from "./ecs/world";
 import { STEP } from "./loop";
 import { damageConfigFromHero } from "./rules/damage";
-import { availableItems } from "./rules/milestones";
 import { createRunStats } from "./rules/runstats";
 import { buildClassSpells, spellLevel } from "./rules/spells";
 import { createPlayerStats, regenPerSecond } from "./rules/stats";
 import { createBehaviorSystem } from "./systems/behavior";
 import { createBossRoster } from "./systems/boss";
 import { createBreakableSystem } from "./systems/breakables";
-import { createChestSystem } from "./systems/chest";
 import { createDamageSystem } from "./systems/damage";
 import { createDashSystem } from "./systems/dash";
 import {
@@ -61,6 +58,7 @@ import {
 	createPickupSystem,
 	createProgress,
 } from "./systems/loot";
+import { createMaterials } from "./systems/materials";
 import { createMerchantSystem } from "./systems/merchant";
 import { movementSystem } from "./systems/movement";
 import { createPlayerSpells } from "./systems/playerSpells";
@@ -136,9 +134,7 @@ function build(options: GameSessionOptions) {
 	stats.run(hero);
 
 	const owned = new Map<string, number>();
-	// Milestone-gated items (GDD 20) stay out of shops and chests until the account reaches them; the run starts with
-	// the pool the saved stats allow.
-	const poolItems = availableItems(itemsData, milestonesData, meta);
+	const materials = createMaterials(progress, events);
 	// The dash is part of every class now: the Ossuary no longer sells it (S-22-01).
 	const dash = createDashSystem(heroData.dash, {
 		unlocked: true,
@@ -149,11 +145,6 @@ function build(options: GameSessionOptions) {
 	const itemEffects = createEffectsSystem(itemsData, owned, undefined, events);
 
 	const synergies = createSynergySystem(itemsData, owned, synergiesData, stats);
-	const refreshInventory = (): void => {
-		itemEffects.refresh();
-		synergies.refresh();
-	};
-
 	const startingWeapon = weaponsData.find((w) => w.id === (options.weapon ?? heroDef.startingWeapon));
 	if (!startingWeapon)
 		throw new Error(`Unknown starting weapon ${options.weapon ?? heroDef.startingWeapon}`);
@@ -246,6 +237,7 @@ function build(options: GameSessionOptions) {
 		pool: () => elitePool,
 		ring: { min: roundsData.spawn.ringMin, max: roundsData.spawn.ringMax },
 		hero,
+		materials,
 	});
 	hooks.heroHit = (source, taken) => {
 		elite.handleHeroHit(source, taken);
@@ -267,6 +259,7 @@ function build(options: GameSessionOptions) {
 			eliteModifiers: elitesData.modifiers,
 			seed,
 			difficulty: () => difficulty.hpDamageMult,
+			materials,
 			onDefeated: () => {
 				run.bossDied();
 				for (let i = 0; i < roundsData.boss.freeWeaponUpgrades; i++) weapon.upgrade();
@@ -383,18 +376,6 @@ function build(options: GameSessionOptions) {
 		rng: rng.cards,
 		stats,
 		events,
-	});
-	const chest = createChestSystem({
-		reward: elitesData.reward,
-		items: poolItems,
-		rng: rng.loot,
-		run,
-		stats,
-		owned,
-		onItemTaken: refreshInventory,
-		events,
-		blocked: () => levelUp.offer !== null,
-		pickupRadius: () => stats.stats.pickupRadius,
 	});
 	const shop = createShopSystem({
 		config: roundsData.shop,
@@ -516,7 +497,6 @@ function build(options: GameSessionOptions) {
 			pickup.run(world, hero);
 			breakables.collect(hero);
 			elite.run(world);
-			chest.run(world, hero);
 			stats.run(hero);
 			regenerate();
 			levelUp.run();
@@ -550,7 +530,6 @@ function build(options: GameSessionOptions) {
 		hero,
 		stats,
 		owned,
-		poolItems,
 		dash,
 		itemEffects,
 		synergies,
@@ -583,7 +562,6 @@ function build(options: GameSessionOptions) {
 		classSpells,
 		playerSpells,
 		levelUp,
-		chest,
 		shop,
 		chunkGen,
 		chunks,
@@ -612,7 +590,6 @@ export interface GameSession {
 	readonly hero: ReturnType<typeof build>["hero"];
 	readonly stats: ReturnType<typeof build>["stats"];
 	readonly owned: ReturnType<typeof build>["owned"];
-	readonly poolItems: ReturnType<typeof build>["poolItems"];
 	readonly dash: ReturnType<typeof build>["dash"];
 	readonly itemEffects: ReturnType<typeof build>["itemEffects"];
 	readonly synergies: ReturnType<typeof build>["synergies"];
@@ -649,7 +626,6 @@ export interface GameSession {
 	/** The heal and the super the player casts. */
 	readonly playerSpells: ReturnType<typeof build>["playerSpells"];
 	readonly levelUp: ReturnType<typeof build>["levelUp"];
-	readonly chest: ReturnType<typeof build>["chest"];
 	readonly shop: ReturnType<typeof build>["shop"];
 	readonly chunkGen: ReturnType<typeof build>["chunkGen"];
 	readonly chunks: ReturnType<typeof build>["chunks"];

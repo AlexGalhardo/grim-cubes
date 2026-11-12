@@ -7,43 +7,25 @@ import type { GameScene } from "../scene/scene";
 import { createInstanceSet, writeTransform } from "./instances";
 
 export interface EliteView {
-	/** Handles EliteIncoming / EliteSpawned / EliteEscaped / ChestDropped / ChestOpened. */
+	/** Handles EliteIncoming / EliteSpawned / EliteEscaped. */
 	onEvent(type: number, a: number, b: number, c: number): void;
 	/** The world origin moved by (dx, dz). */
 	shift(dx: number, dz: number): void;
-	/** `heroX`/`heroZ` in scene coordinates; drives the edge marker and picks the chest the hero opened. */
+	/** `heroX`/`heroZ` in scene coordinates; drives the edge marker. */
 	update(seconds: number, heroX: number, heroZ: number): void;
-	readonly chests: number;
-	/** Scene x, z of chest `i`, or undefined. */
-	chestAt(i: number): { x: number; z: number } | undefined;
 	/** Scene x of the instance drawn for the marker (the last one written). */
 	readonly markerDrawnX: number;
 	readonly markerVisible: boolean;
 }
 
-const MAX_CHESTS = 8;
-const CHEST_SIZE = 0.9;
 /** Distance from the hero at which the incoming marker rests: about the edge of the visible ground. */
 const EDGE_DISTANCE = 9;
 const MARKER_SIZE = 0.8;
 const MARKER_HEIGHT = 1.2;
 const BLINK_HZ = 3;
-/** An opened chest is the one within this many u of the position the event carries. */
-const OPEN_RADIUS = 1;
 
-/** Placeholder chest on the ground and the edge marker of an elite that is about to arrive (GDD section 11). */
+/** The edge marker of an elite that is about to arrive (GDD section 11). */
 export function createEliteView(game: GameScene): EliteView {
-	const chestMesh = CreateBox("vfx_chests", { size: 1 }, game.scene);
-	const chestMaterial = new StandardMaterial("vfx_chests", game.scene);
-	chestMaterial.disableLighting = true;
-	chestMaterial.emissiveColor = Color3.FromHexString(PALETTE.emberLight);
-	chestMaterial.diffuseColor = Color3.Black();
-	chestMesh.material = chestMaterial;
-	const chestSet = createInstanceSet(chestMesh, MAX_CHESTS, false);
-	const chestX = new Float32Array(MAX_CHESTS);
-	const chestZ = new Float32Array(MAX_CHESTS);
-	let chests = 0;
-
 	const markerMesh = CreateBox("vfx_elite_marker", { size: 1 }, game.scene);
 	const markerMaterial = new StandardMaterial("vfx_elite_marker", game.scene);
 	markerMaterial.disableLighting = true;
@@ -58,12 +40,6 @@ export function createEliteView(game: GameScene): EliteView {
 	let drawnX = 0;
 
 	return {
-		get chests(): number {
-			return chests;
-		},
-		chestAt(i): { x: number; z: number } | undefined {
-			return i < chests ? { x: chestX[i] ?? 0, z: chestZ[i] ?? 0 } : undefined;
-		},
 		get markerDrawnX(): number {
 			return drawnX;
 		},
@@ -77,52 +53,14 @@ export function createEliteView(game: GameScene): EliteView {
 				markerZ = b;
 			} else if (type === EventType.EliteSpawned || type === EventType.EliteEscaped) {
 				markerOn = false;
-			} else if (type === EventType.ChestOpened) {
-				// a, b = the chest that was opened.
-				let best = -1;
-				let bestDistance = OPEN_RADIUS * OPEN_RADIUS;
-				for (let i = 0; i < chests; i++) {
-					const dx = (chestX[i] ?? 0) - a;
-					const dz = (chestZ[i] ?? 0) - b;
-					if (dx * dx + dz * dz < bestDistance) {
-						bestDistance = dx * dx + dz * dz;
-						best = i;
-					}
-				}
-				if (best >= 0) {
-					chests--;
-					chestX[best] = chestX[chests] ?? 0;
-					chestZ[best] = chestZ[chests] ?? 0;
-				}
-			} else if (type === EventType.ChestDropped && chests < MAX_CHESTS) {
-				chestX[chests] = a;
-				chestZ[chests] = b;
-				chests++;
 			}
 		},
 		shift(dx, dz): void {
 			markerX -= dx;
 			markerZ -= dz;
-			for (let i = 0; i < chests; i++) {
-				chestX[i] = (chestX[i] ?? 0) - dx;
-				chestZ[i] = (chestZ[i] ?? 0) - dz;
-			}
 		},
 		update(seconds, heroX, heroZ): void {
 			clock += seconds;
-			for (let i = 0; i < chests; i++) {
-				writeTransform(
-					chestSet.matrices,
-					i,
-					chestX[i] ?? 0,
-					CHEST_SIZE / 2,
-					chestZ[i] ?? 0,
-					CHEST_SIZE,
-					0,
-				);
-			}
-			chestSet.commit(chests);
-
 			let shown = 0;
 			if (markerOn) {
 				const dx = markerX - heroX;

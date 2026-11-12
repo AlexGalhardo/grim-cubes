@@ -61,6 +61,7 @@ function summary(session: GameSession): unknown {
 		kills: session.runStats.kills,
 		owned: [...session.owned],
 		equipment: [...session.shop.levels],
+		materials: [session.progress.eliteFragments, session.progress.relics],
 		weapon: [session.weapon.weapon.id, session.weapon.tier],
 		bag: session.run.bag.value,
 	};
@@ -79,6 +80,8 @@ test("resuming is a pure function of the checkpoint: same save, same inputs, sam
 	const live = fresh(true);
 	playUntilIntroOf(live, 3);
 	expect(live.shop.levels.reduce((a, b) => a + b, 0)).toBeGreaterThan(0);
+	live.progress.eliteFragments = 5;
+	live.progress.relics = 2;
 	const checkpoint = await throughTheSave(live);
 
 	// Component arrays are module-global and entity ids repeat across worlds, so two live sessions would step on each

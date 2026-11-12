@@ -25,7 +25,7 @@ export interface RenderPortOptions {
 	deltaSeconds?: () => number;
 	/** Combat juice fed from the same event stream (blood, decals, damage numbers). */
 	vfx?: Vfx;
-	/** Elite chest and incoming marker (P-05-06b). */
+	/** Incoming marker of an elite (P-05-06b). */
 	elite?: EliteView;
 	/** Skeleton rigs (hero, Merchant, Gravedigger): animation events. */
 	characters?: Characters | undefined;

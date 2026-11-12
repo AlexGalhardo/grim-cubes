@@ -7,6 +7,8 @@ import { createEnemyShotPool } from "../ecs/enemyShot";
 import { createEventBuffer } from "../ecs/events";
 import { createGameWorld, spawnBody } from "../ecs/world";
 import { bossMaxHp, createBossRoster } from "./boss";
+import { createProgress } from "./loot";
+import { createMaterials } from "./materials";
 import { createSpawnSystem } from "./spawn";
 
 const ids = enemiesData.map((e) => e.id);
@@ -39,6 +41,7 @@ function roster(seed: number) {
 			eliteModifiers: elitesData.modifiers,
 			seed,
 			difficulty: () => 1,
+			materials: createMaterials(createProgress(), events),
 			onDefeated: () => undefined,
 		},
 		bossesData,

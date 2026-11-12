@@ -101,6 +101,7 @@ import {
 	resetOssuary,
 	restoreCheckpoint,
 	roundsData,
+	type ShopUpgradeView,
 	Speed,
 	STEP,
 	soulsForRun,
@@ -183,7 +184,7 @@ import { createMerchantVoice } from "./audio/merchantVoice";
 import { uiSounds } from "./audio/uiSounds";
 import { ambienceFor, createWebAudioDeps, musicFor, weaponLoopFor } from "./audio/webAudio";
 import { createDebugGamepad } from "./debugGamepad";
-import { buildResults, createLoadoutView, currentStats, itemLines, roundSecondsLeft } from "./hudView";
+import { buildResults, createLoadoutView, currentStats, roundSecondsLeft } from "./hudView";
 import { applyLocale, initLocale } from "./locale";
 import { canOpenPause } from "./pauseGate";
 import { createSoak, soakOptionsFrom } from "./soak";
@@ -387,7 +388,6 @@ async function boot(): Promise<void> {
 		death,
 		pickup,
 		levelUp,
-		chest,
 		shop,
 		chunkGen,
 		chunks,
@@ -430,7 +430,8 @@ async function boot(): Promise<void> {
 		items: [],
 		synergies: [],
 		cards: NO_CARDS,
-		chest: NO_CARDS,
+		eliteFragments: 0,
+		relics: 0,
 		shop: null,
 		stats: [],
 		results: null,
@@ -557,7 +558,6 @@ async function boot(): Promise<void> {
 			stick={stick}
 			onChooseCard={(index) => levelUp.choose(index)}
 			onRerollCards={() => levelUp.reroll()}
-			onChooseChest={(index) => chest.choose(index)}
 			onDashHold={(down) => {
 				touchDash = down;
 			}}
@@ -737,6 +737,14 @@ async function boot(): Promise<void> {
 					const bought = shop.buy(index);
 					audio.play(bought ? "sfx_ui_buy" : "sfx_ui_no_gold", { priority: "ui", maxVoices: 2 });
 					merchantVoice.say(bought ? "buy" : "nomoney");
+					publishNow();
+				},
+				upgrade: (index) => {
+					const raised = shop.upgrade(index);
+					audio.play(raised ? "sfx_chest_open" : "sfx_ui_no_gold", {
+						priority: "ui",
+						maxVoices: 2,
+					});
 					publishNow();
 				},
 				toggleLock: (index) => {
@@ -1204,11 +1212,9 @@ async function boot(): Promise<void> {
 
 	let lastOffer: readonly CardView[] = NO_CARDS;
 	let lastOfferSource: unknown = null;
-	let lastChest: readonly CardView[] = NO_CARDS;
 	let lastBossJson = "";
 	let lastBoss: HudState["boss"] = null;
 	let lastBossAuras = "";
-	let lastChestSource: unknown = null;
 	let lastHud = Number.NEGATIVE_INFINITY;
 	let settled = false;
 	// Each save copies a snapshot back into `meta`. A slow one must not overwrite a save that started later.
@@ -1347,7 +1353,6 @@ async function boot(): Promise<void> {
 			menuOpen,
 			runState: run.state,
 			levelUpOffer: levelUp.offer !== null,
-			chestOffer: chest.offer !== null,
 			screenOpen:
 				optionsOpen || difficultyOpen || heroesOpen || dailyOpen || ossuaryOpen || slotsView !== null,
 		});
@@ -1693,7 +1698,7 @@ async function boot(): Promise<void> {
 	const currentScratch = createPlayerStats();
 	/**
 	 * The hero's stats as they stand now. `stats.stats` is recomputed by the next simulation step, and the sim is paused
-	 * while a card or chest is open, so after a pick that opens another offer at once it would still miss that pick.
+	 * while a card is open, so after a pick that opens another offer at once it would still miss that pick.
 	 */
 	const equippedModifiers = (levels: readonly number[] = shop.levels): Modifier[] =>
 		equipmentModifiers(equipmentData, levels);
@@ -1780,9 +1785,10 @@ async function boot(): Promise<void> {
 		return lastSynergyView;
 	}
 	/** The six equipment slots as the hero wears them, for the shop panel. */
-	function equippedView(): EquippedView[] {
+	function equippedView(upgrades: readonly ShopUpgradeView[]): EquippedView[] {
 		return equipmentData.slots.map((slot, i) => {
 			const level = shop.levels[i] ?? 0;
+			const cost = upgrades[i];
 			return {
 				slot: slot.id,
 				name: t(`equipment.${slot.id}`),
@@ -1790,11 +1796,22 @@ async function boot(): Promise<void> {
 				tier: levelTier(Math.max(1, level)),
 				lines: (slot.levels[level - 1]?.modifiers ?? []).map((m) => text(describeModifier(m))),
 				icon: iconFor("equipment", slot.id),
+				upgrade:
+					cost && cost.next !== null
+						? {
+								next: cost.next,
+								fragments: cost.fragments,
+								relics: cost.relics,
+								affordable: cost.affordable,
+							}
+						: undefined,
 			};
 		});
 	}
 	/** The hero, the equipment and the Merchant line of the shop (ARPG layout, PO mockup of 2026-10-31). */
-	function shopPanels(): Pick<NonNullable<HudState["shop"]>, "hero" | "equipped" | "quote"> {
+	function shopPanels(
+		upgrades: readonly ShopUpgradeView[],
+	): Pick<NonNullable<HudState["shop"]>, "hero" | "equipped" | "quote"> {
 		return {
 			hero: {
 				level: progress.level,
@@ -1806,7 +1823,7 @@ async function boot(): Promise<void> {
 				bossRound: Math.ceil((run.round + 1) / 10) * 10,
 				souls: meta.souls,
 			},
-			equipped: equippedView(),
+			equipped: equippedView(upgrades),
 			quote: t(`voice.merchant.arrive_${(run.round % 3) + 1}`),
 		};
 	}
@@ -1886,28 +1903,6 @@ async function boot(): Promise<void> {
 					})
 				: NO_CARDS;
 		}
-		const chestOffer = chest.offer;
-		if (chestOffer !== lastChestSource) {
-			lastChestSource = chestOffer;
-			lastChest = chestOffer
-				? chestOffer.map((c) => ({
-						id: c.id,
-						name: t(`item.${c.id}`),
-						double: false,
-						icon: iconFor("item", c.id),
-						rarity: c.tier,
-						// Most chest items are effect-only (a Legendary arrow, a sigil): their card would be blank without the effects.
-						lines: itemLines(
-							{
-								modifiers: c.modifiers,
-								effects: itemsData.find((entry) => entry.id === c.id)?.effects,
-							},
-							text,
-						),
-						changes: cardChanges(c.modifiers),
-					}))
-				: NO_CARDS;
-		}
 		// Web demo: the Gravedigger is the last fight. Settle the run once, hide the shop and never open round 11.
 		const demoEnd = __IS_DEMO__ && run.state === "Shop" && run.round >= (bossesData[0]?.round ?? 10);
 		if (demoEnd && !settled) settleRun();
@@ -1926,7 +1921,7 @@ async function boot(): Promise<void> {
 						icon: iconFor("equipment", slot.slot),
 						preview: statPreview(shop.slots[i]?.slot ?? 0, slot.level),
 					})),
-					...shopPanels(),
+					...shopPanels(view.upgrades),
 				};
 			}
 			shopView = lastShop;
@@ -1978,10 +1973,11 @@ async function boot(): Promise<void> {
 			synergies: synergyView(),
 			cards: lastOffer,
 			cardRerolls: levelUp.rerollsLeft,
-			chest: lastChest,
+			eliteFragments: progress.eliteFragments,
+			relics: progress.relics,
 			shop: shopView,
 			stats:
-				shopView || lastOffer.length > 0 || lastChest.length > 0
+				shopView || lastOffer.length > 0
 					? describeStats(freshStats()).map((line) => ({
 							id: line.key,
 							label: t(line.key),
@@ -2060,7 +2056,8 @@ async function boot(): Promise<void> {
 			cur.items !== next.items ||
 			cur.cards !== next.cards ||
 			cur.cardRerolls !== next.cardRerolls ||
-			cur.chest !== next.chest ||
+			cur.eliteFragments !== next.eliteFragments ||
+			cur.relics !== next.relics ||
 			cur.boss !== next.boss ||
 			cur.dash?.charges !== next.dash?.charges ||
 			cur.dash?.recharge !== next.dash?.recharge ||
@@ -2521,21 +2518,10 @@ async function boot(): Promise<void> {
 			},
 			killBoss: () => {
 				for (const e of query(world, [Boss])) {
-					// The chest drops where the boss dies; bring it within pickup range so the test need not walk there.
 					Position.x[e] = (Position.x[hero] ?? 0) + 1.5;
 					Position.z[e] = Position.z[hero] ?? 0;
 					Health.hp[e] = 0;
 				}
-			},
-			/** Announces a chest next to the hero (placeholder render, P-05-06b capture). */
-			showChest: () => {
-				events.push(
-					EventType.ChestDropped,
-					(Position.x[hero] ?? 0) + 3,
-					(Position.z[hero] ?? 0) + 2,
-					0,
-					0,
-				);
 			},
 			killElites: () => {
 				for (const e of query(world, [Elite])) Health.hp[e] = 0;

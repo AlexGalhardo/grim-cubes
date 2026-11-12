@@ -25,10 +25,8 @@ export const EventType = {
 	EliteIncoming: 13,
 	/** a, b = x, z; c = modifier id (1-based, `Elite.modifier`); entity = the elite. */
 	EliteSpawned: 14,
-	/** a, b = x, z. An elite or boss chest dropped. */
-	ChestDropped: 15,
-	/** a, b = x, z of the chest that was opened; the offer is on screen. */
-	ChestOpened: 16,
+	/** a, b = x, z; c = kind (1 elite fragment, 2 boss relic). A material dropped and is already in the run's wallet. */
+	MaterialDropped: 15,
 	/**
 	 * a, b = unit direction x, z; c = seconds until the hit lands; entity = the boss. Always preceded by a
 	 * BossPattern event that names the pattern. Exception: for mud_pool a, b are the x, z of the spot the pool

@@ -37,6 +37,15 @@ export const MAX_EQUIPMENT_LEVEL = 10;
 /** The rarity tier (1 to 5) an equipment level is drawn with. */
 export const levelTier = (level: number): number => Math.min(5, Math.max(1, Math.ceil(level / 2)));
 
+/**
+ * The material cost of taking a slot from `level` to `level + 1`, or null when gold sells the next level or the slot is
+ * at the top.
+ */
+export function upgradeCost(data: EquipmentData, level: number): EquipmentUpgrade | null {
+	if (level < data.goldMaxLevel || level >= MAX_EQUIPMENT_LEVEL) return null;
+	return data.upgrades.find((u) => u.level === level + 1) ?? null;
+}
+
 /** Modifiers of every equipped slot; `levels[i]` is the level of `data.slots[i]`, 0 for an empty slot. */
 export function equipmentModifiers(data: EquipmentData, levels: readonly number[]): Modifier[] {
 	const out: Modifier[] = [];

@@ -361,7 +361,7 @@ Decisão D08.
 | Vampírico | HP ×10, cura 10% do dano causado | vinho |
 | Explosivo | HP ×8, explode ao morrer (raio 3 u, dano 15 + 2N) | laranja |
 
-- Recompensa: baú Lendário garantido (1 item Tier 4 à escolha entre 2) + 25 almas + cura 25 HP ao abrir.
+- Recompensa (ADR-0030): 1 fragmento de elite garantido (100%, creditado na hora da morte e mostrado no HUD e na loja, §17.4), 25 almas e cura de 25 HP. Não há mais baú nem escolha de item.
 - Entra 10 s após o início do round, com aviso sonoro e marcador na borda da tela.
 - Se o round acabar com a elite viva, ela some sem recompensa (pressão).
 
@@ -386,7 +386,7 @@ HP escala com o multiplicador de dificuldade (D13). Dano de contato dos chefes: 
 
 - Entrada: 3 s de cinemática curta (câmera afasta 20%, nome em tela, fala de voz), inimigos comuns congelam.
 - Barra de HP do chefe no topo do HUD, com marcadores de fase.
-- Morte do chefe: execução (animação de 1,5 s, câmera aproxima), 100 + 10 × N almas, baú de chefe (2 itens Tier 3+ à escolha entre 3) e 1 ponto de upgrade de arma grátis.
+- Morte do chefe: execução (animação de 1,5 s, câmera aproxima), 100 + 10 × N almas, 1 relíquia de chefe garantida (100%, §17.4) e 1 ponto de upgrade de arma grátis.
 - Demo: o Coveiro (round 10) está incluso (D04).
 
 ## 13. Rounds e dificuldade
@@ -613,6 +613,12 @@ reroll_k(N)      = reroll_1(N) + (k - 1) × reroll_inc(N)     # reseta a cada lo
 ```
 
 Exemplos: peça de nível 1 (base 12) no round 1 = 14; peça de nível 6 (base 200) no round 10 = 510 (a escala por round vale para todo o preço). Reroll no round 10: 11, 15, 19…
+
+### 17.4 Fragmentos de elite e relíquias (S-21-02)
+
+- Cada elite morta dá **1 fragmento de elite** e cada chefe morto dá **1 relíquia**, sempre (100%), creditados no ato (`MaterialDropped`). Os valores ficam em `elites.json` `reward.fragments` e `rounds.json` `boss.rewardRelics`. Elite que foge no fim do round não dá nada.
+- Na loja, cada slot de equipamento que já chegou ao nível 6 mostra o botão de subir um nível com material, no slot que o jogador escolher: nível 7 custa 2 fragmentos, o 8 custa 3, o 9 custa 4 e o 10 custa 1 relíquia (`equipment.json` `upgrades`). Sem o material a compra é recusada; fragmentos nunca pagam o nível 10 nem a relíquia paga os níveis 7 a 9.
+- O HUD (carteira) e a loja mostram os dois contadores; o checkpoint da run guarda os dois (`eliteFragments`, `relics`).
 
 ### 17.3 Mercador de Ossos (NPC)
 

@@ -61,14 +61,12 @@ export {
 	weaponsData,
 	worldData,
 } from "./data";
-export { dropChest } from "./ecs/chest";
 export {
 	Armor,
 	Attacking,
 	Behavior,
 	Bleed,
 	Boss,
-	Chest,
 	Consumable,
 	ContactCooldown,
 	ContactDamage,
@@ -134,7 +132,7 @@ export type {
 	EquipmentSlot,
 	EquipmentUpgrade,
 } from "./rules/equipment";
-export { equipmentModifiers, levelTier, MAX_EQUIPMENT_LEVEL } from "./rules/equipment";
+export { equipmentModifiers, levelTier, MAX_EQUIPMENT_LEVEL, upgradeCost } from "./rules/equipment";
 export type { FragmentsConfig, XpConfig } from "./rules/fragments";
 export { dropChance, harvestCount, xpForLevel } from "./rules/fragments";
 export type { GameSpeed } from "./rules/gameSpeed";
@@ -174,8 +172,6 @@ export type { BossSystem, BossSystemDeps, BossView } from "./systems/boss";
 export { type BossRoster, bossMaxHp, createBossRoster, createBossSystem, enrageMult } from "./systems/boss";
 export type { PatternContext, PatternFactory, PatternHandler, PatternParams } from "./systems/bossPatterns";
 export { hasPattern, registerPattern } from "./systems/bossPatterns";
-export type { ChestOffer, ChestSystem, ChestSystemDeps } from "./systems/chest";
-export { createChestSystem } from "./systems/chest";
 export type { DamageQueue, DamageSystem, DamageSystemDeps, HeroCombatStats } from "./systems/damage";
 export { createDamageSystem, DAMAGE_QUEUE_CAPACITY } from "./systems/damage";
 export type { DashConfig, DashOptions, DashSystem } from "./systems/dash";
@@ -212,6 +208,8 @@ export {
 	createPickupSystem,
 	createProgress,
 } from "./systems/loot";
+export type { MaterialKind, Materials } from "./systems/materials";
+export { createMaterials, Material } from "./systems/materials";
 export { movementSystem } from "./systems/movement";
 export type { PlayerSpells, PlayerSpellsDeps } from "./systems/playerSpells";
 export { createPlayerSpells } from "./systems/playerSpells";
@@ -221,7 +219,7 @@ export type { Bag, RunConfig, RunState, RunSystem, RunSystemDeps } from "./syste
 export { createRunSystem, isBossRound, roundDurationSeconds } from "./systems/round";
 export type { SeparationConfig, SeparationSystem } from "./systems/separation";
 export { createSeparationSystem } from "./systems/separation";
-export type { ShopSlotView, ShopSystem, ShopSystemDeps, ShopView } from "./systems/shop";
+export type { ShopSlotView, ShopSystem, ShopSystemDeps, ShopUpgradeView, ShopView } from "./systems/shop";
 export { createShopSystem } from "./systems/shop";
 export type {
 	EnemyDef,

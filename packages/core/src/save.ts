@@ -108,6 +108,9 @@ export interface RunCheckpoint {
 	weapon: { id: string; tier: number };
 	/** Level (0 to 10) equipped in each slot of `data/equipment.json`, in file order; 0 is empty. */
 	equipment: number[];
+	/** Elite fragments and boss relics in hand: the materials that raise equipment above level 6. */
+	eliteFragments: number;
+	relics: number;
 	/** Items owned, by id. */
 	owned: Record<string, number>;
 	/** Modifiers picked during the run (cards, items, chests), after the Ossuary ones. */
@@ -491,6 +494,9 @@ function validateCheckpoint(raw: unknown): RunCheckpoint | null {
 		},
 		// Absent before schema 15: nothing equipped yet.
 		equipment: validateEquipment(raw.equipment),
+		eliteFragments:
+			raw.eliteFragments === undefined ? 0 : counter(raw.eliteFragments, "run.eliteFragments"),
+		relics: raw.relics === undefined ? 0 : counter(raw.relics, "run.relics"),
 		owned: ownedClean,
 		modifiers: modifiers.map((m: unknown) => {
 			if (!isRecord(m)) throw new SaveError("run.modifiers entries must be objects");

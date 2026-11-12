@@ -1,12 +1,12 @@
 import { addComponent, hasComponent } from "bitecs";
 import type { ElitesData } from "../data/types";
-import { dropChest } from "../ecs/chest";
 import { Armor, Elite, Health, Position, Radius, Speed } from "../ecs/components";
 import { type EventBuffer, EventType } from "../ecs/events";
 import type { GameWorld } from "../ecs/world";
 import { STEP } from "../loop";
 import { createEliteRoller, type EliteRng, eliteStats } from "../rules/elite";
 import type { DamageQueue } from "./damage";
+import { Material, type Materials } from "./materials";
 import type { SpawnSystem, SpawnWeight } from "./spawn";
 
 export interface EliteSystemDeps {
@@ -21,6 +21,7 @@ export interface EliteSystemDeps {
 	/** Spawn ring in u (`rounds.json` `spawn.ringMin` / `ringMax`). */
 	ring: { min: number; max: number };
 	hero: number;
+	materials: Materials;
 }
 
 export interface EliteSystem {
@@ -30,7 +31,7 @@ export interface EliteSystem {
 	run(world: GameWorld): void;
 	/** Spawns an elite right now at (x, z) with modifier index `modifier` (random when omitted). Returns the entity. */
 	spawnNow(world: GameWorld, x: number, z: number, modifier?: number): number;
-	/** Wire to the death system's `onDeath`: chest drop and death explosion for elites. */
+	/** Wire to the death system's `onDeath`: the guaranteed fragment, the heal and the death explosion of elites. */
 	handleDeath(world: GameWorld, enemy: number, x: number, z: number): void;
 	/** Wire to the damage system's `onHeroHit`: vampiric elites heal on what they deal. */
 	handleHeroHit(source: number, taken: number): void;
@@ -39,7 +40,7 @@ export interface EliteSystem {
 }
 
 export function createEliteSystem(deps: EliteSystemDeps): EliteSystem {
-	const { config, spawn, events, queue, rng, pool, ring, hero } = deps;
+	const { config, spawn, events, queue, rng, pool, ring, hero, materials } = deps;
 	const roller = createEliteRoller(rng, config);
 	const delaySteps = Math.round(config.entryDelaySeconds / STEP);
 	const warningSteps = Math.round(config.incomingWarningSeconds / STEP);
@@ -109,16 +110,8 @@ export function createEliteSystem(deps: EliteSystemDeps): EliteSystem {
 				if (dist <= boom.radius + (Radius.r[hero] ?? 0)) queue.push(hero, boom.damage, e, 0, 0, 0);
 				events.push(EventType.Exploded, x, z, boom.radius, e);
 			}
-			dropChest(
-				world,
-				x,
-				z,
-				config.reward.chest.tier,
-				config.reward.chest.offered,
-				config.reward.chest.picks,
-				true,
-			);
-			events.push(EventType.ChestDropped, x, z, 0, 0);
+			materials.drop(Material.EliteFragment, config.reward.fragments, x, z);
+			Health.hp[hero] = Math.min((Health.hp[hero] ?? 0) + config.reward.healHp, Health.max[hero] ?? 0);
 		},
 		handleHeroHit(source: number, taken: number): void {
 			if (source <= 0 || (Elite.modifier[source] ?? 0) === 0) return;

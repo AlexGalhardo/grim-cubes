@@ -21,6 +21,8 @@ import { createGameWorld, spawnBody } from "../ecs/world";
 import { computeStats, createPlayerStats } from "../rules/stats";
 import { bossMaxHp, createBossSystem } from "./boss";
 import { createDamageSystem } from "./damage";
+import { createProgress } from "./loot";
+import { createMaterials } from "./materials";
 import { movementSystem } from "./movement";
 import { createProjectileSystem } from "./projectile";
 import { createSpawnSystem } from "./spawn";
@@ -94,6 +96,7 @@ function setup(def: BossData, round: number, heroX = 0) {
 		summonType: husk,
 		enemyIndex: (id) => ids.indexOf(id),
 		difficulty: () => 1,
+		materials: createMaterials(createProgress(), events),
 		onDefeated: () => undefined,
 	});
 	const seen: Seen[] = [];

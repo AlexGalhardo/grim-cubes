@@ -116,7 +116,7 @@
 				"soulsBase",
 				"soulsPerRound",
 				"hpScalePerTenRounds",
-				"rewardChest",
+				"rewardRelics",
 				"freeWeaponUpgrades",
 				"randomRosterFromRound",
 				"eliteModifierFromRound",
@@ -168,25 +168,6 @@
 					"type": "number",
 					"minimum": 0
 				},
-				"rewardChest": {
-					"type": "object",
-					"required": ["minTier", "offered", "picks"],
-					"additionalProperties": false,
-					"properties": {
-						"minTier": {
-							"type": "number",
-							"minimum": 0
-						},
-						"offered": {
-							"type": "number",
-							"minimum": 0
-						},
-						"picks": {
-							"type": "number",
-							"minimum": 0
-						}
-					}
-				},
 				"freeWeaponUpgrades": {
 					"type": "number",
 					"minimum": 0
@@ -202,6 +183,11 @@
 				"secondEliteModifierFromRound": {
 					"type": "integer",
 					"minimum": 1
+				},
+				"rewardRelics": {
+					"type": "integer",
+					"minimum": 1,
+					"description": "Relics every dead boss drops (ADR-0030)."
 				}
 			}
 		},

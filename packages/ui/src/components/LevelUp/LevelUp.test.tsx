@@ -65,11 +65,6 @@ test("keys 1-3 choose and other keys are ignored", () => {
 	expect(onChoose.mock.calls).toEqual([[0], [2]]);
 });
 
-test("a custom title replaces the default heading", () => {
-	render(<LevelUp cards={cards} onChoose={() => {}} title="Baú Lendário" />);
-	expect(screen.getByRole("heading", { name: "Baú Lendário" })).toBeTruthy();
-});
-
 test("the reroll button is always visible with its key hint and disabled without rerolls", () => {
 	const onReroll = vi.fn();
 	const { rerender } = render(

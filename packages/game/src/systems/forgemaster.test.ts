@@ -10,6 +10,8 @@ import { computeStats, createPlayerStats } from "../rules/stats";
 import { bossMaxHp, createBossSystem } from "./boss";
 import { createDamageSystem } from "./damage";
 import { createHeroStatus } from "./heroStatus";
+import { createProgress } from "./loot";
+import { createMaterials } from "./materials";
 import { movementSystem } from "./movement";
 import { createSpawnSystem } from "./spawn";
 
@@ -66,6 +68,7 @@ function setup(heroX = 0) {
 		heroStatus,
 		shots,
 		difficulty: () => 1,
+		materials: createMaterials(createProgress(), events),
 		onDefeated: () => undefined,
 	});
 	const step = (): void => {

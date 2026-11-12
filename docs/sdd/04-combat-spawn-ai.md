@@ -83,7 +83,7 @@ Separação (soft collision): para cada inimigo em movimento, soma o vetor de re
 
 ## 6. Elites
 
-`roundSystem` no início de round comum: `if roundsSinceElite >= 5 || rng.elite() < 0.2` (round 1 nunca). Escolhe tipo do pool e um modificador (`elites.json`): multiplicadores de HP/velocidade/armadura, flags `vampiric`, `explosive`. Entra 10 s após o início (evento `EliteIncoming` 2 s antes para o som). Morte: `deathSystem` cria baú (`Chest` entity com `tier: 4`, `choices: 2`), +25 almas, +25 HP ao abrir. Fim do round com elite viva: entidade removida, evento `EliteEscaped`.
+`roundSystem` no início de round comum: `if roundsSinceElite >= 5 || rng.elite() < 0.2` (round 1 nunca). Escolhe tipo do pool e um modificador (`elites.json`): multiplicadores de HP/velocidade/armadura, flags `vampiric`, `explosive`. Entra 10 s após o início (evento `EliteIncoming` 2 s antes para o som). Morte: `handleDeath` credita 1 fragmento de elite (`createMaterials`, evento `MaterialDropped`), cura o herói em 25 HP e +25 almas; o chefe credita 1 relíquia do mesmo jeito. Fim do round com elite viva: entidade removida, evento `EliteEscaped`.
 
 ## 7. Chefes
 

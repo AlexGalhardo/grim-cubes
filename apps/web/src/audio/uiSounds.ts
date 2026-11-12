@@ -9,7 +9,6 @@ interface Offer {
  */
 export interface UiSoundState {
 	cards: readonly Offer[];
-	chest: readonly Offer[];
 	shop: { slots: readonly { slot: string; level: number; tier: number; sold: boolean }[] } | null;
 	results: { souls: number } | null;
 	ossuary: { branches: readonly { nodes: readonly { state: string }[] }[] } | null;
@@ -49,7 +48,6 @@ export function screenOf(s: UiSoundState): string {
 	if (s.slots) return "slots";
 	if (s.menu) return "menu";
 	if (s.cards.length > 0) return "levelup";
-	if (s.chest.length > 0) return "chest";
 	if (s.shop) return "shop";
 	return "run";
 }
@@ -80,10 +78,6 @@ export function uiSounds(prev: UiSoundState, next: UiSoundState): string[] {
 		const reveal = bestRarity(next.cards);
 		if (reveal) out.push(reveal);
 	}
-	if (next.chest.length > 0 && offerKey(prev.chest) !== offerKey(next.chest)) {
-		const reveal = bestRarity(next.chest);
-		if (reveal) out.push(reveal);
-	}
 	if (next.shop) {
 		// Sold slots stay in the key, so a purchase does not count as a new reveal.
 		const offers = next.shop.slots.map((s) => ({ ...s, id: `${s.slot}:${s.level}` }));
@@ -102,13 +96,7 @@ export function uiSounds(prev: UiSoundState, next: UiSoundState): string[] {
 		} else if (to === "results") {
 			out.push("sfx_ui_results");
 			if ((next.results?.souls ?? 0) > 0) out.push("sfx_ui_souls");
-		} else if (
-			to !== "levelup" &&
-			to !== "chest" &&
-			to !== "run" &&
-			from !== "levelup" &&
-			from !== "chest"
-		) {
+		} else if (to !== "levelup" && to !== "run" && from !== "levelup") {
 			out.push("sfx_ui_transition");
 		}
 	}

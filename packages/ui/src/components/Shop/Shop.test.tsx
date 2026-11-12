@@ -1,6 +1,6 @@
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
-import { Shop, type ShopSlotView, type ShopViewModel } from "./Shop";
+import { type EquippedView, Shop, type ShopSlotView, type ShopViewModel } from "./Shop";
 
 afterEach(cleanup);
 
@@ -25,6 +25,8 @@ const offer = (
 const view: ShopViewModel = {
 	gold: 50,
 	rerollPrice: 11,
+	fragments: 0,
+	relics: 0,
 	slots: [
 		offer("helmet", "Capacete", 1),
 		offer("armor", "Armadura", 2, { lines: ["+10 HP máx"], price: 60, locked: true, affordable: false }),
@@ -35,7 +37,7 @@ const view: ShopViewModel = {
 const stats = [{ label: "Armadura", value: "0" }];
 
 function actions() {
-	return { buy: vi.fn(), toggleLock: vi.fn(), reroll: vi.fn(), next: vi.fn() };
+	return { buy: vi.fn(), upgrade: vi.fn(), toggleLock: vi.fn(), reroll: vi.fn(), next: vi.fn() };
 }
 
 test("renders the offers, their attribute lines, gold and the stats", () => {
@@ -201,4 +203,47 @@ test("the delta is green when better and red when worse, and follows keyboard an
 	expect(screen.getByTestId("shop-delta-statLine.speed").className).toContain("text-danger");
 	fireEvent.blur(screen.getByTestId("shop-buy-1"));
 	expect(screen.queryByTestId("shop-delta-statLine.armor")).toBeNull();
+});
+
+test("the materials are shown, and an equipment slot offers its upgrade with the cost it takes", () => {
+	const a = actions();
+	render(
+		<Shop
+			view={{
+				...view,
+				fragments: 3,
+				relics: 1,
+				equipped: [
+					{
+						...(worn[0] as EquippedView),
+						level: 6,
+						upgrade: { next: 7, fragments: 2, relics: 0, affordable: true },
+					},
+					{
+						...(worn[0] as EquippedView),
+						slot: "armor",
+						level: 9,
+						upgrade: { next: 10, fragments: 0, relics: 1, affordable: false },
+					},
+					{ ...(worn[0] as EquippedView), slot: "pants", level: 10 },
+					{ ...(worn[1] as EquippedView), slot: "boots", level: 2 },
+				],
+			}}
+			stats={stats}
+			actions={a}
+		/>,
+	);
+	expect(screen.getByTestId("shop-materials").textContent).toContain("Fragmentos: 3");
+	expect(screen.getByTestId("shop-materials").textContent).toContain("Relíquias: 1");
+	const fragments = screen.getByTestId("shop-upgrade-0") as HTMLButtonElement;
+	expect(fragments.textContent).toBe("Subir para o nível 7 (2 fragmentos)");
+	expect(fragments.disabled).toBe(false);
+	fireEvent.click(fragments);
+	expect(a.upgrade).toHaveBeenCalledWith(0);
+	const relic = screen.getByTestId("shop-upgrade-1") as HTMLButtonElement;
+	expect(relic.textContent).toBe("Subir para o nível 10 (1 relíquia)");
+	expect(relic.disabled).toBe(true);
+	expect(screen.getByTestId("shop-equipped-pants").textContent).toContain("Nível máximo");
+	expect(screen.queryByTestId("shop-upgrade-2")).toBeNull();
+	expect(screen.queryByTestId("shop-upgrade-3")).toBeNull();
 });

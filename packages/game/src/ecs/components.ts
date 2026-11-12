@@ -87,9 +87,6 @@ export const Facing = { yaw: f32() };
 /** Steps left in the attack animation; set by behaviorSystem on contact, read by render for the clip. */
 export const Attacking = { ticks: u8() };
 
-/** A reward chest on the floor; opening it offers items of at least this tier. */
-/** `choices` items are offered and the hero keeps `picks` of them. */
-/** `heals`: 1 when opening it restores HP (elite chests; the boss chest does not, GDD 12.2). */
 /** A breakable prop as an entity: `index` is its place in the chunk (cx, cz), `type` indexes the prop type list. */
 export const Breakable = { cx: f32(), cz: f32(), index: u8(), type: u8() };
 /** A dropped consumable (GDD 15.4): `kind` is 1 blood vial, 2 bone magnet. */
@@ -100,4 +97,3 @@ export const Stealth = { alpha: f32() };
 export const IgnoresProps = {};
 /** A Nest Queen egg: a destructible target (hit through the enemy spatial hash) that hatches in `hatch` steps. */
 export const Egg = { hatch: u16() };
-export const Chest = { tier: u8(), choices: u8(), picks: u8(), heals: u8() };

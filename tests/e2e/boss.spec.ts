@@ -50,17 +50,12 @@ test("round 10: the boss scene matches the baseline", async ({ page }, testInfo)
 	});
 });
 
-test("round 10: boss death, boss chest (keep 2 of 3) and back to the shop", async ({ page }) => {
+test("round 10: boss death, one relic and back to the shop", async ({ page }) => {
 	test.slow();
 	await openBossRound(page);
 
 	await page.evaluate(() => (window as unknown as DebugGc).gc?.debug?.killBoss());
-	const cards = page.locator('[data-testid^="levelup-card-"]');
-	await expect(cards).toHaveCount(3, { timeout: 40_000 });
-	await page.keyboard.press("1");
-	await expect(cards).toHaveCount(2);
-	await page.keyboard.press("1");
-	await expect(cards).toHaveCount(0);
-	await expect(page.getByTestId("boss-bar")).toHaveCount(0);
+	await expect(page.getByTestId("boss-bar")).toHaveCount(0, { timeout: 40_000 });
 	await expect(page.getByTestId("shop-slot-0")).toBeVisible({ timeout: 40_000 });
+	await expect(page.getByTestId("shop-materials")).toContainText("Relíquias: 1");
 });

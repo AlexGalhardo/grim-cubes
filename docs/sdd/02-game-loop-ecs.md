@@ -66,7 +66,6 @@ export function createLoop(hooks: LoopHooks): Loop {
 | `EnemyShot` | `damage, life` | f32, u16 (projétil do Vigia e do Forjador; vivo enquanto `life > 0`) |
 | `Breakable` | `cx, cz, index, type` | f32, f32, u8, u8 (urna destrutível; chunk, índice e tipo do prop) |
 | `Consumable` | `kind` | u8 (1 frasco de sangue, 2 ímã de ossos) |
-| `Chest` | `tier, choices, picks, heals` | u8 × 4 |
 | `Stealth` | `alpha` | f32 (Caçador Alfa invisível; as armas não o miram) |
 | `Egg` | `hatch` | u16 (ovo da Rainha, alvo destrutível que choca em `hatch` passos) |
 | `IgnoresProps` | — | tag (atravessa props: visão térmica do Caçador, Rainha no ar) |
@@ -94,7 +93,7 @@ Entidades são recicladas: `removeEntity` + `addEntity` do bitecs. Nunca criar m
 8. `weaponSystem` — cooldown, cria projéteis ou aplica dano em arco (espada).
 9. `projectileSystem` — move, testa hit via spatial hash, perfuração, vida.
 10. `damageSystem` — aplica fila de danos (herói e inimigos), crítico, armadura, roubo de vida, knockback, i-frames, eventos `Damaged`/`Died`.
-11. `deathSystem` — drops (fragmentos, consumíveis, baús de elite/chefe), almas, estatísticas, recicla entidade.
+11. `deathSystem` — drops (fragmentos, consumíveis, fragmento de elite e relíquia de chefe), almas, estatísticas, recicla entidade.
 12. `pickupSystem` — fragmentos no raio de pickup (magnet), XP e ouro, level-up (pausa).
 13. `bossSystem` — fases, padrões, telegrafia (eventos para render).
 14. `lifetimeSystem` — expira projéteis, flashes, knockbacks.
@@ -115,7 +114,7 @@ Cada sistema é uma fábrica `createXSystem(deps)` que devolve `run(world, hero?
 
 Ring buffer contínuo de 1.024 eventos (struct de arrays: `type: u8, a: f32, b: f32, c: f32, entity: u16`). Há um único consumidor: o render port chama `consumeEvents` uma vez por frame após `simulate`, e o `consume` esvazia o buffer. A UI não lê eventos; lê o snapshot do store. O visitor não pode chamar `push` durante o `consume`. Se o produtor ultrapassar 1.024 eventos não lidos, os mais antigos são sobrescritos e o contador `dropped` é incrementado (exposto em `?debug=1`; deve ser 0 nos testes).
 
-Catálogo (`packages/game/src/ecs/events.ts`, ids 1–40; `a/b/c` e `entity` conforme o comentário de cada tipo no código, que é a fonte): 1 `Damaged`, 2 `Died`, 3 `OriginShifted`, 4 `Dodged`, 5 `PlayerHit`, 6 `RoundStarted`, 7 `RoundEnded`, 8 `Swung`, 9 `Fired`, 10 `PoolExhausted`, 11 `LevelUp`, 12 `Exploded`, 13 `EliteIncoming`, 14 `EliteSpawned`, 15 `ChestDropped`, 16 `ChestOpened`, 17 `BossTelegraph`, 18 `BossSummon`, 19 `BossDied`, 20 `BossEnraged`, 21 `EliteEscaped`, 22 `EnemyTelegraph`, 23 `EnemyShotFired`, 24 `BossPattern`, 25 `BossPool`, 26 `BossScream`, 27 `DashStarted`, 28 `BossShockwave`, 29 `BossPhase`, 30 `Revived`, 31 `PropBroken`, 32 `ConsumableDropped`, 33 `ConsumablePicked`, 34 `BossStealth`, 35 `BossLeap`, 36 `BossEggLaid`, 37 `BossEggBroken`, 38 `BossEggHatched`, 39 `BossSweep`, 40 `BossBomb`. Todo `BossTelegraph` vem depois de um `BossPattern` que nomeia o padrão (exceção: no `mud_pool`, `a/b` são o ponto de queda da poça).
+Catálogo (`packages/game/src/ecs/events.ts`, ids 1–40; `a/b/c` e `entity` conforme o comentário de cada tipo no código, que é a fonte): 1 `Damaged`, 2 `Died`, 3 `OriginShifted`, 4 `Dodged`, 5 `PlayerHit`, 6 `RoundStarted`, 7 `RoundEnded`, 8 `Swung`, 9 `Fired`, 10 `PoolExhausted`, 11 `LevelUp`, 12 `Exploded`, 13 `EliteIncoming`, 14 `EliteSpawned`, 15 `MaterialDropped`, 16 (livre), 17 `BossTelegraph`, 18 `BossSummon`, 19 `BossDied`, 20 `BossEnraged`, 21 `EliteEscaped`, 22 `EnemyTelegraph`, 23 `EnemyShotFired`, 24 `BossPattern`, 25 `BossPool`, 26 `BossScream`, 27 `DashStarted`, 28 `BossShockwave`, 29 `BossPhase`, 30 `Revived`, 31 `PropBroken`, 32 `ConsumableDropped`, 33 `ConsumablePicked`, 34 `BossStealth`, 35 `BossLeap`, 36 `BossEggLaid`, 37 `BossEggBroken`, 38 `BossEggHatched`, 39 `BossSweep`, 40 `BossBomb`. Todo `BossTelegraph` vem depois de um `BossPattern` que nomeia o padrão (exceção: no `mud_pool`, `a/b` são o ponto de queda da poça).
 
 ## 5. Estado da run (máquina de estados)
 

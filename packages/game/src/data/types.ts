@@ -123,7 +123,8 @@ export interface RoundsData {
 		contactDamageBase: number;
 		contactDamagePerRound: number;
 		hpScalePerTenRounds: number;
-		rewardChest: { minTier: number; offered: number; picks: number };
+		/** Relics the boss always drops. */
+		rewardRelics: number;
 		freeWeaponUpgrades: number;
 	};
 	ai: { separationWeight: number; attackAnimationSeconds: number };
@@ -326,7 +327,8 @@ export interface ElitesData {
 	scale: number;
 	entryDelaySeconds: number;
 	incomingWarningSeconds: number;
-	reward: { chest: { tier: number; offered: number; picks: number }; souls: number; healHp: number };
+	/** What a dead elite always gives: fragments, souls and a heal. */
+	reward: { fragments: number; souls: number; healHp: number };
 	modifiers: EliteModifierData[];
 }
 

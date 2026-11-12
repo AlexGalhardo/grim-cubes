@@ -18,7 +18,7 @@ export interface BotHooks {
 
 export interface Bot {
 	readonly policy: Policy;
-	/** Takes the pending level-up card and chest item, then sets the movement and dash of `input` for this step. */
+	/** Takes the pending level-up card, then sets the movement and dash of `input` for this step. */
 	prepare(input: InputState): void;
 	/** Spends the gold in an open shop by equipment value per gold (the caller closes the shop). */
 	shop(): void;
@@ -36,7 +36,7 @@ const MOVED_EPSILON = 0.02;
  */
 export function createBot(session: GameSession, policyId: Policy["id"], hooks: BotHooks = {}): Bot {
 	const policy = policyFor(policyId);
-	const { world, hero, progress, run, shop, levelUp, chest, weapon, poolItems, origin, dash } = session;
+	const { world, hero, progress, run, shop, levelUp, weapon, origin, dash } = session;
 	let dashHeld = false;
 	let ticks = 0;
 	let lastX = Number.NaN;
@@ -61,16 +61,6 @@ export function createBot(session: GameSession, policyId: Policy["id"], hooks: B
 				)
 			)
 				break;
-		}
-		while (chest.offer) {
-			const offer = chest.offer;
-			const index = pickBest(
-				offer.length,
-				(i) =>
-					policy.modifierValue(offer[i]?.modifiers ?? []) +
-					policy.chestBonus(poolItems.find((it) => it.id === offer[i]?.id)?.effects),
-			);
-			if (!chest.choose(index)) break;
 		}
 	}
 
@@ -211,9 +201,12 @@ export function createBot(session: GameSession, policyId: Policy["id"], hooks: B
 						bestIndex = i;
 					}
 				}
-				if (bestIndex < 0 || !shop.buy(bestIndex)) return;
+				if (bestIndex < 0 || !shop.buy(bestIndex)) break;
 				hooks.onItemBought?.();
 			}
+			// Materials have no other use: every slot goes up as far as they allow, from the first one.
+			for (let slot = 0; slot < shop.levels.length; slot++)
+				while (shop.upgrade(slot)) hooks.onItemBought?.();
 		},
 	};
 }

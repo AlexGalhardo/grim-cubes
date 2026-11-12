@@ -71,10 +71,8 @@ export function soundFor(
 			return { ids: "sfx_elite_incoming", options: ELITE };
 		case EventType.EliteSpawned:
 			return { ids: "sfx_elite_spawn", options: ELITE };
-		case EventType.ChestDropped:
+		case EventType.MaterialDropped:
 			return { ids: "sfx_chest_drop", options: ELITE };
-		case EventType.ChestOpened:
-			return { ids: "sfx_chest_open", options: HERO };
 		case EventType.BossTelegraph:
 			return { ids: "sfx_boss_telegraph", options: BOSS };
 		case EventType.BossSummon:

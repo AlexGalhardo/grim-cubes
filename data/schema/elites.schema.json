@@ -44,26 +44,13 @@
 		},
 		"reward": {
 			"type": "object",
-			"required": ["chest", "souls", "healHp"],
+			"required": ["fragments", "souls", "healHp"],
 			"additionalProperties": false,
 			"properties": {
-				"chest": {
-					"type": "object",
-					"required": ["tier", "offered", "picks"],
-					"additionalProperties": false,
-					"properties": {
-						"tier": {
-							"$ref": "common.schema.json#/$defs/tier"
-						},
-						"offered": {
-							"type": "integer",
-							"minimum": 1
-						},
-						"picks": {
-							"type": "integer",
-							"minimum": 1
-						}
-					}
+				"fragments": {
+					"type": "integer",
+					"minimum": 1,
+					"description": "Elite fragments every dead elite drops (ADR-0030)."
 				},
 				"souls": {
 					"type": "integer",

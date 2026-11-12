@@ -23,7 +23,8 @@ const hud = (speed: number): HudState => ({
 	items: [],
 	synergies: [],
 	cards: [],
-	chest: [],
+	eliteFragments: 0,
+	relics: 0,
 	shop: null,
 	stats: [],
 	results: null,
@@ -305,6 +306,8 @@ test("colour-blind mode puts data-theme cb on the HUD root and the shop shows a 
 	const shop = {
 		gold: 10,
 		rerollPrice: 5,
+		fragments: 0,
+		relics: 0,
 		slots: [
 			{
 				slot: "helmet",
@@ -322,7 +325,13 @@ test("colour-blind mode puts data-theme cb on the HUD root and the shop shows a 
 	render(
 		<App
 			store={createStore({ ...hud(1), colorblind: true, shop })}
-			shopActions={{ buy: vi.fn(), toggleLock: vi.fn(), reroll: vi.fn(), next: vi.fn() }}
+			shopActions={{
+				buy: vi.fn(),
+				upgrade: vi.fn(),
+				toggleLock: vi.fn(),
+				reroll: vi.fn(),
+				next: vi.fn(),
+			}}
 		/>,
 	);
 	expect(screen.getByTestId("hud-root").getAttribute("data-theme")).toBe("cb");
@@ -335,11 +344,17 @@ test("colour-blind mode puts data-theme cb on the HUD root and the shop shows a 
 test("at 150% on 800x360 the scale is capped to 125% and the dialog scales with the root", () => {
 	window.innerWidth = 800;
 	window.innerHeight = 360;
-	const shop = { gold: 10, rerollPrice: 5, slots: [] };
+	const shop = { gold: 10, rerollPrice: 5, fragments: 0, relics: 0, slots: [] };
 	render(
 		<App
 			store={createStore({ ...hud(1), uiScale: 150, shop })}
-			shopActions={{ buy: vi.fn(), toggleLock: vi.fn(), reroll: vi.fn(), next: vi.fn() }}
+			shopActions={{
+				buy: vi.fn(),
+				upgrade: vi.fn(),
+				toggleLock: vi.fn(),
+				reroll: vi.fn(),
+				next: vi.fn(),
+			}}
 		/>,
 	);
 	const root = screen.getByTestId("hud-root");
@@ -368,8 +383,8 @@ test("the 150% scale is kept on tall screens and capped on screens 414 px tall o
 });
 
 test("the corner buttons, the version and the DEMO seal are not drawn while a dialog is open", () => {
-	const shop = { gold: 10, rerollPrice: 5, slots: [] };
-	const actions = { buy: vi.fn(), toggleLock: vi.fn(), reroll: vi.fn(), next: vi.fn() };
+	const shop = { gold: 10, rerollPrice: 5, fragments: 0, relics: 0, slots: [] };
+	const actions = { buy: vi.fn(), upgrade: vi.fn(), toggleLock: vi.fn(), reroll: vi.fn(), next: vi.fn() };
 	render(
 		<App
 			store={createStore({ ...hud(1), shop })}

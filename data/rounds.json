@@ -32,15 +32,11 @@
 		"soulsBase": 100,
 		"soulsPerRound": 10,
 		"hpScalePerTenRounds": 0.35,
-		"rewardChest": {
-			"minTier": 3,
-			"offered": 3,
-			"picks": 2
-		},
 		"freeWeaponUpgrades": 1,
 		"randomRosterFromRound": 60,
 		"eliteModifierFromRound": 60,
-		"secondEliteModifierFromRound": 100
+		"secondEliteModifierFromRound": 100,
+		"rewardRelics": 1
 	},
 	"ai": {
 		"separationWeight": 0.6,

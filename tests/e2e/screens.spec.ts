@@ -74,7 +74,7 @@ test("pause matches the baseline", async ({ page }, testInfo) => {
 		.toBe("Round");
 	// Pause is a button held across a frame. Playwright's keys never reach the window listener
 	// the keyboard source polls, so this holds Start on the virtual pad (same path as gamepad-nav).
-	// A level-up or chest eats that edge: release, pick the card, and hold again.
+	// A level-up eats that edge: release, pick the card, and hold again.
 	await page.evaluate(() => (window as unknown as DebugGc).gc?.debug?.gamepad?.connect());
 	let held = false;
 	let heldAt = 0;

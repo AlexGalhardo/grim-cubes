@@ -2,7 +2,6 @@ import { hash32, type SpatialHash } from "@gc/core";
 import { addComponent } from "bitecs";
 import { bossesData } from "../data";
 import type { BossData, EliteModifierData, RoundsData } from "../data/types";
-import { dropChest } from "../ecs/chest";
 import { Armor, Boss, ContactDamage, Health, Position, Radius, Speed, Velocity } from "../ecs/components";
 import type { EnemyShotPool } from "../ecs/enemyShot";
 import { type EventBuffer, EventType } from "../ecs/events";
@@ -11,6 +10,7 @@ import { STEP } from "../loop";
 import { buildPatterns, hasPattern, type PatternContext, type PatternHandler } from "./bossPatterns";
 import type { DamageQueue } from "./damage";
 import type { HeroStatus } from "./heroStatus";
+import { Material, type Materials } from "./materials";
 import type { SpawnSystem } from "./spawn";
 
 export interface BossSystemDeps {
@@ -37,6 +37,8 @@ export interface BossSystemDeps {
 	shots?: EnemyShotPool | undefined;
 	/** Hero slow and push effects (mud pool, scream); patterns that need them are no-ops without it. */
 	heroStatus?: Pick<HeroStatus, "slow" | "push"> | undefined;
+	/** Where the relic goes. */
+	materials: Materials;
 	/** The kill was recorded: end the round, grant the free weapon upgrade, etc. */
 	onDefeated: () => void;
 }
@@ -290,9 +292,7 @@ export function createBossSystem(deps: BossSystemDeps): BossSystem {
 			}
 			entity = -1;
 			events.push(EventType.BossDied, x, z, 0, e);
-			const chest = rounds.rewardChest;
-			dropChest(world, x, z, chest.minTier, chest.offered, chest.picks);
-			events.push(EventType.ChestDropped, x, z, 0, 0);
+			deps.materials.drop(Material.Relic, rounds.rewardRelics, x, z);
 			onDefeated();
 		},
 		shiftOrigin(dx: number, dz: number): void {

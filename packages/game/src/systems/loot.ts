@@ -23,10 +23,14 @@ export interface Progress {
 	level: number;
 	/** Level-ups earned and not yet resolved by the card screen (P-05-03). */
 	pendingLevelUps: number;
+	/** Elite fragments: each raises an equipment slot from level 6 to 9 (a step costs several). */
+	eliteFragments: number;
+	/** Boss relics: one raises an equipment slot to level 10. */
+	relics: number;
 }
 
 export function createProgress(): Progress {
-	return { gold: 0, roundGold: 0, xp: 0, level: 1, pendingLevelUps: 0 };
+	return { gold: 0, roundGold: 0, xp: 0, level: 1, pendingLevelUps: 0, eliteFragments: 0, relics: 0 };
 }
 
 // shortcut: cap de 65.535 por pilha (u16); revisar se a economia passar disso.

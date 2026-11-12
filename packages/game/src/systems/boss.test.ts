@@ -4,7 +4,6 @@ import { expect, test } from "vitest";
 import { bossesData, enemiesData, heroData, roundsData, toEnemyDefs, weaponsData } from "../data";
 import {
 	Boss,
-	Chest,
 	ContactDamage,
 	EnemyFaction,
 	EnemyType,
@@ -22,7 +21,8 @@ import { createBehaviorSystem } from "./behavior";
 import { bossMaxHp, createBossSystem, enrageMult } from "./boss";
 import { registerPattern } from "./bossPatterns";
 import { createDamageSystem } from "./damage";
-import { createDeathSystem } from "./loot";
+import { createDeathSystem, createProgress } from "./loot";
+import { createMaterials, Material } from "./materials";
 import { movementSystem } from "./movement";
 import { createSeparationSystem } from "./separation";
 import { createSpawnSystem } from "./spawn";
@@ -67,6 +67,7 @@ function setup(heroHp = 100) {
 	});
 	spawn.startRound(10, { pool: [{ type: husk, weight: 1 }], difficultyMult: 1 });
 	let defeated = 0;
+	const progress = createProgress();
 	const boss = createBossSystem({
 		def: def as NonNullable<typeof def>,
 		rounds: roundsData.boss,
@@ -77,11 +78,12 @@ function setup(heroHp = 100) {
 		rng: mulberry32(4),
 		summonType: husk,
 		difficulty: () => 1,
+		materials: createMaterials(progress, events),
 		onDefeated: () => {
 			defeated++;
 		},
 	});
-	return { world, hero, events, damage, spawn, boss, stats, defeated: () => defeated };
+	return { world, hero, events, damage, spawn, boss, stats, progress, defeated: () => defeated };
 }
 
 test("the Gravedigger has its data HP in round 10 on Normal and scales 35% per ten rounds", () => {
@@ -185,8 +187,8 @@ test("the shovel arc hurts the hero in front of the boss and misses one that mov
 	}
 });
 
-test("killing the boss drops a chest for 3 items (keep 2), reports the defeat and records the event", () => {
-	const { world, boss, events, defeated } = setup();
+test("killing the boss always gives a relic, reports the defeat and records the event", () => {
+	const { world, boss, events, defeated, progress } = setup();
 	const e = boss.start(world, 10);
 	const death = createDeathSystem({
 		fragments: roundsData.fragments,
@@ -197,10 +199,8 @@ test("killing the boss drops a chest for 3 items (keep 2), reports the defeat an
 	});
 	Health.hp[e] = 0;
 	death.run(world);
-	const [chest] = [...query(world, [Chest])];
-	expect(Chest.tier[chest as number]).toBe(3);
-	expect(Chest.choices[chest as number]).toBe(3);
-	expect(Chest.picks[chest as number]).toBe(2);
+	expect(progress.relics).toBe(roundsData.boss.rewardRelics);
+	expect(progress.relics).toBe(1);
 	expect(defeated()).toBe(1);
 	expect(boss.entity).toBe(-1);
 	let died = 0;
@@ -292,6 +292,7 @@ test("patterns are handlers looked up by id: unknown ids throw and registered on
 			rng: mulberry32(1),
 			summonType: husk,
 			difficulty: () => 1,
+			materials: createMaterials(createProgress(), createEventBuffer(8)),
 			onDefeated: () => undefined,
 		}),
 	).toThrow(RangeError);
@@ -323,6 +324,7 @@ test("patterns are handlers looked up by id: unknown ids throw and registered on
 		rng: mulberry32(4),
 		summonType: husk,
 		difficulty: () => 1,
+		materials: createMaterials(createProgress(), events),
 		onDefeated: () => undefined,
 	});
 	boss.start(world, 10);
@@ -339,15 +341,15 @@ test("patterns are handlers looked up by id: unknown ids throw and registered on
 	expect(() => registerPattern("test_pattern", () => ({}))).toThrow(RangeError);
 });
 
-test("the boss chest is announced to the render when the boss dies", () => {
+test("the relic is announced to the render and audio when the boss dies", () => {
 	const { world, boss, events } = setup();
 	const e = boss.start(world, 10);
 	boss.handleDeath(world, e, 3, 4);
 	const dropped: number[] = [];
-	events.consume((type, a, b) => {
-		if (type === EventType.ChestDropped) dropped.push(a, b);
+	events.consume((type, a, b, c) => {
+		if (type === EventType.MaterialDropped) dropped.push(a, b, c);
 	});
-	expect(dropped).toEqual([3, 4]);
+	expect(dropped).toEqual([3, 4, Material.Relic]);
 });
 
 test("a boss assembled only from data (line_charge + mud_pool) runs telegraph, start and end of each pattern", () => {
@@ -373,6 +375,7 @@ test("a boss assembled only from data (line_charge + mud_pool) runs telegraph, s
 		rng: mulberry32(4),
 		summonType: husk,
 		difficulty: () => 1,
+		materials: createMaterials(createProgress(), events),
 		onDefeated: () => undefined,
 	});
 	const e = boss.start(world, 10);

@@ -6,7 +6,6 @@ const playing: PauseGate = {
 	menuOpen: false,
 	runState: "Round",
 	levelUpOffer: false,
-	chestOffer: false,
 	screenOpen: false,
 };
 
@@ -20,7 +19,6 @@ test("it is not allowed on the title, in a screen, a card offer, the shop, or on
 	expect(canOpenPause({ ...playing, pauseOpen: true })).toBe(false);
 	expect(canOpenPause({ ...playing, screenOpen: true })).toBe(false);
 	expect(canOpenPause({ ...playing, levelUpOffer: true, runState: "Paused" })).toBe(false);
-	expect(canOpenPause({ ...playing, chestOffer: true })).toBe(false);
 	for (const runState of ["Idle", "Results", "Dying", "Shop"])
 		expect(canOpenPause({ ...playing, runState })).toBe(false);
 });

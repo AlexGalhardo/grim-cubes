@@ -4,7 +4,6 @@ import { screenOf, type UiSoundState, uiSounds } from "./uiSounds";
 
 const run = (over: Partial<UiSoundState> = {}): UiSoundState => ({
 	cards: [],
-	chest: [],
 	shop: null,
 	results: null,
 	ossuary: null,
@@ -43,7 +42,9 @@ test("opening the level-up plays its sting and the best rarity on offer", () => 
 });
 
 test("each rarity from Rare to Mythic has its own reveal sound", () => {
-	const ids = [2, 3, 4, 5].map((rarity) => uiSounds(run(), run({ chest: [card("x", rarity)] })));
+	const ids = [2, 3, 4, 5].map((rarity) =>
+		uiSounds(run({ cards: [card("w", 1)] }), run({ cards: [card("x", rarity)] })),
+	);
 	expect(ids).toEqual([
 		["sfx_ui_rarity_rare"],
 		["sfx_ui_rarity_epic"],

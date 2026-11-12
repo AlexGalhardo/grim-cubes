@@ -290,9 +290,21 @@ test("the shop has no serious violations", async () => {
 	expect(
 		await violations(
 			<Shop
-				view={{ gold: 50, rerollPrice: 11, slots: [slot("a"), slot("b", { sold: true, tier: 3 })] }}
+				view={{
+					gold: 50,
+					rerollPrice: 11,
+					fragments: 0,
+					relics: 0,
+					slots: [slot("a"), slot("b", { sold: true, tier: 3 })],
+				}}
 				stats={[{ label: "Armadura", value: "0" }]}
-				actions={{ buy: vi.fn(), toggleLock: vi.fn(), reroll: vi.fn(), next: vi.fn() }}
+				actions={{
+					buy: vi.fn(),
+					upgrade: vi.fn(),
+					toggleLock: vi.fn(),
+					reroll: vi.fn(),
+					next: vi.fn(),
+				}}
 			/>,
 		),
 	).toEqual([]);
