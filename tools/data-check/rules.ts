@@ -59,6 +59,11 @@ export function checkRules(data: Data): string[] {
 			);
 		const unlock = num(weapon.unlockRound);
 		if (unlock !== undefined && unlock < 1) push(`weapons.json: ${id} unlockRound must be >= 1`);
+		const bounces = isObj(weapon.projectile) ? weapon.projectile.bounces : undefined;
+		if (Array.isArray(bounces) && mult !== undefined && bounces.length !== mult)
+			push(
+				`weapons.json: ${id} projectile.bounces has ${bounces.length} entries but damageMult has ${mult}`,
+			);
 		if (str(weapon.kind) !== "melee") {
 			const speed = isObj(weapon.projectile) ? num(weapon.projectile.speed) : undefined;
 			if (speed === undefined || speed <= 0)

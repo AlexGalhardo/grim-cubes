@@ -168,11 +168,11 @@ test("the checkpoint keeps the hero: the passive is not saved as a pick, and ano
 		difficulty,
 		meta: createMetaState(),
 		autoShop: true,
-		hero: "riddled",
+		hero: "ranged",
 	});
 	playUntilIntroOf(live, 2);
 	const checkpoint = await throughTheSave(live);
-	expect(checkpoint.hero).toBe("riddled");
+	expect(checkpoint.hero).toBe("ranged");
 	const passive = live.heroDef.passive.modifiers;
 	for (const m of passive) expect(checkpoint.modifiers).not.toContainEqual(m);
 
@@ -181,7 +181,7 @@ test("the checkpoint keeps the hero: the passive is not saved as a pick, and ano
 		difficulty,
 		meta: createMetaState(),
 		autoShop: true,
-		hero: "riddled",
+		hero: "ranged",
 	});
 	restoreCheckpoint(again, checkpoint);
 	expect(again.weapon.weapon.id).toBe(live.weapon.weapon.id);
@@ -189,7 +189,7 @@ test("the checkpoint keeps the hero: the passive is not saved as a pick, and ano
 		expect(again.stats.modifiers.filter((x) => x.stat === m.stat)).toHaveLength(
 			live.stats.modifiers.filter((x) => x.stat === m.stat).length,
 		);
-	expect(() => restoreCheckpoint(fresh(true), checkpoint)).toThrow("hero riddled");
+	expect(() => restoreCheckpoint(fresh(true), checkpoint)).toThrow("hero ranged");
 });
 
 test("the checkpoint keeps the combat clock and the daily date, and a resumed run keeps counting", async () => {

@@ -8,7 +8,6 @@ import type { HudItem, HudWeapon, SynergyView } from "./hudTypes";
 
 /** Items drawn in the strip before the "+N" chip. */
 export const MAX_VISIBLE_ITEMS = 10;
-export const WEAPON_PIPS = 4;
 /** The timer turns blood-light and pulses for the last seconds of a round. */
 export const URGENT_SECONDS = 5;
 
@@ -235,15 +234,13 @@ function WeaponSlot({ weapon, touch }: { weapon: HudWeapon; touch: boolean }): J
 			>
 				{weapon.icon ? <Icon icon={weapon.icon} size={touch ? 32 : 48} /> : "⚔"}
 			</div>
-			<div aria-hidden="true" className="flex gap-1">
-				{Array.from({ length: WEAPON_PIPS }, (_, i) => (
-					<span
-						key={i}
-						data-lit={i < weapon.tier}
-						className={`size-1.5 ${i < weapon.tier ? "bg-ember-light" : "bg-iron-dark"}`}
-					/>
-				))}
-			</div>
+			<span
+				aria-hidden="true"
+				data-testid="hud-weapon-level"
+				className="font-display text-xs text-ember-light"
+			>
+				{t("hud.weaponLevel", { level: weapon.tier })}
+			</span>
 		</div>
 	);
 }

@@ -159,25 +159,23 @@ test("melee knockback is radial per enemy, not along the target direction", () =
 	expect(Knockback.z[side]).toBeGreaterThan(0.5);
 });
 
-test("T4 sword deals 3.2x damage with the data tiers", () => {
-	const { world, add, tick, damage, weapon } = setup("sword", 3, { critChance: 0 });
-	expect(weapon.tier).toBe(3);
+test("level 10 sword deals 3.8x damage with the data tiers", () => {
+	const { world, add, tick, damage, weapon } = setup("sword", 9, { critChance: 0 });
+	expect(weapon.tier).toBe(9);
 	const e = add(1.2, 0);
 	tick();
 	damage.run(world);
-	expect(Health.hp[e]).toBeCloseTo(100 - 12 * 3.2, 3);
+	expect(Health.hp[e]).toBeCloseTo(100 - 12 * 3.8, 3);
 });
 
 test("upgrade climbs the tiers up to the maximum and swapping weapons resets the tier", () => {
 	const { weapon } = setup("sword");
-	expect(weapon.maxTier).toBe(3);
-	expect([weapon.upgrade(), weapon.upgrade(), weapon.upgrade(), weapon.upgrade()]).toEqual([
-		true,
-		true,
-		true,
-		false,
-	]);
-	expect(weapon.tier).toBe(3);
+	expect(weapon.maxTier).toBe(9);
+	weapon.setTier(8);
+	expect([weapon.upgrade(), weapon.upgrade()]).toEqual([true, false]);
+	expect(weapon.tier).toBe(9);
+	weapon.setTier(40);
+	expect(weapon.tier).toBe(9);
 	weapon.setWeapon(def("pistol"));
 	expect(weapon.tier).toBe(0);
 	expect(weapon.weapon.kind).toBe("single_shot");
@@ -232,4 +230,37 @@ test("bazooka shells carry the explosion radius from the data", () => {
 	expect(Projectile.explosionRadius[p]).toBeCloseTo(3 * 1.3);
 	expect(Projectile.selfFraction[p]).toBe(0.5);
 	expect(Projectile.damage[p]).toBeCloseTo(45);
+});
+
+test("the boomerang hits 3 targets at level 1 and 20 at level 10, one more hop than that in flight", () => {
+	const at = (tier: number): number => {
+		const { world, add, tick } = setup("boomerang", tier);
+		add(6, 0);
+		tick();
+		const p = query(world, [Projectile]).find((e) => (Projectile.life[e] ?? 0) > 0) ?? -1;
+		expect(Projectile.bounceRadius[p]).toBe(9);
+		return (Projectile.bounces[p] ?? 0) + 1;
+	};
+	expect(at(0)).toBe(3);
+	expect(at(4)).toBe(11);
+	expect(at(9)).toBe(20);
+});
+
+test("the magic axe hits everything around the hero and its radius doubles at level 10", () => {
+	const one = setup("magic_axe");
+	const r1 = one.weapon.range;
+	one.add(-1.5, 0);
+	one.add(1.5, 1);
+	one.add(0, -2);
+	one.tick();
+	expect(one.damage.queue.size).toBe(3);
+	const ten = setup("magic_axe", 9);
+	expect(ten.weapon.range).toBeCloseTo(r1 * 2);
+	ten.add(-r1 * 1.9, 0);
+	ten.tick();
+	expect(ten.damage.queue.size).toBe(1);
+	const short = setup("magic_axe");
+	short.add(-r1 * 1.9, 0);
+	short.tick();
+	expect(short.damage.queue.size).toBe(0);
 });

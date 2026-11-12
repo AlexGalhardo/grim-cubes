@@ -6,6 +6,7 @@ import {
 	createSettings,
 	DEFAULT_HERO,
 	MAX_SAVE_BYTES,
+	migrateClasses,
 	parseGlobal,
 	parseSave,
 	profileOf,
@@ -21,17 +22,17 @@ const meta = () => {
 	const m = createMetaState();
 	m.souls = 285;
 	m.records.normal = 12;
-	m.stats = { kills: 340, runs: 3, bossKills: 1, elitesKilled: 1 };
+	m.stats = { kills: 340, runs: 3, bossKills: 1, elitesKilled: 1, bestBossRound: 10 };
 	m.ossuary = { flesh_1: true };
 	m.unlocks = ["grim"];
 	return m;
 };
 
-test("a save round-trips and uses schemaVersion 14", async () => {
+test("a save round-trips and uses schemaVersion 15", async () => {
 	const text = await serializeSave(meta(), "0.1.0", new Date("2026-10-31T12:00:00Z"));
 	const envelope = JSON.parse(text) as { schemaVersion: number; app: string; savedAt: string };
-	expect(envelope.schemaVersion).toBe(14);
-	expect(SAVE_SCHEMA_VERSION).toBe(14);
+	expect(envelope.schemaVersion).toBe(15);
+	expect(SAVE_SCHEMA_VERSION).toBe(15);
 	expect(envelope.app).toBe("grim-cubes");
 	expect(envelope.savedAt).toBe("2026-10-31T12:00:00.000Z");
 	expect(await parseSave(text)).toEqual(meta());
@@ -218,9 +219,11 @@ async function legacySave(version: number): Promise<string> {
 	};
 	const keys = SETTINGS_BY_VERSION[version] ?? null;
 	const { settings, run: _run, ...withEasy } = current.data;
+	const { bestBossRound: _boss, ...oldStats } = meta().stats;
 	const rest = {
 		...withEasy,
 		records: { normal: meta().records.normal, grim: 0, nightmare: 0 },
+		stats: oldStats,
 	};
 	const picked = keys ? Object.fromEntries(keys.map((k) => [k, settings[k]])) : null;
 	// Schemas 7 and 8 stored only the dash and pause buttons.
@@ -333,7 +336,7 @@ const checkpoint = () => ({
 	xp: 40.25,
 	level: 4,
 	hp: 82.5,
-	weapon: { id: "pistol", tier: 2, paid: 60 },
+	weapon: { id: "boomerang", tier: 2, paid: 60 },
 	owned: { ring: 2 },
 	modifiers: [{ stat: "damage", op: "mult", value: 0.1 }],
 	cardRerollsLeft: 1,
@@ -346,7 +349,7 @@ const checkpoint = () => ({
 	damageDealt: 5120.5,
 	elitesKilled: 1,
 	bossRounds: [5],
-	hero: "riddled",
+	hero: "ranged",
 	seconds: 412,
 	daily: "2026-11-11" as string | null,
 });
@@ -389,6 +392,7 @@ test("a slot file written by schema 10 (no Easy record) still verifies and gets 
 	delete data.settings;
 	delete data.daily;
 	delete data.run;
+	delete data.stats.bestBossRound;
 	data.run = null;
 	const text = JSON.stringify({
 		schemaVersion: 10,
@@ -453,6 +457,7 @@ async function slotFileOf(version: number): Promise<string> {
 	m.run = checkpoint();
 	m.daily = [{ date: "2026-11-10", round: 9, seconds: 300, kills: 120 }];
 	const data = JSON.parse(JSON.stringify(profileOf(m)));
+	if (version < 15) delete data.stats.bestBossRound;
 	if (version < 14) {
 		delete data.daily;
 		delete data.run.seconds;
@@ -470,12 +475,12 @@ async function slotFileOf(version: number): Promise<string> {
 	});
 }
 
-test("slot files from schemas 10 to 13 still verify and gain the hero, the clock and an empty daily table", async () => {
+test("slot files from schemas 10 to 13 still verify and gain the Warrior, the clock and an empty daily table", async () => {
 	for (const version of [10, 11, 12, 13]) {
 		const text = await slotFileOf(version);
 		const loaded = await parseSave(text);
 		expect(loaded.run?.seed, `schema ${version}`).toBe(4242);
-		expect(loaded.run?.hero, `schema ${version}`).toBe(version < 13 ? DEFAULT_HERO : "riddled");
+		expect(loaded.run?.hero, `schema ${version}`).toBe(DEFAULT_HERO);
 		expect(loaded.run?.seconds, `schema ${version}`).toBe(0);
 		expect(loaded.run?.daily, `schema ${version}`).toBeNull();
 		expect(loaded.daily, `schema ${version}`).toEqual([]);
@@ -485,12 +490,26 @@ test("slot files from schemas 10 to 13 still verify and gain the hero, the clock
 	}
 });
 
-test("a schema 14 slot file keeps the daily table and the daily run, and re-serializes to the same text", async () => {
+test("a schema 14 slot file becomes a Warrior save: the run keeps its sword, the boss round comes from the record", async () => {
 	const text = await slotFileOf(14);
 	const loaded = await parseSave(text);
+	expect(loaded.run?.hero).toBe("warrior");
+	expect(loaded.run?.weapon).toEqual({ id: "sword", tier: 0, paid: 60 });
+	// The record of 12 on the old 10/20/30 bosses means the round 10 boss fell.
+	expect(loaded.stats.bestBossRound).toBe(10);
 	expect(loaded.daily).toEqual([{ date: "2026-11-10", round: 9, seconds: 300, kills: 120 }]);
 	expect(loaded.run?.daily).toBe("2026-11-11");
 	expect(loaded.run?.seconds).toBe(412);
+	await expect(parseSave(text.replace('"gold":123.5', '"gold":124.5'))).rejects.toThrow(
+		"checksum mismatch",
+	);
+});
+
+test("a schema 15 slot file keeps its class and re-serializes to the same text", async () => {
+	const text = await slotFileOf(15);
+	const loaded = await parseSave(text);
+	expect(loaded.run?.hero).toBe("ranged");
+	expect(loaded.stats.bestBossRound).toBe(10);
 	const again = JSON.parse(await serializeSave(loaded, "0.1.0")) as { data: unknown; checksum: string };
 	expect(again.data).toEqual(JSON.parse(text).data);
 	expect(again.checksum).toBe(JSON.parse(text).checksum);
@@ -519,4 +538,19 @@ test("the hero of a checkpoint must be a short id", async () => {
 	await expect(serializeSave(m as unknown as ReturnType<typeof meta>, "0.1.0")).rejects.toBeInstanceOf(
 		SaveError,
 	);
+});
+
+test("migrateClasses turns any old hero into the Warrior and derives the best boss round from the records", () => {
+	const m = meta();
+	m.run = { ...checkpoint(), hero: "penitent", weapon: { id: "smg", tier: 3, paid: 5 } };
+	m.records = { easy: 0, normal: 21, grim: 0, nightmare: 0 };
+	m.stats.bestBossRound = 0;
+	const migrated = migrateClasses(m);
+	expect(migrated.run?.hero).toBe("warrior");
+	expect(migrated.run?.weapon).toEqual({ id: "sword", tier: 0, paid: 5 });
+	expect(migrated.stats.bestBossRound).toBe(20);
+	m.records.normal = 10;
+	expect(migrateClasses(m).stats.bestBossRound).toBe(0);
+	m.records.normal = 0;
+	expect(migrateClasses(m).stats.bestBossRound).toBe(0);
 });

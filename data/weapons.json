@@ -14,10 +14,45 @@
 		"unlockRound": 1,
 		"startingWeapon": true,
 		"price": 15,
-		"upgradePrices": [25, 55, 120],
-		"damageMult": [1, 1.5, 2.2, 3.2],
-		"attackSpeedBonusPerTier": 0.1,
-		"rangeBonusPerTier": 0.5
+		"upgradePrices": [25, 55, 120, 200, 300, 420, 560, 720, 900],
+		"damageMult": [1, 1.2, 1.45, 1.7, 2, 2.3, 2.65, 3, 3.4, 3.8],
+		"attackSpeedBonusPerTier": 0.05,
+		"rangeBonusPerTier": 0.15
+	},
+	{
+		"id": "boomerang",
+		"name": "Bumerangue de Ferro",
+		"kind": "boomerang",
+		"range": 11,
+		"attacksPerSecond": 1.1,
+		"damage": 14,
+		"knockback": 0.8,
+		"projectile": {
+			"count": 1,
+			"speed": 22,
+			"radius": 0.35,
+			"bounces": [3, 5, 7, 9, 11, 13, 15, 17, 19, 20],
+			"bounceRadius": 9
+		},
+		"damageMult": [1, 1.2, 1.45, 1.7, 2, 2.3, 2.65, 3, 3.4, 3.8],
+		"attackSpeedBonusPerTier": 0.05,
+		"rangeBonusPerTier": 0.2
+	},
+	{
+		"id": "magic_axe",
+		"name": "Machado Mágico",
+		"kind": "melee",
+		"range": 2.7,
+		"attacksPerSecond": 1,
+		"damage": 16,
+		"knockback": 2,
+		"arcDegrees": 360,
+		"special": {
+			"id": "hit_all_in_arc"
+		},
+		"damageMult": [1, 1.2, 1.45, 1.7, 2, 2.3, 2.65, 3, 3.4, 3.8],
+		"attackSpeedBonusPerTier": 0.05,
+		"rangeBonusPerTier": 0.3
 	},
 	{
 		"id": "pistol",

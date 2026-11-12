@@ -113,11 +113,27 @@ test("a session without a hero plays the first one, and an unknown hero is refus
 	);
 });
 
-test("the passive shows up in the stats: the Fuzilado crits more than the Carrasco", () => {
+test("the passive shows up in the stats: the Ranged crits more than the Warrior", () => {
 	const crit = (hero: string): number => {
 		const session = createGameSession({ seed: 5, difficulty, meta: createMetaState(), hero });
 		session.stats.run(session.hero);
 		return session.stats.stats.critChance;
 	};
-	expect(crit("riddled")).toBeGreaterThan(crit("executioner"));
+	expect(crit("ranged")).toBeGreaterThan(crit("warrior"));
+});
+
+test("the weapon level follows the hero level up to 10, for every class", () => {
+	for (const def of heroesData) {
+		const session = createGameSession({ seed: 5, difficulty, meta: createMetaState(), hero: def.id });
+		session.run.newRun();
+		const input = createInputState();
+		while (!session.fighting()) session.step(input);
+		expect(session.weapon.tier).toBe(0);
+		session.progress.level = 4;
+		session.step(input);
+		expect(session.weapon.tier).toBe(3);
+		session.progress.level = 25;
+		session.step(input);
+		expect(session.weapon.tier).toBe(9);
+	}
 });

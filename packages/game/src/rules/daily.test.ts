@@ -32,6 +32,7 @@ const result = (date: string, round: number): RunResult => ({
 	kills: round * 10,
 	bossKills: 0,
 	elitesKilled: 0,
+	bestBossRound: 0,
 	daily: { date, seconds: round * 60 },
 });
 

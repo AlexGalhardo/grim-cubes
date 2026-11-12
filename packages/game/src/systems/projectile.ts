@@ -4,6 +4,7 @@ import { type EventBuffer, EventType } from "../ecs/events";
 import { isHittable } from "../ecs/hittable";
 import { HIT_HISTORY, ProjectileHits, type ProjectilePool } from "../ecs/projectile";
 import { createQueryCache, type GameWorld } from "../ecs/world";
+import { STEP } from "../loop";
 import type { DamageQueue } from "./damage";
 
 export interface ProjectileSystemDeps {
@@ -28,6 +29,7 @@ const MAX_NEAR = 128;
 export function createProjectileSystem(deps: ProjectileSystemDeps): ProjectileSystem {
 	const { pool, queue, enemies, maxEnemyRadius, hero, events } = deps;
 	const near = new Uint16Array(MAX_NEAR);
+	const hopNear = new Uint16Array(MAX_NEAR);
 
 	/** Area damage with linear falloff from 100% at the centre to 50% at the edge; the hero takes `selfFraction`. */
 	function explode(world: GameWorld, p: number, x: number, z: number): void {
@@ -65,6 +67,35 @@ export function createProjectileSystem(deps: ProjectileSystemDeps): ProjectileSy
 		ProjectileHits.ids[p * HIT_HISTORY + at] = target;
 		ProjectileHits.cursor[p] = (at + 1) % HIT_HISTORY;
 	};
+
+	/** The nearest living enemy within `radius` of (x, z) that boomerang `p` has not hit yet, or -1. */
+	function nextTarget(world: GameWorld, p: number, x: number, z: number, radius: number): number {
+		const n = enemies.queryCircle(x, z, radius + maxEnemyRadius, hopNear);
+		let best = -1;
+		let bestDist = Number.POSITIVE_INFINITY;
+		for (let k = 0; k < n; k++) {
+			const e = hopNear[k] ?? 0;
+			if ((Health.hp[e] ?? 0) <= 0 || !isHittable(world, e) || seen(p, e)) continue;
+			const dist = Math.hypot((Position.x[e] ?? 0) - x, (Position.z[e] ?? 0) - z);
+			if (dist > radius + (Radius.r[e] ?? 0)) continue;
+			if (dist < bestDist || (dist === bestDist && e < best)) {
+				best = e;
+				bestDist = dist;
+			}
+		}
+		return best;
+	}
+
+	/** Turns boomerang `p` towards `target` and gives it the time to get there. */
+	function hop(p: number, target: number, speed: number): void {
+		const dx = (Position.x[target] ?? 0) - (Position.x[p] ?? 0);
+		const dz = (Position.z[target] ?? 0) - (Position.z[p] ?? 0);
+		const dist = Math.hypot(dx, dz) || 1;
+		Velocity.x[p] = (dx / dist) * speed;
+		Velocity.z[p] = (dz / dist) * speed;
+		Projectile.life[p] = Math.ceil(dist / speed / STEP) + 2;
+		Projectile.bounces[p] = (Projectile.bounces[p] ?? 1) - 1;
+	}
 
 	return {
 		run(world: GameWorld): void {
@@ -115,6 +146,20 @@ export function createProjectileSystem(deps: ProjectileSystemDeps): ProjectileSy
 						(vx / speed) * knockback,
 						(vz / speed) * knockback,
 					);
+					if ((Projectile.bounces[p] ?? 0) > 0) {
+						const next = nextTarget(
+							world,
+							p,
+							Position.x[e] ?? 0,
+							Position.z[e] ?? 0,
+							Projectile.bounceRadius[p] ?? 0,
+						);
+						if (next >= 0) {
+							hop(p, next, speed);
+							spent = true;
+							continue;
+						}
+					}
 					const pierce = Projectile.pierce[p] ?? 0;
 					if (pierce === 0) {
 						pool.release(p);

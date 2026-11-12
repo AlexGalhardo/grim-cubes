@@ -25,6 +25,9 @@ export interface WeaponDef {
 		speed?: number;
 		radius?: number;
 		explosionRadius?: number;
+		/** Boomerang: targets hit per tier (the first included). */
+		bounces?: readonly number[];
+		bounceRadius?: number;
 	};
 	special?: { id: string; params?: Record<string, number> };
 	damageMult: readonly number[];
@@ -76,13 +79,15 @@ export interface WeaponSystem {
 	readonly maxTier: number;
 	/** Raises the tier by one; false at the maximum. */
 	upgrade(): boolean;
+	/** Sets the tier (clamped to the maximum): the weapon level follows the hero level. */
+	setTier(next: number): void;
 	/** Swaps the weapon (the old one is sold by the shop) and resets the attack cooldown. */
 	setWeapon(weapon: WeaponDef, tier?: number): void;
 	run(world: GameWorld, hero: number): void;
 }
 
 const MAX_HITS = 128;
-const KINDS = new Set(["melee", "single_shot", "burst", "continuous", "explosive"]);
+const KINDS = new Set(["melee", "single_shot", "burst", "continuous", "explosive", "boomerang"]);
 
 export function createWeaponSystem(deps: WeaponSystemDeps): WeaponSystem {
 	const { stats, queue, events, targeting, enemies, rng, projectiles, effects } = deps;
@@ -193,6 +198,9 @@ export function createWeaponSystem(deps: WeaponSystemDeps): WeaponSystem {
 			shot.lifeSteps = Math.ceil(range / speed / STEP);
 			shot.explosionRadius = explosion;
 			shot.selfFraction = selfFraction;
+			// A boomerang hits `bounces[tier]` targets: the first one plus this many hops.
+			shot.bounces = Math.max(0, (projectile?.bounces?.[tier] ?? 1) - 1);
+			shot.bounceRadius = projectile?.bounceRadius ?? 0;
 			projectiles.acquire(shot);
 		}
 		events.push(EventType.Fired, dx, dz, 0, hero);
@@ -221,6 +229,9 @@ export function createWeaponSystem(deps: WeaponSystemDeps): WeaponSystem {
 			if (tier >= maxTier()) return false;
 			tier++;
 			return true;
+		},
+		setTier(next: number): void {
+			tier = Math.max(0, Math.min(next, maxTier()));
 		},
 		setWeapon(next: WeaponDef, nextTier = 0): void {
 			configure(next);

@@ -66,10 +66,9 @@ test("the HP bar shows the number and the XP bar is a thin strip with the values
 	expect(xp.getAttribute("aria-valuemax")).toBe("8");
 });
 
-test("the weapon frame lights as many pips as its tier", () => {
+test("the weapon frame shows the weapon level", () => {
 	render(<Hud hud={view()} />);
-	const pips = screen.getByTestId("hud-weapon").querySelectorAll("[data-lit]");
-	expect([...pips].map((p) => p.getAttribute("data-lit"))).toEqual(["true", "true", "false", "false"]);
+	expect(screen.getByTestId("hud-weapon-level").textContent).toBe("Nv 2");
 });
 
 test("the item strip groups with a count badge, shows ten and a +N chip for the rest", () => {

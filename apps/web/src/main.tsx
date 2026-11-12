@@ -341,10 +341,13 @@ async function boot(): Promise<void> {
 		meta.records,
 	);
 	const difficulty = difficultyData(roundsData.difficulties, difficultyId);
-	// A locked or unknown hero in the URL falls back to the Carrasco; a resumed run keeps its own hero.
+	// A locked or unknown hero in the URL falls back to the Warrior; a resumed run keeps its own hero. With the debug
+	// API the URL hero skips the milestone (captures of the classes).
+	const askedHero = resumeRun?.hero ?? params.get("hero");
 	const heroId = dailyDate
 		? dailyHero(dailyDate, heroesData)
-		: chooseHero(heroesData, milestonesData, meta, resumeRun?.hero ?? params.get("hero"));
+		: ((__DEBUG_API__ ? heroesData.find((h) => h.id === askedHero)?.id : undefined) ??
+			chooseHero(heroesData, milestonesData, meta, askedHero));
 
 	// The web demo ends at the first boss: no walk to the Merchant there, the DemoEnd shows at once.
 	const demoLastRound = bossesData[0]?.round ?? 10;
@@ -1240,6 +1243,7 @@ async function boot(): Promise<void> {
 			kills: runStats.kills,
 			bossKills: runStats.bossRounds.length,
 			elitesKilled: runStats.elitesKilled,
+			bestBossRound: Math.max(0, ...runStats.bossRounds),
 			...(dailyDate && { daily: { date: dailyDate, seconds: Math.round(runStats.seconds) } }),
 		};
 		applyRun(meta, result);
@@ -2292,8 +2296,7 @@ async function boot(): Promise<void> {
 			},
 			/** In memory only (never saved): reaches the milestones that unlock the extra heroes, for captures. */
 			unlockHeroes: () => {
-				meta.records.normal = Math.max(meta.records.normal, 10);
-				meta.stats.bossKills = Math.max(meta.stats.bossKills, 3);
+				meta.stats.bestBossRound = Math.max(meta.stats.bestBossRound, 20);
 				publishNow();
 			},
 			endRound: () => run.forceEnd(world),

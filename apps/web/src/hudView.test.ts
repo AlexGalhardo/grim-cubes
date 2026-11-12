@@ -19,7 +19,7 @@ const lookup = {
 };
 
 describe("loadout view", () => {
-	it("groups the items with a counter and shows the weapon tier as 1-4 pips", () => {
+	it("groups the items with a counter and shows the weapon level from 1 to 10", () => {
 		const view = createLoadoutView(lookup).update({
 			owned: new Map([
 				["boots", 2],
@@ -37,14 +37,14 @@ describe("loadout view", () => {
 		expect(view.items[0]?.name).toBe("name:boots");
 	});
 
-	it("caps the pips at four", () => {
+	it("caps the weapon level at ten", () => {
 		const view = createLoadoutView(lookup).update({
 			owned: new Map(),
 			weaponId: "blade",
-			weaponTier: 9,
+			weaponTier: 14,
 			locale: "en",
 		});
-		expect(view.weapon.tier).toBe(4);
+		expect(view.weapon.tier).toBe(10);
 	});
 
 	it("reuses the same view and arrays until the owned set, weapon or locale changes", () => {

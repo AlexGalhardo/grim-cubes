@@ -546,6 +546,19 @@ const weapons: ModelDef[] = [
 		box("root", "ironLight", 6, 44, 2, 0, 12, 0),
 		box("root", "iron", 8, 6, 6, 0, -8, 0),
 	]),
+	// Class weapons (S-20-01): voxel stand-ins until the medium poly art (S-18).
+	prop("weapon_boomerang", "weapons", [
+		box("root", "boneDark", 4, 10, 6, 0, -6, 0),
+		box("root", "iron", 6, 8, 30, 0, 2, 0),
+		box("root", "ironLight", 6, 8, 18, 0, 10, 12, [0, 45, 0]),
+		box("root", "rust", 6, 4, 6, 0, 2, -10),
+	]),
+	prop("weapon_magic_axe", "weapons", [
+		box("root", "boneDark", 4, 40, 4, 0, -8, 0),
+		box("root", "emberLight", 6, 6, 6, 0, 32, 0),
+		box("root", "iron", 8, 22, 26, 0, 14, 8),
+		box("root", "ironLight", 6, 14, 10, 0, 18, 24),
+	]),
 	prop("weapon_pistol", "weapons", [
 		box("root", "boneDark", 6, 14, 8, 0, -10, 0),
 		box("root", "iron", 8, 8, 24, 0, 4, 8),

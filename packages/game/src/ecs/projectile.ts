@@ -5,7 +5,7 @@ import { type GameWorld, spawn } from "./world";
 
 export const PROJECTILE_POOL_SIZE = 512;
 /** Last targets remembered per projectile (anti double hit). Entity id 0 is never valid, so 0 means empty. */
-export const HIT_HISTORY = 8;
+export const HIT_HISTORY = 24;
 export const ProjectileHits = {
 	ids: new Uint16Array(MAX_ENTITIES * HIT_HISTORY),
 	cursor: new Uint8Array(MAX_ENTITIES),
@@ -24,6 +24,9 @@ export interface ProjectileSpec {
 	radius: number;
 	explosionRadius: number;
 	selfFraction: number;
+	/** Boomerang hops (default 0) and the reach of each one. */
+	bounces?: number;
+	bounceRadius?: number;
 }
 
 /**
@@ -80,6 +83,8 @@ export function createProjectilePool(
 			Projectile.pierce[e] = spec.pierce;
 			Projectile.explosionRadius[e] = spec.explosionRadius;
 			Projectile.selfFraction[e] = spec.selfFraction;
+			Projectile.bounces[e] = spec.bounces ?? 0;
+			Projectile.bounceRadius[e] = spec.bounceRadius ?? 0;
 			Projectile.life[e] = Math.max(1, spec.lifeSteps);
 			ProjectileHits.ids.fill(0, e * HIT_HISTORY, (e + 1) * HIT_HISTORY);
 			ProjectileHits.cursor[e] = 0;

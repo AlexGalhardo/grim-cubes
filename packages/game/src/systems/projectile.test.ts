@@ -78,6 +78,7 @@ function setup() {
 		for (const p of query(world, [Projectile])) {
 			if ((Projectile.life[p] ?? 0) === 0) continue;
 			Position.x[p] = (Position.x[p] ?? 0) + (Velocity.x[p] ?? 0) / 60;
+			Position.z[p] = (Position.z[p] ?? 0) + (Velocity.z[p] ?? 0) / 60;
 		}
 		rebuild();
 		system.run(world);
@@ -179,5 +180,29 @@ test("a shell that reaches the end of its life explodes there", () => {
 		if (type === EventType.Exploded) exploded++;
 	});
 	expect(exploded).toBe(1);
+	expect(pool.active).toBe(0);
+});
+
+test("a boomerang with 2 bounces hits 3 different enemies, turning to the nearest unhit one, and is spent", () => {
+	const { pool, enemy, shot, step } = setup();
+	const first = enemy(3, 0);
+	const second = enemy(3, 6);
+	const third = enemy(-4, 6);
+	const out = enemy(3, 20);
+	const p = pool.acquire(shot({ bounces: 2, bounceRadius: 8, lifeSteps: 300 }));
+	for (let i = 0; i < 200; i++) step();
+	for (const e of [first, second, third]) expect(Health.hp[e]).toBe(990);
+	expect(Health.hp[out]).toBe(1000);
+	expect(Projectile.life[p]).toBe(0);
+});
+
+test("a boomerang does not hop to an enemy beyond its bounce radius", () => {
+	const { pool, enemy, shot, step } = setup();
+	const first = enemy(3, 0);
+	const far = enemy(3, 12);
+	pool.acquire(shot({ bounces: 5, bounceRadius: 8, lifeSteps: 300 }));
+	for (let i = 0; i < 200; i++) step();
+	expect(Health.hp[first]).toBe(990);
+	expect(Health.hp[far]).toBe(1000);
 	expect(pool.active).toBe(0);
 });

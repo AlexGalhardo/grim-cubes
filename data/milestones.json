@@ -16,14 +16,14 @@
 			"unlocksItem": "executioner_mark"
 		},
 		{
-			"id": "round_10",
-			"requires": { "stat": "record", "value": 10 },
-			"unlocksHero": "riddled"
+			"id": "boss_round_10",
+			"requires": { "stat": "bestBossRound", "value": 10 },
+			"unlocksHero": "ranged"
 		},
 		{
-			"id": "bosses_3",
-			"requires": { "stat": "bossKills", "value": 3 },
-			"unlocksHero": "penitent"
+			"id": "boss_round_20",
+			"requires": { "stat": "bestBossRound", "value": 20 },
+			"unlocksHero": "mage"
 		},
 		{
 			"id": "round_50",

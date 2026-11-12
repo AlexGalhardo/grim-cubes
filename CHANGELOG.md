@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **game:** Three classes with a fixed weapon each (S-20-01): the Warrior (the old Executioner, sword, open from the start), the Ranged (iron boomerang that ricochets between 3 targets at weapon level 1 and 20 at level 10, opens when the round 10 boss dies) and the Mage (magic axe hitting all around the hero, radius 2.7 u doubling to 5.4 u at level 10, opens when the round 20 boss dies); the weapon level (1 to 10) follows the hero level; the Riddled One and the Penitent are gone
+- **save:** Schema 15 migrates classes: a run in progress becomes a Warrior run with the sword, and the new `stats.bestBossRound` is derived from the records (S-20-01)
 - **render:** Weather VFX per biome (S-24-02): fog in the cemetery, rain in the swamp, embers in the forge, wind in the nest and falling ice in the Frozen Catacombs, as cubes drifting in a box around the hero (`createWeather`, one thin-instance mesh). It takes at most 30% of the preset's particle pool (`weather` in `data/render.json`), is off on the Minimum preset (pool below 150) and keeps half with flash reduction.
 
 ### Changed

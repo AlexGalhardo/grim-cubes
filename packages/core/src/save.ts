@@ -1,6 +1,8 @@
-export const SAVE_SCHEMA_VERSION = 14;
-/** Hero of every run saved before schema 13, and the one a run falls back to (`data/heroes.json`, first entry). */
-export const DEFAULT_HERO = "executioner";
+export const SAVE_SCHEMA_VERSION = 15;
+/** Hero of every run saved before schema 13 (the Executioner became the Warrior in schema 15), and the one a run falls back to (`data/heroes.json`, first entry). */
+export const DEFAULT_HERO = "warrior";
+/** The weapon of `DEFAULT_HERO`: the one a run saved before schema 15 is converted to. */
+const DEFAULT_HERO_WEAPON = "sword";
 /** Days the daily challenge table keeps (GDD 20). */
 export const DAILY_HISTORY_DAYS = 30;
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
@@ -142,7 +144,7 @@ export interface Profile {
 	souls: number;
 	/** Best round reached per difficulty. */
 	records: Record<Difficulty, number>;
-	stats: { kills: number; runs: number; bossKills: number; elitesKilled: number };
+	stats: { kills: number; runs: number; bossKills: number; elitesKilled: number; bestBossRound: number };
 	unlocks: string[];
 	/** Ossuary nodes bought, by node id. */
 	ossuary: Record<string, boolean>;
@@ -171,7 +173,7 @@ export function createMetaState(): MetaState {
 	return {
 		souls: 0,
 		records: { easy: 0, normal: 0, grim: 0, nightmare: 0 },
-		stats: { kills: 0, runs: 0, bossKills: 0, elitesKilled: 0 },
+		stats: { kills: 0, runs: 0, bossKills: 0, elitesKilled: 0, bestBossRound: 0 },
 		unlocks: [],
 		ossuary: {},
 		flags: { isDemo: false, fullVersion: false },
@@ -524,6 +526,9 @@ export function validateProfile(raw: unknown): Profile {
 			runs: counter(stats.runs, "stats.runs"),
 			bossKills: counter(stats.bossKills, "stats.bossKills"),
 			elitesKilled: counter(stats.elitesKilled, "stats.elitesKilled"),
+			// Absent before schema 15: `migrateClasses` derives it from the records.
+			bestBossRound:
+				stats.bestBossRound === undefined ? 0 : counter(stats.bestBossRound, "stats.bestBossRound"),
 		},
 		unlocks: [...unlocks] as string[],
 		ossuary: nodes,
@@ -632,6 +637,39 @@ function withoutHero<T extends { run: RunCheckpoint | null }>(profile: T): T {
 	return { ...profile, run: run as RunCheckpoint };
 }
 
+/** Schemas before 15 had no `stats.bestBossRound`: their checksum covers `stats` without it. */
+function withoutBossRound<T extends { stats: Profile["stats"] }>(profile: T): T {
+	const { bestBossRound: _best, ...stats } = profile.stats;
+	return { ...profile, stats } as unknown as T;
+}
+
+/**
+ * Schema 15, classes: the Executioner is the Warrior, the Riddled and the Penitent are gone, and the weapon is fixed
+ * by the class. A run in progress becomes a Warrior run with the sword (its level comes from the hero level); the
+ * best boss round, which unlocks the Ranged (10) and the Mage (20), is derived from the records: the old bosses
+ * stood at rounds 10, 20, 30, so a record of 21 means the round 20 boss fell.
+ */
+export function migrateClasses<T extends Profile>(profile: T): T {
+	const best = Math.max(
+		profile.records.easy,
+		profile.records.normal,
+		profile.records.grim,
+		profile.records.nightmare,
+	);
+	const bestBossRound = Math.max(
+		profile.stats.bestBossRound,
+		best > 0 ? 10 * Math.floor((best - 1) / 10) : 0,
+	);
+	const run = profile.run
+		? {
+				...profile.run,
+				hero: DEFAULT_HERO,
+				weapon: { ...profile.run.weapon, id: DEFAULT_HERO_WEAPON, tier: 0 },
+			}
+		: null;
+	return { ...profile, stats: { ...profile.stats, bestBossRound }, run };
+}
+
 /** Schemas before 14 had no daily table, nor `seconds` and `daily` in the checkpoint. */
 function withoutDaily<T extends { run: RunCheckpoint | null; daily: DailyEntry[] }>(profile: T): T {
 	const { daily: _table, ...rest } = profile;
@@ -646,7 +684,7 @@ function withoutDaily<T extends { run: RunCheckpoint | null; daily: DailyEntry[]
  */
 function coveredBy(version: number, data: MetaState): unknown {
 	const { run: _run, settings: full, ...rest } = data;
-	const profile = withoutEasy(rest);
+	const profile = withoutEasy(withoutBossRound(rest));
 	if (version < 2) return profile;
 	const keys = SETTINGS_KEYS[version];
 	if (!keys) throw new RangeError(`no settings key list for schema ${version}`);
@@ -699,14 +737,15 @@ export async function parseSave(text: string): Promise<MetaState> {
 	if (envelope.schemaVersion >= 10) {
 		const profile = validateProfile(envelope.data);
 		const v = envelope.schemaVersion;
-		const covered = v < 14 ? withoutDaily(profile) : profile;
-		const coveredHero = v < 13 ? withoutHero(covered as typeof profile) : covered;
-		await verified(envelope, v < 11 ? withoutEasy(coveredHero as typeof profile) : coveredHero);
-		return { ...profile, settings: createSettings() };
+		const covered = v < 15 ? withoutBossRound(profile) : profile;
+		const coveredDaily = v < 14 ? withoutDaily(covered) : covered;
+		const coveredHero = v < 13 ? withoutHero(coveredDaily) : coveredDaily;
+		await verified(envelope, v < 11 ? withoutEasy(coveredHero) : coveredHero);
+		return { ...(v < 15 ? migrateClasses(profile) : profile), settings: createSettings() };
 	}
 	const data = validateMeta(envelope.data);
 	await verified(envelope, coveredBy(envelope.schemaVersion, data));
-	return data;
+	return migrateClasses(data);
 }
 
 /** True when `text` is a schema 1 to 9 file, the single save from before the slots. Unreadable text is false. */

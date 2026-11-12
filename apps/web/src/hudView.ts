@@ -13,7 +13,7 @@ export interface LoadoutSource {
 	/** Item id to count, as the session keeps it. */
 	owned: ReadonlyMap<string, number>;
 	weaponId: string;
-	/** 0-3, as the weapon system keeps it. */
+	/** 0-9, as the weapon system keeps it. */
 	weaponTier: number;
 	/** Part of the memo key: names are translated when the view is built. */
 	locale: string;
@@ -32,8 +32,8 @@ export interface LoadoutView {
 	items: readonly HudItem[];
 }
 
-/** Last tier pip count (the weapon system tiers run 0-3). */
-const MAX_PIPS = 4;
+/** Highest weapon level (the weapon system tiers run 0-9). */
+const MAX_LEVEL = 10;
 
 /**
  * The weapon and the item strip of the HUD. `update` returns the same object (and so the same `items` array) until
@@ -81,7 +81,7 @@ export function createLoadoutView(lookup: LoadoutLookup): { update(source: Loado
 				weapon: {
 					id: source.weaponId,
 					name: lookup.weaponName(source.weaponId),
-					tier: Math.min(MAX_PIPS, source.weaponTier + 1),
+					tier: Math.min(MAX_LEVEL, source.weaponTier + 1),
 					icon: lookup.weaponIcon(source.weaponId),
 				},
 				items: ids.map((id, i) => ({

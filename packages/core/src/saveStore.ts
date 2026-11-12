@@ -59,6 +59,8 @@ export interface RunResult {
 	kills: number;
 	bossKills: number;
 	elitesKilled: number;
+	/** The last boss round the run killed (0 for none): the Ranged opens at 10 and the Mage at 20. */
+	bestBossRound: number;
 	/** Set when the run was the daily challenge of `date` (UTC); its score counts once per day. */
 	daily?: { date: string; seconds: number };
 }
@@ -71,6 +73,7 @@ export function applyRun(meta: MetaState, run: RunResult): void {
 	meta.stats.kills += run.kills;
 	meta.stats.bossKills += run.bossKills;
 	meta.stats.elitesKilled += run.elitesKilled;
+	meta.stats.bestBossRound = Math.max(meta.stats.bestBossRound, run.bestBossRound);
 	if (run.daily && !meta.daily.some((entry) => entry.date === run.daily?.date)) {
 		const entry = {
 			date: run.daily.date,

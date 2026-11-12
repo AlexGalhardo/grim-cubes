@@ -247,7 +247,7 @@ describe("the kiting bot for guns (S-12-03)", () => {
 	});
 
 	it("plays a whole run with a gun and gets past the first rounds", () => {
-		const report = runSim({ seed: 1, rounds: 6, difficulty: "normal", hero: "riddled" });
+		const report = runSim({ seed: 1, rounds: 6, difficulty: "normal", hero: "ranged" });
 		expect(report.roundReached).toBeGreaterThanOrEqual(5);
 	});
 });

@@ -76,6 +76,10 @@ export const Projectile = {
 	explosionRadius: f32(),
 	/** Fraction of the damage the hero takes when inside the explosion. */
 	selfFraction: f32(),
+	/** Boomerang: hops left to another enemy after a hit; 0 for every other shot. */
+	bounces: u8(),
+	/** Boomerang: how far from the enemy just hit the next one may be, in u. */
+	bounceRadius: f32(),
 };
 
 /** Yaw in radians, `atan2(vx, vz)`: 0 faces +z. Written by movementSystem, read by render. */

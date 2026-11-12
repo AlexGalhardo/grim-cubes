@@ -3,6 +3,7 @@ import type { ItemData, MilestoneData, MilestonesData, SkinData } from "../data/
 
 function statValue(stat: string, meta: MetaState): number {
 	if (stat === "record") return Math.max(meta.records.normal, meta.records.grim, meta.records.nightmare);
+	if (stat === "bestBossRound") return meta.stats.bestBossRound;
 	if (stat === "kills" || stat === "bossKills" || stat === "elitesKilled" || stat === "runs")
 		return meta.stats[stat];
 	throw new RangeError(`unknown milestone stat "${stat}"`);

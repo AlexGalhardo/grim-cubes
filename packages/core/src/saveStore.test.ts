@@ -120,6 +120,7 @@ const run = (souls: number, over: Partial<RunResult> = {}): RunResult => ({
 	kills: 10,
 	bossKills: 0,
 	elitesKilled: 0,
+	bestBossRound: 0,
 	...over,
 });
 
@@ -260,6 +261,7 @@ test("updateMeta writes only the file that changed", async () => {
 async function singleSave(souls: number): Promise<string> {
 	const data = { ...profileOf(metaWith(souls)), settings: createSettings() } as Record<string, unknown>;
 	delete data.run;
+	delete (data.stats as Record<string, unknown>).bestBossRound;
 	data.records = { normal: 0, grim: 0, nightmare: 0 };
 	const settings = { ...createSettings() } as Record<string, unknown>;
 	delete settings.lastSlot;

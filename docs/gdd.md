@@ -189,19 +189,19 @@ As Catacumbas Congeladas (5º bioma) reaproveitam tiles e props voxel existentes
 
 ## 7. Herói
 
-A 1.0 tem três heróis (decisão do PO de 2026-11-11, trilha S-12; revisa a D11): **o Carrasco** (nome de trabalho), um executor condenado, com armadura de placas enferrujadas e um capuz de ferro, e dois heróis novos. Cada herói define a arma inicial, ajustes nos stats base e uma passiva, em `data/heroes.json`. Até a S-18-06 os dois novos usam o modelo do Carrasco recolorido (`tint`).
+A 1.0 tem três **classes** (ADR-0030, trilha S-20 da `v0.7.0`; substitui os três heróis da `v0.6.0`): o herói não troca de arma na run, porque cada classe tem a sua arma fixa. Cada classe define a arma, ajustes nos stats base e uma passiva, em `data/heroes.json`. Até a S-18-06 as duas classes novas usam o modelo do Warrior recolorido (`tint`).
 
-| Herói | Arma inicial | Stats base (além da tabela 7.1) | Passiva | Desbloqueio |
+| Classe | Arma | Stats base (além da tabela 7.1) | Passiva | Desbloqueio |
 | --- | --- | --- | --- | --- |
-| Carrasco (`executioner`) | Espada Enferrujada | — | **Placas Enferrujadas:** sem bônus numérico na `v0.6.0`: o +1 de armadura somado às sinergias tirava o herói padrão das faixas do §25 na seed 1 do CI; o bônus volta com o fechamento da S-12-03 | desde o início |
-| O Fuzilado (`riddled`) | Pistola de Ferro | HP 200, armadura 8, regeneração 2, esquiva 10%, crítico 8%, dano +85%, velocidade de ataque +85%, raio de pickup 7 u | **Olho do Pelotão:** +10% de chance de crítico, −40% de dano em chefes | marco `round_10` (round 10 em qualquer dificuldade) |
-| A Penitente (`penitent`) | Submetralhadora | HP 150, armadura 4, velocidade 6,4 u/s, dano +40%, velocidade de ataque +40%, raio de pickup 7 u | **Carne Flagelada:** +1 ponto de regeneração, −30% de dano em chefes | marco `bosses_3` (3 chefes mortos) |
+| Warrior (`warrior`, o antigo Carrasco) | Espada Enferrujada: arco de 130° que acerta todos os inimigos dentro | — | **Placas Enferrujadas:** sem bônus numérico | desde o início |
+| Ranged (`ranged`) | Bumerangue de Ferro: voa até o alvo e ricocheteia no inimigo mais próximo ainda não atingido (raio de 9 u); atinge 3 alvos no nível 1 da arma e 20 no nível 10 | HP 90, velocidade 6,3, crítico 8%, esquiva 5%, raio de pickup 3,5 u | **Olho do Pelotão:** +10% de chance de crítico | marco `boss_round_10`: matar o chefe do round 10 |
+| Mago (`mage`) | Machado Mágico: pancada em área circular (360°) em volta do herói; o raio dobra do nível 1 (2,7 u) ao nível 10 (5,4 u) | HP 85, armadura 1, raio de pickup 3,5 u | **Saber do Ossuário:** +10% de dano | marco `boss_round_20`: matar o chefe do round 20 |
 
-**Nomes, passivas e desbloqueios dos dois heróis novos (aceito pelo orquestrador por delegação do PO em 2026-11-11):** "O Fuzilado" e "A Penitente" (propostos pelo agente; o GDD §20 pós-1.0 citava a Bruxa do Pântano e o Forjado Renegado, que ficam como ideias futuras). Os números saem de `data/*.json` e foram ajustados no simulador (§25.2): armas de longo alcance sofrem muito mais que a espada contra o bot greedy, então os dois heróis recebem bônus grandes de stats base; o raio de pickup alto compensa o bot, que mantém distância e não pisa nos fragmentos, e o redutor de dano em chefes segura o tempo de kill dos chefes (sem ele a pistola mata o Coveiro em ~37 s).
+**Nível da arma (1 a 10):** acompanha o nível do herói (o mesmo nível das cartas de level-up), limitado a 10; não há compra nem upgrade de arma. Os números por nível (`damageMult`, `attackSpeedBonusPerTier`, `rangeBonusPerTier` e, no bumerangue, `projectile.bounces`) estão em `data/weapons.json`. Os marcos usam `stats.bestBossRound` do perfil, o último round de chefe morto em qualquer run; um save da `v0.6.0` recebe esse valor derivado do recorde (os chefes antigos ficavam nos rounds 10, 20 e 30). A run salva vira uma run de Warrior com a espada; o Fuzilado e a Penitente saem. Os números são provisórios até a S-26 (balanceamento).
 
 ### 7.1 Stats base (round 1, sem meta-árvore)
 
-Valem para o Carrasco; os outros dois sobrepõem só os campos da tabela acima.
+Valem para o Warrior; as outras classes sobrepõem só os campos da tabela acima.
 
 | Stat | Valor | Nota |
 | --- | --- | --- |
@@ -661,8 +661,8 @@ Decisão D09: árvore permanente fora da run, comprada com almas. Nome diegétic
 | 1.000 kills acumulados | item `cube_of_wrath` entra no pool |
 | 10.000 kills | item `warlord_banner` entra no pool |
 | 5 chefes mortos | item `executioner_mark` entra no pool |
-| Round 10 em qualquer dificuldade | herói O Fuzilado (§7) |
-| 3 chefes mortos | herói A Penitente (§7) |
+| Chefe do round 10 morto | classe Ranged (§7) |
+| Chefe do round 20 morto | classe Mago (§7) |
 | Round 50 | skin "Carrasco de Ferro Negro" (cosmético) |
 | Pós-1.0 | personagens por marcos (Bruxa do Pântano: 3 Matriarcas mortas; Forjado Renegado: round 30 em Grim) |
 

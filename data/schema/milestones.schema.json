@@ -17,7 +17,16 @@
 						"required": ["stat", "value"],
 						"additionalProperties": false,
 						"properties": {
-							"stat": { "enum": ["kills", "bossKills", "elitesKilled", "runs", "record"] },
+							"stat": {
+								"enum": [
+									"kills",
+									"bossKills",
+									"elitesKilled",
+									"runs",
+									"record",
+									"bestBossRound"
+								]
+							},
 							"value": { "type": "integer", "minimum": 1 }
 						}
 					},

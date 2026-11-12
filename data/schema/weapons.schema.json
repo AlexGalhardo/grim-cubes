@@ -11,9 +11,6 @@
 			"attacksPerSecond",
 			"damage",
 			"knockback",
-			"unlockRound",
-			"price",
-			"upgradePrices",
 			"damageMult",
 			"attackSpeedBonusPerTier",
 			"rangeBonusPerTier"
@@ -27,7 +24,7 @@
 				"$ref": "common.schema.json#/$defs/name"
 			},
 			"kind": {
-				"enum": ["melee", "single_shot", "burst", "continuous", "explosive"]
+				"enum": ["melee", "single_shot", "burst", "continuous", "explosive", "boomerang"]
 			},
 			"range": {
 				"type": "number",
@@ -78,6 +75,18 @@
 					"explosionRadius": {
 						"type": "number",
 						"minimum": 0
+					},
+					"bounces": {
+						"type": "array",
+						"description": "Boomerang: targets hit per level of the weapon (the first hit included); one entry per damageMult entry.",
+						"minItems": 1,
+						"maxItems": 10,
+						"items": { "type": "integer", "minimum": 1 }
+					},
+					"bounceRadius": {
+						"type": "number",
+						"minimum": 0,
+						"description": "Boomerang: how far from the target it just hit the next one may be, in u."
 					}
 				}
 			},
@@ -98,7 +107,7 @@
 			"upgradePrices": {
 				"type": "array",
 				"minItems": 3,
-				"maxItems": 3,
+				"maxItems": 9,
 				"items": {
 					"type": "integer",
 					"minimum": 0
@@ -107,7 +116,7 @@
 			"damageMult": {
 				"type": "array",
 				"minItems": 4,
-				"maxItems": 4,
+				"maxItems": 10,
 				"items": {
 					"type": "number",
 					"minimum": 0

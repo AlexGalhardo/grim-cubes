@@ -501,6 +501,8 @@ function build(options: GameSessionOptions) {
 			arena.confine(world);
 			applyOriginShift(world, origin, hero, events, worldData, boss.shiftOrigin);
 			chunks.update(origin.x + (Position.x[hero] ?? 0), origin.z + (Position.z[hero] ?? 0));
+			// The class weapon has no shop: its level (1 to 10) is the hero level, capped by the weapon's last tier.
+			weapon.setTier(progress.level - 1);
 			targeting.run(world, hero, weapon.range);
 			weapon.run(world, hero);
 			projectileSystem.run(world);
