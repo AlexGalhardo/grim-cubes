@@ -150,7 +150,6 @@ export function checkIntegrity(data: DataSet): string[] {
 	const errors: string[] = [];
 
 	const enemyIds = checkUniqueIds("enemies.json", asArray(data["enemies.json"]), errors);
-	const itemIds = checkUniqueIds("items.json", asArray(data["items.json"]), errors);
 	const weaponIds = checkUniqueIds("weapons.json", asArray(data["weapons.json"]), errors);
 	checkUniqueIds("bosses.json", asArray(data["bosses.json"]), errors);
 
@@ -221,8 +220,6 @@ export function checkIntegrity(data: DataSet): string[] {
 		checkUniqueIds("milestones.json", list, errors);
 		const skinIds = checkUniqueIds("milestones.json skins", asArray(milestones.skins), errors);
 		for (const m of list) {
-			if (typeof m.unlocksItem === "string" && !itemIds.has(m.unlocksItem))
-				errors.push(`milestones.json: ${idOf(m)} unlocks unknown item "${m.unlocksItem}"`);
 			if (typeof m.unlocksHero === "string" && !heroIds.has(m.unlocksHero))
 				errors.push(`milestones.json: ${idOf(m)} unlocks unknown hero "${m.unlocksHero}"`);
 			if (typeof m.unlocksSkin === "string" && !skinIds.has(m.unlocksSkin))
@@ -277,7 +274,6 @@ const EXPECTED_FILES = [
 	"bosses",
 	"weapons",
 	"equipment",
-	"items",
 	"cards",
 	"ossuary",
 	"spells",
@@ -316,11 +312,11 @@ export function selfTest(
 	const clone = (): DataSet => structuredClone(data);
 	const cases: Array<[string, (d: DataSet) => void, boolean?]> = [
 		[
-			"duplicate item id",
+			"duplicate enemy id",
 			(d) => {
-				const items = asArray(d["items.json"]);
-				const first = items[0];
-				const last = items[items.length - 1];
+				const enemies = asArray(d["enemies.json"]);
+				const first = enemies[0];
+				const last = enemies[enemies.length - 1];
 				if (first && last) last.id = first.id as string;
 			},
 		],
@@ -343,7 +339,9 @@ export function selfTest(
 		[
 			"schema: bad stat",
 			(d) => {
-				const m = asArray(asArray(d["items.json"])[0]?.modifiers)[0];
+				const m = asArray(
+					asArray(asArray((d["equipment.json"] as JsonObject).slots)[0]?.levels)[0]?.modifiers,
+				)[0];
 				if (m) m.stat = "mana";
 			},
 		],
@@ -380,10 +378,8 @@ export function selfTest(
 		[
 			"effect id outside the enum",
 			(d) => {
-				const e = asArray(
-					asArray(d["items.json"]).find((i) => asArray(i.effects).length > 0)?.effects,
-				)[0];
-				if (e) e.id = "not_an_effect";
+				const special = asArray(d["weapons.json"]).find((w) => isObject(w.special))?.special;
+				if (isObject(special)) special.id = "not_an_effect";
 			},
 		],
 		[

@@ -5,76 +5,35 @@ import {
 	createLoadoutView,
 	currentStats,
 	describeCause,
-	itemLines,
 	type ResultsSource,
 	roundSecondsLeft,
 } from "./hudView";
 
 const lookup = {
-	itemName: (id: string): string => `name:${id}`,
-	itemTier: (id: string): number => (id === "rare" ? 3 : 1),
-	itemIcon: () => undefined,
 	weaponName: (id: string): string => `weapon:${id}`,
 	weaponIcon: () => undefined,
 };
 
 describe("loadout view", () => {
-	it("groups the items with a counter and shows the weapon level from 1 to 10", () => {
-		const view = createLoadoutView(lookup).update({
-			owned: new Map([
-				["boots", 2],
-				["rare", 1],
-			]),
-			weaponId: "blade",
-			weaponTier: 2,
-			locale: "pt-BR",
-		});
+	it("shows the weapon level from 1 to 10", () => {
+		const view = createLoadoutView(lookup).update({ weaponId: "blade", weaponTier: 2, locale: "pt-BR" });
 		expect(view.weapon).toEqual({ id: "blade", name: "weapon:blade", tier: 3 });
-		expect(view.items.map((i) => [i.id, i.count, i.tier])).toEqual([
-			["boots", 2, 1],
-			["rare", 1, 3],
-		]);
-		expect(view.items[0]?.name).toBe("name:boots");
 	});
 
 	it("caps the weapon level at ten", () => {
-		const view = createLoadoutView(lookup).update({
-			owned: new Map(),
-			weaponId: "blade",
-			weaponTier: 14,
-			locale: "en",
-		});
+		const view = createLoadoutView(lookup).update({ weaponId: "blade", weaponTier: 14, locale: "en" });
 		expect(view.weapon.tier).toBe(10);
 	});
 
-	it("reuses the same view and arrays until the owned set, weapon or locale changes", () => {
-		const owned = new Map([["boots", 1]]);
+	it("reuses the same view until the weapon or the locale changes", () => {
 		const loadout = createLoadoutView(lookup);
-		const source = { owned, weaponId: "blade", weaponTier: 0, locale: "en" };
+		const source = { weaponId: "blade", weaponTier: 0, locale: "en" };
 		const first = loadout.update(source);
-		expect(loadout.update(source)).toBe(first);
-		expect(loadout.update({ ...source }).items).toBe(first.items);
-
-		owned.set("boots", 2);
-		const counted = loadout.update(source);
-		expect(counted).not.toBe(first);
-		expect(counted.items[0]?.count).toBe(2);
-
-		owned.set("rare", 1);
-		expect(loadout.update(source).items).toHaveLength(2);
-		expect(loadout.update({ ...source, weaponTier: 1 })).not.toBe(counted);
-		const again = loadout.update({ ...source, weaponTier: 1 });
-		expect(loadout.update({ ...source, weaponTier: 1 })).toBe(again);
-		expect(loadout.update({ ...source, weaponTier: 1, locale: "pt-BR" })).not.toBe(again);
-	});
-
-	it("starts over when a new run empties the owned set", () => {
-		const owned = new Map([["boots", 1]]);
-		const loadout = createLoadoutView(lookup);
-		const source = { owned, weaponId: "blade", weaponTier: 0, locale: "en" };
-		loadout.update(source);
-		owned.clear();
-		expect(loadout.update(source).items).toEqual([]);
+		expect(loadout.update({ ...source })).toBe(first);
+		const levelled = loadout.update({ ...source, weaponTier: 1 });
+		expect(levelled).not.toBe(first);
+		expect(loadout.update({ ...source, weaponTier: 1 })).toBe(levelled);
+		expect(loadout.update({ ...source, weaponTier: 1, locale: "pt-BR" })).not.toBe(levelled);
 	});
 });
 
@@ -118,14 +77,13 @@ describe("results view", () => {
 		damageDealt: 1000.4,
 		seconds: 100,
 		killer: { kind: "boss", type: 0 },
-		damageBySource: [700, 0, 200.2, 100],
+		damageBySource: [700, 200.2],
 		souls: 30,
 		totalSouls: 130,
 		record: 9,
 		newRecord: false,
 		seed: 5,
 		loadout: createLoadoutView(lookup).update({
-			owned: new Map([["boots", 2]]),
 			weaponId: "blade",
 			weaponTier: 0,
 			locale: "pt-BR",
@@ -143,11 +101,9 @@ describe("results view", () => {
 		expect(view.seconds).toBe(100);
 		expect(view.damage).toBe(1000);
 		expect(view.weapon.name).toBe("weapon:blade");
-		expect(view.items.map((i) => [i.id, i.count])).toEqual([["boots", 2]]);
 		expect(view.sources).toEqual([
 			{ id: "weapon", label: "src:weapon", damage: 700 },
-			{ id: "item", label: "src:item", damage: 200 },
-			{ id: "bleed", label: "src:bleed", damage: 100 },
+			{ id: "spell", label: "src:spell", damage: 200 },
 		]);
 		expect(view.nextUnlock).toEqual({ name: "cheap", cost: 150 });
 		expect(view.cause).toBe("boss0");
@@ -163,22 +119,6 @@ describe("results view", () => {
 	it("has no next unlock when every node is owned, locked or demo-gated", () => {
 		const view = buildResults({ ...source, nodes: [{ label: "x", cost: 1, state: "owned" }] }, names);
 		expect(view.nextUnlock).toBeNull();
-	});
-});
-
-describe("item lines", () => {
-	it("lists the modifiers and then the effects, so an effect-only item is never blank", () => {
-		const text = (d: { key: string }): string => d.key;
-		expect(itemLines({ modifiers: [], effects: [{ id: "dash_unlock" }] }, text)).toEqual([
-			"effect.dash_unlock",
-		]);
-		expect(
-			itemLines(
-				{ modifiers: [{ stat: "armor", op: "add", value: 3 }], effects: [{ id: "dash_unlock" }] },
-				text,
-			),
-		).toHaveLength(2);
-		expect(itemLines({ modifiers: [] }, text)).toEqual([]);
 	});
 });
 

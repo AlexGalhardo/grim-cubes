@@ -59,7 +59,6 @@ function summary(session: GameSession): unknown {
 		level: session.progress.level,
 		hp: Health.hp[session.hero],
 		kills: session.runStats.kills,
-		owned: [...session.owned],
 		equipment: [...session.shop.levels],
 		materials: [session.progress.eliteFragments, session.progress.relics],
 		weapon: [session.weapon.weapon.id, session.weapon.tier],

@@ -19,7 +19,7 @@
 	"tools/audio-generate/lib.ts",
 	"data/bosses.json",
 	"data/enemies.json",
-	"data/items.json",
+	"data/equipment.json",
 	"data/rounds.json",
 	"locales/en.json",
 	"locales/pt-BR.json",

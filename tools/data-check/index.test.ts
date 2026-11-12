@@ -12,14 +12,14 @@ describe("data-check", () => {
 		expect(checkDir(dataDir)).toEqual([]);
 	});
 
-	it("rejects a duplicate item id", () => {
+	it("rejects a duplicate enemy id", () => {
 		const { data, schemas } = loadDir(dataDir);
-		const items = structuredClone(data["items.json"]) as Array<{ id: string }>;
-		const first = items[0];
-		const last = items[items.length - 1];
-		if (!first || !last) throw new Error("items.json is empty");
+		const enemies = structuredClone(data["enemies.json"]) as Array<{ id: string }>;
+		const first = enemies[0];
+		const last = enemies[enemies.length - 1];
+		if (!first || !last) throw new Error("enemies.json is empty");
 		last.id = first.id;
-		const errors = checkAll({ ...data, "items.json": items }, schemas);
+		const errors = checkAll({ ...data, "enemies.json": enemies }, schemas);
 		expect(errors.some((e) => e.includes(`duplicate id "${first.id}"`))).toBe(true);
 	});
 

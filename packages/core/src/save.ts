@@ -111,12 +111,9 @@ export interface RunCheckpoint {
 	/** Elite fragments and boss relics in hand: the materials that raise equipment above level 6. */
 	eliteFragments: number;
 	relics: number;
-	/** Items owned, by id. */
-	owned: Record<string, number>;
-	/** Modifiers picked during the run (cards, items, chests), after the Ossuary ones. */
+	/** Modifiers picked during the run (cards), after the Ossuary ones. */
 	modifiers: { stat: string; op: string; value: number }[];
 	cardRerollsLeft: number;
-	revivesSpent: number;
 	/** Fragment value left from the last round, released as the next enemies spawn. */
 	bag: number;
 	/** State of every RNG stream, in `RNG_STREAMS` order. */
@@ -460,8 +457,8 @@ function validateEquipment(raw: unknown): number[] {
 function validateCheckpoint(raw: unknown): RunCheckpoint | null {
 	if (raw === undefined || raw === null) return null;
 	if (!isRecord(raw)) throw new SaveError("run must be an object");
-	const { weapon, owned, modifiers, rng, origin, position, bossRounds } = raw;
-	if (!isRecord(weapon) || !isRecord(owned) || !isRecord(origin) || !isRecord(position))
+	const { weapon, modifiers, rng, origin, position, bossRounds } = raw;
+	if (!isRecord(weapon) || !isRecord(origin) || !isRecord(position))
 		throw new SaveError("run is incomplete");
 	if (!DIFFICULTIES.includes(raw.difficulty as Difficulty))
 		throw new SaveError("run.difficulty is unknown");
@@ -471,13 +468,6 @@ function validateCheckpoint(raw: unknown): RunCheckpoint | null {
 		throw new SaveError("run.rng must hold one state per stream");
 	if (!Array.isArray(bossRounds) || bossRounds.length > MAX_LIST)
 		throw new SaveError("run.bossRounds must be a short list");
-	const items = Object.entries(owned);
-	if (items.length > MAX_LIST) throw new SaveError("run.owned has too many entries");
-	const ownedClean: Record<string, number> = {};
-	for (const [id, count] of items) {
-		if (FORBIDDEN_KEYS.has(id)) throw new SaveError("run.owned contains a reserved key");
-		ownedClean[shortText(id, "run.owned id")] = counter(count, "run.owned count");
-	}
 	const round = counter(raw.round, "run.round");
 	if (round < 1) throw new SaveError("run.round must start at 1");
 	return {
@@ -497,7 +487,6 @@ function validateCheckpoint(raw: unknown): RunCheckpoint | null {
 		eliteFragments:
 			raw.eliteFragments === undefined ? 0 : counter(raw.eliteFragments, "run.eliteFragments"),
 		relics: raw.relics === undefined ? 0 : counter(raw.relics, "run.relics"),
-		owned: ownedClean,
 		modifiers: modifiers.map((m: unknown) => {
 			if (!isRecord(m)) throw new SaveError("run.modifiers entries must be objects");
 			return {
@@ -507,7 +496,6 @@ function validateCheckpoint(raw: unknown): RunCheckpoint | null {
 			};
 		}),
 		cardRerollsLeft: counter(raw.cardRerollsLeft, "run.cardRerollsLeft"),
-		revivesSpent: counter(raw.revivesSpent, "run.revivesSpent"),
 		bag: amount(raw.bag, "run.bag"),
 		rng: rng.map((state: unknown) => {
 			if (typeof state !== "number" || !Number.isInteger(state) || Math.abs(state) > 2 ** 32)
@@ -741,15 +729,6 @@ export function migrateOssuary<T extends Profile>(profile: T): T {
 }
 
 /**
- * Schema 15 (ADR-0030): the shop no longer sells items, so a run saved before it keeps none; the weapon tier is reset
- * by `migrateClasses`, and the rest of the profile and of the run is untouched.
- */
-function dropBoughtGear<T extends { run: RunCheckpoint | null }>(profile: T): T {
-	if (!profile.run) return profile;
-	return { ...profile, run: { ...profile.run, owned: {} } };
-}
-
-/**
  * The data as an older schema's checksum saw it (schemas 1 to 9 stored the whole account in one file): no
  * checkpoint, only the settings keys that schema knew, and no `lastSlot`.
  */
@@ -812,7 +791,7 @@ export async function parseSave(text: string): Promise<MetaState> {
 		// gained fields, so the raw data is what the checksum covers.
 		await verified(envelope, v < SAVE_SCHEMA_VERSION ? envelope.data : profile);
 		return {
-			...(v < 15 ? dropBoughtGear(migrateOssuary(migrateClasses(profile))) : profile),
+			...(v < 15 ? migrateOssuary(migrateClasses(profile)) : profile),
 			settings: createSettings(),
 		};
 	}

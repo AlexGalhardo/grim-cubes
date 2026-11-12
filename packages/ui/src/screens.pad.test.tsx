@@ -303,7 +303,6 @@ test("the results screen is navigable with the D-pad", () => {
 				cause: "Carcaça",
 				causeKind: "enemy",
 				weapon: { id: "sword", name: "Espada", tier: 1 },
-				items: [],
 				seconds: 95,
 				sources: [{ id: "weapon", label: "Arma", damage: 40 }],
 				nextUnlock: null,

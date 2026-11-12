@@ -1,11 +1,8 @@
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
-import { formatClock, Hud, type HudView, MAX_VISIBLE_ITEMS } from "./Hud";
-import type { HudItem } from "./hudTypes";
+import { formatClock, Hud, type HudView } from "./Hud";
 
 afterEach(cleanup);
-
-const item = (id: string, count = 1, tier = 1): HudItem => ({ id, name: `Item ${id}`, tier, count });
 
 const view = (over: Partial<HudView> = {}): HudView => ({
 	hp: 87,
@@ -21,7 +18,6 @@ const view = (over: Partial<HudView> = {}): HudView => ({
 	eliteFragments: 2,
 	relics: 1,
 	weapon: { id: "sword", name: "Rusted Sword", tier: 2 },
-	items: [],
 	boss: null,
 	speed: 1,
 	...over,
@@ -34,7 +30,7 @@ test("formats the clock as m:ss", () => {
 });
 
 test("every cluster of the four corners is on screen", () => {
-	render(<Hud hud={view({ items: [item("a")] })} />);
+	render(<Hud hud={view()} />);
 	for (const id of [
 		"hud-vitals",
 		"hud-hp",
@@ -47,7 +43,6 @@ test("every cluster of the four corners is on screen", () => {
 		"hud-kills",
 		"hud-loadout",
 		"hud-weapon",
-		"hud-items",
 	]) {
 		expect(screen.getByTestId(id), id).toBeTruthy();
 	}
@@ -73,20 +68,6 @@ test("the HP bar shows the number and the XP bar is a thin strip with the values
 test("the weapon frame shows the weapon level", () => {
 	render(<Hud hud={view()} />);
 	expect(screen.getByTestId("hud-weapon-level").textContent).toBe("Nv 2");
-});
-
-test("the item strip groups with a count badge, shows ten and a +N chip for the rest", () => {
-	const items = Array.from({ length: MAX_VISIBLE_ITEMS + 3 }, (_, i) => item(`i${i}`, i === 0 ? 3 : 1));
-	render(<Hud hud={view({ items })} />);
-	const strip = screen.getByTestId("hud-items");
-	expect(within(strip).getAllByRole("listitem")).toHaveLength(MAX_VISIBLE_ITEMS + 1);
-	expect(screen.getByTestId("hud-item-count").textContent).toBe("3");
-	expect(screen.getByTestId("hud-items-more").textContent).toContain("+3");
-});
-
-test("an empty item set draws no strip", () => {
-	render(<Hud hud={view()} />);
-	expect(screen.queryByTestId("hud-items")).toBeNull();
 });
 
 test("the whole round plate is absent outside a timed round, and the clock gives way to the boss bar", () => {
@@ -126,10 +107,9 @@ test("no corner buttons while a dialog is open", () => {
 	expect(screen.queryByTestId("hud-corner")).toBeNull();
 });
 
-test("on touch the weapon sits beside the vitals and the item strip is left to the shop and pause", () => {
-	render(<Hud hud={view({ items: [item("a")] })} touch />);
+test("on touch the weapon sits beside the vitals", () => {
+	render(<Hud hud={view()} touch />);
 	expect(screen.getByTestId("hud-weapon")).toBeTruthy();
-	expect(screen.queryByTestId("hud-items")).toBeNull();
 	expect(screen.getByTestId("hud-loadout").parentElement?.contains(screen.getByTestId("hud-vitals"))).toBe(
 		true,
 	);

@@ -53,22 +53,10 @@ export const TANK_WEIGHTS: Weights = {
 	xp_gain: 30,
 };
 
-/** Flat value of an item whose power is a special effect rather than a stat (the greedy bot's one number). */
-const GREEDY_EFFECT_VALUE = 18;
-/** The tank knows which special effects keep it alive. */
-const TANK_EFFECT_VALUE: Readonly<Record<string, number>> = {
-	revive_once: 90,
-	proximity_aura_damage: 30,
-	contact_damage: 25,
-};
-const TANK_OTHER_EFFECT = 8;
-
 export interface Policy {
 	id: PolicyId;
 	/** Worth of a list of modifiers (a card, a piece of equipment). */
 	modifierValue(mods: readonly Modifier[]): number;
-	/** Worth of an item's special effects. */
-	effectValue(effects: readonly { id: string }[]): number;
 }
 
 function weighted(weights: Weights, mods: readonly Modifier[]): number {
@@ -84,14 +72,11 @@ function weighted(weights: Weights, mods: readonly Modifier[]): number {
 const greedy: Policy = {
 	id: "greedy",
 	modifierValue: (mods) => weighted(GREEDY_WEIGHTS, mods),
-	effectValue: (effects) => (effects.length > 0 ? GREEDY_EFFECT_VALUE : 0),
 };
 
 const tank: Policy = {
 	id: "tank",
 	modifierValue: (mods) => weighted(TANK_WEIGHTS, mods),
-	effectValue: (effects) =>
-		effects.reduce((sum, e) => sum + (TANK_EFFECT_VALUE[e.id] ?? TANK_OTHER_EFFECT), 0),
 };
 
 /** The kiting bot spends like the greedy one: what changes is how it moves. */

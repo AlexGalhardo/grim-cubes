@@ -492,12 +492,6 @@ test("decodedBytes reads an AudioBuffer and ignores anything else", () => {
 	expect(decodedBytes(null)).toBe(0);
 });
 
-test("the spiked boots hit has a sound, at most two voices at once", () => {
-	const sound = soundFor(EventType.ThornsHit, 3, 4, 0.5, 8, ctx);
-	expect(sound?.ids).toBe("sfx_enemy_hit_01");
-	expect(sound?.options?.maxVoices).toBe(2);
-});
-
 test("the merchant takes turns between the lines of a moment and captions each one", () => {
 	const played: string[] = [];
 	const captions: string[] = [];

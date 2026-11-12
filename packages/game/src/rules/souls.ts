@@ -16,10 +16,10 @@ export interface RunSummary {
 
 /**
  * GDD 18.2: `5 * rounds + 25 * elites + (100 + 10 * N)` per boss killed in round N, times the difficulty
- * multiplier and `1 + soul_gain` from items, rounded down.
+ * multiplier, rounded down.
  */
-export function soulsForRun(config: SoulsConfig, run: RunSummary, difficultyMult = 1, soulGain = 0): number {
+export function soulsForRun(config: SoulsConfig, run: RunSummary, difficultyMult = 1): number {
 	const bosses = run.bossRounds.reduce((sum, n) => sum + config.bossBase + config.bossPerRound * n, 0);
 	const base = config.perRound * run.round + config.perElite * run.elitesKilled + bosses;
-	return Math.floor(base * difficultyMult * (1 + soulGain));
+	return Math.floor(base * difficultyMult);
 }

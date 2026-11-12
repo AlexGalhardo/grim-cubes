@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
 	cardsData,
-	itemsData,
 	kiteSteer,
 	type Modifier,
 	parsePolicy,
@@ -62,26 +61,6 @@ describe("what each policy picks", () => {
 		);
 		expect(tank.modifierValue(regenCard?.modifiers ?? [])).toBeGreaterThan(
 			greedy.modifierValue(regenCard?.modifiers ?? []),
-		);
-	});
-
-	it("from the real shop items, the tank prefers a defensive item and rates revives above the greedy bot", () => {
-		const worth = (p: typeof tank) => (item: (typeof itemsData)[number]) =>
-			p.modifierValue(item.modifiers) + p.effectValue(item.effects);
-		const tankItem = best(itemsData, worth(tank));
-		expect(
-			tankItem.modifiers.some((m) => DEFENSIVE.has(m.stat)) ||
-				tankItem.effects.some((e) => e.id === "revive_once"),
-			tankItem.id,
-		).toBe(true);
-		const revive = itemsData.find((i) => i.effects.some((e) => e.id === "revive_once"));
-		expect(revive).toBeDefined();
-		expect(tank.effectValue(revive?.effects ?? [])).toBeGreaterThan(
-			greedy.effectValue(revive?.effects ?? []),
-		);
-		// An ordinary effect is worth less to the tank.
-		expect(tank.effectValue([{ id: "double_fragment_chance" }])).toBeLessThan(
-			greedy.effectValue([{ id: "x" }]),
 		);
 	});
 
@@ -173,27 +152,6 @@ describe("running the simulator with each policy", () => {
 		expect(a.worldHash).not.toBe(g.worldHash);
 		expect(runSim({ ...options, policy: "greedy" }).worldHash).toBe(g.worldHash);
 	}, 60_000);
-
-	it("defensive items rank higher in the tank's worth-per-gold list than in the greedy bot's", () => {
-		// Deterministic stand-in for "what the bot buys": the sim-based share was a few points apart and flipped with
-		// any shop RNG shift (a new item), so it ranks the pool by worth per gold instead.
-		const meanRankOfDefence = (id: "greedy" | "tank"): number => {
-			const policy = policyFor(id);
-			const ranked = itemsData
-				.filter((i) => i.exclusiveTo === undefined && i.tier < 5)
-				.map((i) => ({
-					item: i,
-					worth: (policy.modifierValue(i.modifiers) + policy.effectValue(i.effects)) / i.price,
-				}))
-				.sort((x, y) => y.worth - x.worth);
-			const ranks = ranked.flatMap((r, rank) =>
-				r.item.modifiers.some((m) => DEFENSIVE.has(m.stat)) ? [rank] : [],
-			);
-			return ranks.reduce((sum, rank) => sum + rank, 0) / ranks.length;
-		};
-		// A lower mean rank means the defensive items sit higher in the bot's wish list.
-		expect(meanRankOfDefence("tank")).toBeLessThan(meanRankOfDefence("greedy"));
-	});
 });
 
 describe("the kiting bot for guns (S-12-03)", () => {

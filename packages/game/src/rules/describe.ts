@@ -60,32 +60,3 @@ export function describeStats(stats: PlayerStats): StatLine[] {
 		{ key: "statLine.harvest", value: stats.harvest, percent: false },
 	];
 }
-
-/** Effect parameters that are fractions in the data and shown as percentages (`0.15` -> `15`). */
-const FRACTION_PARAMS: ReadonlySet<string> = new Set([
-	"hpFraction",
-	"fraction",
-	"chance",
-	"damageFraction",
-	"damagePerPercent",
-]);
-/** Effects whose generic `value` is a fraction too (the other `value`s are counts and multipliers). */
-const FRACTION_VALUE_EFFECTS: ReadonlySet<string> = new Set(["bonus_damage_vs_elites"]);
-
-/** `0.07` -> `7`, without the `7.000000000000001` that a plain `* 100` leaves. */
-const toPercent = (fraction: number): number => Math.round(fraction * 10000) / 100;
-
-export function describeEffect(
-	id: string,
-	params: Record<string, number | string | boolean> = {},
-): Described {
-	const out: Record<string, string | number> = {};
-	for (const [name, value] of Object.entries(params)) {
-		if (typeof value === "number") {
-			const fraction =
-				FRACTION_PARAMS.has(name) || (name === "value" && FRACTION_VALUE_EFFECTS.has(id));
-			out[name] = fraction ? toPercent(value) : value;
-		} else if (typeof value === "string") out[name] = value;
-	}
-	return { key: `effect.${id}`, params: out };
-}

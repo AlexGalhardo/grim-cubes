@@ -3,7 +3,7 @@ import { computeStats, type HeroStatsData, type Modifier, type PlayerStats } fro
 
 export interface StatsSystem {
 	readonly stats: PlayerStats;
-	/** Every modifier picked this run (cards now; items and Ossuary nodes later). */
+	/** Every modifier picked this run (the level-up cards). */
 	readonly modifiers: readonly Modifier[];
 	/** Adds modifiers and marks the stats dirty. */
 	add(mods: readonly Modifier[]): void;

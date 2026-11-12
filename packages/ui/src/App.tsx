@@ -12,7 +12,7 @@ import {
 } from "./components/Difficulty/Difficulty";
 import { Heroes, type HeroesActions, type HeroesViewModel } from "./components/Heroes/Heroes";
 import { Hud } from "./components/Hud/Hud";
-import type { HudItem, HudWeapon } from "./components/Hud/hudTypes";
+import type { HudWeapon } from "./components/Hud/hudTypes";
 import { type CardView, LevelUp } from "./components/LevelUp/LevelUp";
 import { Menu, type MenuActions, type MenuViewModel } from "./components/Menu/Menu";
 import { Notice } from "./components/Notice/Notice";
@@ -46,8 +46,6 @@ export interface HudState {
 	kills: number;
 	/** The weapon in hand and its tier. */
 	weapon: HudWeapon;
-	/** The items the hero carries, grouped with a count; the same array until the owned set changes. */
-	items: readonly HudItem[];
 	/** The level-up offer on screen; empty when none. */
 	cards: readonly CardView[];
 	/** Elite fragments in the run's wallet (they raise equipment above level 6). */

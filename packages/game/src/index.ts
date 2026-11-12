@@ -46,7 +46,6 @@ export {
 	equipmentData,
 	heroData,
 	heroesData,
-	itemsData,
 	milestonesData,
 	ossuaryData,
 	presetsData,
@@ -63,7 +62,6 @@ export {
 	Armor,
 	Attacking,
 	Behavior,
-	Bleed,
 	Boss,
 	Consumable,
 	ContactCooldown,
@@ -87,7 +85,6 @@ export {
 	Projectile,
 	Radius,
 	Speed,
-	ThornsCooldown,
 	Velocity,
 } from "./ecs/components";
 export type { RenderPort } from "./ecs/contract";
@@ -116,12 +113,10 @@ export {
 	knockbackScale,
 } from "./rules/damage";
 export type { StatLine } from "./rules/describe";
-export { describeEffect, describeModifier, describeStats } from "./rules/describe";
+export { describeModifier, describeStats } from "./rules/describe";
 export type { Records } from "./rules/difficulty";
 export { chooseDifficulty, difficultyData, isUnlocked, parseSeed } from "./rules/difficulty";
 export { EFFECT_HANDLERS, IMPLEMENTED_EFFECT_IDS } from "./rules/effectIds";
-export type { AuraEffect, EffectSource, EffectsExtra, ItemEffects } from "./rules/effects";
-export { computeEffects, createItemEffects } from "./rules/effects";
 export type { EliteRoller, EliteStats } from "./rules/elite";
 export { createEliteRoller, eliteStats } from "./rules/elite";
 export type {
@@ -136,7 +131,7 @@ export { dropChance, harvestCount, xpForLevel } from "./rules/fragments";
 export type { GameSpeed } from "./rules/gameSpeed";
 export { GAME_SPEEDS, nextSpeed } from "./rules/gameSpeed";
 export { chooseHero, heroMilestones, heroUnlocked } from "./rules/heroes";
-export { availableItems, isReached, lockedItemIds, unlockedSkins } from "./rules/milestones";
+export { isReached, unlockedSkins } from "./rules/milestones";
 export type { BuyResult, NodeState, OssuaryNode } from "./rules/ossuary";
 export {
 	buildOssuaryTree,
@@ -172,15 +167,6 @@ export type { DamageQueue, DamageSystem, DamageSystemDeps, HeroCombatStats } fro
 export { createDamageSystem, DAMAGE_QUEUE_CAPACITY } from "./systems/damage";
 export type { DashConfig, DashOptions, DashSystem } from "./systems/dash";
 export { createDashSystem } from "./systems/dash";
-export type { AuraSystem, AuraSystemDeps, EffectsSystem } from "./systems/effects";
-export {
-	createAuraSystem,
-	createBleedSystem,
-	createEffectsSystem,
-	createKillEffectsSystem,
-	createMagnetSystem,
-	createThornsSystem,
-} from "./systems/effects";
 export type { EliteSystem, EliteSystemDeps } from "./systems/elite";
 export { createEliteSystem } from "./systems/elite";
 export type { EnemyShotSystem } from "./systems/enemyShot";
@@ -199,7 +185,6 @@ export type {
 export {
 	addFragmentValue,
 	applyHarvest,
-	applyRoundEndBonus,
 	createDeathSystem,
 	createPickupSystem,
 	createProgress,
@@ -250,7 +235,6 @@ export type { PropCollision, PropCollisionConfig } from "./world/propCollision";
 export { createPropCollision } from "./world/propCollision";
 export {
 	findHero,
-	queryBleeding,
 	queryBodies,
 	queryConsumables,
 	queryEggs,
@@ -259,5 +243,4 @@ export {
 	queryEnemyShots,
 	queryFragments,
 	queryProjectiles,
-	queryThorned,
 } from "./world/queries";

@@ -57,8 +57,6 @@ export const EventType = {
 	BossShockwave: 28,
 	/** a = phase number entered (2 = the armoured phase); entity = the boss. */
 	BossPhase: 29,
-	/** The hero was revived (Phylactery): leave the death pose; entity = the hero. */
-	Revived: 30,
 	/** a, b = x, z; c = index of the prop in its chunk; entity = prop type id. A breakable prop broke. */
 	PropBroken: 31,
 	/** a, b = x, z; c = kind (1 blood vial, 2 bone magnet). A consumable dropped. */
@@ -87,11 +85,6 @@ export const EventType = {
 	BossBomb: 40,
 	/** a = piles collected this step; b, c = x, z of the hero; entity = the hero. */
 	FragmentPicked: 41,
-	/**
-	 * a, b = x, z of the enemy the spiked boots hurt; c = distance from the hero to it (the hero's own position is the
-	 * render's: direction = enemy - hero); entity = the enemy. At most once per enemy per contact cooldown.
-	 */
-	ThornsHit: 42,
 	/**
 	 * A bonus spell cast itself. a, b = x, z; entity = `SpellVfx` kind.
 	 * Mine packs c = fuseSeconds * 100 + radius (radius stays under 100). Nova puts the radius in c.

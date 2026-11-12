@@ -378,7 +378,6 @@ test("the results and the demo end have no serious violations", async () => {
 					cause: "Carcaça",
 					causeKind: "enemy",
 					weapon: { id: "sword", name: "Espada", tier: 1 },
-					items: [],
 					seconds: 95,
 					sources: [{ id: "weapon", label: "Arma", damage: 40 }],
 					nextUnlock: null,

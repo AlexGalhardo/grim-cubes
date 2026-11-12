@@ -11,7 +11,6 @@ import {
 	equipmentData,
 	heroData,
 	heroesData,
-	itemsData,
 	propsData,
 	roundsData,
 	spellsData,
@@ -37,26 +36,12 @@ import { createBossRoster } from "./systems/boss";
 import { createBreakableSystem } from "./systems/breakables";
 import { createDamageSystem } from "./systems/damage";
 import { createDashSystem } from "./systems/dash";
-import {
-	createAuraSystem,
-	createBleedSystem,
-	createEffectsSystem,
-	createKillEffectsSystem,
-	createMagnetSystem,
-	createThornsSystem,
-} from "./systems/effects";
 import { createEliteSystem } from "./systems/elite";
 import { createEnemyShotSystem } from "./systems/enemyShot";
 import { createHeroStatus } from "./systems/heroStatus";
 import { inputSystem } from "./systems/input";
 import { createLevelUpSystem } from "./systems/levelup";
-import {
-	applyHarvest,
-	applyRoundEndBonus,
-	createDeathSystem,
-	createPickupSystem,
-	createProgress,
-} from "./systems/loot";
+import { applyHarvest, createDeathSystem, createPickupSystem, createProgress } from "./systems/loot";
 import { createMaterials } from "./systems/materials";
 import { movementSystem } from "./systems/movement";
 import { createPlayerSpells } from "./systems/playerSpells";
@@ -80,7 +65,7 @@ import { createPropCollision } from "./world/propCollision";
 export interface GameSessionOptions {
 	seed: number;
 	difficulty: DifficultyData;
-	/** The account: Ossuary nodes shape the run and milestones gate the item pool. */
+	/** The account: the Ossuary spell levels shape the run. */
 	meta: MetaState;
 	/** Hero id from `data/heroes.json`; defaults to the first one. */
 	hero?: string;
@@ -125,7 +110,6 @@ function build(options: GameSessionOptions) {
 	stats.add(heroDef.passive.modifiers);
 	stats.run(hero);
 
-	const owned = new Map<string, number>();
 	const materials = createMaterials(progress, events);
 	// The dash is part of every class now: the Ossuary no longer sells it (S-22-01).
 	const dash = createDashSystem(heroData.dash, {
@@ -134,8 +118,6 @@ function build(options: GameSessionOptions) {
 		cooldownReductionSeconds: 0,
 		events,
 	});
-	const itemEffects = createEffectsSystem(itemsData, owned, undefined, events);
-
 	const startingWeapon = weaponsData.find((w) => w.id === (options.weapon ?? heroDef.startingWeapon));
 	if (!startingWeapon)
 		throw new Error(`Unknown starting weapon ${options.weapon ?? heroDef.startingWeapon}`);
@@ -148,7 +130,6 @@ function build(options: GameSessionOptions) {
 		events,
 		hero,
 		stats: stats.stats,
-		effects: itemEffects.effects,
 		runStats,
 		onHeroHit: (source, taken) => hooks.heroHit?.(source, taken),
 	});
@@ -172,7 +153,6 @@ function build(options: GameSessionOptions) {
 		enemies: separation.hash,
 		rng: rng.weapon,
 		projectiles,
-		effects: itemEffects.effects,
 	});
 	const projectileSystem = createProjectileSystem({
 		pool: projectiles,
@@ -275,7 +255,6 @@ function build(options: GameSessionOptions) {
 		},
 		onRoundEnd: (round) => {
 			applyHarvest(progress, fragments, xp, round, stats.stats.harvest, stats.stats.xpGain);
-			applyRoundEndBonus(progress, fragments, xp, itemEffects.effects, stats.stats.xpGain);
 		},
 	});
 	bag.release = run.releaseFromBag;
@@ -284,12 +263,10 @@ function build(options: GameSessionOptions) {
 		fragmentsPerType: enemiesData.map((e) => e.fragments),
 		rng: rng.loot,
 		round: () => run.round,
-		effects: itemEffects.effects,
 		runStats,
 		onDeath: (w, e, x, z) => {
 			elite.handleDeath(w, e, x, z);
 			boss.handleDeath(w, e, x, z);
-			killEffects.onKill(w, e, x, z);
 			if (hasComponent(w, e, Elite)) breakables.dropFrom(x, z, "elite");
 		},
 	});
@@ -298,25 +275,6 @@ function build(options: GameSessionOptions) {
 		xp,
 		progress,
 		stats: stats.stats,
-		effects: itemEffects.effects,
-		events,
-	});
-	const aura = createAuraSystem({
-		effects: itemEffects.effects,
-		queue: damage.queue,
-		enemies: separation.hash,
-		round: () => run.round,
-	});
-	const magnet = createMagnetSystem({
-		effects: itemEffects.effects,
-		pull: (seconds) => pickup.pullAll(seconds),
-	});
-	const bleed = createBleedSystem({ events, runStats });
-	const thorns = createThornsSystem({
-		effects: itemEffects.effects,
-		queue: damage.queue,
-		enemies: separation.hash,
-		cooldownSeconds: heroData.combat.contactCooldownSeconds,
 		events,
 	});
 	// Spell levels come from the Ossuary (S-22): level 1 is free, each owned node of a spell adds one.
@@ -340,16 +298,6 @@ function build(options: GameSessionOptions) {
 		events,
 		round: () => run.round,
 		kills: () => runStats.kills,
-	});
-	// Declared after `death` only for readability: the death hook calls it once the loop runs.
-	const killEffects = createKillEffectsSystem({
-		effects: itemEffects.effects,
-		queue: damage.queue,
-		enemies: separation.hash,
-		events,
-		rng: rng.effects,
-		round: () => run.round,
-		hero,
 	});
 	const levelUp = createLevelUpSystem({
 		progress,
@@ -467,12 +415,8 @@ function build(options: GameSessionOptions) {
 			weapon.run(world, hero);
 			projectileSystem.run(world);
 			enemyShotSystem.run(world, hero);
-			aura.run(world, hero);
 			spells.run(world, hero);
 			playerSpells.run(world, hero, input);
-			magnet.run();
-			thorns.run(world, hero);
-			bleed.run(world);
 			damage.run(world);
 			breakables.run();
 			death.run(world);
@@ -482,7 +426,7 @@ function build(options: GameSessionOptions) {
 			stats.run(hero);
 			regenerate();
 			levelUp.run();
-			if ((Health.hp[hero] ?? 0) <= 0 && !itemEffects.tryRevive(hero)) run.heroDied();
+			if ((Health.hp[hero] ?? 0) <= 0) run.heroDied();
 		}
 		if (run.state === "Shop" && !inShop) shop.open();
 		inShop = run.state === "Shop";
@@ -496,9 +440,7 @@ function build(options: GameSessionOptions) {
 		runStats,
 		hero,
 		stats,
-		owned,
 		dash,
-		itemEffects,
 		startingWeapon,
 		heroDef,
 		heroStatsData: runHeroData,
@@ -521,10 +463,6 @@ function build(options: GameSessionOptions) {
 		run,
 		death,
 		pickup,
-		aura,
-		bleed,
-		thorns,
-		killEffects,
 		classSpells,
 		playerSpells,
 		levelUp,
@@ -554,9 +492,7 @@ export interface GameSession {
 	readonly runStats: ReturnType<typeof build>["runStats"];
 	readonly hero: ReturnType<typeof build>["hero"];
 	readonly stats: ReturnType<typeof build>["stats"];
-	readonly owned: ReturnType<typeof build>["owned"];
 	readonly dash: ReturnType<typeof build>["dash"];
-	readonly itemEffects: ReturnType<typeof build>["itemEffects"];
 	readonly startingWeapon: ReturnType<typeof build>["startingWeapon"];
 	/** The hero of the run: weapon, passive and recolour. */
 	readonly heroDef: ReturnType<typeof build>["heroDef"];
@@ -581,10 +517,6 @@ export interface GameSession {
 	readonly run: ReturnType<typeof build>["run"];
 	readonly death: ReturnType<typeof build>["death"];
 	readonly pickup: ReturnType<typeof build>["pickup"];
-	readonly aura: ReturnType<typeof build>["aura"];
-	readonly bleed: ReturnType<typeof build>["bleed"];
-	readonly thorns: ReturnType<typeof build>["thorns"];
-	readonly killEffects: ReturnType<typeof build>["killEffects"];
 	/** The class's six spells at their Ossuary levels (S-20-02). */
 	readonly classSpells: ReturnType<typeof build>["classSpells"];
 	/** The heal and the super the player casts. */

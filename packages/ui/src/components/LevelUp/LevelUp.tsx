@@ -24,7 +24,7 @@ export interface CardView {
 	name: string;
 	double: boolean;
 	icon?: IconRef | undefined;
-	/** 1-5, the rarity colour of the frame (a double card is Epic, an elite chest item keeps its tier). */
+	/** 1-5, the rarity colour of the frame (a double card is Epic). */
 	rarity: number;
 	/** The effect lines, e.g. "+4% dano". */
 	lines: readonly string[];

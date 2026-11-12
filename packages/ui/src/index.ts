@@ -25,7 +25,7 @@ export type {
 	HeroView,
 } from "./components/Heroes/Heroes";
 export { Heroes } from "./components/Heroes/Heroes";
-export type { HudItem, HudWeapon } from "./components/Hud/hudTypes";
+export type { HudWeapon } from "./components/Hud/hudTypes";
 export type { IconProps, IconRef } from "./components/Icon/Icon";
 export { Icon } from "./components/Icon/Icon";
 export type { CardChange, CardView, LevelUpProps } from "./components/LevelUp/LevelUp";

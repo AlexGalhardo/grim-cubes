@@ -19,9 +19,8 @@ test("a run to round 30 with 3 bosses and 5 elites follows the formula (the GDD 
 	);
 });
 
-test("difficulty and soul_gain multiply, rounding down", () => {
+test("the difficulty multiplies, rounding down", () => {
 	const run = { round: 12, elitesKilled: 1, bossRounds: [10] };
 	expect(soulsForRun(config, run, 1.5)).toBe(427);
-	expect(soulsForRun(config, run, 1, 0.5)).toBe(427);
 	expect(soulsForRun(config, { round: 1, elitesKilled: 0, bossRounds: [] })).toBe(5);
 });

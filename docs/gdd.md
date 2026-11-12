@@ -27,7 +27,7 @@ Convenções deste documento:
 12. [Chefes](#12-chefes)
 13. [Rounds e dificuldade](#13-rounds-e-dificuldade)
 14. [Stats](#14-stats)
-15. [Itens e raridades](#15-itens-e-raridades)
+15. [Raridades e consumíveis](#15-raridades-e-consumíveis)
 16. [Level-up](#16-level-up)
 17. [Loja](#17-loja)
 18. [Economia](#18-economia)
@@ -435,12 +435,12 @@ Decisão D15: baseline Brotato, reduzido a 12 stats primários com caps explíci
 | `armor` | Armadura | pontos | reduz dano recebido: `100 / (100 + 6,66 × armor)` | — | negativa permitida |
 | `dodge` | Esquiva | % | +1% | 60% | — |
 | `speed` | Velocidade | % | +1% da base (6 u/s) | +100% | mínimo −50% |
-| `luck` | Sorte | pontos | +1% chance de tier melhor e de drop | — | ver §15.2 |
+| `luck` | Sorte | pontos | 1% de chance por ponto de um segundo sorteio de nível na loja | — | §17.1 (nível da oferta da loja) |
 | `harvest` | Colheita | pontos | +1 fragmento no fim do round por ponto | — | cresce 5% por round (baseline) |
 
 Stats secundários (só por itens): `pickup_range` (%), `xp_gain` (%), `shop_price` (%), `explosion_size` (%), `knockback` (%), `enemy_speed` (%), `boss_damage` (%), `free_rerolls`.
 
-## 15. Itens e raridades
+## 15. Raridades e consumíveis
 
 ### 15.1 Raridades
 
@@ -454,106 +454,13 @@ Stats secundários (só por itens): `pickup_range` (%), `xp_gain` (%), `shop_pri
 
 Decisão do PO (2026-10-31): cinco raridades na UI, `tier: 1..5` nos dados. Os nomes antigos (Comum, Incomum, Raro, Lendário) viram Normal, Raro, Épico e Lendário; os preços e as chances por tier de 15.2 continuam valendo até o Est atualizar os dados.
 
-### 15.2 Chance por tier (baseline Brotato)
-
-```text
-chance(T, N) = clamp(base_T + inc_T × max(0, N - min_T + 1), 0, cap_T) × (1 + luck / 100)
-T2: base 0, inc 6%/round,    cap 60%, min_round 2
-T3: base 0, inc 2%/round,    cap 25%, min_round 4
-T4: base 0, inc 0,23%/round, cap 8%,  min_round 8
-T5: base 0, inc 0,06%/round, cap 1,5%, min_round 25
-T1: o restante
-```
-
-Sorteio: testa T5, depois T4, depois T3, depois T2; o que sobrar é T1 (sem item do tier sorteado, a loja desce de tier). A sorte multiplica todas as chances como antes.
-
-### 15.3 Pool da 1.0 (41 itens + 4 Míticos + 2 exclusivos do Ossuário)
-
-Regeneração e auditoria de stats (2026-10-31): com `hp_regen`, `knockback` e `enemy_speed` aplicados de fato, o p50 do sim passou de 21 para 31 (alvo 18–26), e o 500×30 ficou na beira do penhasco (cerca de 50% das runs vivas no round 30). Rebalanceado só em dados: Atadura Negra, Coração do Abismo e Manto do Ossuário dão +0,5 regeneração (eram +2, +3 e +2), a carta de stat dá +0,25 regen (era +1) e a Ampulheta do Ceifador reduz a velocidade dos inimigos em 5% (era 20%). Resultado: 64 runs × 35 rounds com p50 23,5 e 500 × 30 com p50 24 (`reports/balance-audit-500x30.json`).
-
-Tabela resumida; a tabela completa com todos os valores vive em `data/items.json` (fonte única, consumida pelo jogo e pelo simulador de balanceamento). Cada item é passivo e acumulável salvo indicação.
-
-| ID | Nome | Tier | Efeito | Contra-efeito |
-| --- | --- | --- | --- | --- |
-| `rusted_plate` | Placa Enferrujada | 1 | +3 armadura | −2% velocidade |
-| `grave_dirt` | Terra de Cova | 1 | +10 HP máx | — |
-| `whetstone` | Pedra de Amolar | 1 | +5% dano | — |
-| `bone_charm` | Amuleto de Osso | 1 | +5 sorte | — |
-| `tattered_boots` | Botas Rasgadas | 1 | +6% velocidade | — |
-| `scavenger_hook` | Gancho de Catador | 1 | +25% raio de pickup | — |
-| `ember_vial` | Frasco de Brasa | 1 | +4% velocidade de ataque | — |
-| `lead_bullets` | Balas de Chumbo | 1 | +15% knockback | — |
-| `cracked_skull` | Crânio Rachado | 1 | +2 colheita | — |
-| `iron_tooth` | Dente de Ferro | 1 | +3% crítico | — |
-| `black_bandage` | Atadura Negra | 2 | +0,5 regen | — |
-| `chain_mail` | Cota de Malha | 2 | +8 armadura | −5% velocidade |
-| `hunter_eye` | Olho do Caçador | 2 | +1 u alcance, +5% crítico | — |
-| `leech_tongue` | Língua de Sanguessuga | 2 | +3% roubo de vida | −5 HP máx |
-| `swamp_lantern` | Lanterna do Pântano | 2 | +20% XP | — |
-| `rat_king` | Rei dos Ratos | 2 | +15% chance de fragmento duplo | — |
-| `gunpowder_keg` | Barril de Pólvora | 2 | +30% tamanho de explosão | — |
-| `cursed_coin` | Moeda Maldita | 2 | −10% preços na loja | −5 sorte |
-| `war_drum` | Tambor de Guerra | 2 | +10% velocidade de ataque | — |
-| `heavy_gauntlet` | Manopla Pesada | 2 | +12% dano | −4% velocidade de ataque |
-| `grim_pact` | Pacto Sombrio (en: Grim Bargain) | 3 | +30% dano | −20 HP máx |
-| `iron_lung` | Pulmão de Ferro | 3 | +40 HP máx | — |
-| `vampire_fang` | Presa Vampírica | 3 | +6% roubo de vida | — |
-| `shadow_cloak` | Manto de Sombra | 3 | +12% esquiva | — |
-| `executioner_mark` | Marca do Carrasco | 3 | +25% dano vs chefes e elites | — |
-| `brimstone_heart` | Coração de Enxofre | 3 | inimigos a < 2 u recebem 5 + N dano/s | — |
-| `bone_saw` | Serra de Osso | 3 | críticos causam sangramento (20% dano em 2 s) | — |
-| `tithe_box` | Caixa do Dízimo | 3 | +15% de fragmentos no fim do round | — |
-| `spiked_boots` | Botas com Cravos | 3 | contato com inimigo causa 10 dano | — |
-| `hellfire_round` | Munição Infernal | 3 | projéteis perfuram +1 inimigo | — |
-| `crown_of_nails` | Coroa de Pregos | 4 | +50% dano, +20% crítico | −30% HP máx |
-| `heart_of_the_pit` | Coração do Abismo | 4 | +100 HP máx, +0,5 regen | −15% velocidade |
-| `reaper_hourglass` | Ampulheta do Ceifador | 4 | inimigos −5% velocidade | — |
-| `doom_sigil` | Sigilo da Ruína | 4 | ao matar, 10% de explosão (raio 2 u, 30 + 3N) | — |
-| `phylactery` | Filactério | 4 | revive 1× por run com 30% HP (não acumula) | — |
-| `blood_altar` | Altar de Sangue | 4 | +1% dano por 1% de HP perdido | — |
-| `warlord_banner` | Estandarte do Senhor da Guerra | 4 | +25% velocidade de ataque, +25% dano | preços +20% |
-| `cube_of_wrath` | Cubo da Ira | 4 | a cada 50 kills, onda de choque (raio 6 u, 50 + 5N) | — |
-| `soul_jar` | Jarro de Almas | 4 | +50% almas ao morrer | — |
-| `gilded_skull` | Crânio Dourado | 4 | +20 sorte, +20% fragmentos | — |
-
-Acréscimos de 2026-10-31 (pedido do PO):
-
-| ID | Nome | Tier | Preço | Efeito | Contra-efeito |
-| --- | --- | --- | --- | --- | --- |
-| `bone_lodestone` | Ímã de Ossos | 3 | 120 | efeito `pull_fragments`: a cada 8 s puxa todos os fragmentos do chão até o herói (cada cópia tem o seu relógio) | — |
-| `titan_core` | Núcleo do Titã | 5 | 280 | +200 HP máx, +12 armadura | −20% velocidade, −15% velocidade de ataque |
-| `blood_crown` | Coroa de Sangue | 5 | 300 | +60% dano, +8% roubo de vida | HP máx ×0,6 |
-| `storm_gauntlet` | Manopla da Tempestade | 5 | 320 | +50% velocidade de ataque, +25% crítico | −6 armadura |
-| `void_cloak` | Manto do Vazio | 5 | 240 | +25% esquiva, +20% velocidade | HP máx ×0,75, −15% dano |
-
-O Ímã de Ossos é o item comprável do consumível `bone_magnet` (§15.4, que só dropa); a lógica de puxar a cada 8 s é do S2 (`ItemEffects.pullFragmentsEverySeconds`). Os quatro Míticos seguem o padrão do pool (um ganho grande com um custo claro) e valem de 240 a 320 de preço base.
-
-Magias automáticas (pedido do PO, 2026-11-01): cinco itens de tier 4, sem modificador de stat, que disparam sozinhos no round, no estilo das armas passivas do Brotato. Cada cópia soma um feitiço. O preço fica entre 150 e 190 para o bot greedy, que valoriza qualquer efeito especial em 18, não preferi-los ao Coração de Enxofre (preço 80).
-
-| ID | Nome | Tier | Preço | Efeito |
-| --- | --- | --- | --- | --- |
-| `ossuary_bolt` | Seta do Ossuário | 4 | 160 | `auto_bolt`: a cada 1,2 s um projétil no inimigo mais próximo (8 + 2N, alcance 12) |
-| `bone_orbit` | Círculo de Ossos | 4 | 170 | `orbit_blades`: 2 estilhaços giram a 1,6 u e cortam no contato (4 + N, recarga 0,4 s por inimigo) |
-| `soul_chain` | Relâmpago de Almas | 4 | 180 | `chain_lightning`: a cada 2,5 s salta até 3 inimigos próximos (6 + 1,5N, alcance 10) |
-| `grave_mine` | Minas Sepulcrais | 4 | 150 | `drop_mine`: a cada 4 s larga uma mina (12 + 3N, raio 1,8, pavio 6 s) |
-| `ash_nova` | Pulso de Cinzas | 4 | 190 | `nova_pulse`: a cada 5 s fere quem está a até 3,2 u (10 + 2N) |
-
-O VFX usa o evento `SpellCast` (seta, estilhaços, relâmpago, disco de aviso da mina, anel do pulso). A explosão da mina reusa `Exploded`.
-
-Exclusivos do Ossuário (entram no pool Lendário só com o nó `ruin_6`, `exclusiveTo` em `data/items.json`; não contam nos 40):
-
-| ID | Nome | Tier | Efeito | Contra-efeito |
-| --- | --- | --- | --- | --- |
-| `ruin_chalice` | Cálice da Ruína | 4 | +30% dano | −20 HP máximo |
-| `ossuary_mantle` | Manto do Ossuário | 4 | +8 armadura, +0,5 regeneração | −10% velocidade |
-
 ### 15.4 Consumíveis
 
 Caem de destrutíveis e de elites: Frasco de Sangue (cura 20% HP imediato), Ímã de Ossos (puxa todos os fragmentos por 3 s). Não ficam no inventário; efeito ao pegar.
 
-### 15.5 Sinergias por etiqueta (removidas na v0.7.0)
+### 15.5 Itens e sinergias (removidos na v0.7.0)
 
-As sinergias e as etiquetas dos itens saíram (ADR-0030, S-25-01): o equipamento da §17 não tem etiqueta, e o bônus de coleção deu lugar ao nível 1 a 10 de cada slot. Some o código (`rules/synergies.ts`, `systems/synergies.ts`), os dados (`data/synergies.json` e o campo `tags` dos itens), o esquema, as chaves de locale `tag.*`, a faixa do HUD, as etiquetas da loja e o som `sfx_ui_synergy` (o arquivo de áudio fica em `assets/src/audio`, sem uso). Os itens deste capítulo também não têm mais origem no jogo: a loja não os vende e o baú acabou; o catálogo (`data/items.json`) e o motor de efeitos ficam até a árvore do Ossuário e as magias da v0.7.0 decidirem o que reaproveitar.
+Os itens, as etiquetas e as sinergias saíram (ADR-0030, S-25-01): o equipamento da §17 não tem etiqueta nem efeito especial, só atributos por nível. Saíram junto o catálogo (`data/items.json`, com o esquema), o motor de efeitos de item (aura, espinhos, sangramento, explosão ao matar, onda a cada N abates, ímã de XP, ressurreição), a faixa de itens do HUD e da tela de resultados, os marcos que liberavam item, os ícones e textos `item.*` e `effect.*`, e o retrato animado do Mercador. As magias automáticas de cada classe (`data/spells.json`, §7) reaproveitam os cinco comportamentos (`bolt`, `orbit`, `chain`, `mine`, `nova`) do antigo motor. O áudio `sfx_ui_synergy` e `sfx_player_revive` ficou no repositório, sem uso.
 
 ## 16. Level-up
 

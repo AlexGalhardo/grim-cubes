@@ -3,7 +3,7 @@ import { type JSX, useEffect, useState } from "react";
 import { useShortScreen } from "../../hooks/useViewport";
 import { useDialogNav } from "../../nav/useDialogNav";
 import { Button } from "../Button/Button";
-import type { HudItem, HudWeapon } from "../Hud/hudTypes";
+import type { HudWeapon } from "../Hud/hudTypes";
 import { Icon } from "../Icon/Icon";
 import { LeaveConfirm } from "../LeaveConfirm/LeaveConfirm";
 import { Panel } from "../Panel/Panel";
@@ -19,8 +19,6 @@ export interface ResultsViewModel {
 	cause: string;
 	causeKind: CauseKind;
 	weapon: HudWeapon;
-	/** The items of the run with their counters. */
-	items: readonly HudItem[];
 	/** Seconds spent fighting (rounds and boss fights). */
 	seconds: number;
 	/** Damage dealt per source; a source that dealt none is left out. */
@@ -223,26 +221,6 @@ export function Results({ view, onRestart, onOssuary, onMenu, onWishlist }: Resu
 												})}
 											</span>
 										</div>
-										<ul
-											aria-label={t("results.build")}
-											className="mt-2 flex flex-wrap gap-1.5"
-										>
-											{view.items.map((item) => (
-												<li
-													key={item.id}
-													title={item.name}
-													className={`relative flex size-9 items-center justify-center border-2 bg-night ${TIER_BORDER[item.tier] ?? "border-iron-dark"}`}
-												>
-													{item.icon ? <Icon icon={item.icon} size={28} /> : null}
-													<span className="sr-only">{item.name}</span>
-													{item.count > 1 ? (
-														<span className="absolute right-0.5 bottom-0 font-display text-bone text-xs [text-shadow:1px_1px_0_var(--color-night)]">
-															{item.count}
-														</span>
-													) : null}
-												</li>
-											))}
-										</ul>
 									</div>
 								</div>
 								<div className="flex flex-col gap-2">

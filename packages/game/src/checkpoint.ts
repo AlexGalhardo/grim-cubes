@@ -17,8 +17,7 @@ export interface RunIdentity {
  * enemies. Call it while the intro of the round is on, never mid-fight. Allocates; it runs once per round.
  */
 export function captureCheckpoint(session: GameSession, identity: RunIdentity): RunCheckpoint {
-	const { progress, stats, runStats, hero, origin, weapon, shop, owned, levelUp, itemEffects, run, rng } =
-		session;
+	const { progress, stats, runStats, hero, origin, weapon, shop, levelUp, run, rng } = session;
 	const own = session.heroDef.passive.modifiers.length;
 	return {
 		seed: identity.seed,
@@ -32,11 +31,9 @@ export function captureCheckpoint(session: GameSession, identity: RunIdentity): 
 		equipment: [...shop.levels],
 		eliteFragments: progress.eliteFragments,
 		relics: progress.relics,
-		owned: Object.fromEntries(owned),
 		// The hero passive modifiers come back by themselves when the session is rebuilt.
 		modifiers: stats.modifiers.slice(own).map((m) => ({ stat: m.stat, op: m.op, value: m.value })),
 		cardRerollsLeft: levelUp.rerollsLeft,
-		revivesSpent: itemEffects.revivesSpent,
 		bag: run.bag.value,
 		rng: RNG_STREAMS.map((name) => rng[name].state()),
 		origin: { x: origin.x, z: origin.z },
@@ -58,8 +55,7 @@ export function captureCheckpoint(session: GameSession, identity: RunIdentity): 
  * longer has or another class that still exists, so the caller can fall back to a new run.
  */
 export function restoreCheckpoint(session: GameSession, cp: RunCheckpoint): void {
-	const { progress, stats, runStats, hero, origin, weapon, shop, owned, levelUp, itemEffects, run, rng } =
-		session;
+	const { progress, stats, runStats, hero, origin, weapon, shop, levelUp, run, rng } = session;
 	const classExists = heroesData.some((h) => h.id === cp.hero);
 	if (classExists && cp.hero !== session.heroDef.id)
 		throw new Error(`checkpoint is for hero ${cp.hero}, the session plays ${session.heroDef.id}`);
@@ -72,11 +68,7 @@ export function restoreCheckpoint(session: GameSession, cp: RunCheckpoint): void
 	progress.xp = cp.xp;
 	progress.level = cp.level;
 	progress.pendingLevelUps = 0;
-	progress.roundGold = 0;
-	owned.clear();
-	for (const [id, count] of Object.entries(cp.owned)) owned.set(id, count);
 	stats.add(cp.modifiers);
-	itemEffects.restoreRevivesSpent(cp.revivesSpent);
 	weapon.setWeapon(def, cp.weapon.tier);
 	shop.restoreLevels(cp.equipment);
 	progress.eliteFragments = cp.eliteFragments;

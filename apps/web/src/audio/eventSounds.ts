@@ -119,15 +119,10 @@ export function soundFor(
 			return { ids: "sfx_dash", options: HERO };
 		case EventType.PropBroken:
 			return { ids: "sfx_prop_break", options: HIT };
-		case EventType.ThornsHit:
-			// The spiked boots hurt: the plain enemy hit sound, a couple of voices at most.
-			return { ids: "sfx_enemy_hit_01", options: { priority: "enemy", maxVoices: 2 } };
 		case EventType.FragmentPicked:
 			return { ids: "sfx_pickup_fragment_01", options: { priority: "hero", maxVoices: 3 } };
 		case EventType.ConsumablePicked:
 			return { ids: "sfx_pickup_consumable", options: HERO };
-		case EventType.Revived:
-			return { ids: "sfx_player_revive", options: HERO };
 		default:
 			return null;
 	}

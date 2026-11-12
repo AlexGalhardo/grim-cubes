@@ -9,14 +9,10 @@ const view: ResultsViewModel = {
 	cause: "Carcaça",
 	causeKind: "elite",
 	weapon: { id: "sword", name: "Espada Enferrujada", tier: 2 },
-	items: [
-		{ id: "plate", name: "Placa Enferrujada", tier: 1, count: 2 },
-		{ id: "boots", name: "Botas", tier: 3, count: 1 },
-	],
 	seconds: 754,
 	sources: [
 		{ id: "weapon", label: "Arma", damage: 4000 },
-		{ id: "bleed", label: "Sangramento", damage: 1000 },
+		{ id: "spell", label: "Magia", damage: 1000 },
 	],
 	nextUnlock: { name: "+5 HP máx", cost: 400 },
 	souls: 285,
@@ -41,8 +37,6 @@ test("shows the run summary, the build and the seed", () => {
 	expect(screen.getByTestId("results-record").textContent).toContain("novo");
 	expect(screen.getByTestId("results-time").textContent).toBe("12:34");
 	expect(screen.getByTestId("results-weapon").textContent).toContain("Espada Enferrujada (T2)");
-	expect(screen.getByTestId("results-build").textContent).toContain("Placa Enferrujada");
-	expect(screen.getByTestId("results-build").textContent).toContain("2");
 });
 
 test("shows who killed the hero with an icon, the damage bars and the progress to the next unlock", () => {
@@ -50,7 +44,7 @@ test("shows who killed the hero with an icon, the damage bars and the progress t
 	expect(screen.getByTestId("results-cause-icon").textContent).toBe("☠");
 	expect(screen.getByTestId("results-cause-icon").className).toContain("border-rarity-3");
 	expect(screen.getByTestId("results-source-weapon").textContent).toContain("4000");
-	const bar = screen.getByTestId("results-source-bleed").querySelector("span > span") as HTMLElement;
+	const bar = screen.getByTestId("results-source-spell").querySelector("span > span") as HTMLElement;
 	expect(bar.style.width).toBe("25%");
 	expect(screen.getByTestId("results-unlock").textContent).toContain("1285 / 400 almas");
 	expect(screen.getByTestId("results-unlock").textContent).toContain("já pode ser comprado");

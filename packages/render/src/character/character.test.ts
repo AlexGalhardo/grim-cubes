@@ -6,7 +6,6 @@ import { describe, expect, it } from "vitest";
 import { createNullEngine } from "../engine";
 import { createGameScene } from "../scene/scene";
 import { loadCharacter } from "./character";
-import { createPortrait } from "./portrait";
 
 async function characterGlb(): Promise<string> {
 	const doc = new Document();
@@ -148,32 +147,6 @@ describe("character rig", () => {
 		character.setLift(2);
 		character.setPose(1, 2, 0);
 		expect(character.holder.position.y).toBe(2);
-		dispose();
-	});
-
-	it("renders the portrait into a texture without ever resizing the game canvas", async () => {
-		const { game, character, dispose } = await setup();
-		const engine = game.scene.getEngine();
-		const size = () => [engine.getRenderWidth(), engine.getRenderHeight()];
-		const before = size();
-		const canvas = { width: 64, height: 64, getContext: () => null } as unknown as HTMLCanvasElement;
-		const portrait = createPortrait(game, canvas, character);
-		portrait.start();
-		portrait.start();
-		expect(portrait.running).toBe(true);
-		const texture = game.scene.customRenderTargets.find((t) => t.name === "portrait");
-		expect(texture?.getSize().width).toBe(64);
-		expect(texture?.renderList?.length).toBeGreaterThan(0);
-		expect(game.scene.activeCamera).toBe(game.camera);
-		expect(game.scene.getLightByName("portrait")?.includedOnlyMeshes.length).toBeGreaterThan(0);
-		game.scene.render();
-		expect(size()).toEqual(before);
-		portrait.stop();
-		expect(portrait.running).toBe(false);
-		expect(game.scene.customRenderTargets.some((t) => t.name === "portrait")).toBe(false);
-		expect(game.scene.getCameraByName("portrait")).toBeNull();
-		expect(game.scene.getLightByName("portrait")).toBeNull();
-		expect(size()).toEqual(before);
 		dispose();
 	});
 

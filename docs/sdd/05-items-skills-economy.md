@@ -18,7 +18,6 @@ Os loaders importam os JSON (`resolveJsonModule`; `rootDir: "../.."` só no `tsc
 | `elites.json` | 4 modificadores |
 | `bosses.json` | 5 chefes: HP, padrões e fase de entrega (o dano de contato e de projétil dos chefes fica em `rounds.json` `boss`) |
 | `weapons.json` | 5 armas: stats por tier, preços |
-| `items.json` | 40 itens: tier, modificadores de stat, efeitos especiais (por id de efeito), preço base |
 | `cards.json` | 12 cartas de level-up + regra de carta dupla |
 | `ossuary.json` | os preços da árvore de magias (`levelCosts`, um por nível de 2 a 10) e o corte da demo (`demoMaxLevel`); os nós saem de `spells.json` (S-22-01) |
 | `spells.json` | as seis magias de cada classe (4 automáticas, cura e super), a escala por nível e a carga da super (S-20-02) |

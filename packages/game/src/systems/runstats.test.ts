@@ -128,8 +128,7 @@ test("damage dealt is tallied by origin", () => {
 	const e = enemy();
 	damage.queue.push(e, 10, 0, 0, 0, 0);
 	damage.queue.push(e, 20, 0, 0, 0, 0, DamageOrigin.Spell);
-	damage.queue.push(e, 5, 0, 0, 0, 0, DamageOrigin.Item);
 	damage.run(world);
-	expect(runStats.damageBySource).toEqual([10, 20, 5, 0]);
-	expect(runStats.damageDealt).toBeCloseTo(35);
+	expect(runStats.damageBySource).toEqual([10, 20]);
+	expect(runStats.damageDealt).toBeCloseTo(30);
 });

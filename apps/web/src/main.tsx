@@ -38,7 +38,6 @@ import {
 import {
 	addFragmentValue,
 	applyOriginShift,
-	Bleed,
 	Boss,
 	biomesData,
 	bossesData,
@@ -58,7 +57,6 @@ import {
 	cullDistantEnemies,
 	dailyHero,
 	dailySeed,
-	describeEffect,
 	describeModifier,
 	describeStats,
 	difficultyData,
@@ -80,7 +78,6 @@ import {
 	heroMilestones,
 	heroUnlocked,
 	isUnlocked,
-	itemsData,
 	KnockbackResist,
 	levelTier,
 	type Modifier,
@@ -171,7 +168,7 @@ import {
 	type StatPreview,
 	type VolumeBus,
 } from "@gc/ui";
-import { addComponent, query } from "bitecs";
+import { query } from "bitecs";
 import { createRoot } from "react-dom/client";
 import { bootArtReview } from "./artReview";
 import { createAudioEngine } from "./audio/audioEngine";
@@ -360,9 +357,7 @@ async function boot(): Promise<void> {
 		runStats,
 		hero,
 		stats,
-		owned,
 		dash,
-		itemEffects,
 		enemyIds,
 		damage,
 		separation,
@@ -417,7 +412,6 @@ async function boot(): Promise<void> {
 		souls: 0,
 		kills: 0,
 		weapon: { id: "", name: "", tier: 1 },
-		items: [],
 		cards: NO_CARDS,
 		eliteFragments: 0,
 		relics: 0,
@@ -1199,9 +1193,6 @@ async function boot(): Promise<void> {
 	let metaRevision = 0;
 	let results: HudState["results"] = null;
 	const loadout = createLoadoutView({
-		itemName: (id) => t(`item.${id}`),
-		itemTier: (id) => itemsData.find((entry) => entry.id === id)?.tier ?? 1,
-		itemIcon: (id) => iconFor("item", id),
 		weaponName: (id) => t(`weapon.${id}`),
 		weaponIcon: (id) => iconFor("weapon", id),
 	});
@@ -1221,7 +1212,6 @@ async function boot(): Promise<void> {
 			},
 			{ round: run.round, elitesKilled: runStats.elitesKilled, bossRounds: runStats.bossRounds },
 			difficulty.soulsMult,
-			itemEffects.effects.soulGain,
 		);
 	}
 
@@ -1288,7 +1278,6 @@ async function boot(): Promise<void> {
 				seed,
 				...(dailyOutcome && { daily: dailyOutcome }),
 				loadout: loadout.update({
-					owned,
 					weaponId: weapon.weapon.id ?? "",
 					weaponTier: weapon.tier,
 					locale: meta.settings.locale,
@@ -1771,7 +1760,7 @@ async function boot(): Promise<void> {
 			quote: t(merchantLine || `voice.merchant.arrive_${(run.round % 3) + 1}`),
 		};
 	}
-	function iconFor(kind: "item" | "card" | "weapon" | "equipment", id: string): IconRef | undefined {
+	function iconFor(kind: "card" | "weapon" | "equipment", id: string): IconRef | undefined {
 		const key = `${kind}_${id}`;
 		if (iconCache.has(key)) return iconCache.get(key);
 		const entry = assets?.manifest.entries[`icon_${key}`];
@@ -1903,7 +1892,6 @@ async function boot(): Promise<void> {
 			vfx.setBossSpeedMult(carried.reduce((mult, modifier) => mult * (modifier.speedMult ?? 1), 1));
 		}
 		const loadoutView = loadout.update({
-			owned,
 			weaponId: weapon.weapon.id ?? "",
 			weaponTier: weapon.tier,
 			locale: meta.settings.locale,
@@ -1920,7 +1908,6 @@ async function boot(): Promise<void> {
 			souls: runSouls(),
 			kills: runStats.kills,
 			weapon: loadoutView.weapon,
-			items: loadoutView.items,
 			cards: lastOffer,
 			cardRerolls: levelUp.rerollsLeft,
 			eliteFragments: progress.eliteFragments,
@@ -2001,7 +1988,6 @@ async function boot(): Promise<void> {
 			cur.souls !== next.souls ||
 			cur.kills !== next.kills ||
 			cur.weapon !== next.weapon ||
-			cur.items !== next.items ||
 			cur.cards !== next.cards ||
 			cur.cardRerolls !== next.cardRerolls ||
 			cur.eliteFragments !== next.eliteFragments ||
@@ -2190,7 +2176,6 @@ async function boot(): Promise<void> {
 			// VFX stop with the world while paused (level-up) so a captured frame is stable.
 			scaler?.frame(render.engine.getDeltaTime());
 			const vfxDelta = run.state === "Paused" ? 0 : Math.min(0.1, render.engine.getDeltaTime() / 1000);
-			vfx.syncStatus(world, vfxDelta);
 			vfx.update(vfxDelta);
 			projectileView.sync(world, alpha);
 			enemyShotView.sync(world, alpha);
@@ -2283,8 +2268,7 @@ async function boot(): Promise<void> {
 			/** Game speed 1, 2 or 3 (perf margin check). */
 			setSpeed: (speed: number) => loop.setSpeed(speed),
 			/**
-			 * Effect captures. "bleed": three bleeding enemies; "thorns": a ThornsHit on each of three enemies every 200 ms;
-			 * "boss:<index>": a motionless boss of that bosses.json index that is executed after 0.6 s.
+			 * Effect captures. "boss:<index>": a motionless boss of that bosses.json index that is executed after 0.6 s.
 			 */
 			fx: (kind: string) => {
 				const spawnNear = (dx: number, dz: number): number => {
@@ -2316,32 +2300,7 @@ async function boot(): Promise<void> {
 					events.push(EventType.Swung, 1, 0, reach, hero);
 					return;
 				}
-				if (kind === "bleed" || kind === "thorns") {
-					const list = [spawnNear(2, 0), spawnNear(-2, 1), spawnNear(0, -2)];
-					if (kind === "bleed") {
-						for (const e of list) {
-							addComponent(world, e, Bleed);
-							Bleed.perStep[e] = 0;
-							Bleed.ticks[e] = 3000;
-						}
-					} else {
-						const timer = setInterval(() => {
-							for (const e of list) {
-								events.push(
-									EventType.ThornsHit,
-									Position.x[e] ?? 0,
-									Position.z[e] ?? 0,
-									Math.hypot(
-										(Position.x[e] ?? 0) - (Position.x[hero] ?? 0),
-										(Position.z[e] ?? 0) - (Position.z[hero] ?? 0),
-									),
-									e,
-								);
-							}
-						}, 200);
-						setTimeout(() => clearInterval(timer), 3000);
-					}
-				} else if (kind.startsWith("boss:")) {
+				if (kind.startsWith("boss:")) {
 					const e = spawnNear(4, 0);
 					Boss.id[e] = Number(kind.slice(5)) + 1;
 					setTimeout(() => {

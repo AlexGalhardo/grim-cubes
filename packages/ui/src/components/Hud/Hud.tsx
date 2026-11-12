@@ -4,10 +4,8 @@ import type { HudState } from "../../App";
 import { Bar } from "../Bar/Bar";
 import { BossBar } from "../BossBar/BossBar";
 import { Icon } from "../Icon/Icon";
-import type { HudItem, HudWeapon } from "./hudTypes";
+import type { HudWeapon } from "./hudTypes";
 
-/** Items drawn in the strip before the "+N" chip. */
-export const MAX_VISIBLE_ITEMS = 10;
 /** The timer turns blood-light and pulses for the last seconds of a round. */
 export const URGENT_SECONDS = 5;
 
@@ -26,14 +24,13 @@ export type HudView = Pick<
 	| "eliteFragments"
 	| "relics"
 	| "weapon"
-	| "items"
 	| "boss"
 	| "speed"
 >;
 
 export interface HudProps {
 	hud: HudView;
-	/** A touch device: compact clusters, the weapon sits beside the vitals and the item strip is left out. */
+	/** A touch device: compact clusters, the weapon sits beside the vitals. */
 	touch?: boolean | undefined;
 	/** The corner buttons are hidden while a dialog is open. */
 	showButtons?: boolean | undefined;
@@ -261,55 +258,9 @@ function WeaponSlot({ weapon, touch }: { weapon: HudWeapon; touch: boolean }): J
 	);
 }
 
-function ItemStrip({ items }: { items: readonly HudItem[] }): JSX.Element | null {
-	if (items.length === 0) return null;
-	const shown = items.slice(0, MAX_VISIBLE_ITEMS);
-	const more = items.length - shown.length;
-	return (
-		<ul
-			data-testid="hud-items"
-			aria-label={t("hud.items")}
-			className={`${PLATE} flex items-center gap-1 p-1`}
-		>
-			{shown.map((item) => (
-				<li
-					key={item.id}
-					title={item.name}
-					className={`relative flex size-9 items-center justify-center border-2 bg-night-2 ${TIER_BORDER[item.tier] ?? "border-iron-dark"}`}
-				>
-					{item.icon ? <Icon icon={item.icon} size={32} /> : null}
-					<span className="sr-only">
-						{item.count > 1
-							? t("hud.itemCount", { name: item.name, count: item.count })
-							: item.name}
-					</span>
-					{item.count > 1 ? (
-						<span
-							aria-hidden="true"
-							data-testid="hud-item-count"
-							className="absolute right-0 bottom-0 bg-night/80 px-0.5 font-display text-xs leading-3 text-bone"
-						>
-							{item.count}
-						</span>
-					) : null}
-				</li>
-			))}
-			{more > 0 ? (
-				<li
-					data-testid="hud-items-more"
-					className="flex h-9 min-w-9 items-center justify-center border-2 border-iron-dark bg-night-2 px-1 font-display text-sm text-bone-dark"
-				>
-					<span aria-hidden="true">+{more}</span>
-					<span className="sr-only">{t("hud.itemsMore", { count: more })}</span>
-				</li>
-			) : null}
-		</ul>
-	);
-}
-
 /**
  * The in-run HUD in four corners (GDD 21.2, Art Bible 16): vitals top-left, round and timer top-centre (the boss bar
- * takes that place in a boss fight), wallet and buttons top-right, weapon and items bottom-left. On touch the weapon
+ * takes that place in a boss fight), wallet and buttons top-right, weapon bottom-left. On touch the weapon
  * moves beside the vitals and the strip is dropped: the joystick owns the bottom-left. The grid keeps every cluster
  * out of the middle of the screen, where the hero and the ring around it are.
  */
@@ -350,9 +301,6 @@ export function Hud({
 					className="col-start-1 row-start-3 flex items-end gap-2 justify-self-start"
 				>
 					<WeaponSlot weapon={hud.weapon} touch={false} />
-					<div className="flex min-w-0 flex-col items-start gap-1">
-						<ItemStrip items={hud.items} />
-					</div>
 				</div>
 			)}
 		</div>

@@ -21,10 +21,10 @@ describe("regression guards (see README.md)", () => {
 		expect(countTestCases(root, folder)).toBeGreaterThanOrEqual(floor);
 	});
 
-	it("has a UI icon for every item and card (B-03-05)", () => {
+	it("has a UI icon for every card and equipment slot (B-03-05)", () => {
 		const data = <T>(file: string): T => JSON.parse(readFileSync(`${root}data/${file}`, "utf8")) as T;
 		const ids = {
-			item: data<{ id: string }[]>("items.json").map((i) => i.id),
+			equipment: data<{ slots: { id: string }[] }>("equipment.json").slots.map((e) => e.id),
 			card: data<{ cards: { id: string }[] }>("cards.json").cards.map((c) => c.id),
 		};
 		const missing = Object.entries(ids).flatMap(([kind, list]) =>

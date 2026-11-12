@@ -151,18 +151,16 @@ describe("assets-gen catalog", () => {
 describe("icons", () => {
 	const specs = iconSpecs("data");
 
-	it("covers every id of items, equipment, cards and the weapons", () => {
+	it("covers every id of equipment, cards and the weapons", () => {
 		const load = <T>(file: string): T => JSON.parse(readFileSync(file, "utf8")) as T;
-		const items = load<{ id: string }[]>("data/items.json").map((i) => i.id);
 		const cards = load<{ cards: { id: string }[] }>("data/cards.json").cards.map((c) => c.id);
 		const weapons = load<{ id: string }[]>("data/weapons.json").map((w) => w.id);
 		const equipment = load<{ slots: { id: string }[] }>("data/equipment.json").slots.map((e) => e.id);
 		const made = (kind: string): string[] => specs.filter((s) => s.kind === kind).map((s) => s.id);
-		expect(made("item")).toEqual(items);
 		expect(made("card")).toEqual(cards);
 		expect(made("weapon")).toEqual(weapons);
 		expect(made("equipment")).toEqual(equipment);
-		expect(specs.length).toBe(items.length + cards.length + weapons.length + equipment.length);
+		expect(specs.length).toBe(cards.length + weapons.length + equipment.length);
 		expect(new Set(specs.map((s) => `${s.kind}:${s.id}`)).size).toBe(specs.length);
 	});
 

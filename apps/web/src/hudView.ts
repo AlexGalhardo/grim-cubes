@@ -1,17 +1,7 @@
-import type { Described } from "@gc/core";
-import {
-	computeStats,
-	describeEffect,
-	describeModifier,
-	type HeroStatsData,
-	type Modifier,
-	type PlayerStats,
-} from "@gc/game";
-import type { HudItem, HudWeapon, IconRef, ResultsViewModel } from "@gc/ui";
+import { computeStats, type HeroStatsData, type Modifier, type PlayerStats } from "@gc/game";
+import type { HudWeapon, IconRef, ResultsViewModel } from "@gc/ui";
 
 export interface LoadoutSource {
-	/** Item id to count, as the session keeps it. */
-	owned: ReadonlyMap<string, number>;
 	weaponId: string;
 	/** 0-9, as the weapon system keeps it. */
 	weaponTier: number;
@@ -20,60 +10,36 @@ export interface LoadoutSource {
 }
 
 export interface LoadoutLookup {
-	itemName(id: string): string;
-	itemTier(id: string): number;
-	itemIcon(id: string): IconRef | undefined;
 	weaponName(id: string): string;
 	weaponIcon(id: string): IconRef | undefined;
 }
 
 export interface LoadoutView {
 	weapon: HudWeapon;
-	items: readonly HudItem[];
 }
 
 /** Highest weapon level (the weapon system tiers run 0-9). */
 const MAX_LEVEL = 10;
 
-/**
- * The weapon and the item strip of the HUD. `update` returns the same object (and so the same `items` array) until
- * the owned set, the weapon or the locale changes, and allocates nothing while it compares.
- */
+/** The weapon of the HUD. `update` returns the same object until the weapon or the locale changes, and allocates nothing while it compares. */
 export function createLoadoutView(lookup: LoadoutLookup): { update(source: LoadoutSource): LoadoutView } {
-	const ids: string[] = [];
-	const counts: number[] = [];
 	let weaponId = "";
 	let weaponTier = -1;
 	let locale = "";
 	let view: LoadoutView | null = null;
 
 	function unchanged(source: LoadoutSource): boolean {
-		if (
-			view === null ||
-			source.weaponId !== weaponId ||
-			source.weaponTier !== weaponTier ||
-			source.locale !== locale ||
-			source.owned.size !== ids.length
-		) {
-			return false;
-		}
-		let i = 0;
-		for (const [id, count] of source.owned) {
-			if (ids[i] !== id || counts[i] !== count) return false;
-			i++;
-		}
-		return true;
+		return (
+			view !== null &&
+			source.weaponId === weaponId &&
+			source.weaponTier === weaponTier &&
+			source.locale === locale
+		);
 	}
 
 	return {
 		update(source): LoadoutView {
 			if (view !== null && unchanged(source)) return view;
-			ids.length = 0;
-			counts.length = 0;
-			for (const [id, count] of source.owned) {
-				ids.push(id);
-				counts.push(count);
-			}
 			weaponId = source.weaponId;
 			weaponTier = source.weaponTier;
 			locale = source.locale;
@@ -84,13 +50,6 @@ export function createLoadoutView(lookup: LoadoutLookup): { update(source: Loado
 					tier: Math.min(MAX_LEVEL, source.weaponTier + 1),
 					icon: lookup.weaponIcon(source.weaponId),
 				},
-				items: ids.map((id, i) => ({
-					id,
-					name: lookup.itemName(id),
-					tier: lookup.itemTier(id),
-					count: counts[i] ?? 1,
-					icon: lookup.itemIcon(id),
-				})),
 			};
 			return view;
 		},
@@ -135,8 +94,8 @@ export interface ResultsSource {
 	nodes: readonly { label: string; cost: number; state: string }[];
 }
 
-/** `DamageOrigin` values in order: the weapon, spells, item effects and bleed. */
-export const DAMAGE_SOURCE_IDS: readonly string[] = ["weapon", "spell", "item", "bleed"];
+/** `DamageOrigin` values in order: the weapon and the spells. */
+export const DAMAGE_SOURCE_IDS: readonly string[] = ["weapon", "spell"];
 
 /** Who killed the hero: never "unknown" when the damage system recorded a killer. */
 export function describeCause(
@@ -172,7 +131,6 @@ export function buildResults(source: ResultsSource, lookup: ResultsLookup): Resu
 		damage: Math.round(source.damageDealt),
 		...describeCause(source.killer, lookup),
 		weapon: source.loadout.weapon,
-		items: source.loadout.items,
 		seconds: Math.floor(source.seconds),
 		sources: DAMAGE_SOURCE_IDS.flatMap((id, i) => {
 			const damage = Math.round(source.damageBySource[i] ?? 0);
@@ -186,22 +144,6 @@ export function buildResults(source: ResultsSource, lookup: ResultsLookup): Resu
 		...(source.daily && { daily: source.daily }),
 		nextUnlock: open ? { name: open.label, cost: open.cost } : null,
 	};
-}
-
-/** The effect lines of an item: its stat modifiers, then its effects. Most chest and shop items are effect-only, so a card needs both. */
-export function itemLines(
-	item: {
-		modifiers: readonly Modifier[];
-		effects?:
-			| readonly { id: string; params?: Record<string, number | string | boolean> | undefined }[]
-			| undefined;
-	},
-	text: (described: Described) => string,
-): string[] {
-	return [
-		...item.modifiers.map((m) => text(describeModifier(m))),
-		...(item.effects ?? []).map((e) => text(describeEffect(e.id, e.params))),
-	];
 }
 
 /**

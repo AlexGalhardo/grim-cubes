@@ -1,19 +1,16 @@
 import { Color3 } from "@babylonjs/core/Maths/math.color";
 import { mulberry32 } from "@gc/core";
 import {
-	Bleed,
 	Boss,
 	bossesData,
 	EnemyType,
 	EventType,
 	enemiesData,
 	enrageMult,
-	type GameWorld,
 	heroData,
 	heroesData,
 	MAX_ENTITIES,
 	Position,
-	queryBleeding,
 	renderData,
 	roundsData,
 	SpellVfx,
@@ -50,9 +47,6 @@ const EXECUTION_SECONDS = 1.5;
 const EXECUTION_BURSTS = 3;
 const EXECUTION_CUBES = 12;
 /** Blood drips per second per bleeding enemy, and the cap on drips emitted in one frame. */
-const BLEED_DRIPS_PER_SECOND = 6;
-const BLEED_DRIPS_PER_FRAME = 16;
-const THORN_SPIKES = 6;
 /** Cutting-arc width when the starting weapon has none in data (degrees). */
 const SLASH_FALLBACK_ARC = 120;
 const PROPS_PER_BIOME = 10;
@@ -94,10 +88,6 @@ export interface Vfx {
 	setNumberScale(scale: number): void;
 	/** Applies a preset's pool sizes live (the pools are allocated for the largest preset). */
 	setPools(particles: number, decals: number): void;
-	/**
-	 * Status looks read from the world: blood drips from bleeding enemies (`Bleed`). Call once per rendered frame with the frame time.
-	 */
-	syncStatus(world: GameWorld, dtSeconds: number): void;
 	readonly gore: boolean;
 	readonly particles: ParticlePool;
 	/** Ambient VFX of the biome (fog, rain, embers, wind, ice); sized by `setPools`. */
@@ -245,7 +235,6 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 		alpha_hunter: [rgb(PALETTE.mist), rgb(PALETTE.shadow), rgb(PALETTE.bone), emberLight],
 		nest_queen: [rgb(PALETTE.bloodLight), rgb(PALETTE.bone), rgb(PALETTE.boneDark), emberLight],
 	};
-	const spikeColors: readonly Rgb[] = [rgb(PALETTE.ironLight), rgb(PALETTE.iron), rgb(PALETTE.emberLight)];
 	const spellBolt: readonly Rgb[] = [ember, emberLight];
 	const spellBone: readonly Rgb[] = [rgb(PALETTE.bone), rgb(PALETTE.boneDark)];
 	const spellSoul: readonly Rgb[] = [rgb(PALETTE.mist), rgb(PALETTE.bone), emberLight];
@@ -284,25 +273,6 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 		},
 		get shaking(): boolean {
 			return shakeLeft > 0;
-		},
-		syncStatus(world, dt): void {
-			if (dt <= 0) return;
-			const bleeding = queryBleeding(world);
-			let drips = 0;
-			for (let i = 0; i < bleeding.length && drips < BLEED_DRIPS_PER_FRAME; i++) {
-				const e = bleeding[i] ?? 0;
-				if ((Bleed.ticks[e] ?? 0) <= 0 || !rng.chance(dt * BLEED_DRIPS_PER_SECOND)) continue;
-				burst(
-					Position.x[e] ?? 0,
-					Position.z[e] ?? 0,
-					1,
-					bloodColors(),
-					0.6,
-					1.5,
-					gore ? "micro" : false,
-				);
-				drips++;
-			}
 		},
 		setPools(particleLimit, decalLimit): void {
 			particles.setLimit(particleLimit);
@@ -434,31 +404,6 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 			} else if (type === EventType.BossScream) {
 				zones.ring(a, b, c, SCREAM_SECONDS);
 				shake(config.shakeExplosion);
-			} else if (type === EventType.ThornsHit) {
-				// The spikes leave the hero's feet towards the enemy: direction = enemy - hero.
-				const hero = game.hero.position;
-				const dx = a - hero.x;
-				const dz = b - hero.z;
-				const base = Math.atan2(dz, dx);
-				const speed = Math.min(14, Math.max(4, c * 4));
-				for (let i = 0; i < THORN_SPIKES; i++) {
-					const angle = base + (rng.next() - 0.5) * 0.5;
-					const color = spikeColors[rng.int(spikeColors.length)] ?? spikeColors[0] ?? emberLight;
-					particles.add(
-						hero.x,
-						0.15 + rng.next() * 0.2,
-						hero.z,
-						Math.cos(angle) * speed,
-						1 + rng.next() * 1.5,
-						Math.sin(angle) * speed,
-						0.12 + rng.next() * 0.08,
-						color[0],
-						color[1],
-						color[2],
-						config.particleLifeSeconds * 0.5,
-						false,
-					);
-				}
 			} else if (type === EventType.Swung) {
 				// a, b = direction, c = the reach of the weapon now (tier included): the arc is as long as the damage.
 				slash.fire(game.hero.position.x, game.hero.position.z, a, b, c);

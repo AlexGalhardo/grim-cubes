@@ -40,7 +40,7 @@ grim-cubes/
 │   ├── ui/
 │   └── platform/
 ├── data/                 # JSON de balanceamento (fonte única)
-│   ├── enemies.json  weapons.json  items.json  cards.json
+│   ├── enemies.json  weapons.json  equipment.json  cards.json
 │   ├── ossuary.json  rounds.json   bosses.json biomes.json
 │   └── schema/          # JSON Schema de cada arquivo
 ├── assets/src/           # .bbmodel, .glb, .png, prompts de áudio (fonte)

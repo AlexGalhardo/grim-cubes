@@ -1,7 +1,6 @@
 import type { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import type { Mesh } from "@babylonjs/core/Meshes/mesh";
 import {
-	Bleed,
 	Boss,
 	bossesData,
 	Consumable,
@@ -664,30 +663,7 @@ describe("flash reduction", () => {
 	});
 });
 
-describe("bleed and thorns looks", () => {
-	it("drips blood from a bleeding enemy and stops when the bleed ends", () => {
-		const { vfx, world, dispose } = setup();
-		const e = spawnBody(world, 2, 2);
-		addComponent(world, e, Bleed);
-		Bleed.ticks[e] = 100;
-		for (let i = 0; i < 60; i++) vfx.syncStatus(world, 1 / 30);
-		expect(vfx.particles.stats.peak).toBeGreaterThan(3);
-		const before = vfx.particles.stats.peak;
-		Bleed.ticks[e] = 0;
-		vfx.update(5);
-		for (let i = 0; i < 30; i++) vfx.syncStatus(world, 1 / 30);
-		expect(vfx.particles.stats.peak).toBe(before);
-		dispose();
-	});
-
-	it("throws spikes from the hero towards the enemy a ThornsHit names", () => {
-		const { vfx, world, dispose } = setup();
-		const e = spawnBody(world, 3, 0);
-		vfx.onEvent(EventType.ThornsHit, 3, 0, 3, e);
-		expect(vfx.particles.stats.peak).toBe(6);
-		dispose();
-	});
-
+describe("spell looks", () => {
 	it("draws each bonus spell without the explosion shake", () => {
 		const { vfx, dispose } = setup();
 		vfx.onEvent(EventType.SpellCast, 1, 2, 0, SpellVfx.Bolt);
@@ -735,19 +711,6 @@ describe("damage numbers and drips", () => {
 		vfx.update(0.2);
 		vfx.onEvent(EventType.Damaged, 5, 0, 0, e);
 		expect(vfx.numbers.live).toBe(2);
-		dispose();
-	});
-
-	it("leaves a micro decal where a blood drip lands", () => {
-		const { vfx, world, dispose } = setup();
-		const e = spawnBody(world, 0, 0);
-		addComponent(world, e, Bleed);
-		Bleed.ticks[e] = 1000;
-		for (let i = 0; i < 90; i++) {
-			vfx.syncStatus(world, 1 / 30);
-			vfx.update(1 / 30);
-		}
-		expect(vfx.decals.live).toBeGreaterThan(0);
 		dispose();
 	});
 

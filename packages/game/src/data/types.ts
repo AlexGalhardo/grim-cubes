@@ -252,11 +252,6 @@ export interface CardsData {
 
 export type WorldData = WorldConfig & { arena: ArenaConfig; biomes: BiomeRoundsConfig };
 
-export interface ItemEffect {
-	id: string;
-	params: Record<string, number | boolean>;
-}
-
 /** One spell of a class in `data/spells.json`: `kind` picks the automatic behaviour, `params` its numbers. */
 export interface SpellDef {
 	id: string;
@@ -270,19 +265,6 @@ export interface SpellsData {
 	levels: { max: number; damagePerLevel: number; cooldownPerLevel: number; healPerLevel: number };
 	super: { baseKills: number; killsPerUse: number; durationSeconds: number; tickSeconds: number };
 	classes: { id: string; spells: SpellDef[] }[];
-}
-
-/** One entry of `data/items.json`. */
-export interface ItemData {
-	id: string;
-	name: string;
-	tier: number;
-	price: number;
-	modifiers: Modifier[];
-	effects: ItemEffect[];
-	/** Ossuary node that adds the item to the pool. */
-	exclusiveTo?: string;
-	status?: string;
 }
 
 export interface EliteModifierData {
@@ -344,7 +326,6 @@ export interface MilestoneData {
 	id: string;
 	/** `record` is the best round reached on any difficulty. */
 	requires: { stat: string; value: number };
-	unlocksItem?: string | undefined;
 	unlocksSkin?: string | undefined;
 	/** A hero from `data/heroes.json` that stays locked until this milestone is reached. */
 	unlocksHero?: string | undefined;

@@ -17,8 +17,8 @@ export interface RunStats {
 }
 
 /** Where a point of damage dealt to enemies came from, for the Results bars. */
-export const DamageOrigin = { Weapon: 0, Spell: 1, Item: 2, Bleed: 3 } as const;
-export const DAMAGE_ORIGIN_COUNT = 4;
+export const DamageOrigin = { Weapon: 0, Spell: 1 } as const;
+export const DAMAGE_ORIGIN_COUNT = 2;
 
 export function createRunStats(): RunStats {
 	return {

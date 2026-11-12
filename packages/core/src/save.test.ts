@@ -356,10 +356,8 @@ const checkpoint = () => ({
 	equipment: [6, 0, 3, 10, 0, 1],
 	eliteFragments: 3,
 	relics: 1,
-	owned: { ring: 2 },
 	modifiers: [{ stat: "damage", op: "mult", value: 0.1 }],
 	cardRerollsLeft: 1,
-	revivesSpent: 0,
 	bag: 12,
 	rng: Array.from({ length: 10 }, (_, i) => i * 1_000_003 - 2_000_000_000),
 	origin: { x: 128, z: -256 },
@@ -396,8 +394,6 @@ test("a malformed checkpoint is refused field by field", async () => {
 	await bad({ hp: Number.POSITIVE_INFINITY });
 	await bad({ rng: [1, 2, 3] });
 	await bad({ rng: Array.from({ length: 10 }, () => 1.5) });
-	await bad({ owned: { __proto__x: 1, constructor: 1 } });
-	await bad({ owned: { ring: -1 } });
 	await bad({ modifiers: Array.from({ length: 513 }, () => ({ stat: "a", op: "b", value: 1 })) });
 	await bad({ modifiers: [{ stat: "", op: "add", value: 1 }] });
 	await bad({ weapon: { id: "x".repeat(65), tier: 0 } });
@@ -489,6 +485,9 @@ async function slotFileOf(version: number): Promise<string> {
 		data.run.weapon.paid = 60;
 		delete data.run.equipment;
 		delete data.run.eliteFragments;
+		// Schema 14 also saved the items bought and the revives spent.
+		data.run.owned = { ring: 2 };
+		data.run.revivesSpent = 0;
 		delete data.run.relics;
 	}
 	if (version < 14) {
@@ -532,12 +531,12 @@ test("a schema 14 slot file becomes a Warrior save: the run keeps its sword, the
 	// The record of 12 on the old 10/20/30 bosses means the round 10 boss fell.
 	expect(loaded.stats.bestBossRound).toBe(10);
 	// The shop changed too: nothing equipped yet, and the items bought in the old shop are gone.
-	expect(loaded.run?.owned).toEqual({});
+	expect(loaded.run).not.toHaveProperty("owned");
+	expect(loaded.run).not.toHaveProperty("revivesSpent");
 	expect(loaded.run?.round).toBe(7);
 	expect(loaded.run?.gold).toBe(123.5);
 	expect(loaded.run?.modifiers).toEqual([{ stat: "damage", op: "mult", value: 0.1 }]);
 	expect(loaded.souls).toBeGreaterThanOrEqual(meta().souls);
-	expect((await parseSave(await slotFileOf(15))).run?.owned).toEqual({ ring: 2 });
 	expect(loaded.run?.equipment).toEqual([]);
 	expect([loaded.run?.eliteFragments, loaded.run?.relics]).toEqual([0, 0]);
 	expect(loaded.run?.daily).toBe("2026-11-11");

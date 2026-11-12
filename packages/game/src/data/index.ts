@@ -7,7 +7,6 @@ import enemiesJson from "../../../../data/enemies.json";
 import equipmentJson from "../../../../data/equipment.json";
 import heroJson from "../../../../data/hero.json";
 import heroesJson from "../../../../data/heroes.json";
-import itemsJson from "../../../../data/items.json";
 import milestonesJson from "../../../../data/milestones.json";
 import ossuaryJson from "../../../../data/ossuary.json";
 import presetsJson from "../../../../data/presets.json";
@@ -30,7 +29,6 @@ import type {
 	EnemyData,
 	HeroData,
 	HeroDef,
-	ItemData,
 	MilestonesData,
 	OssuaryData,
 	PresetsData,
@@ -60,7 +58,6 @@ export const consumablesData: ConsumablesData = consumablesJson;
 export const bossesData: readonly BossData[] = bossesJson;
 export const elitesData: ElitesData = elitesJson;
 export const equipmentData: EquipmentData = equipmentJson;
-export const itemsData: readonly ItemData[] = itemsJson;
 export const spellsData: SpellsData = spellsJson;
 export const propsData: readonly PropData[] = propsJson;
 export const renderData: RenderData = renderJson;
@@ -186,8 +183,6 @@ export type {
 	EnemyData,
 	HeroData,
 	HeroDef,
-	ItemData,
-	ItemEffect,
 	OssuaryData,
 	PresetsData,
 	PropData,

@@ -41,8 +41,6 @@ export interface Characters {
 	 * every frame with the same array while nothing changes; it only re-tints when the auras change.
 	 */
 	setBossAuras(auras: readonly string[]): void;
-	/** The hero was revived: leave the death pose. */
-	revive(): void;
 	/** Holds every rig on its idle pose (captures). */
 	holdIdle(): void;
 }
@@ -119,9 +117,6 @@ export function createCharacters(game: GameScene, options: CharactersOptions): C
 			if (key === auraKey) return;
 			auraKey = key;
 			auraTinted = undefined;
-		},
-		revive(): void {
-			hero.clearFinal();
 		},
 		get heroYaw(): number {
 			return heroYaw;
@@ -240,7 +235,6 @@ export function createCharacters(game: GameScene, options: CharactersOptions): C
 			else if (type === EventType.PlayerHit && c !== 1) hero.playOnce("hit");
 			else if (type === EventType.DashStarted) hero.playOnce("dash");
 			else if (type === EventType.Died && _entity === heroEntity) hero.playFinal("death");
-			else if (type === EventType.Revived) hero.clearFinal();
 			else if (type === EventType.BossEnraged) activeBoss?.playOnce("enrage");
 			else if (type === EventType.BossPhase && a >= 2 && activeBoss && phaseTinted !== activeBoss) {
 				// Phase 2 of the Forgemaster: the armour shows as a metallic tint.

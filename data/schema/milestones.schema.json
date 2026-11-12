@@ -11,7 +11,9 @@
 				"required": ["id", "requires"],
 				"additionalProperties": false,
 				"properties": {
-					"id": { "$ref": "common.schema.json#/$defs/id" },
+					"id": {
+						"$ref": "common.schema.json#/$defs/id"
+					},
 					"requires": {
 						"type": "object",
 						"required": ["stat", "value"],
@@ -27,12 +29,18 @@
 									"bestBossRound"
 								]
 							},
-							"value": { "type": "integer", "minimum": 1 }
+							"value": {
+								"type": "integer",
+								"minimum": 1
+							}
 						}
 					},
-					"unlocksItem": { "$ref": "common.schema.json#/$defs/id" },
-					"unlocksSkin": { "$ref": "common.schema.json#/$defs/id" },
-					"unlocksHero": { "$ref": "common.schema.json#/$defs/id" }
+					"unlocksSkin": {
+						"$ref": "common.schema.json#/$defs/id"
+					},
+					"unlocksHero": {
+						"$ref": "common.schema.json#/$defs/id"
+					}
 				}
 			}
 		},
@@ -43,8 +51,13 @@
 				"required": ["id", "name", "tint"],
 				"additionalProperties": false,
 				"properties": {
-					"id": { "$ref": "common.schema.json#/$defs/id" },
-					"name": { "type": "string", "minLength": 1 },
+					"id": {
+						"$ref": "common.schema.json#/$defs/id"
+					},
+					"name": {
+						"type": "string",
+						"minLength": 1
+					},
 					"tint": {
 						"type": "string",
 						"pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",

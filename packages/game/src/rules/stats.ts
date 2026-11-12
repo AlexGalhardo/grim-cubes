@@ -34,7 +34,7 @@ export interface PlayerStats {
 
 export type StatField = Exclude<keyof PlayerStats, "dirty">;
 
-/** `stat` ids used in `cards.json`, `items.json` and `ossuary.json` mapped to fields. */
+/** `stat` ids used in `cards.json` and `equipment.json` mapped to fields. */
 export const STAT_FIELDS: Readonly<Record<string, StatField>> = {
 	max_hp: "maxHp",
 	hp_regen: "hpRegen",

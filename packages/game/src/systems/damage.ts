@@ -1,7 +1,6 @@
-import { addComponent, hasComponent } from "bitecs";
+import { hasComponent } from "bitecs";
 import {
 	Armor,
-	Bleed,
 	Boss,
 	Breakable,
 	Egg,
@@ -24,7 +23,6 @@ import {
 	effectiveDodge,
 	knockbackScale,
 } from "../rules/damage";
-import type { ItemEffects } from "../rules/effects";
 import type { RunStats } from "../rules/runstats";
 
 export const DAMAGE_QUEUE_CAPACITY = 1024;
@@ -69,8 +67,6 @@ export interface DamageSystemDeps {
 	events: EventBuffer;
 	hero: number;
 	stats: HeroCombatStats;
-	/** Item effects; optional so systems can run without items. */
-	effects?: ItemEffects | undefined;
 	/** Run tallies (damage dealt, killer); optional. */
 	runStats?: RunStats | undefined;
 	/** Called when the hero takes a hit that passed dodge and i-frames (`source` is 0 for non-enemy sources). */
@@ -88,7 +84,7 @@ export interface DamageSystem {
 }
 
 export function createDamageSystem(deps: DamageSystemDeps): DamageSystem {
-	const { config, rng, events, hero, stats, effects, runStats, onHeroHit } = deps;
+	const { config, rng, events, hero, stats, runStats, onHeroHit } = deps;
 	const target = new Uint16Array(DAMAGE_QUEUE_CAPACITY);
 	const amount = new Float32Array(DAMAGE_QUEUE_CAPACITY);
 	const critChance = new Float32Array(DAMAGE_QUEUE_CAPACITY);
@@ -163,9 +159,8 @@ export function createDamageSystem(deps: DamageSystemDeps): DamageSystem {
 		const crit = rng.combat.next() < (critChance[i] ?? 0);
 		const raw = (amount[i] ?? 0) * (crit ? stats.critMult : 1);
 		const isBoss = hasComponent(world, eid, Boss);
-		const isElite = hasComponent(world, eid, Elite);
-		const bonus =
-			(isBoss ? (stats.bossDamage ?? 0) : 0) + (isElite ? (effects?.bonusDamageVsElites ?? 0) : 0);
+		const _isElite = hasComponent(world, eid, Elite);
+		const bonus = isBoss ? (stats.bossDamage ?? 0) : 0;
 		const dealt = raw * (1 + bonus) * armorMultiplier(Armor.value[eid] ?? 0, config.armorConstant);
 		Health.hp[eid] = (Health.hp[eid] ?? 0) - dealt;
 		if (runStats) {
@@ -173,16 +168,6 @@ export function createDamageSystem(deps: DamageSystemDeps): DamageSystem {
 			runStats.damageBySource[origin[i] ?? 0] = (runStats.damageBySource[origin[i] ?? 0] ?? 0) + dealt;
 		}
 		HitFlash.ticks[eid] = 2;
-		if (crit && effects && effects.bleedFraction > 0) {
-			// A fresh crit restarts the bleed with the larger of the two remaining amounts.
-			const ticks = Math.max(1, Math.round(effects.bleedSeconds / STEP));
-			const perStep = (dealt * effects.bleedFraction) / ticks;
-			addComponent(world, eid, Bleed);
-			if (perStep * ticks >= (Bleed.perStep[eid] ?? 0) * (Bleed.ticks[eid] ?? 0)) {
-				Bleed.perStep[eid] = perStep;
-				Bleed.ticks[eid] = ticks;
-			}
-		}
 
 		const scale =
 			knockbackScale(config, hasComponent(world, eid, Boss), hasComponent(world, eid, Elite)) *
