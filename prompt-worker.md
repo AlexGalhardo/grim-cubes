@@ -27,6 +27,8 @@ A `v0.6.0` saiu da `feat/aaa-polish`, integrada na `main` (S-17-02). A Parte 1 d
 
 ## Ordem do que falta
 
+Redesenho do PO em 2026-11-12 (ADR-0030, `TODO.md`): a Parte 1A do ROADMAP (trilhas S-19 a S-27, `v0.7.0`) vem primeiro; a S-12-03 foi substituída pela S-26 e a S-16-01 entra na S-27-01. A ordem abaixo vale depois disso.
+
 1. **S-17-03** conferir os binários publicados da `v0.6.0`: checksums, a versão do APK e o `.exe` portable abrindo até o menu. Se a máquina não abrir o `.exe` sem interação, o item fica `[!]` e o PO testa.
 2. **S-16-01** rodar `bun run test:e2e` e regenerar as baselines nos quatro alvos (o fluxo de nova run agora passa pela escolha de herói).
 3. **S-12-03** fechar o Fuzilado em Normal e o Coveiro em Nightmare. O bot `kite` (`packages/game/src/bot/policy.ts`) já avalia armas de fogo; a próxima alavanca proposta é perfuração 1 na pistola. Medir com duas seeds.

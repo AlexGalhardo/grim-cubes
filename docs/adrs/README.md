@@ -33,3 +33,4 @@ Um arquivo por decisão relevante, numerado sequencialmente. Formato: contexto, 
 | [ADR-0027](0027-ktx2-deferred-to-1-1.md) | KTX2 e `toktx` adiados para a 1.1 | aceito |
 | [ADR-0028](0028-capacitor-approved-for-beta.md) | Capacitor aprovado para a abertura da BETA; billing ainda sem biblioteca | aceito |
 | [ADR-0029](0029-medium-poly-image-to-3d.md) | Arte 3D medium poly gerada por image-to-3D (AssetFurnace, Pixal3D) | aceito; execução na trilha S-18, depois da `v0.6.0` |
+| [ADR-0030](0030-redesign-classes-equipment-arena.md) | Redesenho: classes, equipamento, arena que cresce e chefes a cada 5 rounds | aceito; execução na Parte 1A (`v0.7.0`) |

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **docs:** ADR-0030 and the roadmap's Part 1A (tracks S-19 to S-27, v0.7.0): rounds from 30 s to 120 s, a growing square arena, three classes with fixed weapons and six spells, an equipment shop with elite fragments and boss relics, the Ossuary as a spell tree, ten bosses every five rounds with telegraphed attacks, five biomes and weather VFX, before the medium-poly art
+
 ### Fixed
 
 - **ui:** On short screens (896x414, 800x360) the level-up title no longer overlaps the HUD round plate and timer: the dialog keeps 64 px of top padding, the title loses its line height and the reroll button is 32 px tall; the cards keep their Art Bible minimum height and nothing scrolls or is cut (title top at 84 and 67 px against the HUD bottom at 58) (S-04-01)

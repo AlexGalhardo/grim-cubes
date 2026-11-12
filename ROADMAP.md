@@ -146,7 +146,7 @@ A Parte 1B (arte medium poly) começa depois da `v0.6.0` e tem pontos de parada 
   - Asserts: `bun run data:check` exit 0; teste que cada herói inicia a run com a arma e a passiva certas; GDD §7 atualizado.
 - [x] **S-12-02** Tela de escolha de herói entre os slots e a dificuldade, com retrato, arma, passiva e condição de desbloqueio; desbloqueios pelos marcos de `data/milestones.json`; o herói escolhido fica no checkpoint da run.
   - Asserts: teste de componente e de navegação por controle; migração do save com teste (versão do esquema sobe); captura nos quatro alvos; SDD 06 atualizado.
-- [~] **S-12-03** Balanceamento: `bun run sim --check` passa para os três heróis nas três dificuldades. Estado em 2026-11-11: o bot kite para armas de fogo existe e os heróis novos voltaram a números de design (sem penalidade em chefe). A Penitente passa nas três dificuldades e o Fuzilado em Difícil e Nightmare; faltam o Fuzilado em Normal (p50 17 contra 18–26 e kill da Matriarca 57,5 s contra 60–120) e o kill do Coveiro do Carrasco em Nightmare (105,9 s). Ver GDD §25.2.
+- [-] **S-12-03** Balanceamento: `bun run sim --check` passa para os três heróis nas três dificuldades. Estado em 2026-11-11: o bot kite para armas de fogo existe e os heróis novos voltaram a números de design (sem penalidade em chefe). A Penitente passa nas três dificuldades e o Fuzilado em Difícil e Nightmare; faltam o Fuzilado em Normal (p50 17 contra 18–26 e kill da Matriarca 57,5 s contra 60–120) e o kill do Coveiro do Carrasco em Nightmare (105,9 s). Ver GDD §25.2. Substituída em 2026-11-12 pela S-26 (ADR-0030): o Fuzilado e a Penitente saem.
   - Asserts: `reports/balance-*.json` com os três heróis dentro das faixas do GDD §25.
 
 ### S-13 Seed diária
@@ -191,6 +191,67 @@ Pedido do PO em 2026-11-11: ao fim da Parte 1, uma release nova com o `.exe` e o
   - Asserts: `sha256sum` dos arquivos baixados confere com `checksums.txt`; captura do menu do executável em `reports/`; `aapt dump badging` (ou equivalente) mostra `versionName='0.6.0'`. Se a máquina não tiver como abrir o `.exe` sem interação, o item fica `[!]` com o motivo e o PO testa.
 
 ---
+
+## Parte 1A — Redesenho do loop (v0.7.0, antes da arte)
+
+Decisão do PO em 2026-11-12, registrada no ADR-0030 (o texto original está no `TODO.md` da raiz). Vem antes da Parte 1B: a arte medium poly passa a modelar as classes, os 10 chefes e os 5 biomas daqui. Até lá, tudo novo usa modelos voxel existentes recoloridos ou adaptados.
+
+### S-19 Rounds e arena
+
+- [ ] **S-19-01** Duração do round: 30 s no round 1, +5 s por round, teto de 120 s nos rounds normais; o round de chefe continua sem timer. Números em `data/rounds.json`.
+  - Asserts: teste da fórmula (rounds 1, 2, 18, 19 e 30); `bun run data:check` exit 0; GDD atualizado.
+- [ ] **S-19-02** Arena quadrada com borda visível e intransponível, que cresce um pouco a cada round (tamanho por round em `data/world.json`); fim do mundo infinito; o spawn de inimigos e props respeita a arena.
+  - Asserts: teste de que o herói e os inimigos não saem da arena; teste do tamanho por round; captura do round 1 e do round 20 em 1920×1080; `test:perf` sem regressão acima da tolerância.
+
+### S-20 Classes
+
+- [ ] **S-20-01** Três classes em `data/heroes.json`: Warrior (espada atual, vários alvos, aberto desde o início), Ranged (bumerangue que ricocheteia entre 3 alvos, 20 no nível 10 da arma, abre ao matar o chefe do round 10) e Mago (machado mágico em área circular, raio dobra no nível 10, abre ao matar o chefe do round 20). Sem troca de arma na run; o Fuzilado e a Penitente saem; o Carrasco vira o Warrior.
+  - Asserts: teste de cada arma (alvos do bumerangue por nível, raio do machado por nível); teste de desbloqueio pelos marcos; migração do save com teste; GDD §7.
+- [ ] **S-20-02** Seis magias por classe: 4 ofensivas automáticas com recarga, cura e super acionadas pelo jogador (tecla, botão do controle e botão de toque). A super carrega com 100 abates no round, cada uso soma 5 à carga seguinte, dura 5 s e atinge a área em volta do herói. Números em `data/spells.json` com esquema.
+  - Asserts: teste da carga da super (100, 105, 110…) e da duração; teste de que cura e super respeitam a recarga; HUD com a barra da super e os botões nos quatro alvos; remap nas Opções.
+
+### S-21 Equipamento e loja
+
+- [ ] **S-21-01** Seis slots de equipamento (capacete, armadura, calças, botas, anel, amuleto) com nível 1 a 10 e atributos por nível em `data/equipment.json`; a loja vende só equipamento, nunca pior que o equipado; níveis 1 a 6 por ouro. Saem itens, armas, consumíveis e sinergias da loja.
+  - Asserts: teste de que a oferta nunca é pior; teste de preço e de atributos por nível; `bun run data:check` exit 0.
+- [ ] **S-21-02** Fragmento de elite (cada elite dropa 1, 100%) e relíquia (cada chefe dropa 1, 100%); na loja o jogador gasta fragmentos para subir um slot de 7 a 9 e a relíquia para o 10, escolhendo o slot.
+  - Asserts: teste de drop 100%; teste de upgrade 6→7→9→10 com o material certo e recusa sem material; HUD e loja mostram os materiais.
+- [ ] **S-21-03** A loja abre sozinha ao fim de cada round vencido; o Mercador sai do mapa (falas e voz continuam na tela da loja, se couberem).
+  - Asserts: teste de fluxo round → loja → próximo round; capturas `shop` nos quatro alvos; `screens.pad.test.tsx` verde.
+
+### S-22 Ossuário como árvore de magias
+
+- [ ] **S-22-01** Ossuário vira uma árvore de quadrados ligados por classe, que sobe cada uma das 6 magias até o nível 10 com almas; o save migra as almas gastas na árvore antiga (devolução integral).
+  - Asserts: teste de compra e de pré-requisito; migração com teste (almas devolvidas); capturas nos quatro alvos; navegação por controle.
+
+### S-23 Chefes
+
+- [ ] **S-23-01** Chefe a cada 5 rounds (5, 10, …, 50), 10 chefes no total: os 5 atuais e 5 novos com modelos adaptados; depois do round 50, modo infinito com inimigos e chefes sorteados.
+  - Asserts: teste do roster por round (5 a 55); teste do modo infinito; GDD.
+- [ ] **S-23-02** Cada chefe com 5 ataques sorteados, sempre com marcação vermelha no chão antes do golpe (telegraph com tempo de reação por dificuldade).
+  - Asserts: teste de que todo ataque emite o aviso antes do dano; teste do sorteio determinístico por seed; captura de um aviso por chefe.
+
+### S-24 Biomas e clima
+
+- [ ] **S-24-01** Cinco biomas, trocando a cada 10 rounds (1–10, …, 41–50) e sorteados do 51 em diante; o 5º bioma usa tiles e props voxel adaptados.
+  - Asserts: teste do bioma por round; captura de cada bioma; contraste do chão medido com `ux:legibility --biome`.
+- [ ] **S-24-02** VFX de clima por bioma (neblina, chuva, gelo caindo, vento, brasas) dentro do orçamento de partículas do preset; desligado ou reduzido no Mínimo e com redução de flashes.
+  - Asserts: `test:perf` dentro da tolerância; captura de cada clima; teste de que o preset Mínimo desliga o clima.
+
+### S-25 Limpeza e migração
+
+- [ ] **S-25-01** Remover o que o ADR-0030 tira (sinergias e etiquetas, itens, armas e consumíveis da loja, tiers de arma, Mercador no mapa, mundo infinito) sem deixar código morto; desafio diário com a classe do dia; cartas de level-up mantidas.
+  - Asserts: `bun run typecheck && bun run lint && bun run test` exit 0; busca por `synerg` e `Merchant` sem uso em código de jogo; save antigo carrega com teste.
+
+### S-26 Balanceamento do loop novo
+
+- [ ] **S-26-01** Bots para as três classes (`greedy` para o Warrior, `kite` para o Ranged, um para o Mago) e faixas do GDD §25 revistas para o loop novo; `sim --check` passa nas seeds 1 e 1001 para as três classes nas três dificuldades.
+  - Asserts: `reports/balance-*.json` atualizados; `balance.yml` verde.
+
+### S-27 Release
+
+- [ ] **S-27-01** Docs alinhadas (GDD, Art Bible, SDDs, `CLAUDE.md`), baselines do Playwright (absorve a S-16-01) e release `v0.7.0` com `.exe` e `.apk`.
+  - Asserts: `bun run test:e2e` exit 0; `gh release view v0.7.0` com os assets; CI verde.
 
 ## Parte 1B — Arte 3D medium poly (depois da v0.6.0)
 
