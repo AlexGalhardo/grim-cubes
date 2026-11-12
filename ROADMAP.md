@@ -185,9 +185,9 @@ Pedido do PO em 2026-11-11: ao fim da Parte 1, uma release nova com o `.exe` e o
 
 - [x] **S-17-01** `release.yml` também gera e anexa o APK de debug (`bun run build:android`), para que a release saia completa sem passo manual. Deps: S-16-03.
   - Asserts: o workflow tem o job do APK e inclui o arquivo em `checksums.txt`; `docs/sdd/12-ci-cd.md` e `docs/sdd/13-release-versioning.md` descrevem o asset.
-- [ ] **S-17-02** Merge da `feat/aaa-polish` na `main` (sem `--force`), push, CI verde e `bun run release minor --publish`, que publica a `v0.6.0`. Deps: S-17-01.
+- [x] **S-17-02** Merge da `feat/aaa-polish` na `main` (sem `--force`), push, CI verde e `bun run release minor --publish`, que publica a `v0.6.0`. Deps: S-17-01.
   - Asserts: `gh run list --branch main --limit 1` com `conclusion: success` no commit da tag; `gh release view v0.6.0 --json assets` lista `GrimCubes-Setup-0.6.0.exe`, `GrimCubes-0.6.0-portable.exe`, `grim-cubes_0.6.0_android.apk`, `checksums.txt` e o SBOM; o corpo da release segue o formato da S-00-01; `CHANGELOG.md` tem a seção `[0.6.0]`; `docs/PROGRESS.md` registra a release e os links de download.
-- [ ] **S-17-03** Conferência dos binários publicados: o `.exe` portable baixado da release abre e chega ao menu, e o APK baixado tem a versão `0.6.0`.
+- [~] **S-17-03** Conferência dos binários publicados: o `.exe` portable baixado da release abre e chega ao menu, e o APK baixado tem a versão `0.6.0`. Estado em 2026-11-11: o `release.yml` passou nos três jobs e o SHA-256 do APK baixado confere com o `checksums.txt`; falta o PO abrir o `.exe` portable até o menu e conferir o `versionName` do APK no aparelho.
   - Asserts: `sha256sum` dos arquivos baixados confere com `checksums.txt`; captura do menu do executável em `reports/`; `aapt dump badging` (ou equivalente) mostra `versionName='0.6.0'`. Se a máquina não tiver como abrir o `.exe` sem interação, o item fica `[!]` com o motivo e o PO testa.
 
 ---

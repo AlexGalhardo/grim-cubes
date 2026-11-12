@@ -33,6 +33,8 @@ Fechamento da sessão #4 (2026-11-11), branch `feat/aaa-polish`, integrada na `m
 | S-16-01 | bloqueado: baselines e e2e completo ficam para a sessão #5 | — |
 | S-16-02, S-16-03 | concluídos | 916ccb0, ea552f7 |
 
+Release: `v0.6.0` publicada em 2026-11-11 (`c144834`), em <https://github.com/AlexGalhardo/grim-cubes/releases/tag/v0.6.0>, com `GrimCubes-Setup-0.6.0.exe`, `GrimCubes-0.6.0-portable.exe`, `grim-cubes_0.6.0_android.apk`, `checksums.txt` e o SBOM; CI e Balance verdes no `001d206`.
+
 Pontas soltas de UI resolvidas pelo agente 1 no fim da sessão: menu com até 7 botões em telas baixas, barra do chefe afastada da arma no touch, placa de round escondida fora do round, 11 textos de efeito que faltavam, efeitos no baú de elite, valores "agora" atualizados nas cartas, cartas que crescem com texto longo e contraste do chão no Pântano e na Forja (`floorBiomeShade`).
 
 Pendências para a sessão #5:
