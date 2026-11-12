@@ -3,6 +3,7 @@ import type { MaterialDefines } from "@babylonjs/core/Materials/materialDefines"
 import { MaterialPluginBase } from "@babylonjs/core/Materials/materialPluginBase";
 import type { UniformBuffer } from "@babylonjs/core/Materials/uniformBuffer";
 import { Color3 } from "@babylonjs/core/Maths/math.color";
+import { RegisterClass } from "@babylonjs/core/Misc/typeStore";
 import type { Scene } from "@babylonjs/core/scene";
 import type { RenderData } from "@gc/game";
 import { paletteHex } from "./palette";
@@ -24,19 +25,27 @@ const PLUGIN_NAME = "Contour";
  */
 class ContourPlugin extends MaterialPluginBase {
 	private on = true;
-	private readonly colors: { base: Color3; elite: Color3; boss: Color3 };
+	private colors: { base: Color3; elite: Color3; boss: Color3 };
+	private config: ContourConfig | undefined;
 
-	constructor(
-		material: Material,
-		private readonly config: ContourConfig,
-		role: ContourRole,
-	) {
+	/** Babylon rebuilds a cloned material's plugin as `new ContourPlugin(material)`, then `copyTo` fills it. */
+	constructor(material: Material, config?: ContourConfig, role: ContourRole = "hero") {
 		super(material, PLUGIN_NAME, 200, { CONTOUR: false }, true, true);
+		this.config = config;
 		const color = (token: string): Color3 => Color3.FromHexString(paletteHex(token));
-		this.colors = {
-			base: color(config[role]),
-			elite: color(config.elite),
-			boss: color(config.boss),
+		this.colors = config
+			? { base: color(config[role]), elite: color(config.elite), boss: color(config.boss) }
+			: { base: Color3.Black(), elite: Color3.Black(), boss: Color3.Black() };
+	}
+
+	override copyTo(plugin: MaterialPluginBase): void {
+		if (!(plugin instanceof ContourPlugin)) return;
+		plugin.on = this.on;
+		plugin.config = this.config;
+		plugin.colors = {
+			base: this.colors.base.clone(),
+			elite: this.colors.elite.clone(),
+			boss: this.colors.boss.clone(),
 		};
 	}
 
@@ -80,7 +89,7 @@ uniform vec2 contourParams;
 		uniformBuffer.updateColor3("contourBase", this.colors.base);
 		uniformBuffer.updateColor3("contourElite", this.colors.elite);
 		uniformBuffer.updateColor3("contourBoss", this.colors.boss);
-		uniformBuffer.updateFloat2("contourParams", this.config.strength, this.config.power);
+		uniformBuffer.updateFloat2("contourParams", this.config?.strength ?? 0, this.config?.power ?? 1);
 	}
 
 	override getCustomCode(shaderType: string): { [point: string]: string } | null {
@@ -96,6 +105,9 @@ color.rgb += contourTint * pow(1.0 - clamp(dot(normalW, viewDirectionW), 0.0, 1.
 		};
 	}
 }
+
+// `Material.clone` (a recoloured skin or class) finds the plugin class by this name.
+RegisterClass("BABYLON.ContourPlugin", ContourPlugin);
 
 /** Adds the contour to a material; the colour of `role` is its base, elites and bosses override it per instance. */
 export function addContour(material: Material, config: ContourConfig, role: ContourRole): void {

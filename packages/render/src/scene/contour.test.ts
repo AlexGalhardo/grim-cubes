@@ -49,3 +49,15 @@ describe("contour per preset", () => {
 		dispose();
 	});
 });
+
+describe("contour on a cloned material", () => {
+	it("survives `clone` (a recoloured class), keeping the contour on", () => {
+		const { engine, dispose } = createNullEngine();
+		const game = createGameScene(engine);
+		const material = new StandardMaterial("characters", game.scene);
+		addContour(material, renderData.contour, "hero");
+		const copy = material.clone("characters_tint");
+		expect(copy.pluginManager?.getPlugin<{ enabled: boolean }>("Contour")?.enabled).toBe(true);
+		dispose();
+	});
+});

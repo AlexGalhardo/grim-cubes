@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **render:** A recoloured hero (any class or skin with a `tint`) no longer fails the boot: the contour plugin is registered with Babylon and rebuilds itself on `Material.clone`, so the cloned skin keeps its contour light
 - **ui:** On short screens (896x414, 800x360) the level-up title no longer overlaps the HUD round plate and timer: the dialog keeps 64 px of top padding, the title loses its line height and the reroll button is 32 px tall; the cards keep their Art Bible minimum height and nothing scrolls or is cut (title top at 84 and 67 px against the HUD bottom at 58) (S-04-01)
 
 ## [0.6.0] - 2026-11-11
