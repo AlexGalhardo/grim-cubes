@@ -1,6 +1,6 @@
 # PROGRESS
 
-Atualizado: 2026-11-11 (fuso do PO) | Versão: 0.5.0 (publicada, tag `v0.5.0` em ce352ff) | Fase: ROADMAP 0.2.0, Parte 1 (polimento AAA e mecânicas novas) | Sessão: #3 | Branch: `feat/aaa-polish`
+Atualizado: 2026-11-11 (fuso do PO) | Versão: 0.6.0 | Fase: ROADMAP 0.3.0, fim da Parte 1 (S-16-01 e S-12-03 pendentes) | Sessão: #4 | Branch: `main`
 
 ## Sessão #4 (2026-11-11)
 
@@ -14,6 +14,39 @@ Decisões delegadas ao orquestrador pelo PO ("faça o que julgar melhor"):
 - A sinergia conta itens distintos, não cópias.
 - O `sim --check` com as sinergias passa por uma a duas runs de margem; fica assim até os playtests da B-04.
 - `prompt-workers.md` restaurado: o arquivo apareceu apagado no working tree sem autor conhecido e o `CLAUDE.md` do projeto o referencia.
+
+Fechamento da sessão #4 (2026-11-11), branch `feat/aaa-polish`, integrada na `main` para a `v0.6.0`:
+
+| Item | Estado | Commits principais |
+| --- | --- | --- |
+| S-04-02 | concluído | 3169160 |
+| S-05-01 a S-05-03 | concluídos (S-05-01 fechada com as etiquetas da S-14-02) | f749257, 249f226, d4a382c |
+| S-06-01 | concluído | 8f95f33, 7332de7 |
+| S-07-01, S-07-02 | concluídos | 3fd4251, d6e2007, 7dd4fb0 |
+| S-08-01 a S-08-03 | concluídos | 52c08ee, 7b2cdc2, 401d19b |
+| S-10-01 | concluído | f73a6a4, f00e080 |
+| S-11-01 | concluído, com bench `gore` | df56cbd, ecf66e5 |
+| S-12-01, S-12-02 | concluídos | 4f1011b, ba6fae7, 1bc8b45, 44d3052 |
+| S-12-03 | parcial: 7 de 9 combinações herói × dificuldade passam no `sim --check` com o bot `kite` | a3113dd, 4600ffd |
+| S-13-01 | concluído | c85e629, 1a726b4 |
+| S-14-01 a S-14-03 | concluídos | 23b2d51, b73e032, 2e5b3ed |
+| S-16-01 | bloqueado: baselines e e2e completo ficam para a sessão #5 | — |
+| S-16-02, S-16-03 | concluídos | 916ccb0, ea552f7 |
+
+Pontas soltas de UI resolvidas pelo agente 1 no fim da sessão: menu com até 7 botões em telas baixas, barra do chefe afastada da arma no touch, placa de round escondida fora do round, 11 textos de efeito que faltavam, efeitos no baú de elite, valores "agora" atualizados nas cartas, cartas que crescem com texto longo e contraste do chão no Pântano e na Forja (`floorBiomeShade`).
+
+Pendências para a sessão #5:
+
+1. S-16-01: `bun run test:e2e` completo e baselines regeneradas nos quatro alvos (o fluxo agora passa pela escolha de herói).
+2. S-12-03: o Fuzilado em Normal (p50 17 contra 18–26, Matriarca morta 2,5 s antes da faixa) e o Coveiro em Nightmare com o Carrasco (105,9 s contra 90 s); próxima alavanca proposta pelo agente: perfuração 1 na pistola, que afeta todo herói que a usa. Medir também uma segunda seed.
+3. `ux:legibility` instável: a luminância do herói varia de 0,14 a 0,46 entre execuções porque a amostra pega o herói animado; a Forja passa por pouco (3,04). Usar a mediana de várias amostras ou congelar o quadro do herói.
+4. Recapturar a carta dupla de level-up depois do `currentStats` (`c93146f`) e conferir as capturas de 896 e 2560 que não foram abertas (`boss-b`, `merchant-a`, `crit-b`).
+5. O diálogo do level-up em 896×414 sobrepõe o título ao timer do HUD.
+6. A Art Bible diz "cinco biomas" em seções que não foram revisadas; `data/biomes.json` tem 4.
+7. O ícone do assassino nos resultados é um glifo até haver ícone de inimigo (depende da arte da S-18).
+8. Testes perto do limite de tempo com a CPU saturada: `tools/sim/lib.test.ts` (soak) e o self-test do `data-check` (acelerado em `ea552f7`).
+
+Limpeza de disco pedida pelo PO: os três emuladores Android de `~/.android/avd` foram apagados (12,9 GB) com a `debug.keystore` mantida; o disco virtual do Docker (20,9 GB para cerca de 10,5 GB de dados) pode ser compactado com o Docker Desktop fechado.
 
 Ocorrência: o commit `249f226` (S-05-02) levou as mudanças de Options da S-08-03 por um `git add` de pasta inteira; o histórico não foi reescrito e o `401d19b` registra o fato.
 

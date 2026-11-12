@@ -172,11 +172,11 @@ Cancelada pelo PO em 2026-11-11: a arte muda para 3D medium poly depois da `v0.6
 
 ### S-16 Fechamento
 
-- [ ] **S-16-01** Baselines do Playwright regeneradas nos quatro alvos para todas as telas tocadas e `bun run test:e2e` verde na máquina local.
+- [!] **S-16-01** Baselines do Playwright regeneradas nos quatro alvos para todas as telas tocadas e `bun run test:e2e` verde na máquina local. Bloqueado em 2026-11-11: regenerar todas as baselines e rodar o e2e completo não coube no fechamento da sessão #4, pedido pelo PO para publicar a `v0.6.0`; fica como primeira tarefa da sessão seguinte (ver `docs/PROGRESS.md`).
   - Asserts: `bun run test:e2e` exit 0; nenhuma baseline antiga de tela tocada sobra em `tests/visual/__screenshots__/`.
-- [ ] **S-16-02** Documentação alinhada: GDD §21, Art Bible §11, §16 e §17, SDD 07, `CHANGELOG.md` `[Unreleased]`, `docs/PROGRESS.md`, `AGENTS.md` e `CLAUDE.md` se algum comando ou convenção mudou, `todo-later.md` para o que virou pendência de loja.
+- [x] **S-16-02** Documentação alinhada: GDD §21, Art Bible §11, §16 e §17, SDD 07, `CHANGELOG.md` `[Unreleased]`, `docs/PROGRESS.md`, `AGENTS.md` e `CLAUDE.md` se algum comando ou convenção mudou, `todo-later.md` para o que virou pendência de loja.
   - Asserts: `bun run lint:md` exit 0; `tools/changelog-check` verde.
-- [ ] **S-16-03** Validação final completa.
+- [x] **S-16-03** Validação final completa.
   - Asserts: `bun run typecheck && bun run lint && bun run lint:md && bun run test` exit 0; `bun run build` exit 0; `bun run sim --check` exit 0.
 
 ### S-17 Release de teste para o PO

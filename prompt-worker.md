@@ -21,32 +21,17 @@ Todos os itens da Parte 1 do ROADMAP.md estão marcados [x] com os asserts verif
 3. Confirme o modelo com o PO antes da primeira tarefa (regra global dele).
 4. Confira a branch: `git rev-parse --abbrev-ref HEAD` deve dar `feat/aaa-polish`. Nada foi enviado ao remoto; a `main` local e a remota estão na `v0.5.0` mais um commit.
 
-## Estado em 2026-11-11
+## Estado no fim da sessão #4 (2026-11-11)
 
-Branch `feat/aaa-polish`, versão `0.5.0`, sem push. Concluído nesta branch:
-
-| Item | O que entrou |
-| --- | --- |
-| S-00-01 | todo item do CHANGELOG tem link de commit; a ferramenta de release gera isso; os cinco releases publicados foram atualizados |
-| S-01-01 a S-01-04 | câmera 25% mais perto (raio 28,5), luz de contorno por papel, chão mais escuro e calmo com contraste medido (`bun run ux:legibility`), números de dano em Inter com contorno |
-| S-02-01 | todo dígito da UI sai da Inter (face `GC Digits` em `theme.css`) |
-| S-03-01 a S-03-04 | HUD em quatro cantos (`packages/ui/src/components/Hud/`), versão mobile, barra de chefe com fases, timer dos últimos 5 s; a UI cresce 25% em 1440p |
-| S-04-01 | cartas de level-up no tamanho do Art Bible, com raridade e valor antes → depois |
-| S-09-01 | ícones das 5 armas e dos 9 itens que eram placeholder |
-| S-10-01 (parcial) | 11 SFX de UI gerados e normalizados; falta ligar aos eventos |
-| S-17-01 | `release.yml` gera e anexa o APK de debug |
-| Documentação | ROADMAP 0.3.0, ADR-0029, skill `medium-poly-art`, agente `medium-poly-artist`, `todo-later.md` |
+A `v0.6.0` saiu da `feat/aaa-polish`, integrada na `main` (S-17-02). A Parte 1 do ROADMAP está feita, menos dois itens: a S-16-01, que está `[!]` (baselines do Playwright e e2e completo), e a S-12-03, que está `[~]` (balanceamento dos dois heróis novos). O quadro item a item e as pendências numeradas estão em `docs/PROGRESS.md`, seção "Fechamento da sessão #4".
 
 ## Ordem do que falta
 
-1. **S-04-02** painel de atributos à esquerda no level-up e botão de troca visível. Dica do agente anterior: extrair um `StatList` da loja; `main.tsx` só preenche `stats` com a loja aberta e precisa preencher também com cartas ou baú; `CardView.changes` permite destacar o atributo da carta focada.
-2. **S-05-01 a S-05-03** loja: estatísticas nas ofertas de arma, prévia com delta colorido, limpeza de layout. `statChanges()` em `apps/web/src/main.tsx` já devolve `now`, `after`, `delta` e `better`; o `Shop` ainda usa o `Record<string, string>` antigo. Em todos os atributos de `describeStats`, maior é melhor.
-3. **S-06-01** resultados. **S-07-01 e S-07-02** menu e botão de wishlist. **S-08-01 a S-08-03** dificuldade, Ossuário e Opções.
-4. **S-10-01** ligar os 11 SFX: `sfx_ui_levelup_open` (abrir level-up), `sfx_ui_rarity_rare|epic|legendary|mythic` (revelar carta ou oferta), `sfx_ui_transition` (troca de tela), `sfx_ui_unlock`, `sfx_ui_timer_tick` (últimos 5 s), `sfx_ui_results`, `sfx_ui_synergy` (S-14), `sfx_ui_hero_select` (S-12). Os sons são tocados em `apps/web/src/main.tsx` com `audio.play(id, { priority: "ui", maxVoices: 2 })`.
-5. **S-11-01** corpos e sangue persistentes (o sistema de teto e descarte fica; o visual em cubos será trocado na S-18-08). **S-12** três heróis (modelo do Carrasco recolorido até a S-18-06). **S-13** seed diária. **S-14** sinergias por etiqueta.
-6. **S-16** fechamento: regenerar todas as baselines do Playwright (as atuais estão velhas, de antes do HUD novo), alinhar documentação, validação completa.
-7. **S-17-02 e S-17-03** merge na `main`, push, `bun run release minor --publish` e conferência dos binários da `v0.6.0`. É o único ponto com push, pedido pelo PO em 2026-11-11.
-8. **S-18** arte medium poly. Começa pelo teste de viabilidade (S-18-01) e para no herói de prova (S-18-03) para o PO aprovar.
+1. **S-17-03** conferir os binários publicados da `v0.6.0`: checksums, a versão do APK e o `.exe` portable abrindo até o menu. Se a máquina não abrir o `.exe` sem interação, o item fica `[!]` e o PO testa.
+2. **S-16-01** rodar `bun run test:e2e` e regenerar as baselines nos quatro alvos (o fluxo de nova run agora passa pela escolha de herói).
+3. **S-12-03** fechar o Fuzilado em Normal e o Coveiro em Nightmare. O bot `kite` (`packages/game/src/bot/policy.ts`) já avalia armas de fogo; a próxima alavanca proposta é perfuração 1 na pistola. Medir com duas seeds.
+4. As pendências 3 a 8 de `docs/PROGRESS.md` (legibilidade instável, capturas não abertas, sobreposição do level-up em 896×414, texto de "cinco biomas").
+5. **S-18** arte medium poly: começa pelo teste de viabilidade (S-18-01) e para no herói de prova (S-18-03) para o PO aprovar.
 
 ## Decisões do PO que valem
 
@@ -80,7 +65,7 @@ await browser.close();
 
 ## Orquestração
 
-- Regras do PO: agentes em paralelo e worktrees só com "sim" explícito na tarefa. Agentes em sequência não precisam de pergunta. Implementação vai para o agente `senior`, tarefa mecânica para o `estagiario`, pesquisa para o `researcher`.
+- Regras do PO: agentes em paralelo e worktrees só com "sim" explícito na tarefa. Na sessão #4 o PO aprovou até três `senior` em paralelo: um no checkout principal e dois em worktrees (`../grim-cubes-wt2` e `../grim-cubes-wt3`). A integração foi por rebase no worktree e cherry-pick na `feat/aaa-polish`, com `git add` de caminhos exatos. Um `git add` de pasta inteira já levou trabalho alheio para o commit errado. Agentes em sequência não precisam de pergunta. Implementação vai para o agente `senior`, tarefa mecânica para o `estagiario`, pesquisa para o `researcher`.
 - Um agente `senior` leva de 20 a 55 minutos por briefing de 3 a 5 itens. Dê a ele o objetivo, os arquivos, os asserts do ROADMAP, como rodar o jogo e o formato do relatório. Peça um commit por item e `git add` só dos arquivos dele.
 - Relatório de agente é alegação: confira o `git log`, rode `bun run typecheck`, `bun run lint` e os testes da pasta, e olhe as capturas.
 - Enquanto um agente trabalha, não edite `ROADMAP.md`, `CHANGELOG.md`, `apps/web/src/main.tsx` nem os documentos que ele toca; faça trabalho em arquivos separados e commite depois dele.
