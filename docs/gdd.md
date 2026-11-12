@@ -102,6 +102,8 @@ Convenções deste documento:
 | --- | --- | --- | --- |
 | Mover | WASD / setas | Stick esquerdo | Joystick virtual flutuante (esquerda) |
 | Dash (se desbloqueado na meta-árvore) | Espaço / Shift | A / RB | Botão à direita |
+| Cura | E | B | Botão no HUD (embaixo, à esquerda do dash) |
+| Super | Q | Y | Botão no HUD, com a barra de carga |
 | Pausar | Esc / P | Start | Botão de pausa no HUD |
 | Confirmar / Selecionar carta | Clique / Enter | A | Toque |
 | Reroll na loja | R | Y | Botão |
@@ -254,6 +256,21 @@ dano_recebido = dano_inimigo × 100 / (100 + armadura × 6,66)   # baseline Brot
 - Números flutuantes por hit (branco; amarelo em crítico; vermelho em dano recebido). Tamanho escala com dano até ×1,5.
 - Flash branco no inimigo por 2 frames; hit-stop de 30 ms em crítico e 80 ms em kill de elite/chefe (proposta; calibrar).
 - Ver §23.
+
+### 8.4 Magias da classe (S-20-02, ADR-0030)
+
+Cada classe tem seis magias em `data/spells.json`, com o nome de cada uma em `locales/` (`spell.<id>`): quatro **ofensivas automáticas**, uma **cura** e uma **super**. As quatro automáticas disparam sozinhas pela recarga (`intervalSeconds`) e reaproveitam os cinco comportamentos das magias de item da `v0.6.0` (projétil, discos em órbita, relâmpago em cadeia, mina e pulso em área). Cada classe escolhe quatro deles com números próprios:
+
+| Classe | Automáticas | Cura | Super |
+| --- | --- | --- | --- |
+| Warrior | Onda de Choque (pulso), Lâminas Giratórias (órbita), Abrolhos (mina), Lança Arremessada (projétil) | Fôlego de Guerra: 25% do HP máximo, recarga de 30 s | Redemoinho de Aço: raio de 5,5 u |
+| Ranged | Salva de Tiros (projétil), Corrente de Ferro (cadeia), Armadilha (mina), Cartuchos Orbitais (órbita) | Kit de Campo: 20%, 25 s | Chuva de Chumbo: raio de 7 u |
+| Mago | Raio Arcano (projétil), Relâmpago (cadeia), Nova Arcana (pulso), Fogos-Fátuos (órbita) | Sifão Vital: 22%, 28 s | Tempestade Arcana: raio de 8 u |
+
+- **Cura:** acionada pelo jogador (E, B no controle, botão no HUD). Restaura uma fração do HP máximo e depois espera a recarga; com a barra cheia ou o herói morto, o toque não gasta a recarga. A recarga recomeça pronta a cada round.
+- **Super:** acionada pelo jogador (Q, Y no controle, botão no HUD). Carrega com **100 abates no round**; cada uso dentro do mesmo round soma **5** aos abates da próxima carga (100, 105, 110...). Ao disparar, dura **5 s** e, a cada 0,25 s, atinge todos os inimigos dentro do raio em volta do herói. A carga e o custo recomeçam no início de cada round. A barra de carga fica no HUD ao lado dos dois botões (embaixo ao centro no desktop; à esquerda do dash no toque).
+- **Nível das magias (1 a 10):** o nível 1 é de graça; o Ossuário sobe cada magia até o 10 (S-22-01). Cada nível soma 15% ao dano (cura: +6%) e tira 4% do intervalo e da recarga. As teclas e os botões do controle entram no remap das Opções.
+- Os números são provisórios até a S-26; o bot do simulador cura abaixo de 50% de HP e dispara a super assim que carrega.
 
 ## 9. Armas
 

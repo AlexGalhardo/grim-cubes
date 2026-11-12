@@ -1,4 +1,7 @@
 import { SpellVfx } from "../ecs/events";
+import type { SpellEffect } from "./spells";
+
+export type { SpellEffect };
 
 /** The slice of an `items.json` entry that effects read. */
 export interface EffectSource {
@@ -26,27 +29,6 @@ export interface AuraEffect {
 	radius: number;
 	damageBase: number;
 	damagePerRound: number;
-}
-
-/**
- * One automatic spell from an owned copy (Brotato-style). Fields that a kind does not use stay 0.
- * `radius` is the bolt's body, the orbit distance, the mine's blast or the nova's reach, depending on `kind`.
- */
-export interface SpellEffect {
-	kind: number;
-	interval: number;
-	damageBase: number;
-	damagePerRound: number;
-	radius: number;
-	range: number;
-	speed: number;
-	count: number;
-	hitRadius: number;
-	spin: number;
-	jumps: number;
-	jumpRadius: number;
-	fuse: number;
-	cooldown: number;
 }
 
 /**

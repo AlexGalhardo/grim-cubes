@@ -277,6 +277,21 @@ export interface SynergyData {
 	tiers: { count: number; modifiers: Modifier[] }[];
 }
 
+/** One spell of a class in `data/spells.json`: `kind` picks the automatic behaviour, `params` its numbers. */
+export interface SpellDef {
+	id: string;
+	slot: string;
+	kind?: string | undefined;
+	params: Record<string, number>;
+}
+
+/** `data/spells.json` (S-20-02). */
+export interface SpellsData {
+	levels: { max: number; damagePerLevel: number; cooldownPerLevel: number; healPerLevel: number };
+	super: { baseKills: number; killsPerUse: number; durationSeconds: number; tickSeconds: number };
+	classes: { id: string; spells: SpellDef[] }[];
+}
+
 /** One entry of `data/items.json`. */
 export interface ItemData {
 	id: string;

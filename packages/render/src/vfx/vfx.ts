@@ -249,6 +249,7 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 	const spellBolt: readonly Rgb[] = [ember, emberLight];
 	const spellBone: readonly Rgb[] = [rgb(PALETTE.bone), rgb(PALETTE.boneDark)];
 	const spellSoul: readonly Rgb[] = [rgb(PALETTE.mist), rgb(PALETTE.bone), emberLight];
+	const spellHeal: readonly Rgb[] = [rgb(PALETTE.sludge), rgb(PALETTE.bone), emberLight];
 	const spellAsh: readonly Rgb[] = [rgb(PALETTE.boneDark), rgb(PALETTE.rust), ember];
 	const fleshBurst: readonly Rgb[] = [rgb(PALETTE.flesh), rgb(PALETTE.bloodLight), rgb(PALETTE.bone)];
 	const biomeDust: readonly (readonly Rgb[])[] = [
@@ -517,6 +518,12 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 				} else if (entity === SpellVfx.Nova) {
 					zones.ring(a, b, c, 0.45);
 					burst(a, b, 8, spellAsh, 3, 4, false);
+				} else if (entity === SpellVfx.Heal) {
+					zones.ring(a, b, 1.6, 0.5);
+					burst(a, b, 10, spellHeal, 2, 3, false);
+				} else if (entity === SpellVfx.Super) {
+					zones.ring(a, b, c, 0.3);
+					burst(a, b, 6, spellAsh, c * 0.5, 3, false);
 				}
 			} else if (type === EventType.Exploded) {
 				burst(a, b, count(config.explosionCubes), explosionColors, 3 + c, 7, false);

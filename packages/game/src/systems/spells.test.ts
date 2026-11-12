@@ -62,7 +62,7 @@ function rig(id: string, copies = 1) {
 	});
 	const pool = createProjectilePool(world, events, 8);
 	const spells = createSpellSystem({
-		effects: fx.effects,
+		spells: fx.effects.spells,
 		queue: damage.queue,
 		enemies: hash,
 		projectiles: pool,

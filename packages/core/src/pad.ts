@@ -1,11 +1,11 @@
 /** Remappable gamepad buttons (A-07-02), as indexes of the standard mapping (0 = A / cross, 9 = Start). */
-export const PAD_ACTIONS = ["dash", "pause", "reroll", "speed"] as const;
+export const PAD_ACTIONS = ["dash", "pause", "reroll", "speed", "heal", "super"] as const;
 export type PadAction = (typeof PAD_ACTIONS)[number];
 export type PadMap = Record<PadAction, number>;
 
 export function createPadMap(): PadMap {
-	// A dashes, Start pauses, X rerolls (level-up and shop) and Select/Back cycles the game speed.
-	return { dash: 0, pause: 9, reroll: 2, speed: 8 };
+	// A dashes, Start pauses, X rerolls (level-up and shop), Select/Back cycles the game speed, B heals and Y casts the super.
+	return { dash: 0, pause: 9, reroll: 2, speed: 8, heal: 1, super: 3 };
 }
 
 /** Buttons that always work for an action besides the remappable one (RB also dashes). */
@@ -45,6 +45,8 @@ export function padBindingsFor(map: Readonly<PadMap>): Record<PadAction, number[
 		pause: [map.pause, ...(FIXED_PAD_BUTTONS.pause ?? [])],
 		reroll: [map.reroll],
 		speed: [map.speed],
+		heal: [map.heal],
+		super: [map.super],
 	};
 }
 

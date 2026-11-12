@@ -63,6 +63,8 @@ export type {
 	SlotTagView,
 } from "./components/Shop/Shop";
 export { Shop } from "./components/Shop/Shop";
+export type { SpellBarProps, SpellKind, SpellsView } from "./components/SpellBar/SpellBar";
+export { SpellBar } from "./components/SpellBar/SpellBar";
 export type { StatLineView, StatPreview } from "./components/StatList/StatList";
 export { StatList } from "./components/StatList/StatList";
 export type { TipId } from "./components/Tip/Tip";

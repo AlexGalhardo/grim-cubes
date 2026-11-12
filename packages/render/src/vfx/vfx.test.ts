@@ -728,6 +728,19 @@ describe("bleed and thorns looks", () => {
 		expect(nova.vfx.particles.stats.live).toBeGreaterThan(0);
 		nova.dispose();
 	});
+
+	it("rings and sparks the hero's heal and each tick of the super", () => {
+		for (const [kind, radius] of [
+			[SpellVfx.Heal, 0],
+			[SpellVfx.Super, 5.5],
+		] as const) {
+			const { vfx, dispose } = setup();
+			vfx.onEvent(EventType.SpellCast, 0, 0, radius, kind);
+			expect(vfx.zones.ringsLive).toBe(1);
+			expect(vfx.particles.stats.live).toBeGreaterThan(0);
+			dispose();
+		}
+	});
 });
 
 describe("damage numbers and drips", () => {

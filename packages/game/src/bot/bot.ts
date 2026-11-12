@@ -149,6 +149,14 @@ export function createBot(session: GameSession, policyId: Policy["id"], hooks: B
 		if (hooks.unstick) detour(input, hx, hz);
 	}
 
+	/** Heals below half HP and casts the super as soon as it is charged; the press is an edge, so it toggles every other step. */
+	function casts(input: InputState): void {
+		const { playerSpells } = session;
+		const low = (Health.hp[hero] ?? 0) < (Health.max[hero] ?? 1) * 0.5;
+		input.heal = low && ticks % 2 === 0;
+		input.super = playerSpells.superKills >= playerSpells.superNeeded && ticks % 2 === 0;
+	}
+
 	/** A hero pushing against a prop for a while sidesteps it for a moment, alternating sides: the boss may be behind a wall. */
 	function detour(input: InputState, hx: number, hz: number): void {
 		const wantsToMove = input.moveX !== 0 || input.moveZ !== 0;
@@ -175,8 +183,14 @@ export function createBot(session: GameSession, policyId: Policy["id"], hooks: B
 		prepare(input): void {
 			choose();
 			ticks++;
-			if (run.state === "Round" || run.state === "BossRound") steer(input);
-			else input.dash = false;
+			if (run.state === "Round" || run.state === "BossRound") {
+				steer(input);
+				casts(input);
+			} else {
+				input.dash = false;
+				input.heal = false;
+				input.super = false;
+			}
 		},
 		shop(): void {
 			const prices = shop.slots.filter((s) => s.kind === "item").map((s) => s.price);

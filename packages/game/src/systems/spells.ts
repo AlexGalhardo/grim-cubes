@@ -5,12 +5,13 @@ import { isHittable } from "../ecs/hittable";
 import type { ProjectilePool, ProjectileSpec } from "../ecs/projectile";
 import type { GameWorld } from "../ecs/world";
 import { STEP } from "../loop";
-import type { ItemEffects, SpellEffect } from "../rules/effects";
 import { DamageOrigin } from "../rules/runstats";
+import type { SpellEffect } from "../rules/spells";
 import type { DamageQueue } from "./damage";
 
 export interface SpellSystemDeps {
-	effects: ItemEffects;
+	/** The automatic spells of the class, already scaled to their levels; read every step, so a rebuilt list is picked up. */
+	spells: readonly SpellEffect[];
 	queue: DamageQueue;
 	enemies: SpatialHash;
 	projectiles: ProjectilePool;
@@ -30,11 +31,11 @@ const MINE_SLOTS = 8;
 const ORBIT_VFX_EVERY = 4;
 
 /**
- * Automatic spells bought as items. One spec per owned copy. Nothing here allocates after `create`.
+ * The automatic spells of the class (S-20-02). Nothing here allocates after `create`.
  * Bolts go through the projectile pool (the cube renderer is their trail). The other four push `SpellCast`.
  */
 export function createSpellSystem(deps: SpellSystemDeps): SpellSystem {
-	const { effects, queue, enemies, projectiles, events, round } = deps;
+	const { queue, enemies, projectiles, events, round } = deps;
 	const near = new Uint16Array(MAX_NEAR);
 	const chainHits = new Uint16Array(CHAIN_CAP);
 	const period = new Uint16Array(MAX_SPELLS);
@@ -247,7 +248,7 @@ export function createSpellSystem(deps: SpellSystemDeps): SpellSystem {
 			clock++;
 			vfxStep++;
 			tickMines(world, hero);
-			const list = effects.spells;
+			const list = deps.spells;
 			// Copies share one ring. Advancing inside each copy spun two orbits at twice the item spin.
 			let orbitAdvanced = false;
 			if (armed !== list.length) {

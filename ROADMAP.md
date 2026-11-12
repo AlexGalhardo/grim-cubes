@@ -207,7 +207,7 @@ Decisão do PO em 2026-11-12, registrada no ADR-0030 (o texto original está no 
 
 - [x] **S-20-01** Três classes em `data/heroes.json`: Warrior (espada atual, vários alvos, aberto desde o início), Ranged (bumerangue que ricocheteia entre 3 alvos, 20 no nível 10 da arma, abre ao matar o chefe do round 10) e Mago (machado mágico em área circular, raio dobra no nível 10, abre ao matar o chefe do round 20). Sem troca de arma na run; o Fuzilado e a Penitente saem; o Carrasco vira o Warrior.
   - Asserts: teste de cada arma (alvos do bumerangue por nível, raio do machado por nível); teste de desbloqueio pelos marcos; migração do save com teste; GDD §7.
-- [ ] **S-20-02** Seis magias por classe: 4 ofensivas automáticas com recarga, cura e super acionadas pelo jogador (tecla, botão do controle e botão de toque). A super carrega com 100 abates no round, cada uso soma 5 à carga seguinte, dura 5 s e atinge a área em volta do herói. Números em `data/spells.json` com esquema.
+- [x] **S-20-02** Seis magias por classe: 4 ofensivas automáticas com recarga, cura e super acionadas pelo jogador (tecla, botão do controle e botão de toque). A super carrega com 100 abates no round, cada uso soma 5 à carga seguinte, dura 5 s e atinge a área em volta do herói. Números em `data/spells.json` com esquema.
   - Asserts: teste da carga da super (100, 105, 110…) e da duração; teste de que cura e super respeitam a recarga; HUD com a barra da super e os botões nos quatro alvos; remap nas Opções.
 
 ### S-21 Equipamento e loja

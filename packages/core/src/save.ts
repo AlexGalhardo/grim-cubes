@@ -20,8 +20,8 @@ const FORBIDDEN_KEYS = new Set(["__proto__", "constructor", "prototype"]);
 export type Difficulty = "easy" | "normal" | "grim" | "nightmare";
 export const DIFFICULTIES: readonly Difficulty[] = ["easy", "normal", "grim", "nightmare"];
 
-import { createKeyMap, KEY_ACTIONS, type KeyMap, validKeyMap } from "./keys";
-import { createPadMap, PAD_ACTIONS, type PadMap, validPadMap } from "./pad";
+import { checkKey, createKeyMap, KEY_ACTIONS, type KeyAction, type KeyMap, validKeyMap } from "./keys";
+import { checkPadButton, createPadMap, PAD_ACTIONS, type PadAction, type PadMap, validPadMap } from "./pad";
 import { RNG_STREAMS } from "./rng";
 
 export const LOCALES = ["pt-BR", "en"] as const;
@@ -250,15 +250,33 @@ function counter(value: unknown, label: string): number {
 	return value;
 }
 
+/** Actions added in schema 15 (S-20-02): an older save does not list them. */
+const KEYS_ADDED_IN_15: readonly KeyAction[] = ["heal", "super"];
+const PADS_ADDED_IN_15: readonly PadAction[] = ["heal", "super"];
+/** Where an absent heal or super lands when the default is taken: the first free one of these. */
+const KEY_FALLBACKS = ["KeyE", "KeyQ", "KeyF", "KeyC", "KeyX", "KeyV", "KeyZ", "KeyG", "KeyT"];
+const PAD_FALLBACKS = [1, 3, 4, 6, 7, 10, 11, 8, 9, 0, 2, 5, 16];
+
 /** Absent before schema 6: the default keys. Present: every action a short code and no key shared. */
 function validateKeys(raw: unknown): KeyMap {
 	if (raw === undefined) return createKeyMap();
 	if (!isRecord(raw)) throw new SaveError("settings.keys must be an object");
 	const keys = createKeyMap();
+	const missing: KeyAction[] = [];
 	for (const action of KEY_ACTIONS) {
 		const code = raw[action];
+		if (code === undefined && KEYS_ADDED_IN_15.includes(action)) {
+			missing.push(action);
+			continue;
+		}
 		if (typeof code !== "string") throw new SaveError(`settings.keys.${action} must be a key code`);
 		keys[action] = code;
+	}
+	// A player who bound E or Q to something else keeps it: the new actions take the first key still free.
+	for (const action of missing) {
+		const free = KEY_FALLBACKS.find((code) => checkKey(keys, action, code).ok);
+		if (free === undefined) throw new SaveError(`settings.keys has no free key for ${action}`);
+		keys[action] = free;
 	}
 	if (!validKeyMap(keys)) throw new SaveError("settings.keys has an invalid, reserved or shared key");
 	return keys;
@@ -269,11 +287,21 @@ function validatePad(raw: unknown): PadMap {
 	if (raw === undefined) return createPadMap();
 	if (!isRecord(raw)) throw new SaveError("settings.pad must be an object");
 	const pad = createPadMap();
+	const missing: PadAction[] = [];
 	for (const action of PAD_ACTIONS) {
-		// Reroll and speed are absent in schema 7 and 8 saves: their default buttons.
+		// Reroll and speed are absent in schema 7 and 8 saves, heal and super before 15: their default buttons.
+		if (raw[action] === undefined && PADS_ADDED_IN_15.includes(action)) {
+			missing.push(action);
+			continue;
+		}
 		const button = raw[action] === undefined ? pad[action] : raw[action];
 		if (typeof button !== "number") throw new SaveError(`settings.pad.${action} must be a button number`);
 		pad[action] = button;
+	}
+	for (const action of missing) {
+		const free = PAD_FALLBACKS.find((button) => checkPadButton(pad, action, button).ok);
+		if (free === undefined) throw new SaveError(`settings.pad has no free button for ${action}`);
+		pad[action] = free;
 	}
 	if (!validPadMap(pad)) throw new SaveError("settings.pad has an invalid, reserved or shared button");
 	return pad;
@@ -637,6 +665,20 @@ function withoutHero<T extends { run: RunCheckpoint | null }>(profile: T): T {
 	return { ...profile, run: run as RunCheckpoint };
 }
 
+/** Schemas before 15 had no heal and super keys or buttons: their checksum covers `settings` without them. */
+function withoutSpellKeys<T extends { keys?: KeyMap; pad?: PadMap }>(settings: T): T {
+	const copy: T = { ...settings };
+	if (copy.keys) {
+		const { heal: _h, super: _s, ...keys } = copy.keys;
+		copy.keys = keys as KeyMap;
+	}
+	if (copy.pad) {
+		const { heal: _h, super: _s, ...pad } = copy.pad;
+		copy.pad = pad as PadMap;
+	}
+	return copy;
+}
+
 /** Schemas before 15 had no `stats.bestBossRound`: their checksum covers `stats` without it. */
 function withoutBossRound<T extends { stats: Profile["stats"] }>(profile: T): T {
 	const { bestBossRound: _best, ...stats } = profile.stats;
@@ -692,7 +734,7 @@ function coveredBy(version: number, data: MetaState): unknown {
 	for (const key of keys) settings[key] = full[key];
 	// Schemas 7 and 8 stored only the dash and pause buttons (9 added reroll and speed).
 	if ("pad" in settings && version < 9) settings.pad = { dash: full.pad.dash, pause: full.pad.pause };
-	return { ...profile, settings };
+	return { ...profile, settings: withoutSpellKeys(settings) };
 }
 
 interface Envelope {
@@ -765,6 +807,7 @@ export async function parseGlobal(text: string): Promise<Settings> {
 	const settings = validateSettings(envelope.data.settings);
 	// Files before schema 12 did not have the health bar toggles in their checksum.
 	const { hpBarHero: _hero, hpBarEnemies: _enemies, ...older } = settings;
-	await verified(envelope, { settings: envelope.schemaVersion < 12 ? older : settings });
+	const covered = envelope.schemaVersion < 12 ? older : settings;
+	await verified(envelope, { settings: envelope.schemaVersion < 15 ? withoutSpellKeys(covered) : covered });
 	return settings;
 }

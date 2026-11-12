@@ -1,5 +1,6 @@
 import { expect, test } from "vitest";
 import { createKeyMap } from "./keys";
+import { createPadMap } from "./pad";
 import {
 	checksumOf,
 	createMetaState,
@@ -226,6 +227,11 @@ async function legacySave(version: number): Promise<string> {
 		stats: oldStats,
 	};
 	const picked = keys ? Object.fromEntries(keys.map((k) => [k, settings[k]])) : null;
+	// Before schema 15 there were no heal and super keys or buttons.
+	for (const group of ["keys", "pad"]) {
+		const { heal: _h, super: _s, ...older } = (picked?.[group] ?? {}) as Record<string, unknown>;
+		if (picked && group in picked) picked[group] = older;
+	}
 	// Schemas 7 and 8 stored only the dash and pause buttons.
 	if (picked && "pad" in picked && version < 9) {
 		const { dash, pause } = picked.pad as { dash: number; pause: number };
@@ -249,7 +255,14 @@ test("saves from schemas 1 to 9 load with the defaults of every setting they lac
 		expect(loaded.settings.uiScale, `v${version}`).toBe(100);
 		expect(loaded.settings.gore, `v${version}`).toBe(true);
 		expect(loaded.settings.keys, `v${version}`).toEqual(createKeyMap());
-		expect(loaded.settings.pad, `v${version}`).toEqual({ dash: 0, pause: 9, reroll: 2, speed: 8 });
+		expect(loaded.settings.pad, `v${version}`).toEqual({
+			dash: 0,
+			pause: 9,
+			reroll: 2,
+			speed: 8,
+			heal: 1,
+			super: 3,
+		});
 		expect(loaded.settings.subtitles, `v${version}`).toBe(true);
 		expect(loaded.settings.lastSlot, `v${version}`).toBe(0);
 		expect(loaded.settings.hpBarHero, `v${version}`).toBe(true);
@@ -289,8 +302,8 @@ test("visual and other settings are validated: ranges, modes, scales and types",
 	expect(bad({ pad: { dash: 13, pause: 9 } })).toThrow(SaveError);
 	expect(bad({ pad: { dash: "A", pause: 9 } })).toThrow(SaveError);
 	expect(bad({ pad: [0, 9] })).toThrow(SaveError);
-	expect(bad({ pad: { dash: 0, pause: 9, reroll: 9, speed: 8 } })).toThrow(SaveError);
-	expect(bad({ pad: { dash: 0, pause: 9, reroll: 2, speed: 14 } })).toThrow(SaveError);
+	expect(bad({ pad: { ...ok.pad, reroll: 9 } })).toThrow(SaveError);
+	expect(bad({ pad: { ...ok.pad, speed: 14 } })).toThrow(SaveError);
 	expect(bad({ subtitles: "yes" })).toThrow(SaveError);
 	const edge = validateMeta({
 		...createMetaState(),
@@ -306,19 +319,20 @@ test("visual and other settings are validated: ranges, modes, scales and types",
 	expect(
 		validateMeta({
 			...createMetaState(),
-			settings: { ...ok, keys: { ...ok.keys, dash: "KeyE", speed: "KeyZ" } },
+			settings: { ...ok, keys: { ...ok.keys, dash: "KeyF", speed: "KeyZ" } },
 		}).settings.keys,
-	).toMatchObject({ dash: "KeyE", speed: "KeyZ" });
+	).toMatchObject({ dash: "KeyF", speed: "KeyZ" });
 	expect(
 		validateMeta({
 			...createMetaState(),
-			settings: { ...ok, pad: { dash: 3, pause: 7, reroll: 2, speed: 8 } },
+			settings: { ...ok, pad: { dash: 3, pause: 7, reroll: 2, speed: 8, heal: 1, super: 4 } },
 		}).settings.pad,
-	).toEqual({ dash: 3, pause: 7, reroll: 2, speed: 8 });
-	// A schema 7 or 8 pad without reroll and speed gets their default buttons.
+	).toEqual({ dash: 3, pause: 7, reroll: 2, speed: 8, heal: 1, super: 4 });
+	// A schema 7 or 8 pad without reroll and speed gets their default buttons; Y is taken by the dash here, so the
+	// super takes the next free one.
 	expect(
 		validateMeta({ ...createMetaState(), settings: { ...ok, pad: { dash: 3, pause: 7 } } }).settings.pad,
-	).toEqual({ dash: 3, pause: 7, reroll: 2, speed: 8 });
+	).toEqual({ dash: 3, pause: 7, reroll: 2, speed: 8, heal: 1, super: 4 });
 	expect(edge.settings).toMatchObject({
 		brightness: -50,
 		contrast: 150,
@@ -429,8 +443,10 @@ test("settings.lastSlot accepts 0 to 3 and refuses anything else", () => {
 });
 
 test("a global file from schema 10 or 11 (no health bar toggles) still verifies and turns both bars on", async () => {
-	const { hpBarHero: _h, hpBarEnemies: _e, ...older } = createSettings();
-	const data = { settings: older };
+	const { hpBarHero: _h, hpBarEnemies: _e, ...current } = createSettings();
+	const { heal: _kh, super: _ks, ...keys } = current.keys;
+	const { heal: _ph, super: _ps, ...pad } = current.pad;
+	const data = { settings: { ...current, keys, pad } };
 	for (const schemaVersion of [10, 11]) {
 		const text = JSON.stringify({
 			schemaVersion,
@@ -553,4 +569,35 @@ test("migrateClasses turns any old hero into the Warrior and derives the best bo
 	expect(migrateClasses(m).stats.bestBossRound).toBe(0);
 	m.records.normal = 0;
 	expect(migrateClasses(m).stats.bestBossRound).toBe(0);
+});
+
+test("keys saved before schema 15 gain heal and super on E and Q, or on the next free key when the player took them", () => {
+	const { heal: _h, super: _s, ...older } = createKeyMap();
+	const load = (keys: Record<string, string>) =>
+		validateMeta({ ...createMetaState(), settings: { ...createSettings(), keys } }).settings.keys;
+	expect(load(older)).toEqual(createKeyMap());
+	const taken = load({ ...older, dash: "KeyE", reroll: "KeyQ" });
+	expect(taken.dash).toBe("KeyE");
+	expect(taken.heal).toBe("KeyF");
+	expect(taken.super).toBe("KeyC");
+	expect(() => load({ ...older, heal: "KeyE", super: "KeyE" })).toThrow(SaveError);
+});
+
+test("a global file from schema 14 (no heal or super keys) still verifies and gets them", async () => {
+	const { heal: _kh, super: _ks, ...keys } = createKeyMap();
+	const { heal: _ph, super: _ps, ...pad } = createPadMap();
+	const data = { settings: { ...createSettings(), keys, pad } };
+	const text = JSON.stringify({
+		schemaVersion: 14,
+		savedAt: "2026-11-11T10:00:00.000Z",
+		app: "grim-cubes",
+		appVersion: "0.6.0",
+		checksum: await checksumOf(data),
+		data,
+	});
+	const settings = await parseGlobal(text);
+	expect(settings.keys).toEqual(createKeyMap());
+	expect(settings.pad).toEqual(createPadMap());
+	const tampered = text.replace('"reroll":"KeyR"', '"reroll":"KeyT"');
+	await expect(parseGlobal(tampered)).rejects.toThrow("checksum mismatch");
 });

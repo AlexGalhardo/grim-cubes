@@ -1,0 +1,235 @@
+{
+	"levels": {
+		"max": 10,
+		"damagePerLevel": 0.15,
+		"cooldownPerLevel": 0.04,
+		"healPerLevel": 0.06
+	},
+	"super": {
+		"baseKills": 100,
+		"killsPerUse": 5,
+		"durationSeconds": 5,
+		"tickSeconds": 0.25
+	},
+	"classes": [
+		{
+			"id": "warrior",
+			"spells": [
+				{
+					"id": "warrior_shockwave",
+					"slot": "auto",
+					"kind": "nova",
+					"params": {
+						"intervalSeconds": 5,
+						"damageBase": 14,
+						"damagePerRound": 2.5,
+						"radius": 3.6
+					}
+				},
+				{
+					"id": "warrior_blades",
+					"slot": "auto",
+					"kind": "orbit",
+					"params": {
+						"radius": 1.8,
+						"hitRadius": 0.5,
+						"damageBase": 5,
+						"damagePerRound": 1,
+						"cooldownSeconds": 0.4,
+						"spin": 2.5,
+						"count": 3
+					}
+				},
+				{
+					"id": "warrior_caltrops",
+					"slot": "auto",
+					"kind": "mine",
+					"params": {
+						"intervalSeconds": 4,
+						"damageBase": 14,
+						"damagePerRound": 3,
+						"radius": 2,
+						"fuseSeconds": 6
+					}
+				},
+				{
+					"id": "warrior_javelin",
+					"slot": "auto",
+					"kind": "bolt",
+					"params": {
+						"intervalSeconds": 1.4,
+						"damageBase": 10,
+						"damagePerRound": 2,
+						"range": 12,
+						"speed": 18,
+						"radius": 0.25
+					}
+				},
+				{
+					"id": "warrior_mend",
+					"slot": "heal",
+					"params": {
+						"healFraction": 0.25,
+						"cooldownSeconds": 30
+					}
+				},
+				{
+					"id": "warrior_whirlwind",
+					"slot": "super",
+					"params": {
+						"radius": 5.5,
+						"damageBase": 10,
+						"damagePerRound": 1.5
+					}
+				}
+			]
+		},
+		{
+			"id": "ranged",
+			"spells": [
+				{
+					"id": "ranged_volley",
+					"slot": "auto",
+					"kind": "bolt",
+					"params": {
+						"intervalSeconds": 0.9,
+						"damageBase": 7,
+						"damagePerRound": 1.8,
+						"range": 14,
+						"speed": 20,
+						"radius": 0.2
+					}
+				},
+				{
+					"id": "ranged_chain",
+					"slot": "auto",
+					"kind": "chain",
+					"params": {
+						"intervalSeconds": 2.5,
+						"damageBase": 6,
+						"damagePerRound": 1.5,
+						"range": 11,
+						"jumpRadius": 4,
+						"jumps": 3
+					}
+				},
+				{
+					"id": "ranged_trap",
+					"slot": "auto",
+					"kind": "mine",
+					"params": {
+						"intervalSeconds": 3.5,
+						"damageBase": 12,
+						"damagePerRound": 3,
+						"radius": 1.8,
+						"fuseSeconds": 6
+					}
+				},
+				{
+					"id": "ranged_shells",
+					"slot": "auto",
+					"kind": "orbit",
+					"params": {
+						"radius": 1.6,
+						"hitRadius": 0.45,
+						"damageBase": 4,
+						"damagePerRound": 1,
+						"cooldownSeconds": 0.4,
+						"spin": 2,
+						"count": 2
+					}
+				},
+				{
+					"id": "ranged_medkit",
+					"slot": "heal",
+					"params": {
+						"healFraction": 0.2,
+						"cooldownSeconds": 25
+					}
+				},
+				{
+					"id": "ranged_barrage",
+					"slot": "super",
+					"params": {
+						"radius": 7,
+						"damageBase": 8,
+						"damagePerRound": 1.2
+					}
+				}
+			]
+		},
+		{
+			"id": "mage",
+			"spells": [
+				{
+					"id": "mage_bolt",
+					"slot": "auto",
+					"kind": "bolt",
+					"params": {
+						"intervalSeconds": 1.1,
+						"damageBase": 9,
+						"damagePerRound": 2,
+						"range": 13,
+						"speed": 17,
+						"radius": 0.25
+					}
+				},
+				{
+					"id": "mage_lightning",
+					"slot": "auto",
+					"kind": "chain",
+					"params": {
+						"intervalSeconds": 2.2,
+						"damageBase": 8,
+						"damagePerRound": 1.8,
+						"range": 11,
+						"jumpRadius": 4.5,
+						"jumps": 4
+					}
+				},
+				{
+					"id": "mage_nova",
+					"slot": "auto",
+					"kind": "nova",
+					"params": {
+						"intervalSeconds": 4.5,
+						"damageBase": 12,
+						"damagePerRound": 2.5,
+						"radius": 4
+					}
+				},
+				{
+					"id": "mage_wisps",
+					"slot": "auto",
+					"kind": "orbit",
+					"params": {
+						"radius": 2,
+						"hitRadius": 0.5,
+						"damageBase": 5,
+						"damagePerRound": 1,
+						"cooldownSeconds": 0.4,
+						"spin": 2,
+						"count": 3
+					}
+				},
+				{
+					"id": "mage_siphon",
+					"slot": "heal",
+					"params": {
+						"healFraction": 0.22,
+						"cooldownSeconds": 28
+					}
+				},
+				{
+					"id": "mage_storm",
+					"slot": "super",
+					"params": {
+						"radius": 8,
+						"damageBase": 12,
+						"damagePerRound": 1.8
+					}
+				}
+			]
+		}
+	]
+}

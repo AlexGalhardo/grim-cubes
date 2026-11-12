@@ -37,6 +37,7 @@ const hud = (speed: number): HudState => ({
 	slots: null,
 	pause: null,
 	dash: null,
+	spells: null,
 	cardRerolls: 0,
 	bossIntro: null,
 	tip: null,

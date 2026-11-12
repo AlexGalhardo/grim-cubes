@@ -267,6 +267,10 @@ async function singleSave(souls: number): Promise<string> {
 	delete settings.lastSlot;
 	delete settings.hpBarHero;
 	delete settings.hpBarEnemies;
+	for (const group of ["keys", "pad"]) {
+		const { heal: _h, super: _s, ...older } = settings[group] as Record<string, unknown>;
+		settings[group] = older;
+	}
 	data.settings = settings;
 	return JSON.stringify({
 		schemaVersion: 9,

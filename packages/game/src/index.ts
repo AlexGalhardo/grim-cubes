@@ -29,6 +29,8 @@ export type {
 	RenderData,
 	RoundsData,
 	ShadowQuality,
+	SpellDef,
+	SpellsData,
 	SynergyData,
 	VideoPreset,
 	WeaponData,
@@ -51,6 +53,7 @@ export {
 	propsData,
 	renderData,
 	roundsData,
+	spellsData,
 	synergiesData,
 	toBiomeDefs,
 	toEnemyDefs,
@@ -155,6 +158,8 @@ export type {
 export { generateShop, rerollPrice, rollTier, sellValue, shopPrice, tierChance } from "./rules/shop";
 export type { RunSummary, SoulsConfig } from "./rules/souls";
 export { soulsForRun } from "./rules/souls";
+export type { ClassSpells, HealSpell, SpellEffect, SuperSpell } from "./rules/spells";
+export { buildClassSpells, spellLevel, spellNodeId } from "./rules/spells";
 export type { HeroStatsData, Modifier, PlayerStats, StatCaps } from "./rules/stats";
 export { computeStats, createPlayerStats, STAT_FIELDS } from "./rules/stats";
 export type { SynergyState, TaggedItem } from "./rules/synergies";
@@ -209,6 +214,8 @@ export {
 	createProgress,
 } from "./systems/loot";
 export { movementSystem } from "./systems/movement";
+export type { PlayerSpells, PlayerSpellsDeps } from "./systems/playerSpells";
+export { createPlayerSpells } from "./systems/playerSpells";
 export type { ProjectileSystem, ProjectileSystemDeps } from "./systems/projectile";
 export { createProjectileSystem } from "./systems/projectile";
 export type { Bag, RunConfig, RunState, RunSystem, RunSystemDeps } from "./systems/round";

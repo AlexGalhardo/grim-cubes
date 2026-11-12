@@ -87,6 +87,43 @@ export function checkRules(data: Data): string[] {
 		if (mult === undefined || mult <= 0) push("rounds.json: boss.hordeIntervalMult must be > 0");
 	}
 
+	// spells.json x heroes.json: every class has its 4 automatic spells, a heal and a super.
+	const spells = data["spells.json"];
+	if (isObj(spells)) {
+		const heroIds = new Set(objs(data["heroes.json"]).map((h) => str(h.id)));
+		const seen = new Set<string>();
+		for (const entry of objs(spells.classes)) {
+			const cls = str(entry.id) ?? "?";
+			if (!heroIds.has(cls)) push(`spells.json: class "${cls}" is not in heroes.json`);
+			const list = objs(entry.spells);
+			const slots = list.map((s) => str(s.slot));
+			const shape = [
+				slots.slice(0, 4).every((s) => s === "auto"),
+				slots[4] === "heal",
+				slots[5] === "super",
+			];
+			if (!shape.every(Boolean))
+				push(`spells.json: ${cls} must list 4 auto spells, then heal, then super`);
+			for (const spell of list) {
+				const id = str(spell.id) ?? "?";
+				const params = isObj(spell.params) ? spell.params : {};
+				if (!id.startsWith(`${cls}_`)) push(`spells.json: ${id} must start with "${cls}_"`);
+				if (seen.has(id)) push(`spells.json: duplicate spell id ${id}`);
+				seen.add(id);
+				if (spell.slot === "auto" && spell.kind === undefined)
+					push(`spells.json: ${id} (auto) needs a kind`);
+				const needs =
+					spell.slot === "heal"
+						? ["healFraction", "cooldownSeconds"]
+						: spell.slot === "super"
+							? ["radius", "damageBase"]
+							: [];
+				for (const key of needs)
+					if ((num(params[key]) ?? 0) <= 0) push(`spells.json: ${id} needs params.${key} > 0`);
+			}
+		}
+	}
+
 	// ossuary.json
 	const ossuary = data["ossuary.json"];
 	if (isObj(ossuary)) {

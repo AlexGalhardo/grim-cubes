@@ -6,10 +6,13 @@ export interface InputState {
 	moveZ: number;
 	dash: boolean;
 	pause: boolean;
+	/** The player-triggered spells (S-20-02): held states; the game acts on the press. */
+	heal: boolean;
+	super: boolean;
 }
 
 export function createInputState(): InputState {
-	return { moveX: 0, moveZ: 0, dash: false, pause: false };
+	return { moveX: 0, moveZ: 0, dash: false, pause: false, heal: false, super: false };
 }
 
 /** Scales (x, z) down to unit length when longer, so diagonals are not faster. */

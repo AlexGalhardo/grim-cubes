@@ -36,6 +36,8 @@ function arena(mods: readonly Modifier[] = [], weapon?: string) {
 		...(weapon ? { weapon } : {}),
 	});
 	session.stats.add(mods);
+	// The class spells would add hits of their own: these tests measure the weapon alone.
+	session.classSpells.auto.length = 0;
 	session.run.newRun();
 	const input = createInputState();
 	while (!session.fighting()) session.step(input);

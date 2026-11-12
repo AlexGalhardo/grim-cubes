@@ -15,6 +15,7 @@ import {
 	ossuaryData,
 	propsData,
 	roundsData,
+	spellsData,
 	synergiesData,
 	toBiomeDefs,
 	toEnemyDefs,
@@ -34,6 +35,7 @@ import { damageConfigFromHero } from "./rules/damage";
 import { availableItems } from "./rules/milestones";
 import { applyOssuary } from "./rules/ossuary";
 import { createRunStats } from "./rules/runstats";
+import { buildClassSpells, spellLevel } from "./rules/spells";
 import { createPlayerStats, regenPerSecond } from "./rules/stats";
 import { createBehaviorSystem } from "./systems/behavior";
 import { createBossRoster } from "./systems/boss";
@@ -63,6 +65,7 @@ import {
 } from "./systems/loot";
 import { createMerchantSystem } from "./systems/merchant";
 import { movementSystem } from "./systems/movement";
+import { createPlayerSpells } from "./systems/playerSpells";
 import { createProjectileSystem } from "./systems/projectile";
 import { createRunSystem } from "./systems/round";
 import { createSeparationSystem } from "./systems/separation";
@@ -297,6 +300,7 @@ function build(options: GameSessionOptions) {
 		difficultyMult: difficulty.hpDamageMult,
 		autoShop: typeof options.autoShop === "function" ? options.autoShop : () => options.autoShop === true,
 		onRoundStart: (round, isBoss) => {
+			playerSpells.onRoundStart();
 			elite.onRoundStart(round, isBoss);
 			if (isBoss) boss.start(world, round);
 		},
@@ -354,13 +358,27 @@ function build(options: GameSessionOptions) {
 		cooldownSeconds: heroData.combat.contactCooldownSeconds,
 		events,
 	});
+	// Spell levels come from the Ossuary (S-22): level 1 is free, each owned node of a spell adds one.
+	const classSpells = buildClassSpells(spellsData, heroDef.id, (id) =>
+		spellLevel(meta.ossuary, id, spellsData.levels.max),
+	);
 	const spells = createSpellSystem({
-		effects: itemEffects.effects,
+		spells: classSpells.auto,
 		queue: damage.queue,
 		enemies: separation.hash,
 		projectiles,
 		events,
 		round: () => run.round,
+	});
+	const playerSpells = createPlayerSpells({
+		heal: classSpells.heal,
+		super: classSpells.super,
+		config: spellsData.super,
+		queue: damage.queue,
+		enemies: separation.hash,
+		events,
+		round: () => run.round,
+		kills: () => runStats.kills,
 	});
 	// Declared after `death` only for readability: the death hook calls it once the loop runs.
 	const killEffects = createKillEffectsSystem({
@@ -509,6 +527,7 @@ function build(options: GameSessionOptions) {
 			enemyShotSystem.run(world, hero);
 			aura.run(world, hero);
 			spells.run(world, hero);
+			playerSpells.run(world, hero, input);
 			magnet.run();
 			thorns.run(world, hero);
 			bleed.run(world);
@@ -582,6 +601,8 @@ function build(options: GameSessionOptions) {
 		bleed,
 		thorns,
 		killEffects,
+		classSpells,
+		playerSpells,
 		levelUp,
 		chest,
 		shop,
@@ -645,6 +666,10 @@ export interface GameSession {
 	readonly bleed: ReturnType<typeof build>["bleed"];
 	readonly thorns: ReturnType<typeof build>["thorns"];
 	readonly killEffects: ReturnType<typeof build>["killEffects"];
+	/** The class's six spells at their Ossuary levels (S-20-02). */
+	readonly classSpells: ReturnType<typeof build>["classSpells"];
+	/** The heal and the super the player casts. */
+	readonly playerSpells: ReturnType<typeof build>["playerSpells"];
 	readonly levelUp: ReturnType<typeof build>["levelUp"];
 	readonly chest: ReturnType<typeof build>["chest"];
 	readonly shop: ReturnType<typeof build>["shop"];

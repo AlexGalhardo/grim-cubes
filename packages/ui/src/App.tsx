@@ -23,6 +23,7 @@ import { type PauseActions, PauseMenu, type PauseViewModel } from "./components/
 import { Results, type ResultsViewModel } from "./components/Results/Results";
 import { Shop, type ShopActions, type ShopViewModel } from "./components/Shop/Shop";
 import { Slots, type SlotsActions, type SlotsViewModel } from "./components/Slots/Slots";
+import { SpellBar, type SpellKind, type SpellsView } from "./components/SpellBar/SpellBar";
 import type { StatLineView } from "./components/StatList/StatList";
 import { Tip, type TipId } from "./components/Tip/Tip";
 import { VirtualJoystick } from "./components/VirtualJoystick/VirtualJoystick";
@@ -104,6 +105,8 @@ export interface HudState {
 	options: OptionsViewModel | null;
 	/** Null until the Ossuary unlocks the dash. */
 	dash: DashView | null;
+	/** The heal and the super buttons and the super charge; null outside a fight. */
+	spells: SpellsView | null;
 	/** Level-up card rerolls left (Ossuary). */
 	cardRerolls: number;
 	/** Boss name during the 3 s intro; null otherwise. */
@@ -143,6 +146,8 @@ export interface AppProps {
 	onMerchantTalk?: (() => void) | undefined;
 	/** Touch dash button held state. */
 	onDashHold?: ((down: boolean) => void) | undefined;
+	/** The heal and super buttons held state (touch and mouse); the keys and pad buttons come from the host. */
+	onSpellHold?: ((kind: SpellKind, down: boolean) => void) | undefined;
 	ossuaryActions?: (OssuaryActions & { open(): void }) | undefined;
 	/** True in the web demo build: shows the DEMO seal. */
 	demo?: boolean | undefined;
@@ -162,6 +167,7 @@ export function App({
 	onWishlist,
 	ossuaryActions,
 	onDashHold,
+	onSpellHold,
 	dailyActions,
 	heroesActions,
 	difficultyActions,
@@ -297,6 +303,23 @@ export function App({
 			{hud.tip ? <Tip id={hud.tip} /> : null}
 			{stick ? <VirtualJoystick stick={stick} /> : null}
 			{stick && hud.dash && onDashHold ? <DashButton view={hud.dash} onHold={onDashHold} /> : null}
+			{hud.spells && onSpellHold && !dialogOpen ? (
+				<SpellBar
+					view={hud.spells}
+					healHint={
+						usingPad
+							? padButtonName(hud.spells.padHeal, hud.padStyle)
+							: keyLabel(hud.spells.healKey)
+					}
+					superHint={
+						usingPad
+							? padButtonName(hud.spells.padSuper, hud.padStyle)
+							: keyLabel(hud.spells.superKey)
+					}
+					touch={stick !== undefined}
+					onHold={onSpellHold}
+				/>
+			) : null}
 			{demo && !dialogOpen ? (
 				<div
 					className="absolute bottom-1 left-16 z-50 border-2 border-ember px-1 text-xs text-ember-light"

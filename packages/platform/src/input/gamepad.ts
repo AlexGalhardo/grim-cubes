@@ -10,10 +10,12 @@ export interface GamepadLike {
 
 export const DEAD_ZONE = 0.2;
 
-/** Buttons that dash and pause (`padBindingsFor` of the Options remap); the defaults are A or RB, and Start. */
+/** Buttons that dash, pause, heal and cast the super (`padBindingsFor` of the Options remap); the defaults are A or RB, Start, B and Y. */
 export interface PadBindings {
 	dash: readonly number[];
 	pause: readonly number[];
+	heal: readonly number[];
+	super: readonly number[];
 }
 
 export const DEFAULT_PAD_BINDINGS: PadBindings = padBindingsFor(createPadMap());
@@ -62,4 +64,6 @@ export function readGamepad(
 	}
 	out.dash = bindings.dash.some((button) => pressed(pad, button));
 	out.pause = bindings.pause.some((button) => pressed(pad, button));
+	out.heal = bindings.heal.some((button) => pressed(pad, button));
+	out.super = bindings.super.some((button) => pressed(pad, button));
 }

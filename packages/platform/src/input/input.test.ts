@@ -103,7 +103,7 @@ test("dash is on Space, either Shift and gamepad buttons 0 and 5 (GDD 5)", () =>
 test("remapped gamepad buttons dash and pause, the shoulder button keeps dashing and the old buttons stop", () => {
 	const s = createInputState();
 	const buttons = Array.from({ length: 16 }, () => ({ pressed: false }));
-	const bindings = { dash: [2, 5], pause: [8] };
+	const bindings = { dash: [2, 5], pause: [8], heal: [1], super: [3] };
 	buttons[2] = { pressed: true };
 	readGamepad({ axes: [0, 0], buttons }, s, undefined, bindings);
 	expect([s.dash, s.pause]).toEqual([true, false]);
@@ -130,7 +130,7 @@ test("the input sources apply a new gamepad remap at once", () => {
 	buttons[3] = { pressed: true };
 	sources.poll(s);
 	expect(s.dash).toBe(false);
-	sources.setPadBindings({ dash: [3], pause: [9] });
+	sources.setPadBindings({ dash: [3], pause: [9], heal: [1], super: [4] });
 	sources.poll(s);
 	expect(s.dash).toBe(true);
 });
@@ -174,4 +174,23 @@ test("the pad id comes from the last poll's first connected pad", () => {
 	pads.length = 0;
 	sources.poll(createInputState());
 	expect(sources.padId()).toBeNull();
+});
+
+test("heal and super come from their keys and pad buttons, OR-ed across sources", () => {
+	const target = new EventTarget();
+	const buttons = Array.from({ length: 16 }, () => ({ pressed: false }));
+	const sources = createInputSources({
+		target,
+		getGamepads: () => [{ axes: [0, 0], buttons }],
+	});
+	const s = createInputState();
+	sources.poll(s);
+	expect([s.heal, s.super]).toEqual([false, false]);
+	target.dispatchEvent(Object.assign(new Event("keydown"), { code: "KeyE" }));
+	sources.poll(s);
+	expect([s.heal, s.super]).toEqual([true, false]);
+	buttons[3] = { pressed: true };
+	sources.poll(s);
+	expect([s.heal, s.super]).toEqual([true, true]);
+	sources.dispose();
 });

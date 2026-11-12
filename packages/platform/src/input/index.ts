@@ -67,6 +67,8 @@ export function createInputSources(options: InputSourcesOptions): InputSources {
 			let moveZ = key.moveZ;
 			let dash = key.dash;
 			let pause = key.pause;
+			let heal = key.heal;
+			let cast = key.super;
 
 			pads = options.getGamepads?.();
 			for (let i = 0; pads && i < pads.length; i++) {
@@ -79,6 +81,8 @@ export function createInputSources(options: InputSourcesOptions): InputSources {
 				}
 				dash ||= pad.dash;
 				pause ||= pad.pause;
+				heal ||= pad.heal;
+				cast ||= pad.super;
 			}
 
 			const stick = options.stick;
@@ -92,6 +96,8 @@ export function createInputSources(options: InputSourcesOptions): InputSources {
 			clampUnit(state);
 			state.dash = dash;
 			state.pause = pause;
+			state.heal = heal;
+			state.super = cast;
 		},
 		dispose: keyboard.dispose,
 	};

@@ -12,9 +12,11 @@ test("the default map is valid and the bindings add the fixed keys", () => {
 
 test("a free key is accepted and a remap shows up in the bindings", () => {
 	const keys = createKeyMap();
-	expect(checkKey(keys, "dash", "KeyE")).toEqual({ ok: true });
-	keys.dash = "KeyE";
-	expect(keyBindingsFor(keys).dash[0]).toBe("KeyE");
+	expect(checkKey(keys, "dash", "KeyF")).toEqual({ ok: true });
+	keys.dash = "KeyF";
+	expect(keyBindingsFor(keys).dash[0]).toBe("KeyF");
+	expect(keyBindingsFor(createKeyMap()).heal).toEqual(["KeyE"]);
+	expect(keyBindingsFor(createKeyMap()).super).toEqual(["KeyQ"]);
 });
 
 test("a key held by another action conflicts, fixed keys included", () => {

@@ -392,6 +392,8 @@ async function boot(): Promise<void> {
 	} = session;
 	// Bench-only state (P-03-06): the ring emitter and the horde it keeps at the cap.
 	let touchDash = false;
+	let touchHeal = false;
+	let touchSuper = false;
 	let benchEmit = 0;
 	let benchGoreCursor = 0;
 	let benchAngle = 0;
@@ -439,6 +441,7 @@ async function boot(): Promise<void> {
 		heroes: null,
 		difficulty: null,
 		dash: null,
+		spells: null,
 		cardRerolls: 0,
 		options: null,
 		speed: meta.settings.gameSpeed,
@@ -554,6 +557,10 @@ async function boot(): Promise<void> {
 			onChooseChest={(index) => chest.choose(index)}
 			onDashHold={(down) => {
 				touchDash = down;
+			}}
+			onSpellHold={(kind, down) => {
+				if (kind === "heal") touchHeal = down;
+				else touchSuper = down;
 			}}
 			onOpenOptions={() => {
 				if (!booted) return;
@@ -1599,6 +1606,31 @@ async function boot(): Promise<void> {
 		};
 	}
 
+	/** The heal and super buttons: progress rounded to 1/20 so the 12 Hz publish only changes when something shows. */
+	function spellsView(): NonNullable<HudState["spells"]> {
+		const { playerSpells, classSpells } = session;
+		const healFill =
+			playerSpells.healCooldownMax > 0
+				? 1 - playerSpells.healCooldown / playerSpells.healCooldownMax
+				: 1;
+		const superFill = Math.min(1, playerSpells.superKills / playerSpells.superNeeded);
+		return {
+			healName: t(`spell.${classSpells.heal.id}`),
+			superName: t(`spell.${classSpells.super.id}`),
+			healFill: Math.floor(healFill * 20) / 20,
+			healReady: playerSpells.healCooldown === 0,
+			superFill: playerSpells.superActive > 0 ? 1 : Math.floor(superFill * 20) / 20,
+			superReady: playerSpells.superActive === 0 && superFill >= 1,
+			superActive: playerSpells.superActive > 0,
+			superKills: playerSpells.superKills,
+			superNeeded: playerSpells.superNeeded,
+			healKey: meta.settings.keys.heal,
+			superKey: meta.settings.keys.super,
+			padHeal: meta.settings.pad.heal,
+			padSuper: meta.settings.pad.super,
+		};
+	}
+
 	function difficultyView(): NonNullable<HudState["difficulty"]> {
 		return {
 			selected: difficultyId,
@@ -2015,6 +2047,7 @@ async function boot(): Promise<void> {
 						recharge: Math.floor(dash.recharge * 20) / 20,
 					}
 				: null,
+			spells: session.fighting() ? spellsView() : null,
 			vignette: Math.round(vfx.vignette * 20) / 20,
 			tip: menuOpen
 				? null
@@ -2060,6 +2093,18 @@ async function boot(): Promise<void> {
 			cur.boss !== next.boss ||
 			cur.dash?.charges !== next.dash?.charges ||
 			cur.dash?.recharge !== next.dash?.recharge ||
+			cur.spells?.healFill !== next.spells?.healFill ||
+			cur.spells?.healReady !== next.spells?.healReady ||
+			cur.spells?.superFill !== next.spells?.superFill ||
+			cur.spells?.superReady !== next.spells?.superReady ||
+			cur.spells?.superActive !== next.spells?.superActive ||
+			cur.spells?.superKills !== next.spells?.superKills ||
+			cur.spells?.superNeeded !== next.spells?.superNeeded ||
+			cur.spells?.healKey !== next.spells?.healKey ||
+			cur.spells?.superKey !== next.spells?.superKey ||
+			cur.spells?.padHeal !== next.spells?.padHeal ||
+			cur.spells?.padSuper !== next.spells?.padSuper ||
+			(cur.spells === null) !== (next.spells === null) ||
 			cur.ossuary !== null ||
 			cur.difficulty !== null ||
 			next.difficulty !== null ||
@@ -2291,6 +2336,10 @@ async function boot(): Promise<void> {
 			heroYaw: () => characters?.heroYaw ?? null,
 			state: () => ({ run: run.state, round: run.round, level: progress.level }),
 			grantXp: (amount: number) => addFragmentValue(progress, fragments, xp, amount),
+			/** Counts kills the run did not make, to charge the super for captures. */
+			grantKills: (amount: number) => {
+				runStats.kills += amount;
+			},
 			grantGold: (amount: number) => {
 				progress.gold += amount;
 			},
@@ -2814,6 +2863,8 @@ async function boot(): Promise<void> {
 		// Once per frame: getGamepads() allocates, and several steps may run per frame.
 		sources.poll(input);
 		if (touchDash) input.dash = true;
+		if (touchHeal) input.heal = true;
+		if (touchSuper) input.super = true;
 		// While the Merchant waits the dash action (A on the pad, by default) talks to him: there is nothing to dash from.
 		if (input.dash && !wasDashing && run.state === "MerchantWait" && session.merchant.talk())
 			publishNow();

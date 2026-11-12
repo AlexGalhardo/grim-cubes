@@ -1,5 +1,16 @@
 /** Remappable keyboard controls (A-07-02). Keys are `KeyboardEvent.code` values, so the layout does not matter. */
-export const KEY_ACTIONS = ["up", "down", "left", "right", "dash", "pause", "reroll", "speed"] as const;
+export const KEY_ACTIONS = [
+	"up",
+	"down",
+	"left",
+	"right",
+	"dash",
+	"pause",
+	"reroll",
+	"speed",
+	"heal",
+	"super",
+] as const;
 export type KeyAction = (typeof KEY_ACTIONS)[number];
 export type KeyMap = Record<KeyAction, string>;
 
@@ -13,6 +24,8 @@ export function createKeyMap(): KeyMap {
 		pause: "Escape",
 		reroll: "KeyR",
 		speed: "Tab",
+		heal: "KeyE",
+		super: "KeyQ",
 	};
 }
 
@@ -65,7 +78,7 @@ export function validKeyMap(keys: Readonly<KeyMap>): boolean {
 	return KEY_ACTIONS.every((action) => checkKey(keys, action, keys[action]).ok);
 }
 
-type MoveAction = "up" | "down" | "left" | "right" | "dash" | "pause";
+type MoveAction = "up" | "down" | "left" | "right" | "dash" | "pause" | "heal" | "super";
 
 /** The bindings the keyboard source polls: each remappable key plus the action's fixed keys. */
 export function keyBindingsFor(keys: Readonly<KeyMap>): Record<MoveAction, string[]> {
@@ -77,5 +90,7 @@ export function keyBindingsFor(keys: Readonly<KeyMap>): Record<MoveAction, strin
 		right: list("right"),
 		dash: list("dash"),
 		pause: list("pause"),
+		heal: list("heal"),
+		super: list("super"),
 	};
 }

@@ -115,6 +115,10 @@ export const SpellVfx = {
 	Chain: 3,
 	Mine: 4,
 	Nova: 5,
+	/** The hero's heal: a, b = x, z of the hero. */
+	Heal: 6,
+	/** One tick of the super: c = radius. */
+	Super: 7,
 } as const;
 
 export const EVENT_CAPACITY = 1024;

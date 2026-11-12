@@ -7,6 +7,8 @@ export interface KeyBindings {
 	right: readonly string[];
 	dash: readonly string[];
 	pause: readonly string[];
+	heal: readonly string[];
+	super: readonly string[];
 }
 
 /** `KeyboardEvent.code` values, so the layout (AZERTY, Dvorak) does not matter. */
@@ -17,10 +19,12 @@ export const DEFAULT_BINDINGS: KeyBindings = {
 	right: ["KeyD", "ArrowRight"],
 	dash: ["Space", "ShiftLeft", "ShiftRight"],
 	pause: ["Escape", "KeyP"],
+	heal: ["KeyE"],
+	super: ["KeyQ"],
 };
 
 export interface KeyboardSource {
-	/** Overwrites the movement, dash and pause fields of `out` from the keys currently held. */
+	/** Overwrites the movement, dash, pause, heal and super fields of `out` from the keys currently held. */
 	poll(out: InputState): void;
 	setBindings(bindings: KeyBindings): void;
 	dispose(): void;
@@ -61,6 +65,8 @@ export function createKeyboardSource(
 			clampUnit(out);
 			out.dash = any(bindings.dash);
 			out.pause = any(bindings.pause);
+			out.heal = any(bindings.heal);
+			out.super = any(bindings.super);
 		},
 		setBindings(next: KeyBindings): void {
 			bindings = next;

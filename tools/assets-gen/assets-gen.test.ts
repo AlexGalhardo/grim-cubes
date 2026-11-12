@@ -61,7 +61,7 @@ describe("assets-gen catalog", () => {
 		rmSync(root, { recursive: true, force: true });
 	});
 
-	it("contains the roster: hero, 8 enemies, 5 bosses, merchant, 40 props (10 per biome), 16 tiles, 5 weapons", () => {
+	it("contains the roster: hero, 8 enemies, 5 bosses, merchant, 40 props (10 per biome), 16 tiles, 7 weapons", () => {
 		const byCategory = new Map<string, number>();
 		for (const { category } of buildCatalog())
 			byCategory.set(category, (byCategory.get(category) ?? 0) + 1);
@@ -71,7 +71,7 @@ describe("assets-gen catalog", () => {
 			bosses: 5,
 			npc: 1,
 			props: 40,
-			weapons: 5,
+			weapons: 7,
 			tiles: 16,
 		});
 	});

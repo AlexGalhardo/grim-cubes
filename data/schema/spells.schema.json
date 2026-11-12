@@ -1,0 +1,64 @@
+{
+	"type": "object",
+	"required": ["levels", "super", "classes"],
+	"additionalProperties": false,
+	"properties": {
+		"levels": {
+			"type": "object",
+			"description": "Spell levels 1 to max (the Ossuary raises them): each level adds damagePerLevel to the damage and healPerLevel to the heal and takes cooldownPerLevel off the interval and the heal cooldown.",
+			"required": ["max", "damagePerLevel", "cooldownPerLevel", "healPerLevel"],
+			"additionalProperties": false,
+			"properties": {
+				"max": { "type": "integer", "minimum": 2, "maximum": 10 },
+				"damagePerLevel": { "type": "number", "minimum": 0 },
+				"cooldownPerLevel": { "type": "number", "minimum": 0, "maximum": 0.1 },
+				"healPerLevel": { "type": "number", "minimum": 0 }
+			}
+		},
+		"super": {
+			"type": "object",
+			"description": "The super charges with baseKills kills in the round; every cast adds killsPerUse to the next charge; it lasts durationSeconds and hits tickSeconds apart.",
+			"required": ["baseKills", "killsPerUse", "durationSeconds", "tickSeconds"],
+			"additionalProperties": false,
+			"properties": {
+				"baseKills": { "type": "integer", "minimum": 1 },
+				"killsPerUse": { "type": "integer", "minimum": 0 },
+				"durationSeconds": { "type": "number", "minimum": 0.5 },
+				"tickSeconds": { "type": "number", "minimum": 0.05 }
+			}
+		},
+		"classes": {
+			"type": "array",
+			"minItems": 3,
+			"maxItems": 3,
+			"items": {
+				"type": "object",
+				"required": ["id", "spells"],
+				"additionalProperties": false,
+				"properties": {
+					"id": { "$ref": "common.schema.json#/$defs/id" },
+					"spells": {
+						"type": "array",
+						"description": "Four automatic spells, then the heal and the super.",
+						"minItems": 6,
+						"maxItems": 6,
+						"items": {
+							"type": "object",
+							"required": ["id", "slot", "params"],
+							"additionalProperties": false,
+							"properties": {
+								"id": { "$ref": "common.schema.json#/$defs/id" },
+								"slot": { "enum": ["auto", "heal", "super"] },
+								"kind": { "enum": ["bolt", "orbit", "chain", "mine", "nova"] },
+								"params": {
+									"type": "object",
+									"additionalProperties": { "type": "number" }
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
