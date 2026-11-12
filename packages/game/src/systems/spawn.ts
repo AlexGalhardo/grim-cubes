@@ -20,6 +20,7 @@ import {
 import { type EventBuffer, EventType } from "../ecs/events";
 import { createQueryCache, type GameWorld, spawn } from "../ecs/world";
 import { STEP } from "../loop";
+import type { Arena } from "../world/arena";
 
 /** `data/rounds.json` `spawn` block. */
 export interface SpawnConfig {
@@ -81,6 +82,8 @@ export interface SpawnSystemDeps {
 	biomes?: { at: (x: number, z: number) => number; pools: readonly (readonly number[])[] };
 	/** Receives `Died` (b = 1, no drop) for enemies culled at the simultaneous cap. */
 	events?: EventBuffer;
+	/** The bounded world: every enemy is born inside the border, whatever asked for it (ring, elite, summon, boss). */
+	arena?: Arena;
 }
 
 export interface SpawnSystem {
@@ -112,6 +115,8 @@ const ENEMY_COMPONENTS = [
 	Armor,
 ] as const;
 const MAX_PLACEMENT_TRIES = 16;
+/** Keeps a ring spawn off the border wall. */
+const ARENA_SPAWN_MARGIN = 1.5;
 
 export const spawnTotal = (c: SpawnConfig, round: number): number => c.totalBase + c.totalPerRound * round;
 export const spawnIntervalSeconds = (c: SpawnConfig, round: number): number =>
@@ -120,7 +125,7 @@ export const spawnBurst = (c: SpawnConfig, round: number): number =>
 	c.burstBase + Math.floor(round / c.burstRoundDivisor);
 
 export function createSpawnSystem(deps: SpawnSystemDeps): SpawnSystem {
-	const { config: dataConfig, enemies, rng, isBlocked, onSpawn, events, biomes } = deps;
+	const { config: dataConfig, enemies, rng, isBlocked, onSpawn, events, biomes, arena } = deps;
 	// A copy: `setCap` changes only `maxSimultaneous`.
 	const config: SpawnConfig = { ...dataConfig };
 	let round = 1;
@@ -175,6 +180,7 @@ export function createSpawnSystem(deps: SpawnSystemDeps): SpawnSystem {
 			const dist = rng.float(config.ringMin, config.ringMax);
 			out.x = hx + Math.cos(angle) * dist;
 			out.z = hz + Math.sin(angle) * dist;
+			arena?.clamp(out.x, out.z, ARENA_SPAWN_MARGIN, out);
 			if (!isBlocked?.(out.x, out.z)) return;
 		}
 	}
@@ -209,6 +215,11 @@ export function createSpawnSystem(deps: SpawnSystemDeps): SpawnSystem {
 	function build(world: GameWorld, typeIndex: number, x: number, z: number): number {
 		const def = enemies[typeIndex];
 		if (def === undefined) throw new RangeError(`unknown enemy type ${typeIndex}`);
+		if (arena) {
+			arena.clamp(x, z, def.radius, spot);
+			x = spot.x;
+			z = spot.z;
+		}
 		const e = spawn(world);
 		for (let i = 0; i < ENEMY_COMPONENTS.length; i++)
 			addComponent(world, e, ENEMY_COMPONENTS[i] as object);

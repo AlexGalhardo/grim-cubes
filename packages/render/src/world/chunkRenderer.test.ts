@@ -238,4 +238,42 @@ describe("broken props", () => {
 		expect(renderer.instances(0).count).toBe(2);
 		dispose();
 	});
+
+	it("draws no prop beyond the arena border and grows with it", () => {
+		const { engine, dispose } = createNullEngine();
+		const game = createGameScene(engine);
+		const chunks = createChunkSystem(config, stubGenerate);
+		let half = 12;
+		const renderer = createChunkRenderer(
+			game,
+			chunks,
+			{ ...config, arenaHalf: () => half },
+			PLACEHOLDER_PROPS,
+		);
+		const total = (): number => PLACEHOLDER_PROPS.reduce((n, _, t) => n + renderer.instances(t).count, 0);
+		const inside = (): boolean =>
+			PLACEHOLDER_PROPS.every((_, t) => {
+				const { buffer, count } = renderer.instances(t);
+				for (let i = 0; i < count; i++)
+					if (
+						Math.abs(buffer[i * 16 + 12] ?? 0) > half ||
+						Math.abs(buffer[i * 16 + 14] ?? 0) > half
+					)
+						return false;
+				return true;
+			});
+		for (let i = 0; i < 40; i++) {
+			chunks.update(0, 0);
+			renderer.update(0, 0, 0, 0);
+		}
+		const small = total();
+		expect(small).toBeGreaterThan(0);
+		expect(inside()).toBe(true);
+		half = 40;
+		renderer.update(0, 0, 0, 0);
+		expect(total()).toBeGreaterThan(small);
+		expect(inside()).toBe(true);
+		game.dispose();
+		dispose();
+	});
 });

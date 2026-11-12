@@ -73,6 +73,7 @@ import { createStatsSystem } from "./systems/stats";
 import { createSynergySystem } from "./systems/synergies";
 import { createTargetingSystem } from "./systems/targeting";
 import { createWeaponSystem } from "./systems/weapon";
+import { createArena } from "./world/arena";
 import { createChunkGenerator } from "./world/chunkGen";
 import { type ChunkHooks, createChunkSystem } from "./world/chunkSystem";
 import { cullDistantEnemies } from "./world/cull";
@@ -211,6 +212,7 @@ function build(options: GameSessionOptions) {
 	});
 	const maxEnemyRadius = Math.max(...enemiesData.map((e) => e.radius));
 	// `run` is created after `spawn` but spawn must call back into it for the fragment bag.
+	const arena = createArena(worldData.arena, () => run.round);
 	const bag: { release?: (w: typeof world, x: number, z: number) => void } = {};
 	const spawn = createSpawnSystem({
 		config: roundsData.spawn,
@@ -225,6 +227,7 @@ function build(options: GameSessionOptions) {
 			pools: biomesData.map((biome) => biome.enemyPool.map((id) => enemyIds.indexOf(id))),
 		},
 		onSpawn: (w, x, z) => bag.release?.(w, x, z),
+		arena,
 	});
 	const enemyShots = createEnemyShotPool(world);
 	const enemyShotSystem = createEnemyShotSystem(enemyShots, damage.queue);
@@ -480,6 +483,7 @@ function build(options: GameSessionOptions) {
 				Position.x[ghost] = ghostX;
 				Position.z[ghost] = ghostZ;
 			}
+			arena.confine(world);
 			applyOriginShift(world, origin, hero, events, worldData, boss.shiftOrigin);
 			chunks.update(origin.x + (Position.x[hero] ?? 0), origin.z + (Position.z[hero] ?? 0));
 			targeting.run(world, hero, weapon.range);
@@ -508,6 +512,7 @@ function build(options: GameSessionOptions) {
 			heroStatus.run(hero);
 			movementSystem(world);
 			propCollision.resolve(world, origin, hero);
+			arena.confine(world);
 			applyOriginShift(world, origin, hero, events, worldData, (dx, dz) => {
 				boss.shiftOrigin(dx, dz);
 				merchant.shift(dx, dz);
@@ -566,6 +571,7 @@ function build(options: GameSessionOptions) {
 		chunkGen,
 		chunks,
 		biomeMap,
+		arena,
 		breakables,
 		propCollision,
 		ossuaryBonus,
@@ -629,6 +635,8 @@ export interface GameSession {
 	readonly chunks: ReturnType<typeof build>["chunks"];
 	readonly breakables: ReturnType<typeof build>["breakables"];
 	readonly biomeMap: ReturnType<typeof build>["biomeMap"];
+	/** The square the run plays in; it grows with the round. */
+	readonly arena: ReturnType<typeof build>["arena"];
 	readonly propCollision: ReturnType<typeof build>["propCollision"];
 	readonly merchant: ReturnType<typeof build>["merchant"];
 	readonly ossuaryBonus: ReturnType<typeof build>["ossuaryBonus"];

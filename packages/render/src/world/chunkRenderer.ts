@@ -32,6 +32,8 @@ export interface ChunkRendererConfig {
 	 * generated placeholder drawn from `floorTints` is used (dev server before the first `assets:build`).
 	 */
 	terrain?: BaseTexture | undefined;
+	/** Half side of the square arena right now (u, absolute); floor and props outside it are not drawn. Default: unbounded. */
+	arenaHalf?: () => number;
 }
 
 export interface FadeView {
@@ -69,6 +71,8 @@ export interface ChunkRenderer {
 }
 
 const NONE = 0x7fffffff;
+/** A prop closer than this to the border would hide inside the wall. */
+const PROP_ARENA_MARGIN = 1.5;
 const QUAD_FLOATS = 12;
 const UV_FLOATS = 8;
 
@@ -186,6 +190,7 @@ export function createChunkRenderer(
 	const uvDirty = new Uint8Array(slotCount);
 	let originX = Number.NaN;
 	let originZ = Number.NaN;
+	let arena = Number.POSITIVE_INFINITY;
 	let heroCx = NONE;
 	let heroCz = NONE;
 	const stats = { floorWrites: 0, propRebuilds: 0 };
@@ -208,6 +213,11 @@ export function createChunkRenderer(
 			const x = x0 + (cube % size);
 			const z = z0 + Math.floor(cube / size);
 			const o = p + cube * QUAD_FLOATS;
+			if (Math.abs(x + 0.5 + originX) > arena || Math.abs(z + 0.5 + originZ) > arena) {
+				// Outside the border: a collapsed quad draws nothing.
+				positions.fill(0, o, o + QUAD_FLOATS);
+				continue;
+			}
 			positions[o] = x;
 			positions[o + 2] = z;
 			positions[o + 3] = x + 1;
@@ -263,10 +273,15 @@ export function createChunkRenderer(
 				const t = chunk.propType[p] ?? 0;
 				const buffer = propBuffers[t];
 				if (!buffer) continue;
-				const n = propCounts[t] ?? 0;
-				propCounts[t] = n + 1;
 				const x = baseX + (chunk.propX[p] ?? 0);
 				const z = baseZ + (chunk.propZ[p] ?? 0);
+				if (
+					Math.abs(x + originX) > arena - PROP_ARENA_MARGIN ||
+					Math.abs(z + originZ) > arena - PROP_ARENA_MARGIN
+				)
+					continue;
+				const n = propCounts[t] ?? 0;
+				propCounts[t] = n + 1;
 				buffer[n * 16 + 12] = mirrored[t] ? toLoaderLocalX(x) : x;
 				buffer[n * 16 + 14] = z;
 				const colors = colorBuffers[t];
@@ -311,7 +326,10 @@ export function createChunkRenderer(
 			originZ = newOriginZ;
 			const newCx = Math.floor(heroX / size);
 			const newCz = Math.floor(heroZ / size);
-			let changed = moved || newCx !== heroCx || newCz !== heroCz;
+			const half = config.arenaHalf?.() ?? Number.POSITIVE_INFINITY;
+			const grew = half !== arena;
+			arena = half;
+			let changed = moved || grew || newCx !== heroCx || newCz !== heroCz;
 			heroCx = newCx;
 			heroCz = newCz;
 			for (let i = 0; i < slotCount; i++) {
@@ -328,7 +346,7 @@ export function createChunkRenderer(
 					// A recycled slot must not hand its faded opacity to the new chunk's props.
 					fadeAlpha.fill(1, i * config.maxPropsPerChunk, (i + 1) * config.maxPropsPerChunk);
 				}
-				if (swapped || moved) {
+				if (swapped || moved || grew) {
 					writeQuad(i);
 					dirty[i] = 1;
 					changed = true;

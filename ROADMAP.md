@@ -200,7 +200,7 @@ Decisão do PO em 2026-11-12, registrada no ADR-0030 (o texto original está no 
 
 - [x] **S-19-01** Duração do round: 30 s no round 1, +5 s por round, teto de 120 s nos rounds normais; o round de chefe continua sem timer. Números em `data/rounds.json`.
   - Asserts: teste da fórmula (rounds 1, 2, 18, 19 e 30); `bun run data:check` exit 0; GDD atualizado.
-- [ ] **S-19-02** Arena quadrada com borda visível e intransponível, que cresce um pouco a cada round (tamanho por round em `data/world.json`); fim do mundo infinito; o spawn de inimigos e props respeita a arena.
+- [x] **S-19-02** Arena quadrada com borda visível e intransponível, que cresce um pouco a cada round (tamanho por round em `data/world.json`); fim do mundo infinito; o spawn de inimigos e props respeita a arena.
   - Asserts: teste de que o herói e os inimigos não saem da arena; teste do tamanho por round; captura do round 1 e do round 20 em 1920×1080; `test:perf` sem regressão acima da tolerância.
 
 ### S-20 Classes

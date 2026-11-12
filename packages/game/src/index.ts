@@ -236,6 +236,8 @@ export type { TargetingConfig, TargetingSystem } from "./systems/targeting";
 export { createTargetingSystem } from "./systems/targeting";
 export type { WeaponDef, WeaponStats, WeaponSystem, WeaponSystemDeps } from "./systems/weapon";
 export { createWeaponSystem } from "./systems/weapon";
+export type { Arena, ArenaConfig } from "./world/arena";
+export { arenaHalfSize, createArena } from "./world/arena";
 export type { BiomeBand, BiomeMap, BiomeMix } from "./world/biome";
 export { BIOME_BLEND, createBiomeMap } from "./world/biome";
 export type { BiomeDef, ChunkGen, ChunkGenConfig, Range } from "./world/chunkGen";

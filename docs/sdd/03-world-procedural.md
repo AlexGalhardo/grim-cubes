@@ -2,6 +2,8 @@
 
 Requisitos: GDD §6 (terreno plano, chunks 16×16 u, anel raio 3, biomas por distância, props, cap de corredor), Art Bible §5.
 
+> **Arena (ADR-0030):** o mundo é um quadrado centrado em `origin` = (0, 0) com meia-aresta `arenaHalfSize(round)` (`data/world.json` `arena`: `startHalfSize` 26, `growPerRound` 1,5, `maxHalfSize` 104). `createArena` (`game/world/arena.ts`) prende o herói e os inimigos pelo raio depois do movimento e da colisão com props (`confine`) e empurra todo nascimento de inimigo para dentro (`clamp`, no spawn). Como `maxHalfSize` fica muito abaixo de `originShiftThreshold`, a origem nunca se desloca e posição relativa e absoluta coincidem. O render (`createArenaBorder`, `chunkRenderer` com `arenaHalf`) desenha quatro muros fora da linha e não desenha chão nem props além dela. Os breakables fora do quadrado continuam como entidades (inalcançáveis); o desenho deles é que some.
+
 ## 1. Coordenadas e origin shifting
 
 - `Position` e `PrevPosition` são relativas a `origin`, um par `f64` sempre múltiplo de 16 u (as posições absolutas são `origin + Position`). Os componentes continuam em `f32`, então a precisão é mantida perto do herói.

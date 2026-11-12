@@ -125,6 +125,7 @@ import {
 	CAMERA,
 	type Character,
 	choosePresetId,
+	createArenaBorder,
 	createAtmosphere,
 	createBenchRecorder,
 	createCharacters,
@@ -385,6 +386,7 @@ async function boot(): Promise<void> {
 		chunkGen,
 		chunks,
 		biomeMap,
+		arena,
 	} = session;
 	// Bench-only state (P-03-06): the ring emitter and the horde it keeps at the cap.
 	let touchDash = false;
@@ -1028,12 +1030,15 @@ async function boot(): Promise<void> {
 			loadRadius: worldData.loadRadius,
 			fade: renderData.propFade,
 			terrain: assets?.terrain ?? undefined,
+			arenaHalf: () => arena.half,
 			floorTints: biomesData.map((biome, index) =>
 				index === 0 || !biome.fogColor ? undefined : floorTint(biome.fogColor),
 			),
 		},
 		propTypes,
 	);
+
+	const arenaBorder = createArenaBorder(game);
 
 	// Telemetry (A-06-04): off by default; there is no service yet, so batches only reach the log.
 	const telemetry = createTelemetry({
@@ -2216,6 +2221,7 @@ async function boot(): Promise<void> {
 			port.consumeEvents(tappedEvents);
 			atmosphere.update(origin.x + (Position.x[hero] ?? 0), origin.z + (Position.z[hero] ?? 0));
 			updateAudioState();
+			arenaBorder.update(arena.half, origin.x, origin.z);
 			chunkRenderer.update(
 				origin.x,
 				origin.z,

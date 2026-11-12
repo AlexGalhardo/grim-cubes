@@ -16,7 +16,8 @@
 		"propAvoidLookahead",
 		"propSteerGain",
 		"cullDistance",
-		"propSteerMargin"
+		"propSteerMargin",
+		"arena"
 	],
 	"properties": {
 		"chunkSize": { "type": "integer", "minimum": 1, "description": "Chunk edge in world units." },
@@ -70,6 +71,17 @@
 			"type": "number",
 			"minimum": 0,
 			"description": "Extra clearance, in units, kept when deciding that a prop is in an enemy's way."
+		},
+		"arena": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": ["startHalfSize", "growPerRound", "maxHalfSize"],
+			"description": "The square arena (ADR-0030): half the side in round 1, growth per round and the cap, in units.",
+			"properties": {
+				"startHalfSize": { "type": "number", "exclusiveMinimum": 0 },
+				"growPerRound": { "type": "number", "minimum": 0 },
+				"maxHalfSize": { "type": "number", "exclusiveMinimum": 0 }
+			}
 		}
 	}
 }

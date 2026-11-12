@@ -67,6 +67,8 @@ export type { ProjectileRenderer } from "./vfx/projectiles";
 export { createEnemyShotRenderer, createProjectileRenderer } from "./vfx/projectiles";
 export type { Vfx, VfxConfig, VfxOptions } from "./vfx/vfx";
 export { createVfx } from "./vfx/vfx";
+export type { ArenaBorder } from "./world/arenaBorder";
+export { createArenaBorder } from "./world/arenaBorder";
 export type {
 	ChunkRenderer,
 	ChunkRendererConfig,

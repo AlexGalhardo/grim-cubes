@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **game:** The world is a bounded square arena (S-19-02): half side 26 u in round 1, +1.5 u per round, cap 104 u (`arena` in `data/world.json` and its schema); the hero and enemies are confined by their radius, every enemy is born inside the border, and the renderer draws four dark iron walls on the line and no floor or props beyond it. The determinism anchor was re-recorded (428131125 to 3553751394) because the spawn ring is pulled inside the arena, and the soak test of the sim uses nightmare seed 5 (it dies in round 6) because seed 3 now survives 16 rounds.
 - **game:** Rounds last 30 s in round 1, grow 5 s per round and cap at 120 s from round 19 (was 20 s up to 60 s); `stepUntilRound` left `data/rounds.json` because the cap alone defines the ramp (S-19-01). The determinism anchor was re-recorded (seed 42, 3600 steps: 1470269519 to 428131125) because rounds are longer, and the checkpoint replay test now replays the two sessions one after the other since they share module-global component arrays.
 - **docs:** ADR-0030 and the roadmap's Part 1A (tracks S-19 to S-27, v0.7.0): rounds from 30 s to 120 s, a growing square arena, three classes with fixed weapons and six spells, an equipment shop with elite fragments and boss relics, the Ossuary as a spell tree, ten bosses every five rounds with telegraphed attacks, five biomes and weather VFX, before the medium-poly art
 

@@ -10,5 +10,10 @@
 	"propAvoidLookahead": 2,
 	"cullDistance": 40,
 	"propSteerGain": 1.5,
-	"propSteerMargin": 0.1
+	"propSteerMargin": 0.1,
+	"arena": {
+		"startHalfSize": 26,
+		"growPerRound": 1.5,
+		"maxHalfSize": 104
+	}
 }

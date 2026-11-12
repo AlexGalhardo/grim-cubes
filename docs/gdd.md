@@ -142,7 +142,9 @@ Regras:
 
 ## 6. Mundo procedural
 
-Decisão D16: terreno plano com props por chunk, biomas por distância do spawn. Sem bordas.
+Decisão D16: terreno plano com props por chunk, biomas por distância do spawn.
+
+**Arena (ADR-0030, S-19-02):** o mundo deixou de ser infinito. O herói joga num quadrado centrado na origem, com borda visível (muro de ferro escuro) e intransponível: o herói e os inimigos ficam dentro dela, descontado o raio. O lado cresce a cada round: meia-aresta de 26 u no round 1, mais 1,5 u por round, teto de 104 u (`arena` em `data/world.json`). Inimigos nascem dentro da borda (o anel de spawn é empurrado para dentro) e os props fora do quadrado não são desenhados. Os chunks continuam gerando o chão e os props; a troca de bioma por round entra na S-24-01 e os anéis por distância abaixo valem até lá.
 
 ### 6.1 Chunks e seed
 

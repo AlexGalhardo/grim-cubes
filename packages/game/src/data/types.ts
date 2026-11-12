@@ -4,6 +4,7 @@ import type { Modifier } from "../rules/stats";
 import type { RunConfig } from "../systems/round";
 import type { SpawnConfig } from "../systems/spawn";
 import type { WeaponDef } from "../systems/weapon";
+import type { ArenaConfig } from "../world/arena";
 import type { WorldConfig } from "../world/chunkSystem";
 
 /** `data/hero.json`. */
@@ -233,7 +234,7 @@ export interface CardsData {
 	cards: { id: string; name: string; modifiers: Modifier[] }[];
 }
 
-export type WorldData = WorldConfig;
+export type WorldData = WorldConfig & { arena: ArenaConfig };
 
 export interface ItemEffect {
 	id: string;
