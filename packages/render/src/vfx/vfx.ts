@@ -27,6 +27,7 @@ import { createDamageNumbers, type DamageNumbers } from "./digits";
 import { createParticlePool, type ParticlePool } from "./particles";
 import { createSlash, type Slash } from "./slash";
 import { createTelegraph, type Telegraph } from "./telegraph";
+import { createWeather, type Weather } from "./weather";
 import { createZones, type Zones } from "./zones";
 
 type Rgb = readonly [number, number, number];
@@ -99,6 +100,8 @@ export interface Vfx {
 	syncStatus(world: GameWorld, dtSeconds: number): void;
 	readonly gore: boolean;
 	readonly particles: ParticlePool;
+	/** Ambient VFX of the biome (fog, rain, embers, wind, ice); sized by `setPools`. */
+	readonly weather: Weather;
 	readonly decals: DecalPool;
 	readonly numbers: DamageNumbers;
 	readonly telegraph: Telegraph;
@@ -128,6 +131,10 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 	const corpse = rgb(PALETTE.ironDark);
 	let gore = true;
 
+	const weather = createWeather(game.scene, {
+		maxPool: config.particlePool,
+		...(options.flashReduced ? { flashReduced: options.flashReduced } : {}),
+	});
 	const decals = createDecalPool(game.scene, config.decalPool, config.floorMarkFarDistance);
 	const particles = createParticlePool(game.scene, config.particlePool, config.gravity, (x, z, micro) => {
 		if (gore) addDecal(x, z, micro ? MICRO_DECAL_SIZE : undefined);
@@ -254,6 +261,7 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 
 	return {
 		particles,
+		weather,
 		decals,
 		numbers,
 		telegraph,
@@ -297,6 +305,7 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 		},
 		setPools(particleLimit, decalLimit): void {
 			particles.setLimit(particleLimit);
+			weather.setBudget(particleLimit);
 			decals.setLimit(decalLimit);
 		},
 		setNumberScale(scale): void {
@@ -550,6 +559,7 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 				offset.x = offset.y = 0;
 			}
 			particles.update(dt);
+			weather.update(dt, game.hero.position.x, game.hero.position.z);
 			numbers.update(dt);
 			if (options.hero !== undefined) {
 				decals.setAnchor(Position.x[options.hero] ?? 0, Position.z[options.hero] ?? 0);

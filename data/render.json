@@ -66,5 +66,69 @@
 		"vignetteLowHpBelow": 0.3,
 		"vignetteLowHpMax": 0.25,
 		"hitSquash": 0.85
+	},
+	"weather": {
+		"poolShare": 0.3,
+		"minPool": 150,
+		"reducedFlashShare": 0.5,
+		"area": 24,
+		"height": 9,
+		"kinds": {
+			"fog": {
+				"share": 0.5,
+				"size": [1.2, 2.2],
+				"color": "mist",
+				"alpha": 0.18,
+				"fall": 0.05,
+				"driftX": 0.4,
+				"driftZ": 0.2,
+				"sway": 0.3,
+				"flicker": false
+			},
+			"rain": {
+				"share": 1,
+				"size": [0.1, 0.14],
+				"color": "iron-light",
+				"alpha": 0.7,
+				"fall": 14,
+				"driftX": -2,
+				"driftZ": 0,
+				"sway": 0,
+				"flicker": false
+			},
+			"embers": {
+				"share": 0.6,
+				"size": [0.08, 0.14],
+				"color": "ember-light",
+				"alpha": 0.9,
+				"fall": -1.6,
+				"driftX": 0.8,
+				"driftZ": 0.4,
+				"sway": 0.8,
+				"flicker": true
+			},
+			"wind": {
+				"share": 0.7,
+				"size": [0.1, 0.2],
+				"color": "bone-dark",
+				"alpha": 0.6,
+				"fall": 0.2,
+				"driftX": 9,
+				"driftZ": 2,
+				"sway": 1.2,
+				"flicker": false
+			},
+			"ice": {
+				"share": 0.8,
+				"size": [0.08, 0.16],
+				"color": "damage-white",
+				"alpha": 0.8,
+				"fall": 1.8,
+				"driftX": 0.6,
+				"driftZ": 0.3,
+				"sway": 0.5,
+				"flicker": false
+			}
+		}
 	}
 }

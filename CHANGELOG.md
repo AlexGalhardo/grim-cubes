@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **render:** Weather VFX per biome (S-24-02): fog in the cemetery, rain in the swamp, embers in the forge, wind in the nest and falling ice in the Frozen Catacombs, as cubes drifting in a box around the hero (`createWeather`, one thin-instance mesh). It takes at most 30% of the preset's particle pool (`weather` in `data/render.json`), is off on the Minimum preset (pool below 150) and keeps half with flash reduction.
+
 ### Changed
 
 - **game:** Five biomes, one per ten rounds in the order of `data/biomes.json` (cemetery, swamp, forge, nest and the new Frozen Catacombs), drawn per round from round 51 on with a pure function of the seed (S-24-01). The distance rings, `minDistance`, `maxDistance`, `repeats` and the 16 u border blend are gone; the chunk generator takes `setBiome` and the chunk system `reset`, which the session calls when the round's biome changes, and the chunk renderer rewrites a chunk whose biome changed. The Frozen Catacombs reuse the cemetery floor tiles (cold tint when the strip is read) and props of the cemetery, swamp and nest. `ux:legibility --biome` and the biome e2e spec pin the biome with the new `debug.setBiome`. The determinism anchor was re-recorded (3553751394 to 1066722768) because chunks now load outside combat too.

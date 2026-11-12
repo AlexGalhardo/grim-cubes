@@ -189,6 +189,35 @@ export interface RenderData {
 		vignetteLowHpMax: number;
 		hitSquash: number;
 	};
+	weather: {
+		/** Share of the preset's `particlePool` the weather may use. */
+		poolShare: number;
+		/** Presets with a smaller `particlePool` (the Minimum) draw no weather. */
+		minPool: number;
+		/** Share of the weather kept while flash reduction is on. */
+		reducedFlashShare: number;
+		/** Half the side (u) and height of the box of weather around the hero. */
+		area: number;
+		height: number;
+		kinds: Record<
+			"fog" | "rain" | "embers" | "wind" | "ice",
+			{
+				/** Share of the weather budget this kind uses (fog is sparse, rain is dense). */
+				share: number;
+				size: number[];
+				/** Art Bible palette token. */
+				color: string;
+				alpha: number;
+				/** Fall speed in u/s; negative rises. */
+				fall: number;
+				driftX: number;
+				driftZ: number;
+				sway: number;
+				/** Blinks like a coal. */
+				flicker: boolean;
+			}
+		>;
+	};
 	propFade: {
 		minHeight: number;
 		alpha: number;
@@ -224,6 +253,8 @@ export interface BiomeData {
 	propDensity?: number;
 	music?: string;
 	fogColor?: string;
+	/** Ambient VFX of the biome: a key of `render.json` `weather.kinds` (S-24-02). */
+	weather?: string;
 }
 
 /** `data/cards.json`. */

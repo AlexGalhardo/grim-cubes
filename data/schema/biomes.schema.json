@@ -24,6 +24,10 @@
 				"type": "integer",
 				"minimum": 0
 			},
+			"weather": {
+				"enum": ["fog", "rain", "embers", "wind", "ice"],
+				"description": "Ambient VFX of the biome (S-24-02)."
+			},
 			"floorTiles": {
 				"type": "array",
 				"items": {

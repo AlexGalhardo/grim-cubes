@@ -1,6 +1,7 @@
 [
 	{
 		"id": "sunken_cemetery",
+		"weather": "fog",
 		"name": "Cemitério Afundado",
 		"ring": 0,
 		"floorTiles": ["tile_cemetery_01", "tile_cemetery_02", "tile_cemetery_03", "tile_cemetery_04"],
@@ -21,6 +22,7 @@
 	},
 	{
 		"id": "bone_swamp",
+		"weather": "rain",
 		"name": "Pântano de Ossos",
 		"ring": 1,
 		"enemyPool": ["drowned", "leech"],
@@ -46,6 +48,7 @@
 	},
 	{
 		"id": "infernal_forge",
+		"weather": "embers",
 		"name": "Forja Infernal",
 		"ring": 2,
 		"enemyPool": ["forged", "watcher"],
@@ -66,6 +69,7 @@
 	},
 	{
 		"id": "biomech_nest",
+		"weather": "wind",
 		"name": "Ninho Biomecânico",
 		"ring": 3,
 		"enemyPool": ["hunter", "breeder"],
@@ -86,6 +90,7 @@
 	},
 	{
 		"id": "frozen_catacombs",
+		"weather": "ice",
 		"name": "Catacumbas Congeladas",
 		"ring": 4,
 		"enemyPool": ["wail", "watcher", "leech"],

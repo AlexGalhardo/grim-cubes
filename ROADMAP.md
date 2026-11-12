@@ -235,7 +235,7 @@ Decisão do PO em 2026-11-12, registrada no ADR-0030 (o texto original está no 
 
 - [x] **S-24-01** Cinco biomas, trocando a cada 10 rounds (1–10, …, 41–50) e sorteados do 51 em diante; o 5º bioma usa tiles e props voxel adaptados.
   - Asserts: teste do bioma por round; captura de cada bioma; contraste do chão medido com `ux:legibility --biome`.
-- [ ] **S-24-02** VFX de clima por bioma (neblina, chuva, gelo caindo, vento, brasas) dentro do orçamento de partículas do preset; desligado ou reduzido no Mínimo e com redução de flashes.
+- [x] **S-24-02** VFX de clima por bioma (neblina, chuva, gelo caindo, vento, brasas) dentro do orçamento de partículas do preset; desligado ou reduzido no Mínimo e com redução de flashes.
   - Asserts: `test:perf` dentro da tolerância; captura de cada clima; teste de que o preset Mínimo desliga o clima.
 
 ### S-25 Limpeza e migração

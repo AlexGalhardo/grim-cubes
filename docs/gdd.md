@@ -170,6 +170,8 @@ Decisão do PO (ADR-0030): o bioma muda a cada 10 rounds, na ordem de `data/biom
 | 31–40 | Ninho Biomecânico | carne/metal escuro | ovos, torres, tanques, cabos | Caçadores, Reprodutores |
 | 41–50 | Catacumbas Congeladas | pedra do cemitério tingida de azul-gelo | criptas, lápides, arcos de ossos, torres do ninho, correntes | Lamentos, Vigias, Sanguessugas |
 
+**Clima (S-24-02):** cada bioma tem um VFX de ambiente em cubos ao redor do herói: neblina no cemitério, chuva no pântano, brasas na forja, vento no ninho e gelo caindo nas catacumbas (`weather` em `data/biomes.json`, parâmetros em `data/render.json` `weather`). Ele usa até 30% do `particlePool` do preset, não é desenhado no Mínimo (pool de 100) e cai para metade com a redução de flashes.
+
 As Catacumbas Congeladas (5º bioma) reaproveitam tiles e props voxel existentes: o chão é o do cemitério com tinta fria aplicada ao ler a faixa de tiles (`LIGHTING.floorBiomeTint`), e os props vêm do cemitério, do pântano e do ninho; a música é a do cemitério até haver faixa própria. A S-18 modela os cinco biomas de novo. Biomas afetam **pool de spawn** e **visual**; não afetam stats base (a dificuldade vem do round). O pool de spawn segue a mistura 60% bioma atual, 30% anterior e 10% seguinte da lista.
 
 ### 6.3 Props e colisão

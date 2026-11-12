@@ -2218,6 +2218,7 @@ async function boot(): Promise<void> {
 			audio.beginFrame();
 			port.consumeEvents(tappedEvents);
 			atmosphere.update(session.biome.index);
+			vfx.weather.setKind(biomesData[session.biome.index]?.weather ?? null);
 			updateAudioState();
 			arenaBorder.update(arena.half, origin.x, origin.z);
 			chunkRenderer.update(

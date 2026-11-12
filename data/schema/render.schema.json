@@ -2,9 +2,32 @@
 	"$schema": "https://json-schema.org/draft/2020-12/schema",
 	"$id": "render.schema.json",
 	"title": "Render constants (GDD section 5, ADR-0017)",
+	"$defs": {
+		"weatherKind": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": ["share", "size", "color", "alpha", "fall", "driftX", "driftZ", "sway", "flicker"],
+			"properties": {
+				"share": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 },
+				"size": {
+					"type": "array",
+					"minItems": 2,
+					"maxItems": 2,
+					"items": { "type": "number", "exclusiveMinimum": 0 }
+				},
+				"color": { "type": "string", "description": "Art Bible palette token (kebab-case)." },
+				"alpha": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 },
+				"fall": { "type": "number", "description": "u/s downwards; negative rises." },
+				"driftX": { "type": "number" },
+				"driftZ": { "type": "number" },
+				"sway": { "type": "number", "minimum": 0 },
+				"flicker": { "type": "boolean" }
+			}
+		}
+	},
 	"type": "object",
 	"additionalProperties": false,
-	"required": ["camera", "propFade", "vfx", "character", "contour"],
+	"required": ["camera", "propFade", "vfx", "character", "contour", "weather"],
 	"properties": {
 		"camera": {
 			"type": "object",
@@ -41,6 +64,31 @@
 					"type": "number",
 					"exclusiveMinimum": 0,
 					"description": "Exponential follow rate per second of the camera target (lerp 8/s)."
+				}
+			}
+		},
+		"weather": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": ["poolShare", "minPool", "reducedFlashShare", "area", "height", "kinds"],
+			"description": "Ambient weather VFX per biome (S-24-02), drawn from a share of the preset's particle pool.",
+			"properties": {
+				"poolShare": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 },
+				"minPool": { "type": "integer", "minimum": 0 },
+				"reducedFlashShare": { "type": "number", "minimum": 0, "maximum": 1 },
+				"area": { "type": "number", "exclusiveMinimum": 0 },
+				"height": { "type": "number", "exclusiveMinimum": 0 },
+				"kinds": {
+					"type": "object",
+					"additionalProperties": false,
+					"required": ["fog", "rain", "embers", "wind", "ice"],
+					"properties": {
+						"fog": { "$ref": "#/$defs/weatherKind" },
+						"rain": { "$ref": "#/$defs/weatherKind" },
+						"embers": { "$ref": "#/$defs/weatherKind" },
+						"wind": { "$ref": "#/$defs/weatherKind" },
+						"ice": { "$ref": "#/$defs/weatherKind" }
+					}
 				}
 			}
 		},
