@@ -90,7 +90,7 @@ export function LevelUp({
 			role="dialog"
 			aria-modal="true"
 			aria-labelledby="levelup-title"
-			className={`pointer-events-auto absolute inset-0 z-20 flex overflow-y-auto bg-night/80 ${short ? "p-2" : "p-4"}`}
+			className={`pointer-events-auto absolute inset-0 z-20 flex overflow-y-auto bg-night/80 ${short ? "px-2 pt-16 pb-1" : "p-4"}`}
 		>
 			<div className={`m-auto flex items-center ${short ? "gap-2" : "gap-6"}`}>
 				{showStats ? (
@@ -102,7 +102,7 @@ export function LevelUp({
 				<div className={`flex flex-col items-center ${short ? "gap-2" : "gap-6"}`}>
 					<h1
 						id="levelup-title"
-						className={`font-display text-ember-light ${short ? "text-lg" : "text-2xl"}`}
+						className={`font-display text-ember-light ${short ? "text-lg leading-none" : "text-2xl"}`}
 					>
 						{title}
 					</h1>
@@ -180,7 +180,7 @@ export function LevelUp({
 							data-testid="levelup-reroll"
 							disabled={rerollsLeft <= 0}
 							onClick={onReroll}
-							className="min-h-12 border-2 border-iron-dark bg-night-2 px-4 font-display text-base text-bone hover:border-ember hover:text-ember-light focus-visible:outline-2 focus-visible:outline-ember disabled:opacity-50 disabled:hover:border-iron-dark disabled:hover:text-bone"
+							className={`${short ? "min-h-8" : "min-h-12"} border-2 border-iron-dark bg-night-2 px-4 font-display text-base text-bone hover:border-ember hover:text-ember-light focus-visible:outline-2 focus-visible:outline-ember disabled:opacity-50 disabled:hover:border-iron-dark disabled:hover:text-bone`}
 						>
 							{t("levelUp.reroll", { left: rerollsLeft, key: rerollHint })}
 						</button>

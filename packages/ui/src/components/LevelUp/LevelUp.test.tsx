@@ -137,6 +137,8 @@ test("on a short landscape screen the dialog scrolls instead of clipping and the
 	render(<LevelUp cards={cards.map((c) => ({ ...c, icon: iconRef }))} onChoose={() => {}} />);
 	const dialog = screen.getByRole("dialog");
 	expect(dialog.className).toContain("overflow-y-auto");
+	// The top padding keeps the title under the HUD's round plate and timer (measured at 896x414 and 800x360).
+	expect(dialog.className).toContain("pt-16");
 	expect(screen.getAllByTestId("icon")[0]?.style.width).toBe("48px");
 	vi.unstubAllGlobals();
 });
