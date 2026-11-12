@@ -4,15 +4,17 @@ import type { Modifier } from "../rules/stats";
  * The simulated player's habits (GDD 25). `greedy` buys and picks for damage and keeps the weapon's range; `tank`
  * (B-02-02) prefers max HP, armor, regeneration and life steal, backs away from a crowd, and spends a dash to get
  * out of a corner; `kite` (S-12-03) buys like greedy but keeps its distance, strafes and collects fragments when it is
- * clear, for the long-range weapons that cannot clear a crowd standing still. Policies decide what the bot does; they are not game data.
+ * clear, for the ranged class that cannot clear a crowd standing still; `mage` (S-26-01) is the same dance at a medium
+ * distance, for the class whose spells and 360 degree axe work around it. Policies decide what the bot does; they are not game data.
  */
-export const POLICIES = ["greedy", "tank", "kite"] as const;
+export const POLICIES = ["greedy", "tank", "kite", "mage"] as const;
 export type PolicyId = (typeof POLICIES)[number];
 
-export const POLICY_LABEL: Readonly<Record<PolicyId, "greedy-kite" | "tank-kite" | "kite">> = {
+export const POLICY_LABEL: Readonly<Record<PolicyId, "greedy-kite" | "tank-kite" | "kite" | "mage">> = {
 	greedy: "greedy-kite",
 	tank: "tank-kite",
 	kite: "kite",
+	mage: "mage",
 };
 
 /** Value of a modifier to the player, per unit. */
@@ -79,16 +81,17 @@ const tank: Policy = {
 	modifierValue: (mods) => weighted(TANK_WEIGHTS, mods),
 };
 
-/** The kiting bot spends like the greedy one: what changes is how it moves. */
+/** The kiting bots spend like the greedy one: what changes is how they move. */
 const kite: Policy = { ...greedy, id: "kite" };
+const mage: Policy = { ...greedy, id: "mage" };
 
 export function policyFor(id: PolicyId): Policy {
-	return id === "tank" ? tank : id === "kite" ? kite : greedy;
+	return id === "tank" ? tank : id === "kite" ? kite : id === "mage" ? mage : greedy;
 }
 
-/** The bot that suits a weapon: the melee arc is played standing in the crowd, any gun by kiting. */
-export function policyForWeapon(kind: string): PolicyId {
-	return kind === "melee" ? "greedy" : "kite";
+/** The bot that suits a class: the warrior plays in the crowd, the ranged class kites far, the mage kites close. */
+export function policyForHero(heroId: string): PolicyId {
+	return heroId === "ranged" ? "kite" : heroId === "mage" ? "mage" : "greedy";
 }
 
 export function parsePolicy(text: string | undefined): PolicyId {
@@ -188,6 +191,8 @@ export interface KiteView {
 	fragments: readonly Spot[];
 	/** Simulation step, to swap the strafing side now and then. */
 	tick: number;
+	/** Enemies inside this distance push the kiter away (default `KITE_DANGER`). */
+	danger?: number;
 }
 
 /** Enemies inside this distance push the kiter away; it never lets a crowd close in. */
@@ -229,14 +234,15 @@ export function kiteSteer(view: KiteView): TankMove {
 	const fleeLength = Math.hypot(fleeX, fleeZ);
 	const fx = fleeLength > 1e-6 ? fleeX / fleeLength : 0;
 	const fz = fleeLength > 1e-6 ? fleeZ / fleeLength : 0;
-	if (nearest < KITE_DANGER) {
+	const danger = view.danger ?? KITE_DANGER;
+	if (nearest < danger) {
 		// Mostly away, with a sideways part so the hero curves round the crowd instead of backing into a corner.
 		const mx = fx + -fz * side * 0.6;
 		const mz = fz + fx * side * 0.6;
 		const length = Math.max(Math.hypot(mx, mz), 1e-6);
 		return { moveX: mx / length, moveZ: mz / length, dash: false };
 	}
-	const want = Math.max(KITE_DANGER, view.range * 0.75);
+	const want = Math.max(danger, view.range * 0.75);
 	if (nearest > KITE_SAFE) {
 		const fetch = fetchFragment(view);
 		if (fetch.moveX !== 0 || fetch.moveZ !== 0) return fetch;

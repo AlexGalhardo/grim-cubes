@@ -130,7 +130,7 @@ export const IQR_LIMIT = 25;
 export const ALIVE_LIMIT = 0.45;
 
 export type Difficulty = "easy" | "normal" | "grim" | "nightmare";
-export type PolicyName = "greedy" | "tank" | "kite";
+export type PolicyName = "greedy" | "tank" | "kite" | "mage";
 export interface Profile {
 	difficulty: Difficulty;
 	policy: PolicyName;

@@ -1,11 +1,17 @@
 import { describe, expect, it } from "vitest";
+import { createInputState, createMetaState } from "../../packages/core/src/index";
 import {
 	cardsData,
+	createBot,
+	createGameSession,
+	difficultyData,
+	Health,
 	kiteSteer,
 	type Modifier,
 	parsePolicy,
 	policyFor,
-	policyForWeapon,
+	policyForHero,
+	roundsData,
 	TANK_WEIGHTS,
 	tankSteer,
 } from "../../packages/game/src/index";
@@ -158,13 +164,22 @@ describe("the kiting bot for guns (S-12-03)", () => {
 	const hero = { x: 0, z: 0 };
 	const base = { hero, range: 12, fragments: [], tick: 0 };
 
-	it("is chosen by the weapon kind: melee stays greedy, any gun kites", () => {
-		expect(policyForWeapon("melee")).toBe("greedy");
-		for (const kind of ["single_shot", "burst", "continuous", "explosive"])
-			expect(policyForWeapon(kind)).toBe("kite");
+	it("is chosen by the class: warrior greedy, ranged kite, mage its own close kite", () => {
+		expect(policyForHero("warrior")).toBe("greedy");
+		expect(policyForHero("ranged")).toBe("kite");
+		expect(policyForHero("mage")).toBe("mage");
 		expect(policyFor("kite").modifierValue([add("damage", 0.1)])).toBe(
 			policyFor("greedy").modifierValue([add("damage", 0.1)]),
 		);
+		expect(policyFor("mage").modifierValue([add("damage", 0.1)])).toBe(
+			policyFor("greedy").modifierValue([add("damage", 0.1)]),
+		);
+	});
+
+	it("the mage lets enemies come closer than the ranged kiter does", () => {
+		const view = { ...base, enemies: [{ x: 4, z: 0 }] };
+		expect(kiteSteer(view).moveX).toBeLessThan(0);
+		expect(Math.abs(kiteSteer({ ...view, danger: 3 }).moveX)).toBeLessThan(1e-9);
 	});
 
 	it("backs away from a crowd that is close, curving instead of running straight back", () => {
@@ -203,8 +218,37 @@ describe("the kiting bot for guns (S-12-03)", () => {
 		expect(late.moveZ).toBe(-early.moveZ);
 	});
 
-	it("plays a whole run with a gun and gets past the first rounds", () => {
-		const report = runSim({ seed: 1, rounds: 6, difficulty: "normal", hero: "ranged" });
-		expect(report.roundReached).toBeGreaterThanOrEqual(5);
+	it("plays a whole run with each class's bot and gets past the first rounds", () => {
+		for (const [hero, policy] of [
+			["warrior", "greedy-kite"],
+			["ranged", "kite"],
+			["mage", "mage"],
+		] as const) {
+			const report = runSim({ seed: 1, rounds: 6, difficulty: "normal", hero });
+			expect(report.policy).toBe(policy);
+			expect(report.roundReached).toBeGreaterThanOrEqual(5);
+		}
+	});
+
+	it("presses the heal below half HP and leaves the super alone until it is charged", () => {
+		const session = createGameSession({
+			seed: 3,
+			difficulty: difficultyData(roundsData.difficulties, "normal"),
+			meta: createMetaState(),
+		});
+		const bot = createBot(session, "greedy");
+		const input = createInputState();
+		session.run.newRun();
+		while (session.run.state !== "Round") session.step(input);
+		bot.prepare(input);
+		expect([input.heal, input.super]).toEqual([false, false]);
+		Health.hp[session.hero] = (Health.max[session.hero] ?? 1) * 0.4;
+		const pressed: boolean[] = [];
+		for (let i = 0; i < 2; i++) {
+			bot.prepare(input);
+			pressed.push(input.heal);
+		}
+		expect(pressed).toContain(true);
+		expect(input.super).toBe(false);
 	});
 });

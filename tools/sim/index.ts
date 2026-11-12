@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { cpus } from "node:os";
 import { dirname } from "node:path";
-import { heroesData, parsePolicy, policyForWeapon, weaponsData } from "../../packages/game/src/index";
+import { heroesData, parsePolicy, policyForHero } from "../../packages/game/src/index";
 import type { SimOptions, SimReport } from "./lib";
 import { runSim } from "./lib";
 import { checkTargets, type Difficulty, summarize } from "./report";
@@ -27,7 +27,7 @@ const KNOWN = new Set([
 
 /**
  * Usage: bun run sim -- [--runs 200] [--seed 1] [--rounds 10] [--difficulty normal] [--weapon sword] [--hero warrior|ranged|mage]
- *   [--policy greedy|tank] [--ossuary warrior_shockwave_2,warrior_shockwave_3] [--jobs 4] [--out reports/x.json] [--check]
+ *   [--policy greedy|tank|kite|mage] [--ossuary warrior_shockwave_2,warrior_shockwave_3] [--jobs 4] [--out reports/x.json] [--check]
  * Run i uses seed (seed + i). `--check` exits 3 when a GDD 25 target is missed (skipped targets do not count); the ranges depend on
  * `--difficulty` and `--policy` (GDD 25.1), and Grim and Nightmare are calibrated with the reference `--ossuary` profiles.
  */
@@ -73,15 +73,11 @@ async function main(argv: string[]): Promise<number> {
 	}
 	let policy: ReturnType<typeof parsePolicy>;
 	const heroFlag = flag(argv, "--hero");
-	const weaponFlag = flag(argv, "--weapon");
-	// Without --policy the bot fits the weapon: kiting for a gun, standing in the crowd for the sword (S-12-03).
-	const startWeapon =
-		weaponFlag ?? heroesData.find((h) => h.id === (heroFlag ?? heroesData[0]?.id))?.startingWeapon;
-	const weaponKind = weaponsData.find((w) => w.id === startWeapon)?.kind ?? "melee";
+	// Without --policy the bot fits the class: greedy for the warrior, kite for the ranged, mage for the mage (S-26-01).
 	try {
 		policy =
 			flag(argv, "--policy") === undefined
-				? policyForWeapon(weaponKind)
+				? policyForHero(heroFlag ?? heroesData[0]?.id ?? "")
 				: parsePolicy(flag(argv, "--policy"));
 	} catch (error) {
 		console.error(`sim: ${error instanceof Error ? error.message : "bad --policy"}`);
@@ -107,7 +103,7 @@ async function main(argv: string[]): Promise<number> {
 	const checks = checkTargets(metrics, rounds, { difficulty: difficultyName(difficulty), policy });
 
 	const date = new Date().toLocaleDateString("sv-SE");
-	const suffix = policy === "greedy" || policy === "kite" ? "" : `-${policy}`;
+	const suffix = policy === "greedy" || policy === "kite" || policy === "mage" ? "" : `-${policy}`;
 	const out = flag(argv, "--out") ?? `reports/sim-${date}-seed${seed}-runs${runs}${suffix}.json`;
 	// Bun on Windows throws EEXIST for recursive mkdir of an existing relative dir such as "..".
 	if (!existsSync(dirname(out))) mkdirSync(dirname(out), { recursive: true });

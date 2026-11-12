@@ -28,6 +28,8 @@ export interface Bot {
 const STUCK_STEPS = 45;
 const DETOUR_STEPS = 90;
 const MOVED_EPSILON = 0.02;
+/** The mage lets enemies this close before it backs off: its nova, wisps and axe work around it. */
+const MAGE_DANGER = 3;
 
 /**
  * An automatic player (GDD 25): the simulator's bots, shared with the browser soak test. `greedy` buys and picks for
@@ -95,7 +97,7 @@ export function createBot(session: GameSession, policyId: Policy["id"], hooks: B
 			dashHeld = move.dash;
 			return;
 		}
-		if (policy.id === "kite") {
+		if (policy.id === "kite" || policy.id === "mage") {
 			spots.length = 0;
 			for (const e of queryEnemies(world)) spots.push({ x: Position.x[e] ?? 0, z: Position.z[e] ?? 0 });
 			const enemyCount = spots.length;
@@ -107,6 +109,7 @@ export function createBot(session: GameSession, policyId: Policy["id"], hooks: B
 				enemies: spots.slice(0, enemyCount),
 				fragments: spots.slice(enemyCount),
 				tick: ticks,
+				...(policy.id === "mage" && { danger: MAGE_DANGER }),
 			});
 			input.moveX = move.moveX;
 			input.moveZ = move.moveZ;

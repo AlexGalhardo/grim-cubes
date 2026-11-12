@@ -8,7 +8,7 @@ export {
 	type PolicyId,
 	parsePolicy,
 	policyFor,
-	policyForWeapon,
+	policyForHero,
 	TANK_WEIGHTS,
 	tankSteer,
 } from "./bot/policy";

@@ -15,6 +15,7 @@ import {
 	heroesData,
 	POLICY_LABEL,
 	type PolicyId,
+	policyForHero,
 	roundsData,
 	STEP,
 	weaponsData,
@@ -31,7 +32,7 @@ export interface SimOptions {
 	maxSteps?: number;
 	/** Ossuary node ids the simulated account already owns. */
 	ossuary?: readonly string[];
-	/** Who plays: the damage-first `greedy` bot (default) or the survival-first `tank` (B-02-02). */
+	/** Who plays; defaults to the bot of the hero's class (`policyForHero`). */
 	policy?: PolicyId;
 	/** Soak test: the hero's HP is refilled every step so the run keeps going to the requested round. */
 	immortal?: boolean;
@@ -122,13 +123,14 @@ export function runSim(options: SimOptions): SimReport {
 
 	const input = createInputState();
 	const bosses: BossFight[] = [];
+	const policyId = options.policy ?? policyForHero(heroDef.id);
 	const report: SimReport = {
 		seed: options.seed,
 		roundsRequested: options.rounds,
 		difficulty: options.difficulty,
 		hero: heroDef.id,
 		weapon: weaponId,
-		policy: POLICY_LABEL[options.policy ?? "greedy"],
+		policy: POLICY_LABEL[policyId],
 		outcome: "timeout",
 		roundReached: 1,
 		kills: 0,
@@ -188,7 +190,7 @@ export function runSim(options: SimOptions): SimReport {
 		}
 	};
 
-	const bot = createBot(session, options.policy ?? "greedy", {
+	const bot = createBot(session, policyId, {
 		unstick: options.unstick === true,
 		onShopOpened: (average) => {
 			avgPriceOfNextShop = average;
@@ -201,9 +203,7 @@ export function runSim(options: SimOptions): SimReport {
 	const maxSteps =
 		options.maxSteps ??
 		Math.ceil(
-			(options.rounds *
-				((options.policy ?? "greedy") === "tank" ? TANK_SECONDS_PER_ROUND : MAX_SECONDS_PER_ROUND)) /
-				STEP,
+			(options.rounds * (policyId === "tank" ? TANK_SECONDS_PER_ROUND : MAX_SECONDS_PER_ROUND)) / STEP,
 		);
 	run.newRun();
 	while (steps < maxSteps) {
