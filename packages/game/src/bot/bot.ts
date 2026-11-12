@@ -28,8 +28,6 @@ export interface Bot {
 const STUCK_STEPS = 45;
 const DETOUR_STEPS = 90;
 const MOVED_EPSILON = 0.02;
-/** The mage holds this share of its weapon's range from the nearest enemy (the others hold 0.8): its nova and wisps need room. */
-const MAGE_HOLD = 1.2;
 
 /**
  * An automatic player (GDD 25): the simulator's bots, shared with the browser soak test. `greedy` buys and picks for
@@ -135,7 +133,7 @@ export function createBot(session: GameSession, policyId: Policy["id"], hooks: B
 			input.moveZ = 0;
 			return;
 		}
-		const want = Math.max(1, weapon.range * (policy.id === "mage" ? MAGE_HOLD : 0.8));
+		const want = Math.max(1, weapon.range * 0.8);
 		const sign = length > want + 0.5 ? 1 : length < want - 0.5 ? -1 : 0;
 		input.moveX = (sign * dx) / length;
 		input.moveZ = (sign * dz) / length;

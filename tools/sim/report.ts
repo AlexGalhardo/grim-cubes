@@ -140,7 +140,7 @@ export const ALIVE_LIMIT = 0.45;
 export const bossKillMin = (round: number): number => (round <= 5 ? 12 : round <= 10 ? 25 : 40);
 
 export type Difficulty = "easy" | "normal" | "grim" | "nightmare";
-export type PolicyName = "greedy" | "tank" | "kite" | "mage";
+export type PolicyName = "greedy" | "tank" | "kite";
 export interface Profile {
 	difficulty: Difficulty;
 	policy: PolicyName;

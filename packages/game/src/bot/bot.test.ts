@@ -48,28 +48,3 @@ test("a bot stuck against a wall sidesteps it, but only when it was told to", ()
 	expect(Math.abs(on.later[0])).toBeLessThan(0.1);
 	expect(Math.abs(on.later[1])).toBeGreaterThan(0.9);
 });
-
-test("the mage backs off from an enemy that the warrior is happy to fight at that distance", () => {
-	const moveAgainstEnemyAt2_4 = (hero: string, policy: "greedy" | "mage"): number => {
-		const session = createGameSession({
-			seed: 3,
-			difficulty: difficultyData(roundsData.difficulties, "normal"),
-			meta: createMetaState(),
-			hero,
-		});
-		const bot = createBot(session, policy);
-		const input = createInputState();
-		session.run.newRun();
-		while (session.run.state !== "Round") session.step(input);
-		session.spawn.spawnEnemy(
-			session.world,
-			0,
-			(Position.x[session.hero] ?? 0) + 2.4,
-			Position.z[session.hero] ?? 0,
-		);
-		bot.prepare(input);
-		return input.moveX;
-	};
-	expect(moveAgainstEnemyAt2_4("warrior", "greedy")).toBe(0);
-	expect(moveAgainstEnemyAt2_4("mage", "mage")).toBeLessThan(-0.9);
-});

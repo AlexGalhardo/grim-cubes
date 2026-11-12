@@ -27,7 +27,7 @@ const KNOWN = new Set([
 
 /**
  * Usage: bun run sim -- [--runs 200] [--seed 1] [--rounds 10] [--difficulty normal] [--weapon sword] [--hero warrior|ranged|mage]
- *   [--policy greedy|tank|kite|mage] [--ossuary warrior_shockwave_2,warrior_shockwave_3] [--jobs 4] [--out reports/x.json] [--check]
+ *   [--policy greedy|tank|kite] [--ossuary warrior_shockwave_2,warrior_shockwave_3] [--jobs 4] [--out reports/x.json] [--check]
  * Run i uses seed (seed + i). `--check` exits 3 when a GDD 25 target is missed (skipped targets do not count); the ranges depend on
  * `--difficulty` and `--policy` (GDD 25.1), and Grim and Nightmare are calibrated with the reference `--ossuary` profiles.
  */
@@ -73,7 +73,7 @@ async function main(argv: string[]): Promise<number> {
 	}
 	let policy: ReturnType<typeof parsePolicy>;
 	const heroFlag = flag(argv, "--hero");
-	// Without --policy the bot fits the class: greedy for the warrior, kite for the ranged, mage for the mage (S-26-01).
+	// Without --policy the bot fits the class: greedy for the warrior and the mage, kite for the ranged (S-26-01).
 	try {
 		policy =
 			flag(argv, "--policy") === undefined
@@ -103,7 +103,7 @@ async function main(argv: string[]): Promise<number> {
 	const checks = checkTargets(metrics, rounds, { difficulty: difficultyName(difficulty), policy });
 
 	const date = new Date().toLocaleDateString("sv-SE");
-	const suffix = policy === "greedy" || policy === "kite" || policy === "mage" ? "" : `-${policy}`;
+	const suffix = policy === "greedy" || policy === "kite" ? "" : `-${policy}`;
 	const out = flag(argv, "--out") ?? `reports/sim-${date}-seed${seed}-runs${runs}${suffix}.json`;
 	// Bun on Windows throws EEXIST for recursive mkdir of an existing relative dir such as "..".
 	if (!existsSync(dirname(out))) mkdirSync(dirname(out), { recursive: true });

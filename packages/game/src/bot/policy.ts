@@ -4,17 +4,17 @@ import type { Modifier } from "../rules/stats";
  * The simulated player's habits (GDD 25). `greedy` buys and picks for damage and keeps the weapon's range; `tank`
  * (B-02-02) prefers max HP, armor, regeneration and life steal, backs away from a crowd, and spends a dash to get
  * out of a corner; `kite` (S-12-03) buys like greedy but keeps its distance, strafes and collects fragments when it is
- * clear, for the ranged class that cannot clear a crowd standing still; `mage` (S-26-01) buys like greedy and fights in
- * the crowd like it, but holds a wider distance, for the class whose spells and axe work around it. Policies decide what the bot does; they are not game data.
+ * clear, for the ranged class that cannot clear a crowd standing still. The mage plays `greedy` too (S-26-01): its axe and
+ * nova work in the crowd; holding 1.2 of the axe range left it unable to reach the bosses (13 enrage stacks) and the
+ * close kite made it nearly unkillable (100% alive in Normal). Policies decide what the bot does; they are not game data.
  */
-export const POLICIES = ["greedy", "tank", "kite", "mage"] as const;
+export const POLICIES = ["greedy", "tank", "kite"] as const;
 export type PolicyId = (typeof POLICIES)[number];
 
-export const POLICY_LABEL: Readonly<Record<PolicyId, "greedy-kite" | "tank-kite" | "kite" | "mage">> = {
+export const POLICY_LABEL: Readonly<Record<PolicyId, "greedy-kite" | "tank-kite" | "kite">> = {
 	greedy: "greedy-kite",
 	tank: "tank-kite",
 	kite: "kite",
-	mage: "mage",
 };
 
 /** Value of a modifier to the player, per unit. */
@@ -81,17 +81,16 @@ const tank: Policy = {
 	modifierValue: (mods) => weighted(TANK_WEIGHTS, mods),
 };
 
-/** The kiting bots spend like the greedy one: what changes is how they move. */
+/** The kiting bot spends like the greedy one: what changes is how it moves. */
 const kite: Policy = { ...greedy, id: "kite" };
-const mage: Policy = { ...greedy, id: "mage" };
 
 export function policyFor(id: PolicyId): Policy {
-	return id === "tank" ? tank : id === "kite" ? kite : id === "mage" ? mage : greedy;
+	return id === "tank" ? tank : id === "kite" ? kite : greedy;
 }
 
-/** The bot that suits a class: the warrior plays in the crowd, the ranged class kites, the mage stands a little further out than the warrior. */
+/** The bot that suits a class: the ranged class kites, the warrior and the mage play in the crowd. */
 export function policyForHero(heroId: string): PolicyId {
-	return heroId === "ranged" ? "kite" : heroId === "mage" ? "mage" : "greedy";
+	return heroId === "ranged" ? "kite" : "greedy";
 }
 
 export function parsePolicy(text: string | undefined): PolicyId {

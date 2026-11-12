@@ -164,14 +164,11 @@ describe("the kiting bot for guns (S-12-03)", () => {
 	const hero = { x: 0, z: 0 };
 	const base = { hero, range: 12, fragments: [], tick: 0 };
 
-	it("is chosen by the class: warrior greedy, ranged kite, mage its own bot", () => {
+	it("is chosen by the class: warrior and mage greedy, ranged kite", () => {
 		expect(policyForHero("warrior")).toBe("greedy");
 		expect(policyForHero("ranged")).toBe("kite");
-		expect(policyForHero("mage")).toBe("mage");
+		expect(policyForHero("mage")).toBe("greedy");
 		expect(policyFor("kite").modifierValue([add("damage", 0.1)])).toBe(
-			policyFor("greedy").modifierValue([add("damage", 0.1)]),
-		);
-		expect(policyFor("mage").modifierValue([add("damage", 0.1)])).toBe(
 			policyFor("greedy").modifierValue([add("damage", 0.1)]),
 		);
 	});
@@ -216,7 +213,7 @@ describe("the kiting bot for guns (S-12-03)", () => {
 		for (const [hero, policy] of [
 			["warrior", "greedy-kite"],
 			["ranged", "kite"],
-			["mage", "mage"],
+			["mage", "greedy-kite"],
 		] as const) {
 			const report = runSim({ seed: 1, rounds: 6, difficulty: "normal", hero });
 			expect(report.policy).toBe(policy);
