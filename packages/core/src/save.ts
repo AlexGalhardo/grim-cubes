@@ -741,6 +741,15 @@ export function migrateOssuary<T extends Profile>(profile: T): T {
 }
 
 /**
+ * Schema 15 (ADR-0030): the shop no longer sells items, so a run saved before it keeps none; the weapon tier is reset
+ * by `migrateClasses`, and the rest of the profile and of the run is untouched.
+ */
+function dropBoughtGear<T extends { run: RunCheckpoint | null }>(profile: T): T {
+	if (!profile.run) return profile;
+	return { ...profile, run: { ...profile.run, owned: {} } };
+}
+
+/**
  * The data as an older schema's checksum saw it (schemas 1 to 9 stored the whole account in one file): no
  * checkpoint, only the settings keys that schema knew, and no `lastSlot`.
  */
@@ -803,7 +812,7 @@ export async function parseSave(text: string): Promise<MetaState> {
 		// gained fields, so the raw data is what the checksum covers.
 		await verified(envelope, v < SAVE_SCHEMA_VERSION ? envelope.data : profile);
 		return {
-			...(v < 15 ? migrateOssuary(migrateClasses(profile)) : profile),
+			...(v < 15 ? dropBoughtGear(migrateOssuary(migrateClasses(profile))) : profile),
 			settings: createSettings(),
 		};
 	}

@@ -33,9 +33,6 @@ export interface WeaponDef {
 	damageMult: readonly number[];
 	attackSpeedBonusPerTier: number;
 	rangeBonusPerTier: number;
-	price?: number;
-	unlockRound?: number;
-	upgradePrices?: readonly number[];
 }
 
 /** Live hero stats (statsSystem owns the object). Percentages are fractions: 0.05 = +5%. */

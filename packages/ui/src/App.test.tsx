@@ -20,7 +20,6 @@ const hud = (speed: number): HudState => ({
 	kills: 0,
 	weapon: { id: "blade", name: "Blade", tier: 1 },
 	items: [],
-	synergies: [],
 	cards: [],
 	eliteFragments: 0,
 	relics: 0,

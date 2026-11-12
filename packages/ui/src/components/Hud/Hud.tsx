@@ -4,7 +4,7 @@ import type { HudState } from "../../App";
 import { Bar } from "../Bar/Bar";
 import { BossBar } from "../BossBar/BossBar";
 import { Icon } from "../Icon/Icon";
-import type { HudItem, HudWeapon, SynergyView } from "./hudTypes";
+import type { HudItem, HudWeapon } from "./hudTypes";
 
 /** Items drawn in the strip before the "+N" chip. */
 export const MAX_VISIBLE_ITEMS = 10;
@@ -29,7 +29,7 @@ export type HudView = Pick<
 	| "items"
 	| "boss"
 	| "speed"
-> & { synergies?: readonly SynergyView[] | undefined };
+>;
 
 export interface HudProps {
 	hud: HudView;
@@ -307,34 +307,6 @@ function ItemStrip({ items }: { items: readonly HudItem[] }): JSX.Element | null
 	);
 }
 
-/** The tags the hero has items of, as `Ferro 2/4`; lit once a tier is active. Only on screens with room (not touch). */
-function SynergyStrip({ synergies }: { synergies: readonly SynergyView[] }): JSX.Element | null {
-	if (synergies.length === 0) return null;
-	return (
-		<ul
-			data-testid="hud-synergies"
-			aria-label={t("hud.synergies")}
-			className={`${PLATE} flex flex-wrap items-center gap-1 p-1`}
-		>
-			{synergies.map((s) => (
-				<li
-					key={s.id}
-					data-reached={s.reached}
-					className={`border-2 bg-night-2 px-1 font-display text-xs leading-4 ${s.reached > 0 ? "border-ember text-ember-light" : "border-iron-dark text-bone-dark"}`}
-				>
-					<span className="sr-only">
-						{t("hud.synergy", { name: s.name, count: s.count, tiers: s.reached })}
-					</span>
-					<span aria-hidden="true">
-						{s.name} {s.count}
-						{s.nextAt === null ? "" : `/${s.nextAt}`}
-					</span>
-				</li>
-			))}
-		</ul>
-	);
-}
-
 /**
  * The in-run HUD in four corners (GDD 21.2, Art Bible 16): vitals top-left, round and timer top-centre (the boss bar
  * takes that place in a boss fight), wallet and buttons top-right, weapon and items bottom-left. On touch the weapon
@@ -379,7 +351,6 @@ export function Hud({
 				>
 					<WeaponSlot weapon={hud.weapon} touch={false} />
 					<div className="flex min-w-0 flex-col items-start gap-1">
-						<SynergyStrip synergies={hud.synergies ?? []} />
 						<ItemStrip items={hud.items} />
 					</div>
 				</div>

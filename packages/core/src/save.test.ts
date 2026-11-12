@@ -531,7 +531,13 @@ test("a schema 14 slot file becomes a Warrior save: the run keeps its sword, the
 	expect(loaded.run?.weapon).toEqual({ id: "sword", tier: 0 });
 	// The record of 12 on the old 10/20/30 bosses means the round 10 boss fell.
 	expect(loaded.stats.bestBossRound).toBe(10);
-	// The shop changed too: nothing equipped yet.
+	// The shop changed too: nothing equipped yet, and the items bought in the old shop are gone.
+	expect(loaded.run?.owned).toEqual({});
+	expect(loaded.run?.round).toBe(7);
+	expect(loaded.run?.gold).toBe(123.5);
+	expect(loaded.run?.modifiers).toEqual([{ stat: "damage", op: "mult", value: 0.1 }]);
+	expect(loaded.souls).toBeGreaterThanOrEqual(meta().souls);
+	expect((await parseSave(await slotFileOf(15))).run?.owned).toEqual({ ring: 2 });
 	expect(loaded.run?.equipment).toEqual([]);
 	expect([loaded.run?.eliteFragments, loaded.run?.relics]).toEqual([0, 0]);
 	expect(loaded.run?.daily).toBe("2026-11-11");

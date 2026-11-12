@@ -15,7 +15,6 @@ import {
 	propsData,
 	roundsData,
 	spellsData,
-	synergiesData,
 	toBiomeDefs,
 	toEnemyDefs,
 	weaponsData,
@@ -68,7 +67,6 @@ import { createShopSystem } from "./systems/shop";
 import { createSpawnSystem } from "./systems/spawn";
 import { createSpellSystem } from "./systems/spells";
 import { createStatsSystem } from "./systems/stats";
-import { createSynergySystem } from "./systems/synergies";
 import { createTargetingSystem } from "./systems/targeting";
 import { createWeaponSystem } from "./systems/weapon";
 import { createArena } from "./world/arena";
@@ -138,7 +136,6 @@ function build(options: GameSessionOptions) {
 	});
 	const itemEffects = createEffectsSystem(itemsData, owned, undefined, events);
 
-	const synergies = createSynergySystem(itemsData, owned, synergiesData, stats);
 	const startingWeapon = weaponsData.find((w) => w.id === (options.weapon ?? heroDef.startingWeapon));
 	if (!startingWeapon)
 		throw new Error(`Unknown starting weapon ${options.weapon ?? heroDef.startingWeapon}`);
@@ -502,7 +499,6 @@ function build(options: GameSessionOptions) {
 		owned,
 		dash,
 		itemEffects,
-		synergies,
 		startingWeapon,
 		heroDef,
 		heroStatsData: runHeroData,
@@ -561,7 +557,6 @@ export interface GameSession {
 	readonly owned: ReturnType<typeof build>["owned"];
 	readonly dash: ReturnType<typeof build>["dash"];
 	readonly itemEffects: ReturnType<typeof build>["itemEffects"];
-	readonly synergies: ReturnType<typeof build>["synergies"];
 	readonly startingWeapon: ReturnType<typeof build>["startingWeapon"];
 	/** The hero of the run: weapon, passive and recolour. */
 	readonly heroDef: ReturnType<typeof build>["heroDef"];

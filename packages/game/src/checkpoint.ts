@@ -1,5 +1,5 @@
 import { RNG_STREAMS, type RunCheckpoint } from "@gc/core";
-import { weaponsData } from "./data";
+import { heroesData, weaponsData } from "./data";
 import { Health, Position, PrevPosition } from "./ecs/components";
 import { DamageOrigin } from "./rules/runstats";
 import type { GameSession } from "./session";
@@ -53,29 +53,18 @@ export function captureCheckpoint(session: GameSession, identity: RunIdentity): 
 
 /**
  * Puts a fresh session (same seed, difficulty and account as the saved run) back at the checkpoint: it starts at the
- * intro of the saved round with the saved build, stats and RNG, and no enemies. Throws if the save names a weapon
- * the game no longer has or a hero other than the session's, so the caller can fall back to a new run.
+ * intro of the saved round with the saved build, stats and RNG, and no enemies. A save of a class that no longer exists
+ * (ADR-0030) continues as the session's class with that class's weapon. Throws if the save names a weapon the game no
+ * longer has or another class that still exists, so the caller can fall back to a new run.
  */
 export function restoreCheckpoint(session: GameSession, cp: RunCheckpoint): void {
-	const {
-		progress,
-		stats,
-		runStats,
-		hero,
-		origin,
-		weapon,
-		shop,
-		owned,
-		levelUp,
-		itemEffects,
-		synergies,
-		run,
-		rng,
-	} = session;
-	const def = weaponsData.find((w) => w.id === cp.weapon.id);
-	if (!def) throw new Error(`checkpoint names an unknown weapon: ${cp.weapon.id}`);
-	if (cp.hero !== session.heroDef.id)
+	const { progress, stats, runStats, hero, origin, weapon, shop, owned, levelUp, itemEffects, run, rng } =
+		session;
+	const classExists = heroesData.some((h) => h.id === cp.hero);
+	if (classExists && cp.hero !== session.heroDef.id)
 		throw new Error(`checkpoint is for hero ${cp.hero}, the session plays ${session.heroDef.id}`);
+	const def = classExists ? weaponsData.find((w) => w.id === cp.weapon.id) : session.startingWeapon;
+	if (!def) throw new Error(`checkpoint names an unknown weapon: ${cp.weapon.id}`);
 	RNG_STREAMS.forEach((name, i) => {
 		rng[name].setState(cp.rng[i] ?? 0);
 	});
@@ -87,7 +76,6 @@ export function restoreCheckpoint(session: GameSession, cp: RunCheckpoint): void
 	owned.clear();
 	for (const [id, count] of Object.entries(cp.owned)) owned.set(id, count);
 	stats.add(cp.modifiers);
-	synergies.refresh();
 	itemEffects.restoreRevivesSpent(cp.revivesSpent);
 	weapon.setWeapon(def, cp.weapon.tier);
 	shop.restoreLevels(cp.equipment);

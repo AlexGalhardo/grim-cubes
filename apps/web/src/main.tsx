@@ -107,8 +107,6 @@ import {
 	soulsForRun,
 	spellLevel,
 	spellsData,
-	synergiesData,
-	synergyModifiers,
 	unlockedSkins,
 	utcDate,
 	weaponsData,
@@ -171,7 +169,6 @@ import {
 	type HudState,
 	type IconRef,
 	type StatPreview,
-	type SynergyView,
 	type VolumeBus,
 } from "@gc/ui";
 import { addComponent, query } from "bitecs";
@@ -348,10 +345,11 @@ async function boot(): Promise<void> {
 	// A locked or unknown hero in the URL falls back to the Warrior; a resumed run keeps its own hero. With the debug
 	// API the URL hero skips the milestone (captures of the classes).
 	const askedHero = resumeRun?.hero ?? params.get("hero");
-	const heroId = dailyDate
-		? dailyHero(dailyDate, heroesData)
-		: ((__DEBUG_API__ ? heroesData.find((h) => h.id === askedHero)?.id : undefined) ??
-			chooseHero(heroesData, milestonesData, meta, askedHero));
+	const heroId =
+		dailyDate && !resumeRun
+			? dailyHero(dailyDate, heroesData, (id) => heroUnlocked(milestonesData, meta, id))
+			: ((__DEBUG_API__ ? heroesData.find((h) => h.id === askedHero)?.id : undefined) ??
+				chooseHero(heroesData, milestonesData, meta, askedHero));
 
 	const session = createGameSession({ seed, difficulty, meta, hero: heroId });
 	const {
@@ -420,7 +418,6 @@ async function boot(): Promise<void> {
 		kills: 0,
 		weapon: { id: "", name: "", tier: 1 },
 		items: [],
-		synergies: [],
 		cards: NO_CARDS,
 		eliteFragments: 0,
 		relics: 0,
@@ -1556,7 +1553,9 @@ async function boot(): Promise<void> {
 
 	function dailyView(): NonNullable<HudState["daily"]> {
 		const date = utcDate(new Date());
-		const def = heroesData.find((h) => h.id === dailyHero(date, heroesData));
+		const def = heroesData.find(
+			(h) => h.id === dailyHero(date, heroesData, (id) => heroUnlocked(milestonesData, meta, id)),
+		);
 		const scored = meta.daily.find((entry) => entry.date === date);
 		return {
 			date,
@@ -1676,19 +1675,17 @@ async function boot(): Promise<void> {
 		return currentStats(
 			stats,
 			session.heroStatsData,
-			stats.stats.dirty
-				? [...synergyModifiers(session.synergies.states, synergiesData), ...equippedModifiers()]
-				: [],
+			stats.stats.dirty ? equippedModifiers() : [],
 			currentScratch,
 		);
 	}
-	function statChanges(mods: readonly Modifier[], bonus?: readonly Modifier[]): StatChange[] {
+	function statChanges(mods: readonly Modifier[], equipment?: readonly Modifier[]): StatChange[] {
 		computeStats(
 			session.heroStatsData,
 			[...stats.modifiers, ...mods],
 			scratchStats,
 			undefined,
-			bonus ?? [...synergyModifiers(session.synergies.states, synergiesData), ...equippedModifiers()],
+			equipment ?? equippedModifiers(),
 		);
 		const current = freshStats();
 		const before = [...describeStats(current), rangeLine(current.range)];
@@ -1724,35 +1721,12 @@ async function boot(): Promise<void> {
 	/** Shop stat preview of buying `level` of equipment slot `slot` (`statLine.*` id -> value after buying and its delta). */
 	function statPreview(slot: number, level: number): Record<string, StatPreview> | undefined {
 		const levels = shop.levels.map((have, i) => (i === slot ? level : have));
-		const bonus = [
-			...synergyModifiers(session.synergies.states, synergiesData),
-			...equippedModifiers(levels),
-		];
-		const changes = statChanges([], bonus);
+		const changes = statChanges([], equippedModifiers(levels));
 		return changes.length > 0
 			? Object.fromEntries(
 					changes.map((c) => [c.id, { after: c.after, delta: c.delta, better: c.better }]),
 				)
 			: undefined;
-	}
-	let lastSynergyStates: unknown = null;
-	let lastSynergyView: readonly SynergyView[] = [];
-	/** Tags with an owned item; a new array only when the inventory changed (the store compares by identity). */
-	function synergyView(): readonly SynergyView[] {
-		const states = session.synergies.states;
-		if (states !== lastSynergyStates) {
-			lastSynergyStates = states;
-			lastSynergyView = states
-				.filter((s) => s.count > 0)
-				.map((s) => ({
-					id: s.id,
-					name: t(`tag.${s.id}`),
-					count: s.count,
-					reached: s.reached,
-					nextAt: s.nextAt,
-				}));
-		}
-		return lastSynergyView;
 	}
 	/** The six equipment slots as the hero wears them, for the shop panel. */
 	function equippedView(upgrades: readonly ShopUpgradeView[]): EquippedView[] {
@@ -1947,7 +1921,6 @@ async function boot(): Promise<void> {
 			kills: runStats.kills,
 			weapon: loadoutView.weapon,
 			items: loadoutView.items,
-			synergies: synergyView(),
 			cards: lastOffer,
 			cardRerolls: levelUp.rerollsLeft,
 			eliteFragments: progress.eliteFragments,

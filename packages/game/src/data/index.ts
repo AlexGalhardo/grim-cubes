@@ -15,7 +15,6 @@ import propsJson from "../../../../data/props.json";
 import renderJson from "../../../../data/render.json";
 import roundsJson from "../../../../data/rounds.json";
 import spellsJson from "../../../../data/spells.json";
-import synergiesJson from "../../../../data/synergies.json";
 import weaponsJson from "../../../../data/weapons.json";
 import worldJson from "../../../../data/world.json";
 import type { EquipmentData } from "../rules/equipment";
@@ -39,7 +38,6 @@ import type {
 	RenderData,
 	RoundsData,
 	SpellsData,
-	SynergyData,
 	WeaponData,
 	WorldData,
 } from "./types";
@@ -64,7 +62,6 @@ export const elitesData: ElitesData = elitesJson;
 export const equipmentData: EquipmentData = equipmentJson;
 export const itemsData: readonly ItemData[] = itemsJson;
 export const spellsData: SpellsData = spellsJson;
-export const synergiesData: readonly SynergyData[] = synergiesJson;
 export const propsData: readonly PropData[] = propsJson;
 export const renderData: RenderData = renderJson;
 export const presetsData: PresetsData = presetsJson as PresetsData;
@@ -199,7 +196,6 @@ export type {
 	ShadowQuality,
 	SpellDef,
 	SpellsData,
-	SynergyData,
 	VideoPreset,
 	WeaponData,
 	WorldData,

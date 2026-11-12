@@ -551,24 +551,9 @@ Exclusivos do Ossuário (entram no pool Lendário só com o nó `ruin_6`, `exclu
 
 Caem de destrutíveis e de elites: Frasco de Sangue (cura 20% HP imediato), Ímã de Ossos (puxa todos os fragmentos por 3 s). Não ficam no inventário; efeito ao pegar.
 
-### 15.5 Sinergias por etiqueta (S-14-01)
+### 15.5 Sinergias por etiqueta (removidas na v0.7.0)
 
-Cada item de `data/items.json` leva uma ou duas etiquetas (`tags`) de um conjunto de seis, definidas em `data/synergies.json`. **Etiquetas e nomes aceito pelo orquestrador por delegação do PO em 2026-11-11**: Ferro (placas, armas e metal), Osso (relíquias do Ossuário e mortos), Sangue (roubo de vida, sangramento, dano à custa de HP), Brasa (fogo, explosão, velocidade de ataque), Cova (terra, regeneração, vida máxima) e Maldição (sorte, crítico, pactos).
-
-- A contagem é de **itens distintos** com a etiqueta (uma segunda cópia do mesmo item não conta), para a sinergia pedir coleção em vez de empilhar o item mais barato.
-- Ao chegar a 2, 4 e 6 itens da mesma etiqueta ativa-se o bônus do degrau; os degraus **acumulam** (com 6 valem os três). Perder o item (ou retomar a run de um checkpoint) recalcula tudo: os bônus saem e entram sozinhos, e não são gravados no save.
-- Os bônus são modificadores de stat comuns, em `data/synergies.json` (esquema `data/schema/synergies.schema.json`; `data:check` recusa etiqueta desconhecida, item sem etiqueta e degraus fora de ordem).
-
-| Etiqueta | 2 itens | 4 itens | 6 itens | Itens |
-| --- | --- | --- | --- | --- |
-| Ferro (`iron`) | +1 armadura | +4 HP máx | +3 armadura, +3% dano, −6% velocidade | 17 |
-| Osso (`bone`) | +2 sorte | +5% raio de pickup | +2 colheita, +3 sorte, −15 HP máx | 13 |
-| Sangue (`blood`) | +0,3% roubo de vida | +1% dano | +1% roubo de vida, +3% crítico, −15 HP máx | 16 |
-| Brasa (`ember`) | +1% vel. de ataque | +5% tamanho de explosão | +6% vel. de ataque, +3% dano, −3 armadura | 14 |
-| Cova (`grave`) | +3 HP máx | +0,05 regeneração | +10 HP máx, +0,1 regeneração, −6% vel. de ataque | 16 |
-| Maldição (`curse`) | +2 sorte | +1% crítico | +10% dano a chefe, +4% crítico, −20 HP máx | 18 |
-
-Ajuste da S-14-03: o bot greedy do simulador já fica na borda das faixas sem sinergias (p50 26, 42% vivas), então qualquer bônus puro (testados de +1 armadura a +2 armadura, +5% dano) empurrava as vivas para 45–55% e o p50 para 34–35. Os degraus de 2 e 4 itens ficaram pequenos e o de 6 itens troca poder por um custo (menos HP, armadura ou velocidade); com isso `bun run sim --runs 64 --rounds 35 --seed 1 --check` e `--seed 1001 --check` passam (p50 25,5 e 25; vivas 44% e 42%; `reports/balance-synergies-64x35-seed1.json` e `-seed1001.json`). A margem é de uma a duas runs: o simulador é caótico (um bônus quase nulo move as vivas em até ±5 runs por seed), então esses números são o ponto de partida e o playtest da B-04 os revisa. A loja mostra as etiquetas de cada oferta de item com o progresso depois da compra (marca ▲ quando a compra alcança um degrau), a lista das etiquetas que o herói já tem e a prévia de atributos já com o bônus do degrau; o HUD (desktop) lista as etiquetas com pelo menos um item como `Ferro 2/4`, acesas quando há degrau ativo, e nada na tela de toque. O jogo expõe o progresso por etiqueta em `session.synergies.states` (`SynergyState`: contagem, degraus, degrau alcançado e próximo) para a loja e o HUD.
+As sinergias e as etiquetas dos itens saíram (ADR-0030, S-25-01): o equipamento da §17 não tem etiqueta, e o bônus de coleção deu lugar ao nível 1 a 10 de cada slot. Some o código (`rules/synergies.ts`, `systems/synergies.ts`), os dados (`data/synergies.json` e o campo `tags` dos itens), o esquema, as chaves de locale `tag.*`, a faixa do HUD, as etiquetas da loja e o som `sfx_ui_synergy` (o arquivo de áudio fica em `assets/src/audio`, sem uso). Os itens deste capítulo também não têm mais origem no jogo: a loja não os vende e o baú acabou; o catálogo (`data/items.json`) e o motor de efeitos ficam até a árvore do Ossuário e as magias da v0.7.0 decidirem o que reaproveitar.
 
 ## 16. Level-up
 
@@ -691,7 +676,7 @@ Recordes mostrados no menu: maior round por dificuldade, total de kills, total d
 
 ### 20.1 Desafio diário (S-13-01)
 
-- **Menu → "Desafio diário".** A seed vem da data UTC (`YYYY-MM-DD`, muda às 00:00 UTC para todo mundo) por um hash fixo (`dailySeed`), o herói do dia sai de outro hash da mesma data entre os três (`dailyHero`, bloqueado ou não), e a dificuldade é sempre Normal. A mesma data dá a mesma seed e o mesmo herói em qualquer máquina.
+- **Menu → "Desafio diário".** A seed vem da data UTC (`YYYY-MM-DD`, muda às 00:00 UTC para todo mundo) por um hash fixo (`dailySeed`), a classe do dia sai de outro hash da mesma data entre as classes que o jogador desbloqueou (`dailyHero`, ADR-0030: quem só tem o Warrior joga sempre com o Warrior), e a dificuldade é sempre Normal. A mesma data e o mesmo conjunto de classes desbloqueadas dão a mesma seed e a mesma classe em qualquer máquina; uma run diária retomada mantém a classe com que começou.
 - **Uma tentativa pontuada por dia, por slot.** A primeira run do desafio que termina no dia grava uma linha (data, round, tempo de combate, abates); as seguintes do mesmo dia valem como treino: jogam e contam para a conta (almas, recordes, estatísticas), mas não entram na tabela. Uma run abandonada antes de terminar não pontua; ela continua salva e "Continuar" a retoma, mesmo que a meia-noite UTC passe.
 - **Tabela local** dos últimos 30 dias com pontuação (mais novo primeiro), na própria tela do desafio. O ranking online fica para a Parte 2 do ROADMAP (precisa do App ID da Steam).
 
@@ -709,7 +694,7 @@ Recordes mostrados no menu: maior round por dificuldade, total de kills, total d
 | Seleção de dificuldade | Fácil/Normal/Difícil abertas, Nightmare com cadeado; uma linha de sabor por dificuldade; escolha (preenchimento âmbar e losango) e foco (contorno osso) nunca se parecem; seed e tutorial opcionais (S-08-01) | ALPHA |
 | HUD in-run | ver 21.2 | PROTÓTIPO |
 | Level-up | 3 cartas centrais com raridade, ícone e `atributo atual → novo`; painel de atributos à esquerda, com o delta verde ou vermelho da carta em foco (só em telas largas de desktop; some em 896 × 414 e 800 × 360); botão de troca com o saldo de trocas, visível; pausa | PROTÓTIPO |
-| Loja | 4 slots (a melhoria da arma fica no painel da arma), stats com prévia do delta, ofertas de arma com dano e ataques por segundo e de item com os efeitos, etiquetas de sinergia com o progresso (§15.5; fora das telas baixas), reroll, lock, ouro uma vez só, almas do perfil rotuladas, "Próximo round" | PROTÓTIPO |
+| Loja | abre sozinha ao fim do round: 6 ofertas de equipamento (uma por slot, em linhas compactas nas telas baixas), os 6 slots equipados com nível e botão de subir com material, fragmentos e relíquias, stats com prévia do delta, reroll, lock, ouro uma vez só, almas do perfil rotuladas, "Próximo round" (§17) | PROTÓTIPO |
 | Chefe | barra de HP topo, nome, marcadores de fase | PROTÓTIPO (Coveiro) |
 | Morte/Resultado | round, tempo de luta, kills, dano por fonte em barras (arma, magias, itens, sangramento), causa da morte com nome e ícone, build final com ícones e contadores, almas ganhas (contador animado) com o progresso até o próximo desbloqueio do Ossuário, seed; numa run do desafio diário, um selo diz se ela pontuou ou foi treino; na demo, o botão de wishlist | PROTÓTIPO |
 | Ossuário | 5 ramos em colunas, nós com custo, saldo de almas, reset. Comprado ("✓ Comprado"), comprável (moldura sólida com brilho e preço) e bloqueado (moldura tracejada, ▣, texto AA) se distinguem sem cor; no desktop as colunas ocupam a altura da tela (S-08-02) | ALPHA |
@@ -732,7 +717,6 @@ Recordes mostrados no menu: maior round por dificuldade, total de kills, total d
 - Base-esquerda: arma atual numa moldura de 56 px com 4 pips de tier, e a faixa de itens (ícones de 32 px em moldura da cor da raridade, contador quando maior que 1, no máximo 10 e depois um chip "+N"). Em tela de toque a arma vai para o lado dos vitais e a faixa some (o joystick ocupa a base-esquerda; os itens aparecem na loja e na pausa).
 - Margem de 24 px no desktop e de 12 px no mínimo (ou a safe area) no mobile. Nada cobre o herói nem o anel de 6 u ao redor dele (retângulo central de 600×400 px a 1080p, proporcional nos outros alvos).
 - Base-direita (mobile): botão de dash e pausa. Desktop: vazio.
-- Etiquetas de sinergia (§15.5): uma faixa pequena com o nome e a contagem de itens, acesa quando um degrau está ativo; só em telas sem toque.
 - Indicadores de borda: seta para elite e chefe fora da tela.
 - Atualização do HUD a 10–15 Hz via store externo (D21); números de dano são renderizados pela engine (não React).
 

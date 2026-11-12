@@ -11,10 +11,7 @@
 		"special": {
 			"id": "hit_all_in_arc"
 		},
-		"unlockRound": 1,
 		"startingWeapon": true,
-		"price": 15,
-		"upgradePrices": [25, 55, 120, 200, 300, 420, 560, 720, 900],
 		"damageMult": [1, 1.2, 1.45, 1.7, 2, 2.3, 2.65, 3, 3.4, 3.8],
 		"attackSpeedBonusPerTier": 0.05,
 		"rangeBonusPerTier": 0.15
@@ -74,9 +71,6 @@
 				"value": 0.15
 			}
 		},
-		"unlockRound": 1,
-		"price": 20,
-		"upgradePrices": [30, 65, 140],
 		"damageMult": [1, 1.5, 2.2, 3.2],
 		"attackSpeedBonusPerTier": 0.1,
 		"rangeBonusPerTier": 0.5
@@ -102,9 +96,6 @@
 				"maxDistance": 4
 			}
 		},
-		"unlockRound": 1,
-		"price": 45,
-		"upgradePrices": [45, 95, 200],
 		"damageMult": [1, 1.5, 2.2, 3.2],
 		"attackSpeedBonusPerTier": 0.1,
 		"rangeBonusPerTier": 0.5
@@ -130,9 +121,6 @@
 				"lingerSeconds": 0.1
 			}
 		},
-		"unlockRound": 4,
-		"price": 90,
-		"upgradePrices": [70, 150, 320],
 		"damageMult": [1, 1.5, 2.2, 3.2],
 		"attackSpeedBonusPerTier": 0.1,
 		"rangeBonusPerTier": 0.5
@@ -157,9 +145,6 @@
 				"fraction": 0.5
 			}
 		},
-		"unlockRound": 7,
-		"price": 140,
-		"upgradePrices": [90, 190, 400],
 		"damageMult": [1, 1.5, 2.2, 3.2],
 		"attackSpeedBonusPerTier": 0.1,
 		"rangeBonusPerTier": 0.5

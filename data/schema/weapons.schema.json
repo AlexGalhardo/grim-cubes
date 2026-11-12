@@ -93,25 +93,8 @@
 			"special": {
 				"$ref": "common.schema.json#/$defs/effect"
 			},
-			"unlockRound": {
-				"type": "integer",
-				"minimum": 1
-			},
 			"startingWeapon": {
 				"type": "boolean"
-			},
-			"price": {
-				"type": "integer",
-				"minimum": 0
-			},
-			"upgradePrices": {
-				"type": "array",
-				"minItems": 3,
-				"maxItems": 9,
-				"items": {
-					"type": "integer",
-					"minimum": 0
-				}
 			},
 			"damageMult": {
 				"type": "array",

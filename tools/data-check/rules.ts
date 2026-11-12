@@ -52,13 +52,6 @@ export function checkRules(data: Data): string[] {
 	for (const weapon of objs(data["weapons.json"])) {
 		const id = str(weapon.id);
 		const mult = Array.isArray(weapon.damageMult) ? weapon.damageMult.length : undefined;
-		const prices = Array.isArray(weapon.upgradePrices) ? weapon.upgradePrices.length : undefined;
-		if (mult !== undefined && prices !== undefined && mult !== prices + 1)
-			push(
-				`weapons.json: ${id} damageMult has ${mult} tiers but upgradePrices has ${prices} (expected tiers - 1)`,
-			);
-		const unlock = num(weapon.unlockRound);
-		if (unlock !== undefined && unlock < 1) push(`weapons.json: ${id} unlockRound must be >= 1`);
 		const bounces = isObj(weapon.projectile) ? weapon.projectile.bounces : undefined;
 		if (Array.isArray(bounces) && mult !== undefined && bounces.length !== mult)
 			push(

@@ -28,8 +28,8 @@ describe("sim harness", () => {
 	});
 
 	it("fights the round 10 boss and records how long it took", () => {
-		// Seed 10 survives to round 10 and kills the Gravedigger (about 29 s); other seeds die earlier.
-		const report = runSim({ seed: 10, rounds: 10, difficulty: "normal" });
+		// An immortal hero reaches round 10 whatever the equipment balance is, so this checks the boss bookkeeping only.
+		const report = runSim({ seed: 10, rounds: 10, difficulty: "normal", immortal: true });
 		expect(report.bosses).toHaveLength(1);
 		expect(report.bosses[0]).toMatchObject({ round: 10, boss: "gravedigger" });
 		expect(report.bosses[0]?.killSeconds).toBeGreaterThan(0);
@@ -128,8 +128,8 @@ describe("sim report", () => {
 
 describe("sim report fields", () => {
 	it("measures killSeconds from the start of the boss round to the BossDied event", () => {
-		// Seed 10 kills the Gravedigger (see the boss test above); the fight is recorded with its own clock.
-		const report = runSim({ seed: 10, rounds: 10, difficulty: "normal" });
+		// The immortal hero kills the Gravedigger (see the boss test above); the fight is recorded with its own clock.
+		const report = runSim({ seed: 10, rounds: 10, difficulty: "normal", immortal: true });
 		const fight = report.bosses[0];
 		const secondsInBossRound = fight?.killSeconds ?? 0;
 		expect(secondsInBossRound).toBeGreaterThan(0);

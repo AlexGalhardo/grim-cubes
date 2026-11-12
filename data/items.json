@@ -4,7 +4,6 @@
 		"name": "Placa Enferrujada",
 		"tier": 1,
 		"price": 20,
-		"tags": ["iron"],
 		"modifiers": [
 			{
 				"stat": "armor",
@@ -24,7 +23,6 @@
 		"name": "Terra de Cova",
 		"tier": 1,
 		"price": 20,
-		"tags": ["grave"],
 		"modifiers": [
 			{
 				"stat": "max_hp",
@@ -39,7 +37,6 @@
 		"name": "Pedra de Amolar",
 		"tier": 1,
 		"price": 20,
-		"tags": ["iron"],
 		"modifiers": [
 			{
 				"stat": "damage",
@@ -54,7 +51,6 @@
 		"name": "Amuleto de Osso",
 		"tier": 1,
 		"price": 20,
-		"tags": ["bone", "curse"],
 		"modifiers": [
 			{
 				"stat": "luck",
@@ -69,7 +65,6 @@
 		"name": "Botas Rasgadas",
 		"tier": 1,
 		"price": 20,
-		"tags": ["grave"],
 		"modifiers": [
 			{
 				"stat": "speed",
@@ -84,7 +79,6 @@
 		"name": "Gancho de Catador",
 		"tier": 1,
 		"price": 20,
-		"tags": ["iron", "grave"],
 		"modifiers": [
 			{
 				"stat": "pickup_range",
@@ -99,7 +93,6 @@
 		"name": "Frasco de Brasa",
 		"tier": 1,
 		"price": 20,
-		"tags": ["ember"],
 		"modifiers": [
 			{
 				"stat": "attack_speed",
@@ -114,7 +107,6 @@
 		"name": "Balas de Chumbo",
 		"tier": 1,
 		"price": 20,
-		"tags": ["iron", "ember"],
 		"modifiers": [
 			{
 				"stat": "knockback",
@@ -129,7 +121,6 @@
 		"name": "Crânio Rachado",
 		"tier": 1,
 		"price": 20,
-		"tags": ["bone", "curse"],
 		"modifiers": [
 			{
 				"stat": "harvest",
@@ -144,7 +135,6 @@
 		"name": "Dente de Ferro",
 		"tier": 1,
 		"price": 20,
-		"tags": ["iron", "blood"],
 		"modifiers": [
 			{
 				"stat": "crit_chance",
@@ -159,7 +149,6 @@
 		"name": "Atadura Negra",
 		"tier": 2,
 		"price": 40,
-		"tags": ["blood", "grave"],
 		"modifiers": [
 			{
 				"stat": "hp_regen",
@@ -174,7 +163,6 @@
 		"name": "Cota de Malha",
 		"tier": 2,
 		"price": 40,
-		"tags": ["iron"],
 		"modifiers": [
 			{
 				"stat": "armor",
@@ -194,7 +182,6 @@
 		"name": "Olho do Caçador",
 		"tier": 2,
 		"price": 40,
-		"tags": ["blood", "curse"],
 		"modifiers": [
 			{
 				"stat": "range",
@@ -214,7 +201,6 @@
 		"name": "Língua de Sanguessuga",
 		"tier": 2,
 		"price": 40,
-		"tags": ["blood", "curse"],
 		"modifiers": [
 			{
 				"stat": "life_steal",
@@ -234,7 +220,6 @@
 		"name": "Lanterna do Pântano",
 		"tier": 2,
 		"price": 40,
-		"tags": ["ember", "grave"],
 		"modifiers": [
 			{
 				"stat": "xp_gain",
@@ -249,7 +234,6 @@
 		"name": "Rei dos Ratos",
 		"tier": 2,
 		"price": 40,
-		"tags": ["grave", "curse"],
 		"modifiers": [],
 		"effects": [
 			{
@@ -265,7 +249,6 @@
 		"name": "Barril de Pólvora",
 		"tier": 2,
 		"price": 40,
-		"tags": ["ember", "iron"],
 		"modifiers": [
 			{
 				"stat": "explosion_size",
@@ -280,7 +263,6 @@
 		"name": "Moeda Maldita",
 		"tier": 2,
 		"price": 40,
-		"tags": ["curse"],
 		"modifiers": [
 			{
 				"stat": "shop_price",
@@ -300,7 +282,6 @@
 		"name": "Tambor de Guerra",
 		"tier": 2,
 		"price": 40,
-		"tags": ["blood", "ember"],
 		"modifiers": [
 			{
 				"stat": "attack_speed",
@@ -315,7 +296,6 @@
 		"name": "Manopla Pesada",
 		"tier": 2,
 		"price": 40,
-		"tags": ["iron"],
 		"modifiers": [
 			{
 				"stat": "damage",
@@ -335,7 +315,6 @@
 		"name": "Pacto Sombrio",
 		"tier": 3,
 		"price": 80,
-		"tags": ["curse", "blood"],
 		"modifiers": [
 			{
 				"stat": "damage",
@@ -355,7 +334,6 @@
 		"name": "Pulmão de Ferro",
 		"tier": 3,
 		"price": 80,
-		"tags": ["iron", "grave"],
 		"modifiers": [
 			{
 				"stat": "max_hp",
@@ -370,7 +348,6 @@
 		"name": "Presa Vampírica",
 		"tier": 3,
 		"price": 80,
-		"tags": ["blood", "bone"],
 		"modifiers": [
 			{
 				"stat": "life_steal",
@@ -385,7 +362,6 @@
 		"name": "Manto de Sombra",
 		"tier": 3,
 		"price": 80,
-		"tags": ["curse", "grave"],
 		"modifiers": [
 			{
 				"stat": "dodge",
@@ -400,7 +376,6 @@
 		"name": "Marca do Carrasco",
 		"tier": 3,
 		"price": 80,
-		"tags": ["iron", "blood"],
 		"modifiers": [
 			{
 				"stat": "boss_damage",
@@ -422,7 +397,6 @@
 		"name": "Coração de Enxofre",
 		"tier": 3,
 		"price": 80,
-		"tags": ["ember", "curse"],
 		"modifiers": [],
 		"effects": [
 			{
@@ -441,7 +415,6 @@
 		"name": "Serra de Osso",
 		"tier": 3,
 		"price": 80,
-		"tags": ["bone", "blood"],
 		"modifiers": [],
 		"effects": [
 			{
@@ -458,7 +431,6 @@
 		"name": "Caixa do Dízimo",
 		"tier": 3,
 		"price": 80,
-		"tags": ["iron", "grave"],
 		"modifiers": [],
 		"effects": [
 			{
@@ -474,7 +446,6 @@
 		"name": "Botas com Cravos",
 		"tier": 3,
 		"price": 80,
-		"tags": ["iron", "blood"],
 		"modifiers": [],
 		"effects": [
 			{
@@ -490,7 +461,6 @@
 		"name": "Munição Infernal",
 		"tier": 3,
 		"price": 80,
-		"tags": ["ember", "iron"],
 		"modifiers": [],
 		"effects": [
 			{
@@ -506,7 +476,6 @@
 		"name": "Coroa de Pregos",
 		"tier": 4,
 		"price": 160,
-		"tags": ["iron", "curse"],
 		"modifiers": [
 			{
 				"stat": "damage",
@@ -531,7 +500,6 @@
 		"name": "Coração do Abismo",
 		"tier": 4,
 		"price": 160,
-		"tags": ["blood", "grave"],
 		"modifiers": [
 			{
 				"stat": "max_hp",
@@ -556,7 +524,6 @@
 		"name": "Ampulheta do Ceifador",
 		"tier": 4,
 		"price": 160,
-		"tags": ["grave", "bone"],
 		"modifiers": [
 			{
 				"stat": "enemy_speed",
@@ -571,7 +538,6 @@
 		"name": "Sigilo da Ruína",
 		"tier": 4,
 		"price": 160,
-		"tags": ["ember", "curse"],
 		"modifiers": [],
 		"effects": [
 			{
@@ -590,7 +556,6 @@
 		"name": "Filactério",
 		"tier": 4,
 		"price": 160,
-		"tags": ["bone", "curse"],
 		"modifiers": [],
 		"effects": [
 			{
@@ -607,7 +572,6 @@
 		"name": "Altar de Sangue",
 		"tier": 4,
 		"price": 160,
-		"tags": ["blood", "curse"],
 		"modifiers": [],
 		"effects": [
 			{
@@ -623,7 +587,6 @@
 		"name": "Estandarte do Senhor da Guerra",
 		"tier": 4,
 		"price": 160,
-		"tags": ["iron", "blood"],
 		"modifiers": [
 			{
 				"stat": "attack_speed",
@@ -648,7 +611,6 @@
 		"name": "Cubo da Ira",
 		"tier": 4,
 		"price": 160,
-		"tags": ["ember"],
 		"modifiers": [],
 		"effects": [
 			{
@@ -667,7 +629,6 @@
 		"name": "Jarro de Almas",
 		"tier": 4,
 		"price": 160,
-		"tags": ["bone", "grave"],
 		"modifiers": [],
 		"effects": [
 			{
@@ -683,7 +644,6 @@
 		"name": "Crânio Dourado",
 		"tier": 4,
 		"price": 160,
-		"tags": ["bone", "curse"],
 		"modifiers": [
 			{
 				"stat": "luck",
@@ -705,7 +665,6 @@
 		"name": "Cálice da Ruína",
 		"tier": 4,
 		"price": 160,
-		"tags": ["curse", "blood"],
 		"exclusiveTo": "ruin_6",
 		"modifiers": [
 			{
@@ -726,7 +685,6 @@
 		"name": "Manto do Ossuário",
 		"tier": 4,
 		"price": 160,
-		"tags": ["bone", "grave"],
 		"exclusiveTo": "ruin_6",
 		"modifiers": [
 			{
@@ -752,7 +710,6 @@
 		"name": "Ímã de Ossos",
 		"tier": 3,
 		"price": 120,
-		"tags": ["bone"],
 		"modifiers": [],
 		"effects": [
 			{
@@ -768,7 +725,6 @@
 		"name": "Núcleo do Titã",
 		"tier": 5,
 		"price": 280,
-		"tags": ["iron", "ember"],
 		"modifiers": [
 			{
 				"stat": "max_hp",
@@ -798,7 +754,6 @@
 		"name": "Coroa de Sangue",
 		"tier": 5,
 		"price": 300,
-		"tags": ["blood", "curse"],
 		"modifiers": [
 			{
 				"stat": "damage",
@@ -823,7 +778,6 @@
 		"name": "Manopla da Tempestade",
 		"tier": 5,
 		"price": 320,
-		"tags": ["ember", "iron"],
 		"modifiers": [
 			{
 				"stat": "attack_speed",
@@ -848,7 +802,6 @@
 		"name": "Manto do Vazio",
 		"tier": 5,
 		"price": 240,
-		"tags": ["curse", "grave"],
 		"modifiers": [
 			{
 				"stat": "dodge",
@@ -878,7 +831,6 @@
 		"name": "Seta do Ossuário",
 		"tier": 4,
 		"price": 160,
-		"tags": ["bone", "ember"],
 		"modifiers": [],
 		"effects": [
 			{
@@ -899,7 +851,6 @@
 		"name": "Círculo de Ossos",
 		"tier": 4,
 		"price": 170,
-		"tags": ["bone", "blood"],
 		"modifiers": [],
 		"effects": [
 			{
@@ -921,7 +872,6 @@
 		"name": "Relâmpago de Almas",
 		"tier": 4,
 		"price": 180,
-		"tags": ["curse", "bone"],
 		"modifiers": [],
 		"effects": [
 			{
@@ -942,7 +892,6 @@
 		"name": "Minas Sepulcrais",
 		"tier": 4,
 		"price": 150,
-		"tags": ["grave", "ember"],
 		"modifiers": [],
 		"effects": [
 			{
@@ -962,7 +911,6 @@
 		"name": "Pulso de Cinzas",
 		"tier": 4,
 		"price": 190,
-		"tags": ["ember", "grave"],
 		"modifiers": [],
 		"effects": [
 			{

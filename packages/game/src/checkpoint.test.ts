@@ -9,7 +9,7 @@ import {
 import { query } from "bitecs";
 import { expect, test } from "vitest";
 import { captureCheckpoint, restoreCheckpoint } from "./checkpoint";
-import { roundsData } from "./data";
+import { heroesData, roundsData } from "./data";
 import { EnemyFaction, Health } from "./ecs/components";
 import { difficultyData } from "./rules/difficulty";
 import { createGameSession, type GameSession } from "./session";
@@ -208,4 +208,19 @@ test("the checkpoint keeps the combat clock and the daily date, and a resumed ru
 	restoreCheckpoint(again, stored);
 	expect(again.runStats.seconds).toBe(stored.seconds);
 	expect(captureCheckpoint(live, identity).daily).toBeNull();
+});
+
+test("a save of a class that no longer exists continues as the session's class with its own weapon", async () => {
+	const live = fresh();
+	playUntilIntroOf(live, 3);
+	const checkpoint = await throughTheSave(live);
+	checkpoint.hero = "retired_class";
+	checkpoint.weapon = { id: "retired_weapon", tier: 0 };
+	const resumed = fresh();
+	restoreCheckpoint(resumed, checkpoint);
+	expect(resumed.heroDef.id).toBe(heroesData[0]?.id);
+	expect(resumed.weapon.weapon.id).toBe(resumed.startingWeapon.id);
+	expect(resumed.run.round).toBe(3);
+	expect(resumed.shop.levels).toEqual(live.shop.levels);
+	expect(resumed.progress.gold).toBe(live.progress.gold);
 });

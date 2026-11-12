@@ -240,7 +240,7 @@ Decisão do PO em 2026-11-12, registrada no ADR-0030 (o texto original está no 
 
 ### S-25 Limpeza e migração
 
-- [ ] **S-25-01** Remover o que o ADR-0030 tira (sinergias e etiquetas, itens, armas e consumíveis da loja, tiers de arma, Mercador no mapa, mundo infinito) sem deixar código morto; desafio diário com a classe do dia; cartas de level-up mantidas.
+- [x] **S-25-01** Remover o que o ADR-0030 tira (sinergias e etiquetas, itens, armas e consumíveis da loja, tiers de arma, Mercador no mapa, mundo infinito) sem deixar código morto; desafio diário com a classe do dia; cartas de level-up mantidas.
   - Asserts: `bun run typecheck && bun run lint && bun run test` exit 0; busca por `synerg` e `Merchant` sem uso em código de jogo; save antigo carrega com teste.
 
 ### S-26 Balanceamento do loop novo

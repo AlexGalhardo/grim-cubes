@@ -17,9 +17,18 @@ export function dailySeed(date: string): number {
 	return hash(date, SEED_SALT);
 }
 
-/** The hero of the day, picked from all of them (locked or not: the challenge is the same for every player). */
-export function dailyHero(date: string, heroes: readonly HeroDef[]): string {
-	const hero = heroes[hash(date, HERO_SALT) % heroes.length];
+/**
+ * The class of the day (ADR-0030), drawn from the ones the player has unlocked: a player with only the Warrior always
+ * gets the Warrior. The same date and the same unlocked set give the same class.
+ */
+export function dailyHero(
+	date: string,
+	heroes: readonly HeroDef[],
+	unlocked: (id: string) => boolean,
+): string {
+	const open = heroes.filter((h) => unlocked(h.id));
+	const pool = open.length > 0 ? open : heroes.slice(0, 1);
+	const hero = pool[hash(date, HERO_SALT) % pool.length];
 	if (!hero) throw new Error("data/heroes.json is empty");
 	return hero.id;
 }

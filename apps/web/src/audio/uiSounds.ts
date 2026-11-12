@@ -21,7 +21,6 @@ export interface UiSoundState {
 	pause: object | null;
 	demoEnd: boolean;
 	secondsLeft: number;
-	synergies: readonly { id: string; reached: number }[];
 }
 
 /** Rarity 2 to 5 (Rare, Epic, Legendary, Mythic); Normal reveals in silence. */
@@ -100,15 +99,6 @@ export function uiSounds(prev: UiSoundState, next: UiSoundState): string[] {
 			out.push("sfx_ui_transition");
 		}
 	}
-
-	// A tag that was already listed gaining a tier; a restored run lists tags with tiers at once and stays silent.
-	if (
-		next.synergies.some((s) => {
-			const before = prev.synergies.find((p) => p.id === s.id);
-			return before !== undefined && s.reached > before.reached;
-		})
-	)
-		out.push("sfx_ui_synergy");
 
 	if (prev.ossuary && next.ossuary && ownedNodes(next) > ownedNodes(prev)) out.push("sfx_ui_unlock");
 

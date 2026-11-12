@@ -16,7 +16,6 @@ const run = (over: Partial<UiSoundState> = {}): UiSoundState => ({
 	pause: null,
 	demoEnd: false,
 	secondsLeft: 40,
-	synergies: [],
 	...over,
 });
 const card = (id: string, rarity: number): { id: string; rarity: number } => ({ id, rarity });
@@ -103,14 +102,6 @@ test("the screen order puts overlays above what they cover", () => {
 	expect(screenOf(run({ menu: {}, options: {} }))).toBe("options");
 	expect(screenOf(run({ shop: { slots: [] }, cards: [card("a", 1)] }))).toBe("levelup");
 	expect(screenOf(run())).toBe("run");
-});
-
-test("reaching a synergy tier plays its sound once; a restored run stays silent", () => {
-	const tag = (reached: number): UiSoundState["synergies"] => [{ id: "iron", reached }];
-	expect(uiSounds(run({ synergies: tag(0) }), run({ synergies: tag(1) }))).toEqual(["sfx_ui_synergy"]);
-	expect(uiSounds(run({ synergies: tag(1) }), run({ synergies: tag(1) }))).toEqual([]);
-	expect(uiSounds(run({ synergies: tag(2) }), run({ synergies: tag(1) }))).toEqual([]);
-	expect(uiSounds(run(), run({ synergies: tag(2) }))).toEqual([]);
 });
 
 test("choosing a hero plays its sting; the hero and daily screens change with a transition", () => {
