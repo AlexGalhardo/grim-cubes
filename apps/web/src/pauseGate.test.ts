@@ -9,8 +9,8 @@ const playing: PauseGate = {
 	screenOpen: false,
 };
 
-test("pausing is allowed in a fight, a boss round, an intro and the walk to the Merchant", () => {
-	for (const runState of ["Round", "BossRound", "RoundIntro", "BossIntro", "RoundOutro", "MerchantWait"])
+test("pausing is allowed in a fight, a boss round, an intro and the outro", () => {
+	for (const runState of ["Round", "BossRound", "RoundIntro", "BossIntro", "RoundOutro"])
 		expect(canOpenPause({ ...playing, runState }), runState).toBe(true);
 });
 

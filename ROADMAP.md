@@ -216,7 +216,7 @@ Decisão do PO em 2026-11-12, registrada no ADR-0030 (o texto original está no 
   - Asserts: teste de que a oferta nunca é pior; teste de preço e de atributos por nível; `bun run data:check` exit 0.
 - [x] **S-21-02** Fragmento de elite (cada elite dropa 1, 100%) e relíquia (cada chefe dropa 1, 100%); na loja o jogador gasta fragmentos para subir um slot de 7 a 9 e a relíquia para o 10, escolhendo o slot.
   - Asserts: teste de drop 100%; teste de upgrade 6→7→9→10 com o material certo e recusa sem material; HUD e loja mostram os materiais.
-- [ ] **S-21-03** A loja abre sozinha ao fim de cada round vencido; o Mercador sai do mapa (falas e voz continuam na tela da loja, se couberem).
+- [x] **S-21-03** A loja abre sozinha ao fim de cada round vencido; o Mercador sai do mapa (falas e voz continuam na tela da loja, se couberem).
   - Asserts: teste de fluxo round → loja → próximo round; capturas `shop` nos quatro alvos; `screens.pad.test.tsx` verde.
 
 ### S-22 Ossuário como árvore de magias

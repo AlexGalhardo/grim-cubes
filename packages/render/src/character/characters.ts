@@ -1,6 +1,3 @@
-import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
-import { Color3 } from "@babylonjs/core/Maths/math.color";
-import { CreateTorus } from "@babylonjs/core/Meshes/Builders/torusBuilder";
 import {
 	Boss,
 	bossesData,
@@ -12,7 +9,6 @@ import {
 	Position,
 	PrevPosition,
 	queryEnemies,
-	roundsData,
 	Velocity,
 } from "@gc/game";
 import { mixAuras } from "../scene/aura";
@@ -21,23 +17,8 @@ import type { GameScene } from "../scene/scene";
 import type { Character } from "./character";
 import { desiredYaw, type FacingInput, isBackpedaling, turnTowards } from "./facing";
 
-/** The Merchant the session keeps in the world (`session.merchant.view`), in scene coordinates. */
-export interface MerchantLook {
-	x: number;
-	z: number;
-	state: "arriving" | "waiting" | "leaving";
-}
-
 export interface CharactersOptions {
 	hero: Character;
-	/** Shown beside the hero while the shop is open. */
-	merchant?: Character | undefined;
-	/**
-	 * Where the Merchant stands and what it is doing, or null when it is away. When given, the rig stays at that fixed
-	 * spot (emerge while arriving, idle while waiting, submerge while leaving) and a ring marks it when the hero is
-	 * near; without it the rig follows the hero while the shop is open.
-	 */
-	merchantView?: (() => MerchantLook | null) | undefined;
 	/** Boss rigs by `Boss.id - 1` (the 1-based position in bosses.json); they replace the horde instance of their boss. */
 	bosses: readonly (Character | undefined)[];
 	/** Fraction the camera radius shrinks by during the boss execution (GDD 12.2: 20%). */
@@ -50,7 +31,7 @@ export interface CharactersOptions {
 
 export interface Characters {
 	/** Poses and animates the rigs from the ECS; `dt` in seconds (0 while paused). */
-	sync(world: GameWorld, alpha: number, dt: number, shopOpen: boolean): void;
+	sync(world: GameWorld, alpha: number, dt: number): void;
 	onEvent(type: number, a: number, b: number, c: number, entity: number): void;
 	readonly executing: boolean;
 	/** The yaw the hero rig is drawn with, in radians (0 looks along +z). */
@@ -66,16 +47,6 @@ export interface Characters {
 	holdIdle(): void;
 }
 
-/** The interaction ring around a waiting Merchant (u) and the hero distance at which it shows (u). */
-const MERCHANT_RING_RADIUS = 1.8;
-const MERCHANT_RING_SHOW = 4;
-const MERCHANT_RING_PULSE_HZ = 0.9;
-
-/** Where the Merchant stands relative to the hero while the shop is open. */
-const MERCHANT_OFFSET_X = 4;
-const MERCHANT_OFFSET_Z = 0;
-/** Seconds the old follow-the-hero Merchant takes to sink, the `leaveSeconds` of data/rounds.json. */
-const MERCHANT_SUBMERGE_SECONDS = roundsData.merchant.leaveSeconds;
 /** Seconds the camera takes to return to its radius after the boss execution. */
 const RETURN_SECONDS = 0.6;
 /** How far (u) the sword model reaches from the hero at scale 1 (measured in game); a longer `range` scales it up. */
@@ -96,13 +67,11 @@ const FLY_BOB_HZ = 0.8;
 /** A leap peaks at this height (u) halfway through its airtime. */
 const LEAP_HEIGHT = 3;
 
-/** Drives the hero, the Merchant and the Gravedigger rigs from game state and events. */
+/** Drives the hero and the boss rigs from game state and events. */
 export function createCharacters(game: GameScene, options: CharactersOptions): Characters {
-	const { hero, merchant, bosses } = options;
+	const { hero, bosses } = options;
 	const baseRadius = game.camera.radius;
 	let executionLeft = 0;
-	let merchantState: "away" | "in" | "leaving" = "away";
-	let merchantLeft = 0;
 	let heroEntity = -1;
 	let heroYaw = 0;
 	// Scratch objects reused every frame: nothing is allocated in `sync`.
@@ -127,21 +96,6 @@ export function createCharacters(game: GameScene, options: CharactersOptions): C
 	let leapLeft = 0;
 
 	hero.setVisible(true);
-	merchant?.setVisible(false);
-	const ring = CreateTorus(
-		"merchant_ring",
-		{ diameter: MERCHANT_RING_RADIUS * 2, thickness: 0.1, tessellation: 32 },
-		game.scene,
-	);
-	const ringMaterial = new StandardMaterial("merchant_ring", game.scene);
-	ringMaterial.disableLighting = true;
-	ringMaterial.emissiveColor = Color3.FromHexString(PALETTE.emberLight);
-	ringMaterial.diffuseColor = Color3.Black();
-	ring.material = ringMaterial;
-	ring.isPickable = false;
-	ring.setEnabled(false);
-	let ringClock = 0;
-	let lookState: MerchantLook["state"] | "away" = "away";
 	for (const rig of bosses) rig?.setVisible(false);
 
 	function pose(rig: Character, e: number, alpha: number): void {
@@ -159,7 +113,6 @@ export function createCharacters(game: GameScene, options: CharactersOptions): C
 		holdIdle(): void {
 			hero.holdPose("idle", 0.25);
 			for (const rig of bosses) rig?.holdPose("idle", 0.25);
-			merchant?.holdPose("idle", 0.25);
 		},
 		setBossAuras(auras): void {
 			const key = auras.join(",");
@@ -176,7 +129,7 @@ export function createCharacters(game: GameScene, options: CharactersOptions): C
 		get executing(): boolean {
 			return executionLeft > 0;
 		},
-		sync(world, alpha, dt, shopOpen): void {
+		sync(world, alpha, dt): void {
 			heroEntity = findHero(world);
 			if (heroEntity >= 0) {
 				pose(hero, heroEntity, alpha);
@@ -276,60 +229,6 @@ export function createCharacters(game: GameScene, options: CharactersOptions): C
 				returnLeft = Math.max(0, returnLeft - dt);
 				const k = returnLeft / RETURN_SECONDS;
 				game.camera.radius = baseRadius * (1 - options.executionZoom * k * k * (3 - 2 * k));
-			}
-
-			if (merchant && options.merchantView) {
-				const look = options.merchantView();
-				if (!look) {
-					if (lookState !== "away") merchant.setVisible(false);
-					lookState = "away";
-				} else {
-					if (lookState !== look.state) {
-						if (lookState === "away") merchant.setVisible(true);
-						if (look.state === "arriving") merchant.playOnce("emerge");
-						else if (look.state === "leaving") merchant.playOnce("submerge");
-						lookState = look.state;
-					}
-					const hx = heroEntity >= 0 ? (Position.x[heroEntity] ?? 0) : look.x;
-					const hz = heroEntity >= 0 ? (Position.z[heroEntity] ?? 0) : look.z;
-					// Faces the hero (yaw 0 looks along +z).
-					merchant.setPose(look.x, look.z, Math.atan2(hx - look.x, hz - look.z));
-					const near = Math.hypot(hx - look.x, hz - look.z) < MERCHANT_RING_SHOW;
-					if (look.state === "waiting" && near) {
-						ringClock += dt;
-						const pulse = 1 + 0.06 * Math.sin(ringClock * MERCHANT_RING_PULSE_HZ * Math.PI * 2);
-						ring.position.set(look.x, 0.05, look.z);
-						ring.scaling.set(pulse, 1, pulse);
-						ring.setEnabled(true);
-					} else ring.setEnabled(false);
-				}
-				if (!look) ring.setEnabled(false);
-				merchant.update(dt);
-			} else if (merchant) {
-				if (shopOpen && merchantState !== "in") {
-					merchantState = "in";
-					merchant.setVisible(true);
-					merchant.playOnce("emerge");
-				} else if (!shopOpen && merchantState === "in") {
-					merchantState = "leaving";
-					merchantLeft = MERCHANT_SUBMERGE_SECONDS;
-					merchant.playOnce("submerge");
-				}
-				if (merchantState === "leaving") {
-					merchantLeft -= dt;
-					if (merchantLeft <= 0) {
-						merchantState = "away";
-						merchant.setVisible(false);
-					}
-				}
-				if (merchantState !== "away" && heroEntity >= 0) {
-					merchant.setPose(
-						(Position.x[heroEntity] ?? 0) + MERCHANT_OFFSET_X,
-						(Position.z[heroEntity] ?? 0) + MERCHANT_OFFSET_Z,
-						-Math.PI / 2,
-					);
-				}
-				merchant.update(dt);
 			}
 		},
 		onEvent(type, a, _b, c, _entity): void {

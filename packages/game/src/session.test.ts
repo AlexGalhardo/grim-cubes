@@ -34,21 +34,33 @@ test("another seed, or one more step, changes the world", () => {
 	expect(play(42, 421)).not.toBe(base);
 });
 
-test("a fresh session starts idle and opens the shop by itself once a round is won", () => {
+test("a won round opens the shop by itself, closing it starts the next round, and nobody walks to anything", () => {
 	const session = createGameSession({ seed: 5, difficulty, meta: createMetaState() });
 	expect(session.run.state).toBe("Idle");
 	expect(session.fighting()).toBe(false);
 	session.run.newRun();
 	const input = createInputState();
-	let sawShop = false;
-	for (let i = 0; i < 60 * 40 && !sawShop; i++) {
+	const seen = new Set<string>();
+	const stepOnce = (): void => {
 		session.step(input);
 		session.events.consume(() => undefined);
-		// Enemies are cleared by the debug-style kill so the round can end quickly.
-		if (session.run.state === "Round") session.run.forceEnd(session.world);
-		if (session.run.state === "Shop") sawShop = session.shop.slots.length > 0;
-	}
-	expect(sawShop).toBe(true);
+		seen.add(session.run.state);
+	};
+	for (let i = 0; i < 60 * 10 && session.run.state !== "Round"; i++) stepOnce();
+	expect(session.run.state).toBe("Round");
+	session.run.forceEnd(session.world);
+	for (let i = 0; i < 60 * 5 && session.run.state !== "Shop"; i++) stepOnce();
+	expect(session.run.state).toBe("Shop");
+	expect(session.run.round).toBe(1);
+	expect(session.shop.slots.length).toBeGreaterThan(0);
+	// The outro leads straight to the shop: no state in between, and no Merchant system left to wait for.
+	expect(seen.has("RoundOutro")).toBe(true);
+	expect(seen).not.toContain("MerchantWait");
+	session.run.closeShop();
+	expect(session.run.round).toBe(2);
+	expect(session.run.state).toBe("RoundIntro");
+	for (let i = 0; i < 60 * 10 && session.run.state !== "Round"; i++) stepOnce();
+	expect(session.run.state).toBe("Round");
 });
 
 test("hp_regen heals the hero during a round by the GDD formula and never above max HP", () => {

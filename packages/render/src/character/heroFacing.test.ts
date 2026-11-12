@@ -33,7 +33,7 @@ it("turns the hero to its target while walking away, then follows the movement o
 	});
 	const yaw = (): number => (setPose.mock.lastCall?.[2] as number | undefined) ?? Number.NaN;
 	const run = (steps: number): void => {
-		for (let i = 0; i < steps; i++) characters.sync(world, 1, 1 / 60, false);
+		for (let i = 0; i < steps; i++) characters.sync(world, 1, 1 / 60);
 	};
 	run(60);
 	expect(yaw()).toBeCloseTo(Math.PI / 2, 1);

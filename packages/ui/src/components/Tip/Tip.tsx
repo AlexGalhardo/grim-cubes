@@ -1,19 +1,11 @@
 import { t } from "@gc/core";
 import type { JSX } from "react";
 
-export type TipId =
-	| "move"
-	| "fragments"
-	| "merchant"
-	| "shop"
-	| "tutorialMove"
-	| "tutorialKill"
-	| "tutorialCollect";
+export type TipId = "move" | "fragments" | "shop" | "tutorialMove" | "tutorialKill" | "tutorialCollect";
 
 const KEY: Readonly<Record<TipId, string>> = {
 	move: "tip.move",
 	fragments: "tip.fragments",
-	merchant: "tip.merchant",
 	shop: "tip.shop",
 	tutorialMove: "tip.tutorialMove",
 	tutorialKill: "tip.tutorialKill",

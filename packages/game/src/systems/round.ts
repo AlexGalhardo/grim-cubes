@@ -13,7 +13,6 @@ export type RunState =
 	| "BossIntro"
 	| "BossRound"
 	| "RoundOutro"
-	| "MerchantWait"
 	| "Shop"
 	| "Paused"
 	| "Dying"
@@ -26,8 +25,6 @@ export interface RunConfig {
 		outroSeconds: number;
 		bossIntroSeconds: number;
 		dyingSeconds: number;
-		/** How long the Merchant waits for the hero before the shop opens by itself. */
-		merchantWaitSeconds: number;
 	};
 	duration: {
 		firstRoundSeconds: number;
@@ -48,8 +45,6 @@ export interface RunSystemDeps {
 	onRoundEnd?: (round: number) => void;
 	/** Called when combat begins (after the intro), with whether it is a boss round. */
 	onRoundStart?: (round: number, boss: boolean) => void;
-	/** True to skip the walk to the Merchant and open the shop at once (simulator, demo end). Default: false. */
-	autoShop?: ((round: number) => boolean) | undefined;
 }
 
 /** Fragments left on the floor at round end; released one per spawn in the next round, never lost. */
@@ -67,10 +62,6 @@ export interface RunSystem {
 	closeShop(): void;
 	/** Starts a run again at the intro of `round` with `bagValue` fragments in the bag (a resumed run). */
 	resumeAt(round: number, bagValue: number): void;
-	/** The hero reached the Merchant (or the wait ran out): opens the shop. No-op outside `MerchantWait`. */
-	enterShop(): void;
-	/** Where the enemies were, on average, when the last round ended (relative coordinates). */
-	readonly lastEnemies: { x: number; z: number; count: number };
 	/** Ends the current combat round now (used by the debug API and tests); no-op outside a round. */
 	forceEnd(world: GameWorld): void;
 	/** Jumps the round counter (debug API and tests); the next shop close starts round `n + 1`. */
@@ -96,8 +87,7 @@ export function roundDurationSeconds(config: RunConfig, round: number): number {
 const toSteps = (seconds: number): number => Math.max(1, Math.round(seconds / STEP));
 
 export function createRunSystem(deps: RunSystemDeps): RunSystem {
-	const { config, spawn, events, poolFor, difficultyMult, onRoundEnd, onRoundStart, autoShop } = deps;
-	const lastEnemies = { x: 0, z: 0, count: 0 };
+	const { config, spawn, events, poolFor, difficultyMult, onRoundEnd, onRoundStart } = deps;
 	const bag: Bag = { value: 0 };
 	const enemies = createQueryCache([EnemyFaction]);
 	const fragments = createQueryCache([Fragment]);
@@ -135,19 +125,6 @@ export function createRunSystem(deps: RunSystemDeps): RunSystem {
 	function endCombat(world: GameWorld): void {
 		const live = enemies(world);
 		const count = Math.min(live.length, scratch.length);
-		lastEnemies.x = 0;
-		lastEnemies.z = 0;
-		lastEnemies.count = 0;
-		for (let i = 0; i < count; i++) {
-			const e = live[i] ?? 0;
-			lastEnemies.x += Position.x[e] ?? 0;
-			lastEnemies.z += Position.z[e] ?? 0;
-		}
-		if (count > 0) {
-			lastEnemies.x /= count;
-			lastEnemies.z /= count;
-		}
-		lastEnemies.count = count;
 		for (let i = 0; i < count; i++) scratch[i] = live[i] ?? 0;
 		for (let i = 0; i < count; i++) {
 			const e = scratch[i] ?? 0;
@@ -197,12 +174,6 @@ export function createRunSystem(deps: RunSystemDeps): RunSystem {
 			bag.value = bagValue;
 			startIntro();
 		},
-		enterShop(): void {
-			if (state === "MerchantWait") enter("Shop");
-		},
-		get lastEnemies(): { x: number; z: number; count: number } {
-			return lastEnemies;
-		},
 		setRound(n: number): void {
 			round = n;
 		},
@@ -247,12 +218,6 @@ export function createRunSystem(deps: RunSystemDeps): RunSystem {
 					}
 					break;
 				case "RoundOutro":
-					if (--ticks <= 0) {
-						if (autoShop?.(round)) enter("Shop");
-						else enter("MerchantWait", config.flow.merchantWaitSeconds);
-					}
-					break;
-				case "MerchantWait":
 					if (--ticks <= 0) enter("Shop");
 					break;
 				case "Dying":

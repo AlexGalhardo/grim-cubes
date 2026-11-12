@@ -93,11 +93,6 @@ export const EventType = {
 	 */
 	ThornsHit: 42,
 	/**
-	 * a, b = x, z where the Merchant stands (relative coordinates, fixed until the shop closes); c = seconds he waits
-	 * before the shop opens by itself. His state is on `session.merchant` (arriving, waiting, leaving).
-	 */
-	MerchantArrived: 43,
-	/**
 	 * A bonus spell cast itself. a, b = x, z; entity = `SpellVfx` kind.
 	 * Mine packs c = fuseSeconds * 100 + radius (radius stays under 100). Nova puts the radius in c.
 	 */

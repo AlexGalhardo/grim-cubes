@@ -27,7 +27,6 @@ test("the hero and every enemy stay inside the border while the hero runs into i
 		seed: 7,
 		difficulty: difficultyData(roundsData.difficulties, "normal"),
 		meta: createMetaState(),
-		autoShop: true,
 	});
 	session.run.newRun();
 	const heroRadius = Radius.r[session.hero] ?? 0;

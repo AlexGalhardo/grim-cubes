@@ -353,15 +353,7 @@ async function boot(): Promise<void> {
 		: ((__DEBUG_API__ ? heroesData.find((h) => h.id === askedHero)?.id : undefined) ??
 			chooseHero(heroesData, milestonesData, meta, askedHero));
 
-	// The web demo ends at the first boss: no walk to the Merchant there, the DemoEnd shows at once.
-	const demoLastRound = bossesData[0]?.round ?? 10;
-	const session = createGameSession({
-		seed,
-		difficulty,
-		meta,
-		hero: heroId,
-		autoShop: soakOn ? true : __IS_DEMO__ ? (round: number) => round >= demoLastRound : false,
-	});
+	const session = createGameSession({ seed, difficulty, meta, hero: heroId });
 	const {
 		events,
 		world,
@@ -453,11 +445,9 @@ async function boot(): Promise<void> {
 		rerollKey: meta.settings.keys.reroll,
 		inputDevice: "keyboard",
 		padReroll: meta.settings.pad.reroll,
-		padDash: meta.settings.pad.dash,
 		padStyle: "generic",
 		colorblind: meta.settings.colorblind !== "off",
 		caption: null,
-		merchant: null,
 		demoEnd: false,
 		slots: null,
 		pause: null,
@@ -549,7 +539,6 @@ async function boot(): Promise<void> {
 	// The UI mounts before the rest of the boot declares the state its handlers use (`optionsOpen`, `loop`...): a click
 	// on the gear, the speed or the pause button before `booted` would read a variable still in its dead zone.
 	let booted = false;
-	// The Merchant rig loads after the UI mounts; the factory resolves it on use and draws nothing until it exists.
 	createRoot(uiRoot).render(
 		<App
 			store={hud}
@@ -604,10 +593,6 @@ async function boot(): Promise<void> {
 			}}
 			onCycleSpeed={() => {
 				if (booted) setSpeed(nextSpeed(loop.speed));
-			}}
-			onMerchantTalk={() => {
-				session.merchant.talk();
-				publishNow();
 			}}
 			onRestart={() => {
 				heroesOpen = true;
@@ -820,7 +805,7 @@ async function boot(): Promise<void> {
 		log.warn("assets unavailable, using placeholders", error);
 		return null;
 	});
-	// Skeleton characters (P-06-06): the hero, the Merchant and the Gravedigger. Missing models keep the placeholders.
+	// Skeleton characters (P-06-06): the hero and the bosses. Missing models keep the placeholders.
 	const loadRig = async (
 		id: string,
 		rig: { refSpeed: number; idle: string; move: string },
@@ -843,11 +828,6 @@ async function boot(): Promise<void> {
 		"hero",
 		{ refSpeed: heroData.base.speed, idle: "idle", move: "run" },
 		assets?.heroMaterial ?? assets?.characterMaterial,
-	);
-	const merchantRig = await loadRig(
-		"bone_merchant",
-		{ refSpeed: 1, idle: "idle", move: "idle" },
-		assets?.characterMaterial,
 	);
 	// One rig per boss, by Boss.id - 1; a boss whose model is missing keeps its horde instance.
 	const bossRigs = await Promise.all(
@@ -888,8 +868,6 @@ async function boot(): Promise<void> {
 	const characters = heroRig
 		? createCharacters(game, {
 				hero: heroRig,
-				merchant: merchantRig,
-				merchantView: () => session.merchant.view,
 				bosses: bossRigs,
 				heroTarget: faceTarget,
 				executionZoom: renderData.character.executionZoom,
@@ -1115,7 +1093,12 @@ async function boot(): Promise<void> {
 		},
 		showCaption,
 	);
-	const merchantVoice = createMerchantVoice(audio, showCaption);
+	// The Merchant's lines show under his name in the shop (a bottom caption would cover the dialog): the shop view reads
+	// the last key.
+	let merchantLine = "";
+	const merchantVoice = createMerchantVoice(audio, (key) => {
+		merchantLine = key;
+	});
 	const footsteps = createFootsteps(audio);
 	// Hero steps are sampled ten times a second, only while a round is running (the origin shift moves the hero in
 	// world units, hence the walked distance is computed from the absolute position).
@@ -1123,16 +1106,15 @@ async function boot(): Promise<void> {
 		if (run.state !== "Round" && run.state !== "BossRound") return footsteps.reset();
 		footsteps.update(origin.x + (Position.x[hero] ?? 0), origin.z + (Position.z[hero] ?? 0), biomeTrack);
 	}, 100);
-	// While he waits the Merchant speaks up now and then: a remark, then a call to come over (every 12 s).
-	let waited = 0;
+	// The Merchant greets the shop when it opens and speaks up now and then while the player lingers in it (every 12 s).
+	let lingered = 0;
 	window.setInterval(() => {
-		if (run.state !== "MerchantWait") {
-			waited = 0;
+		if (run.state !== "Shop") {
+			lingered = 0;
 			return;
 		}
-		waited++;
-		if (waited % 12 === 8) merchantVoice.say("come");
-		else if (waited % 12 === 0) merchantVoice.say("wait");
+		lingered++;
+		if (lingered % 12 === 0) merchantVoice.say("wait");
 	}, 1000);
 	// The render port drains the buffer, so the audio listens on the way through.
 	const tappedEvents: EventBuffer = {
@@ -1140,7 +1122,6 @@ async function boot(): Promise<void> {
 		consume: (visit) =>
 			events.consume((type, a, b, c, entity) => {
 				eventAudio(type, a, b, c, entity);
-				if (type === EventType.MerchantArrived) merchantVoice.say("arrive");
 				if (type === EventType.BossDied) {
 					telemetry.track("boss_killed", {
 						boss: bossesData[(Boss.id[entity] ?? 0) - 1]?.id ?? "",
@@ -1228,6 +1209,8 @@ async function boot(): Promise<void> {
 		weaponIcon: (id) => iconFor("weapon", id),
 	});
 	let lastShopJson = "";
+	/** The Merchant greets once per shop visit. */
+	let shopGreeted = false;
 	let lastShop: HudState["shop"] = null;
 
 	/** Souls the run is worth so far: the results screen and the HUD counter share it. */
@@ -1482,19 +1465,6 @@ async function boot(): Promise<void> {
 	}
 
 	const nextSpeedOf = (speed: number): GameSpeed => (speed === 3 ? 3 : speed === 2 ? 2 : 1);
-
-	/** Arrow and talk prompt while the Merchant waits; the angle is rounded to 15 degrees so the HUD does not churn. */
-	function merchantPrompt(): HudState["merchant"] {
-		const m = session.merchant.view;
-		if (run.state !== "MerchantWait" || !m) return null;
-		const angle = Math.atan2(m.x - (Position.x[hero] ?? 0), m.z - (Position.z[hero] ?? 0));
-		const step = Math.PI / 12;
-		return {
-			angle: Math.round(angle / step) * step,
-			near: session.merchant.distance() <= session.merchant.config.talkRadius,
-			secondsLeft: Math.ceil(run.ticksLeft * STEP),
-		};
-	}
 
 	function optionsView(): NonNullable<HudState["options"]> {
 		return {
@@ -1824,7 +1794,7 @@ async function boot(): Promise<void> {
 				souls: meta.souls,
 			},
 			equipped: equippedView(upgrades),
-			quote: t(`voice.merchant.arrive_${(run.round % 3) + 1}`),
+			quote: t(merchantLine || `voice.merchant.arrive_${(run.round % 3) + 1}`),
 		};
 	}
 	function iconFor(kind: "item" | "card" | "weapon" | "equipment", id: string): IconRef | undefined {
@@ -1908,8 +1878,13 @@ async function boot(): Promise<void> {
 		if (demoEnd && !settled) settleRun();
 		let shopView: HudState["shop"] = null;
 		if (run.state === "Shop" && !demoEnd) {
+			if (!shopGreeted) {
+				shopGreeted = true;
+				audio.play("sfx_merchant_arrive", { priority: "ui", maxVoices: 1 });
+				merchantVoice.say("arrive");
+			}
 			const view = shop.view();
-			const json = JSON.stringify(view);
+			const json = JSON.stringify(view) + merchantLine;
 			if (json !== lastShopJson) {
 				lastShopJson = json;
 				lastShop = {
@@ -1927,6 +1902,8 @@ async function boot(): Promise<void> {
 			shopView = lastShop;
 		} else {
 			lastShopJson = "";
+			shopGreeted = false;
+			merchantLine = "";
 		}
 		const view = boss.view();
 		if (view === null) {
@@ -1999,11 +1976,9 @@ async function boot(): Promise<void> {
 			rerollKey: meta.settings.keys.reroll,
 			inputDevice: lastDevice,
 			padReroll: meta.settings.pad.reroll,
-			padDash: meta.settings.pad.dash,
 			padStyle,
 			colorblind: meta.settings.colorblind !== "off",
 			caption: captionText,
-			merchant: merchantPrompt(),
 			menu: menuOpen ? menuView() : null,
 			demoEnd,
 			bossIntro: run.state === "BossIntro" ? t(`boss.${boss.defFor(run.round).id}`) : null,
@@ -2083,14 +2058,9 @@ async function boot(): Promise<void> {
 			cur.speed !== next.speed ||
 			cur.uiScale !== next.uiScale ||
 			cur.caption !== next.caption ||
-			cur.merchant?.angle !== next.merchant?.angle ||
-			cur.merchant?.near !== next.merchant?.near ||
-			cur.merchant?.secondsLeft !== next.merchant?.secondsLeft ||
-			(cur.merchant === null) !== (next.merchant === null) ||
 			cur.rerollKey !== next.rerollKey ||
 			cur.inputDevice !== next.inputDevice ||
 			cur.padReroll !== next.padReroll ||
-			cur.padDash !== next.padDash ||
 			cur.padStyle !== next.padStyle ||
 			cur.colorblind !== next.colorblind ||
 			cur.menu !== null ||
@@ -2255,7 +2225,6 @@ async function boot(): Promise<void> {
 				world,
 				alpha,
 				run.state === "Paused" ? 0 : Math.min(0.1, render.engine.getDeltaTime() / 1000),
-				run.state === "Shop",
 			);
 			eliteView.update(
 				run.state === "Paused" ? 0 : Math.min(0.1, render.engine.getDeltaTime() / 1000),
@@ -2311,14 +2280,19 @@ async function boot(): Promise<void> {
 			grantGold: (amount: number) => {
 				progress.gold += amount;
 			},
+			/** Elite fragments and boss relics for the shop captures (the upgrade buttons). */
+			grantMaterials: (fragments: number, relics: number) => {
+				progress.eliteFragments += fragments;
+				progress.relics += relics;
+			},
+			/** Sets the equipped level of every slot, in the order of data/equipment.json. */
+			equip: (levels: number[]) => shop.restoreLevels(levels),
 			/** In memory only (never saved): reaches the milestones that unlock the extra heroes, for captures. */
 			unlockHeroes: () => {
 				meta.stats.bestBossRound = Math.max(meta.stats.bestBossRound, 20);
 				publishNow();
 			},
 			endRound: () => run.forceEnd(world),
-			/** Ends the walk to the Merchant (A-05-01): the shop opens at once. No-op outside `MerchantWait`. */
-			openShop: () => run.enterShop(),
 			/** VFX budget check (P-04-05): off = no particles, no decals, no damage numbers. */
 			setVfx: (on: boolean) => {
 				vfx.setPools(on ? preset.particlePool : 0, on ? floorMarkCap(preset.id) : 0);
@@ -2326,8 +2300,6 @@ async function boot(): Promise<void> {
 			},
 			/** Variant budget check: 0 draws no cosmetic variants, 30 is the default share. */
 			setVariants: (percent: number) => horde?.setVariantPercent(percent),
-			/** The Merchant the session keeps in the world (fixed spot capture). */
-			merchant: () => session.merchant.view,
 			/** Rim light on or off (the perf cost check). */
 			setRim: (on: boolean) => game.setRim(on),
 			/** Overlay cost check: the contrast rings and the health bars on or off together. */
@@ -2643,8 +2615,6 @@ async function boot(): Promise<void> {
 				loop.resume();
 				let now = performance.now();
 				for (let i = 0; i < 1200 && !(run.state === "BossRound" && boss.view() !== null); i++) {
-					// The capture does not walk to the Merchant.
-					if (run.state === "MerchantWait") run.enterShop();
 					if (run.state === "Shop") run.closeShop();
 					now += STEP * 1000;
 					loop.frame(now);
@@ -2677,13 +2647,6 @@ async function boot(): Promise<void> {
 	}
 
 	loop.setSpeed(meta.settings.gameSpeed);
-	// Enter talks to the Merchant when he is close (the on-screen prompt does the same for touch).
-	window.addEventListener("keydown", (event) => {
-		if ((event.code !== "Enter" && event.code !== "NumpadEnter") || event.repeat) return;
-		if (run.state !== "MerchantWait" || document.querySelector('[role="dialog"]')) return;
-		if (session.merchant.talk()) publishNow();
-	});
-
 	// The speed key (TAB by default, remappable) cycles the speed during play; inside a dialog TAB moves the focus.
 	window.addEventListener("keydown", (event) => {
 		if (
@@ -2783,7 +2746,6 @@ async function boot(): Promise<void> {
 	for (const type of ["keydown", "pointerdown"])
 		window.addEventListener(type, () => (lastDevice = "keyboard"), true);
 	booted = true;
-	let wasDashing = false;
 	let wasPause = false;
 	let wasSpeedButton = false;
 	if (soak) {
@@ -2822,10 +2784,6 @@ async function boot(): Promise<void> {
 		if (touchDash) input.dash = true;
 		if (touchHeal) input.heal = true;
 		if (touchSuper) input.super = true;
-		// While the Merchant waits the dash action (A on the pad, by default) talks to him: there is nothing to dash from.
-		if (input.dash && !wasDashing && run.state === "MerchantWait" && session.merchant.talk())
-			publishNow();
-		wasDashing = input.dash;
 		if (input.pause && !wasPause) openPause();
 		wasPause = input.pause;
 		// The gamepad speed button (Back by default) cycles the speed like the key does, outside dialogs.

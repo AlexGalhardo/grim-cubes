@@ -19,6 +19,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **game:** Elite fragments and boss relics (S-21-02): every dead elite always gives 1 fragment and every dead boss 1 relic, credited at once and kept in the run checkpoint; the shop raises an equipment slot from level 6 with fragments (7: 2, 8: 3, 9: 4) and to level 10 with a relic, on the slot the player picks, and refuses without the material; the HUD wallet and the shop show both counters
 
+### Removed
+
+- **game:** The Merchant is gone from the map (S-21-03): the round outro leads straight to the shop, which opens by itself; the `MerchantWait` state, the Merchant system and its data (`rounds.json` `merchant` and `flow.merchantWaitSeconds`), the `MerchantArrived` event, the walk prompt and talk action, the 3D rig and the `autoShop` option are removed; the Merchant keeps his portrait, line and voice on the shop screen (greeting on open, a remark every 12 s while the player lingers), and the "walk to the Merchant" tip is gone
+
 ### Changed
 
 - **game:** The old Ossuary stat tree (5 branches, 10,250 souls) is gone; schema 15 gives back every soul spent on it in full and starts the spell tree empty (S-22-01); the dash comes unlocked with 1 charge for every class, and the card rerolls, starting gold and the other effects of the old nodes left with it

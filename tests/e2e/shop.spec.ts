@@ -7,8 +7,6 @@ interface DebugGc {
 			state(): { run: string; round: number };
 			grantGold(amount: number): void;
 			endRound(): void;
-			/** Ends the walk to the Merchant. The shop does not open on its own until that wait expires. */
-			openShop(): void;
 		};
 	};
 }
@@ -29,12 +27,12 @@ test("the shop opens after a round, sells an offer and the next round starts", a
 		debug?.grantGold(500);
 		debug?.endRound();
 	});
-	await expect.poll(async () => (await state()).run, { timeout: 20_000 }).toBe("MerchantWait");
-	await page.evaluate(() => (window as unknown as DebugGc).gc?.debug?.openShop());
+	// The shop opens by itself once the round is won.
+	await expect.poll(async () => (await state()).run, { timeout: 20_000 }).toBe("Shop");
 
 	const dialog = page.getByRole("dialog");
 	await expect(dialog).toBeVisible({ timeout: 10_000 });
-	await expect(page.locator('[data-testid^="shop-slot-"]')).toHaveCount(4);
+	await expect(page.locator('[data-testid^="shop-slot-"]')).toHaveCount(6);
 	const goldBefore = Number.parseInt(
 		((await page.getByTestId("shop-gold").textContent()) ?? "").replace(/\D+/g, ""),
 		10,

@@ -47,7 +47,7 @@ Redesenho do PO em 2026-11-12 (ADR-0030, `TODO.md`): a Parte 1A do ROADMAP (tril
 ## Como olhar o jogo
 
 - Servidor com a API de debug: `GC_DEBUG_API=1 bunx vite --config apps/web/vite.config.ts --port 5199`, em background. A porta 5173 costuma estar ocupada por outro projeto do PO: não use nem mate.
-- `http://localhost:5199/?debug=1&seed=7` entra direto numa run. `window.gc.ready` vira `true`; `window.gc.debug` tem `state()`, `grantGold(n)`, `grantXp(n)`, `endRound()`, `openShop()`, `spawnElite()`, `toBossFrame()`, `killHero()`, `setHeroHp(f)`, `stillLife(lista)` (procure `window.gc.debug = {` em `apps/web/src/main.tsx`).
+- `http://localhost:5199/?debug=1&seed=7` entra direto numa run. `window.gc.ready` vira `true`; `window.gc.debug` tem `state()`, `grantGold(n)`, `grantMaterials(fragmentos, relíquias)`, `equip(níveis)`, `grantXp(n)`, `endRound()`, `spawnElite()`, `toBossFrame()`, `killHero()`, `setHeroHp(f)`, `stillLife(lista)` (procure `window.gc.debug = {` em `apps/web/src/main.tsx`).
 - Capturas: script Node com o Playwright do repositório. O esqueleto abaixo funciona; guarde scripts e imagens fora do repositório.
 
 ```js

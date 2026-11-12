@@ -78,7 +78,7 @@ Convenções deste documento:
 
 ### 3.2 Loop de minutos (round)
 
-1. Fim do round: tela de loja (NPC "Mercador de Ossos"). Compra de itens, upgrade de arma, troca de arma, reroll, lock.
+1. Fim do round vencido: a loja abre sozinha (tela do "Mercador de Ossos"). Compra de equipamento, subida com fragmentos e relíquia, reroll, lock.
 2. Fechar a loja inicia o próximo round com transição de 3 s ("Round N" + número do bioma).
 3. A cada 10 rounds: round de chefe (sem timer, horda reduzida).
 4. Round comum sorteia elite (20%, com pity).
@@ -589,7 +589,7 @@ Pool de cartas de stat (peso igual): +5 HP máx, +4% dano, +5% velocidade de ata
 
 ## 17. Loja
 
-Decisão D05: tela entre rounds no PROTÓTIPO; NPC físico no ALPHA (a tela vira o diálogo do Mercador de Ossos).
+Decisão D05: tela entre rounds. O NPC físico do ALPHA saiu na v0.7.0 (ADR-0030): a tela é o diálogo do Mercador de Ossos.
 
 ### 17.1 Estrutura
 
@@ -620,11 +620,11 @@ Exemplos: peça de nível 1 (base 12) no round 1 = 14; peça de nível 6 (base 2
 - Na loja, cada slot de equipamento que já chegou ao nível 6 mostra o botão de subir um nível com material, no slot que o jogador escolher: nível 7 custa 2 fragmentos, o 8 custa 3, o 9 custa 4 e o 10 custa 1 relíquia (`equipment.json` `upgrades`). Sem o material a compra é recusada; fragmentos nunca pagam o nível 10 nem a relíquia paga os níveis 7 a 9.
 - O HUD (carteira) e a loja mostram os dois contadores; o checkpoint da run guarda os dois (`eliteFragments`, `relics`).
 
-### 17.3 Mercador de Ossos (NPC)
+### 17.3 Mercador de Ossos (S-21-03)
 
-- Visual: esqueleto alto com capa de couro e um carrinho de ossos; no ALPHA, surge parado a 6 u do herói ao fim do round (`rounds.json` `merchant.distance`), do lado oposto aos inimigos, com animação de "emerge do chão"; o herói anda até ele (A-05-01, decisão do Orq de 2026-10-31).
-- Voz (D24): ~20 falas (saudação, compra, sem ouro, reroll, lock, despedida, round de chefe à frente).
-- Pós-1.0: ofertas especiais do Mercador (1 item Lendário com desconto a cada 10 rounds).
+- A loja abre sozinha ao fim de cada round vencido, sem andar até ninguém (ADR-0030). O Mercador deixou o mapa: não há NPC físico, seta, aviso de falar nem espera de 20 s.
+- Na tela da loja ele continua com o retrato, uma fala sob o nome e a voz (D24): saudação ao abrir, compra, sem ouro, despedida e, a cada 12 s com o jogador parado na loja, um comentário.
+- Pós-1.0: ofertas especiais do Mercador (1 peça de nível alto com desconto a cada 10 rounds).
 
 > Velocidade do jogo (decisão do PO em 2026-10-31, para testes): 1x, 2x ou 3x em Opções > Gameplay, no botão do HUD e na tecla TAB (o PO pediu o TAB explicitamente; no HUD o foco por teclado vai pelas Opções). A simulação roda mais passos fixos por frame, sem mudar o `STEP`, então o determinismo se mantém. Vale em todos os builds, inclusive a demo; recordes e almas de runs aceleradas contam normalmente (revisável pelo PO).
 

@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { mulberry32 } from "@gc/core";
 import { addComponent, query } from "bitecs";
 import { expect, test } from "vitest";
-import { EnemyFaction, Fragment, PlayerFaction, Position } from "../ecs/components";
+import { EnemyFaction, Fragment, PlayerFaction } from "../ecs/components";
 import { createEventBuffer, EventType } from "../ecs/events";
 import { dropFragment } from "../ecs/fragments";
 import { createGameWorld, spawnBody } from "../ecs/world";
@@ -21,7 +21,7 @@ const enemies = (
 	JSON.parse(readFileSync(new URL("../../../../data/enemies.json", import.meta.url), "utf8")) as EnemyDef[]
 ).map((e) => ({ ...e, armor: 0, behavior: 0 }));
 
-function setup(autoShop = true) {
+function setup() {
 	const world = createGameWorld();
 	const hero = spawnBody(world, 0, 0);
 	addComponent(world, hero, PlayerFaction);
@@ -39,7 +39,6 @@ function setup(autoShop = true) {
 		events,
 		poolFor: () => [{ type: 0, weight: 1 }],
 		difficultyMult: 1,
-		autoShop: () => autoShop,
 	});
 	holder.run = run;
 	const step = (): void => run.run(world, hero);
@@ -149,39 +148,15 @@ test("pause freezes the timer; hero death goes Dying -> Results -> new run", () 
 	expect(run.state).toBe("RoundIntro");
 });
 
-test("without autoShop the outro leads to MerchantWait, the shop opens on enterShop or after the wait", () => {
-	const walk = setup(false);
-	walk.run.newRun();
-	walk.until("RoundOutro");
-	expect(walk.until("MerchantWait")).toBe(1 / STEP);
-	expect(walk.run.ticksLeft).toBe(rounds.flow.merchantWaitSeconds / STEP);
-	walk.run.enterShop();
-	expect(walk.run.state).toBe("Shop");
-	walk.run.closeShop();
-	expect(walk.run.state).toBe("RoundIntro");
-	walk.run.enterShop();
-	expect(walk.run.state).toBe("RoundIntro");
-
-	const idle = setup(false);
-	idle.run.newRun();
-	idle.until("MerchantWait");
-	expect(idle.until("Shop")).toBe(rounds.flow.merchantWaitSeconds / STEP);
-});
-
-test("the round end remembers where the enemies were on average", () => {
-	const { world, run, step, until } = setup(false);
+test("the outro leads straight to the shop, which opens by itself, and closing it starts the next round", () => {
+	const { run, until } = setup();
 	run.newRun();
-	until("Round");
-	for (let i = 0; i < 300; i++) step();
-	const live = [...query(world, [EnemyFaction])];
-	let x = 0;
-	let z = 0;
-	for (const e of live) {
-		x += Position.x[e] ?? 0;
-		z += Position.z[e] ?? 0;
-	}
-	run.forceEnd(world);
-	expect(run.lastEnemies.count).toBe(live.length);
-	expect(run.lastEnemies.x).toBeCloseTo(x / live.length);
-	expect(run.lastEnemies.z).toBeCloseTo(z / live.length);
+	until("RoundOutro");
+	expect(until("Shop")).toBe(1 / STEP);
+	expect(run.round).toBe(1);
+	run.closeShop();
+	expect(run.state).toBe("RoundIntro");
+	expect(run.round).toBe(2);
+	run.closeShop();
+	expect(run.round).toBe(2);
 });

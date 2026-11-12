@@ -27,7 +27,7 @@ export interface RenderPortOptions {
 	vfx?: Vfx;
 	/** Incoming marker of an elite (P-05-06b). */
 	elite?: EliteView;
-	/** Skeleton rigs (hero, Merchant, Gravedigger): animation events. */
+	/** Skeleton rigs (hero and bosses): animation events. */
 	characters?: Characters | undefined;
 	/** Called for every event after the built-in handlers (e.g. to invalidate render caches). */
 	onEvent?: ((type: number, a: number, b: number, c: number, entity: number) => void) | undefined;

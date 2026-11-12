@@ -115,8 +115,6 @@ export function runSim(options: SimOptions): SimReport {
 		seed: options.seed,
 		difficulty,
 		meta,
-		// The simulator opens the shop at once: no walk to the Merchant, no steps or randomness spent on it.
-		autoShop: true,
 		hero: heroDef.id,
 		...(options.weapon !== undefined && { weapon: options.weapon }),
 	});

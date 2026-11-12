@@ -88,6 +88,17 @@ const RAISED =
 const EMBER_BUTTON = `${RAISED} border-ember-light bg-linear-to-b from-ember to-rust text-night shadow-[0_4px_0_var(--color-mud)] hover:from-ember-light`;
 const IRON_BUTTON = `${RAISED} border-iron bg-linear-to-b from-iron to-iron-dark text-bone shadow-[0_4px_0_var(--color-night)] hover:border-iron-light`;
 
+/** "Raise to level 7 (2 fragments)": the cost is fragments, or a relic for level 10. */
+function upgradeLabel(upgrade: NonNullable<EquippedView["upgrade"]>): string {
+	return t("shop.upgradeTo", {
+		level: upgrade.next,
+		cost:
+			upgrade.relics > 0
+				? t("shop.costRelics", { count: upgrade.relics })
+				: t("shop.costFragments", { count: upgrade.fragments }),
+	});
+}
+
 function Bar({
 	value,
 	max,
@@ -136,9 +147,9 @@ function OfferRow({
 	actions: ShopActions;
 }): JSX.Element {
 	return (
-		<div className="mt-auto flex items-center gap-2">
+		<div className={short ? "flex shrink-0 items-center gap-1" : "mt-auto flex items-center gap-2"}>
 			<span
-				className={`flex ${short ? "" : "min-w-14"} items-center gap-1 font-display ${short ? "text-sm" : "text-lg"} ${slot.affordable ? "text-currency" : "text-danger"}`}
+				className={`flex ${short ? "" : "min-w-14"} items-center gap-1 font-display ${short ? "text-xs" : "text-lg"} ${slot.affordable ? "text-currency" : "text-danger"}`}
 			>
 				<span aria-hidden="true">●</span>
 				{slot.price}
@@ -149,7 +160,7 @@ function OfferRow({
 				disabled={slot.sold}
 				aria-label={slot.sold ? undefined : `${t("shop.buy")} ${slot.name} (${slot.price})`}
 				onClick={() => actions.buy(index)}
-				className={`h-9 min-w-0 flex-1 px-2 text-base desktop:h-11 desktop:text-lg ${slot.affordable ? EMBER_BUTTON : IRON_BUTTON}`}
+				className={`${short ? "h-8 px-1.5 text-xs" : "h-9 min-w-0 flex-1 px-2 text-base desktop:h-11 desktop:text-lg"} ${slot.affordable ? EMBER_BUTTON : IRON_BUTTON}`}
 			>
 				{slot.sold ? t("shop.sold") : t("shop.buy")}
 			</button>
@@ -160,7 +171,7 @@ function OfferRow({
 				aria-pressed={slot.locked}
 				aria-label={slot.locked ? t("shop.unlock") : t("shop.lock")}
 				onClick={() => actions.toggleLock(index)}
-				className={`flex h-9 shrink-0 items-center gap-1 px-2 text-sm desktop:h-11 desktop:px-3 ${IRON_BUTTON} ${slot.locked ? "border-ember text-ember-light" : ""}`}
+				className={`flex shrink-0 items-center gap-1 ${short ? "h-8 px-1.5 text-xs" : "h-9 px-2 text-sm desktop:h-11 desktop:px-3"} ${IRON_BUTTON} ${slot.locked ? "border-ember text-ember-light" : ""}`}
 			>
 				<span aria-hidden="true">{slot.locked ? "■" : "□"}</span>
 				<span className={short ? "sr-only" : ""}>{t("shop.lock")}</span>
@@ -219,7 +230,10 @@ export function Shop({
 				{/* Left: the hero, the equipment worn and the full stats. */}
 				<section className={`${PLATE} flex flex-col ${short ? "min-h-0 gap-1 p-1.5" : "gap-3 p-3"}`}>
 					{hero ? (
-						<div className="flex gap-3" data-testid="shop-hero">
+						<div
+							className={`flex ${short ? "flex-wrap gap-1" : "gap-3"}`}
+							data-testid="shop-hero"
+						>
 							<div
 								aria-hidden="true"
 								className={`hidden shrink-0 border-2 border-rust bg-night bg-[url(/portraits/hero.webp)] bg-cover mobile-l:block ${short ? "size-14" : "size-24 desktop:size-28"}`}
@@ -246,7 +260,7 @@ export function Shop({
 									label={`${hero.hp} / ${hero.maxHp}`}
 								/>
 							</div>
-							<div className="flex shrink-0 flex-col gap-1">
+							<div className={`flex ${short ? "w-full gap-1" : "shrink-0 flex-col gap-1"}`}>
 								<Counter icon="⚑">
 									{t("shop.round", { round: hero.round, boss: hero.bossRound })}
 								</Counter>
@@ -259,12 +273,12 @@ export function Shop({
 							<h2 className="mb-1 font-display text-base text-bone uppercase">
 								{t("shop.equipped")}
 							</h2>
-							<ul className="grid grid-cols-2 gap-1.5">
+							<ul className={`grid gap-1.5 ${short ? "grid-cols-3" : "grid-cols-2"}`}>
 								{equipped.map((piece, pieceIndex) => (
 									<li
 										key={piece.slot}
 										data-testid={`shop-equipped-${piece.slot}`}
-										className={`flex min-w-0 items-center gap-2 border-2 bg-night-2 ${short ? "p-0.5" : "p-1.5"} ${piece.level > 0 ? (TIER_BORDER[piece.tier] ?? "border-iron-dark") : "border-iron-dark"}`}
+										className={`flex min-w-0 items-center border-2 bg-night-2 ${short ? "gap-1 p-0.5" : "gap-2 p-1.5"} ${piece.level > 0 ? (TIER_BORDER[piece.tier] ?? "border-iron-dark") : "border-iron-dark"}`}
 									>
 										<div
 											aria-hidden="true"
@@ -276,12 +290,19 @@ export function Shop({
 										</div>
 										<div className="min-w-0">
 											<div
-												className={`truncate font-display text-bone ${short ? "text-xs" : "text-sm"}`}
+												className={`truncate font-display text-bone ${short ? "text-[10px]" : "text-sm"}`}
 											>
-												{piece.name}{" "}
+												<span className={short ? "sr-only" : ""}>{piece.name} </span>
 												<span className={TIER_TEXT[piece.tier] ?? "text-bone-dark"}>
-													{piece.level > 0
-														? t("shop.equipLevel", { level: piece.level })
+													{piece.level > 0 || short
+														? t(
+																short
+																	? "shop.equipLevelShort"
+																	: "shop.equipLevel",
+																{
+																	level: piece.level,
+																},
+															)
 														: t("shop.empty")}
 												</span>
 											</div>
@@ -297,23 +318,22 @@ export function Shop({
 													type="button"
 													data-testid={`shop-upgrade-${pieceIndex}`}
 													disabled={!piece.upgrade.affordable}
+													aria-label={upgradeLabel(piece.upgrade)}
 													onClick={() => actions.upgrade(pieceIndex)}
-													className={`mt-0.5 px-1.5 text-xs ${short ? "h-6" : "h-7"} pointer-coarse:min-h-10 ${piece.upgrade.affordable ? EMBER_BUTTON : IRON_BUTTON}`}
+													className={
+														short
+															? `mt-0.5 h-5 w-full border-2 font-display text-[10px] disabled:opacity-50 pointer-coarse:min-h-8 ${piece.upgrade.affordable ? "border-ember-light bg-ember text-night" : "border-iron bg-iron-dark text-bone-dark"}`
+															: `mt-0.5 h-7 px-1.5 text-xs pointer-coarse:min-h-10 ${piece.upgrade.affordable ? EMBER_BUTTON : IRON_BUTTON}`
+													}
 												>
-													{t("shop.upgradeTo", {
-														level: piece.upgrade.next,
-														cost:
-															piece.upgrade.relics > 0
-																? t("shop.costRelics", {
-																		count: piece.upgrade.relics,
-																	})
-																: t("shop.costFragments", {
-																		count: piece.upgrade.fragments,
-																	}),
-													})}
+													{short
+														? `▲${piece.upgrade.relics > 0 ? `${piece.upgrade.relics}★` : `${piece.upgrade.fragments}◆`}`
+														: upgradeLabel(piece.upgrade)}
 												</button>
 											) : piece.level >= 10 ? (
-												<span className="font-display text-ember-light text-xs uppercase">
+												<span
+													className={`font-display text-ember-light text-xs uppercase ${short ? "sr-only" : ""}`}
+												>
 													{t("shop.maxLevel")}
 												</span>
 											) : null}
@@ -348,8 +368,11 @@ export function Shop({
 							>
 								{t("shop.panel")}
 							</h2>
-							{quote && !short ? (
-								<p className="mt-1 border-iron-dark border-t-2 pt-1 font-body text-base text-bone italic">
+							{quote ? (
+								<p
+									data-testid="shop-quote"
+									className={`border-iron-dark border-t-2 font-body text-bone italic ${short ? "mt-0.5 truncate pt-0.5 text-xs" : "mt-1 pt-1 text-base"}`}
+								>
 									“{quote}”
 								</p>
 							) : null}
@@ -365,47 +388,75 @@ export function Shop({
 								data-testid={`shop-slot-${i}`}
 								aria-label={slot.name}
 								{...focusProps(i)}
-								className={`panel-riveted m-0 flex min-w-0 flex-col border-2 bg-linear-to-b from-iron-black to-night-2 ${short ? "gap-0.5 p-1" : "gap-2 p-3 desktop:gap-4 desktop:p-4 desktop:min-h-56"} ${TIER_BORDER[slot.tier] ?? "border-iron-dark"} ${slot.sold ? "opacity-40" : ""}`}
+								className={`panel-riveted m-0 flex min-w-0 border-2 bg-linear-to-b from-iron-black to-night-2 ${short ? "items-center gap-1 p-1" : "flex-col gap-2 p-3 desktop:gap-4 desktop:p-4 desktop:min-h-56"} ${TIER_BORDER[slot.tier] ?? "border-iron-dark"} ${slot.sold ? "opacity-40" : ""}`}
 							>
-								<div className="flex gap-3">
-									<div
-										className={`flex shrink-0 items-center justify-center border-2 bg-night ${TIER_BORDER[slot.tier] ?? "border-iron-dark"} ${short ? "size-10" : "size-16 desktop:size-20"}`}
-									>
-										{slot.icon ? (
-											<Icon
-												icon={slot.icon}
-												size={short ? 32 : desktopWide ? 64 : 48}
-											/>
-										) : null}
-									</div>
-									<div className="min-w-0 flex-1">
+								{short ? (
+									<>
 										<div
-											className={`font-display text-bone ${short ? "text-xs leading-tight" : "text-lg desktop:text-xl"}`}
+											className={`flex size-8 shrink-0 items-center justify-center border-2 bg-night ${TIER_BORDER[slot.tier] ?? "border-iron-dark"}`}
 										>
-											{slot.name}
+											{slot.icon ? <Icon icon={slot.icon} size={24} /> : null}
 										</div>
-										<div
-											className={`font-display text-xs uppercase ${TIER_TEXT[slot.tier] ?? "text-bone-dark"}`}
-										>
-											<span
-												className="rarity-mark"
-												data-tier={slot.tier}
-												data-testid={`rarity-mark-${i}`}
-												aria-hidden="true"
-											/>
-											{t(`rarity.${slot.tier}`)} ·{" "}
-											{t("shop.equipLevel", { level: slot.level })}
+										<div className="min-w-0 flex-1">
+											<div className="truncate font-display text-bone text-xs leading-tight">
+												<span
+													className="rarity-mark"
+													data-tier={slot.tier}
+													data-testid={`rarity-mark-${i}`}
+													aria-hidden="true"
+												/>
+												{slot.name}{" "}
+												<span className={TIER_TEXT[slot.tier] ?? "text-bone-dark"}>
+													{t("shop.equipLevelShort", { level: slot.level })}
+												</span>
+												<span className="sr-only"> {t(`rarity.${slot.tier}`)}</span>
+											</div>
+											<div className="line-clamp-2 font-body text-[10px] text-bone-dark leading-3">
+												{slot.lines.join(" · ")}
+											</div>
 										</div>
-										<ul
-											className={`mt-1 font-body text-bone-dark ${short ? "text-[11px] leading-tight" : "text-sm desktop:text-base"}`}
-										>
-											{slot.lines.map((line) => (
-												<li key={line}>{line}</li>
-											))}
-										</ul>
-									</div>
-								</div>
-								<OfferRow slot={slot} index={i} short={short} actions={actions} />
+										<OfferRow slot={slot} index={i} short={short} actions={actions} />
+									</>
+								) : (
+									<>
+										<div className="flex gap-3">
+											<div
+												className={`flex shrink-0 items-center justify-center border-2 bg-night ${TIER_BORDER[slot.tier] ?? "border-iron-dark"} size-16 desktop:size-20`}
+											>
+												{slot.icon ? (
+													<Icon icon={slot.icon} size={desktopWide ? 64 : 48} />
+												) : null}
+											</div>
+											<div className="min-w-0 flex-1">
+												<div
+													className={`font-display text-bone text-lg desktop:text-xl`}
+												>
+													{slot.name}
+												</div>
+												<div
+													className={`font-display text-xs uppercase ${TIER_TEXT[slot.tier] ?? "text-bone-dark"}`}
+												>
+													<span
+														className="rarity-mark"
+														data-tier={slot.tier}
+														data-testid={`rarity-mark-${i}`}
+														aria-hidden="true"
+													/>
+													{t(`rarity.${slot.tier}`)} ·{" "}
+													{t("shop.equipLevel", { level: slot.level })}
+												</div>
+												<ul
+													className={`mt-1 font-body text-bone-dark text-sm desktop:text-base`}
+												>
+													{slot.lines.map((line) => (
+														<li key={line}>{line}</li>
+													))}
+												</ul>
+											</div>
+										</div>
+										<OfferRow slot={slot} index={i} short={false} actions={actions} />
+									</>
+								)}
 							</fieldset>
 						))}
 					</div>

@@ -86,7 +86,7 @@ export interface GameAssets {
 	/** The authored floor strip (`atlas_terrain`), or null when the manifest has none (placeholder floor). */
 	terrain: BaseTexture | null;
 	props: Map<string, Mesh>;
-	/** The shared character atlas material, for models loaded outside the horde (hero, Merchant, bosses, weapons). */
+	/** The shared character atlas material, for models loaded outside the horde (hero, bosses, weapons). */
 	characterMaterial: StandardMaterial | null;
 	/** Clones of `characterMaterial` carrying the hero and boss contour colours; null without the character atlas. */
 	heroMaterial: StandardMaterial | null;

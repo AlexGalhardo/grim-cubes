@@ -3,7 +3,6 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import type { ComponentProps } from "react";
 import { afterEach, expect, test, vi } from "vitest";
 import { App, type HudState } from "./App";
-import { announcedSeconds } from "./components/MerchantPrompt/MerchantPrompt";
 import { effectiveUiScale } from "./hooks/useViewport";
 
 afterEach(cleanup);
@@ -48,10 +47,8 @@ const hud = (speed: number): HudState => ({
 	rerollKey: "KeyR",
 	inputDevice: "keyboard",
 	padReroll: 2,
-	padDash: 0,
 	padStyle: "xbox",
 	caption: null,
-	merchant: null,
 	colorblind: false,
 	menu: null,
 	speed,
@@ -425,52 +422,6 @@ test("a boss subtitle shows as a polite status and disappears with the caption",
 	expect(screen.queryByTestId("caption")).toBeNull();
 });
 
-test("the Merchant prompt points toward him, asks to walk while far and offers the talk action when near", () => {
-	const onTalk = vi.fn();
-	render(
-		<App
-			store={createStore({ ...hud(1), merchant: { angle: Math.PI / 2, near: false, secondsLeft: 12 } })}
-			onMerchantTalk={onTalk}
-		/>,
-	);
-	const prompt = screen.getByTestId("merchant-prompt") as HTMLButtonElement;
-	expect(prompt.textContent).toContain("Vá até o Mercador");
-	expect(prompt.disabled).toBe(true);
-	expect(screen.getByTestId("merchant-arrow").style.transform).toBe(`rotate(${Math.PI / 2}rad)`);
-	fireEvent.click(prompt);
-	expect(onTalk).not.toHaveBeenCalled();
-	cleanup();
-	render(
-		<App
-			store={createStore({ ...hud(1), merchant: { angle: 0, near: true, secondsLeft: 3 } })}
-			onMerchantTalk={onTalk}
-		/>,
-	);
-	const near = screen.getByTestId("merchant-prompt") as HTMLButtonElement;
-	expect(near.textContent).toContain("Fale com o Mercador [Enter]");
-	fireEvent.click(near);
-	expect(onTalk).toHaveBeenCalledTimes(1);
-});
-
-test("no Merchant prompt without a waiting Merchant", () => {
-	render(<App store={createStore(hud(1))} onMerchantTalk={vi.fn()} />);
-	expect(screen.queryByTestId("merchant-prompt")).toBeNull();
-});
-
-test("the Merchant prompt counts down and the screen reader hears it only every 5 seconds", () => {
-	render(
-		<App
-			store={createStore({ ...hud(1), merchant: { angle: 0, near: false, secondsLeft: 12 } })}
-			onMerchantTalk={vi.fn()}
-		/>,
-	);
-	expect(screen.getByTestId("merchant-countdown").textContent).toBe("Loja em 12 s");
-	expect(screen.getByTestId("merchant-announce").textContent).toBe("Loja em 15 s");
-	expect(screen.getByTestId("merchant-announce").getAttribute("aria-live")).toBe("polite");
-	expect(screen.getByTestId("merchant-countdown").getAttribute("aria-hidden")).toBe("true");
-	expect([20, 19, 16, 15, 14, 1, 0].map(announcedSeconds)).toEqual([20, 20, 20, 15, 15, 5, 0]);
-});
-
 test("the reroll hint names the keyboard key, or the pad button once the pad was used last", () => {
 	const cards = [{ id: "a", name: "A", double: false, rarity: 1, lines: [], changes: [] }];
 	render(
@@ -516,33 +467,16 @@ test("the hints name the buttons of the connected controller: PlayStation symbol
 			onRerollCards={vi.fn()}
 		/>,
 	);
-	expect(screen.getByTestId("levelup-reroll").textContent).toContain("[\u25A1]");
+	expect(screen.getByTestId("levelup-reroll").textContent).toContain("[□]");
 	cleanup();
 	render(
 		<App
-			store={createStore({
-				...hud(1),
-				inputDevice: "pad",
-				padStyle: "playstation",
-				merchant: { angle: 0, near: true, secondsLeft: 9 },
-			})}
-			onMerchantTalk={vi.fn()}
+			store={createStore({ ...hud(1), cards, cardRerolls: 1, inputDevice: "pad", padStyle: "xbox" })}
+			onChooseCard={vi.fn()}
+			onRerollCards={vi.fn()}
 		/>,
 	);
-	expect(screen.getByTestId("merchant-prompt").textContent).toContain("Fale com o Mercador [\u2715]");
-	cleanup();
-	render(
-		<App
-			store={createStore({
-				...hud(1),
-				inputDevice: "pad",
-				padStyle: "xbox",
-				merchant: { angle: 0, near: true, secondsLeft: 9 },
-			})}
-			onMerchantTalk={vi.fn()}
-		/>,
-	);
-	expect(screen.getByTestId("merchant-prompt").textContent).toContain("Fale com o Mercador [A]");
+	expect(screen.getByTestId("levelup-reroll").textContent).toContain("[X]");
 });
 
 test("the wishlist button is on the demo end, on the demo results and on the menu only with a handler", () => {

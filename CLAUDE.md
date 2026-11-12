@@ -37,7 +37,7 @@ Roguelite de sobrevivência em ondas, 3D voxel grimdark (medium poly pintado à 
 
 Até a fase ESTRUTURA concluir E-02, alguns scripts são stubs.
 
-Variável de build `GC_WISHLIST_URL` (`https://store.steampowered.com/app/<AppID>/...`): sem ela o botão "Wishlist na Steam" (menu, fim da demo e resultados da demo) não aparece. Com `GC_DEBUG_API=1` e `?debug=1` o `window.gc.debug` oferece atalhos de captura (`state()`, `killHero()`, `unlockHeroes()`, `grantGold()`, `openShop()` e outros; procure `window.gc.debug = {` em `apps/web/src/main.tsx`).
+Variável de build `GC_WISHLIST_URL` (`https://store.steampowered.com/app/<AppID>/...`): sem ela o botão "Wishlist na Steam" (menu, fim da demo e resultados da demo) não aparece. Com `GC_DEBUG_API=1` e `?debug=1` o `window.gc.debug` oferece atalhos de captura (`state()`, `killHero()`, `unlockHeroes()`, `grantGold()` e outros; procure `window.gc.debug = {` em `apps/web/src/main.tsx`).
 
 ## Arte 3D
 

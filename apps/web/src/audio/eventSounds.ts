@@ -107,8 +107,6 @@ export function soundFor(
 			return { ids: "sfx_boss_sweep", options: BOSS };
 		case EventType.BossBomb:
 			return { ids: "sfx_boss_bomb", options: BOSS };
-		case EventType.MerchantArrived:
-			return { ids: "sfx_merchant_arrive", options: ELITE };
 		case EventType.ConsumableDropped:
 			return { ids: "sfx_consumable_drop", options: HIT };
 		case EventType.EliteEscaped:

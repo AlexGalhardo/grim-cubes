@@ -48,8 +48,8 @@ function playUntilIntroOf(session: GameSession, target: number): void {
 	playOn(session, target);
 }
 
-const fresh = (autoShop: boolean): GameSession =>
-	createGameSession({ seed: identity.seed, difficulty, meta: createMetaState(), autoShop });
+const fresh = (): GameSession =>
+	createGameSession({ seed: identity.seed, difficulty, meta: createMetaState() });
 
 function summary(session: GameSession): unknown {
 	return {
@@ -77,7 +77,7 @@ async function throughTheSave(session: GameSession): Promise<RunCheckpoint> {
 }
 
 test("resuming is a pure function of the checkpoint: same save, same inputs, same world hash", async () => {
-	const live = fresh(true);
+	const live = fresh();
 	playUntilIntroOf(live, 3);
 	expect(live.shop.levels.reduce((a, b) => a + b, 0)).toBeGreaterThan(0);
 	live.progress.eliteFragments = 5;
@@ -87,7 +87,7 @@ test("resuming is a pure function of the checkpoint: same save, same inputs, sam
 	// Component arrays are module-global and entity ids repeat across worlds, so two live sessions would step on each
 	// other's bodies: replay one after the other and compare the recorded hashes.
 	const replay = (cp: RunCheckpoint): { hashes: number[]; end: unknown } => {
-		const session = fresh(true);
+		const session = fresh();
 		restoreCheckpoint(session, cp);
 		if (cp === checkpoint) {
 			expect(summary(session)).toEqual(summary(live));
@@ -104,22 +104,22 @@ test("resuming is a pure function of the checkpoint: same save, same inputs, sam
 	const b = replay(structuredClone(checkpoint));
 	expect(b.hashes).toEqual(a.hashes);
 	expect(b.end).toEqual(a.end);
-	expect(a.hashes[5]).not.toBe(hashWorld(fresh(true).world));
+	expect(a.hashes[5]).not.toBe(hashWorld(fresh().world));
 });
 
 test("a run interrupted at round N+1 and resumed reaches N+2 with the state of the run that never stopped", async () => {
-	const start = fresh(true);
+	const start = fresh();
 	playUntilIntroOf(start, 2);
 	const checkpoint = await throughTheSave(start);
 
 	// Continuous: from the checkpoint straight through round 2 and its shop to the start of round 3.
-	const continuous = fresh(true);
+	const continuous = fresh();
 	restoreCheckpoint(continuous, checkpoint);
 	playOn(continuous, 3);
 	const atRound3 = await throughTheSave(continuous);
 
 	// Interrupted: the same, but the game is closed and reopened at the start of round 3.
-	const reopened = fresh(true);
+	const reopened = fresh();
 	restoreCheckpoint(reopened, atRound3);
 	expect(summary(reopened)).toEqual(summary(continuous));
 	for (const name of RNG_STREAMS)
@@ -128,9 +128,9 @@ test("a run interrupted at round N+1 and resumed reaches N+2 with the state of t
 });
 
 test("the resumed run draws the same random numbers as the original would have", () => {
-	const live = fresh(true);
+	const live = fresh();
 	playUntilIntroOf(live, 2);
-	const resumed = fresh(true);
+	const resumed = fresh();
 	restoreCheckpoint(resumed, captureCheckpoint(live, identity));
 	for (const name of [
 		"spawn",
@@ -149,9 +149,9 @@ test("the resumed run draws the same random numbers as the original would have",
 });
 
 test("a checkpoint holds no enemies and the round restarts clean", () => {
-	const live = fresh(true);
+	const live = fresh();
 	playUntilIntroOf(live, 4);
-	const resumed = fresh(true);
+	const resumed = fresh();
 	restoreCheckpoint(resumed, captureCheckpoint(live, identity));
 	expect(resumed.run.round).toBe(4);
 	expect(resumed.run.state).toMatch(/Intro$/);
@@ -159,11 +159,11 @@ test("a checkpoint holds no enemies and the round restarts clean", () => {
 });
 
 test("an unknown weapon in the save is refused instead of starting a broken run", () => {
-	const live = fresh(true);
+	const live = fresh();
 	playUntilIntroOf(live, 2);
 	const cp = captureCheckpoint(live, identity);
 	cp.weapon.id = "no_such_weapon";
-	expect(() => restoreCheckpoint(fresh(true), cp)).toThrow("unknown weapon");
+	expect(() => restoreCheckpoint(fresh(), cp)).toThrow("unknown weapon");
 });
 
 test("the checkpoint keeps the hero: the passive is not saved as a pick, and another hero's save is refused", async () => {
@@ -171,7 +171,6 @@ test("the checkpoint keeps the hero: the passive is not saved as a pick, and ano
 		seed: identity.seed,
 		difficulty,
 		meta: createMetaState(),
-		autoShop: true,
 		hero: "ranged",
 	});
 	playUntilIntroOf(live, 2);
@@ -184,7 +183,6 @@ test("the checkpoint keeps the hero: the passive is not saved as a pick, and ano
 		seed: identity.seed,
 		difficulty,
 		meta: createMetaState(),
-		autoShop: true,
 		hero: "ranged",
 	});
 	restoreCheckpoint(again, checkpoint);
@@ -193,11 +191,11 @@ test("the checkpoint keeps the hero: the passive is not saved as a pick, and ano
 		expect(again.stats.modifiers.filter((x) => x.stat === m.stat)).toHaveLength(
 			live.stats.modifiers.filter((x) => x.stat === m.stat).length,
 		);
-	expect(() => restoreCheckpoint(fresh(true), checkpoint)).toThrow("hero ranged");
+	expect(() => restoreCheckpoint(fresh(), checkpoint)).toThrow("hero ranged");
 });
 
 test("the checkpoint keeps the combat clock and the daily date, and a resumed run keeps counting", async () => {
-	const live = fresh(true);
+	const live = fresh();
 	playUntilIntroOf(live, 2);
 	expect(live.runStats.seconds).toBeGreaterThan(0);
 	const meta = createMetaState();
@@ -205,7 +203,7 @@ test("the checkpoint keeps the combat clock and the daily date, and a resumed ru
 	const stored = (await parseSave(await serializeSave(meta, "0.0.0"))).run;
 	expect(stored?.daily).toBe("2026-11-11");
 	expect(stored?.seconds).toBe(Math.round(live.runStats.seconds));
-	const again = fresh(true);
+	const again = fresh();
 	if (!stored) throw new Error("the checkpoint did not survive the save");
 	restoreCheckpoint(again, stored);
 	expect(again.runStats.seconds).toBe(stored.seconds);

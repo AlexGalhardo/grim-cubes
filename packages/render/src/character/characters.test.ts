@@ -79,7 +79,7 @@ describe("boss rigs", () => {
 	it("fades the Alpha Hunter while stealthed and restores it on the reveal and on death", () => {
 		const { world, rigs, characters, boss, indexOf, dispose } = setup();
 		boss("alpha_hunter");
-		characters.sync(world, 1, 0.016, false);
+		characters.sync(world, 1, 0.016);
 		const rig = rigs[indexOf("alpha_hunter")];
 		characters.onEvent(EventType.BossStealth, 1, 0.15, 3, 0);
 		expect(rig?.alpha).toBe(0.15);
@@ -95,17 +95,17 @@ describe("boss rigs", () => {
 	it("shimmers a stealthed boss for a moment every half second", () => {
 		const { world, rigs, characters, boss, indexOf, dispose } = setup();
 		boss("alpha_hunter");
-		characters.sync(world, 1, 0.016, false);
+		characters.sync(world, 1, 0.016);
 		const rig = rigs[indexOf("alpha_hunter")];
 		characters.onEvent(EventType.BossStealth, 1, 0.15, 3, 0);
 		const seen = new Set<number>();
 		for (let i = 0; i < 90; i++) {
-			characters.sync(world, 1, 1 / 60, false);
+			characters.sync(world, 1, 1 / 60);
 			seen.add(rig?.alpha ?? 0);
 		}
 		expect([...seen].sort()).toEqual([0.15, 0.45]);
 		characters.onEvent(EventType.BossStealth, 0, 1, 0, 0);
-		characters.sync(world, 1, 1 / 60, false);
+		characters.sync(world, 1, 1 / 60);
 		expect(rig?.alpha).toBe(1);
 		dispose();
 	});
@@ -113,12 +113,12 @@ describe("boss rigs", () => {
 	it("arcs the leap up and back down over its airtime", () => {
 		const { world, rigs, characters, boss, indexOf, dispose } = setup();
 		boss("alpha_hunter");
-		characters.sync(world, 1, 0.016, false);
+		characters.sync(world, 1, 0.016);
 		characters.onEvent(EventType.BossLeap, 8, 8, 0.5, 0);
-		characters.sync(world, 1, 0.25, false);
+		characters.sync(world, 1, 0.25);
 		const peak = rigs[indexOf("alpha_hunter")]?.lift ?? 0;
 		expect(peak).toBeGreaterThan(2);
-		characters.sync(world, 1, 0.3, false);
+		characters.sync(world, 1, 0.3);
 		expect(rigs[indexOf("alpha_hunter")]?.lift).toBeCloseTo(0, 5);
 		dispose();
 	});
@@ -126,10 +126,10 @@ describe("boss rigs", () => {
 	it("lifts the Nest Queen in phase 2 and keeps the other bosses on the ground", () => {
 		const { world, rigs, characters, boss, indexOf, dispose } = setup();
 		const queen = boss("nest_queen");
-		characters.sync(world, 1, 0.016, false);
+		characters.sync(world, 1, 0.016);
 		expect(rigs[indexOf("nest_queen")]?.lift).toBe(0);
 		Boss.phase[queen] = 1;
-		for (let i = 0; i < 60; i++) characters.sync(world, 1, 0.05, false);
+		for (let i = 0; i < 60; i++) characters.sync(world, 1, 0.05);
 		expect(rigs[indexOf("nest_queen")]?.lift).toBeGreaterThan(1.5);
 		dispose();
 	});
