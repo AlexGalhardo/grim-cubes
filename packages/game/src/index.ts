@@ -44,6 +44,7 @@ export {
 	consumablesData,
 	elitesData,
 	enemiesData,
+	equipmentData,
 	heroData,
 	heroesData,
 	itemsData,
@@ -57,7 +58,6 @@ export {
 	synergiesData,
 	toBiomeDefs,
 	toEnemyDefs,
-	toShopWeapons,
 	weaponsData,
 	worldData,
 } from "./data";
@@ -128,6 +128,13 @@ export type { AuraEffect, EffectSource, EffectsExtra, ItemEffects } from "./rule
 export { computeEffects, createItemEffects } from "./rules/effects";
 export type { EliteRoller, EliteStats } from "./rules/elite";
 export { createEliteRoller, eliteStats } from "./rules/elite";
+export type {
+	EquipmentData,
+	EquipmentLevel,
+	EquipmentSlot,
+	EquipmentUpgrade,
+} from "./rules/equipment";
+export { equipmentModifiers, levelTier, MAX_EQUIPMENT_LEVEL } from "./rules/equipment";
 export type { FragmentsConfig, XpConfig } from "./rules/fragments";
 export { dropChance, harvestCount, xpForLevel } from "./rules/fragments";
 export type { GameSpeed } from "./rules/gameSpeed";
@@ -146,16 +153,8 @@ export {
 } from "./rules/ossuary";
 export type { RunStats } from "./rules/runstats";
 export { createRunStats, DamageOrigin } from "./rules/runstats";
-export type {
-	GenerateContext,
-	ShopCatalog,
-	ShopConfig,
-	ShopItem,
-	ShopSlot,
-	ShopWeapon,
-	TierChance,
-} from "./rules/shop";
-export { generateShop, rerollPrice, rollTier, sellValue, shopPrice, tierChance } from "./rules/shop";
+export type { GenerateContext, ShopConfig, ShopSlot } from "./rules/shop";
+export { generateShop, levelJump, rerollPrice, shopPrice } from "./rules/shop";
 export type { RunSummary, SoulsConfig } from "./rules/souls";
 export { soulsForRun } from "./rules/souls";
 export type { ClassSpells, HealSpell, SpellEffect, SuperSpell } from "./rules/spells";

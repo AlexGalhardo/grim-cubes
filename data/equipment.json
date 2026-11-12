@@ -1,0 +1,995 @@
+{
+	"goldMaxLevel": 6,
+	"upgrades": [
+		{
+			"level": 7,
+			"fragments": 2
+		},
+		{
+			"level": 8,
+			"fragments": 3
+		},
+		{
+			"level": 9,
+			"fragments": 4
+		},
+		{
+			"level": 10,
+			"relics": 1
+		}
+	],
+	"slots": [
+		{
+			"id": "helmet",
+			"name": "Capacete",
+			"levels": [
+				{
+					"level": 1,
+					"price": 12,
+					"modifiers": [
+						{
+							"stat": "armor",
+							"op": "add",
+							"value": 2
+						},
+						{
+							"stat": "crit_chance",
+							"op": "add",
+							"value": 0.01
+						}
+					]
+				},
+				{
+					"level": 2,
+					"price": 24,
+					"modifiers": [
+						{
+							"stat": "armor",
+							"op": "add",
+							"value": 4
+						},
+						{
+							"stat": "crit_chance",
+							"op": "add",
+							"value": 0.02
+						}
+					]
+				},
+				{
+					"level": 3,
+					"price": 45,
+					"modifiers": [
+						{
+							"stat": "armor",
+							"op": "add",
+							"value": 6
+						},
+						{
+							"stat": "crit_chance",
+							"op": "add",
+							"value": 0.03
+						}
+					]
+				},
+				{
+					"level": 4,
+					"price": 80,
+					"modifiers": [
+						{
+							"stat": "armor",
+							"op": "add",
+							"value": 8
+						},
+						{
+							"stat": "crit_chance",
+							"op": "add",
+							"value": 0.04
+						}
+					]
+				},
+				{
+					"level": 5,
+					"price": 130,
+					"modifiers": [
+						{
+							"stat": "armor",
+							"op": "add",
+							"value": 10
+						},
+						{
+							"stat": "crit_chance",
+							"op": "add",
+							"value": 0.05
+						}
+					]
+				},
+				{
+					"level": 6,
+					"price": 200,
+					"modifiers": [
+						{
+							"stat": "armor",
+							"op": "add",
+							"value": 12
+						},
+						{
+							"stat": "crit_chance",
+							"op": "add",
+							"value": 0.06
+						}
+					]
+				},
+				{
+					"level": 7,
+					"modifiers": [
+						{
+							"stat": "armor",
+							"op": "add",
+							"value": 15
+						},
+						{
+							"stat": "crit_chance",
+							"op": "add",
+							"value": 0.075
+						}
+					]
+				},
+				{
+					"level": 8,
+					"modifiers": [
+						{
+							"stat": "armor",
+							"op": "add",
+							"value": 18
+						},
+						{
+							"stat": "crit_chance",
+							"op": "add",
+							"value": 0.09
+						}
+					]
+				},
+				{
+					"level": 9,
+					"modifiers": [
+						{
+							"stat": "armor",
+							"op": "add",
+							"value": 21
+						},
+						{
+							"stat": "crit_chance",
+							"op": "add",
+							"value": 0.105
+						}
+					]
+				},
+				{
+					"level": 10,
+					"modifiers": [
+						{
+							"stat": "armor",
+							"op": "add",
+							"value": 24
+						},
+						{
+							"stat": "crit_chance",
+							"op": "add",
+							"value": 0.12
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "armor",
+			"name": "Armadura",
+			"levels": [
+				{
+					"level": 1,
+					"price": 12,
+					"modifiers": [
+						{
+							"stat": "max_hp",
+							"op": "add",
+							"value": 10
+						},
+						{
+							"stat": "hp_regen",
+							"op": "add",
+							"value": 0.1
+						}
+					]
+				},
+				{
+					"level": 2,
+					"price": 24,
+					"modifiers": [
+						{
+							"stat": "max_hp",
+							"op": "add",
+							"value": 20
+						},
+						{
+							"stat": "hp_regen",
+							"op": "add",
+							"value": 0.2
+						}
+					]
+				},
+				{
+					"level": 3,
+					"price": 45,
+					"modifiers": [
+						{
+							"stat": "max_hp",
+							"op": "add",
+							"value": 30
+						},
+						{
+							"stat": "hp_regen",
+							"op": "add",
+							"value": 0.3
+						}
+					]
+				},
+				{
+					"level": 4,
+					"price": 80,
+					"modifiers": [
+						{
+							"stat": "max_hp",
+							"op": "add",
+							"value": 40
+						},
+						{
+							"stat": "hp_regen",
+							"op": "add",
+							"value": 0.4
+						}
+					]
+				},
+				{
+					"level": 5,
+					"price": 130,
+					"modifiers": [
+						{
+							"stat": "max_hp",
+							"op": "add",
+							"value": 50
+						},
+						{
+							"stat": "hp_regen",
+							"op": "add",
+							"value": 0.5
+						}
+					]
+				},
+				{
+					"level": 6,
+					"price": 200,
+					"modifiers": [
+						{
+							"stat": "max_hp",
+							"op": "add",
+							"value": 60
+						},
+						{
+							"stat": "hp_regen",
+							"op": "add",
+							"value": 0.6
+						}
+					]
+				},
+				{
+					"level": 7,
+					"modifiers": [
+						{
+							"stat": "max_hp",
+							"op": "add",
+							"value": 75
+						},
+						{
+							"stat": "hp_regen",
+							"op": "add",
+							"value": 0.75
+						}
+					]
+				},
+				{
+					"level": 8,
+					"modifiers": [
+						{
+							"stat": "max_hp",
+							"op": "add",
+							"value": 90
+						},
+						{
+							"stat": "hp_regen",
+							"op": "add",
+							"value": 0.9
+						}
+					]
+				},
+				{
+					"level": 9,
+					"modifiers": [
+						{
+							"stat": "max_hp",
+							"op": "add",
+							"value": 105
+						},
+						{
+							"stat": "hp_regen",
+							"op": "add",
+							"value": 1.05
+						}
+					]
+				},
+				{
+					"level": 10,
+					"modifiers": [
+						{
+							"stat": "max_hp",
+							"op": "add",
+							"value": 120
+						},
+						{
+							"stat": "hp_regen",
+							"op": "add",
+							"value": 1.2
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "pants",
+			"name": "Calças",
+			"levels": [
+				{
+					"level": 1,
+					"price": 12,
+					"modifiers": [
+						{
+							"stat": "dodge",
+							"op": "add",
+							"value": 0.01
+						},
+						{
+							"stat": "max_hp",
+							"op": "add",
+							"value": 5
+						}
+					]
+				},
+				{
+					"level": 2,
+					"price": 24,
+					"modifiers": [
+						{
+							"stat": "dodge",
+							"op": "add",
+							"value": 0.02
+						},
+						{
+							"stat": "max_hp",
+							"op": "add",
+							"value": 10
+						}
+					]
+				},
+				{
+					"level": 3,
+					"price": 45,
+					"modifiers": [
+						{
+							"stat": "dodge",
+							"op": "add",
+							"value": 0.03
+						},
+						{
+							"stat": "max_hp",
+							"op": "add",
+							"value": 15
+						}
+					]
+				},
+				{
+					"level": 4,
+					"price": 80,
+					"modifiers": [
+						{
+							"stat": "dodge",
+							"op": "add",
+							"value": 0.04
+						},
+						{
+							"stat": "max_hp",
+							"op": "add",
+							"value": 20
+						}
+					]
+				},
+				{
+					"level": 5,
+					"price": 130,
+					"modifiers": [
+						{
+							"stat": "dodge",
+							"op": "add",
+							"value": 0.05
+						},
+						{
+							"stat": "max_hp",
+							"op": "add",
+							"value": 25
+						}
+					]
+				},
+				{
+					"level": 6,
+					"price": 200,
+					"modifiers": [
+						{
+							"stat": "dodge",
+							"op": "add",
+							"value": 0.06
+						},
+						{
+							"stat": "max_hp",
+							"op": "add",
+							"value": 30
+						}
+					]
+				},
+				{
+					"level": 7,
+					"modifiers": [
+						{
+							"stat": "dodge",
+							"op": "add",
+							"value": 0.075
+						},
+						{
+							"stat": "max_hp",
+							"op": "add",
+							"value": 37.5
+						}
+					]
+				},
+				{
+					"level": 8,
+					"modifiers": [
+						{
+							"stat": "dodge",
+							"op": "add",
+							"value": 0.09
+						},
+						{
+							"stat": "max_hp",
+							"op": "add",
+							"value": 45
+						}
+					]
+				},
+				{
+					"level": 9,
+					"modifiers": [
+						{
+							"stat": "dodge",
+							"op": "add",
+							"value": 0.105
+						},
+						{
+							"stat": "max_hp",
+							"op": "add",
+							"value": 52.5
+						}
+					]
+				},
+				{
+					"level": 10,
+					"modifiers": [
+						{
+							"stat": "dodge",
+							"op": "add",
+							"value": 0.12
+						},
+						{
+							"stat": "max_hp",
+							"op": "add",
+							"value": 60
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "boots",
+			"name": "Botas",
+			"levels": [
+				{
+					"level": 1,
+					"price": 12,
+					"modifiers": [
+						{
+							"stat": "speed",
+							"op": "add",
+							"value": 0.02
+						},
+						{
+							"stat": "pickup_range",
+							"op": "add",
+							"value": 0.03
+						}
+					]
+				},
+				{
+					"level": 2,
+					"price": 24,
+					"modifiers": [
+						{
+							"stat": "speed",
+							"op": "add",
+							"value": 0.04
+						},
+						{
+							"stat": "pickup_range",
+							"op": "add",
+							"value": 0.06
+						}
+					]
+				},
+				{
+					"level": 3,
+					"price": 45,
+					"modifiers": [
+						{
+							"stat": "speed",
+							"op": "add",
+							"value": 0.06
+						},
+						{
+							"stat": "pickup_range",
+							"op": "add",
+							"value": 0.09
+						}
+					]
+				},
+				{
+					"level": 4,
+					"price": 80,
+					"modifiers": [
+						{
+							"stat": "speed",
+							"op": "add",
+							"value": 0.08
+						},
+						{
+							"stat": "pickup_range",
+							"op": "add",
+							"value": 0.12
+						}
+					]
+				},
+				{
+					"level": 5,
+					"price": 130,
+					"modifiers": [
+						{
+							"stat": "speed",
+							"op": "add",
+							"value": 0.1
+						},
+						{
+							"stat": "pickup_range",
+							"op": "add",
+							"value": 0.15
+						}
+					]
+				},
+				{
+					"level": 6,
+					"price": 200,
+					"modifiers": [
+						{
+							"stat": "speed",
+							"op": "add",
+							"value": 0.12
+						},
+						{
+							"stat": "pickup_range",
+							"op": "add",
+							"value": 0.18
+						}
+					]
+				},
+				{
+					"level": 7,
+					"modifiers": [
+						{
+							"stat": "speed",
+							"op": "add",
+							"value": 0.15
+						},
+						{
+							"stat": "pickup_range",
+							"op": "add",
+							"value": 0.225
+						}
+					]
+				},
+				{
+					"level": 8,
+					"modifiers": [
+						{
+							"stat": "speed",
+							"op": "add",
+							"value": 0.18
+						},
+						{
+							"stat": "pickup_range",
+							"op": "add",
+							"value": 0.27
+						}
+					]
+				},
+				{
+					"level": 9,
+					"modifiers": [
+						{
+							"stat": "speed",
+							"op": "add",
+							"value": 0.21
+						},
+						{
+							"stat": "pickup_range",
+							"op": "add",
+							"value": 0.315
+						}
+					]
+				},
+				{
+					"level": 10,
+					"modifiers": [
+						{
+							"stat": "speed",
+							"op": "add",
+							"value": 0.24
+						},
+						{
+							"stat": "pickup_range",
+							"op": "add",
+							"value": 0.36
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "ring",
+			"name": "Anel",
+			"levels": [
+				{
+					"level": 1,
+					"price": 12,
+					"modifiers": [
+						{
+							"stat": "damage",
+							"op": "add",
+							"value": 0.03
+						},
+						{
+							"stat": "attack_speed",
+							"op": "add",
+							"value": 0.02
+						}
+					]
+				},
+				{
+					"level": 2,
+					"price": 24,
+					"modifiers": [
+						{
+							"stat": "damage",
+							"op": "add",
+							"value": 0.06
+						},
+						{
+							"stat": "attack_speed",
+							"op": "add",
+							"value": 0.04
+						}
+					]
+				},
+				{
+					"level": 3,
+					"price": 45,
+					"modifiers": [
+						{
+							"stat": "damage",
+							"op": "add",
+							"value": 0.09
+						},
+						{
+							"stat": "attack_speed",
+							"op": "add",
+							"value": 0.06
+						}
+					]
+				},
+				{
+					"level": 4,
+					"price": 80,
+					"modifiers": [
+						{
+							"stat": "damage",
+							"op": "add",
+							"value": 0.12
+						},
+						{
+							"stat": "attack_speed",
+							"op": "add",
+							"value": 0.08
+						}
+					]
+				},
+				{
+					"level": 5,
+					"price": 130,
+					"modifiers": [
+						{
+							"stat": "damage",
+							"op": "add",
+							"value": 0.15
+						},
+						{
+							"stat": "attack_speed",
+							"op": "add",
+							"value": 0.1
+						}
+					]
+				},
+				{
+					"level": 6,
+					"price": 200,
+					"modifiers": [
+						{
+							"stat": "damage",
+							"op": "add",
+							"value": 0.18
+						},
+						{
+							"stat": "attack_speed",
+							"op": "add",
+							"value": 0.12
+						}
+					]
+				},
+				{
+					"level": 7,
+					"modifiers": [
+						{
+							"stat": "damage",
+							"op": "add",
+							"value": 0.225
+						},
+						{
+							"stat": "attack_speed",
+							"op": "add",
+							"value": 0.15
+						}
+					]
+				},
+				{
+					"level": 8,
+					"modifiers": [
+						{
+							"stat": "damage",
+							"op": "add",
+							"value": 0.27
+						},
+						{
+							"stat": "attack_speed",
+							"op": "add",
+							"value": 0.18
+						}
+					]
+				},
+				{
+					"level": 9,
+					"modifiers": [
+						{
+							"stat": "damage",
+							"op": "add",
+							"value": 0.315
+						},
+						{
+							"stat": "attack_speed",
+							"op": "add",
+							"value": 0.21
+						}
+					]
+				},
+				{
+					"level": 10,
+					"modifiers": [
+						{
+							"stat": "damage",
+							"op": "add",
+							"value": 0.36
+						},
+						{
+							"stat": "attack_speed",
+							"op": "add",
+							"value": 0.24
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "amulet",
+			"name": "Amuleto",
+			"levels": [
+				{
+					"level": 1,
+					"price": 12,
+					"modifiers": [
+						{
+							"stat": "luck",
+							"op": "add",
+							"value": 3
+						},
+						{
+							"stat": "harvest",
+							"op": "add",
+							"value": 0.4
+						}
+					]
+				},
+				{
+					"level": 2,
+					"price": 24,
+					"modifiers": [
+						{
+							"stat": "luck",
+							"op": "add",
+							"value": 6
+						},
+						{
+							"stat": "harvest",
+							"op": "add",
+							"value": 0.8
+						}
+					]
+				},
+				{
+					"level": 3,
+					"price": 45,
+					"modifiers": [
+						{
+							"stat": "luck",
+							"op": "add",
+							"value": 9
+						},
+						{
+							"stat": "harvest",
+							"op": "add",
+							"value": 1.2
+						}
+					]
+				},
+				{
+					"level": 4,
+					"price": 80,
+					"modifiers": [
+						{
+							"stat": "luck",
+							"op": "add",
+							"value": 12
+						},
+						{
+							"stat": "harvest",
+							"op": "add",
+							"value": 1.6
+						}
+					]
+				},
+				{
+					"level": 5,
+					"price": 130,
+					"modifiers": [
+						{
+							"stat": "luck",
+							"op": "add",
+							"value": 15
+						},
+						{
+							"stat": "harvest",
+							"op": "add",
+							"value": 2
+						}
+					]
+				},
+				{
+					"level": 6,
+					"price": 200,
+					"modifiers": [
+						{
+							"stat": "luck",
+							"op": "add",
+							"value": 18
+						},
+						{
+							"stat": "harvest",
+							"op": "add",
+							"value": 2.4
+						}
+					]
+				},
+				{
+					"level": 7,
+					"modifiers": [
+						{
+							"stat": "luck",
+							"op": "add",
+							"value": 22.5
+						},
+						{
+							"stat": "harvest",
+							"op": "add",
+							"value": 3
+						}
+					]
+				},
+				{
+					"level": 8,
+					"modifiers": [
+						{
+							"stat": "luck",
+							"op": "add",
+							"value": 27
+						},
+						{
+							"stat": "harvest",
+							"op": "add",
+							"value": 3.6
+						}
+					]
+				},
+				{
+					"level": 9,
+					"modifiers": [
+						{
+							"stat": "luck",
+							"op": "add",
+							"value": 31.5
+						},
+						{
+							"stat": "harvest",
+							"op": "add",
+							"value": 4.2
+						}
+					]
+				},
+				{
+					"level": 10,
+					"modifiers": [
+						{
+							"stat": "luck",
+							"op": "add",
+							"value": 36
+						},
+						{
+							"stat": "harvest",
+							"op": "add",
+							"value": 4.8
+						}
+					]
+				}
+			]
+		}
+	]
+}

@@ -76,17 +76,18 @@ test("hp_regen heals the hero during a round by the GDD formula and never above 
 	expect(Health.hp[hero] ?? 0).toBeLessThanOrEqual(Health.max[hero] ?? 0);
 });
 
-test("buying an item moves its tag progress through the session", () => {
+test("buying equipment in the session raises the hero's stats and survives a restart of the stats pass", () => {
 	const session = createGameSession({ seed: 5, difficulty, meta: createMetaState() });
 	session.run.newRun();
 	session.progress.gold = 1_000_000;
 	session.shop.open();
-	for (let i = 0; i < 6; i++) session.shop.buy(i);
-	const bought = [...session.owned.keys()];
-	expect(bought.length).toBeGreaterThan(0);
-	expect(session.synergies.states.reduce((sum, s) => sum + s.count, 0)).toBeGreaterThanOrEqual(
-		bought.length,
-	);
+	const armorBefore = session.stats.stats.armor;
+	const maxHpBefore = session.stats.stats.maxHp;
+	for (let i = 0; i < session.shop.slots.length; i++) session.shop.buy(i);
+	session.stats.run(session.hero);
+	expect(session.shop.levels.every((level) => level > 0)).toBe(true);
+	expect(session.stats.stats.armor).toBeGreaterThan(armorBefore);
+	expect(session.stats.stats.maxHp).toBeGreaterThan(maxHpBefore);
 });
 
 test("every hero starts the run with its own weapon, base stats and passive", () => {

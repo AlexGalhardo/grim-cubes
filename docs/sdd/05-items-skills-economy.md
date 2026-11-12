@@ -22,7 +22,8 @@ Os loaders importam os JSON (`resolveJsonModule`; `rootDir: "../.."` só no `tsc
 | `cards.json` | 12 cartas de level-up + regra de carta dupla |
 | `ossuary.json` | os preços da árvore de magias (`levelCosts`, um por nível de 2 a 10) e o corte da demo (`demoMaxLevel`); os nós saem de `spells.json` (S-22-01) |
 | `spells.json` | as seis magias de cada classe (4 automáticas, cura e super), a escala por nível e a carga da super (S-20-02) |
-| `rounds.json` | duração, fluxo da run, chefe (enrage, horda, dano), IA (`ai`), fórmulas de spawn, mistura de biomas, chance de tier, fragmentos, XP, loja, almas, dificuldades |
+| `rounds.json` | duração, fluxo da run, chefe (enrage, horda, dano), IA (`ai`), fórmulas de spawn, mistura de biomas, fragmentos, XP, loja (saltos de nível e fatores de preço), almas, dificuldades |
+| `equipment.json` | 6 slots de equipamento, 10 níveis cada com os atributos e o preço em ouro até `goldMaxLevel`, e o custo em materiais dos níveis acima |
 | `biomes.json` | ver SDD 03 |
 
 Modificadores de stat usam um formato único:
@@ -41,12 +42,12 @@ Objeto plano recalculado quando `dirty` (compra, carta, nó do Ossuário, item):
 
 ## 3. Loja
 
-Estado `ShopState { slots: Slot[4], rerollCount, locked: boolean[4], gold }`.
+A loja vende só equipamento (ADR-0030, S-21; `data/equipment.json`, GDD §17). `createShopSystem` guarda `levels[]` (nível de 0 a 10 de cada slot, na ordem do arquivo), as ofertas `ShopSlot { slot, level, price, locked, sold }` e o contador de rerolls.
 
-- `generateShop(rng.shop, round, hero, locked)`: para cada slot não travado: 35% arma (se arma atual < T4, 50% desse ramo vira "upgrade da arma atual"; senão arma nova do pool liberado por `unlockRound`), 65% item com tier sorteado por `rules/tier.ts` (GDD §15.2) e item sorteado dentro do tier sem repetir no mesmo shop. Rounds 1–2: garantia 1 arma + 3 itens.
-- `price(base, round, shopPrice%)` e `rerollPrice(round, k)` em `rules/shop.ts` (fórmulas GDD §17.2), com testes de tabela (valores do Brotato como oráculo).
-- Comprar arma: vende a atual por 50% do preço pago (guardado em `hero.weaponPaid`), substitui, `dirty`.
-- Lock: grátis; slot travado sobrevive à próxima loja com o mesmo preço.
+- `generateShop(ctx, keep)` (`rules/shop.ts`): uma oferta por slot ainda abaixo de `goldMaxLevel`, de nível `equipado + 1 + salto`, com `salto` sorteado em `0..min(maxJump, floor(round / jumpEveryRounds))` no stream `shop` (a sorte dá um segundo sorteio, fica o maior) e no máximo `goldMaxLevel`: nunca peça pior que a equipada. Ofertas travadas e ainda válidas sobrevivem.
+- `shopPrice(base, round, shopPrice%)` e `rerollPrice(round, k)` em `rules/shop.ts` (fórmulas GDD §17.2); `base` é o preço do nível em `equipment.json`.
+- Comprar: iguala `levels[slot]` ao nível da oferta, paga o preço e chama `stats.setEquipment(equipmentModifiers(...))`. Os atributos da peça substituem os da anterior; ficam fora de `stats.modifiers`, então o checkpoint guarda os níveis, não modificadores.
+- Lock: grátis; oferta travada sobrevive à próxima loja com o mesmo preço enquanto o nível ainda for maior que o equipado.
 
 ## 4. Level-up
 

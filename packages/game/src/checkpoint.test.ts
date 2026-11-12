@@ -60,6 +60,7 @@ function summary(session: GameSession): unknown {
 		hp: Health.hp[session.hero],
 		kills: session.runStats.kills,
 		owned: [...session.owned],
+		equipment: [...session.shop.levels],
 		weapon: [session.weapon.weapon.id, session.weapon.tier],
 		bag: session.run.bag.value,
 	};
@@ -77,7 +78,7 @@ async function throughTheSave(session: GameSession): Promise<RunCheckpoint> {
 test("resuming is a pure function of the checkpoint: same save, same inputs, same world hash", async () => {
 	const live = fresh(true);
 	playUntilIntroOf(live, 3);
-	expect(live.owned.size + live.weapon.tier).toBeGreaterThan(0);
+	expect(live.shop.levels.reduce((a, b) => a + b, 0)).toBeGreaterThan(0);
 	const checkpoint = await throughTheSave(live);
 
 	// Component arrays are module-global and entity ids repeat across worlds, so two live sessions would step on each

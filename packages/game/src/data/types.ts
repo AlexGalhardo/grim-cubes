@@ -1,5 +1,5 @@
 import type { FragmentsConfig, XpConfig } from "../rules/fragments";
-import type { ShopConfig, TierChance } from "../rules/shop";
+import type { ShopConfig } from "../rules/shop";
 import type { Modifier } from "../rules/stats";
 import type { RunConfig } from "../systems/round";
 import type { SpawnConfig } from "../systems/spawn";
@@ -133,7 +133,6 @@ export interface RoundsData {
 	xp: XpConfig;
 	shop: ShopConfig;
 	souls: { perRound: number; perElite: number };
-	tierChance: TierChance[];
 	difficulties: DifficultyData[];
 }
 

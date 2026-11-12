@@ -1,44 +1,31 @@
 import type { Described } from "@gc/core";
 import { describeModifier } from "../rules/describe";
+import { type EquipmentData, equipmentModifiers, levelTier } from "../rules/equipment";
 import {
 	type GenerateContext,
 	generateShop,
 	rerollPrice,
-	type ShopCatalog,
 	type ShopConfig,
 	type ShopRng,
 	type ShopSlot,
-	sellValue,
-	type TierChance,
 } from "../rules/shop";
 import type { Progress } from "./loot";
 import type { StatsSystem } from "./stats";
-import type { WeaponDef, WeaponSystem } from "./weapon";
 
 export interface ShopSystemDeps {
 	config: ShopConfig;
-	tiers: readonly TierChance[];
-	catalog: ShopCatalog;
-	/** Full weapon defs by id, used when a weapon is bought. */
-	weaponDefs: readonly WeaponDef[];
+	equipment: EquipmentData;
 	/** The `shop` RNG stream. */
 	rng: ShopRng;
 	progress: Progress;
 	stats: StatsSystem;
-	weapon: WeaponSystem;
 	round: () => number;
-	/** Inventory map shared with the effects system; created here when omitted. */
-	owned?: Map<string, number>;
-	/** Ossuary: Uncommon item slots every shop visit must hold. */
-	guaranteedUncommon?: number | undefined;
-	/** Called after an item is bought, so effects can be recomputed. */
-	onItemBought?: () => void;
 }
 
 export interface ShopSlotView {
-	kind: ShopSlot["kind"];
-	id: string;
-	name: string;
+	/** Equipment slot id (`helmet`, `ring`, ...). */
+	slot: string;
+	level: number;
 	/** Effect lines as keys and parameters, e.g. +3 armor; the UI translates them. */
 	lines: Described[];
 	price: number;
@@ -58,13 +45,11 @@ export interface ShopSystem {
 	readonly slots: readonly ShopSlot[];
 	/** Price of the next reroll. */
 	readonly rerollPrice: number;
-	/** Items owned this run, by id. */
-	readonly owned: ReadonlyMap<string, number>;
-	/** Total paid for the weapon in hand, including upgrades (half is refunded when it is replaced). */
-	readonly paid: number;
-	/** Puts back what was paid for the weapon in hand (a resumed run). */
-	restorePaid(value: number): void;
-	/** Draws the offers for the current round, keeping locked slots, and resets the reroll counter. */
+	/** Level equipped in each slot of `equipment.json`, 0 when empty. */
+	readonly levels: readonly number[];
+	/** Puts back the equipped levels (a resumed run). */
+	restoreLevels(levels: readonly number[]): void;
+	/** Draws the offers for the current round, keeping locked ones, and resets the reroll counter. */
 	open(): void;
 	buy(index: number): boolean;
 	reroll(): boolean;
@@ -73,47 +58,25 @@ export interface ShopSystem {
 }
 
 export function createShopSystem(deps: ShopSystemDeps): ShopSystem {
-	const { config, tiers, catalog, weaponDefs, rng, progress, stats, weapon, round, guaranteedUncommon } =
-		deps;
-	const owned = deps.owned ?? new Map<string, number>();
+	const { config, equipment, rng, progress, stats, round } = deps;
+	const levels: number[] = equipment.slots.map(() => 0);
 	let slots: ShopSlot[] = [];
 	let rerolls = 0;
-	// The starting weapon was free, so selling it returns nothing.
-	let paid = 0;
 
-	/** `opening`: the Ossuary guarantee only shapes the first offer of a visit (GDD 19.1), never a reroll. */
-	const context = (opening = false): GenerateContext => ({
+	const context = (): GenerateContext => ({
 		config,
-		tiers,
-		catalog,
+		equipment,
 		rng,
 		round: round(),
 		luck: stats.stats.luck,
 		shopPrice: stats.stats.shopPrice,
-		currentWeapon: { id: weapon.weapon.id ?? "", tier: weapon.tier, maxTier: weapon.maxTier },
-		...(opening && guaranteedUncommon ? { guaranteedUncommon } : {}),
+		levels,
 	});
 	const nextRerollPrice = (): number => {
 		const free = stats.stats.freeRerolls;
 		return rerolls < free ? 0 : rerollPrice(config, round(), rerolls - free + 1);
 	};
-
-	function describe(slot: ShopSlot): { name: string; lines: Described[]; tier: number } {
-		if (slot.kind === "item") {
-			const item = catalog.items.find((i) => i.id === slot.id);
-			return {
-				name: item?.name ?? slot.id,
-				lines: (item?.modifiers ?? []).map(describeModifier),
-				tier: item?.tier ?? 1,
-			};
-		}
-		const w = catalog.weapons.find((x) => x.id === slot.id);
-		return {
-			name: slot.kind === "upgrade" ? `${w?.name ?? slot.id} +` : (w?.name ?? slot.id),
-			lines: [],
-			tier: 1,
-		};
-	}
+	const applyEquipment = (): void => stats.setEquipment(equipmentModifiers(equipment, levels));
 
 	return {
 		get slots(): readonly ShopSlot[] {
@@ -122,38 +85,26 @@ export function createShopSystem(deps: ShopSystemDeps): ShopSystem {
 		get rerollPrice(): number {
 			return nextRerollPrice();
 		},
-		owned,
-		get paid(): number {
-			return paid;
-		},
-		restorePaid(value: number): void {
-			paid = value;
+		levels,
+		restoreLevels(saved: readonly number[]): void {
+			equipment.slots.forEach((slot, i) => {
+				levels[i] = Math.min(Math.max(0, saved[i] ?? 0), slot.levels.length);
+			});
+			applyEquipment();
 		},
 		open(): void {
 			rerolls = 0;
-			slots = generateShop(context(true), slots);
+			slots = generateShop(context(), slots);
 		},
 		buy(index: number): boolean {
-			const slot = slots[index];
-			if (!slot || slot.sold || progress.gold < slot.price) return false;
-			if (slot.kind === "item") {
-				const item = catalog.items.find((i) => i.id === slot.id);
-				if (!item) return false;
-				stats.add(item.modifiers);
-				owned.set(item.id, (owned.get(item.id) ?? 0) + 1);
-				deps.onItemBought?.();
-			} else if (slot.kind === "weapon") {
-				const def = weaponDefs.find((w) => w.id === slot.id);
-				if (!def) return false;
-				progress.gold += sellValue(config, paid);
-				weapon.setWeapon(def, 0);
-				paid = slot.price;
-			} else {
-				if (!weapon.upgrade()) return false;
-				paid += slot.price;
-			}
-			progress.gold -= slot.price;
-			slots[index] = { ...slot, sold: true, locked: false };
+			const offer = slots[index];
+			if (!offer || offer.sold || progress.gold < offer.price) return false;
+			// A stale offer (the slot moved past it since) is never sold: the shop does not sell a worse piece.
+			if (offer.level <= (levels[offer.slot] ?? 0)) return false;
+			levels[offer.slot] = offer.level;
+			applyEquipment();
+			progress.gold -= offer.price;
+			slots[index] = { ...offer, sold: true, locked: false };
 			return true;
 		},
 		reroll(): boolean {
@@ -165,25 +116,23 @@ export function createShopSystem(deps: ShopSystemDeps): ShopSystem {
 			return true;
 		},
 		toggleLock(index: number): void {
-			const slot = slots[index];
-			if (slot && !slot.sold) slots[index] = { ...slot, locked: !slot.locked };
+			const offer = slots[index];
+			if (offer && !offer.sold) slots[index] = { ...offer, locked: !offer.locked };
 		},
 		view(): ShopView {
 			return {
-				slots: slots.map((slot) => {
-					const info = describe(slot);
-					return {
-						kind: slot.kind,
-						id: slot.id,
-						name: info.name,
-						lines: info.lines,
-						price: slot.price,
-						tier: info.tier,
-						locked: slot.locked,
-						sold: slot.sold,
-						affordable: progress.gold >= slot.price,
-					};
-				}),
+				slots: slots.map((offer) => ({
+					slot: equipment.slots[offer.slot]?.id ?? "",
+					level: offer.level,
+					lines: (equipment.slots[offer.slot]?.levels[offer.level - 1]?.modifiers ?? []).map(
+						describeModifier,
+					),
+					price: offer.price,
+					tier: levelTier(offer.level),
+					locked: offer.locked,
+					sold: offer.sold,
+					affordable: progress.gold >= offer.price,
+				})),
 				rerollPrice: nextRerollPrice(),
 				gold: Math.floor(progress.gold),
 			};

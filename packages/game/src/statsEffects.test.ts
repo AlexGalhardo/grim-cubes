@@ -286,8 +286,8 @@ test("harvest pays extra fragments when the round ends", () => {
 test("shopPrice, luck and freeRerolls shape the shop", () => {
 	const shopOf = (mods: readonly Modifier[]) => {
 		const { session, input } = arena(mods);
-		// Higher tiers only appear from later rounds, where luck has something to shift.
-		session.run.setRound(20);
+		// Skipped levels only appear from later rounds, where luck has something to shift.
+		session.run.setRound(40);
 		session.run.forceEnd(session.world);
 		while (session.run.state !== "Shop") session.step(input);
 		session.step(input);
@@ -303,7 +303,7 @@ test("shopPrice, luck and freeRerolls shape the shop", () => {
 		let sum = 0;
 		for (let i = 0; i < 80; i++) {
 			s.shop.reroll();
-			sum += s.shop.view().slots.reduce((acc, slot) => acc + slot.tier, 0);
+			sum += s.shop.view().slots.reduce((acc, slot) => acc + slot.level, 0);
 		}
 		return sum;
 	};

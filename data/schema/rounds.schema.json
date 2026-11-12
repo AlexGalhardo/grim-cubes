@@ -9,7 +9,6 @@
 		"ai",
 		"biomeMix",
 		"difficulties",
-		"tierChance",
 		"fragments",
 		"xp",
 		"shop",
@@ -55,11 +54,26 @@
 			"required": ["distance", "arriveSeconds", "leaveSeconds", "openRadius", "talkRadius"],
 			"additionalProperties": false,
 			"properties": {
-				"distance": { "type": "number", "minimum": 2 },
-				"arriveSeconds": { "type": "number", "minimum": 0 },
-				"leaveSeconds": { "type": "number", "minimum": 0 },
-				"openRadius": { "type": "number", "minimum": 0.5 },
-				"talkRadius": { "type": "number", "minimum": 0.5 }
+				"distance": {
+					"type": "number",
+					"minimum": 2
+				},
+				"arriveSeconds": {
+					"type": "number",
+					"minimum": 0
+				},
+				"leaveSeconds": {
+					"type": "number",
+					"minimum": 0
+				},
+				"openRadius": {
+					"type": "number",
+					"minimum": 0.5
+				},
+				"talkRadius": {
+					"type": "number",
+					"minimum": 0.5
+				}
 			}
 		},
 		"duration": {
@@ -390,46 +404,23 @@
 		"shop": {
 			"type": "object",
 			"required": [
-				"slots",
-				"weaponChance",
-				"upgradeChance",
-				"guaranteedWeapons",
-				"guaranteedItems",
-				"guaranteeUntilRound",
-				"sellFraction",
+				"jumpEveryRounds",
+				"maxJump",
 				"priceBaseRoundFactor",
 				"rerollIncFactor",
 				"rerollFirstFactor"
 			],
 			"additionalProperties": false,
 			"properties": {
-				"slots": {
-					"type": "number",
-					"minimum": 0
+				"jumpEveryRounds": {
+					"type": "integer",
+					"minimum": 1,
+					"description": "Rounds per extra level an offer may jump above the equipped one."
 				},
-				"weaponChance": {
-					"type": "number",
-					"minimum": 0
-				},
-				"upgradeChance": {
-					"type": "number",
-					"minimum": 0
-				},
-				"guaranteedWeapons": {
-					"type": "number",
-					"minimum": 0
-				},
-				"guaranteedItems": {
-					"type": "number",
-					"minimum": 0
-				},
-				"guaranteeUntilRound": {
-					"type": "number",
-					"minimum": 0
-				},
-				"sellFraction": {
-					"type": "number",
-					"minimum": 0
+				"maxJump": {
+					"type": "integer",
+					"minimum": 0,
+					"description": "Most extra levels an offer may jump."
 				},
 				"priceBaseRoundFactor": {
 					"type": "number",
@@ -492,37 +483,6 @@
 								"minimum": 1
 							}
 						}
-					}
-				}
-			}
-		},
-		"tierChance": {
-			"type": "array",
-			"minItems": 1,
-			"items": {
-				"type": "object",
-				"required": ["tier", "base", "perRound", "cap", "minRound"],
-				"additionalProperties": false,
-				"properties": {
-					"tier": {
-						"$ref": "common.schema.json#/$defs/tier"
-					},
-					"base": {
-						"type": "number",
-						"minimum": 0
-					},
-					"perRound": {
-						"type": "number",
-						"minimum": 0
-					},
-					"cap": {
-						"type": "number",
-						"minimum": 0,
-						"maximum": 1
-					},
-					"minRound": {
-						"type": "integer",
-						"minimum": 1
 					}
 				}
 			}

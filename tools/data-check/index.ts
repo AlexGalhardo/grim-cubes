@@ -291,6 +291,7 @@ const EXPECTED_FILES = [
 	"elites",
 	"bosses",
 	"weapons",
+	"equipment",
 	"items",
 	"cards",
 	"ossuary",
@@ -466,13 +467,24 @@ export function selfTest(
 			},
 		],
 		[
-			"rounds: duplicate tier",
+			"equipment: a gold level without a price",
 			(d) => {
-				const r = d["rounds.json"];
-				if (isObject(r)) {
-					const t = asArray(r.tierChance);
-					if (t[1] && t[0]) t[1].tier = t[0].tier as number;
-				}
+				const level = asArray(asArray((d["equipment.json"] as JsonObject).slots)[0]?.levels)[0];
+				if (level) delete level.price;
+			},
+		],
+		[
+			"equipment: a material level without a cost",
+			(d) => {
+				const e = d["equipment.json"];
+				if (isObject(e)) e.upgrades = asArray(e.upgrades).slice(1);
+			},
+		],
+		[
+			"equipment: levels out of order",
+			(d) => {
+				const levels = asArray(asArray((d["equipment.json"] as JsonObject).slots)[0]?.levels);
+				if (levels[1]) levels[1].level = 5;
 			},
 		],
 		[

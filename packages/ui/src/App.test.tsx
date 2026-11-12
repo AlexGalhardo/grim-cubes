@@ -307,8 +307,8 @@ test("colour-blind mode puts data-theme cb on the HUD root and the shop shows a 
 		rerollPrice: 5,
 		slots: [
 			{
-				kind: "item" as const,
-				id: "a",
+				slot: "helmet",
+				level: 1,
 				name: "A",
 				lines: [],
 				price: 1,

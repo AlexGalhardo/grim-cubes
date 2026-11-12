@@ -1,60 +1,28 @@
-import type { Modifier } from "./stats";
+import type { EquipmentData } from "./equipment";
 
 /** `data/rounds.json` `shop` block. */
 export interface ShopConfig {
-	slots: number;
-	weaponChance: number;
-	upgradeChance: number;
-	guaranteedWeapons: number;
-	guaranteedItems: number;
-	guaranteeUntilRound: number;
-	sellFraction: number;
+	/** Rounds per extra level an offer may jump above the equipped one. */
+	jumpEveryRounds: number;
+	/** Most extra levels an offer may jump. */
+	maxJump: number;
 	priceBaseRoundFactor: number;
 	rerollIncFactor: number;
 	rerollFirstFactor: number;
 }
 
-/** One entry of `data/rounds.json` `tierChance`. */
-export interface TierChance {
-	tier: number;
-	base: number;
-	perRound: number;
-	cap: number;
-	minRound: number;
-}
-
-export interface ShopItem {
-	id: string;
-	name: string;
-	tier: number;
-	price: number;
-	modifiers: readonly Modifier[];
-	/** "alpha": the special effect is not implemented yet, so the item is not sold. */
-	status?: string | undefined;
-}
-
-export interface ShopWeapon {
-	id: string;
-	name: string;
-	price: number;
-	upgradePrices: readonly number[];
-	unlockRound: number;
-}
-
-export type SlotKind = "item" | "weapon" | "upgrade";
-
+/** One gold offer: a level of one equipment slot. */
 export interface ShopSlot {
-	kind: SlotKind;
-	/** Item id, weapon id, or the id of the weapon being upgraded. */
-	id: string;
+	/** Index into `EquipmentData.slots`. */
+	slot: number;
+	level: number;
 	price: number;
 	locked: boolean;
-	/** Bought; the slot stays visible but empty until the next refresh. */
+	/** Bought; the offer stays visible but empty until the next refresh. */
 	sold: boolean;
 }
 
 export interface ShopRng {
-	float(a: number, b: number): number;
 	int(n: number): number;
 	chance(p: number): boolean;
 }
@@ -71,169 +39,52 @@ export function rerollPrice(config: ShopConfig, round: number, k: number): numbe
 	return Math.floor(config.rerollFirstFactor * round) + inc + (k - 1) * inc;
 }
 
-/** GDD 15.2: `clamp(base + inc * max(0, N - min + 1), 0, cap) * (1 + luck / 100)` (luck in points). */
-export function tierChance(entry: TierChance, round: number, luck = 0): number {
-	const raw = Math.min(
-		Math.max(entry.base + entry.perRound * Math.max(0, round - entry.minRound + 1), 0),
-		entry.cap,
-	);
-	return raw * (1 + luck / 100);
-}
-
-/** Tests T4, then T3, then T2; what is left is T1. */
-export function rollTier(rng: ShopRng, tiers: readonly TierChance[], round: number, luck = 0): number {
-	const ordered = [...tiers].sort((a, b) => b.tier - a.tier);
-	for (const entry of ordered) {
-		if (round >= entry.minRound && rng.chance(tierChance(entry, round, luck))) return entry.tier;
-	}
-	return 1;
-}
-
-export interface ShopCatalog {
-	items: readonly ShopItem[];
-	weapons: readonly ShopWeapon[];
-}
-
 export interface GenerateContext {
 	config: ShopConfig;
-	tiers: readonly TierChance[];
-	catalog: ShopCatalog;
+	equipment: EquipmentData;
+	/** The `shop` RNG stream. */
 	rng: ShopRng;
 	round: number;
+	/** Luck in points: each point is a 1% chance to draw a second level and keep the higher one. */
 	luck: number;
 	shopPrice: number;
-	/** The weapon the hero holds, and its tier index, for upgrade offers. */
-	currentWeapon: { id: string; tier: number; maxTier: number };
-	/** Ossuary `guaranteed_uncommon_shop_item`: how many Uncommon (tier 2) item slots every visit must hold. */
-	guaranteedUncommon?: number;
+	/** Level equipped in each slot, 0 when empty. */
+	levels: readonly number[];
 }
 
-function pickItem(ctx: GenerateContext, used: ReadonlySet<string>): ShopItem {
-	const { catalog, rng } = ctx;
-	const sellable = catalog.items.filter((i) => i.status !== "alpha");
-	const fresh = sellable.filter((i) => !used.has(i.id));
-	// Every sellable item is already on offer only in absurdly small catalogues; repeat rather than fail.
-	const source = fresh.length > 0 ? fresh : sellable;
-	let tier = rollTier(rng, ctx.tiers, ctx.round, ctx.luck);
-	for (; tier >= 1; tier--) {
-		const pool = source.filter((i) => i.tier === tier);
-		if (pool.length > 0) return pool[rng.int(pool.length)] as ShopItem;
-	}
-	return source[rng.int(source.length)] as ShopItem;
-}
-
-function itemSlot(ctx: GenerateContext, used: Set<string>): ShopSlot {
-	const item = pickItem(ctx, used);
-	used.add(item.id);
-	return {
-		kind: "item",
-		id: item.id,
-		price: shopPrice(ctx.config, item.price, ctx.round, ctx.shopPrice),
-		locked: false,
-		sold: false,
-	};
-}
-
-function weaponSlot(ctx: GenerateContext, used: Set<string>): ShopSlot {
-	const { catalog, rng, currentWeapon } = ctx;
-	const current = catalog.weapons.find((w) => w.id === currentWeapon.id);
-	const canUpgrade = current !== undefined && currentWeapon.tier < currentWeapon.maxTier;
-	if (current && canUpgrade && rng.chance(ctx.config.upgradeChance)) {
-		return {
-			kind: "upgrade",
-			id: current.id,
-			price: shopPrice(
-				ctx.config,
-				current.upgradePrices[currentWeapon.tier] ?? 0,
-				ctx.round,
-				ctx.shopPrice,
-			),
-			locked: false,
-			sold: false,
-		};
-	}
-	const pool = catalog.weapons.filter((w) => w.unlockRound <= ctx.round && w.id !== currentWeapon.id);
-	if (pool.length === 0) return itemSlot(ctx, used);
-	const weapon = pool[rng.int(pool.length)] as ShopWeapon;
-	return {
-		kind: "weapon",
-		id: weapon.id,
-		price: shopPrice(ctx.config, weapon.price, ctx.round, ctx.shopPrice),
-		locked: false,
-		sold: false,
-	};
-}
-
-const UNCOMMON = 2;
+/** How many levels above the next one an offer may land at this round. */
+export const levelJump = (config: ShopConfig, round: number): number =>
+	Math.min(config.maxJump, Math.floor(round / config.jumpEveryRounds));
 
 /**
- * Turns freshly drawn slots into Uncommon items until the guarantee is met (locked slots are left alone). Item
- * slots go first; a weapon slot is only replaced when no redrawn item slot is left, so the weapon guarantee of the
- * first rounds survives unless the shop has no other room.
+ * One offer per slot still below the gold cap, in slot order. Its level is always above the equipped one (the shop
+ * never sells a worse or equal piece) and at most `goldMaxLevel`; later rounds may skip levels. `keep` holds the
+ * previous offers: locked ones that are still an upgrade stay, the rest are redrawn.
  */
-function guaranteeUncommon(
-	ctx: GenerateContext,
-	slots: ShopSlot[],
-	redrawable: ReadonlySet<number>,
-	used: Set<string>,
-): void {
-	const tierOf = (slot: ShopSlot): number =>
-		slot.kind === "item" ? (ctx.catalog.items.find((i) => i.id === slot.id)?.tier ?? 0) : 0;
-	let missing = (ctx.guaranteedUncommon ?? 0) - slots.filter((s) => tierOf(s) === UNCOMMON).length;
-	const order = slots
-		.map((_, i) => i)
-		.sort((a, b) => Number(slots[a]?.kind !== "item") - Number(slots[b]?.kind !== "item"));
-	for (const i of order) {
-		if (missing <= 0) break;
-		const slot = slots[i];
-		if (!slot || !redrawable.has(i) || tierOf(slot) === UNCOMMON) continue;
-		const pool = ctx.catalog.items.filter(
-			(it) => it.tier === UNCOMMON && it.status !== "alpha" && !used.has(it.id),
-		);
-		if (pool.length === 0) return;
-		const item = pool[ctx.rng.int(pool.length)] as ShopItem;
-		used.add(item.id);
-		slots[i] = {
-			kind: "item",
-			id: item.id,
-			price: shopPrice(ctx.config, item.price, ctx.round, ctx.shopPrice),
+export function generateShop(ctx: GenerateContext, keep: readonly ShopSlot[] = []): ShopSlot[] {
+	const { config, equipment, rng, round, levels } = ctx;
+	const out: ShopSlot[] = [];
+	const jump = levelJump(config, round);
+	equipment.slots.forEach((slot, i) => {
+		const equipped = levels[i] ?? 0;
+		if (equipped >= equipment.goldMaxLevel) return;
+		const kept = keep.find((k) => k.slot === i && k.locked && !k.sold && k.level > equipped);
+		if (kept) {
+			out.push(kept);
+			return;
+		}
+		// No luck, no second draw: the stream is untouched, so a run without luck stays reproducible as before.
+		let skip = rng.int(jump + 1);
+		if (ctx.luck > 0 && rng.chance(Math.min(1, ctx.luck / 100))) skip = Math.max(skip, rng.int(jump + 1));
+		const level = Math.min(equipment.goldMaxLevel, equipped + 1 + skip);
+		const base = slot.levels[level - 1]?.price ?? 0;
+		out.push({
+			slot: i,
+			level,
+			price: shopPrice(config, base, round, ctx.shopPrice),
 			locked: false,
 			sold: false,
-		};
-		missing--;
-	}
-}
-
-/**
- * GDD 17.1: 4 slots, each 35% weapon / 65% item; rounds up to `guaranteeUntilRound` guarantee 1 weapon and
- * 3 items. `keep` holds the slots to preserve (locked ones, by index); the rest are redrawn.
- */
-export function generateShop(ctx: GenerateContext, keep: readonly (ShopSlot | null)[] = []): ShopSlot[] {
-	const { config, rng } = ctx;
-	const slots: (ShopSlot | null)[] = [];
-	for (let i = 0; i < config.slots; i++) {
-		const kept = keep[i];
-		slots.push(kept?.locked ? kept : null);
-	}
-	// Items already on screen (locked slots included) are not offered twice in one visit.
-	const used = new Set(slots.flatMap((s) => (s?.kind === "item" ? [s.id] : [])));
-	const open = slots.flatMap((s, i) => (s === null ? [i] : []));
-	const wants = new Map<number, "weapon" | "item">();
-	if (ctx.round <= config.guaranteeUntilRound) {
-		const heldWeapons = slots.filter((s) => s && s.kind !== "item").length;
-		const weaponsNeeded = Math.max(0, config.guaranteedWeapons - heldWeapons);
-		const shuffled = open.map((i) => ({ i, k: rng.float(0, 1) })).sort((a, b) => a.k - b.k);
-		for (const [n, entry] of shuffled.entries())
-			wants.set(entry.i, n < weaponsNeeded ? "weapon" : "item");
-	} else {
-		for (const i of open) wants.set(i, rng.chance(config.weaponChance) ? "weapon" : "item");
-	}
-	for (const i of open) slots[i] = wants.get(i) === "weapon" ? weaponSlot(ctx, used) : itemSlot(ctx, used);
-	guaranteeUncommon(ctx, slots as ShopSlot[], new Set(open), used);
-	return slots as ShopSlot[];
-}
-
-/** GDD 17.1: replacing the weapon sells the old one for `sellFraction` of everything paid for it. */
-export function sellValue(config: ShopConfig, paid: number): number {
-	return Math.floor(paid * config.sellFraction);
+		});
+	});
+	return out;
 }

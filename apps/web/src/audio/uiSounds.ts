@@ -10,7 +10,7 @@ interface Offer {
 export interface UiSoundState {
 	cards: readonly Offer[];
 	chest: readonly Offer[];
-	shop: { slots: readonly { kind: string; id: string; tier: number; sold: boolean }[] } | null;
+	shop: { slots: readonly { slot: string; level: number; tier: number; sold: boolean }[] } | null;
 	results: { souls: number } | null;
 	ossuary: { branches: readonly { nodes: readonly { state: string }[] }[] } | null;
 	menu: object | null;
@@ -86,11 +86,11 @@ export function uiSounds(prev: UiSoundState, next: UiSoundState): string[] {
 	}
 	if (next.shop) {
 		// Sold slots stay in the key, so a purchase does not count as a new reveal.
-		const items = next.shop.slots.filter((slot) => slot.kind === "item");
-		const before = prev.shop?.slots.filter((slot) => slot.kind === "item") ?? [];
-		if (offerKey(items) !== offerKey(before)) {
+		const offers = next.shop.slots.map((s) => ({ ...s, id: `${s.slot}:${s.level}` }));
+		const before = (prev.shop?.slots ?? []).map((s) => ({ id: `${s.slot}:${s.level}` }));
+		if (offerKey(offers) !== offerKey(before)) {
 			const reveal = bestRarity(
-				items.filter((slot) => !slot.sold).map((slot) => ({ rarity: slot.tier })),
+				offers.filter((slot) => !slot.sold).map((slot) => ({ rarity: slot.tier })),
 			);
 			if (reveal) out.push(reveal);
 		}

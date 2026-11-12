@@ -21,9 +21,9 @@ const run = (over: Partial<UiSoundState> = {}): UiSoundState => ({
 	...over,
 });
 const card = (id: string, rarity: number): { id: string; rarity: number } => ({ id, rarity });
-const item = (id: string, tier: number): { kind: string; id: string; tier: number; sold: boolean } => ({
-	kind: "item",
-	id,
+const item = (slot: string, tier: number): { slot: string; level: number; tier: number; sold: boolean } => ({
+	slot,
+	level: tier,
 	tier,
 	sold: false,
 });
@@ -61,7 +61,7 @@ test("picking a card plays the card sound; a reroll reveals again without the op
 
 test("shop offers reveal their best item rarity on open and after a reroll, not on every publish", () => {
 	const shop = run({
-		shop: { slots: [item("i1", 1), item("i2", 3), { ...item("w", 4), kind: "weapon" }] },
+		shop: { slots: [item("i1", 1), item("i2", 3)] },
 	});
 	expect(uiSounds(run(), shop)).toContain("sfx_ui_rarity_epic");
 	expect(uiSounds(shop, shop)).toEqual([]);

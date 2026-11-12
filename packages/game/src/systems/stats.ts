@@ -9,6 +9,8 @@ export interface StatsSystem {
 	add(mods: readonly Modifier[]): void;
 	/** Replaces the inventory-derived modifiers (synergies); not part of `modifiers`, so a checkpoint never saves them. */
 	setBonus(mods: readonly Modifier[]): void;
+	/** Replaces the equipment modifiers; like `setBonus`, never part of `modifiers`: the checkpoint saves the levels instead. */
+	setEquipment(mods: readonly Modifier[]): void;
 	/** Recomputes when dirty and pushes max HP and speed to the hero entity. */
 	run(hero: number): void;
 }
@@ -16,7 +18,10 @@ export interface StatsSystem {
 export function createStatsSystem(data: HeroStatsData, stats: PlayerStats): StatsSystem {
 	const modifiers: Modifier[] = [];
 	let bonus: readonly Modifier[] = [];
-	computeStats(data, modifiers, stats, undefined, bonus);
+	let equipment: readonly Modifier[] = [];
+	// Recomputed only when dirty, never per frame.
+	const extra = (): readonly Modifier[] => (equipment.length > 0 ? [...bonus, ...equipment] : bonus);
+	computeStats(data, modifiers, stats, undefined, extra());
 
 	return {
 		stats,
@@ -29,10 +34,14 @@ export function createStatsSystem(data: HeroStatsData, stats: PlayerStats): Stat
 			bonus = mods;
 			stats.dirty = true;
 		},
+		setEquipment(mods: readonly Modifier[]): void {
+			equipment = mods;
+			stats.dirty = true;
+		},
 		run(hero: number): void {
 			if (!stats.dirty) return;
 			const before = Health.max[hero] ?? 0;
-			computeStats(data, modifiers, stats, undefined, bonus);
+			computeStats(data, modifiers, stats, undefined, extra());
 			Health.max[hero] = stats.maxHp;
 			// Gaining max HP also heals by the gain; losing it only clamps.
 			const hp = (Health.hp[hero] ?? 0) + Math.max(0, stats.maxHp - before);

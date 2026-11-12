@@ -4,6 +4,7 @@ import cardsJson from "../../../../data/cards.json";
 import consumablesJson from "../../../../data/consumables.json";
 import elitesJson from "../../../../data/elites.json";
 import enemiesJson from "../../../../data/enemies.json";
+import equipmentJson from "../../../../data/equipment.json";
 import heroJson from "../../../../data/hero.json";
 import heroesJson from "../../../../data/heroes.json";
 import itemsJson from "../../../../data/items.json";
@@ -17,7 +18,7 @@ import spellsJson from "../../../../data/spells.json";
 import synergiesJson from "../../../../data/synergies.json";
 import weaponsJson from "../../../../data/weapons.json";
 import worldJson from "../../../../data/world.json";
-import type { ShopWeapon } from "../rules/shop";
+import type { EquipmentData } from "../rules/equipment";
 import { type BehaviorConfig, BehaviorKind } from "../systems/behavior";
 import type { EnemyDef } from "../systems/spawn";
 import type { BiomeDef } from "../world/chunkGen";
@@ -60,6 +61,7 @@ export const milestonesData: MilestonesData = milestonesJson;
 export const consumablesData: ConsumablesData = consumablesJson;
 export const bossesData: readonly BossData[] = bossesJson;
 export const elitesData: ElitesData = elitesJson;
+export const equipmentData: EquipmentData = equipmentJson;
 export const itemsData: readonly ItemData[] = itemsJson;
 export const spellsData: SpellsData = spellsJson;
 export const synergiesData: readonly SynergyData[] = synergiesJson;
@@ -218,16 +220,5 @@ export function toBiomeDefs(biomes: readonly BiomeData[]): BiomeDef[] {
 					},
 				}
 			: {}),
-	}));
-}
-
-/** Weapons as the shop sees them; entries without prices cannot be offered and are priced out. */
-export function toShopWeapons(weapons: readonly WeaponData[]): ShopWeapon[] {
-	return weapons.map((w) => ({
-		id: w.id,
-		name: w.name,
-		price: w.price ?? 0,
-		upgradePrices: w.upgradePrices ?? [],
-		unlockRound: w.unlockRound ?? 1,
 	}));
 }

@@ -1,0 +1,79 @@
+{
+	"type": "object",
+	"required": ["goldMaxLevel", "upgrades", "slots"],
+	"additionalProperties": false,
+	"properties": {
+		"goldMaxLevel": {
+			"type": "integer",
+			"minimum": 1,
+			"maximum": 10,
+			"description": "Highest level the shop sells for gold."
+		},
+		"upgrades": {
+			"type": "array",
+			"minItems": 1,
+			"description": "Materials that raise a slot to `level` above the gold levels: elite fragments or a boss relic.",
+			"items": {
+				"type": "object",
+				"required": ["level"],
+				"additionalProperties": false,
+				"properties": {
+					"level": {
+						"type": "integer",
+						"minimum": 2,
+						"maximum": 10
+					},
+					"fragments": {
+						"type": "integer",
+						"minimum": 1
+					},
+					"relics": {
+						"type": "integer",
+						"minimum": 1
+					}
+				}
+			}
+		},
+		"slots": {
+			"type": "array",
+			"minItems": 1,
+			"items": {
+				"type": "object",
+				"required": ["id", "name", "levels"],
+				"additionalProperties": false,
+				"properties": {
+					"id": {
+						"$ref": "common.schema.json#/$defs/id"
+					},
+					"name": {
+						"$ref": "common.schema.json#/$defs/name"
+					},
+					"levels": {
+						"type": "array",
+						"minItems": 10,
+						"maxItems": 10,
+						"items": {
+							"type": "object",
+							"required": ["level", "modifiers"],
+							"additionalProperties": false,
+							"properties": {
+								"level": {
+									"type": "integer",
+									"minimum": 1,
+									"maximum": 10
+								},
+								"price": {
+									"type": "integer",
+									"minimum": 1
+								},
+								"modifiers": {
+									"$ref": "common.schema.json#/$defs/modifiers"
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}

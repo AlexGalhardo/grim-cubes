@@ -46,7 +46,7 @@ export interface RoundReport {
 	gold: number;
 	/** Gold picked up during the round. */
 	goldEarned: number;
-	/** Mean price of the item slots of the shop that followed (0 when the run ended first). */
+	/** Mean price of the offers of the shop that followed (0 when the run ended first). */
 	avgItemPrice: number;
 	levelUps: number;
 }
@@ -84,9 +84,9 @@ export interface SimReport {
 	worldHash: number;
 	perRound: RoundReport[];
 	bosses: BossFight[];
-	itemsBought: number;
-	/** Items owned at the end of the run, by id (how often the greedy bot picks each one). */
-	itemsOwned: Record<string, number>;
+	piecesBought: number;
+	/** Level of each equipment slot at the end of the run, in `data/equipment.json` order. */
+	equipment: number[];
 	/** Id of the enemy that landed the killing blow, "self" or "none" (run still alive). */
 	killedBy: string;
 }
@@ -144,8 +144,8 @@ export function runSim(options: SimOptions): SimReport {
 		worldHash: 0,
 		perRound: [],
 		bosses,
-		itemsBought: 0,
-		itemsOwned: {},
+		piecesBought: 0,
+		equipment: [],
 		killedBy: "none",
 	};
 	let steps = 0;
@@ -196,7 +196,7 @@ export function runSim(options: SimOptions): SimReport {
 			avgPriceOfNextShop = average;
 		},
 		onItemBought: () => {
-			report.itemsBought++;
+			report.piecesBought++;
 		},
 	});
 
@@ -253,7 +253,7 @@ export function runSim(options: SimOptions): SimReport {
 	report.steps = steps;
 	report.roundReached = run.round;
 	report.gold = progress.gold;
-	report.itemsOwned = Object.fromEntries(shop.owned);
+	report.equipment = [...shop.levels];
 	report.level = progress.level;
 	report.heroHp = Math.max(0, Health.hp[hero] ?? 0);
 	report.eventsDropped = events.dropped;

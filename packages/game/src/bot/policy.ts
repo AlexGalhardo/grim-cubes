@@ -65,12 +65,10 @@ const TANK_OTHER_EFFECT = 8;
 
 export interface Policy {
 	id: PolicyId;
-	/** Worth of a list of modifiers (a card, a shop item). */
+	/** Worth of a list of modifiers (a card, a piece of equipment). */
 	modifierValue(mods: readonly Modifier[]): number;
 	/** Worth of an item's special effects. */
 	effectValue(effects: readonly { id: string }[]): number;
-	/** Worth of a weapon upgrade in the shop. */
-	readonly upgradeValue: number;
 	/** What a chest item adds on top of its stats (the greedy bot counts any item as having an effect). */
 	chestBonus(effects: readonly { id: string }[] | undefined): number;
 }
@@ -89,7 +87,6 @@ const greedy: Policy = {
 	id: "greedy",
 	modifierValue: (mods) => weighted(GREEDY_WEIGHTS, mods),
 	effectValue: (effects) => (effects.length > 0 ? GREEDY_EFFECT_VALUE : 0),
-	upgradeValue: 40,
 	chestBonus: () => GREEDY_EFFECT_VALUE,
 };
 
@@ -98,7 +95,6 @@ const tank: Policy = {
 	modifierValue: (mods) => weighted(TANK_WEIGHTS, mods),
 	effectValue: (effects) =>
 		effects.reduce((sum, e) => sum + (TANK_EFFECT_VALUE[e.id] ?? TANK_OTHER_EFFECT), 0),
-	upgradeValue: 25,
 	chestBonus: (effects) =>
 		effects?.reduce((sum, e) => sum + (TANK_EFFECT_VALUE[e.id] ?? TANK_OTHER_EFFECT), 0) ?? 0,
 };

@@ -48,7 +48,6 @@ import {
 	chooseDifficulty,
 	chooseHero,
 	computeStats,
-	computeSynergies,
 	createBot,
 	createGameSession,
 	createLoop,
@@ -71,6 +70,8 @@ import {
 	EventType,
 	elitesData,
 	enemiesData,
+	equipmentData,
+	equipmentModifiers,
 	Fragment,
 	type GameSpeed,
 	Health,
@@ -81,6 +82,7 @@ import {
 	isUnlocked,
 	itemsData,
 	KnockbackResist,
+	levelTier,
 	type Modifier,
 	milestonesData,
 	movementSystem,
@@ -99,7 +101,6 @@ import {
 	resetOssuary,
 	restoreCheckpoint,
 	roundsData,
-	type ShopSlotView,
 	Speed,
 	STEP,
 	soulsForRun,
@@ -109,7 +110,6 @@ import {
 	synergyModifiers,
 	unlockedSkins,
 	utcDate,
-	type WeaponDef,
 	weaponsData,
 	worldData,
 	xpForLevel,
@@ -166,9 +166,9 @@ import {
 	App,
 	type CardChange,
 	type CardView,
+	type EquippedView,
 	type HudState,
 	type IconRef,
-	type SlotTagView,
 	type StatPreview,
 	type SynergyView,
 	type VolumeBus,
@@ -1695,11 +1695,15 @@ async function boot(): Promise<void> {
 	 * The hero's stats as they stand now. `stats.stats` is recomputed by the next simulation step, and the sim is paused
 	 * while a card or chest is open, so after a pick that opens another offer at once it would still miss that pick.
 	 */
+	const equippedModifiers = (levels: readonly number[] = shop.levels): Modifier[] =>
+		equipmentModifiers(equipmentData, levels);
 	function freshStats(): PlayerStats {
 		return currentStats(
 			stats,
 			session.heroStatsData,
-			stats.stats.dirty ? synergyModifiers(session.synergies.states, synergiesData) : [],
+			stats.stats.dirty
+				? [...synergyModifiers(session.synergies.states, synergiesData), ...equippedModifiers()]
+				: [],
 			currentScratch,
 		);
 	}
@@ -1709,7 +1713,7 @@ async function boot(): Promise<void> {
 			[...stats.modifiers, ...mods],
 			scratchStats,
 			undefined,
-			bonus ?? synergyModifiers(session.synergies.states, synergiesData),
+			bonus ?? [...synergyModifiers(session.synergies.states, synergiesData), ...equippedModifiers()],
 		);
 		const current = freshStats();
 		const before = [...describeStats(current), rangeLine(current.range)];
@@ -1742,39 +1746,19 @@ async function boot(): Promise<void> {
 			delta: c.delta,
 			better: c.better,
 		}));
-	/** Shop stat preview (`statLine.*` id -> value after buying and its delta). */
-	function statPreview(itemId: string): Record<string, StatPreview> | undefined {
-		const item = itemsData.find((entry) => entry.id === itemId);
-		if (!item) return undefined;
-		// Buying a new item can reach a synergy tier: its bonus belongs in the preview.
-		const withItem = new Map(owned).set(itemId, Math.max(1, owned.get(itemId) ?? 0));
-		const bonus = synergyModifiers(computeSynergies(itemsData, withItem, synergiesData), synergiesData);
-		const changes = statChanges(item.modifiers, bonus);
+	/** Shop stat preview of buying `level` of equipment slot `slot` (`statLine.*` id -> value after buying and its delta). */
+	function statPreview(slot: number, level: number): Record<string, StatPreview> | undefined {
+		const levels = shop.levels.map((have, i) => (i === slot ? level : have));
+		const bonus = [
+			...synergyModifiers(session.synergies.states, synergiesData),
+			...equippedModifiers(levels),
+		];
+		const changes = statChanges([], bonus);
 		return changes.length > 0
 			? Object.fromEntries(
 					changes.map((c) => [c.id, { after: c.after, delta: c.delta, better: c.better }]),
 				)
 			: undefined;
-	}
-	/** The tags of an item offer and what buying it does to each (progress after the purchase, tier reached). */
-	function slotTags(itemId: string): SlotTagView[] {
-		const item = itemsData.find((entry) => entry.id === itemId);
-		if (!item) return [];
-		const have = (owned.get(itemId) ?? 0) > 0;
-		return item.tags.flatMap((tag) => {
-			const state = session.synergies.states.find((s) => s.id === tag);
-			if (!state) return [];
-			const after = state.count + (have ? 0 : 1);
-			return [
-				{
-					id: tag,
-					name: t(`tag.${tag}`),
-					after,
-					nextAt: state.thresholds.find((n) => n > after) ?? null,
-					activates: !have && state.thresholds.includes(after),
-				},
-			];
-		});
 	}
 	let lastSynergyStates: unknown = null;
 	let lastSynergyView: readonly SynergyView[] = [];
@@ -1795,36 +1779,22 @@ async function boot(): Promise<void> {
 		}
 		return lastSynergyView;
 	}
-	/** Damage and attacks per second of a weapon at `tier` (0-3), for the weapon panel and the weapon offers. */
-	function weaponLines(
-		def: Pick<WeaponDef, "damage" | "damageMult" | "attacksPerSecond" | "attackSpeedBonusPerTier">,
-		tier: number,
-	): string[] {
-		const round1 = (value: number): string => i18n.formatNumber(Math.round(value * 10) / 10);
-		return [
-			t("shop.weaponDamage", { value: round1(def.damage * (def.damageMult[tier] ?? 1)) }),
-			t("shop.weaponRate", {
-				value: round1(def.attacksPerSecond * (1 + def.attackSpeedBonusPerTier * tier)),
-			}),
-		];
+	/** The six equipment slots as the hero wears them, for the shop panel. */
+	function equippedView(): EquippedView[] {
+		return equipmentData.slots.map((slot, i) => {
+			const level = shop.levels[i] ?? 0;
+			return {
+				slot: slot.id,
+				name: t(`equipment.${slot.id}`),
+				level,
+				tier: levelTier(Math.max(1, level)),
+				lines: (slot.levels[level - 1]?.modifiers ?? []).map((m) => text(describeModifier(m))),
+				icon: iconFor("equipment", slot.id),
+			};
+		});
 	}
-	/** The effect lines of a shop offer: stat modifiers and effects for an item, damage and rate for a weapon or an upgrade (the next tier). */
-	function offerLines(slot: ShopSlotView): string[] {
-		if (slot.kind === "item") {
-			const item = itemsData.find((entry) => entry.id === slot.id);
-			return [
-				...slot.lines.map(text),
-				...(item?.effects ?? []).map((e) => text(describeEffect(e.id, e.params))),
-			];
-		}
-		const def = weaponsData.find((entry) => entry.id === slot.id);
-		if (!def) return [];
-		return weaponLines(def, slot.kind === "upgrade" ? Math.min(weapon.maxTier, weapon.tier + 1) : 0);
-	}
-	/** The hero, weapon, items and Merchant line of the shop (ARPG layout, PO mockup of 2026-10-31). */
-	function shopPanels(): Pick<NonNullable<HudState["shop"]>, "hero" | "weapon" | "items" | "quote"> {
-		const def = weapon.weapon;
-		const tier = Math.min(4, weapon.tier + 1);
+	/** The hero, the equipment and the Merchant line of the shop (ARPG layout, PO mockup of 2026-10-31). */
+	function shopPanels(): Pick<NonNullable<HudState["shop"]>, "hero" | "equipped" | "quote"> {
 		return {
 			hero: {
 				level: progress.level,
@@ -1836,23 +1806,11 @@ async function boot(): Promise<void> {
 				bossRound: Math.ceil((run.round + 1) / 10) * 10,
 				souls: meta.souls,
 			},
-			weapon: {
-				name: t(`weapon.${def.id ?? ""}`),
-				tier,
-				icon: iconFor("weapon", def.id ?? ""),
-				lines: weaponLines(def, weapon.tier),
-			},
-			items: [...owned].map(([id, count]) => ({
-				id,
-				name: t(`item.${id}`),
-				tier: itemsData.find((entry) => entry.id === id)?.tier ?? 1,
-				count,
-				icon: iconFor("item", id),
-			})),
+			equipped: equippedView(),
 			quote: t(`voice.merchant.arrive_${(run.round % 3) + 1}`),
 		};
 	}
-	function iconFor(kind: "item" | "card" | "weapon", id: string): IconRef | undefined {
+	function iconFor(kind: "item" | "card" | "weapon" | "equipment", id: string): IconRef | undefined {
 		const key = `${kind}_${id}`;
 		if (iconCache.has(key)) return iconCache.get(key);
 		const entry = assets?.manifest.entries[`icon_${key}`];
@@ -1961,21 +1919,14 @@ async function boot(): Promise<void> {
 				lastShopJson = json;
 				lastShop = {
 					...view,
-					slots: view.slots.map((slot) => ({
+					slots: view.slots.map((slot, i) => ({
 						...slot,
-						name:
-							slot.kind === "item"
-								? t(`item.${slot.id}`)
-								: slot.kind === "upgrade"
-									? t("shop.upgradeName", { name: t(`weapon.${slot.id}`) })
-									: t(`weapon.${slot.id}`),
-						lines: offerLines(slot),
-						icon: iconFor(slot.kind === "item" ? "item" : "weapon", slot.id),
-						preview: slot.kind === "item" ? statPreview(slot.id) : undefined,
-						tags: slot.kind === "item" ? slotTags(slot.id) : undefined,
+						name: t(`equipment.${slot.slot}`),
+						lines: slot.lines.map(text),
+						icon: iconFor("equipment", slot.slot),
+						preview: statPreview(shop.slots[i]?.slot ?? 0, slot.level),
 					})),
 					...shopPanels(),
-					synergies: synergyView(),
 				};
 			}
 			shopView = lastShop;

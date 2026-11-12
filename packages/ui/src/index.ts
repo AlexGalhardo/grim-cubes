@@ -57,11 +57,11 @@ export { Panel } from "./components/Panel/Panel";
 export type { ResultsProps, ResultsViewModel } from "./components/Results/Results";
 export { Results } from "./components/Results/Results";
 export type {
+	EquippedView,
 	ShopActions,
 	ShopProps,
 	ShopSlotView,
 	ShopViewModel,
-	SlotTagView,
 } from "./components/Shop/Shop";
 export { Shop } from "./components/Shop/Shop";
 export type { SpellBarProps, SpellKind, SpellsView } from "./components/SpellBar/SpellBar";

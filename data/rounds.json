@@ -96,36 +96,6 @@
 			}
 		}
 	],
-	"tierChance": [
-		{
-			"tier": 2,
-			"base": 0,
-			"perRound": 0.06,
-			"cap": 0.6,
-			"minRound": 2
-		},
-		{
-			"tier": 3,
-			"base": 0,
-			"perRound": 0.02,
-			"cap": 0.25,
-			"minRound": 4
-		},
-		{
-			"tier": 4,
-			"base": 0,
-			"perRound": 0.0023,
-			"cap": 0.08,
-			"minRound": 8
-		},
-		{
-			"tier": 5,
-			"base": 0,
-			"perRound": 0.0006,
-			"cap": 0.015,
-			"minRound": 25
-		}
-	],
 	"fragments": {
 		"guaranteedDropUntilRound": 4,
 		"dropPercentBase": 100,
@@ -143,13 +113,8 @@
 		"perLevel": 5
 	},
 	"shop": {
-		"slots": 4,
-		"weaponChance": 0.35,
-		"upgradeChance": 0.5,
-		"guaranteedWeapons": 1,
-		"guaranteedItems": 3,
-		"guaranteeUntilRound": 2,
-		"sellFraction": 0.5,
+		"jumpEveryRounds": 8,
+		"maxJump": 2,
 		"priceBaseRoundFactor": 0.15,
 		"rerollIncFactor": 0.4,
 		"rerollFirstFactor": 0.75

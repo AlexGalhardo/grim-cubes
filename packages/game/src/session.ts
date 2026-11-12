@@ -8,6 +8,7 @@ import {
 	consumablesData,
 	elitesData,
 	enemiesData,
+	equipmentData,
 	heroData,
 	heroesData,
 	itemsData,
@@ -18,7 +19,6 @@ import {
 	synergiesData,
 	toBiomeDefs,
 	toEnemyDefs,
-	toShopWeapons,
 	weaponsData,
 	worldData,
 } from "./data";
@@ -398,16 +398,11 @@ function build(options: GameSessionOptions) {
 	});
 	const shop = createShopSystem({
 		config: roundsData.shop,
-		tiers: roundsData.tierChance,
-		catalog: { items: poolItems, weapons: toShopWeapons(weaponsData) },
-		weaponDefs: weaponsData,
+		equipment: equipmentData,
 		rng: rng.shop,
 		progress,
 		stats,
-		weapon,
 		round: () => run.round,
-		owned,
-		onItemBought: refreshInventory,
 	});
 
 	const chunkGen = createChunkGenerator(seed, toBiomeDefs(biomesData), {

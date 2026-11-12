@@ -105,7 +105,9 @@ export interface RunCheckpoint {
 	xp: number;
 	level: number;
 	hp: number;
-	weapon: { id: string; tier: number; paid: number };
+	weapon: { id: string; tier: number };
+	/** Level (0 to 10) equipped in each slot of `data/equipment.json`, in file order; 0 is empty. */
+	equipment: number[];
 	/** Items owned, by id. */
 	owned: Record<string, number>;
 	/** Modifiers picked during the run (cards, items, chests), after the Ossuary ones. */
@@ -439,6 +441,19 @@ function validateDaily(raw: unknown): DailyEntry[] {
 	});
 }
 
+const MAX_EQUIPMENT_LEVEL = 10;
+
+function validateEquipment(raw: unknown): number[] {
+	if (raw === undefined) return [];
+	if (!Array.isArray(raw) || raw.length > MAX_LIST)
+		throw new SaveError("run.equipment must be a short list");
+	return raw.map((level: unknown) => {
+		const value = counter(level, "run.equipment level");
+		if (value > MAX_EQUIPMENT_LEVEL) throw new SaveError("run.equipment level is above 10");
+		return value;
+	});
+}
+
 function validateCheckpoint(raw: unknown): RunCheckpoint | null {
 	if (raw === undefined || raw === null) return null;
 	if (!isRecord(raw)) throw new SaveError("run must be an object");
@@ -473,8 +488,9 @@ function validateCheckpoint(raw: unknown): RunCheckpoint | null {
 		weapon: {
 			id: shortText(weapon.id, "run.weapon.id"),
 			tier: counter(weapon.tier, "run.weapon.tier"),
-			paid: counter(weapon.paid, "run.weapon.paid"),
 		},
+		// Absent before schema 15: nothing equipped yet.
+		equipment: validateEquipment(raw.equipment),
 		owned: ownedClean,
 		modifiers: modifiers.map((m: unknown) => {
 			if (!isRecord(m)) throw new SaveError("run.modifiers entries must be objects");
@@ -659,13 +675,6 @@ function withoutEasy<T extends { records: Record<string, number> }>(profile: T):
 	return { ...profile, records };
 }
 
-/** Schemas before 13 had no hero in the checkpoint: their checksum covers `run` without it. */
-function withoutHero<T extends { run: RunCheckpoint | null }>(profile: T): T {
-	if (!profile.run) return profile;
-	const { hero: _hero, ...run } = profile.run;
-	return { ...profile, run: run as RunCheckpoint };
-}
-
 /** Schemas before 15 had no heal and super keys or buttons: their checksum covers `settings` without them. */
 function withoutSpellKeys<T extends { keys?: KeyMap; pad?: PadMap }>(settings: T): T {
 	const copy: T = { ...settings };
@@ -680,7 +689,7 @@ function withoutSpellKeys<T extends { keys?: KeyMap; pad?: PadMap }>(settings: T
 	return copy;
 }
 
-/** Schemas before 15 had no `stats.bestBossRound`: their checksum covers `stats` without it. */
+/** Schemas before 15 had no `stats.bestBossRound`: the checksum of the old single save covers `stats` without it. */
 function withoutBossRound<T extends { stats: Profile["stats"] }>(profile: T): T {
 	const { bestBossRound: _best, ...stats } = profile.stats;
 	return { ...profile, stats } as unknown as T;
@@ -723,14 +732,6 @@ export function migrateOssuary<T extends Profile>(profile: T): T {
 		if (owned && Object.hasOwn(LEGACY_OSSUARY_COSTS, id)) refund += LEGACY_OSSUARY_COSTS[id] ?? 0;
 	}
 	return { ...profile, souls: profile.souls + refund, ossuary: {} };
-}
-
-/** Schemas before 14 had no daily table, nor `seconds` and `daily` in the checkpoint. */
-function withoutDaily<T extends { run: RunCheckpoint | null; daily: DailyEntry[] }>(profile: T): T {
-	const { daily: _table, ...rest } = profile;
-	if (!rest.run) return rest as unknown as T;
-	const { seconds: _seconds, daily: _day, ...run } = rest.run;
-	return { ...rest, run } as unknown as T;
 }
 
 /**
@@ -792,10 +793,9 @@ export async function parseSave(text: string): Promise<MetaState> {
 	if (envelope.schemaVersion >= 10) {
 		const profile = validateProfile(envelope.data);
 		const v = envelope.schemaVersion;
-		const covered = v < 15 ? withoutBossRound(profile) : profile;
-		const coveredDaily = v < 14 ? withoutDaily(covered) : covered;
-		const coveredHero = v < 13 ? withoutHero(coveredDaily) : coveredDaily;
-		await verified(envelope, v < 11 ? withoutEasy(coveredHero) : coveredHero);
+		// Older slot files hashed the data as that schema wrote it: the checkpoint and the profile have since lost and
+		// gained fields, so the raw data is what the checksum covers.
+		await verified(envelope, v < SAVE_SCHEMA_VERSION ? envelope.data : profile);
 		return {
 			...(v < 15 ? migrateOssuary(migrateClasses(profile)) : profile),
 			settings: createSettings(),

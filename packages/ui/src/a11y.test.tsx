@@ -33,8 +33,8 @@ async function violations(ui: ReactElement): Promise<string[]> {
 }
 
 const slot = (id: string, over: Record<string, unknown> = {}) => ({
-	kind: "item" as const,
-	id,
+	slot: id,
+	level: 1,
 	name: id,
 	lines: ["+3 armadura"],
 	price: 20,

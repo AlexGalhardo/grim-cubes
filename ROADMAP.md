@@ -212,7 +212,7 @@ Decisão do PO em 2026-11-12, registrada no ADR-0030 (o texto original está no 
 
 ### S-21 Equipamento e loja
 
-- [ ] **S-21-01** Seis slots de equipamento (capacete, armadura, calças, botas, anel, amuleto) com nível 1 a 10 e atributos por nível em `data/equipment.json`; a loja vende só equipamento, nunca pior que o equipado; níveis 1 a 6 por ouro. Saem itens, armas, consumíveis e sinergias da loja.
+- [x] **S-21-01** Seis slots de equipamento (capacete, armadura, calças, botas, anel, amuleto) com nível 1 a 10 e atributos por nível em `data/equipment.json`; a loja vende só equipamento, nunca pior que o equipado; níveis 1 a 6 por ouro. Saem itens, armas, consumíveis e sinergias da loja.
   - Asserts: teste de que a oferta nunca é pior; teste de preço e de atributos por nível; `bun run data:check` exit 0.
 - [ ] **S-21-02** Fragmento de elite (cada elite dropa 1, 100%) e relíquia (cada chefe dropa 1, 100%); na loja o jogador gasta fragmentos para subir um slot de 7 a 9 e a relíquia para o 10, escolhendo o slot.
   - Asserts: teste de drop 100%; teste de upgrade 6→7→9→10 com o material certo e recusa sem material; HUD e loja mostram os materiais.

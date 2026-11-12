@@ -593,12 +593,15 @@ Decisão D05: tela entre rounds no PROTÓTIPO; NPC físico no ALPHA (a tela vira
 
 ### 17.1 Estrutura
 
-- 4 slots: cada um 35% arma / 65% item (baseline). Rounds 1–2: garantia de 1 arma + 3 itens. Round 3+: sem garantia.
-- Slot de arma mostra: arma nova (substitui) ou upgrade de tier da arma atual (50% quando a arma atual não está no tier 4).
-- Lock: grátis e ilimitado; item travado mantém preço e sobrevive ao próximo round.
+Redesenho da v0.7.0 (ADR-0030, S-21): a loja vende só equipamento. Não há mais itens, armas, consumíveis nem sinergias.
+
+- 6 slots de equipamento: capacete, armadura, calças, botas, anel e amuleto. Cada slot tem nível de 0 (vazio) a 10; os atributos de cada nível ficam em `data/equipment.json` e valem pelo nível inteiro (a peça nova substitui a anterior, não soma).
+- A loja oferece 1 peça por slot que ainda está abaixo do nível 6, sempre de nível maior que o equipado (nunca peça pior ou igual). Nos primeiros rounds a oferta é o próximo nível; a cada `jumpEveryRounds` rounds (8) a oferta pode saltar até 1 nível a mais, no máximo `maxJump` (2). Cada ponto de sorte é 1% de chance de um segundo sorteio, ficando o maior nível.
+- Níveis 1 a 6: ouro (preço base por nível em `equipment.json`: 12, 24, 45, 80, 130, 200, escalado por §17.2). Níveis 7 a 10 não são vendidos: fragmentos de elite (7 a 9) e relíquia de chefe (10), no slot que o jogador escolher (§17.4).
+- Lock: grátis e ilimitado; a oferta travada mantém preço e sobrevive ao próximo round enquanto ainda for um upgrade.
 - Reroll: fórmula abaixo.
-- Venda: a arma antiga é vendida automaticamente na troca por 50% do preço pago. Itens não podem ser vendidos (são passivos).
-- Mostra stats atuais do herói e o delta ao passar o mouse/tocar num item.
+- Não há venda nem troca de peça: comprar um nível maior no mesmo slot substitui o anterior.
+- Mostra os 6 slots equipados, os stats atuais do herói e o delta (verde ou vermelho) ao passar o mouse, focar ou tocar numa oferta.
 
 ### 17.2 Fórmulas (baseline Brotato)
 
@@ -609,7 +612,7 @@ reroll_1(N)      = floor(0,75 × N) + reroll_inc(N)
 reroll_k(N)      = reroll_1(N) + (k - 1) × reroll_inc(N)     # reseta a cada loja
 ```
 
-Exemplos: item base 20 no round 1 = 24; no round 10 = 60. Reroll no round 10: 11, 15, 19…
+Exemplos: peça de nível 1 (base 12) no round 1 = 14; peça de nível 6 (base 200) no round 10 = 510 (a escala por round vale para todo o preço). Reroll no round 10: 11, 15, 19…
 
 ### 17.3 Mercador de Ossos (NPC)
 

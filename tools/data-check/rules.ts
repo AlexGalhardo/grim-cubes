@@ -74,8 +74,6 @@ export function checkRules(data: Data): string[] {
 	// rounds.json
 	const rounds = data["rounds.json"];
 	if (isObj(rounds)) {
-		const tiers = objs(rounds.tierChance).map((t) => t.tier);
-		if (new Set(tiers).size !== tiers.length) push("rounds.json: tierChance has duplicate tiers");
 		const difficulties = objs(rounds.difficulties);
 		const ids = new Set(difficulties.map((d) => str(d.id)));
 		for (const d of difficulties) {
@@ -125,6 +123,43 @@ export function checkRules(data: Data): string[] {
 	}
 
 	// ossuary.json x spells.json: one price per square of a column (levels 2 to levels.max), rising.
+	// equipment.json: every slot has levels 1..10 in order, gold prices up to goldMaxLevel and a material cost above it.
+	const equipment = data["equipment.json"];
+	if (isObj(equipment)) {
+		const goldMax = num(equipment.goldMaxLevel) ?? 0;
+		const upgradeLevels = objs(equipment.upgrades).map((u) => num(u.level));
+		for (let level = goldMax + 1; level <= 10; level++) {
+			const costs = objs(equipment.upgrades).filter((u) => u.level === level);
+			if (costs.length !== 1)
+				push(
+					`equipment.json: level ${level} needs exactly one entry in upgrades, found ${costs.length}`,
+				);
+			else if ((costs[0]?.fragments === undefined) === (costs[0]?.relics === undefined))
+				push(
+					`equipment.json: upgrades level ${level} costs fragments or relics, not both or neither`,
+				);
+		}
+		for (const level of upgradeLevels)
+			if (level !== undefined && (level <= goldMax || level > 10))
+				push(`equipment.json: upgrades level ${level} is a gold level or beyond 10`);
+		for (const slot of objs(equipment.slots)) {
+			const levels = objs(slot.levels);
+			levels.forEach((entry, i) => {
+				if (entry.level !== i + 1)
+					push(
+						`equipment.json: ${str(slot.id)} entry ${i} is level ${String(entry.level)}, expected ${i + 1}`,
+					);
+				if (i + 1 <= goldMax && num(entry.price) === undefined)
+					push(`equipment.json: ${str(slot.id)} level ${i + 1} is sold for gold and needs a price`);
+				if (i + 1 > goldMax && entry.price !== undefined)
+					push(
+						`equipment.json: ${str(slot.id)} level ${i + 1} comes from materials and has no price`,
+					);
+			});
+		}
+	}
+
+	// ossuary.json
 	const ossuary = data["ossuary.json"];
 	if (isObj(ossuary)) {
 		const costs = Array.isArray(ossuary.levelCosts) ? ossuary.levelCosts : [];

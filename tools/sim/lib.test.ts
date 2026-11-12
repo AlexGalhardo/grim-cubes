@@ -23,7 +23,7 @@ describe("sim harness", () => {
 
 	it("shops greedily: spends gold on items between rounds", () => {
 		const report = runSim({ seed: 7, rounds: 5, difficulty: "normal" });
-		expect(report.itemsBought).toBeGreaterThan(0);
+		expect(report.piecesBought).toBeGreaterThan(0);
 		expect(report.perRound.some((r) => r.avgItemPrice > 0)).toBe(true);
 	});
 

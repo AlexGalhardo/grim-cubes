@@ -2,39 +2,35 @@ import { t } from "@gc/core";
 import { type JSX, type ReactNode, useEffect, useState } from "react";
 import { isDesktopWidth, useShortScreen } from "../../hooks/useViewport";
 import { useDialogNav } from "../../nav/useDialogNav";
-import type { SynergyView } from "../Hud/hudTypes";
 import { Icon, type IconRef } from "../Icon/Icon";
 import { type StatLineView, StatList, type StatPreview } from "../StatList/StatList";
 import { PLATE, TIER_BORDER, TIER_TEXT } from "../styles";
 
-/** One tag of an item offer and what buying it does to that tag. */
-export interface SlotTagView {
-	id: string;
-	name: string;
-	/** Distinct owned items with the tag after the purchase. */
-	after: number;
-	/** Count of the next tier after the purchase; null when every tier is active. */
-	nextAt: number | null;
-	/** The purchase reaches a tier of this tag. */
-	activates: boolean;
-}
-
 export interface ShopSlotView {
-	kind: "item" | "weapon" | "upgrade";
-	id: string;
+	/** Equipment slot id (`helmet`, `ring`, ...). */
+	slot: string;
 	name: string;
+	level: number;
 	lines: readonly string[];
 	price: number;
 	tier: number;
 	locked: boolean;
 	sold: boolean;
 	affordable: boolean;
-	/** Icon from the atlas: the item, or the weapon of a weapon or upgrade offer. */
 	icon?: IconRef | undefined;
 	/** Stat line id -> change of buying this offer, shown while the offer is hovered or focused. */
 	preview?: Readonly<Record<string, StatPreview>> | undefined;
-	/** Tags of an item offer (one or two). */
-	tags?: readonly SlotTagView[] | undefined;
+}
+
+/** One of the six equipment slots as the hero wears it now. */
+export interface EquippedView {
+	slot: string;
+	name: string;
+	/** 0 when the slot is empty. */
+	level: number;
+	tier: number;
+	lines: readonly string[];
+	icon?: IconRef | undefined;
 }
 
 export interface ShopViewModel {
@@ -42,10 +38,7 @@ export interface ShopViewModel {
 	rerollPrice: number;
 	gold: number;
 	hero?: ShopHeroView | undefined;
-	weapon?: ShopWeaponView | undefined;
-	items?: readonly OwnedItemView[] | undefined;
-	/** Tags the hero owns items of, with their progress. */
-	synergies?: readonly SynergyView[] | undefined;
+	equipped?: readonly EquippedView[] | undefined;
 	/** One Merchant line under its name. */
 	quote?: string | undefined;
 }
@@ -61,22 +54,6 @@ export interface ShopHeroView {
 	/** The next boss round, shown as `round / boss`. */
 	bossRound: number;
 	souls: number;
-}
-
-export interface ShopWeaponView {
-	name: string;
-	/** 1-5, the rarity colour of the weapon tier. */
-	tier: number;
-	lines: readonly string[];
-	icon?: IconRef | undefined;
-}
-
-export interface OwnedItemView {
-	id: string;
-	name: string;
-	tier: number;
-	count: number;
-	icon?: IconRef | undefined;
 }
 
 export interface ShopActions {
@@ -97,14 +74,6 @@ export interface ShopProps {
 	/** Gamepad button of the reroll (standard mapping index). */
 	rerollButton?: number | undefined;
 }
-
-const ITEMS_PER_ROW = 8;
-const kindLabel = (kind: ShopSlotView["kind"]): string =>
-	kind === "weapon"
-		? t("shop.kindWeapon")
-		: kind === "upgrade"
-			? t("shop.kindUpgrade")
-			: t("shop.kindItem");
 
 /** A raised button: lighter top edge, a dark base under it that disappears while pressed. */
 const RAISED =
@@ -145,32 +114,6 @@ function Counter({ icon, children, testId }: { icon: string; children: ReactNode
 			</span>
 			{children}
 		</div>
-	);
-}
-
-function TagChips({ tags, short }: { tags: readonly SlotTagView[]; short: boolean }): JSX.Element {
-	return (
-		<ul data-testid="shop-tags" className="mt-1 flex flex-wrap gap-1">
-			{tags.map((tag) => (
-				<li
-					key={tag.id}
-					data-activates={tag.activates}
-					className={`border px-1 font-display ${short ? "text-[10px] leading-3" : "text-xs"} ${tag.activates ? "border-ember text-ember-light" : "border-iron-dark text-bone-dark"}`}
-				>
-					<span aria-hidden="true">
-						{tag.name} {tag.after}
-						{tag.nextAt === null ? "" : `/${tag.nextAt}`}
-						{tag.activates ? " ▲" : ""}
-					</span>
-					<span className="sr-only">
-						{t(tag.activates ? "shop.tagActivates" : "shop.tag", {
-							name: tag.name,
-							count: tag.after,
-						})}
-					</span>
-				</li>
-			))}
-		</ul>
 	);
 }
 
@@ -219,7 +162,7 @@ function OfferRow({
 	);
 }
 
-/** Between-rounds shop (GDD 17): hero, weapon, items and stats on the left; the Merchant and 4 offers on the right. Keys 1-4 buy, R rerolls, Enter continues. */
+/** Between-rounds shop (GDD 17): hero, equipment and stats on the left; the Merchant and the equipment offers on the right. Keys 1-6 buy, R rerolls, Enter continues. */
 export function Shop({
 	view,
 	stats,
@@ -239,17 +182,12 @@ export function Shop({
 		return () => window.removeEventListener("keydown", onKey);
 	}, [view.slots.length, actions, rerollKey]);
 
-	const { hero, weapon, items = [], quote } = view;
+	const { hero, equipped = [], quote } = view;
 	const nav = useDialogNav<HTMLDivElement>({ onReroll: actions.reroll, rerollButton });
 	const short = useShortScreen();
 	const desktopWide = isDesktopWidth();
 	const [hovered, setHovered] = useState<number | null>(null);
 	const preview = hovered === null ? undefined : view.slots[hovered]?.preview;
-	// The weapon's upgrade offer sits with the weapon; without a weapon panel it stays in the grid.
-	const upgradeIndex = weapon ? view.slots.findIndex((slot) => slot.kind === "upgrade") : -1;
-	const upgrade = upgradeIndex >= 0 ? view.slots[upgradeIndex] : undefined;
-	// Owned items plus one empty row, like an inventory with room to grow; a short screen only completes the row.
-	const itemRows = Math.max(1, Math.ceil(items.length / ITEMS_PER_ROW) + (short ? 0 : 1));
 	const focusProps = (i: number) => ({
 		onMouseEnter: () => setHovered(i),
 		onMouseLeave: () => setHovered(null),
@@ -271,7 +209,7 @@ export function Shop({
 			<div
 				className={`m-auto grid w-full max-w-[1760px] ${short ? "h-full grid-cols-[46fr_54fr] gap-1" : "grid-cols-1 gap-2 mobile-l:grid-cols-[46fr_54fr] desktop:gap-4"}`}
 			>
-				{/* Left: the hero, the weapon in hand, the items owned and the full stats. */}
+				{/* Left: the hero, the equipment worn and the full stats. */}
 				<section className={`${PLATE} flex flex-col ${short ? "min-h-0 gap-1 p-1.5" : "gap-3 p-3"}`}>
 					{hero ? (
 						<div className="flex gap-3" data-testid="shop-hero">
@@ -309,102 +247,45 @@ export function Shop({
 							</div>
 						</div>
 					) : null}
-					{weapon ? (
-						<div className={`${PLATE} flex flex-col gap-2 p-2`} data-testid="shop-weapon">
-							<div className="flex items-center gap-3">
-								<div
-									aria-hidden="true"
-									className={`flex shrink-0 items-center justify-center border-2 bg-night font-display text-ember-light ${TIER_BORDER[weapon.tier] ?? "border-iron-dark"} ${short ? "size-10 text-xl" : "size-16 text-3xl"}`}
-								>
-									{weapon.icon ? <Icon icon={weapon.icon} size={short ? 32 : 48} /> : "⚔"}
-								</div>
-								<div className="min-w-0">
-									<div
-										className={`font-display text-bone uppercase ${short ? "text-sm" : "text-lg"}`}
-									>
-										{weapon.name}
-									</div>
-									<div
-										className={`font-display text-xs uppercase ${TIER_TEXT[weapon.tier] ?? "text-bone-dark"}`}
-									>
-										{t(`rarity.${weapon.tier}`)} · {t("shop.kindWeapon")}
-									</div>
-									<ul className="font-body text-sm text-heal">
-										{weapon.lines.map((line) => (
-											<li key={line}>{line}</li>
-										))}
-									</ul>
-								</div>
-							</div>
-							{upgrade ? (
-								<fieldset
-									data-testid={`shop-slot-${upgradeIndex}`}
-									aria-label={upgrade.name}
-									{...focusProps(upgradeIndex)}
-									className={`m-0 flex min-w-0 flex-col gap-1 border-iron-dark border-t-2 p-0 pt-2 ${upgrade.sold ? "opacity-40" : ""}`}
-								>
-									<div className="font-body text-bone-dark text-sm">
-										{kindLabel("upgrade")}: {upgrade.lines.join(" · ")}
-									</div>
-									<OfferRow
-										slot={upgrade}
-										index={upgradeIndex}
-										short={short}
-										actions={actions}
-									/>
-								</fieldset>
-							) : null}
-						</div>
-					) : null}
-					{hero ? (
-						<div data-testid="shop-items">
+					{equipped.length > 0 ? (
+						<div data-testid="shop-equipped">
 							<h2 className="mb-1 font-display text-base text-bone uppercase">
-								{t("shop.items")}
+								{t("shop.equipped")}
 							</h2>
-							<ul className="grid grid-cols-8 gap-1.5">
-								{items.map((item) => (
+							<ul className="grid grid-cols-2 gap-1.5">
+								{equipped.map((piece) => (
 									<li
-										key={item.id}
-										title={item.name}
-										className={`relative flex aspect-square items-center justify-center border-2 bg-night-2 ${TIER_BORDER[item.tier] ?? "border-iron-dark"}`}
+										key={piece.slot}
+										data-testid={`shop-equipped-${piece.slot}`}
+										className={`flex min-w-0 items-center gap-2 border-2 bg-night-2 ${short ? "p-0.5" : "p-1.5"} ${piece.level > 0 ? (TIER_BORDER[piece.tier] ?? "border-iron-dark") : "border-iron-dark"}`}
 									>
-										{item.icon ? (
-											<Icon icon={item.icon} />
-										) : (
-											<span className="sr-only">{item.name}</span>
-										)}
-										<span className="sr-only">{item.name}</span>
-										{item.count > 1 ? (
-											<span className="absolute right-0.5 bottom-0 font-display text-xs text-bone [text-shadow:1px_1px_0_var(--color-night)]">
-												{item.count}
-											</span>
-										) : null}
-									</li>
-								))}
-								{Array.from({ length: itemRows * ITEMS_PER_ROW - items.length }, (_, i) => (
-									<li
-										key={`empty-${i}`}
-										aria-hidden="true"
-										className="aspect-square border-2 border-iron-dark bg-night/60"
-									/>
-								))}
-							</ul>
-						</div>
-					) : null}
-					{!short && view.synergies && view.synergies.length > 0 ? (
-						<div className={`${PLATE} p-2`} data-testid="shop-synergies">
-							<h2 className="mb-1 font-display text-base text-bone uppercase">
-								{t("shop.synergies")}
-							</h2>
-							<ul className="flex flex-wrap gap-1">
-								{view.synergies.map((s) => (
-									<li
-										key={s.id}
-										data-reached={s.reached}
-										className={`border-2 bg-night-2 px-1.5 font-display text-sm ${s.reached > 0 ? "border-ember text-ember-light" : "border-iron-dark text-bone-dark"}`}
-									>
-										{s.name} {s.count}
-										{s.nextAt === null ? "" : `/${s.nextAt}`}
+										<div
+											aria-hidden="true"
+											className={`flex shrink-0 items-center justify-center bg-night ${short ? "size-8" : "size-12"}`}
+										>
+											{piece.icon ? (
+												<Icon icon={piece.icon} size={short ? 28 : 40} />
+											) : null}
+										</div>
+										<div className="min-w-0">
+											<div
+												className={`truncate font-display text-bone ${short ? "text-xs" : "text-sm"}`}
+											>
+												{piece.name}{" "}
+												<span className={TIER_TEXT[piece.tier] ?? "text-bone-dark"}>
+													{piece.level > 0
+														? t("shop.equipLevel", { level: piece.level })
+														: t("shop.empty")}
+												</span>
+											</div>
+											{short ? null : (
+												<ul className="font-body text-heal text-xs">
+													{piece.lines.map((line) => (
+														<li key={line}>{line}</li>
+													))}
+												</ul>
+											)}
+										</div>
 									</li>
 								))}
 							</ul>
@@ -419,7 +300,7 @@ export function Shop({
 					</div>
 				</section>
 
-				{/* Right: the Merchant, its four offers in two columns, then reroll, gold and next round. */}
+				{/* Right: the Merchant, one offer per slot in two columns, then reroll, gold and next round. */}
 				<section
 					className={`${PLATE} order-first flex flex-col mobile-l:order-none ${short ? "min-h-0 gap-1 p-1.5" : "gap-3 p-3"}`}
 				>
@@ -446,66 +327,55 @@ export function Shop({
 						data-testid="shop-grid"
 						className={`grid ${short ? "min-h-0 flex-1 grid-cols-2 content-start gap-1 overflow-y-auto" : "grid-cols-1 gap-2 mobile-l:grid-cols-2 desktop:gap-3"}`}
 					>
-						{view.slots.map((slot, i) =>
-							i === upgradeIndex ? null : (
-								<fieldset
-									key={`${slot.kind}-${slot.id}-${i}`}
-									data-testid={`shop-slot-${i}`}
-									aria-label={slot.name}
-									{...focusProps(i)}
-									className={`panel-riveted m-0 flex min-w-0 flex-col border-2 bg-linear-to-b from-iron-black to-night-2 ${short ? "gap-0.5 p-1" : "gap-2 p-3 desktop:gap-4 desktop:p-4 desktop:min-h-56"} ${TIER_BORDER[slot.tier] ?? "border-iron-dark"} ${slot.sold ? "opacity-40" : ""}`}
-								>
-									<div className="flex gap-3">
-										<div
-											className={`flex shrink-0 items-center justify-center border-2 bg-night ${TIER_BORDER[slot.tier] ?? "border-iron-dark"} ${short ? "size-10" : "size-16 desktop:size-20"}`}
-										>
-											{slot.icon ? (
-												<Icon
-													icon={slot.icon}
-													size={short ? 32 : desktopWide ? 64 : 48}
-												/>
-											) : (
-												<span
-													aria-hidden="true"
-													className="font-display text-2xl text-ember-light"
-												>
-													⚔
-												</span>
-											)}
-										</div>
-										<div className="min-w-0 flex-1">
-											<div
-												className={`font-display text-bone ${short ? "text-xs leading-tight" : "text-lg desktop:text-xl"}`}
-											>
-												{slot.name}
-											</div>
-											<div
-												className={`font-display text-xs uppercase ${TIER_TEXT[slot.tier] ?? "text-bone-dark"}`}
-											>
-												<span
-													className="rarity-mark"
-													data-tier={slot.tier}
-													data-testid={`rarity-mark-${i}`}
-													aria-hidden="true"
-												/>
-												{t(`rarity.${slot.tier}`)} · {kindLabel(slot.kind)}
-											</div>
-											<ul
-												className={`mt-1 font-body text-bone-dark ${short ? "text-[11px] leading-tight" : "text-sm desktop:text-base"}`}
-											>
-												{slot.lines.map((line) => (
-													<li key={line}>{line}</li>
-												))}
-											</ul>
-											{slot.tags && slot.tags.length > 0 ? (
-												<TagChips tags={slot.tags} short={short} />
-											) : null}
-										</div>
+						{view.slots.map((slot, i) => (
+							<fieldset
+								key={`${slot.slot}-${slot.level}`}
+								data-testid={`shop-slot-${i}`}
+								aria-label={slot.name}
+								{...focusProps(i)}
+								className={`panel-riveted m-0 flex min-w-0 flex-col border-2 bg-linear-to-b from-iron-black to-night-2 ${short ? "gap-0.5 p-1" : "gap-2 p-3 desktop:gap-4 desktop:p-4 desktop:min-h-56"} ${TIER_BORDER[slot.tier] ?? "border-iron-dark"} ${slot.sold ? "opacity-40" : ""}`}
+							>
+								<div className="flex gap-3">
+									<div
+										className={`flex shrink-0 items-center justify-center border-2 bg-night ${TIER_BORDER[slot.tier] ?? "border-iron-dark"} ${short ? "size-10" : "size-16 desktop:size-20"}`}
+									>
+										{slot.icon ? (
+											<Icon
+												icon={slot.icon}
+												size={short ? 32 : desktopWide ? 64 : 48}
+											/>
+										) : null}
 									</div>
-									<OfferRow slot={slot} index={i} short={short} actions={actions} />
-								</fieldset>
-							),
-						)}
+									<div className="min-w-0 flex-1">
+										<div
+											className={`font-display text-bone ${short ? "text-xs leading-tight" : "text-lg desktop:text-xl"}`}
+										>
+											{slot.name}
+										</div>
+										<div
+											className={`font-display text-xs uppercase ${TIER_TEXT[slot.tier] ?? "text-bone-dark"}`}
+										>
+											<span
+												className="rarity-mark"
+												data-tier={slot.tier}
+												data-testid={`rarity-mark-${i}`}
+												aria-hidden="true"
+											/>
+											{t(`rarity.${slot.tier}`)} ·{" "}
+											{t("shop.equipLevel", { level: slot.level })}
+										</div>
+										<ul
+											className={`mt-1 font-body text-bone-dark ${short ? "text-[11px] leading-tight" : "text-sm desktop:text-base"}`}
+										>
+											{slot.lines.map((line) => (
+												<li key={line}>{line}</li>
+											))}
+										</ul>
+									</div>
+								</div>
+								<OfferRow slot={slot} index={i} short={short} actions={actions} />
+							</fieldset>
+						))}
 					</div>
 					<div
 						className={`${PLATE} mt-auto flex shrink-0 items-center ${short ? "gap-1 p-1" : "flex-wrap gap-2 p-2 desktop:gap-4"}`}

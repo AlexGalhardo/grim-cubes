@@ -1,12 +1,13 @@
 import type { InputState } from "@gc/core";
+import { equipmentData } from "../data";
 import { Health, Position } from "../ecs/components";
 import type { GameSession } from "../session";
 import { queryEnemies, queryFragments } from "../world/queries";
 import { kiteSteer, type Policy, policyFor, tankSteer } from "./policy";
 
 export interface BotHooks {
-	/** The average price of the item slots of the shop that just opened (0 without items). */
-	onShopOpened?: (averageItemPrice: number) => void;
+	/** The average price of the offers of the shop that just opened (0 without offers). */
+	onShopOpened?: (averagePrice: number) => void;
 	onItemBought?: () => void;
 	/**
 	 * Sidestep a prop the straight walk is stuck against. Off by default: the balance reports were calibrated with a
@@ -19,7 +20,7 @@ export interface Bot {
 	readonly policy: Policy;
 	/** Takes the pending level-up card and chest item, then sets the movement and dash of `input` for this step. */
 	prepare(input: InputState): void;
-	/** Spends the gold in an open shop by value per gold (the caller closes the shop). */
+	/** Spends the gold in an open shop by equipment value per gold (the caller closes the shop). */
 	shop(): void;
 }
 
@@ -193,22 +194,17 @@ export function createBot(session: GameSession, policyId: Policy["id"], hooks: B
 			}
 		},
 		shop(): void {
-			const prices = shop.slots.filter((s) => s.kind === "item").map((s) => s.price);
+			const prices = shop.slots.map((s) => s.price);
 			hooks.onShopOpened?.(prices.length > 0 ? prices.reduce((a, b) => a + b, 0) / prices.length : 0);
 			for (;;) {
 				let bestIndex = -1;
 				let bestRatio = 0;
 				for (const [i, slot] of shop.slots.entries()) {
 					if (slot.sold || slot.price > progress.gold) continue;
-					let benefit = 0;
-					if (slot.kind === "item") {
-						const item = poolItems.find((it) => it.id === slot.id);
-						benefit =
-							policy.modifierValue(item?.modifiers ?? []) +
-							(item ? policy.effectValue(item.effects) : 0);
-					} else if (slot.kind === "upgrade") {
-						benefit = policy.upgradeValue;
-					}
+					const levelsOf = equipmentData.slots[slot.slot]?.levels;
+					const benefit =
+						policy.modifierValue(levelsOf?.[slot.level - 1]?.modifiers ?? []) -
+						policy.modifierValue(levelsOf?.[(shop.levels[slot.slot] ?? 0) - 1]?.modifiers ?? []);
 					const ratio = benefit / Math.max(1, slot.price);
 					if (benefit > 0 && ratio > bestRatio) {
 						bestRatio = ratio;

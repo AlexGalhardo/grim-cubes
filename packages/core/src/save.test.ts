@@ -352,7 +352,8 @@ const checkpoint = () => ({
 	xp: 40.25,
 	level: 4,
 	hp: 82.5,
-	weapon: { id: "boomerang", tier: 2, paid: 60 },
+	weapon: { id: "boomerang", tier: 2 },
+	equipment: [6, 0, 3, 10, 0, 1],
 	owned: { ring: 2 },
 	modifiers: [{ stat: "damage", op: "mult", value: 0.1 }],
 	cardRerollsLeft: 1,
@@ -397,7 +398,10 @@ test("a malformed checkpoint is refused field by field", async () => {
 	await bad({ owned: { ring: -1 } });
 	await bad({ modifiers: Array.from({ length: 513 }, () => ({ stat: "a", op: "b", value: 1 })) });
 	await bad({ modifiers: [{ stat: "", op: "add", value: 1 }] });
-	await bad({ weapon: { id: "x".repeat(65), tier: 0, paid: 0 } });
+	await bad({ weapon: { id: "x".repeat(65), tier: 0 } });
+	await bad({ equipment: [11] });
+	await bad({ equipment: [-1] });
+	await bad({ equipment: "all" });
 	await bad({ origin: { x: "0", z: 0 } });
 	await bad({ bossRounds: [-1] });
 });
@@ -476,6 +480,11 @@ async function slotFileOf(version: number): Promise<string> {
 	m.daily = [{ date: "2026-11-10", round: 9, seconds: 300, kills: 120 }];
 	const data = JSON.parse(JSON.stringify(profileOf(m)));
 	if (version < 15) delete data.stats.bestBossRound;
+	if (version < 15) {
+		// Schema 14 saved what the shop paid for the weapon and no equipment.
+		data.run.weapon.paid = 60;
+		delete data.run.equipment;
+	}
 	if (version < 14) {
 		delete data.daily;
 		delete data.run.seconds;
@@ -497,6 +506,7 @@ test("slot files from schemas 10 to 13 still verify and gain the Warrior, the cl
 	for (const version of [10, 11, 12, 13]) {
 		const text = await slotFileOf(version);
 		const loaded = await parseSave(text);
+		expect(loaded.run?.equipment, `schema ${version}`).toEqual([]);
 		expect(loaded.run?.seed, `schema ${version}`).toBe(4242);
 		expect(loaded.run?.hero, `schema ${version}`).toBe(DEFAULT_HERO);
 		expect(loaded.run?.seconds, `schema ${version}`).toBe(0);
@@ -512,9 +522,17 @@ test("a schema 14 slot file becomes a Warrior save: the run keeps its sword, the
 	const text = await slotFileOf(14);
 	const loaded = await parseSave(text);
 	expect(loaded.run?.hero).toBe("warrior");
-	expect(loaded.run?.weapon).toEqual({ id: "sword", tier: 0, paid: 60 });
+	expect(loaded.run?.weapon).toEqual({ id: "sword", tier: 0 });
 	// The record of 12 on the old 10/20/30 bosses means the round 10 boss fell.
 	expect(loaded.stats.bestBossRound).toBe(10);
+	// The shop changed too: nothing equipped yet.
+	expect(loaded.run?.equipment).toEqual([]);
+});
+
+test("a schema 15 slot file keeps the equipment, the daily table and the daily run, and re-serializes to the same text", async () => {
+	const text = await slotFileOf(15);
+	const loaded = await parseSave(text);
+	expect(loaded.run?.equipment).toEqual([6, 0, 3, 10, 0, 1]);
 	expect(loaded.daily).toEqual([{ date: "2026-11-10", round: 9, seconds: 300, kills: 120 }]);
 	expect(loaded.run?.daily).toBe("2026-11-11");
 	expect(loaded.run?.seconds).toBe(412);
@@ -560,12 +578,12 @@ test("the hero of a checkpoint must be a short id", async () => {
 
 test("migrateClasses turns any old hero into the Warrior and derives the best boss round from the records", () => {
 	const m = meta();
-	m.run = { ...checkpoint(), hero: "penitent", weapon: { id: "smg", tier: 3, paid: 5 } };
+	m.run = { ...checkpoint(), hero: "penitent", weapon: { id: "smg", tier: 3 } };
 	m.records = { easy: 0, normal: 21, grim: 0, nightmare: 0 };
 	m.stats.bestBossRound = 0;
 	const migrated = migrateClasses(m);
 	expect(migrated.run?.hero).toBe("warrior");
-	expect(migrated.run?.weapon).toEqual({ id: "sword", tier: 0, paid: 5 });
+	expect(migrated.run?.weapon).toEqual({ id: "sword", tier: 0 });
 	expect(migrated.stats.bestBossRound).toBe(20);
 	m.records.normal = 10;
 	expect(migrateClasses(m).stats.bestBossRound).toBe(0);

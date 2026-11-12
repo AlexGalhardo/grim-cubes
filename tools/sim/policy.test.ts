@@ -79,11 +79,10 @@ describe("what each policy picks", () => {
 		expect(tank.effectValue(revive?.effects ?? [])).toBeGreaterThan(
 			greedy.effectValue(revive?.effects ?? []),
 		);
-		// An ordinary effect is worth less to the tank, and so is a weapon upgrade.
+		// An ordinary effect is worth less to the tank.
 		expect(tank.effectValue([{ id: "double_fragment_chance" }])).toBeLessThan(
 			greedy.effectValue([{ id: "x" }]),
 		);
-		expect(tank.upgradeValue).toBeLessThan(greedy.upgradeValue);
 	});
 
 	it("the tank's weights put survival stats well above the greedy bot's", () => {

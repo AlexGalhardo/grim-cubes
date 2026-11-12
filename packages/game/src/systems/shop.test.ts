@@ -1,212 +1,125 @@
-import { createSpatialHash, mulberry32 } from "@gc/core";
+import { mulberry32 } from "@gc/core";
 import { expect, test } from "vitest";
-import { heroData, itemsData, roundsData, weaponsData } from "../data";
-import { createEventBuffer } from "../ecs/events";
-import { createProjectilePool } from "../ecs/projectile";
-import { createGameWorld, spawnBody } from "../ecs/world";
-import type { ShopItem, ShopSlot, ShopWeapon } from "../rules/shop";
+import { equipmentData, heroData, roundsData } from "../data";
 import { createPlayerStats } from "../rules/stats";
-import { createDamageSystem } from "./damage";
 import { createProgress } from "./loot";
 import { createShopSystem } from "./shop";
 import { createStatsSystem } from "./stats";
-import { createTargetingSystem } from "./targeting";
-import { createWeaponSystem } from "./weapon";
 
-function setup(round = 3, seed = 1, guaranteedUncommon = 0) {
-	const world = createGameWorld();
-	const hero = spawnBody(world, 0, 0);
-	const events = createEventBuffer(64);
-	const hash = createSpatialHash();
+function setup(round = 3, seed = 1) {
 	const stats = createStatsSystem(heroData, createPlayerStats());
-	const damage = createDamageSystem({
-		config: {
-			armorConstant: 6.66,
-			dodgeCap: 0.6,
-			lifeStealHpPerSecond: 10,
-			lifeStealTriggerSeconds: 0.1,
-			iFramesOnHitSeconds: 0.3,
-			knockbackDurationSeconds: 0.1,
-			bossKnockbackMult: 0.1,
-			eliteKnockbackMult: 0.5,
-		},
-		rng: { dodge: mulberry32(1), combat: mulberry32(2) },
-		events,
-		hero,
-		stats: stats.stats,
-	});
-	const weapon = createWeaponSystem({
-		weapon: weaponsData.find((w) => w.id === "sword") as (typeof weaponsData)[number],
-		tier: 0,
-		stats: stats.stats,
-		attackSpeedCap: 12,
-		queue: damage.queue,
-		events,
-		targeting: createTargetingSystem({ priorityDistanceMult: 0.8, retargetEvery: 3 }, hash),
-		enemies: hash,
-		rng: mulberry32(3),
-		projectiles: createProjectilePool(world, events, 4),
-	});
 	const progress = createProgress();
-	const roundRef = { value: round };
 	const shop = createShopSystem({
 		config: roundsData.shop,
-		tiers: roundsData.tierChance,
-		catalog: {
-			items: itemsData as unknown as ShopItem[],
-			weapons: weaponsData as unknown as ShopWeapon[],
-		},
-		weaponDefs: weaponsData,
+		equipment: equipmentData,
 		rng: mulberry32(seed),
 		progress,
 		stats,
-		weapon,
-		round: () => roundRef.value,
-		guaranteedUncommon,
+		round: () => round,
 	});
-	return { shop, progress, stats, weapon, roundRef };
+	return { shop, stats, progress };
 }
 
-const firstOf = (slots: readonly ShopSlot[], kind: ShopSlot["kind"]): number =>
-	slots.findIndex((s) => s.kind === kind);
-
-test("buying an item charges the price and applies its modifiers", () => {
-	const { shop, progress, stats } = setup(3);
-	shop.open();
-	const index = firstOf(shop.slots, "item");
-	const slot = shop.slots[index] as ShopSlot;
-	progress.gold = slot.price - 1;
-	expect(shop.buy(index)).toBe(false);
-	progress.gold = slot.price + 5;
-	expect(shop.buy(index)).toBe(true);
-	expect(progress.gold).toBe(5);
-	expect(stats.stats.dirty).toBe(true);
-	expect(shop.owned.get(slot.id)).toBe(1);
-	expect(shop.slots[index]?.sold).toBe(true);
-	expect(shop.buy(index)).toBe(false);
+test("a fresh shop opens with one offer per slot and nothing equipped", () => {
+	const s = setup();
+	s.shop.open();
+	expect(s.shop.slots).toHaveLength(equipmentData.slots.length);
+	expect(s.shop.levels).toEqual([0, 0, 0, 0, 0, 0]);
 });
 
-test("buying a new weapon swaps it and refunds half of what the old one cost", () => {
-	for (let seed = 1; seed < 200; seed++) {
-		const s = setup(2, seed);
-		s.shop.open();
-		const index = firstOf(s.shop.slots, "weapon");
-		if (index < 0) continue;
-		const slot = s.shop.slots[index] as ShopSlot;
-		const oldPaid = s.shop.paid;
-		s.progress.gold = 1000;
-		expect(s.shop.buy(index)).toBe(true);
-		expect(s.weapon.weapon.id).toBe(slot.id);
-		expect(s.weapon.tier).toBe(0);
-		expect(s.progress.gold).toBe(1000 + Math.floor(oldPaid * 0.5) - slot.price);
-		expect(s.shop.paid).toBe(slot.price);
-		return;
-	}
-	throw new Error("no weapon offer in 200 seeds");
+test("buying an offer equips it, charges the price and applies its attributes", () => {
+	const s = setup(1);
+	s.shop.open();
+	const offer = s.shop.slots[0];
+	if (!offer) throw new Error("no offer");
+	s.progress.gold = offer.price + 5;
+	const armorBefore = s.stats.stats.armor;
+	expect(s.shop.buy(0)).toBe(true);
+	s.stats.run(0);
+	expect(s.progress.gold).toBe(5);
+	expect(s.shop.levels[0]).toBe(offer.level);
+	expect(s.stats.stats.armor).toBeGreaterThan(armorBefore);
+	expect(s.shop.slots[0]?.sold).toBe(true);
+	expect(s.shop.buy(0)).toBe(false);
+	// The equipment bonus is not a saved modifier: the checkpoint stores the levels instead.
+	expect(s.stats.modifiers).toEqual([]);
 });
 
-test("an upgrade raises the tier once per purchase and adds to the paid total", () => {
-	for (let seed = 1; seed < 300; seed++) {
-		const s = setup(2, seed);
-		s.shop.open();
-		const index = firstOf(s.shop.slots, "upgrade");
-		if (index < 0) continue;
-		const slot = s.shop.slots[index] as ShopSlot;
-		const paidBefore = s.shop.paid;
-		s.progress.gold = 500;
-		expect(s.shop.buy(index)).toBe(true);
-		expect(s.weapon.tier).toBe(1);
-		expect(s.shop.paid).toBe(paidBefore + slot.price);
-		return;
-	}
-	throw new Error("no upgrade offer in 300 seeds");
+test("a better piece replaces the equipped one instead of stacking on it", () => {
+	const s = setup(1);
+	s.shop.open();
+	s.progress.gold = 1000;
+	s.shop.buy(0);
+	s.stats.run(0);
+	const armor1 = s.stats.stats.armor;
+	s.shop.reroll();
+	s.shop.buy(0);
+	s.stats.run(0);
+	expect(s.shop.levels[0]).toBe(2);
+	const level2 = equipmentData.slots[0]?.levels[1]?.modifiers.find((m) => m.stat === "armor")?.value ?? 0;
+	expect(s.stats.stats.armor).toBe(level2);
+	expect(s.stats.stats.armor).toBeGreaterThan(armor1);
 });
 
-test("reroll charges the escalating price and keeps locked slots", () => {
-	const { shop, progress } = setup(10, 2);
-	progress.gold = 100;
-	shop.open();
-	shop.toggleLock(1);
-	const lockedBefore = shop.slots[1];
-	expect(shop.rerollPrice).toBe(11);
-	expect(shop.reroll()).toBe(true);
-	expect(progress.gold).toBe(89);
-	expect(shop.rerollPrice).toBe(15);
-	expect(shop.slots[1]).toEqual(lockedBefore);
-	progress.gold = 3;
-	expect(shop.reroll()).toBe(false);
-	expect(progress.gold).toBe(3);
+test("a purchase is refused without gold", () => {
+	const s = setup();
+	s.shop.open();
+	s.progress.gold = 0;
+	expect(s.shop.buy(0)).toBe(false);
+	expect(s.shop.levels[0]).toBe(0);
 });
 
-test("open() resets the reroll counter and the view mirrors affordability", () => {
-	const { shop, progress } = setup(5, 3);
-	progress.gold = 200;
-	shop.open();
-	shop.reroll();
-	shop.open();
-	expect(shop.rerollPrice).toBe(5);
-	progress.gold = 0;
-	const view = shop.view();
-	expect(view.slots).toHaveLength(4);
-	expect(view.slots.every((s) => !s.affordable)).toBe(true);
-	expect(view.slots.some((s) => s.kind === "item" && s.lines.length > 0)).toBe(true);
-});
-
-test("free rerolls cost nothing and do not escalate the paid price", () => {
-	const { shop, progress, stats } = setup(10, 2);
-	stats.add([{ stat: "free_rerolls", op: "add", value: 1 }]);
-	stats.run(0);
-	progress.gold = 100;
-	shop.open();
-	expect(shop.rerollPrice).toBe(0);
-	expect(shop.reroll()).toBe(true);
-	expect(progress.gold).toBe(100);
-	expect(shop.rerollPrice).toBe(11);
-});
-
-test("selling the starting weapon returns nothing", () => {
-	for (let seed = 1; seed < 200; seed++) {
-		const s = setup(2, seed);
-		s.shop.open();
-		const index = firstOf(s.shop.slots, "weapon");
-		if (index < 0) continue;
-		const slot = s.shop.slots[index] as ShopSlot;
-		expect(s.shop.paid).toBe(0);
-		s.progress.gold = 500;
-		expect(s.shop.buy(index)).toBe(true);
-		expect(s.progress.gold).toBe(500 - slot.price);
-		return;
-	}
-	throw new Error("no weapon offer in 200 seeds");
-});
-
-test("with the Ossuary guarantee every shop visit holds an Uncommon item", () => {
-	for (let seed = 1; seed <= 40; seed++) {
-		const { shop, roundRef } = setup(3, seed, 1);
-		for (const round of [3, 12, 30]) {
-			roundRef.value = round;
-			shop.open();
-			const tiers = shop.slots.flatMap((slot) =>
-				slot.kind === "item" ? [itemsData.find((i) => i.id === slot.id)?.tier] : [],
-			);
-			expect(tiers, `seed ${seed} round ${round}`).toContain(2);
-		}
+test("a slot at the gold cap gets no more offers, and rerolls never sell a worse piece", () => {
+	const s = setup(40, 7);
+	s.shop.restoreLevels([6, 2, 0, 0, 0, 0]);
+	s.progress.gold = 10_000;
+	s.shop.open();
+	for (let i = 0; i < 10; i++) {
+		expect(s.shop.slots.every((o) => o.slot !== 0)).toBe(true);
+		for (const o of s.shop.slots) expect(o.level).toBeGreaterThan(s.shop.levels[o.slot] ?? 0);
+		s.shop.reroll();
 	}
 });
 
-test("the Ossuary guarantee covers the opening offer only, not the rerolls", () => {
-	let rerollsWithoutUncommon = 0;
-	for (let seed = 1; seed <= 40; seed++) {
-		const { shop, progress } = setup(3, seed, 1);
-		progress.gold = 1e6;
-		shop.open();
-		const hasUncommon = (): boolean =>
-			shop.slots.some(
-				(slot) => slot.kind === "item" && itemsData.find((i) => i.id === slot.id)?.tier === 2,
-			);
-		expect(hasUncommon()).toBe(true);
-		shop.reroll();
-		if (!hasUncommon()) rerollsWithoutUncommon++;
-	}
-	expect(rerollsWithoutUncommon).toBeGreaterThan(0);
+test("a reroll charges a price that grows, and free rerolls make the first ones cost nothing", () => {
+	const s = setup(10);
+	s.shop.open();
+	const first = s.shop.rerollPrice;
+	s.progress.gold = first;
+	expect(s.shop.reroll()).toBe(true);
+	expect(s.progress.gold).toBe(0);
+	expect(s.shop.rerollPrice).toBeGreaterThan(first);
+	expect(s.shop.reroll()).toBe(false);
+	s.stats.add([{ stat: "free_rerolls", op: "add", value: 1 }]);
+	s.stats.run(0);
+	s.shop.open();
+	expect(s.shop.rerollPrice).toBe(0);
+});
+
+test("a locked offer stays through a reroll", () => {
+	const s = setup(1);
+	s.shop.open();
+	s.progress.gold = 1000;
+	const kept = s.shop.slots[1];
+	s.shop.toggleLock(1);
+	s.shop.reroll();
+	expect(s.shop.slots[1]).toEqual({ ...kept, locked: true });
+});
+
+test("restored levels come back with their attributes and are clamped to the data", () => {
+	const s = setup();
+	s.shop.restoreLevels([10, 99, -3, 0, 4]);
+	s.stats.run(0);
+	expect(s.shop.levels).toEqual([10, 10, 0, 0, 4, 0]);
+	expect(s.stats.stats.armor).toBeGreaterThan(0);
+});
+
+test("the view lists the offers with their attribute lines and whether the hero can pay", () => {
+	const s = setup(1);
+	s.shop.open();
+	s.progress.gold = 0;
+	const view = s.shop.view();
+	expect(view.slots).toHaveLength(equipmentData.slots.length);
+	expect(view.slots.every((o) => !o.affordable && o.lines.length > 0)).toBe(true);
+	expect(view.slots[0]?.slot).toBe("helmet");
 });
