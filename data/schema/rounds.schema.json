@@ -404,7 +404,7 @@
 			"minItems": 1,
 			"items": {
 				"type": "object",
-				"required": ["id", "hpDamageMult", "soulsMult"],
+				"required": ["id", "hpDamageMult", "soulsMult", "telegraphMult"],
 				"additionalProperties": false,
 				"properties": {
 					"id": {
@@ -417,6 +417,11 @@
 					"soulsMult": {
 						"type": "number",
 						"minimum": 0
+					},
+					"telegraphMult": {
+						"type": "number",
+						"exclusiveMinimum": 0,
+						"description": "Multiplies the warning time of every boss attack (reaction time): more on Easy, less on Nightmare."
 					},
 					"unlockedBy": {
 						"type": "object",

@@ -231,6 +231,7 @@ function build(options: GameSessionOptions) {
 			seed,
 			difficulty: () => difficulty.hpDamageMult,
 			materials,
+			telegraphMult: difficulty.telegraphMult,
 			onDefeated: () => {
 				run.bossDied();
 				for (let i = 0; i < roundsData.boss.freeWeaponUpgrades; i++) weapon.upgrade();

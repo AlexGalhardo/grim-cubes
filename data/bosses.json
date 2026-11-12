@@ -35,6 +35,47 @@
 					"count": 6,
 					"atHpFraction": 0.5
 				}
+			},
+			{
+				"id": "target_blast",
+				"params": {
+					"count": 3,
+					"spread": 3.5,
+					"delaySeconds": 1.2,
+					"gapSeconds": 0.3,
+					"radius": 2.5,
+					"damageMult": 2.5,
+					"telegraphSeconds": 0.8,
+					"recoverSeconds": 1.2
+				}
+			},
+			{
+				"id": "hammer_shockwave",
+				"params": {
+					"shape": "radial",
+					"telegraphSeconds": 0.9,
+					"radius": 4.5,
+					"maxDistance": 4.5,
+					"damageMult": 3,
+					"knockbackDistance": 2,
+					"knockbackSeconds": 0.2,
+					"recoverSeconds": 1
+				}
+			},
+			{
+				"id": "chain_shot",
+				"params": {
+					"directions": 5,
+					"bursts": 2,
+					"burstGapSeconds": 0.5,
+					"telegraphSeconds": 0.9,
+					"projectileSpeed": 9,
+					"range": 18,
+					"damageMult": 2,
+					"projectileRadius": 0.35,
+					"minDistance": 6,
+					"recoverSeconds": 1
+				}
 			}
 		],
 		"radius": 1.65,
@@ -81,6 +122,45 @@
 					"knockbackDistance": 5,
 					"knockbackSeconds": 0.25,
 					"damageMult": 3,
+					"recoverSeconds": 1
+				}
+			},
+			{
+				"id": "target_blast",
+				"params": {
+					"count": 4,
+					"spread": 3.5,
+					"delaySeconds": 1.3,
+					"gapSeconds": 0.3,
+					"radius": 2.8,
+					"damageMult": 2.5,
+					"telegraphSeconds": 0.8,
+					"recoverSeconds": 1.2
+				}
+			},
+			{
+				"id": "sweep",
+				"params": {
+					"telegraphSeconds": 0.9,
+					"range": 4,
+					"arcDegrees": 180,
+					"maxDistance": 4,
+					"damageMult": 2,
+					"recoverSeconds": 1
+				}
+			},
+			{
+				"id": "chain_shot",
+				"params": {
+					"directions": 3,
+					"bursts": 2,
+					"burstGapSeconds": 0.5,
+					"telegraphSeconds": 0.9,
+					"projectileSpeed": 9,
+					"range": 18,
+					"damageMult": 2,
+					"projectileRadius": 0.35,
+					"minDistance": 3,
 					"recoverSeconds": 1
 				}
 			}
@@ -133,6 +213,40 @@
 					"armor": 30,
 					"atHpFraction": 0.5
 				}
+			},
+			{
+				"id": "line_charge",
+				"params": {
+					"telegraphSeconds": 1.1,
+					"chargeSeconds": 0.5,
+					"speedMult": 3,
+					"recoverSeconds": 1,
+					"minDistance": 5
+				}
+			},
+			{
+				"id": "target_blast",
+				"params": {
+					"count": 4,
+					"spread": 3.5,
+					"delaySeconds": 1.1,
+					"gapSeconds": 0.3,
+					"radius": 2,
+					"damageMult": 3,
+					"telegraphSeconds": 0.7,
+					"recoverSeconds": 1.2
+				}
+			},
+			{
+				"id": "sweep",
+				"params": {
+					"telegraphSeconds": 1,
+					"range": 5,
+					"arcDegrees": 160,
+					"maxDistance": 5,
+					"damageMult": 2,
+					"recoverSeconds": 1
+				}
 			}
 		],
 		"radius": 2,
@@ -178,6 +292,40 @@
 				"id": "thermal_vision",
 				"params": {
 					"ignoresObstacles": true
+				}
+			},
+			{
+				"id": "target_blast",
+				"params": {
+					"count": 2,
+					"spread": 3.5,
+					"delaySeconds": 0.9,
+					"gapSeconds": 0.3,
+					"radius": 2,
+					"damageMult": 2.5,
+					"telegraphSeconds": 0.6,
+					"recoverSeconds": 1.2
+				}
+			},
+			{
+				"id": "shovel_arc",
+				"params": {
+					"windupSeconds": 0.5,
+					"arcDegrees": 100,
+					"range": 2.5,
+					"damageMult": 1.5,
+					"recoverSeconds": 0.8,
+					"maxDistance": 3.0
+				}
+			},
+			{
+				"id": "line_charge",
+				"params": {
+					"telegraphSeconds": 0.7,
+					"chargeSeconds": 0.5,
+					"speedMult": 5,
+					"recoverSeconds": 1,
+					"minDistance": 4
 				}
 			}
 		],
@@ -233,6 +381,57 @@
 					"telegraphSeconds": 0.6,
 					"recoverSeconds": 1.5
 				}
+			},
+			{
+				"id": "target_blast",
+				"params": {
+					"count": 3,
+					"spread": 3.5,
+					"delaySeconds": 1.2,
+					"gapSeconds": 0.3,
+					"radius": 2.5,
+					"damageMult": 2.5,
+					"telegraphSeconds": 0.8,
+					"recoverSeconds": 1.2
+				}
+			},
+			{
+				"id": "scream",
+				"params": {
+					"effect": "knockback",
+					"telegraphSeconds": 0.8,
+					"radius": 5,
+					"maxDistance": 4,
+					"knockbackDistance": 4,
+					"knockbackSeconds": 0.25,
+					"damageMult": 2.5,
+					"recoverSeconds": 1
+				}
+			},
+			{
+				"id": "chain_shot",
+				"params": {
+					"directions": 4,
+					"bursts": 2,
+					"burstGapSeconds": 0.5,
+					"telegraphSeconds": 0.9,
+					"projectileSpeed": 9,
+					"range": 18,
+					"damageMult": 2,
+					"projectileRadius": 0.35,
+					"minDistance": 3,
+					"recoverSeconds": 1
+				}
+			},
+			{
+				"id": "line_charge",
+				"params": {
+					"telegraphSeconds": 1,
+					"chargeSeconds": 0.5,
+					"speedMult": 3,
+					"recoverSeconds": 1,
+					"minDistance": 5
+				}
 			}
 		],
 		"radius": 1.8,
@@ -282,6 +481,47 @@
 					"count": 4,
 					"atHpFraction": 0.5
 				}
+			},
+			{
+				"id": "target_blast",
+				"params": {
+					"count": 3,
+					"spread": 3.5,
+					"delaySeconds": 1.2,
+					"gapSeconds": 0.3,
+					"radius": 2.2,
+					"damageMult": 2.5,
+					"telegraphSeconds": 0.8,
+					"recoverSeconds": 1.2
+				}
+			},
+			{
+				"id": "hammer_shockwave",
+				"params": {
+					"shape": "radial",
+					"telegraphSeconds": 0.9,
+					"radius": 4,
+					"maxDistance": 4,
+					"damageMult": 3,
+					"knockbackDistance": 2,
+					"knockbackSeconds": 0.2,
+					"recoverSeconds": 1
+				}
+			},
+			{
+				"id": "chain_shot",
+				"params": {
+					"directions": 4,
+					"bursts": 2,
+					"burstGapSeconds": 0.5,
+					"telegraphSeconds": 0.9,
+					"projectileSpeed": 9,
+					"range": 18,
+					"damageMult": 2,
+					"projectileRadius": 0.35,
+					"minDistance": 3,
+					"recoverSeconds": 1
+				}
 			}
 		]
 	},
@@ -330,6 +570,45 @@
 					"knockbackDistance": 4.5,
 					"knockbackSeconds": 0.25,
 					"damageMult": 2.5,
+					"recoverSeconds": 1
+				}
+			},
+			{
+				"id": "target_blast",
+				"params": {
+					"count": 4,
+					"spread": 3.5,
+					"delaySeconds": 1.3,
+					"gapSeconds": 0.3,
+					"radius": 2.8,
+					"damageMult": 2.5,
+					"telegraphSeconds": 0.8,
+					"recoverSeconds": 1.2
+				}
+			},
+			{
+				"id": "sweep",
+				"params": {
+					"telegraphSeconds": 0.9,
+					"range": 4,
+					"arcDegrees": 180,
+					"maxDistance": 4,
+					"damageMult": 2,
+					"recoverSeconds": 1
+				}
+			},
+			{
+				"id": "chain_shot",
+				"params": {
+					"directions": 3,
+					"bursts": 2,
+					"burstGapSeconds": 0.5,
+					"telegraphSeconds": 0.9,
+					"projectileSpeed": 9,
+					"range": 18,
+					"damageMult": 2,
+					"projectileRadius": 0.35,
+					"minDistance": 3,
 					"recoverSeconds": 1
 				}
 			}
@@ -384,6 +663,40 @@
 					"armor": 25,
 					"atHpFraction": 0.5
 				}
+			},
+			{
+				"id": "line_charge",
+				"params": {
+					"telegraphSeconds": 1.2,
+					"chargeSeconds": 0.5,
+					"speedMult": 3,
+					"recoverSeconds": 1,
+					"minDistance": 5
+				}
+			},
+			{
+				"id": "target_blast",
+				"params": {
+					"count": 4,
+					"spread": 3.5,
+					"delaySeconds": 1.1,
+					"gapSeconds": 0.3,
+					"radius": 2.2,
+					"damageMult": 3,
+					"telegraphSeconds": 0.7,
+					"recoverSeconds": 1.2
+				}
+			},
+			{
+				"id": "shovel_arc",
+				"params": {
+					"windupSeconds": 0.8,
+					"arcDegrees": 130,
+					"range": 3.5,
+					"damageMult": 2,
+					"recoverSeconds": 0.8,
+					"maxDistance": 4.0
+				}
 			}
 		]
 	},
@@ -431,6 +744,40 @@
 				"id": "thermal_vision",
 				"params": {
 					"ignoresObstacles": true
+				}
+			},
+			{
+				"id": "target_blast",
+				"params": {
+					"count": 3,
+					"spread": 3.5,
+					"delaySeconds": 0.9,
+					"gapSeconds": 0.3,
+					"radius": 2,
+					"damageMult": 2.5,
+					"telegraphSeconds": 0.6,
+					"recoverSeconds": 1.2
+				}
+			},
+			{
+				"id": "shovel_arc",
+				"params": {
+					"windupSeconds": 0.5,
+					"arcDegrees": 100,
+					"range": 2.5,
+					"damageMult": 1.5,
+					"recoverSeconds": 0.8,
+					"maxDistance": 3.0
+				}
+			},
+			{
+				"id": "line_charge",
+				"params": {
+					"telegraphSeconds": 0.7,
+					"chargeSeconds": 0.5,
+					"speedMult": 5,
+					"recoverSeconds": 1,
+					"minDistance": 4
 				}
 			}
 		]
@@ -482,6 +829,32 @@
 					"maxDistance": 16,
 					"radius": 3.5,
 					"damageMult": 3,
+					"recoverSeconds": 1
+				}
+			},
+			{
+				"id": "target_blast",
+				"params": {
+					"count": 4,
+					"spread": 3.5,
+					"delaySeconds": 1.2,
+					"gapSeconds": 0.3,
+					"radius": 2.8,
+					"damageMult": 2.5,
+					"telegraphSeconds": 0.8,
+					"recoverSeconds": 1.2
+				}
+			},
+			{
+				"id": "scream",
+				"params": {
+					"effect": "knockback",
+					"telegraphSeconds": 0.8,
+					"radius": 5.5,
+					"maxDistance": 4.5,
+					"knockbackDistance": 4,
+					"knockbackSeconds": 0.25,
+					"damageMult": 2.5,
 					"recoverSeconds": 1
 				}
 			}

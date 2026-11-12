@@ -843,81 +843,88 @@ const MAX_BOMBS = 8;
  * it walks through props) and its attack becomes a salvo of `count` bombs dropped on and around the hero. Each bomb
  * is announced by `BossBomb` and explodes `delaySeconds` later, one after the other `gapSeconds` apart.
  */
-const flyBomb: PatternFactory = (p) => {
-	const bombX = new Float32Array(MAX_BOMBS);
-	const bombZ = new Float32Array(MAX_BOMBS);
-	const bombLeft = new Uint16Array(MAX_BOMBS);
-	let next = 0;
-	let phase = 0;
-	let timer = 0;
+/**
+ * A salvo of bombs dropped on and around the hero. `phased` (the Nest Queen's `fly_bomb`) holds it back until the HP
+ * trigger flips `Boss.phase`; the free form (`target_blast`) is an ordinary attack any boss can use from the start.
+ */
+const bombSalvo =
+	(phased: boolean): PatternFactory =>
+	(p) => {
+		const bombX = new Float32Array(MAX_BOMBS);
+		const bombZ = new Float32Array(MAX_BOMBS);
+		const bombLeft = new Uint16Array(MAX_BOMBS);
+		let next = 0;
+		let phase = 0;
+		let timer = 0;
 
-	return {
-		canStart: (ctx) => (Boss.phase[ctx.entity] ?? 0) !== 0,
-		shift(dx, dz): void {
-			for (let i = 0; i < MAX_BOMBS; i++) {
-				bombX[i] = (bombX[i] ?? 0) - dx;
-				bombZ[i] = (bombZ[i] ?? 0) - dz;
-			}
-		},
-		start(ctx): void {
-			phase = 0;
-			timer = ctx.steps(num(p, "telegraphSeconds", 0.6));
-			ctx.stop();
-			ctx.events.push(
-				EventType.BossTelegraph,
-				ctx.dirX,
-				ctx.dirZ,
-				num(p, "telegraphSeconds", 0.6),
-				ctx.entity,
-			);
-		},
-		update(ctx): boolean {
-			ctx.stop();
-			if (phase === 0) {
-				if (--timer <= 0) {
-					const count = Math.min(MAX_BOMBS, Math.max(1, Math.round(num(p, "count", 4))));
-					const spread = num(p, "spread", 3.5);
-					for (let i = 0; i < count; i++) {
-						// The first bomb falls on the hero; the rest ring it, so standing still is the worst answer.
-						const angle = (i / count) * Math.PI * 2;
-						const x = (Position.x[ctx.hero] ?? 0) + (i === 0 ? 0 : Math.cos(angle) * spread);
-						const z = (Position.z[ctx.hero] ?? 0) + (i === 0 ? 0 : Math.sin(angle) * spread);
-						const delay = num(p, "delaySeconds", 1.2) + i * num(p, "gapSeconds", 0.3);
-						bombX[next] = x;
-						bombZ[next] = z;
-						bombLeft[next] = ctx.steps(delay);
-						next = (next + 1) % MAX_BOMBS;
-						ctx.events.push(EventType.BossBomb, x, z, delay, ctx.entity);
-					}
-					phase = 1;
-					timer = ctx.steps(num(p, "recoverSeconds", 1.5));
+		return {
+			canStart: (ctx) => !phased || (Boss.phase[ctx.entity] ?? 0) !== 0,
+			shift(dx, dz): void {
+				for (let i = 0; i < MAX_BOMBS; i++) {
+					bombX[i] = (bombX[i] ?? 0) - dx;
+					bombZ[i] = (bombZ[i] ?? 0) - dz;
 				}
-			} else if (--timer <= 0) {
-				return false;
-			}
-			return true;
-		},
-		tick(ctx): void {
-			if (
-				(Boss.phase[ctx.entity] ?? 0) === 0 &&
-				(Health.hp[ctx.entity] ?? 0) <= ctx.maxHp * num(p, "atHpFraction", 0.5)
-			) {
-				Boss.phase[ctx.entity] = 1;
-				addComponent(ctx.world, ctx.entity, IgnoresProps);
-				ctx.events.push(EventType.BossPhase, num(p, "phase", 2), 0, 0, ctx.entity);
-			}
-			const radius = num(p, "radius", 2.5);
-			for (let i = 0; i < MAX_BOMBS; i++) {
-				const left = bombLeft[i] ?? 0;
-				if (left === 0) continue;
-				bombLeft[i] = left - 1;
-				if (left > 1) continue;
-				ctx.events.push(EventType.Exploded, bombX[i] ?? 0, bombZ[i] ?? 0, radius, ctx.entity);
-				hitHeroWithin(ctx, bombX[i] ?? 0, bombZ[i] ?? 0, radius, num(p, "damageMult", 2));
-			}
-		},
+			},
+			start(ctx): void {
+				phase = 0;
+				timer = ctx.steps(num(p, "telegraphSeconds", 0.6));
+				ctx.stop();
+				ctx.events.push(
+					EventType.BossTelegraph,
+					ctx.dirX,
+					ctx.dirZ,
+					num(p, "telegraphSeconds", 0.6),
+					ctx.entity,
+				);
+			},
+			update(ctx): boolean {
+				ctx.stop();
+				if (phase === 0) {
+					if (--timer <= 0) {
+						const count = Math.min(MAX_BOMBS, Math.max(1, Math.round(num(p, "count", 4))));
+						const spread = num(p, "spread", 3.5);
+						for (let i = 0; i < count; i++) {
+							// The first bomb falls on the hero; the rest ring it, so standing still is the worst answer.
+							const angle = (i / count) * Math.PI * 2;
+							const x = (Position.x[ctx.hero] ?? 0) + (i === 0 ? 0 : Math.cos(angle) * spread);
+							const z = (Position.z[ctx.hero] ?? 0) + (i === 0 ? 0 : Math.sin(angle) * spread);
+							const delay = num(p, "delaySeconds", 1.2) + i * num(p, "gapSeconds", 0.3);
+							bombX[next] = x;
+							bombZ[next] = z;
+							bombLeft[next] = ctx.steps(delay);
+							next = (next + 1) % MAX_BOMBS;
+							ctx.events.push(EventType.BossBomb, x, z, delay, ctx.entity);
+						}
+						phase = 1;
+						timer = ctx.steps(num(p, "recoverSeconds", 1.5));
+					}
+				} else if (--timer <= 0) {
+					return false;
+				}
+				return true;
+			},
+			tick(ctx): void {
+				if (
+					phased &&
+					(Boss.phase[ctx.entity] ?? 0) === 0 &&
+					(Health.hp[ctx.entity] ?? 0) <= ctx.maxHp * num(p, "atHpFraction", 0.5)
+				) {
+					Boss.phase[ctx.entity] = 1;
+					addComponent(ctx.world, ctx.entity, IgnoresProps);
+					ctx.events.push(EventType.BossPhase, num(p, "phase", 2), 0, 0, ctx.entity);
+				}
+				const radius = num(p, "radius", 2.5);
+				for (let i = 0; i < MAX_BOMBS; i++) {
+					const left = bombLeft[i] ?? 0;
+					if (left === 0) continue;
+					bombLeft[i] = left - 1;
+					if (left > 1) continue;
+					ctx.events.push(EventType.Exploded, bombX[i] ?? 0, bombZ[i] ?? 0, radius, ctx.entity);
+					hitHeroWithin(ctx, bombX[i] ?? 0, bombZ[i] ?? 0, radius, num(p, "damageMult", 2));
+				}
+			},
+		};
 	};
-};
 
 const REGISTRY = new Map<string, PatternFactory>([
 	["line_charge", lineCharge],
@@ -933,7 +940,8 @@ const REGISTRY = new Map<string, PatternFactory>([
 	["thermal_vision", thermalVision],
 	["eggs", eggs],
 	["sweep", sweep],
-	["fly_bomb", flyBomb],
+	["fly_bomb", bombSalvo(true)],
+	["target_blast", bombSalvo(false)],
 ]);
 
 /** Adds a pattern for the next bosses (A-03-01 onward). Throws when the id is taken. */
@@ -946,13 +954,26 @@ export function hasPattern(id: string): boolean {
 	return REGISTRY.has(id);
 }
 
-/** Builds a handler per pattern of a boss definition, in data order. Unknown ids throw. */
+/** Params that are the warning the hero reacts to: the telegraph, the wind-up and the delay of a bomb. */
+const WARNING_KEY = /telegraph|windup|^delaySeconds$/i;
+
+/**
+ * Builds a handler per pattern of a boss definition, in data order. Unknown ids throw. `telegraphMult` stretches or
+ * shortens every warning time (the reaction time of the difficulty).
+ */
 export function buildPatterns(
 	patterns: readonly BossPatternData[],
+	telegraphMult = 1,
 ): { id: string; handler: PatternHandler }[] {
 	return patterns.map((pattern) => {
 		const factory = REGISTRY.get(pattern.id);
 		if (!factory) throw new RangeError(`unknown boss pattern "${pattern.id}"`);
-		return { id: pattern.id, handler: factory(pattern.params ?? {}) };
+		const params = Object.fromEntries(
+			Object.entries(pattern.params ?? {}).map(([key, value]) => [
+				key,
+				typeof value === "number" && WARNING_KEY.test(key) ? value * telegraphMult : value,
+			]),
+		);
+		return { id: pattern.id, handler: factory(params) };
 	});
 }

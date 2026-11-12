@@ -27,12 +27,13 @@ describe("sim harness", () => {
 		expect(report.perRound.some((r) => r.avgItemPrice > 0)).toBe(true);
 	});
 
-	it("fights the round 10 boss and records how long it took", () => {
-		// An immortal hero reaches round 10 whatever the equipment balance is, so this checks the boss bookkeeping only.
+	it("fights the round 5 and round 10 bosses and records how long they took", () => {
+		// An immortal hero reaches round 10 whatever the balance is; with a boss every five rounds it meets the Bone Warden, then the Gravedigger.
 		const report = runSim({ seed: 10, rounds: 10, difficulty: "normal", immortal: true });
-		expect(report.bosses).toHaveLength(1);
-		expect(report.bosses[0]).toMatchObject({ round: 10, boss: "gravedigger" });
-		expect(report.bosses[0]?.killSeconds).toBeGreaterThan(0);
+		expect(report.bosses.map((b) => b.boss)).toEqual(["bone_warden", "gravedigger"]);
+		expect(report.bosses[0]).toMatchObject({ round: 5 });
+		expect(report.bosses[1]).toMatchObject({ round: 10 });
+		expect(report.bosses[1]?.killSeconds).toBeGreaterThan(0);
 	});
 
 	it("takes owned Ossuary nodes into the run", () => {

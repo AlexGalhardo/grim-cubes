@@ -61,21 +61,25 @@
 	"difficulties": [
 		{
 			"id": "easy",
+			"telegraphMult": 1.25,
 			"hpDamageMult": 0.75,
 			"soulsMult": 0.75
 		},
 		{
 			"id": "normal",
+			"telegraphMult": 1,
 			"hpDamageMult": 1,
 			"soulsMult": 1
 		},
 		{
 			"id": "grim",
+			"telegraphMult": 0.85,
 			"hpDamageMult": 1.25,
 			"soulsMult": 1.5
 		},
 		{
 			"id": "nightmare",
+			"telegraphMult": 0.7,
 			"hpDamageMult": 1.5,
 			"soulsMult": 2,
 			"unlockedBy": {

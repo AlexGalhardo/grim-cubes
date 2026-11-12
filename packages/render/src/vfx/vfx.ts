@@ -408,9 +408,9 @@ export function createVfx(game: GameScene, options: VfxOptions = {}): Vfx {
 				// a, b = direction, c = the reach of the weapon now (tier included): the arc is as long as the damage.
 				slash.fire(game.hero.position.x, game.hero.position.z, a, b, c);
 			} else if (type === EventType.BossBomb) {
-				const bomb = bossesData
-					.flatMap((boss) => boss.patterns)
-					.find((pattern) => pattern.id === "fly_bomb")?.params?.radius;
+				// The salvo of the pattern that dropped it (fly_bomb or target_blast) sets the size of the warning.
+				const dropped = bossesData[(Boss.id[entity] ?? 1) - 1]?.patterns[patternOf[entity] ?? 0];
+				const bomb = dropped?.params?.radius;
 				zones.warn(a, b, typeof bomb === "number" ? bomb : 2.5, c);
 			} else if (type === EventType.BossEggLaid) {
 				burst(a, b, EGG_CUBES, propDust, 2, 3, false);

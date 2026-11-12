@@ -27,6 +27,8 @@ export interface BossSystemDeps {
 	summonType: number;
 	/** Difficulty multiplier on HP and damage. */
 	difficulty: () => number;
+	/** Multiplies the warning time of every attack (`rounds.json` difficulties `telegraphMult`); 1 when omitted. */
+	telegraphMult?: number | undefined;
 	/** `EnemyType` index of an enemy id from enemies.json (summon patterns). */
 	enemyIndex?: ((id: string) => number) | undefined;
 	/** Elite modifiers a boss can carry in late rounds (A-03-03); none when omitted. */
@@ -96,7 +98,7 @@ export const enrageMult = (rounds: RoundsData["boss"], stacks: number): number =
 export function createBossSystem(deps: BossSystemDeps): BossSystem {
 	const { def, rounds, spawn, events, queue, hero, rng, summonType, difficulty, onDefeated, heroStatus } =
 		deps;
-	const patterns = buildPatterns(def.patterns);
+	const patterns = buildPatterns(def.patterns, deps.telegraphMult ?? 1);
 	const phaseMarkers = [
 		...new Set(
 			def.patterns.flatMap((p) =>

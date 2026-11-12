@@ -89,6 +89,8 @@ export interface DifficultyData {
 	/** Multiplies enemy and boss HP and damage. */
 	hpDamageMult: number;
 	soulsMult: number;
+	/** Multiplies the warning time of every boss attack. */
+	telegraphMult: number;
 	/** Best round needed on another difficulty; absent when always open. */
 	unlockedBy?: { difficulty: string; round: number } | undefined;
 }

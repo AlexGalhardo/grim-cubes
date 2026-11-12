@@ -389,6 +389,8 @@ Os cinco chefes novos (rounds 5, 15, 25, 35 e 45) pegam emprestado o modelo voxe
 
 HP escala com o multiplicador de dificuldade (D13). Dano de contato dos chefes: (3 + 0,18 × N) × multiplicador do chefe (Coveiro ×1, Matriarca ×2, Forjador ×2, Caçador Alfa ×1,5, Rainha ×2; `contactDamageMult` em `bosses.json`); projéteis 18 + 1,2 × N (**proposta**). Os padrões de área e projétil escalam esse contato: grito ×3, martelo ×4, correntes ×3. HP e dano saíram do simulador (A-02-03): com 1.200/2.800/5.000 os chefes caíam em 15–40 s. O HP do Caçador Alfa (60.000) e da Rainha do Ninho (65.000) é provisório, decisão do Orq em 2026-10-31, revisável pelo PO: o HP anterior do GDD (7.500 e 11.000) dava kill em 10–14 s no sim. O sorteio do roster começa no round 51 (`randomRosterFromRound` em `rounds.json`).
 
+Cada chefe tem **cinco ataques** (os passivos, como invocar, armadura de fase, visão térmica e ovos, não contam, nem o `fly_bomb` da Rainha, que só existe na fase 2), sorteados pelo fluxo `combat` da seed entre os que podem começar na distância atual, e **todo ataque avisa no chão antes de ferir**: arco, linha, círculo ou anel vermelho (`BossTelegraph`) ou uma bomba marcada no chão (`BossBomb`) com tempo de reação mínimo de 0,3 s. O tempo de aviso é multiplicado pela dificuldade (`telegraphMult` em `rounds.json`: Fácil ×1,25, Normal ×1, Difícil ×0,85, Nightmare ×0,7). O ataque genérico novo é o `target_blast` (a rajada de bombas do `fly_bomb`, sem a fase 2); os demais reaproveitam os padrões existentes com números próprios.
+
 ### 12.2 Regras gerais
 
 - Entrada: 3 s de cinemática curta (câmera afasta 20%, nome em tela, fala de voz), inimigos comuns congelam.
