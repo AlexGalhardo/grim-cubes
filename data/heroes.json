@@ -7,13 +7,7 @@
 		"passive": {
 			"id": "rusted_plate",
 			"name": "Placas Enferrujadas",
-			"modifiers": [
-				{
-					"stat": "armor",
-					"op": "add",
-					"value": 1
-				}
-			]
+			"modifiers": []
 		}
 	},
 	{

@@ -188,7 +188,7 @@ A 1.0 tem três heróis (decisão do PO de 2026-11-11, trilha S-12; revisa a D11
 
 | Herói | Arma inicial | Stats base (além da tabela 7.1) | Passiva | Desbloqueio |
 | --- | --- | --- | --- | --- |
-| Carrasco (`executioner`) | Espada Enferrujada | — | **Placas Enferrujadas:** +1 de armadura | desde o início |
+| Carrasco (`executioner`) | Espada Enferrujada | — | **Placas Enferrujadas:** sem bônus numérico na `v0.6.0`: o +1 de armadura somado às sinergias tirava o herói padrão das faixas do §25 na seed 1 do CI; o bônus volta com o fechamento da S-12-03 | desde o início |
 | O Fuzilado (`riddled`) | Pistola de Ferro | HP 200, armadura 8, regeneração 2, esquiva 10%, crítico 8%, dano +85%, velocidade de ataque +85%, raio de pickup 7 u | **Olho do Pelotão:** +10% de chance de crítico, −40% de dano em chefes | marco `round_10` (round 10 em qualquer dificuldade) |
 | A Penitente (`penitent`) | Submetralhadora | HP 150, armadura 4, velocidade 6,4 u/s, dano +40%, velocidade de ataque +40%, raio de pickup 7 u | **Carne Flagelada:** +1 ponto de regeneração, −30% de dano em chefes | marco `bosses_3` (3 chefes mortos) |
 
