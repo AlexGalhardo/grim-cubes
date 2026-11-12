@@ -51,17 +51,20 @@ function setup(autoShop = true) {
 	return { world, hero, events, spawn, run, step, until };
 }
 
-test("round durations 1-12 follow the GDD ramp, bosses have no timer", () => {
+test("round durations follow the GDD ramp (30 s, +5 s, cap 120 s), bosses have no timer", () => {
+	expect([1, 2, 18, 19, 30].map((r) => roundDurationSeconds(runConfig, r))).toEqual([
+		30, 35, 115, 120, 120,
+	]);
 	const seconds = Array.from({ length: 12 }, (_, i) =>
 		isBossRound(runConfig, i + 1) ? null : roundDurationSeconds(runConfig, i + 1),
 	);
-	expect(seconds).toEqual([20, 25, 30, 35, 40, 45, 50, 55, 60, null, 60, 60]);
+	expect(seconds).toEqual([30, 35, 40, 45, 50, 55, 60, 65, 70, null, 80, 85]);
 	const { run, step, until } = setup();
 	run.newRun();
 	until("Round");
-	expect(run.ticksLeft).toBe(20 / STEP);
+	expect(run.ticksLeft).toBe(30 / STEP);
 	step();
-	expect(run.ticksLeft).toBe(20 / STEP - 1);
+	expect(run.ticksLeft).toBe(30 / STEP - 1);
 });
 
 test("run flows intro -> round -> outro -> shop -> next intro", () => {
@@ -70,7 +73,7 @@ test("run flows intro -> round -> outro -> shop -> next intro", () => {
 	run.newRun();
 	expect(run.state).toBe("RoundIntro");
 	expect(until("Round")).toBe(2 / STEP);
-	expect(until("RoundOutro")).toBe(20 / STEP);
+	expect(until("RoundOutro")).toBe(30 / STEP);
 	expect(until("Shop")).toBe(1 / STEP);
 	step();
 	expect(run.state).toBe("Shop");

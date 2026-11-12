@@ -80,20 +80,27 @@ test("resuming is a pure function of the checkpoint: same save, same inputs, sam
 	expect(live.owned.size + live.weapon.tier).toBeGreaterThan(0);
 	const checkpoint = await throughTheSave(live);
 
-	const a = fresh(true);
-	const b = fresh(true);
-	restoreCheckpoint(a, checkpoint);
-	restoreCheckpoint(b, structuredClone(checkpoint));
-	expect(summary(a)).toEqual(summary(live));
-	expect(a.run.state).toBe(live.run.state);
-	for (let step = 0; step < 900; step++) {
-		walk(a, step);
-		walk(b, step);
-		if (step % 150 === 149) expect(hashWorld(a.world), `step ${step}`).toBe(hashWorld(b.world));
-	}
-	expect(summary(a)).toEqual(summary(b));
-	expect(hashWorld(a.world)).toBe(hashWorld(b.world));
-	expect(hashWorld(a.world)).not.toBe(hashWorld(fresh(true).world));
+	// Component arrays are module-global and entity ids repeat across worlds, so two live sessions would step on each
+	// other's bodies: replay one after the other and compare the recorded hashes.
+	const replay = (cp: RunCheckpoint): { hashes: number[]; end: unknown } => {
+		const session = fresh(true);
+		restoreCheckpoint(session, cp);
+		if (cp === checkpoint) {
+			expect(summary(session)).toEqual(summary(live));
+			expect(session.run.state).toBe(live.run.state);
+		}
+		const hashes: number[] = [];
+		for (let step = 0; step < 900; step++) {
+			walk(session, step);
+			if (step % 150 === 149) hashes.push(hashWorld(session.world));
+		}
+		return { hashes, end: summary(session) };
+	};
+	const a = replay(checkpoint);
+	const b = replay(structuredClone(checkpoint));
+	expect(b.hashes).toEqual(a.hashes);
+	expect(b.end).toEqual(a.end);
+	expect(a.hashes[5]).not.toBe(hashWorld(fresh(true).world));
 });
 
 test("a run interrupted at round N+1 and resumed reaches N+2 with the state of the run that never stopped", async () => {

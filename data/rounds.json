@@ -14,10 +14,9 @@
 		"talkRadius": 4
 	},
 	"duration": {
-		"firstRoundSeconds": 20,
+		"firstRoundSeconds": 30,
 		"stepSeconds": 5,
-		"stepUntilRound": 8,
-		"maxSeconds": 60,
+		"maxSeconds": 120,
 		"bossEveryRounds": 10,
 		"bossHasTimer": false
 	},

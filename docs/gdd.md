@@ -373,12 +373,12 @@ HP escala com o multiplicador de dificuldade (D13). Dano de contato dos chefes: 
 
 | Round | Duração |
 | --- | --- |
-| 1 | 20 s |
-| 2–8 | +5 s por round (25, 30, …, 55 s) |
-| 9+ | 60 s |
-| múltiplos de 10 (chefe) | sem timer; enrage a cada 60 s |
+| 1 | 30 s |
+| 2–18 | +5 s por round (35, 40, …, 115 s) |
+| 19+ | 120 s |
+| chefe | sem timer; enrage a cada 60 s |
 
-Tempo acumulado de combate (sem loja): round 10 ≈ 7,6 min; round 20 ≈ 16 min; round 30 ≈ 26 min. Com loja (~30 s por round), uma run até o 30 dura ~40 min; alvo de run média é 20–30 (D14).
+Redesenho v0.7.0 (ADR-0030): a duração sobe de 20–60 s para 30–120 s. Os rounds de chefe passam a ser a cada 5 (Parte 1A do ROADMAP); a tabela de tempo acumulado antiga caducou e entra na revisão da S-26.
 
 ### 13.2 Níveis de dificuldade (D13)
 

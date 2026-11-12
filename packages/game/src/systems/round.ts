@@ -32,7 +32,6 @@ export interface RunConfig {
 	duration: {
 		firstRoundSeconds: number;
 		stepSeconds: number;
-		stepUntilRound: number;
 		maxSeconds: number;
 		bossEveryRounds: number;
 	};
@@ -88,12 +87,10 @@ export interface RunSystem {
 export const isBossRound = (config: RunConfig, round: number): boolean =>
 	config.duration.bossEveryRounds > 0 && round % config.duration.bossEveryRounds === 0;
 
-/** GDD 13.1: 20 s, +5 s per round up to `stepUntilRound`, then `maxSeconds`. Boss rounds have no timer. */
+/** GDD 13.1: 30 s, +5 s per round, capped at `maxSeconds`. Boss rounds have no timer. */
 export function roundDurationSeconds(config: RunConfig, round: number): number {
 	const d = config.duration;
-	return round > d.stepUntilRound
-		? d.maxSeconds
-		: Math.min(d.maxSeconds, d.firstRoundSeconds + d.stepSeconds * (round - 1));
+	return Math.min(d.maxSeconds, d.firstRoundSeconds + d.stepSeconds * (round - 1));
 }
 
 const toSteps = (seconds: number): number => Math.max(1, Math.round(seconds / STEP));

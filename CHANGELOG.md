@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **game:** Rounds last 30 s in round 1, grow 5 s per round and cap at 120 s from round 19 (was 20 s up to 60 s); `stepUntilRound` left `data/rounds.json` because the cap alone defines the ramp (S-19-01). The determinism anchor was re-recorded (seed 42, 3600 steps: 1470269519 to 428131125) because rounds are longer, and the checkpoint replay test now replays the two sessions one after the other since they share module-global component arrays.
 - **docs:** ADR-0030 and the roadmap's Part 1A (tracks S-19 to S-27, v0.7.0): rounds from 30 s to 120 s, a growing square arena, three classes with fixed weapons and six spells, an equipment shop with elite fragments and boss relics, the Ossuary as a spell tree, ten bosses every five rounds with telegraphed attacks, five biomes and weather VFX, before the medium-poly art
 
 ### Fixed

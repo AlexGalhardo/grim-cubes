@@ -64,14 +64,7 @@
 		},
 		"duration": {
 			"type": "object",
-			"required": [
-				"firstRoundSeconds",
-				"stepSeconds",
-				"stepUntilRound",
-				"maxSeconds",
-				"bossEveryRounds",
-				"bossHasTimer"
-			],
+			"required": ["firstRoundSeconds", "stepSeconds", "maxSeconds", "bossEveryRounds", "bossHasTimer"],
 			"additionalProperties": false,
 			"properties": {
 				"firstRoundSeconds": {
@@ -79,10 +72,6 @@
 					"minimum": 0
 				},
 				"stepSeconds": {
-					"type": "number",
-					"minimum": 0
-				},
-				"stepUntilRound": {
 					"type": "number",
 					"minimum": 0
 				},
