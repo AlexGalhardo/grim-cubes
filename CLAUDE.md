@@ -11,7 +11,7 @@ Este arquivo complementa as instruções globais do usuário. Em conflito, as re
 
 ## O projeto em uma linha
 
-Roguelite de sobrevivência em ondas, 3D voxel grimdark (medium poly pintado à mão depois da `v0.6.0`, ADR-0029), Babylon.js 9 + TypeScript 7 + React 19 + Tailwind 4 + bitecs, Bun, Vite 8; Steam (Electron) + demo web (Vercel) na 1.0; Android (Capacitor) na 1.1. Detalhes: `docs/gdd.md`, `docs/art-bible.md`, `docs/sdd/`, `docs/adrs/`.
+Roguelite de sobrevivência em ondas, 3D voxel grimdark (medium poly pintado à mão depois da `v0.6.0`, ADR-0029), Babylon.js 9 + TypeScript 7 + React 19 + Tailwind 4 + bitecs, Bun, Vite 8; Steam (Electron) + demo web (Vercel) na 1.0; Android (Capacitor) na 1.1. O loop da `v0.7.0` (ADR-0030, branch `feat/v0.7-shop`) é arena que cresce, três classes com arma fixa, loja de equipamento, Ossuário de magias, chefe a cada 5 rounds e cinco biomas. Detalhes: `docs/gdd.md`, `docs/art-bible.md`, `docs/sdd/`, `docs/adrs/`.
 
 ## Comandos
 
@@ -27,7 +27,7 @@ Roguelite de sobrevivência em ondas, 3D voxel grimdark (medium poly pintado à 
 | `bun run test` | Vitest (unit + integration) |
 | `bun run test:e2e` | Playwright (4 viewports) |
 | `bun run test:smoke` | Playwright smoke contra uma URL (bypass da Vercel por secret) |
-| `bun run sim` | simulador de balanceamento (`--hero executioner\|riddled\|penitent`, `--difficulty`, `--policy`, `--ossuary`, `--check`) |
+| `bun run sim` | simulador de balanceamento (`--hero warrior\|ranged\|mage`, `--difficulty`, `--policy`, `--ossuary`, `--check`) |
 | `bun run ux:legibility` | mede o contraste herói/chão e inimigo/chão na captura de combate (`reports/legibility.json`); `-- --biome <id>` teleporta o herói para outro bioma e grava `reports/legibility-<id>.json` |
 | `bun run test:perf` | bench de desempenho em Playwright (cenários `round20` e `gore-*` por preset); `reports/perf-*.json` |
 | `bun run assets:gen` | gera os `.bbmodel` placeholder por script |
@@ -53,7 +53,7 @@ Variável de build `GC_WISHLIST_URL` (`https://store.steampowered.com/app/<AppID
 - Versões exatas de dependências; nenhuma dependência nova sem aprovação do PO.
 - Tabs de largura 4 (Biome + `.editorconfig`); Markdown passa em `bun run lint:md`.
 - TypeScript estrito, sem `any`, sem `@ts-ignore`; `Math.random` proibido em `packages/game`; nada alocado por frame em `simulate`/`sync`.
-- Números de balanceamento só em `data/*.json` (inclusive os três heróis, em `data/heroes.json`); cores só por tokens Tailwind (`packages/ui/src/theme.css`).
+- Números de balanceamento só em `data/*.json` (inclusive as três classes, em `data/heroes.json`); cores só por tokens Tailwind (`packages/ui/src/theme.css`).
 - Camadas: `core` ← `game` ← `render`; `ui` lê só o store; `platform` é o único lugar com Electron/Capacitor/Steam.
 - Alvos de tela obrigatórios em UI: 1920×1080, 2560×1440, 896×414, 800×360 (landscape).
 - Toda alteração relevante: atualizar SDD/ADR/GDD/Art Bible afetados e `CHANGELOG.md` `[Unreleased]`; atualizar `docs/PROGRESS.md`.

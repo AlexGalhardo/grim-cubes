@@ -47,11 +47,11 @@ Tempo alvo: < 60 s com todos os assets da 1.0 em CI.
 
 ## 3. Carregamento em runtime (`packages/render/src/assets`)
 
-- `loadManifest()` → `loadGroup("core")` no boot (herói, Mercador, UI, bioma 0, Coveiro); `loadGroup("biome:bone_swamp")` quando o herói se aproxima a 40 u do anel; `loadGroup("boss:<id>")` no início do round 9, 19… (pré-carga de 1 round). Hoje `loadGameAssets` (`render/assets/gameAssets.ts`) baixa o manifest, os 2 atlas, os inimigos (glb + VAT) e os props pedidos de uma vez, e o que faltar no manifest mantém o placeholder; o carregamento por grupo é provisório até A-02.
+- `loadGameAssets` (`render/assets/gameAssets.ts`) baixa o manifest, os 2 atlas, os inimigos (glb + VAT) e os props pedidos de uma vez, e o que faltar no manifest mantém o placeholder. O plano antigo de `loadGroup` (Mercador no `core`, bioma ao se aproximar do anel, chefe nos rounds 9 e 19) não vale: não há Mercador e o chefe é a cada 5 rounds (ADR-0030). O carregamento por grupo continua por fazer.
 - Modelos via `ImportMeshAsync` com `import("@babylonjs/loaders/glTF")` dinâmico. As animações do glTF são descartadas (o movimento vem do VAT), e o skeleton fica no mesh porque o shader só declara `matricesIndices`/`matricesWeights` quando há ossos. O material é trocado por um `StandardMaterial` com o atlas em `NEAREST`, sem mipmaps e sem especular.
 - O mesh fica parentado ao `__root__` do loader, que carrega o espelho X da conversão RH → LH. Por isso as thin instances de modelos glTF (horda e props) conjugam `x` e o yaw (ver `coords.ts`).
 - Inimigos comuns: 1 mesh base por tipo com `BakedVertexAnimationManager` + thin instances (2º buffer por instância `bakedVertexAnimationSettingsInstanced`); chefes/herói/NPC: skeleton normal (provisório até P-06-06).
-- Retrato do Mercador na Shop (A-05-01): `createPortrait(game, canvas, rig)` (`render/character/portrait.ts`) renderiza o rig, que já anima na cena principal, em um `RenderTargetTexture` pequeno (o `canvas.width` da Shop, 160 px) com câmera própria e `renderList` só com os meshes do rig, a cada 2 frames, e copia o resultado para o `<canvas>` da Shop com `readPixels` + `putImageData`. Não usa `engine.registerView`: a view redimensiona o canvas principal (`setSize` com o tamanho do canvas da view) e deixava o jogo borrado depois da loja. Também não há segundo contexto WebGL, segundo atlas nem segundo rig; a UI só exibe e inicia o retrato a partir de 1024 px (`desktop`).
+- O retrato do Mercador saiu com o NPC do mapa (ADR-0030, S-25-01). A loja é HTML: não há `createPortrait` nem segundo render target.
 - Cache HTTP: assets com hash no nome (`atlas_characters.a1b2c3.png`) e `Cache-Control: immutable` (SDD 10).
 
 ## 4. Fontes

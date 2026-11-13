@@ -82,12 +82,15 @@ Rampas derivadas (usadas pelos modelos gerados e pelo refino no Blockbench): par
 | Pântano de Ossos | `#2F4A33` | `#1C2E24` | Lodo `#6B8F3A` | Osso `#D9C9A3` |
 | Forja Infernal | `#2A2524` | `#1A1515` | Brasa `#E07A2A` | Ferrugem `#8A4A2B` |
 | Ninho Biomecânico | `#2A1F2A` | `#17111A` | Carne `#6E2F3F` | Ferro `#5A5F66` |
+| Catacumbas Congeladas | tiles do cemitério, tinta RGB (0,8, 1, 1,4), shade 0,55 | o mesmo do cemitério | props reaproveitados | fog `#18242E` |
 
-Cor do fog por bioma (`fogColor` em `data/biomes.json`): Cemitério Afundado `#14121C` (Noite), Pântano de Ossos `#1A2420`, Forja Infernal `#241614`, Ninho Biomecânico `#161C26`.
+Cor do fog por bioma (`fogColor` em `data/biomes.json`): Cemitério Afundado `#14121C` (Noite), Pântano de Ossos `#1A2420`, Forja Infernal `#241614`, Ninho Biomecânico `#161C26`, Catacumbas Congeladas `#18242E`.
+
+**Clima (S-24-02):** neblina no cemitério, chuva no pântano, brasas na forja, vento no ninho e gelo caindo nas catacumbas. Cubos ao redor do herói, no máximo 30% do `particlePool` do preset; desligado no Mínimo e pela metade com redução de flashes (`weather` em `data/biomes.json` e `data/render.json`).
 
 **Separação de valor (S-01-03, 2026-11-11).** O chão é sempre o valor mais escuro da cena e os personagens ficam acima dele; a leitura do combate depende disso mais que da matiz. Contraste medido (luminância relativa WCAG, `bun run ux:legibility`, `reports/legibility.json`, Cemitério Afundado, semente 7): herói/chão ≥ 3:1 e inimigo/chão ≥ 2,5:1 nos alvos 1920×1080 e 896×414. Alavancas, todas em `LIGHTING` (`packages/render/src/scene/palette.ts`): `floorShade` 0,24 → 0,13 (chão mais escuro), `floorContrast` 0,5 (cada tile de chão mantém metade da própria variação em torno da média, o que tira o ruído do musgo sem mudar o tom do bioma) e `characterGain` 1,4 (ganho de albedo do atlas de personagens: as luzes já saturam o modelo iluminado, então só o albedo o descola do chão). `floorBiomeShade` não muda, então a ordem de brilho entre os cinco biomas se mantém. Pickups, projéteis e emissivos continuam os pontos mais claros: nenhum valor deles foi tocado.
 
-**Os outros biomas (2026-11-11).** `bun run ux:legibility --biome <id>` teleporta o herói para o bioma e grava `reports/legibility-<bioma>.json` (semente 7, 1920×1080 e 896×414, servidor de dev em software). Antes: Pântano de Ossos herói/chão 3,14 e 2,92 (reprovava em 896×414), Forja Infernal 5,32 e 2,90 (reprovava em 896×414), Ninho Biomecânico 5,95 e 3,19. `floorBiomeShade` passou de `[0,55, 0,78, 0,92, 1]` para `[0,55, 0,70, 0,78, 1]`, a ordem de brilho se mantém (Cemitério < Pântano < Forja < Ninho). Depois: Pântano 5,43 e 3,28; Forja 3,04 e 3,10; inimigo/chão ≥ 3,57 em todos. O Cemitério e o Ninho não mudaram (3,45/3,13 e 5,95/3,19). A amostra do herói oscila entre execuções (a janela de 2,4% da altura pega o herói em animação: 0,14 a 0,46 de luminância), então a margem da Forja é estreita; o chão (0,0057 a 0,0135) é o número estável. Há quatro biomas em `data/biomes.json`, não cinco.
+**Os outros biomas (2026-11-11).** `bun run ux:legibility --biome <id>` teleporta o herói para o bioma e grava `reports/legibility-<bioma>.json` (semente 7, 1920×1080 e 896×414, servidor de dev em software). Antes: Pântano de Ossos herói/chão 3,14 e 2,92 (reprovava em 896×414), Forja Infernal 5,32 e 2,90 (reprovava em 896×414), Ninho Biomecânico 5,95 e 3,19. `floorBiomeShade` passou de `[0,55, 0,78, 0,92, 1]` para `[0,55, 0,70, 0,78, 1]`, a ordem de brilho se mantém (Cemitério < Pântano < Forja < Ninho). Depois: Pântano 5,43 e 3,28; Forja 3,04 e 3,10; inimigo/chão ≥ 3,57 em todos. O Cemitério e o Ninho não mudaram (3,45/3,13 e 5,95/3,19). A amostra do herói oscila entre execuções (a janela de 2,4% da altura pega o herói em animação: 0,14 a 0,46 de luminância), então a margem da Forja é estreita; o chão (0,0057 a 0,0135) é o número estável. Essa medição cobre os quatro biomas de 2026-11-11. O quinto, Catacumbas Congeladas (S-24-01), entrou depois com shade 0,55 (igual ao cemitério) e a tinta fria; o contraste dele não foi remediado.
 
 ### 3.3 Semântica de gameplay (obrigatória)
 
@@ -133,7 +136,7 @@ Decisão D22: 1 unidade = 1 m = 1 cubo de terreno. Personagens 64 px por unidade
 
 | Entidade | Altura (u) | Largura (u) | px/u | Elementos (máx.) |
 | --- | --- | --- | --- | --- |
-| Herói (Carrasco) | 1,9 | 0,9 | 64 | 24 |
+| Herói (Warrior; o modelo ainda é o do Carrasco) | 1,9 | 0,9 | 64 | 24 |
 | Inimigo pequeno (Lamento, Sanguessuga) | 0,8–1,0 | 0,6 | 64 | 10 |
 | Inimigo médio (Carcaça, Afogado, Caçador) | 1,6–1,9 | 0,8–1,0 | 64 | 16 |
 | Inimigo grande (Forjado, Reprodutor) | 2,2–2,6 | 1,4 | 64 | 20 |
@@ -290,10 +293,10 @@ Cada arquivo gerado pela ElevenLabs tem um sidecar `<nome>.meta.json`: `{ prompt
 - Fontes: títulos e números em fonte pixel OFL (candidata: "Press Start 2P" ou "Pixelify Sans", Google Fonts, licença OFL; decisão em ADR); corpo em "Inter" (OFL) 14–16 px. Texto sempre com sombra 1 px Noite.
 - Painéis: placas de ferro `#5A5F66` com borda Ferro escuro de 2 px e 4 rebites nos cantos; sem cantos arredondados; fundo Noite a 85%.
 - Botões: mesmo painel, hover com borda Brasa; pressionado com deslocamento de 1 px.
-- Ícones de itens: 32×32 px pixel art, fundo por raridade (§3.3), 1 objeto por ícone, silhueta clara.
+- Loja (v0.7.0, GDD §17): seis slots de equipamento (elmo, armadura, pernas, botas, anel, amuleto), níveis 1 a 10. Não há grade de itens por raridade nem retrato do Mercador.
 - HUD: barras com 2 px de borda, preenchimento com 2 tons (base + luz no topo), números sempre visíveis.
 - Cartas de level-up: 3 painéis 220×300 px (escala UI 100%), ícone grande, título, valor; hover eleva 4 px.
-- Ossuário: ramos radiais em torno de um crânio central; nós como ossos gravados; comprado = runa acesa em Brasa.
+- Ossuário (v0.7.0, GDD §19): uma aba por classe e seis colunas de quadrados (níveis 2 a 10 de cada magia). A árvore radial em torno de um crânio saiu.
 - Ícones desenhados à mão (`assets/src/icons/{item,card,node,weapon}`, 99 PNG, `icons/*` em `assets/src/models/authored.json`; nenhum id fica no placeholder sorteado, e um teste em `tools/assets-gen` cobra isso). Armas (S-09): 1 ícone por id de `data/weapons.json`, de perfil e com a boca para a direita, moldura neutra, usado na loja e no HUD. Regras comuns: glifo em grade de 14×14 blocos de 2 px dentro da moldura de 2 px; só cores da paleta; a leitura depende da forma (modo daltônico, cinza a 64 px), não da cor. Itens: 1 objeto por id, moldura por raridade e, no topo da moldura, 1 a 5 marcas de osso para o tier (a raridade também lê sem cor). Cartas: 1 glifo por atributo. Nós do Ossuário (decisão do Orq): 1 glifo por ramo (5 no total) mais 1 a 6 pontos de osso embaixo para a posição na árvore. Mapeamento ramo → glifo: `flesh` (Carne) pedaço de carne com osso; `steel` (Aço) engrenagem; `shadow` (Sombra) lua crescente; `gold` (Ouro) pilha de moedas; `ruin` (Ruína) coluna quebrada com capitel e escombros. Glifos de luminância média baixa ganham contorno claro de 1 bloco (decisão automática: média < 85; Carne, Sombra e Ruína sempre).
 - Mobile: alvos de toque ≥ 48 px; joystick virtual flutuante; HUD afastado 24 px das bordas (notches).
 - Tailwind v4: paleta de §3 registrada em `@theme` (`--color-bone`, `--color-iron`, `--color-blood`…); nenhuma cor hardcoded em componentes.
@@ -304,7 +307,7 @@ Cada arquivo gerado pela ElevenLabs tem um sidecar `<nome>.meta.json`: `{ prompt
 - SFX: impactos secos e graves, "crunch" de osso em mortes, metal em armaduras; sem sons "cartoon" (pops, molas).
 - Prompts para ElevenLabs Sound Effects seguem o template: `"<objeto/ação>, <material>, <tom: heavy/dry/wet>, <distância>, no music, game sound effect, 16-bit pixel aesthetic not required"`; duração 0,3–1,2 s para hits, 1,5–3 s para mortes de chefe; `prompt_influence` 0,5.
 - Música: loops de 2–3 min por bioma com stem de intensidade; BPM 120–140 no combate, 70–80 no menu.
-- Voz: Mercador grave e rouco, humor seco; chefes com efeitos (reverb de caverna, pitch −2 a −4 semitons aplicados no build, não na API).
+- Voz: chefes com efeitos (reverb de caverna, pitch −2 a −4 semitons aplicados no build, não na API). O Mercador saiu do mapa na v0.7.0; a fala dele não tem onde tocar.
 - Mix: SFX de hit do herói sempre acima da música (sidechain simples: música −3 dB por 0,2 s).
 
 ## 13. O que evitar

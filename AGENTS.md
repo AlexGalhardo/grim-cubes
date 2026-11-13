@@ -19,7 +19,7 @@ Instruções para qualquer agente de código (Claude Code, Codex, Cursor, etc.) 
 | `bun run lint:md` | markdownlint-cli2 |
 | `bun run test` | Vitest (unit + integration) |
 | `bun run test:e2e` | Playwright (4 viewports) |
-| `bun run sim` | simulador de balanceamento (`--hero`, `--difficulty`, `--policy`, `--ossuary`, `--check`) |
+| `bun run sim` | simulador de balanceamento (`--hero warrior\|ranged\|mage`, `--difficulty`, `--policy`, `--ossuary`, `--check`) |
 | `bun run ux:legibility` | mede o contraste herói/chão e inimigo/chão na captura de combate (`reports/legibility.json`; `-- --biome <id>` para outro bioma) |
 | `bun run test:perf` | bench de desempenho (cenários `round20` e `gore-*`) |
 | `bun run release <patch\|minor\|major\|rc>` | release no padrão vukem |
@@ -33,7 +33,7 @@ Lista completa em `CLAUDE.md`; até a fase ESTRUTURA concluir E-02, alguns scrip
 | `docs/gdd.md` | Game Design Document |
 | `docs/art-bible.md` | Art Bible + design system (§16) + alvos de tela (§17) |
 | `docs/sdd/` | Software Design Documents (14) |
-| `docs/adrs/` | Architecture Decision Records (29) |
+| `docs/adrs/` | Architecture Decision Records (30, até o ADR-0030) |
 | `docs/brainstorming.md` | decisões do PO D01–D33 |
 | `docs/web-search.md` | pesquisa com fontes |
 | `docs/PROGRESS.md` | estado compartilhado dos agentes |

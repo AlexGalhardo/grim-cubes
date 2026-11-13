@@ -11,13 +11,13 @@ Os loaders importam os JSON (`resolveJsonModule`; `rootDir: "../.."` só no `tsc
 | Arquivo | Conteúdo |
 | --- | --- |
 | `hero.json` | stats base do herói, caps, fórmulas (armadura, regen, gatilho de roubo de vida), dash, combate (i-frames, contato, knockback, prioridade de alvo), raio |
-| `heroes.json` | os três heróis (S-12-01): arma inicial, sobreposições dos stats base de `hero.json`, passiva (lista de modificadores somada aos stats base) e `tint` do modelo compartilhado; o primeiro é o padrão |
+| `heroes.json` | as três classes (S-20-01): Warrior, Ranged e Mage, cada uma com arma fixa, sobreposições dos stats base de `hero.json`, passiva e `tint`; o Warrior é o padrão |
 | `world.json` | chunk, raios de carga/descarga, chunks por passo, pool, limiar de origin shift, props por chunk (SDD 03) |
 | `props.json` | props: `id`, `sizeClass` (orçamento de elementos, Art Bible §5.1), `kind` |
 | `enemies.json` | 8 tipos: hp/dano base e incremento, velocidade, `walkRefSpeed`, raio, `sizeClass`, behavior, fragmentos, bioma |
 | `elites.json` | 4 modificadores |
-| `bosses.json` | 5 chefes: HP, padrões e fase de entrega (o dano de contato e de projétil dos chefes fica em `rounds.json` `boss`) |
-| `weapons.json` | 5 armas: stats por tier, preços |
+| `bosses.json` | 10 chefes, um a cada 5 rounds (5 a 50): HP, padrões e fase de entrega (o dano de contato e de projétil fica em `rounds.json` `boss`) |
+| `weapons.json` | as três armas das classes (espada, bumerangue, machado mágico); o nível acompanha o nível do herói. Pistola, SMG, metralhadora e bazuca continuam no arquivo para os testes do sistema de arma e não entram na run |
 | `cards.json` | 12 cartas de level-up + regra de carta dupla |
 | `ossuary.json` | os preços da árvore de magias (`levelCosts`, um por nível de 2 a 10) e o corte da demo (`demoMaxLevel`); os nós saem de `spells.json` (S-22-01) |
 | `spells.json` | as seis magias de cada classe (4 automáticas, cura e super), a escala por nível e a carga da super (S-20-02) |
@@ -61,11 +61,11 @@ A loja vende só equipamento (ADR-0030, S-21; `data/equipment.json`, GDD §17). 
 
 ## 6. Simulador de balanceamento (`tools/sim`)
 
-- `bun run sim [--runs N] [--seed S] [--rounds R] [--difficulty normal] [--weapon sword] [--policy greedy|tank] [--ossuary warrior_shockwave_2,warrior_shockwave_3] [--jobs J] [--out arquivo.json] [--check]` roda `game` em Node sem render, com o mesmo `simulate` e a política `greedy-kite` (`tools/sim/lib.ts`: foge dos inimigos próximos atirando/atacando, compra pelo maior valor de stat por preço, carta de maior valor). A run `i` usa a seed `S + i`; as runs se dividem em worker threads (`--jobs`, padrão até 8). Flags desconhecidas falham.
+- `bun run sim [--runs N] [--seed S] [--rounds R] [--difficulty normal] [--hero warrior|ranged|mage] [--policy greedy|kite|tank] [--ossuary <nós>] [--jobs J] [--out arquivo.json] [--check]` roda `game` em Node sem render, com o mesmo `simulate`. Sem `--policy`, `policyForHero` escolhe greedy para o Warrior e o Mago e kite para o Ranged. A run `i` usa a seed `S + i`; as runs se dividem em worker threads (`--jobs`, padrão até 8). Flags desconhecidas falham.
 - Políticas (`tools/sim/policy.ts`, B-02-02): `greedy` (padrão, valor de dano) e `tank` (`--policy tank`, relatório `tank-kite`, arquivo `...-tank.json`): pesa HP máximo, armadura, regeneração e roubo de vida várias vezes mais, valoriza `revive_once` e os efeitos de sobrevivência, compra menos upgrades de arma, fica parada e luta com a vida alta, foge do centro dos inimigos abaixo de 30% de vida (ou de 60% com algo em cima), cede terreno numa multidão com a vida abaixo de 80% e gasta o dash quando está ferida e cercada. O orçamento de passos por round é de 150 s (90 s na greedy), porque a luta contra os chefes dura mais. A greedy não mudou: os hashes das runs ficam iguais.
 - Saída: `reports/sim-<data>-seed<S>-runs<N>.json` (ignorado pelo git; relatórios de fechamento commitados usam outro nome, ex.: `reports/balance-a0203-final.json`) e um resumo no terminal: distribuição do round de morte (p50, IQR, quantas ficaram vivas), tempo de kill e pilhas de fúria por chefe, ouro/preço e level-ups por round.
 - `tools/sim/tune.ts` roda a simulação em memória com overrides temporários dos dados (HP e dano dos inimigos, HP e padrões dos chefes, grupos de `rounds.json`) para experimentar sem editar `data/*.json`; nada é gravado, e os números vencedores são copiados à mão para o JSON.
-- Alvos (`tools/sim/report.ts`, GDD §25, Normal; um alvo é pulado quando as runs são curtas demais para julgá-lo): p50 de morte em [18, 26]; IQR de morte ≤ 25; no máximo 45% das runs vivas no horizonte (`ALIVE_LIMIT`); tempo de kill por chefe na faixa do chefe (Coveiro [45, 90] s, demais [60, 120] s); pilhas de fúria < 3; ouro/preço em [1,2, 1,8]; level-ups/round em [1, 2] nos rounds 5–20. As faixas mudam com `--difficulty` e `--policy` (`rangesFor` em `report.ts`, GDD §25.1; decisão do Orq de 2026-10-31): greedy p50 18–26 / 14–22 / 11–18 em Normal / Grim / Nightmare, tank 26–35 (Nightmare ≥ 30), com os perfis de Ossuário de referência no Grim e no Nightmare. Com `--check`, alvo falho encerra com código 3; o job `balance` do CI roda dois conjuntos de 64 runs × 35 rounds, seeds 1 e 1001.
+- Alvos (`tools/sim/report.ts`, GDD §25.3, S-26): p50 de morte 18–26 / 14–22 / 11–18 em Normal / Grim / Nightmare para bot que não é tank; IQR ≤ 25; no máximo 45% das runs vivas (`ALIVE_LIMIT`); kill do chefe 12–120 s no round 5, 25–90 s no Coveiro (round 10), 40–120 s nos rounds 15 e 20, e 40–180 s do round 25 em diante quando o bot não é tank; fúria < 3; ouro por preço da peça 1–1,6; level-ups/round 1–2. Chefe que ninguém matou não tem tempo de kill para julgar. Com `--check`, alvo falho encerra com código 3. O CI (`balance.yml`) roda o Warrior em Normal, seeds 1 e 1001, 64 runs × 35 rounds. A matriz local das três classes está em `reports/balance-<classe>-<dificuldade>-s<seed>.json`.
 - Velocidade alvo: ≥ 10.000 rounds/min em Node (sem render, sem VFX).
 
 ## 7. Testes
