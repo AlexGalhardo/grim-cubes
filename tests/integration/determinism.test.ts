@@ -10,11 +10,10 @@ const run = (seed: number, maxSteps = STEPS) => runSim({ seed, rounds: 50, diffi
 /**
  * Re-anchor (update this value) whenever a task legitimately changes the simulation, e.g. P-05-07 (SDD 11 section 2).
  * A change that is NOT meant to alter the simulation must leave it untouched.
- * 3295391398 to 1239763461 (S-21 and S-25 on top of the classes): the equipment shop (its own RNG draws and the gold it
- * spends), the fragment and relic drops, and the item engine leaving (the fragment double-drop roll no longer
- * consumes the loot stream).
+ * 1239763461 to 1340517615 (S-26): class damage, the Mage's HP and pickup, and boss HP were lowered, so the
+ * seed-42 trajectory changed. The two runs still match each other.
  */
-const ANCHOR_SEED_42_3600 = 1239763461;
+const ANCHOR_SEED_42_3600 = 1340517615;
 
 describe("determinism (seed 42, 3600 steps)", () => {
 	it("two runs end in the same world", () => {
