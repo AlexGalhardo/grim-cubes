@@ -6,7 +6,7 @@ Atualizado: 2026-11-12 (fuso do PO) | Versão: 0.6.0 | Fase: ROADMAP Parte 1A (S
 
 A Parte 1A está na `feat/v0.7-shop` (worktree `C:\dev\grim-cubes-shop`). S-19 a S-25 já estavam commitadas. A S-26 fechou com `sim --check` nas 18 combinações (Warrior, Ranged e Mago × Normal, Grim e Nightmare × seeds 1 e 1001, 64 runs × 35 rounds). Relatórios em `reports/balance-<classe>-<dificuldade>-s<seed>.json`. A `feat/v0.7-redesign` ficou para trás: ela tem a arena, os biomas e uma cópia dos chefes, sem classes, loja nem este balanceamento.
 
-A S-27 (docs que ainda faltam, baselines do Playwright e a release `v0.7.0`) não foi feita. Nada foi para a `main`.
+A S-27 alinhou a documentação ao loop (Art Bible, SDDs 05, 08, 09 e 14, `CLAUDE.md` e `AGENTS.md`) e regenerou as baselines win32 do Playwright nos quatro alvos. Os specs que ainda descreviam o loop antigo passaram de novo: Ossuário, dash, dificuldade, chefe (4800 de HP, e a morte dele encerra a demo com uma relíquia), Coveiro, gamepad (para na escolha de herói), HUD e resultados (o save expõe o recorde Grim). As baselines linux continuam as antigas: quem as grava é o job de CI, e isso pede um push. A release `v0.7.0` não foi cortada. Nada foi para a `main`. A S-27-01 segue aberta por causa disso.
 
 ## Sessão #4 (2026-11-11)
 

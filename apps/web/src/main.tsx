@@ -2436,7 +2436,25 @@ async function boot(): Promise<void> {
 			killHero: () => {
 				Health.hp[hero] = 0;
 			},
-			meta: () => ({ souls: meta.souls, record: meta.records.normal, runs: meta.stats.runs }),
+			meta: () => ({
+				souls: meta.souls,
+				record: meta.records.normal,
+				grim: meta.records.grim,
+				runs: meta.stats.runs,
+			}),
+			setRecord: (difficulty: string, round: number) => {
+				if (
+					difficulty !== "easy" &&
+					difficulty !== "normal" &&
+					difficulty !== "grim" &&
+					difficulty !== "nightmare"
+				) {
+					throw new Error(`unknown difficulty ${difficulty}`);
+				}
+				changeOssuary((m) => {
+					m.records[difficulty] = round;
+				});
+			},
 			/** Nearest loaded blocking prop taller than propFade.minHeight, in scene coordinates (P-02-03). */
 			tallProp: () => {
 				let best: { x: number; z: number; radius: number } | null = null;
@@ -2538,22 +2556,27 @@ async function boot(): Promise<void> {
 				frozenAt = performance.now();
 			},
 			/**
-			 * Steps the simulation, synchronously and one fixed step per frame, from round 9's shop to the first frame of the
-			 * boss round (boss on the field), then freezes. The same step count on every run: a capture of the boss
-			 * no longer depends on how fast the machine renders.
+			 * Steps the simulation, synchronously and one fixed step per frame, to the first frame of round 10 (the
+			 * Gravedigger on the field), then freezes. A level-up pauses the run, so pending cards are taken; the shop
+			 * between round 9 and the boss is closed. The capture no longer depends on how fast the machine renders.
 			 */
 			toBossFrame: () => {
-				run.setRound(9);
-				run.forceEnd(world);
-				if (run.state === "Shop") run.closeShop();
-				// A previous freeze() leaves the loop paused: frame() would not advance it.
+				// A previous freeze() leaves the loop paused: frame() would not advance it. forceEnd only ends a round
+				// that has already started, so the intro has to finish before round 9 can be closed into the boss.
 				loop.resume();
 				let now = performance.now();
-				for (let i = 0; i < 1200 && !(run.state === "BossRound" && boss.view() !== null); i++) {
+				const advance = (): void => {
+					if (levelUp.offer) levelUp.choose(0);
+					else if (run.state === "Paused") run.resume();
 					if (run.state === "Shop") run.closeShop();
 					now += STEP * 1000;
 					loop.frame(now);
-				}
+				};
+				for (let i = 0; i < 600 && run.state !== "Round" && run.state !== "BossRound"; i++) advance();
+				run.setRound(9);
+				run.forceEnd(world);
+				for (let i = 0; i < 1200 && !(run.state === "BossRound" && boss.view() !== null); i++)
+					advance();
 				if (run.state !== "BossRound" || boss.view() === null) {
 					throw new Error(`toBossFrame did not reach the boss round (state ${run.state})`);
 				}

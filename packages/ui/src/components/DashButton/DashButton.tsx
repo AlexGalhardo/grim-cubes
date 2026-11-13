@@ -14,7 +14,7 @@ export interface DashButtonProps {
 	onHold(down: boolean): void;
 }
 
-/** Touch dash button, bottom right (GDD 17.2). Hidden until the Ossuary unlocks the dash. */
+/** Touch dash button, bottom right. The dash itself is unlocked from the start (S-22-01). */
 export function DashButton({ view, onHold }: DashButtonProps): JSX.Element {
 	const press = (e: PointerEvent<HTMLButtonElement>): void => {
 		e.currentTarget.setPointerCapture?.(e.pointerId);

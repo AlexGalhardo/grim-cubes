@@ -45,5 +45,7 @@ test("the Gravedigger is drawn as a skeleton character, not as a Husk", async ({
 	});
 	await expect(page.locator("canvas#game")).toHaveScreenshot(`gravedigger-${testInfo.project.name}.png`, {
 		animations: "disabled",
+		// A 2560x1440 canvas on SwiftShader needs longer than the 20 s expect timeout to sit still for two captures.
+		timeout: 60_000,
 	});
 });

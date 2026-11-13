@@ -13,7 +13,9 @@ const START = 9;
 const DPAD_UP = 12;
 
 // Needs a build made with GC_DEBUG_API=1 (the virtual pad is compiled out of release builds). Not run in CI.
-test("menu, slots, difficulty and pause can all be reached with the gamepad alone", async ({ page }) => {
+test("menu, slots, hero, difficulty and pause can all be reached with the gamepad alone", async ({
+	page,
+}) => {
 	test.slow();
 	await page.goto("/?gamepad=1");
 	await page.waitForFunction(() => (window as unknown as PadGc).gc?.ready === true);
@@ -33,12 +35,26 @@ test("menu, slots, difficulty and pause can all be reached with the gamepad alon
 	await expect(page.getByTestId("slots")).toBeVisible();
 	await page.waitForTimeout(200);
 	await pad.tap(A);
+	await expect(page.getByTestId("heroes")).toBeVisible();
+	await page.waitForTimeout(200);
+	// Up from the first hero wraps to the last control, "Escolher".
+	await pad.tap(DPAD_UP);
+	await expect(page.getByRole("button", { name: "Escolher" })).toBeFocused();
+	await pad.tap(A);
 	await expect(page.getByRole("dialog", { name: "Dificuldade" })).toBeVisible();
 	await page.waitForTimeout(200);
 	// Up from the first control wraps to the last one, "Começar".
 	await pad.tap(DPAD_UP);
 	await expect(page.getByRole("button", { name: "Começar" })).toBeFocused();
-	await pad.tap(A);
+	// A reloads the page into the run, so the tap's evaluate can die with the old document.
+	const navigated = page.waitForURL(/[?&]difficulty=/);
+	try {
+		await pad.tap(A);
+	} catch (error) {
+		if (!(error instanceof Error) || !error.message.includes("Execution context was destroyed"))
+			throw error;
+	}
+	await navigated;
 
 	// The page reloads into the run; the pad starts disconnected again.
 	await page.waitForFunction(() => (window as unknown as PadGc).gc?.ready === true);

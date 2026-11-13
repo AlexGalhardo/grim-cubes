@@ -33,7 +33,7 @@ async function openBossRound(page: Page): Promise<void> {
 	await expect(page.getByTestId("boss-bar")).toBeVisible({ timeout: 40_000 });
 	await expect(page.getByRole("progressbar", { name: "O Coveiro" })).toHaveAttribute(
 		"aria-valuemax",
-		"1200",
+		"4800",
 	);
 }
 
@@ -50,12 +50,13 @@ test("round 10: the boss scene matches the baseline", async ({ page }, testInfo)
 	});
 });
 
-test("round 10: boss death, one relic and back to the shop", async ({ page }) => {
+test("round 10: boss death grants one relic and ends the demo", async ({ page }) => {
 	test.slow();
 	await openBossRound(page);
 
 	await page.evaluate(() => (window as unknown as DebugGc).gc?.debug?.killBoss());
 	await expect(page.getByTestId("boss-bar")).toHaveCount(0, { timeout: 40_000 });
-	await expect(page.getByTestId("shop-slot-0")).toBeVisible({ timeout: 40_000 });
-	await expect(page.getByTestId("shop-materials")).toContainText("Relíquias: 1");
+	// The web demo settles on the Gravedigger's shop and never opens it (round 11 does not exist here).
+	await expect(page.getByRole("heading", { name: "O Coveiro caiu" })).toBeVisible({ timeout: 40_000 });
+	await expect(page.getByTestId("hud-relics")).toContainText("1");
 });

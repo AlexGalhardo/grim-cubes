@@ -6,8 +6,9 @@ interface DebugGc {
 		debug?: {
 			state(): { run: string; round: number };
 			killHero(): void;
-			toRound(n: number): void;
 			difficulty(): string;
+			meta(): { record: number; grim: number };
+			setRecord(difficulty: string, round: number): void;
 		};
 	};
 }
@@ -27,12 +28,14 @@ test("Nightmare stays locked below a Grim record of 20, Grim is open, and the ty
 	await expect.poll(() => debug((d) => d.state().run), { timeout: 10_000 }).toBe("Round");
 	expect(await debug((d) => d.difficulty())).toBe("normal");
 
-	await debug((d) => d.toRound(20));
-	await expect(page.getByTestId("shop-slot-0")).toBeVisible({ timeout: 15_000 });
-	await page.keyboard.press("Enter");
-	await expect.poll(() => debug((d) => d.state().round), { timeout: 15_000 }).toBe(20);
+	// The demo ends at the Gravedigger's shop, so a round-20 death never happens here. The record is
+	// written straight into the save: a Normal 20 does not unlock Nightmare, and Grim 19 is still short of 20.
+	await debug((d) => d.setRecord("normal", 20));
+	await debug((d) => d.setRecord("grim", 19));
+	await expect.poll(() => debug((d) => d.meta().record)).toBe(20);
+	await expect.poll(() => debug((d) => d.meta().grim)).toBe(19);
 	await debug((d) => d.killHero());
-	await expect(page.getByTestId("results-round")).toHaveText("20", { timeout: 20_000 });
+	await expect(page.getByTestId("results-round")).toHaveText("1", { timeout: 20_000 });
 	await expect(page.getByTestId("results-record")).toContainText("20", { timeout: 10_000 });
 
 	await page.getByRole("button", { name: "Jogar de novo" }).click();
@@ -52,6 +55,6 @@ test("Nightmare stays locked below a Grim record of 20, Grim is open, and the ty
 	await page.waitForFunction(() => (window as unknown as DebugGc).gc?.ready === true);
 	expect(new URL(page.url()).searchParams.get("seed")).toBe("7");
 	expect(new URL(page.url()).searchParams.get("difficulty")).toBe("grim");
-	expect(new URL(page.url()).searchParams.get("hero")).toBe("executioner");
+	expect(new URL(page.url()).searchParams.get("hero")).toBe("warrior");
 	expect(await debug((d) => d.difficulty())).toBe("grim");
 });

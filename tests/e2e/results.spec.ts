@@ -6,7 +6,7 @@ interface DebugGc {
 		debug?: {
 			state(): { run: string; round: number };
 			killHero(): void;
-			meta(): { souls: number; record: number; runs: number };
+			meta(): { souls: number; record: number; grim: number; runs: number };
 		};
 	};
 }
@@ -41,5 +41,5 @@ test("dying shows the results, credits souls and the record, and they survive a 
 	await page.reload();
 	await page.waitForFunction(() => (window as unknown as DebugGc).gc?.ready === true);
 	const meta = await page.evaluate(() => (window as unknown as DebugGc).gc?.debug?.meta());
-	expect(meta).toEqual({ souls: 5, record: 1, runs: 1 });
+	expect(meta).toEqual({ souls: 5, record: 1, grim: 0, runs: 1 });
 });

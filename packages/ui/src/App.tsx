@@ -96,7 +96,7 @@ export interface HudState {
 	speed: number;
 	/** The options screen; null while closed. */
 	options: OptionsViewModel | null;
-	/** Null until the Ossuary unlocks the dash. */
+	/** Null on desktop, where the dash is the Space key. Touch draws the button. */
 	dash: DashView | null;
 	/** The heal and the super buttons and the super charge; null outside a fight. */
 	spells: SpellsView | null;

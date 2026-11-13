@@ -31,6 +31,8 @@ test("the HUD clusters stay out of the hero's central area and do not overlap ea
 			timeout: 40_000,
 		})
 		.toBe("Round");
+	// The round plate is mounted only once the clock is running; state flips a frame ahead of that.
+	await expect(page.getByTestId("hud-round")).toBeVisible();
 
 	const { viewport, boxes } = await page.evaluate(() => {
 		const out: { id: string; x: number; y: number; w: number; h: number }[] = [];
