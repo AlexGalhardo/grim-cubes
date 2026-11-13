@@ -246,12 +246,14 @@ test("the boomerang hits 3 targets at level 1 and 20 at level 10, one more hop t
 	expect(at(9)).toBe(20);
 });
 
-test("the magic axe hits everything around the hero and its radius doubles at level 10", () => {
+test("the magic axe hits everything inside its arc and its radius doubles at level 10", () => {
 	const one = setup("magic_axe");
 	const r1 = one.weapon.range;
+	// The swing faces the nearest enemy and covers 240°. The enemy on the far side of that arc is skipped.
 	one.add(-1.5, 0);
-	one.add(1.5, 1);
-	one.add(0, -2);
+	one.add(-1.2, 0.8);
+	one.add(-1.2, -0.8);
+	one.add(2, 0);
 	one.tick();
 	expect(one.damage.queue.size).toBe(3);
 	const ten = setup("magic_axe", 9);
